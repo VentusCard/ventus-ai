@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   Layers,
@@ -82,6 +82,8 @@ type Destination = {
 };
 
 
+type Detection = { ev: string; to: string; basis: "1P" | "Ext" | "Both" };
+
 type SignalDetail = {
   label: string;
   icon: React.ElementType;
@@ -89,6 +91,7 @@ type SignalDetail = {
   tint: string;
   dot: string;
   description: string;
+  examples: Detection[];
   items: { label: string; sublabel: string; icon?: React.ElementType }[];
 };
 
@@ -100,6 +103,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-amber-50 text-amber-700 border-amber-200",
     dot: "bg-amber-500",
     description: "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds.",
+    examples: [
+      { ev: "Title + escrow payment", to: "Home purchase in progress", basis: "1P" },
+      { ev: "OB visits + registry spend", to: "New baby, ~2 months out", basis: "1P" },
+      { ev: "Bureau tradeline maturing", to: "Auto loan renewal window", basis: "Ext" },
+      { ev: "Bursar deposit + college tours", to: "Dependent starting college", basis: "Both" },
+    ],
     items: [
       { label: "Home Purchase", sublabel: "Realtor, title/escrow, mortgage, HOA setup, first mortgage payment" },
       { label: "New Baby", sublabel: "OB/midwife, buybuy BABY, pediatrician, daycare, hospital L&D" },
@@ -119,6 +128,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-blue-50 text-blue-700 border-blue-200",
     dot: "bg-blue-500",
     description: "Recurring spending habits classified across 11 lifestyle pillars from merchant and subcategory clusters.",
+    examples: [
+      { ev: "4 airline + 3 hotel bookings", to: "Travel & exploration, top pillar", basis: "1P" },
+      { ev: "Weekly Chewy + vet visits", to: "Pet care routine", basis: "1P" },
+      { ev: "Equinox + Lululemon cadence", to: "Sports & active living", basis: "1P" },
+      { ev: "Anchor flight + out-of-zip spend", to: "Trip reconstructed, 6 nights", basis: "Both" },
+    ],
     items: [
       { label: "Sports & Active Living", sublabel: "Equinox, Lululemon, REI, fitness classes, team leagues" },
       { label: "Food & Dining", sublabel: "Whole Foods, Starbucks, Chipotle, delivery, meal kits" },
@@ -140,6 +155,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
     dot: "bg-emerald-500",
     description: "Cash-flow, balance, and credit posture inferred from payroll, deposit, and outflow streams.",
+    examples: [
+      { ev: "Outbound ACH to brokerage", to: "Investable assets held away", basis: "1P" },
+      { ev: "Payroll ACH, steady cadence", to: "Active primary income", basis: "1P" },
+      { ev: "Mortgage servicer outflow", to: "Active mortgage payer", basis: "1P" },
+      { ev: "Deposit balance trending up", to: "Growing idle cash tier", basis: "Both" },
+    ],
     items: [
       { label: "Active payroll deposit", sublabel: "Recurring employer ACH on a consistent cadence" },
       { label: "Recent large inflow", sublabel: "One-off deposit well above payroll baseline (windfall, bonus)" },
@@ -159,6 +180,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-violet-50 text-violet-700 border-violet-200",
     dot: "bg-violet-500",
     description: "Behaviorally inferred household and life-stage attributes with direct product and timing implications.",
+    examples: [
+      { ev: "Merchant services + wholesale", to: "Small business owner", basis: "1P" },
+      { ev: "Two payroll streams, one address", to: "Dual-income household", basis: "1P" },
+      { ev: "Two mortgage + HOA streams", to: "Multi-property household", basis: "Both" },
+      { ev: "Quarterly estimated tax", to: "Self-employed household", basis: "1P" },
+    ],
     items: [
       { label: "Likely homeowner", sublabel: "Mortgage, Home Depot/Lowe's, HOA fees" },
       { label: "Parent of young children", sublabel: "Daycare, pediatric, Carter's, infant formula volume" },
@@ -182,6 +209,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-rose-50 text-rose-700 border-rose-200",
     dot: "bg-rose-500",
     description: "Deterministic keyword/MCC flags for Vice and Financial Distress plus model-routed AML, bucketed with severity scores.",
+    examples: [
+      { ev: "Deposits just under $10K", to: "AML structuring pattern", basis: "1P" },
+      { ev: "Payday lender outflows", to: "Financial distress, weight 5", basis: "1P" },
+      { ev: "Repeat NSF fee events", to: "Overdraft escalation", basis: "1P" },
+      { ev: "Cross-border wires off-zip", to: "Suspicious international", basis: "Both" },
+    ],
     items: [
       { label: "Adult entertainment", sublabel: "OnlyFans, cam sites, adult processors (CCBill/Epoch), MCC 5967" },
       { label: "Offshore gambling", sublabel: "Bovada, Stake.com, Roobet, Curaçao books (weight 5)" },
@@ -359,6 +392,99 @@ const BASIS_BADGE_DARK: Record<string, string> = {
   Both: "bg-white/[0.08] text-slate-200",
   Modeled: "bg-amber-400/15 text-amber-200",
 };
+
+const DETECTION_BASIS_CLASS: Record<Detection["basis"], string> = {
+  "1P": "bg-sky-400/15 text-sky-200",
+  Ext: "bg-amber-400/15 text-amber-200",
+  Both: "bg-white/[0.08] text-slate-200",
+};
+
+/* A single standing signal section with a rolling detection ticker. */
+function SignalSection({
+  signal,
+  count,
+  isActive,
+  startDelay,
+  interval,
+  onSelect,
+}: {
+  signal: SignalDetail;
+  count: string;
+  isActive: boolean;
+  startDelay: number;
+  interval: number;
+  onSelect: () => void;
+}) {
+  const [idx, setIdx] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    let id: number;
+    const start = window.setTimeout(() => {
+      id = window.setInterval(() => {
+        setIdx((i) => (i + 1) % signal.examples.length);
+      }, interval);
+    }, startDelay);
+    return () => {
+      window.clearTimeout(start);
+      window.clearInterval(id);
+    };
+  }, [signal.examples.length, startDelay, interval]);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.classList.remove("animate-rollup");
+    void el.offsetWidth;
+    el.classList.add("animate-rollup");
+  }, [idx]);
+
+  const e = signal.examples[idx];
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
+        "border-white/[0.08] bg-white/[0.045]",
+        isActive ? "border-white/25 bg-white/[0.11]" : "hover:bg-white/[0.08]",
+      )}
+    >
+      <span className={cn("absolute inset-y-0 left-0 w-[3px]", signal.color)} />
+      <span className="mb-0.5 flex items-center gap-2">
+        <span
+          className={cn("h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10", signal.dot)}
+        />
+        <span className="text-[12.5px] font-semibold tracking-tight text-slate-100">{signal.label}</span>
+        <span className="ml-auto font-mono text-[11px] tabular-nums text-slate-400">
+          <b className="font-semibold text-slate-200">{count}</b> · 24h
+        </span>
+      </span>
+      <span className="relative mt-0.5 block h-5 overflow-hidden">
+        <div ref={trackRef} className="absolute inset-x-0 top-0">
+          <div className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300">
+            <span className="truncate font-medium text-slate-200">{e.ev}</span>
+            <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
+            <span className="truncate text-slate-400">{e.to}</span>
+            <span
+              className={cn(
+                "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
+                DETECTION_BASIS_CLASS[e.basis],
+              )}
+            >
+              {e.basis}
+            </span>
+          </div>
+        </div>
+      </span>
+    </button>
+  );
+}
+
+
 
 function Sparkline({ points, stroke }: { points: string; stroke: string }) {
   return (
@@ -667,56 +793,21 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
                 <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
-                  Signals detected
+                  Signals · what we detect
                 </div>
                 <div className="flex flex-col gap-2">
-                  {SIGNALS.map((s) => {
-                    const isActive = s.label === activeSignalLabel;
+                  {SIGNALS.map((s, i) => {
                     const row = signalRows.find((r) => r.label === s.label);
                     return (
-                      <button
-                        type="button"
+                      <SignalSection
                         key={s.label}
-                        onClick={() => selectSignal(s.label)}
-                        className={cn(
-                          "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
-                          "border-white/[0.08] bg-white/[0.045] text-white",
-                          isActive
-                            ? "border-white/25 bg-white/[0.11]"
-                            : "hover:bg-white/[0.08]",
-                        )}
-                      >
-                        <span className={cn("absolute inset-y-0 left-0 w-[3px]", s.color)} />
-                        <span className="mb-1 flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10",
-                              s.dot,
-                            )}
-                          />
-                          <span className="min-w-0 truncate text-[12.5px] font-semibold tracking-tight text-slate-100">
-                            {s.label}
-                          </span>
-                        </span>
-                        <span className="flex items-center gap-2 font-mono text-[10.5px] leading-none text-slate-400">
-                          <span className="flex-none tabular-nums">
-                            <b className="font-semibold text-slate-200">
-                              {row ? row.detected.toLocaleString() : "—"}
-                            </b>{" "}
-                            · 24h
-                          </span>
-                          <span
-                            className={cn(
-                              "ml-auto flex-none rounded px-1.5 py-px text-[9px] tracking-wide",
-                              BASIS_BADGE_DARK[row?.basis ?? "First-party"],
-                            )}
-                          >
-                            {(row?.basis ?? "First-party") === "First-party"
-                              ? "1P"
-                              : row?.basis ?? "First-party"}
-                          </span>
-                        </span>
-                      </button>
+                        signal={s}
+                        count={row ? row.detected.toLocaleString() : "—"}
+                        isActive={s.label === activeSignalLabel}
+                        startDelay={i * 420}
+                        interval={2600 + i * 160}
+                        onSelect={() => selectSignal(s.label)}
+                      />
                     );
                   })}
                 </div>
