@@ -694,8 +694,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
           </h1>
           <p className="mt-1.5 max-w-[78ch] text-[13.5px] text-slate-500">
-            Every data source, the intelligence core, and every activation destination in one view. One enrichment
-            layer feeds every channel of record — each team reads from the same canonical customer signal.
+            Customer intelligence and banking personalization system with tools for analytics, growth and retention.
           </p>
         </div>
         <div className="flex flex-none items-center gap-2.5">
