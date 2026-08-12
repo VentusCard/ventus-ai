@@ -423,7 +423,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         style={collapsed ? undefined : { width: sidebarWidth }}
         className={cn(
           "relative shrink-0 h-full flex flex-col",
-          "bg-[#2E5BBA]",
+          "bg-[#1E3A8A]",
           collapsed ? "w-[52px] transition-all duration-200" : !isResizing && "transition-all duration-200"
         )}
       >
