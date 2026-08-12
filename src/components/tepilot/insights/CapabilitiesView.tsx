@@ -793,56 +793,21 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
                 <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
-                  Signals detected
+                  Signals · what we detect
                 </div>
                 <div className="flex flex-col gap-2">
-                  {SIGNALS.map((s) => {
-                    const isActive = s.label === activeSignalLabel;
+                  {SIGNALS.map((s, i) => {
                     const row = signalRows.find((r) => r.label === s.label);
                     return (
-                      <button
-                        type="button"
+                      <SignalSection
                         key={s.label}
-                        onClick={() => selectSignal(s.label)}
-                        className={cn(
-                          "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
-                          "border-white/[0.08] bg-white/[0.045] text-white",
-                          isActive
-                            ? "border-white/25 bg-white/[0.11]"
-                            : "hover:bg-white/[0.08]",
-                        )}
-                      >
-                        <span className={cn("absolute inset-y-0 left-0 w-[3px]", s.color)} />
-                        <span className="mb-1 flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10",
-                              s.dot,
-                            )}
-                          />
-                          <span className="min-w-0 truncate text-[12.5px] font-semibold tracking-tight text-slate-100">
-                            {s.label}
-                          </span>
-                        </span>
-                        <span className="flex items-center gap-2 font-mono text-[10.5px] leading-none text-slate-400">
-                          <span className="flex-none tabular-nums">
-                            <b className="font-semibold text-slate-200">
-                              {row ? row.detected.toLocaleString() : "—"}
-                            </b>{" "}
-                            · 24h
-                          </span>
-                          <span
-                            className={cn(
-                              "ml-auto flex-none rounded px-1.5 py-px text-[9px] tracking-wide",
-                              BASIS_BADGE_DARK[row?.basis ?? "First-party"],
-                            )}
-                          >
-                            {(row?.basis ?? "First-party") === "First-party"
-                              ? "1P"
-                              : row?.basis ?? "First-party"}
-                          </span>
-                        </span>
-                      </button>
+                        signal={s}
+                        count={row ? row.detected.toLocaleString() : "—"}
+                        isActive={s.label === activeSignalLabel}
+                        startDelay={i * 420}
+                        interval={2600 + i * 160}
+                        onSelect={() => selectSignal(s.label)}
+                      />
                     );
                   })}
                 </div>
