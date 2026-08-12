@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 
 import {
   Layers,
@@ -408,136 +408,60 @@ function getTeamDestinations(teamLabel: string): string[] {
   return Array.from(dests);
 }
 
-function NetworkWires({ leftCount, rightCount, centered }: { leftCount: number; rightCount: number; centered?: boolean }) {
-  const gradId = useId().replace(/:/g, "");
-  const SRC_X = 0;
-  const CORE_LEFT = 38;
-  const CORE_RIGHT = 62;
-  const DST_X = 100;
-
-  const leftYs = Array.from({ length: leftCount }, (_, i) => ((i + 0.5) / leftCount) * 100);
-  let rightYs: number[];
-  if (centered && rightCount > 0) {
-    const blockHeight = Math.min(72, Math.max(24, rightCount * 12));
-    const startY = (100 - blockHeight) / 2;
-    rightYs = Array.from({ length: rightCount }, (_, i) => startY + ((i + 0.5) / rightCount) * blockHeight);
-  } else {
-    rightYs = Array.from({ length: rightCount }, (_, i) => ((i + 0.5) / rightCount) * 100);
-  }
-
+function Connector({ amber }: { amber?: boolean }) {
+  const stroke = amber ? "#D9A441" : "#94A3B8";
   return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      aria-hidden
-    >
-      <defs>
-        <linearGradient id={`flow-${gradId}`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#c7d2fe" />
-          <stop offset="50%" stopColor="#6366f1" />
-          <stop offset="100%" stopColor="#a5b4fc" />
-        </linearGradient>
-      </defs>
-
-      {leftYs.map((y, i) => (
-        <g key={`L${i}`}>
-          <path
-            d={`M ${SRC_X} ${y} C ${(SRC_X + CORE_LEFT) / 2} ${y}, ${(SRC_X + CORE_LEFT) / 2} 50, ${CORE_LEFT} 50`}
-            fill="none"
-            stroke={`url(#flow-${gradId})`}
-            strokeWidth="0.7"
-            strokeLinecap="round"
-            strokeDasharray="1.4 1.8"
-            opacity="0.85"
-            vectorEffect="non-scaling-stroke"
-          >
-            <animate
-              attributeName="stroke-dashoffset"
-              from="0"
-              to="-12"
-              dur="2.6s"
-              begin={`${(i * 0.18).toFixed(2)}s`}
-              repeatCount="indefinite"
-            />
-          </path>
-        </g>
-      ))}
-
-      {rightYs.map((y, i) => (
-        <g key={`R${i}`}>
-          <path
-            d={`M ${CORE_RIGHT} 50 C ${(CORE_RIGHT + DST_X) / 2} 50, ${(CORE_RIGHT + DST_X) / 2} ${y}, ${DST_X} ${y}`}
-            fill="none"
-            stroke={`url(#flow-${gradId})`}
-            strokeWidth="0.7"
-            strokeLinecap="round"
-            strokeDasharray="1.4 1.8"
-            opacity="0.85"
-            vectorEffect="non-scaling-stroke"
-          >
-            <animate
-              attributeName="stroke-dashoffset"
-              from="0"
-              to="-12"
-              dur="2.6s"
-              begin={`${(i * 0.22 + 0.4).toFixed(2)}s`}
-              repeatCount="indefinite"
-            />
-          </path>
-        </g>
-      ))}
-
-      {leftYs.map((y, i) => (
-        <circle key={`pl${i}`} cx={CORE_LEFT} cy={50} r="0.5" fill="#6366f1" vectorEffect="non-scaling-stroke" />
-      ))}
-      {rightYs.map((y, i) => (
-        <circle key={`pr${i}`} cx={CORE_RIGHT} cy={50} r="0.5" fill="#6366f1" vectorEffect="non-scaling-stroke" />
-      ))}
-    </svg>
+    <div className="flex items-center justify-center py-3 lg:py-0" aria-hidden>
+      <svg
+        width="52"
+        height="20"
+        viewBox="0 0 52 20"
+        fill="none"
+        className="opacity-60 max-lg:rotate-90"
+      >
+        <path
+          d="M2 10H43"
+          stroke={stroke}
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeDasharray="3 3"
+        />
+        <path
+          d="M40 5.5L46.5 10L40 14.5"
+          stroke={stroke}
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
   );
 }
+
 
 function NodeCard({
   icon: Icon,
   label,
   sublabel,
-  accent = "slate",
-  side,
 }: {
   icon: React.ElementType;
   label: string;
   sublabel: string;
   accent?: "slate" | "indigo";
-  side: "left" | "right";
+  side?: "left" | "right";
 }) {
-  const accentClass =
-    accent === "indigo"
-      ? "bg-indigo-50 text-indigo-600 border-indigo-100"
-      : "bg-slate-100 text-slate-600 border-slate-200";
-  const hoverBorder = accent === "indigo" ? "hover:border-indigo-300" : "hover:border-emerald-300";
-
   return (
-    <div
-      className={cn(
-        "relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-slate-200 bg-white shadow-sm transition-colors",
-        hoverBorder,
-      )}
-    >
-      <div className={cn("flex items-center justify-center w-7 h-7 rounded-md shrink-0 border", accentClass)}>
-        <Icon className="w-3.5 h-3.5" />
+    <div className="flex items-center gap-2.5 rounded-[10px] border border-slate-100 bg-white px-2.5 py-2.5 transition-colors hover:border-slate-200">
+      <div className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+        <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold text-slate-900 leading-tight truncate">{label}</div>
-        <div className="text-[10.5px] text-slate-500 leading-tight truncate mt-0.5">{sublabel}</div>
+        <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{label}</div>
+        <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div>
       </div>
-      <span
-        className={cn(
-          "absolute top-1.5 w-1.5 h-1.5 rounded-full",
-          side === "left" ? "right-2 bg-emerald-500" : "left-2 bg-emerald-500",
-          "animate-pulse",
-        )}
-      />
+      <span className="flex-none rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] text-emerald-600">
+        Live
+      </span>
     </div>
   );
 }
@@ -552,41 +476,45 @@ function SourceGroupCard({
   onSelect: () => void;
 }) {
   const Icon = group.icon;
+  const isExternal = /external/i.test(group.provider);
   return (
     <button
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-lg border bg-white shadow-sm transition-all",
+        "flex w-full items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
         isActive
-          ? "border-emerald-400 ring-2 ring-emerald-200 shadow-md scale-[1.01]"
-          : "border-slate-200 hover:border-emerald-300",
+          ? "border-sky-300 ring-1 ring-sky-200"
+          : "border-slate-100 hover:border-slate-200",
       )}
     >
       <div
         className={cn(
-          "flex items-center justify-center w-7 h-7 rounded-md shrink-0 border",
-          isActive
-            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-            : "bg-slate-100 text-slate-600 border-slate-200",
+          "flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg",
+          isExternal ? "bg-amber-50 text-amber-600" : "bg-sky-50 text-sky-600",
         )}
       >
-        <Icon className="w-3.5 h-3.5" />
+        <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold text-slate-900 leading-tight truncate">
+        <div className="truncate text-[13px] font-medium leading-tight text-slate-900">
           {group.provider}
         </div>
-        <div className="text-[10.5px] text-slate-500 leading-tight truncate mt-0.5">
-          {group.sublabel} · {group.inputs.length} input{group.inputs.length === 1 ? "" : "s"}
+        <div className="mt-px truncate font-mono text-[11px] text-slate-400">
+          {group.sublabel} · {group.inputs.length}
         </div>
       </div>
-      <span className="absolute top-1.5 right-2 flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-bold shadow-sm">
-        {group.inputs.length}
-      </span>
+      {isExternal && (
+        <span className="flex-none rounded border border-amber-200 px-1.5 py-px font-mono text-[9px] uppercase tracking-wide text-amber-600">
+          Modeled
+        </span>
+      )}
+      <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
     </button>
   );
 }
+
+
 
 const SIGNAL_BASIS: Record<string, "First-party" | "Both" | "Modeled"> = {
   "Life Event": "Both",
@@ -886,38 +814,20 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         )}
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 lg:p-6">
-        {/* Column headers */}
-        <div className="grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 mb-4">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400 truncate">
-              Data sources
-            </span>
-            <span className="ml-auto font-mono text-[11px] text-slate-400">
-              {sourceGroups.length} groups · {totalSourceInputs}
-            </span>
-          </div>
-          <div className="text-center min-w-0">
-            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
-              Ventus AI intelligence core
-            </span>
-          </div>
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400 truncate">
-              Activation destinations
-            </span>
-            <span className="ml-auto font-mono text-[11px] text-slate-400">{DESTINATIONS.length}</span>
-          </div>
-        </div>
-
-
-        {/* Network canvas */}
-        <div className="relative">
-          <NetworkWires leftCount={sourceGroups.length} rightCount={visibleDestinations.length} centered={!!activeTeamLabel} />
-
-          <div className="relative z-10 grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 items-stretch overflow-hidden">
-            {/* Sources */}
-            <div className="flex min-w-0 flex-col gap-2 justify-around px-1">
+      <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
+        {/* Pipeline board */}
+        <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
+          {/* Sources */}
+          <div className="min-w-0 p-4">
+            <div className="mb-3.5 flex items-center gap-2">
+              <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
+                Data sources
+              </span>
+              <span className="ml-auto font-mono text-[11px] text-slate-400">
+                {sourceGroups.length} groups · {totalSourceInputs}
+              </span>
+            </div>
+            <div className="flex min-w-0 flex-col gap-2">
               {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
@@ -927,39 +837,32 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 />
               ))}
             </div>
+          </div>
 
-            {/* Core */}
-            <div className="flex min-w-0 items-center justify-center overflow-hidden">
-              <div
-                className="w-full max-w-[520px] rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-4 shadow-xl mx-auto overflow-hidden"
-                style={{
-                  boxShadow:
-                    "0 0 0 6px rgba(99,102,241,0.08), 0 25px 60px -15px rgba(30,58,138,0.5), 0 0 80px rgba(99,102,241,0.25)",
-                }}
-              >
-                <div className="flex flex-col items-center text-center pb-4 border-b border-white/15">
-                  <img
-                    src={ventusLogoTransparent}
-                    alt="Ventus"
-                    className="h-6 w-auto brightness-0 invert opacity-95"
-                  />
-                  <p className="text-[15px] font-bold text-white mt-2">Behavioral Intelligence & Personalization Core</p>
-                  <p className="text-[10px] text-blue-200/80 mt-1">
-                    &nbsp;
-                  </p>
-                </div>
+          <Connector />
 
-                {/* Inner 2-band grid: signals → applications */}
-                <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
-                  {/* Signals column — cool indigo "what we detect" */}
-                  <div className="flex flex-col min-w-0 rounded-lg bg-gradient-to-b from-indigo-500/15 to-transparent p-2 -m-1">
-                    <div className="flex items-center justify-center gap-1.5 mb-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-300" />
-                      <p className="text-[9.5px] font-semibold uppercase tracking-wider text-indigo-200">
-                        Signals · what we detect
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 gap-1.5 px-1">
+          {/* Core */}
+          <div className="min-w-0 p-1.5">
+            <div className="h-full overflow-hidden rounded-xl bg-gradient-to-b from-[#0E1626] to-[#131E31] p-4">
+              <div className="flex items-center gap-2.5 pb-3 border-b border-white/[0.08]">
+                <img
+                  src={ventusLogoTransparent}
+                  alt="Ventus"
+                  className="h-4 w-auto brightness-0 invert opacity-95"
+                />
+                <p className="text-sm font-semibold tracking-tight text-white">
+                  Behavioral Intelligence &amp; Personalization Core
+                </p>
+              </div>
+
+              {/* Inner 2-band grid: signals → teams */}
+              <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
+                {/* Signals column */}
+                <div className="flex flex-col min-w-0">
+                  <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
+                    Signals detected
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
                       {SIGNALS.map((s) => {
                         const Icon = s.icon;
                         const isActive = s.label === activeSignalLabel;
@@ -969,19 +872,20 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={s.label}
                             onClick={() => selectSignal(s.label)}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full",
-                              "bg-white/5 border-indigo-300/25 text-indigo-50",
+                              "flex w-full min-w-0 items-center gap-2 rounded-[9px] border px-2.5 py-2 text-left transition-colors",
+                              "border-white/[0.08] bg-white/[0.045] text-white",
                               isActive
-                                ? "ring-2 ring-indigo-200/70 bg-white/10 shadow-lg scale-[1.02]"
-                                : "opacity-85 hover:opacity-100 hover:bg-white/10",
+                                ? "border-white/25 bg-white/[0.11]"
+                                : "hover:bg-white/[0.08]",
                             )}
                           >
                             <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", s.color)}>
                               <Icon className="w-2.5 h-2.5 text-white" />
                             </div>
-                            <span className="min-w-0 text-[11px] font-semibold flex-1 truncate">{s.label}</span>
+                            <span className="min-w-0 text-[11.5px] font-medium flex-1 truncate">{s.label}</span>
                           </button>
                         );
+
                       })}
                     </div>
                   </div>
@@ -1081,15 +985,12 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     </svg>
                   </div>
 
-                  {/* Teams column — warm amber "who we serve" */}
-                  <div className="flex flex-col min-w-0 rounded-lg bg-gradient-to-b from-amber-400/15 to-transparent p-2 -m-1">
-                    <div className="flex items-center justify-center gap-1.5 mb-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-300" />
-                      <p className="text-[9.5px] font-semibold uppercase tracking-wider text-amber-200">
-                        Teams · who we serve
-                      </p>
+                  {/* Teams column */}
+                  <div className="flex flex-col min-w-0">
+                    <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
+                      Teams served
                     </div>
-                    <div className="flex flex-col gap-2 flex-1 px-1">
+                    <div className="flex flex-col gap-2 flex-1">
                       {TEAMS.map((t) => {
                         const Icon = t.icon;
                         const isActive = t.label === activeTeamLabel;
@@ -1099,13 +1000,14 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={t.label}
                             onClick={() => selectTeam(t.label)}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full flex-1",
-                              "bg-white/10 border-amber-300/40 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]",
+                              "flex w-full min-w-0 flex-1 items-center gap-2 rounded-[9px] border px-2.5 py-2 text-left transition-colors",
+                              "border-white/[0.08] bg-white/[0.045] text-white",
                               isActive
-                                ? "ring-2 ring-amber-200/70 bg-white/20 shadow-lg scale-[1.02]"
-                                : "opacity-90 hover:opacity-100 hover:bg-white/15",
+                                ? "border-white/25 bg-white/[0.11]"
+                                : "hover:bg-white/[0.08]",
                             )}
                           >
+
                             <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", t.color)}>
                               <Icon className="w-2.5 h-2.5 text-white" />
                             </div>
@@ -1121,11 +1023,19 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               </div>
             </div>
 
-            {/* Destinations */}
-            <div className={cn(
-              "flex min-w-0 flex-col gap-2 px-1",
-              activeTeamLabel ? "justify-center" : "justify-around"
-            )}>
+          <Connector amber />
+
+          {/* Destinations */}
+          <div className="min-w-0 p-4">
+            <div className="mb-3.5 flex items-center gap-2">
+              <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
+                Activation destinations
+              </span>
+              <span className="ml-auto font-mono text-[11px] text-slate-400">
+                {visibleDestinations.length}
+              </span>
+            </div>
+            <div className="flex min-w-0 flex-col gap-2">
               {visibleDestinations.map((d) => (
                 <NodeCard
                   key={d.label}
@@ -1139,6 +1049,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
           </div>
         </div>
+
 
         {/* Shared detail panel — signal or application */}
         {activeDetail && ActiveIcon && (
