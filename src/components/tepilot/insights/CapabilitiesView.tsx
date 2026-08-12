@@ -987,6 +987,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
                   {/* Teams column */}
                   <div className="flex flex-col min-w-0">
+                    <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
                       Teams served
                     </div>
                     <div className="flex flex-col gap-2 flex-1">
