@@ -588,7 +588,56 @@ function SourceGroupCard({
   );
 }
 
+const SIGNAL_BASIS: Record<string, "First-party" | "Both" | "Modeled"> = {
+  "Life Event": "Both",
+  Behavioral: "First-party",
+  Financial: "Both",
+  Demographic: "Modeled",
+  Risk: "First-party",
+};
+
+const BASIS_BADGE: Record<string, string> = {
+  "First-party": "bg-sky-50 text-sky-600",
+  Both: "border border-slate-200 bg-gradient-to-r from-sky-50 to-amber-50 text-slate-600",
+  Modeled: "bg-amber-50 text-amber-600",
+};
+
+function Sparkline({ points, stroke }: { points: string; stroke: string }) {
+  return (
+    <svg className="absolute right-4 top-4" width="60" height="22" viewBox="0 0 60 22" fill="none" aria-hidden>
+      <path d={points} stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function Kpi({
+  label,
+  dot,
+  value,
+  foot,
+  spark,
+}: {
+  label: string;
+  dot: string;
+  value: React.ReactNode;
+  foot: React.ReactNode;
+  spark?: { points: string; stroke: string };
+}) {
+  return (
+    <div className="relative rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="mb-2.5 flex items-center gap-2 text-xs font-medium text-slate-400">
+        <span className="h-1.5 w-1.5 rounded-full" style={{ background: dot }} />
+        {label}
+      </div>
+      <div className="text-[27px] font-semibold leading-none tracking-tight tabular-nums text-slate-900">{value}</div>
+      <div className="mt-2.5 font-mono text-[11.5px] text-slate-400">{foot}</div>
+      {spark && <Sparkline points={spark.points} stroke={spark.stroke} />}
+    </div>
+  );
+}
+
 export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
+
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   const sourceGroups: SourceGroup[] = [
     {
