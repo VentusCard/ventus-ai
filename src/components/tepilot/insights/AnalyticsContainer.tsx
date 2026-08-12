@@ -423,12 +423,10 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         style={collapsed ? undefined : { width: sidebarWidth }}
         className={cn(
           "relative shrink-0 h-full flex flex-col",
-          "bg-gradient-to-b from-[#0a0a1a] via-[#141432] to-[#1e1e5a]",
+          "bg-[#141432]",
           collapsed ? "w-[52px] transition-all duration-200" : !isResizing && "transition-all duration-200"
         )}
       >
-        {/* Ambient intelligent glow */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(79,70,229,0.18),transparent_45%)]" />
         <div
           onPointerDown={handleResizeStart}
           className={cn(
