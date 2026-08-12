@@ -392,11 +392,6 @@ function SourceGroupCard({
           {group.sublabel} · {group.inputs.length}
         </div>
       </div>
-      {isExternal && (
-        <span className="flex-none rounded border border-amber-200 px-1.5 py-px font-mono text-[9px] uppercase tracking-wide text-amber-600">
-          Modeled
-        </span>
-      )}
       <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
     </button>
   );
