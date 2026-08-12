@@ -142,12 +142,12 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [chatOpen, setChatOpen] = useState(false);
   const [pendingChatPrompt, setPendingChatPrompt] = useState<string | null>(null);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
-  const [sidebarWidth, setSidebarWidth] = useState(280);
+  const [sidebarWidth, setSidebarWidth] = useState(300);
   const [isResizing, setIsResizing] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const dragStartX = useRef(0);
-  const dragStartWidth = useRef(280);
+  const dragStartWidth = useRef(300);
 
   const openInteractiveReport = (id: InteractiveReportId, payload?: { opportunityId?: string }) => {
     if (id === 'priority-opportunity') {
