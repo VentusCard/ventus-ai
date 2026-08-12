@@ -693,7 +693,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               Live
             </div>
           </h1>
-          <p className="mt-1.5 max-w-[78ch] text-[13.5px] text-slate-500">
+          <p className="mt-1.5 whitespace-nowrap text-[14.5px] font-medium text-slate-700">
             Customer intelligence and banking personalization system with tools for analytics, growth and retention.
           </p>
         </div>
