@@ -508,7 +508,7 @@ function Kpi({
   spark?: { points: string; stroke: string };
 }) {
   return (
-    <div className="relative rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="relative rounded-xl border border-slate-200 bg-white p-4">
       <div className="mb-2.5 flex items-center gap-2 text-xs font-medium text-slate-400">
         <span className="h-1.5 w-1.5 rounded-full" style={{ background: dot }} />
         {label}
@@ -698,30 +698,46 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       {/* KPI strip */}
       <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi
-          label="Connected sources"
+          label="Customers modeled"
           dot="#2563EB"
-          value={String(totalSourceInputs)}
-          foot={`${sourceGroups.length} provider groups`}
+          value="418,204"
+          foot={
+            <span className="text-emerald-600">
+              ▲ 1.2% <span className="text-slate-400">vs last week</span>
+            </span>
+          }
           spark={{ points: "M1 17L10 15L19 16L28 11L37 12L46 6L59 3", stroke: "#2563EB" }}
         />
         <Kpi
-          label="Signal families"
-          dot="#1E9E6A"
-          value={String(SIGNALS.length)}
-          foot="life event · behavioral · financial · demographic · risk"
-        />
-        <Kpi
-          label="Detections (24h)"
+          label="Active signals (24h)"
           dot="#1E9E6A"
           value={totalDetections.toLocaleString()}
-          foot="classified across all rails"
+          foot={
+            <span className="text-emerald-600">
+              ▲ 340 <span className="text-slate-400">today</span>
+            </span>
+          }
           spark={{ points: "M1 14L10 16L19 9L28 12L37 7L46 9L59 4", stroke: "#1E9E6A" }}
         />
         <Kpi
-          label="Activation destinations"
+          label="Signal confirmation"
+          dot="#1E9E6A"
+          value={
+            <>
+              73<span className="text-sm font-medium text-slate-400">%</span>
+            </>
+          }
+          foot={<span>external proposed, first-party confirmed</span>}
+        />
+        <Kpi
+          label="Activations routed (24h)"
           dot="#6D4AD4"
-          value={String(DESTINATIONS.length)}
-          foot="personalized across every channel"
+          value="6,213"
+          foot={
+            <span className="text-emerald-600">
+              ▲ 8.4% <span className="text-slate-400">vs avg</span>
+            </span>
+          }
           spark={{ points: "M1 15L10 13L19 14L28 9L37 10L46 5L59 4", stroke: "#6D4AD4" }}
         />
       </div>
