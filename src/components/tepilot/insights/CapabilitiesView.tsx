@@ -344,7 +344,9 @@ function NodeCard({
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{label}</div>
-        <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div>
+        {sublabel ? (
+          <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div>
+        ) : null}
       </div>
       {badge ? (
         <span className="flex-none rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] text-emerald-600">
