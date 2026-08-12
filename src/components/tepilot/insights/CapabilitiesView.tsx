@@ -270,6 +270,7 @@ const DESTINATION_GROUPS: DestinationGroup[] = [
     items: [
       { label: "Intelligence Database", sublabel: "Access reports, query & API", icon: BarChart3, badge: "Ventus" },
       { label: "Ventus AI Coworker", sublabel: "Intelligence for very colleague, 24/7", icon: Briefcase, badge: "Email" },
+      { label: "Personalized Relationship", sublabel: "", icon: Users, badge: "Ventus" },
     ],
   },
   {
@@ -277,6 +278,7 @@ const DESTINATION_GROUPS: DestinationGroup[] = [
     items: [
       { label: "Automations Campaign", sublabel: "Signal-driven personalized campaigns", icon: Megaphone, badge: "CRM" },
       { label: "Custom Product Builder", sublabel: "Hyper-personalized campaigns", icon: Route, badge: "CRM" },
+      { label: "Personalized Product Offer", sublabel: "", icon: Gift, badge: "CRM" },
     ],
   },
   {
@@ -284,6 +286,7 @@ const DESTINATION_GROUPS: DestinationGroup[] = [
     items: [
       { label: "Personalized Reward Program", sublabel: "Hyper-personalized CLO program", icon: Sparkles, badge: "Digital Banking" },
       { label: "Local Merchant Deals\u00a0", sublabel: "AI assisted local deal capture", icon: Smartphone, badge: "Ventus" },
+      { label: "Royalty and Retention", sublabel: "", icon: Crown, badge: "Digital Banking" },
     ],
   },
 ];
@@ -341,7 +344,9 @@ function NodeCard({
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{label}</div>
-        <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div>
+        {sublabel ? (
+          <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div>
+        ) : null}
       </div>
       {badge ? (
         <span className="flex-none rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] text-emerald-600">
