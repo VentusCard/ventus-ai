@@ -739,14 +739,14 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           spark={{ points: "M1 14L10 16L19 9L28 12L37 7L46 9L59 4", stroke: "#1E9E6A" }}
         />
         <Kpi
-          label="Signal confirmation"
+          label="Enrichment coverage"
           dot="#1E9E6A"
           value={
             <>
-              73<span className="text-sm font-medium text-slate-400">%</span>
+              99<span className="text-sm font-medium text-slate-400">%</span>
             </>
           }
-          foot={<span>external proposed, first-party confirmed</span>}
+          foot={<span>of transactions enriched with category, merchant, and intent</span>}
         />
         <Kpi
           label="Activations routed (24h)"
