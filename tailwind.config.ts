@@ -288,6 +288,16 @@ export default {
 			'marquee': {
 				'0%': { transform: 'translateX(0)' },
 				'100%': { transform: 'translateX(-50%)' }
+			},
+			'flow-dash': {
+				'0%': { strokeDashoffset: '12' },
+				'100%': { strokeDashoffset: '0' }
+			},
+			'flow-pulse': {
+				'0%': { transform: 'translateX(0px)', opacity: '0' },
+				'15%': { opacity: '1' },
+				'80%': { opacity: '1' },
+				'100%': { transform: 'translateX(40px)', opacity: '0' }
 			}
 		},
 
