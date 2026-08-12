@@ -205,18 +205,6 @@ type WorkflowChipKind = "signal" | "destination" | "product" | "system";
 type WorkflowChip = { label: string; kind: WorkflowChipKind };
 type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
 
-type TeamDetail = {
-  label: string;
-  shortLabel?: string;
-  icon: React.ElementType;
-  color: string;
-  tint: string;
-  dot: string;
-  description: string;
-  items: { label: string; sublabel: string; icon?: React.ElementType }[];
-  workflow?: WorkflowStep[];
-};
-
 const SIGNAL_CHIP_TINTS: Record<string, string> = {
   "Life Event": "bg-amber-50 text-amber-700 border-amber-200",
   Behavioral: "bg-blue-50 text-blue-700 border-blue-200",
@@ -235,157 +223,6 @@ function chipClass(chip: WorkflowChip) {
   return CHIP_KIND_TINTS[chip.kind];
 }
 
-const TEAMS: TeamDetail[] = [
-  {
-    label: "Product & Growth",
-    icon: TrendingUp,
-    color: "bg-violet-500",
-    tint: "bg-violet-50 text-violet-700 border-violet-200",
-    dot: "bg-violet-500",
-    description: "Product marketing team owning adoption funnels, cross-sell health, and go-to-market briefs across the retail banking portfolio.",
-    items: [
-      { label: "Product adoption funnel review", sublabel: "Track application-to-funding rates and drop-off by segment", icon: Filter },
-      { label: "Cross-sell pipeline health", sublabel: "Monitor qualified-opportunity volume from signal-driven triggers", icon: GitBranch },
-      { label: "Campaign performance & sizing", sublabel: "Validate segment size, response rate, and revenue lift", icon: PieChart },
-      { label: "Go-to-market brief creation", sublabel: "Package product rationale, target criteria, and channel plan", icon: FilePlus },
-      { label: "Segment validation & feedback", sublabel: "Close the loop with CRM and digital on actual conversion outcomes", icon: RefreshCw },
-    ],
-    workflow: [
-      {
-        stage: "Life Event + Financial signals in",
-        text: "New home, new baby, retirement, payroll growth, and wallet-share leaks flag cross-sell moments.",
-        chips: [
-          { label: "Life Event", kind: "signal" },
-          { label: "Financial", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Map signal → eligible product",
-        text: "Join each signal against the Bank Product catalog — the single source of truth for what's offered.",
-        chips: [{ label: "Bank Product", kind: "product" }],
-      },
-      {
-        stage: "Eligibility & demographic fit",
-        text: "Filter by income band, account tenure, and regional product availability.",
-        chips: [{ label: "Demographic", kind: "signal" }],
-      },
-      {
-        stage: "Risk gate",
-        text: "Suppress new credit pushes for customers in distress or under active risk review.",
-        chips: [{ label: "Risk", kind: "signal" }],
-      },
-      {
-        stage: "Brief + cross-sell distribution",
-        text: "Go-to-market briefs route to CRM, marketing automation, and the in-app assistant.",
-        chips: [
-          { label: "CRM", kind: "destination" },
-          { label: "Marketing Automation", kind: "destination" },
-          { label: "AI Banking Assistant", kind: "destination" },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Wealth & Relationship",
-    icon: Gem,
-    color: "bg-amber-500",
-    tint: "bg-amber-50 text-amber-700 border-amber-200",
-    dot: "bg-amber-500",
-    description: "Private banking and advisory operations team preparing client briefings, life-event timing, and portfolio-aware talking points for relationship managers.",
-    items: [
-      { label: "High-net-worth client segmentation", sublabel: "Tier clients by AUM signals, investable assets, and outbound flows", icon: Crown },
-      { label: "Advisor meeting-prep briefs", sublabel: "One-page AI briefs covering posture, events, and conversation hooks", icon: FileText },
-      { label: "Life-event outreach timing", sublabel: "Trigger advisor check-ins at inheritance, retirement, or business sale", icon: CalendarHeart },
-      { label: "Portfolio-context summaries", sublabel: "Surface wallet-share leaks and win-back opportunities", icon: Briefcase },
-      { label: "RM workflow distribution", sublabel: "Route briefs and follow-ups to the right relationship manager", icon: Send },
-    ],
-    workflow: [
-      {
-        stage: "Life Event + Financial signals in",
-        text: "Inheritance, retirement, business sale, and outbound brokerage flows surface the moments that matter for advisors.",
-        chips: [
-          { label: "Life Event", kind: "signal" },
-          { label: "Financial", kind: "signal" },
-        ],
-      },
-      {
-        stage: "HNW client identification",
-        text: "Segment by investable-asset tier and wallet-share posture to scope the advisor's book.",
-      },
-      {
-        stage: "Portfolio-aware brief assembly",
-        text: "One-page advisor brief: client posture, active events, talking points, and win-back hooks.",
-      },
-      {
-        stage: "Compliance & demographic context",
-        text: "Layer in tenure and AUM tier; exclude clients under any open risk review.",
-        chips: [
-          { label: "Demographic", kind: "signal" },
-          { label: "Risk", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Route to relationship manager",
-        text: "Brief and follow-up tasks land in the advisor console and CRM queue for the right RM.",
-        chips: [
-          { label: "AI Coworker", kind: "destination" },
-          { label: "CRM", kind: "destination" },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Deals & Rewards",
-    icon: Store,
-    color: "bg-orange-500",
-    tint: "bg-orange-50 text-orange-700 border-orange-200",
-    dot: "bg-orange-500",
-    description: "Rewards team curating personalized offers, managing the live deal catalog, and driving engagement through digital banking and marketing channels.",
-    items: [
-      { label: "Offer catalog curation", sublabel: "Assemble and maintain personalized deal collections by lifestyle and life event", icon: Package },
-      { label: "Deal personalization & ranking", sublabel: "Re-rank offers using financial tier and demographic context", icon: Tag },
-      { label: "Seasonal campaign alignment", sublabel: "Time offer pushes to holidays, travel windows, and life events", icon: Calendar },
-      { label: "Redemption & engagement tracking", sublabel: "Monitor take rates, redemption velocity, and merchant-funded liability", icon: LineChart },
-      { label: "Rewards rail distribution", sublabel: "Ship individualized offer sets to the rewards provider and digital banking", icon: Send },
-    ],
-    workflow: [
-      {
-        stage: "Behavioral & Life Event signals in",
-        text: "Each customer arrives with their behavioral clusters (golf, coffee runs, ski trips) and active life events (new home, new baby).",
-        chips: [
-          { label: "Behavioral", kind: "signal" },
-          { label: "Life Event", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Curate deal collection",
-        text: "Assemble a deal set per behavioral cluster and per life event from the merchant partner catalog.",
-      },
-      {
-        stage: "Personalize ranking",
-        text: "Re-rank offers using Financial tier and Demographic context — Luxury, income band, region.",
-        chips: [
-          { label: "Financial", kind: "signal" },
-          { label: "Demographic", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Risk exclusion pass",
-        text: "Drop offers adjacent to vice, gambling, or distress signals for that specific customer.",
-        chips: [{ label: "Risk", kind: "signal" }],
-      },
-      {
-        stage: "Push to rewards rails",
-        text: "Individualized offer set ships to the rewards provider and surfaces in digital banking.",
-        chips: [
-          { label: "Rewards Provider", kind: "destination" },
-          { label: "Digital Banking App", kind: "destination" },
-        ],
-      },
-    ],
-  },
-];
-
 const DESTINATIONS: Destination[] = [
   { label: "Digital Banking App", sublabel: "Mobile + Web", icon: Smartphone },
   { label: "Marketing Automation", sublabel: "Marketing Cloud / Braze", icon: Megaphone },
@@ -394,19 +231,6 @@ const DESTINATIONS: Destination[] = [
   { label: "AI Banking Assistant", sublabel: "In-app Copilot", icon: Bot },
   { label: "AI Coworker", sublabel: "Every team, 24/7", icon: Briefcase },
 ];
-
-function getTeamDestinations(teamLabel: string): string[] {
-  const team = TEAMS.find((t) => t.label === teamLabel);
-  if (!team || !team.workflow) return [];
-  const dests = new Set<string>();
-  for (const step of team.workflow) {
-    for (const chip of step.chips ?? []) {
-      if (chip.kind === "destination") dests.add(chip.label);
-    }
-  }
-  dests.add("Digital Banking App");
-  return Array.from(dests);
-}
 
 function Connector({ amber }: { amber?: boolean }) {
   const stroke = amber ? "#D9A441" : "#94A3B8";
@@ -666,11 +490,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
   ];
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
   const [activeSourceLabel, setActiveSourceLabel] = useState<string | null>(null);
-  const [activeTeamLabel, setActiveTeamLabel] = useState<string | null>(null);
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
-  const activeTeam = activeTeamLabel
-    ? TEAMS.find((t) => t.label === activeTeamLabel) ?? null
-    : null;
   const activeSourceGroup = activeSourceLabel
     ? sourceGroups.find((g) => g.provider === activeSourceLabel) ?? null
     : null;
@@ -692,38 +512,17 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         openLabel: activeSourceGroup.openLabel,
       }
     : null;
-  const activeDetail = activeSignal ?? activeTeam ?? activeSource;
-  const activeDetailKind = activeSignal
-    ? "Signal family"
-    : activeTeam
-    ? "Team"
-    : activeSource
-    ? "Source"
-    : null;
-  const activeDetailCountNoun = activeSignal
-    ? "detections"
-    : activeTeam
-    ? "responsibilities"
-    : activeSource
-    ? "inputs"
-    : "";
+  const activeDetail = activeSignal ?? activeSource;
+  const activeDetailKind = activeSignal ? "Signal family" : activeSource ? "Source" : null;
+  const activeDetailCountNoun = activeSignal ? "detections" : activeSource ? "inputs" : "";
   const ActiveIcon = activeDetail?.icon;
-  const visibleDestinations = activeTeamLabel
-    ? DESTINATIONS.filter((d) => getTeamDestinations(activeTeamLabel).includes(d.label))
-    : DESTINATIONS;
+  const visibleDestinations = DESTINATIONS;
   const selectSignal = (label: string) => {
-    setActiveTeamLabel(null);
     setActiveSourceLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
   };
-  const selectTeam = (label: string) => {
-    setActiveSignalLabel(null);
-    setActiveSourceLabel(null);
-    setActiveTeamLabel((prev) => (prev === label ? null : label));
-  };
   const selectSource = (label: string) => {
     setActiveSignalLabel(null);
-    setActiveTeamLabel(null);
     setActiveSourceLabel((prev) => (prev === label ? null : label));
   };
 
@@ -796,7 +595,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           label="Activation destinations"
           dot="#6D4AD4"
           value={String(DESTINATIONS.length)}
-          foot={`${TEAMS.length} internal teams activating`}
+          foot="personalized across every channel"
           spark={{ points: "M1 15L10 13L19 14L28 9L37 10L46 5L59 4", stroke: "#6D4AD4" }}
         />
       </div>
@@ -862,183 +661,68 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               </div>
               <p className="mb-4 mt-1 text-[11.5px] leading-relaxed text-slate-400">
                 Every input is resolved, enriched, and scored into five signal families, then routed to
-                the teams that act on them.
+                every activation channel.
               </p>
 
-              {/* Inner 2-band grid: signals → teams */}
-              <div className="relative grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
-                {/* Signals column */}
-                <div className="flex flex-col min-w-0">
-                  <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
-                    Signals detected
-                  </div>
-                  <div className="flex flex-col gap-2">
-                      {SIGNALS.map((s) => {
-                        const isActive = s.label === activeSignalLabel;
-                        const row = signalRows.find((r) => r.label === s.label);
-                        return (
-                          <button
-                            type="button"
-                            key={s.label}
-                            onClick={() => selectSignal(s.label)}
+              {/* Signals column */}
+              <div className="flex flex-col min-w-0">
+                <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
+                  Signals detected
+                </div>
+                <div className="flex flex-col gap-2">
+                  {SIGNALS.map((s) => {
+                    const isActive = s.label === activeSignalLabel;
+                    const row = signalRows.find((r) => r.label === s.label);
+                    return (
+                      <button
+                        type="button"
+                        key={s.label}
+                        onClick={() => selectSignal(s.label)}
+                        className={cn(
+                          "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
+                          "border-white/[0.08] bg-white/[0.045] text-white",
+                          isActive
+                            ? "border-white/25 bg-white/[0.11]"
+                            : "hover:bg-white/[0.08]",
+                        )}
+                      >
+                        <span className={cn("absolute inset-y-0 left-0 w-[3px]", s.color)} />
+                        <span className="mb-1 flex items-center gap-2">
+                          <span
                             className={cn(
-                              "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
-                              "border-white/[0.08] bg-white/[0.045] text-white",
-                              isActive
-                                ? "border-white/25 bg-white/[0.11]"
-                                : "hover:bg-white/[0.08]",
+                              "h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10",
+                              s.dot,
+                            )}
+                          />
+                          <span className="min-w-0 truncate text-[12.5px] font-semibold tracking-tight text-slate-100">
+                            {s.label}
+                          </span>
+                        </span>
+                        <span className="flex items-center gap-2 font-mono text-[10.5px] leading-none text-slate-400">
+                          <span className="flex-none tabular-nums">
+                            <b className="font-semibold text-slate-200">
+                              {row ? row.detected.toLocaleString() : "—"}
+                            </b>{" "}
+                            · 24h
+                          </span>
+                          <span
+                            className={cn(
+                              "ml-auto flex-none rounded px-1.5 py-px text-[9px] tracking-wide",
+                              BASIS_BADGE_DARK[row?.basis ?? "First-party"],
                             )}
                           >
-                            <span className={cn("absolute inset-y-0 left-0 w-[3px]", s.color)} />
-                            <span className="mb-1 flex items-center gap-2">
-                              <span
-                                className={cn(
-                                  "h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10",
-                                  s.dot,
-                                )}
-                              />
-                              <span className="min-w-0 truncate text-[12.5px] font-semibold tracking-tight text-slate-100">
-                                {s.label}
-                              </span>
-                            </span>
-                            <span className="flex items-center gap-2 font-mono text-[10.5px] leading-none text-slate-400">
-                              <span className="flex-none tabular-nums">
-                                <b className="font-semibold text-slate-200">
-                                  {row ? row.detected.toLocaleString() : "—"}
-                                </b>{" "}
-                                · 24h
-                              </span>
-                              <span
-                                className={cn(
-                                  "ml-auto flex-none rounded px-1.5 py-px text-[9px] tracking-wide",
-                                  BASIS_BADGE_DARK[row?.basis ?? "First-party"],
-                                )}
-                              >
-                                {(row?.basis ?? "First-party") === "First-party"
-                                  ? "1P"
-                                  : row?.basis ?? "First-party"}
-                              </span>
-                            </span>
-                          </button>
-                        );
-
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Manifold bus connector */}
-                  <div className="relative">
-                    <svg
-                      className="absolute inset-0 w-full h-full pointer-events-none"
-                      viewBox="0 0 100 100"
-                      preserveAspectRatio="none"
-                      aria-hidden
-                    >
-                      {/* Inbound stubs: signal row → bus (x=50) */}
-                      {SIGNALS.map((s, i) => {
-                        const y = ((i + 0.5) / SIGNALS.length) * 100;
-                        const active =
-                          s.label === activeSignalLabel || activeTeamLabel !== null;
-                        return (
-                          <path
-                            key={`in-${i}`}
-                            d={`M 0 ${y} C 28 ${y}, 28 50, 50 50`}
-                            fill="none"
-                            stroke={active ? "rgba(255,255,255,0.8)" : "rgba(148,163,184,0.35)"}
-                            strokeWidth={active ? 1.3 : 1}
-                            strokeLinecap="round"
-                            vectorEffect="non-scaling-stroke"
-                            style={{ transition: "stroke 200ms, stroke-width 200ms" }}
-                          />
-                        );
-                      })}
-
-                      {/* Vertical bus bar */}
-                      <line
-                        x1="50"
-                        y1="10"
-                        x2="50"
-                        y2="90"
-                        stroke="rgba(148,163,184,0.45)"
-                        strokeWidth="1.2"
-                        strokeLinecap="round"
-                        vectorEffect="non-scaling-stroke"
-                      />
-
-                      {/* Center hub */}
-                      <circle cx="50" cy="50" r="2.2" fill="rgba(226,232,240,0.9)" />
-
-                      {/* Outbound stubs: bus → team row */}
-                      {TEAMS.map((t, j) => {
-                        const y = ((j + 0.5) / TEAMS.length) * 100;
-                        const active =
-                          t.label === activeTeamLabel || activeSignalLabel !== null;
-                        return (
-                          <path
-                            key={`out-${j}`}
-                            d={`M 50 50 C 72 ${y}, 72 ${y}, 100 ${y}`}
-                            fill="none"
-                            stroke={active ? "rgba(255,255,255,0.8)" : "rgba(217,164,65,0.4)"}
-                            strokeWidth={active ? 1.3 : 1}
-                            strokeLinecap="round"
-                            vectorEffect="non-scaling-stroke"
-                            style={{ transition: "stroke 200ms, stroke-width 200ms" }}
-                          />
-                        );
-                      })}
-                    </svg>
-                  </div>
-
-                  {/* Teams column */}
-                  <div className="flex flex-col min-w-0">
-                    <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
-                      Teams served
-                    </div>
-                    <div className="flex flex-col gap-2 flex-1">
-                      {TEAMS.map((t) => {
-                        const isActive = t.label === activeTeamLabel;
-                        const destCount = getTeamDestinations(t.label).length;
-                        return (
-                          <button
-                            type="button"
-                            key={t.label}
-                            onClick={() => selectTeam(t.label)}
-                            className={cn(
-                              "relative w-full min-w-0 flex-1 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
-                              "border-white/[0.08] bg-white/[0.045] text-white",
-                              isActive
-                                ? "border-white/25 bg-white/[0.11]"
-                                : "hover:bg-white/[0.08]",
-                            )}
-                          >
-                            <span className={cn("absolute inset-y-0 left-0 w-[3px]", t.color)} />
-                            <span className="mb-0.5 flex items-center gap-2">
-                              <span
-                                className={cn(
-                                  "h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10",
-                                  t.dot,
-                                )}
-                              />
-                              <span className="min-w-0 truncate text-[12.5px] font-semibold tracking-tight text-slate-100">
-                                {t.shortLabel ?? t.label}
-                              </span>
-                            </span>
-                            <span className="flex items-center gap-2 font-mono text-[10.5px] leading-none text-slate-400">
-                              <span className="min-w-0 truncate">
-                                {t.items.length} flows
-                              </span>
-                              <span className="ml-auto flex-none rounded bg-white/[0.06] px-1.5 py-px text-[9px] tracking-wide text-slate-300">
-                                {destCount} dest
-                              </span>
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                            {(row?.basis ?? "First-party") === "First-party"
+                              ? "1P"
+                              : row?.basis ?? "First-party"}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
+          </div>
 
           <Connector amber />
 
@@ -1115,55 +799,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
 
 
-            {activeTeam?.workflow && activeTeam.workflow.length > 0 && (
-              <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4 flex-1 flex flex-col min-h-[280px]">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
-                    Workflow · left to right
-                  </span>
-                </div>
-                <div className="flex flex-col lg:flex-row lg:items-stretch gap-2 flex-1">
-                  {activeTeam.workflow.map((step, i) => (
-                    <div key={step.stage} className="flex lg:flex-1 items-stretch gap-2">
-                      <div className="flex-1 rounded-md border border-slate-200 bg-white p-5 min-w-0 h-full flex flex-col justify-center">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="text-[10px] font-bold text-slate-400 tabular-nums">
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                          <span className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-700 leading-tight">
-                            {step.stage}
-                          </span>
-                        </div>
-                        <p className="text-[11.5px] text-slate-600 leading-snug">{step.text}</p>
-                        {step.chips && step.chips.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {step.chips.map((chip) => (
-                              <span
-                                key={chip.label}
-                                className={cn(
-                                  "text-[10px] font-medium px-1.5 py-0.5 rounded border",
-                                  chipClass(chip),
-                                )}
-                              >
-                                {chip.label}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      {i < activeTeam.workflow!.length - 1 && (
-                        <div className="hidden lg:flex items-center text-slate-300 text-sm shrink-0">
-                          →
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {!activeTeam && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {activeDetail.items.map((item) => {
                   const ItemIcon = (item as any).icon as React.ElementType | undefined;
                   const itemFcra = (item as any).fcra as boolean | undefined;
@@ -1223,7 +859,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   );
                 })}
               </div>
-            )}
           </div>
         )}
 
