@@ -490,11 +490,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
   ];
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
   const [activeSourceLabel, setActiveSourceLabel] = useState<string | null>(null);
-  const [activeTeamLabel, setActiveTeamLabel] = useState<string | null>(null);
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
-  const activeTeam = activeTeamLabel
-    ? TEAMS.find((t) => t.label === activeTeamLabel) ?? null
-    : null;
   const activeSourceGroup = activeSourceLabel
     ? sourceGroups.find((g) => g.provider === activeSourceLabel) ?? null
     : null;
@@ -516,38 +512,17 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         openLabel: activeSourceGroup.openLabel,
       }
     : null;
-  const activeDetail = activeSignal ?? activeTeam ?? activeSource;
-  const activeDetailKind = activeSignal
-    ? "Signal family"
-    : activeTeam
-    ? "Team"
-    : activeSource
-    ? "Source"
-    : null;
-  const activeDetailCountNoun = activeSignal
-    ? "detections"
-    : activeTeam
-    ? "responsibilities"
-    : activeSource
-    ? "inputs"
-    : "";
+  const activeDetail = activeSignal ?? activeSource;
+  const activeDetailKind = activeSignal ? "Signal family" : activeSource ? "Source" : null;
+  const activeDetailCountNoun = activeSignal ? "detections" : activeSource ? "inputs" : "";
   const ActiveIcon = activeDetail?.icon;
-  const visibleDestinations = activeTeamLabel
-    ? DESTINATIONS.filter((d) => getTeamDestinations(activeTeamLabel).includes(d.label))
-    : DESTINATIONS;
+  const visibleDestinations = DESTINATIONS;
   const selectSignal = (label: string) => {
-    setActiveTeamLabel(null);
     setActiveSourceLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
   };
-  const selectTeam = (label: string) => {
-    setActiveSignalLabel(null);
-    setActiveSourceLabel(null);
-    setActiveTeamLabel((prev) => (prev === label ? null : label));
-  };
   const selectSource = (label: string) => {
     setActiveSignalLabel(null);
-    setActiveTeamLabel(null);
     setActiveSourceLabel((prev) => (prev === label ? null : label));
   };
 
