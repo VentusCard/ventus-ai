@@ -686,12 +686,12 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       {/* Page head */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-slate-900">
-            System
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 font-mono text-[11px] font-medium text-emerald-600">
+          <h1 className="flex flex-col gap-1 text-2xl font-semibold tracking-tight text-slate-900">
+            Ventus AI System
+            <div className="flex items-center gap-1.5 self-start rounded-full bg-emerald-50 px-2.5 py-1 font-mono text-[11px] font-medium text-emerald-600">
               <span className="h-[7px] w-[7px] animate-pulse rounded-full bg-emerald-500" />
               Live
-            </span>
+            </div>
           </h1>
           <p className="mt-1.5 max-w-[78ch] text-[13.5px] text-slate-500">
             Every data source, the intelligence core, and every activation destination in one view. One enrichment
