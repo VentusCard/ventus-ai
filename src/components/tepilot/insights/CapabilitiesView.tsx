@@ -860,7 +860,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   );
                 })}
               </div>
-            )}
           </div>
         )}
 
