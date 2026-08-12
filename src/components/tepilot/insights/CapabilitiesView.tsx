@@ -867,16 +867,26 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 {visibleDestinations.length}
               </span>
             </div>
-            <div className="flex min-w-0 flex-col gap-2">
-              {visibleDestinations.map((d) => (
-                <NodeCard
-                  key={d.label}
-                  icon={d.icon}
-                  label={d.label}
-                  sublabel={d.sublabel}
-                  accent="indigo"
-                  side="right"
-                />
+            <div className="flex min-w-0 flex-col gap-5">
+              {DESTINATION_GROUPS.map((group) => (
+                <div key={group.team} className="flex min-w-0 flex-col gap-2">
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      {group.team}
+                    </span>
+                    <span className="h-px flex-1 bg-slate-100" />
+                  </div>
+                  {group.items.map((d) => (
+                    <NodeCard
+                      key={d.label}
+                      icon={d.icon}
+                      label={d.label}
+                      sublabel={d.sublabel}
+                      accent="indigo"
+                      side="right"
+                    />
+                  ))}
+                </div>
               ))}
             </div>
           </div>
