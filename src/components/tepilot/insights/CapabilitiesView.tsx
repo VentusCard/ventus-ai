@@ -270,6 +270,7 @@ const DESTINATION_GROUPS: DestinationGroup[] = [
     items: [
       { label: "Intelligence Database", sublabel: "Access reports, query & API", icon: BarChart3, badge: "Ventus" },
       { label: "Ventus AI Coworker", sublabel: "Intelligence for very colleague, 24/7", icon: Briefcase, badge: "Email" },
+      { label: "Personalized Relationship", sublabel: "", icon: Users, badge: "Ventus" },
     ],
   },
   {
@@ -277,6 +278,7 @@ const DESTINATION_GROUPS: DestinationGroup[] = [
     items: [
       { label: "Automations Campaign", sublabel: "Signal-driven personalized campaigns", icon: Megaphone, badge: "CRM" },
       { label: "Custom Product Builder", sublabel: "Hyper-personalized campaigns", icon: Route, badge: "CRM" },
+      { label: "Personalized Product Offer", sublabel: "", icon: Gift, badge: "CRM" },
     ],
   },
   {
@@ -284,6 +286,7 @@ const DESTINATION_GROUPS: DestinationGroup[] = [
     items: [
       { label: "Personalized Reward Program", sublabel: "Hyper-personalized CLO program", icon: Sparkles, badge: "Digital Banking" },
       { label: "Local Merchant Deals\u00a0", sublabel: "AI assisted local deal capture", icon: Smartphone, badge: "Ventus" },
+      { label: "Royalty and Retention", sublabel: "", icon: Crown, badge: "Digital Banking" },
     ],
   },
 ];
