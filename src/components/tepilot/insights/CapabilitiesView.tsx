@@ -799,54 +799,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
 
 
-            {activeTeam?.workflow && activeTeam.workflow.length > 0 && (
-              <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4 flex-1 flex flex-col min-h-[280px]">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
-                    Workflow · left to right
-                  </span>
-                </div>
-                <div className="flex flex-col lg:flex-row lg:items-stretch gap-2 flex-1">
-                  {activeTeam.workflow.map((step, i) => (
-                    <div key={step.stage} className="flex lg:flex-1 items-stretch gap-2">
-                      <div className="flex-1 rounded-md border border-slate-200 bg-white p-5 min-w-0 h-full flex flex-col justify-center">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="text-[10px] font-bold text-slate-400 tabular-nums">
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                          <span className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-700 leading-tight">
-                            {step.stage}
-                          </span>
-                        </div>
-                        <p className="text-[11.5px] text-slate-600 leading-snug">{step.text}</p>
-                        {step.chips && step.chips.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {step.chips.map((chip) => (
-                              <span
-                                key={chip.label}
-                                className={cn(
-                                  "text-[10px] font-medium px-1.5 py-0.5 rounded border",
-                                  chipClass(chip),
-                                )}
-                              >
-                                {chip.label}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      {i < activeTeam.workflow!.length - 1 && (
-                        <div className="hidden lg:flex items-center text-slate-300 text-sm shrink-0">
-                          →
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {!activeTeam && (
+            {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {activeDetail.items.map((item) => {
                   const ItemIcon = (item as any).icon as React.ElementType | undefined;
