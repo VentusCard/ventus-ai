@@ -861,7 +861,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 <div className="flex flex-col min-w-0">
                   <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
                     Signals detected
-                    Signals · what we detect
                   </div>
                   <div className="grid grid-cols-1 gap-2">
                       {SIGNALS.map((s) => {
@@ -989,7 +988,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   {/* Teams column */}
                   <div className="flex flex-col min-w-0">
                       Teams served
-                      Teams · who we serve
                     </div>
                     <div className="flex flex-col gap-2 flex-1">
                       {TEAMS.map((t) => {
