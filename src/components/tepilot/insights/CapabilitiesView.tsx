@@ -722,6 +722,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 </div>
               </div>
             </div>
+          </div>
 
           <Connector amber />
 
