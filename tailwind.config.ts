@@ -348,7 +348,9 @@ export default {
 		'icon-tilt': 'icon-tilt 0.4s ease-in-out',
 		'icon-wave': 'icon-wave 0.5s ease-in-out',
 		'scroll-up': 'scroll-up 16s linear infinite',
-		'marquee': 'marquee 20s linear infinite'
+		'marquee': 'marquee 20s linear infinite',
+		'flow-dash': 'flow-dash 0.9s linear infinite',
+		'flow-pulse': 'flow-pulse 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite'
 		}
 	}
 },
