@@ -53,6 +53,8 @@ import {
   Bell,
   Car,
   Zap,
+  BarChart3,
+  Route,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
@@ -664,7 +666,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
   const activeDetailKind = activeSignal ? "Signal family" : activeSource ? "Source" : null;
   const activeDetailCountNoun = activeSignal ? "detections" : activeSource ? "inputs" : "";
   const ActiveIcon = activeDetail?.icon;
-  const visibleDestinations = DESTINATIONS;
+  const visibleDestinations = ALL_DESTINATIONS;
   const selectSignal = (label: string) => {
     setActiveSourceLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
