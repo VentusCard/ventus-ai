@@ -103,6 +103,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-amber-50 text-amber-700 border-amber-200",
     dot: "bg-amber-500",
     description: "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds.",
+    examples: [
+      { ev: "Title + escrow payment", to: "Home purchase in progress", basis: "1P" },
+      { ev: "OB visits + registry spend", to: "New baby, ~2 months out", basis: "1P" },
+      { ev: "Bureau tradeline maturing", to: "Auto loan renewal window", basis: "Ext" },
+      { ev: "Bursar deposit + college tours", to: "Dependent starting college", basis: "Both" },
+    ],
     items: [
       { label: "Home Purchase", sublabel: "Realtor, title/escrow, mortgage, HOA setup, first mortgage payment" },
       { label: "New Baby", sublabel: "OB/midwife, buybuy BABY, pediatrician, daycare, hospital L&D" },
@@ -122,6 +128,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-blue-50 text-blue-700 border-blue-200",
     dot: "bg-blue-500",
     description: "Recurring spending habits classified across 11 lifestyle pillars from merchant and subcategory clusters.",
+    examples: [
+      { ev: "4 airline + 3 hotel bookings", to: "Travel & exploration, top pillar", basis: "1P" },
+      { ev: "Weekly Chewy + vet visits", to: "Pet care routine", basis: "1P" },
+      { ev: "Equinox + Lululemon cadence", to: "Sports & active living", basis: "1P" },
+      { ev: "Anchor flight + out-of-zip spend", to: "Trip reconstructed, 6 nights", basis: "Both" },
+    ],
     items: [
       { label: "Sports & Active Living", sublabel: "Equinox, Lululemon, REI, fitness classes, team leagues" },
       { label: "Food & Dining", sublabel: "Whole Foods, Starbucks, Chipotle, delivery, meal kits" },
@@ -143,6 +155,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
     dot: "bg-emerald-500",
     description: "Cash-flow, balance, and credit posture inferred from payroll, deposit, and outflow streams.",
+    examples: [
+      { ev: "Outbound ACH to brokerage", to: "Investable assets held away", basis: "1P" },
+      { ev: "Payroll ACH, steady cadence", to: "Active primary income", basis: "1P" },
+      { ev: "Mortgage servicer outflow", to: "Active mortgage payer", basis: "1P" },
+      { ev: "Deposit balance trending up", to: "Growing idle cash tier", basis: "Both" },
+    ],
     items: [
       { label: "Active payroll deposit", sublabel: "Recurring employer ACH on a consistent cadence" },
       { label: "Recent large inflow", sublabel: "One-off deposit well above payroll baseline (windfall, bonus)" },
@@ -162,6 +180,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-violet-50 text-violet-700 border-violet-200",
     dot: "bg-violet-500",
     description: "Behaviorally inferred household and life-stage attributes with direct product and timing implications.",
+    examples: [
+      { ev: "Merchant services + wholesale", to: "Small business owner", basis: "1P" },
+      { ev: "Two payroll streams, one address", to: "Dual-income household", basis: "1P" },
+      { ev: "Two mortgage + HOA streams", to: "Multi-property household", basis: "Both" },
+      { ev: "Quarterly estimated tax", to: "Self-employed household", basis: "1P" },
+    ],
     items: [
       { label: "Likely homeowner", sublabel: "Mortgage, Home Depot/Lowe's, HOA fees" },
       { label: "Parent of young children", sublabel: "Daycare, pediatric, Carter's, infant formula volume" },
@@ -185,6 +209,12 @@ const SIGNALS: SignalDetail[] = [
     tint: "bg-rose-50 text-rose-700 border-rose-200",
     dot: "bg-rose-500",
     description: "Deterministic keyword/MCC flags for Vice and Financial Distress plus model-routed AML, bucketed with severity scores.",
+    examples: [
+      { ev: "Deposits just under $10K", to: "AML structuring pattern", basis: "1P" },
+      { ev: "Payday lender outflows", to: "Financial distress, weight 5", basis: "1P" },
+      { ev: "Repeat NSF fee events", to: "Overdraft escalation", basis: "1P" },
+      { ev: "Cross-border wires off-zip", to: "Suspicious international", basis: "Both" },
+    ],
     items: [
       { label: "Adult entertainment", sublabel: "OnlyFans, cam sites, adult processors (CCBill/Epoch), MCC 5967" },
       { label: "Offshore gambling", sublabel: "Bovada, Stake.com, Roobet, Curaçao books (weight 5)" },
