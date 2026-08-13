@@ -405,7 +405,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'customers': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="customers" />;
       case 'fvi-dashboard': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="risk" />;
       case 'governance': return <GovernanceView />;
-      case 'settings': return <SettingsContainer />;
+      case 'settings': return <SettingsContainer initialTab={settingsTab} />;
       case 'feedback': return <FeedbackPage />;
     }
   };
