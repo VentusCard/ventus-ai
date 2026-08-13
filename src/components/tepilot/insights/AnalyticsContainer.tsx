@@ -16,7 +16,7 @@ import { CapabilitiesView } from "./CapabilitiesView";
 import { BankContextView } from "./BankContextView";
 import { SettingsContainer } from "./SettingsContainer";
 import { GovernanceView } from "../governance/GovernanceView";
-import ExecDemoPage from "@/pages/ExecDemoPage";
+
 
 import { MerchantPartnershipsView } from "./MerchantPartnershipsView";
 import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
@@ -72,7 +72,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'ventus-chat' | 'customers' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'growth-merchant-partnerships' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-chat' | 'customers' | 'ventus-ai' | 'capabilities' | 'products' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'growth-merchant-partnerships' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
 
 interface NavItem {
   value: TabValue;
@@ -86,7 +86,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "capabilities", label: "System", icon: Layers },
       { value: "products", label: "Context", icon: Package },
-      { value: "exec-demo", label: "Demo", icon: Presentation },
+      
       { value: "governance", label: "Governance", icon: ShieldCheck },
     ],
   },
@@ -348,10 +348,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <BankContextView />;
-      // 'exec-demo' is rendered as a persistent mount outside renderContent so
-      // its state (enrichment, persona, offers, product cards) survives tab
-      // switches. See the always-mounted block below.
-      case 'exec-demo': return null;
       // 'ventus-chat' is rendered as a persistent mount below so the thread survives tab switches.
       case 'ventus-chat': return null;
       case 'reports': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="reports" />;
@@ -713,20 +709,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
             )}
             {renderContent()}
 
-            {/*
-              Persistent Demo mount — kept alive across tab switches so the
-              pre-fired enrichment pipeline (classification, persona, offers,
-              product cards) is ready the moment the user clicks the Demo tab.
-              Hidden via CSS instead of unmounting so React state is preserved.
-            */}
-            <div
-              className={cn(
-                "-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white",
-                activeTab === 'exec-demo' ? "block" : "hidden",
-              )}
-            >
-              <ExecDemoPage embedded prefireOnMount active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
-            </div>
+
+
 
             {/* Persistent Ventus AI chat mount — keeps the conversation across tab switches. */}
             <div className={cn("h-full", activeTab === 'ventus-chat' ? "block" : "hidden")}>
