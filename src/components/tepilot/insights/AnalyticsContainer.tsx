@@ -301,7 +301,19 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     return 'Workspace';
   }, [filteredNavGroups, activeTab]);
 
+  const [settingsTab, setSettingsTab] = useState<string>('general');
+  useEffect(() => {
+    const onOpenSettingsTab = (e: Event) => {
+      const detail = (e as CustomEvent<{ tab?: string }>).detail;
+      setSettingsTab(detail?.tab ?? 'general');
+      setActiveTab('settings');
+    };
+    window.addEventListener('ventus:open-settings-tab', onOpenSettingsTab);
+    return () => window.removeEventListener('ventus:open-settings-tab', onOpenSettingsTab);
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState("");
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
