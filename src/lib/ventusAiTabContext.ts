@@ -204,6 +204,25 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
     onScreenItems: REPORTS_ON_SCREEN,
   },
+  api: {
+    label: "API Access & Usage",
+    summary:
+      "Sub-tab of the Intelligence Dashboard covering Ventus API consumption: call volume, success rate, p95 latency, error rate, quota, endpoint breakdown, rate limits, recent requests, webhook delivery, and a quickstart. Key creation and assignment live in Settings → API Keys.",
+    keyData: [
+      "22.5M calls in the last 30 days at 99.71% success and 214ms p95",
+      "Enterprise tier: 6,000 rpm, 30M monthly call quota",
+      "Endpoints span enrichment, customer signals, life events, recommendations, and portfolio rollups",
+      "Credential management is not on this view — it deep-links to Settings → API Keys",
+    ],
+    suggestedNav: ["Settings", "Reports", "Query"],
+    quickActions: [
+      "Which endpoint drives the most calls?",
+      "Are we close to the monthly quota?",
+      "Where is latency worst?",
+      "Any webhook delivery failures?",
+    ],
+  },
+
 
   // ---------- Report deep-links ----------
   "report-lifestyle-pillars": {
