@@ -6,9 +6,10 @@ import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
 import { SubTabBar, type SubTabItem } from "./SubTabBar";
 import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { QueryConsoleView } from "./QueryConsoleView";
+import { ApiAccessView } from "./api/ApiAccessView";
 import { VENTUS_QUICK_ACTIONS } from "./VentusAIChatPage";
 import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
-import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal, Users } from "lucide-react";
+import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal, Users, Plug } from "lucide-react";
 import type { TabValue } from "./AnalyticsContainer";
 
 const DASHBOARD_SECTIONS: SubTabItem[] = [
@@ -17,6 +18,7 @@ const DASHBOARD_SECTIONS: SubTabItem[] = [
   { value: "reports", label: "Reports", icon: <FileBarChart className="w-3.5 h-3.5" /> },
   { value: "query", label: "Query", icon: <Terminal className="w-3.5 h-3.5" /> },
   { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
+  { value: "api", label: "API", icon: <Plug className="w-3.5 h-3.5" /> },
 ];
 
 const SLIVER_CHIPS = VENTUS_QUICK_ACTIONS.slice(0, 2);
@@ -26,10 +28,11 @@ interface VentusAIDashboardViewProps {
   onOpenOpportunity?: (opportunityId: string) => void;
   onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
   onOpenChat?: (prompt?: string) => void;
-  initialSection?: "overview" | "customers" | "reports" | "query" | "risk";
+  initialSection?: "overview" | "customers" | "reports" | "query" | "risk" | "api";
 }
 
 export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInteractiveReport, onOpenChat, initialSection = "overview" }: VentusAIDashboardViewProps) {
+
   const [section, setSection] = useState<string>(initialSection);
   const [consoleQuery, setConsoleQuery] = useState<string | undefined>(undefined);
   useEffect(() => { setSection(initialSection); }, [initialSection]);
@@ -94,6 +97,8 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
       )}
       {section === "query" && <QueryConsoleView initialQuery={consoleQuery} />}
       {section === "risk" && <FVIDashboard />}
+      {section === "api" && <ApiAccessView />}
+
     </div>
   );
 }

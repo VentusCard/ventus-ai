@@ -301,7 +301,19 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     return 'Workspace';
   }, [filteredNavGroups, activeTab]);
 
+  const [settingsTab, setSettingsTab] = useState<string>('general');
+  useEffect(() => {
+    const onOpenSettingsTab = (e: Event) => {
+      const detail = (e as CustomEvent<{ tab?: string }>).detail;
+      setSettingsTab(detail?.tab ?? 'general');
+      setActiveTab('settings');
+    };
+    window.addEventListener('ventus:open-settings-tab', onOpenSettingsTab);
+    return () => window.removeEventListener('ventus:open-settings-tab', onOpenSettingsTab);
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState("");
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -393,7 +405,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'customers': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="customers" />;
       case 'fvi-dashboard': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="risk" />;
       case 'governance': return <GovernanceView />;
-      case 'settings': return <SettingsContainer />;
+      case 'settings': return <SettingsContainer initialTab={settingsTab} />;
       case 'feedback': return <FeedbackPage />;
     }
   };
