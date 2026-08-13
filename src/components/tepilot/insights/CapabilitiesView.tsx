@@ -384,12 +384,12 @@ function SourceGroupCard({
       >
         <Icon className="h-4 w-4" />
       </div>
-      <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-medium leading-tight text-slate-900">
           {group.provider}
         </div>
         <div className="mt-px truncate font-mono text-[11px] text-slate-400">
-          {group.sublabel} · {group.inputs.length}
+          {group.sublabel} · {group.inputs.length} sources
         </div>
       </div>
       <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
@@ -790,7 +790,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 Data sources
               </span>
               <span className="ml-auto font-mono text-[11px] text-slate-400">
-                {sourceGroups.length} groups · {totalSourceInputs}
+                {sourceGroups.length} groups · {totalSourceInputs} sources
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -856,7 +856,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 Activation destinations
               </span>
               <span className="ml-auto font-mono text-[11px] text-slate-400">
-                3 teams · {visibleDestinations.length}
+                3 teams · {visibleDestinations.length} destinations
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
