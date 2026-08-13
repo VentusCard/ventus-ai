@@ -97,6 +97,8 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
       )}
       {section === "query" && <QueryConsoleView initialQuery={consoleQuery} />}
       {section === "risk" && <FVIDashboard />}
+      {section === "api" && <ApiAccessView />}
+
     </div>
   );
 }
