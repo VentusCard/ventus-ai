@@ -855,8 +855,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
                 Activation destinations
               </span>
-              <span className="ml-auto font-mono text-[11px] text-slate-400">
-                3 teams · {visibleDestinations.length} destinations
+              <span className="ml-auto text-[12px] font-medium italic text-slate-500">
+                Every Customer, Every Colleague
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
