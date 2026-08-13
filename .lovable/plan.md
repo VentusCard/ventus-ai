@@ -21,3 +21,10 @@ The Demo tab inside /bankdemo currently mounts the full executive demo permanent
 - `src/components/tepilot/insights/CustomerMockupPanel.tsx`: replace the `onNavigate("exec-demo")` button with an anchor to `/demo`; drop the now-unused nav prop wiring if nothing else uses it.
 - `ExecDemoPage`'s `prefireOnMount` prop becomes unused by the app; leave the prop in place (harmless) or remove it — either way `/demo` behavior is identical.
 - Verify with a typecheck plus a browser pass on /bankdemo (no demo-related network calls on load) and /demo (pipeline still runs end to end).
+
+## LLM audit of /bankdemo
+
+Confirmed by tracing every `functions.invoke` call reachable from `AnalyticsContainer`:
+
+- **Automatic on page load**: only the Demo tab's pre-fire chain — `synthesize-persona`, `analyze-lifestyle-signals`, `generate-next-offers`, `detect-risk-transactions`, `generate-product-cards`, `generate-product-actions`. Removing the tab and its persistent mount means /bankdemo makes **zero** model calls on load.
+- **Still present, but only when a user explicitly acts**: Ask Ventus AI chat, Query console (`generate-analytics-query`) and its takeaway (`summarize-query-result`), campaign intent/brief (`parse-campaign-intent`, `generate-campaign-brief`), deal personalization preview (`deal-personalization`), and the AI assistant activity chat (`consumer-chat`). These are the product's own features, not demo pre-fire, so they stay unless you want them stripped too.
