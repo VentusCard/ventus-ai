@@ -60,13 +60,15 @@ export function CustomerMockupPanel({ surface, onNavigate }: CustomerMockupPanel
           </div>
         </div>
         {!session.hasRun && (
-          <button
-            onClick={() => onNavigate?.("exec-demo" as TabValue)}
+          <a
+            href="/demo"
+            target="_blank"
+            rel="noreferrer"
             className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 border border-blue-200 bg-blue-50 rounded-full px-2.5 py-1 hover:bg-blue-100 transition-colors shrink-0"
           >
             Run the demo
             <ExternalLink className="w-3 h-3" />
-          </button>
+          </a>
         )}
       </div>
 

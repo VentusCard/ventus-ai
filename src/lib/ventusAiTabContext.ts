@@ -146,22 +146,6 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
       "Explain the autonomy threshold",
     ],
   },
-  "exec-demo": {
-    label: "Live Demo — Semantic Enrichment",
-    summary:
-      "Interactive demo: raw transactions + external signals in, enriched pillars + persona + next-product + next-offer + rewards out. Shows the end-to-end Ventus pipeline on a sample household.",
-    keyData: [
-      "Two life-event product cards + one behavioral product card per persona",
-      "External intelligence signals (e.g. car loan renewal) inject into the enrichment table",
-      "Personalized offers include concrete rates and estimated savings",
-    ],
-    suggestedNav: ["Bank Context", "Next Product", "Next-Deal Intelligence"],
-    quickActions: [
-      "Explain the current persona",
-      "Why was this product recommended?",
-      "How was the estimated savings calculated?",
-    ],
-  },
 
   // ---------- Analytics ----------
   "ventus-ai-dashboard": {
