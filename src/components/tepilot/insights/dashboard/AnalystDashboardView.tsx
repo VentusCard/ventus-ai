@@ -172,7 +172,7 @@ export function AnalystDashboardView({ onNavigate, onOpenOpportunity, renderVent
         <div className="flex items-center gap-2">
           <LayoutDashboard className="w-4 h-4 text-slate-500" />
           <h2 className="text-[15px] font-semibold text-slate-900">
-            Customer Intelligence Dashboard
+            Customer Intelligence Database
           </h2>
           <span className="text-[11px] text-slate-400">
             Portfolio-wide enrichment intelligence

@@ -95,7 +95,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       {
         value: "ventus-ai-dashboard",
-        label: "Intelligence Dashboard",
+        label: "Intelligence Database",
         icon: ({ className }: { className?: string }) => (
           <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
             V
@@ -235,7 +235,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     // Footer-anchored, always available
     set.add('settings');
     set.add('feedback');
-    // Risk now lives as a sub-tab of the Intelligence Dashboard; keep deep links valid.
+    // Risk now lives as a sub-tab of the Intelligence Database; keep deep links valid.
     set.add('fvi-dashboard');
     set.add('reports');
     set.add('customers');

@@ -128,7 +128,7 @@ export function ApiKeysView() {
           ))}
         </div>
         <p className="mt-3 text-[11px] text-slate-500">
-          Usage, latency, and rate-limit reporting for these keys lives in Intelligence Dashboard → API.
+          Usage, latency, and rate-limit reporting for these keys lives in Intelligence Database → API.
         </p>
       </div>
     </div>
