@@ -541,7 +541,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       </div>
 
       {/* Main area */}
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex-1 min-w-0 flex flex-col min-h-0">
         {/* Consistent global header: breadcrumb · search · notifications · exit */}
         <div className="flex items-center justify-between gap-4 px-5 py-2.5 bg-white border-b border-slate-200 shrink-0">
           {/* Breadcrumb */}
@@ -699,9 +699,9 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
 
         {/* Content + Chat Panel */}
-        <div className="flex flex-1 min-h-0">
+        <div className="flex flex-1 min-h-0 min-w-0">
           {/* Content */}
-          <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
+          <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-4 relative">
             {(activeTab === 'targeting' || activeTab === 'targeting-automated-flows') && (
               <div className="mb-4">
                 <AutonomousActivityFeed />
