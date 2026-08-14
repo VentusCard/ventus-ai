@@ -57,14 +57,15 @@ export function CoworkerInboxView() {
           </button>
           {capabilitiesOpen && (
             <>
-              <div className="px-4 py-3 border-t border-slate-100 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="shrink-0 min-w-[80px] text-center text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border-purple-200">Advisor</span>
-                  <p className="text-[13px] text-slate-800 leading-snug">Ventus emails each advisor personalized briefs with life-event signals, client-specific talking points, and ready-to-send outreach drafts — plus instant replies when they ask for deeper context or next-step recommendations.</p>
+              <div className="px-4 py-3 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-2.5">
+                  <h4 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">Intelligence delivery destinations</h4>
+                  <span className="text-[11px] text-slate-500">{TEAM_DESTINATIONS.length} banking teams · {WEEKLY_STATS.emailsSent.toLocaleString()} insight emails delivered</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="shrink-0 min-w-[80px] text-center text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border-amber-200">Leadership</span>
-                  <p className="text-[13px] text-slate-800 leading-snug">Ventus emails leadership weekly trend dashboards, enterprise-wide product-gap alerts, campaign recommendations with projected AUM uplift, and retention-risk summaries across the region.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                  {TEAM_DESTINATIONS.map((team) => (
+                    <TeamDestinationCard key={team.id} team={team} />
+                  ))}
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-slate-100">
