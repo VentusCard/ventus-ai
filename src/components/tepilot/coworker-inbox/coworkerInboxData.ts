@@ -305,8 +305,8 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     stat1: { label: "Vulnerability flags", value: "63" },
     stat2: { label: "Escalations routed", value: "12" },
     insights: [
-      "Alert: Outbound wealth-transfer cluster in NW region — $12M to competitors.",
-      "Signal brief: 6 advisors in the cluster have no recorded interaction in 90+ days.",
+      "Alert stream for outbound-transfer clusters, vulnerability indicators, and advisor-inactivity flags.",
+      "Surfaces risk cohorts and escalation candidates before they become attrition events.",
     ],
     lastDeliveryAgo: "14 min ago",
     emailType: "Alert",
