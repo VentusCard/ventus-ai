@@ -246,7 +246,7 @@ export const WEEKLY_STATS: WeeklyStats = {
   lastActivityAgo: "4 sec ago",
 };
 
-export type TeamChannel = "Email" | "CRM" | "Digital Banking" | "Ventus";
+export type TeamChannel = "Email";
 
 export interface TeamDestination {
   id: string;
@@ -259,6 +259,7 @@ export interface TeamDestination {
   stat2: { label: string; value: string };
   insights: string[];
   lastDeliveryAgo: string;
+  emailType: "Weekly pulse" | "Alert" | "Daily brief" | "Campaign brief" | "Signal brief";
 }
 
 export const TEAM_DESTINATIONS: TeamDestination[] = [
@@ -272,55 +273,59 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     stat1: { label: "Weekly pulses", value: "1" },
     stat2: { label: "Pending approvals", value: "4" },
     insights: [
-      "HNW life-event volume +18% WoW; education planning is the top pillar.",
-      "$47M at-risk AUM flagged from outbound-transfer signals.",
+      "Weekly pulse: HNW life-event volume +18% WoW; education planning is the top pillar.",
+      "Alert: $47M at-risk AUM flagged from outbound-transfer signals.",
     ],
     lastDeliveryAgo: "6 min ago",
+    emailType: "Weekly pulse",
   },
   {
     id: "product-growth",
     name: "Product & Growth",
-    channel: "CRM",
+    channel: "Email",
     accent: "emerald",
     weeklyCount: 2840,
     weeklyPrev: 2510,
     stat1: { label: "Product-gap alerts", value: "142" },
     stat2: { label: "Est. 90-day AUM uplift", value: "$12.4M" },
     insights: [
-      "529-to-Roth rollover playbook: 14 households qualify under SECURE 2.0.",
-      "Parent-plus refinance opportunity: 9 flagged households with no outreach.",
+      "Daily brief: 529-to-Roth rollover playbook — 14 households qualify under SECURE 2.0.",
+      "Alert: Parent-plus refinance opportunity — 9 flagged households with no outreach.",
     ],
     lastDeliveryAgo: "9 min ago",
+    emailType: "Daily brief",
   },
   {
     id: "risk",
     name: "Risk & Compliance",
-    channel: "Ventus",
+    channel: "Email",
     accent: "rose",
     weeklyCount: 1860,
     weeklyPrev: 1920,
     stat1: { label: "Vulnerability flags", value: "63" },
     stat2: { label: "Escalations routed", value: "12" },
     insights: [
-      "Outbound wealth-transfer cluster in NW region: $12M to competitors.",
-      "6 advisors in the cluster have no recorded interaction in 90+ days.",
+      "Alert: Outbound wealth-transfer cluster in NW region — $12M to competitors.",
+      "Signal brief: 6 advisors in the cluster have no recorded interaction in 90+ days.",
     ],
     lastDeliveryAgo: "14 min ago",
+    emailType: "Alert",
   },
   {
     id: "rewards",
     name: "Rewards & Deals",
-    channel: "Digital Banking",
+    channel: "Email",
     accent: "amber",
     weeklyCount: 4210,
     weeklyPrev: 3890,
     stat1: { label: "Offer refreshes", value: "28" },
     stat2: { label: "Merchant partnerships", value: "6" },
     insights: [
-      "Travel & dining segment shows 23% lift in redemption intent this week.",
-      "Premium travel card offer ready for HNW households with no active travel card.",
+      "Daily brief: Travel & dining segment shows 23% lift in redemption intent this week.",
+      "Alert: Premium travel card offer ready for HNW households with no active travel card.",
     ],
     lastDeliveryAgo: "3 min ago",
+    emailType: "Daily brief",
   },
   {
     id: "advisors",
@@ -332,25 +337,27 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     stat1: { label: "Active advisor threads", value: "9,640" },
     stat2: { label: "Reply rate", value: "61%" },
     insights: [
-      "College-prep cluster: 3 households need tuition-funding outreach this week.",
-      "Liquidity event detected for Robert Hayes — $2.4M inbound wire sitting in cash.",
+      "Signal brief: College-prep cluster — 3 households need tuition-funding outreach this week.",
+      "Alert: Liquidity event detected for Robert Hayes — $2.4M inbound wire sitting in cash.",
     ],
     lastDeliveryAgo: "1 min ago",
+    emailType: "Signal brief",
   },
   {
     id: "marketing",
     name: "Marketing / Campaign Ops",
-    channel: "CRM",
+    channel: "Email",
     accent: "sky",
     weeklyCount: 1340,
     weeklyPrev: 1210,
     stat1: { label: "Segment-of-one briefs", value: "86" },
     stat2: { label: "Drafts in review", value: "11" },
     insights: [
-      "529 cross-sell campaign: 42 households, expected +$3.1M AUM in 90 days.",
-      "Retirement readiness sequence queued for 4-advisor rollout.",
+      "Campaign brief: 529 cross-sell to 42 households, expected +$3.1M AUM in 90 days.",
+      "Daily brief: Retirement readiness sequence queued for 4-advisor rollout.",
     ],
     lastDeliveryAgo: "22 min ago",
+    emailType: "Campaign brief",
   },
 ];
 
