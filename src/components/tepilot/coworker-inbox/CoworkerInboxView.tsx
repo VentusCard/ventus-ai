@@ -1,4 +1,5 @@
-import { Sparkles, Clock, History, MessageSquare, Workflow, Radar, FileText, MessageCircle, Bolt, Users } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, Clock, History, MessageSquare, Workflow, Radar, FileText, MessageCircle, Bolt, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   WEEKLY_STATS,
