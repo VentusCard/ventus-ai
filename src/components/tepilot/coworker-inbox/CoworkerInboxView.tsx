@@ -1,12 +1,9 @@
 import { useState } from "react";
-import { Sparkles, ChevronDown, Clock, History, MessageSquare, Workflow, Radar, FileText, MessageCircle, Bolt, Users } from "lucide-react";
+import { Sparkles, ChevronDown, Clock, History, MessageSquare, Workflow, Radar, FileText, MessageCircle, Bolt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  ROSTER,
   WEEKLY_STATS,
-  PERSON_ACTIVITY,
   TEAM_DESTINATIONS,
-  type Person,
   type TeamDestination,
 } from "./coworkerInboxData";
 
