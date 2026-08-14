@@ -12,7 +12,7 @@ Adjust the **Coworker Dashboard** sub-tab inside `/bankdemo` → AI Coworker so 
 - Update `WEEKLY_STATS` labels to be email-centric: emails sent, reply rate, threads, etc.
 
 ### 2. Dashboard UI — `src/components/tepilot/coworker-inbox/CoworkerInboxView.tsx`
-- Retitle "Team destinations" to **"People Ventus emails"** or similar.
+- Retitle "Team destinations" to **"Intelligence Delivery Destinations"** or similar.
 - Update the KPI strip to emphasize: emails sent, reply rate, people covered, insights delivered.
 - Replace channel chips with email-oriented badges (e.g., "Daily brief", "Alert", "Weekly pulse").
 - Update capabilities panel copy so every bullet describes email-based assistance.
