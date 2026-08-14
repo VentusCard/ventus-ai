@@ -1,22 +1,20 @@
 import { useState } from "react";
-import { Sparkles, ArrowLeftRight, MessageCircle, Zap, Bolt, Radar, UserRoundCheck, LineChart, MessageSquare, FileText, Workflow, ChevronDown, Clock, History } from "lucide-react";
+import { Sparkles, ChevronDown, Clock, History, MessageSquare, Workflow, Radar, FileText, MessageCircle, Bolt, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ROSTER,
   WEEKLY_STATS,
   PERSON_ACTIVITY,
+  TEAM_DESTINATIONS,
   type Person,
+  type TeamDestination,
 } from "./coworkerInboxData";
-
-
 
 export function CoworkerInboxView() {
   const [capabilitiesOpen, setCapabilitiesOpen] = useState(false);
 
-  const peopleById: Record<string, Person> = {};
-  for (const p of ROSTER) peopleById[p.id] = p;
-
   const emailDelta = WEEKLY_STATS.emailsSent - WEEKLY_STATS.emailsSentPrev;
+  const teamsCount = TEAM_DESTINATIONS.length;
 
   return (
     <div className="h-full overflow-y-auto pr-1">
@@ -88,7 +86,7 @@ export function CoworkerInboxView() {
         {/* 2. KPI cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <KpiCard
-            icon={<Zap className="w-3.5 h-3.5" />}
+            icon={<Radar className="w-3.5 h-3.5" />}
             label="Signals surfaced"
             value={WEEKLY_STATS.signalsSurfaced.toLocaleString()}
             delta={`across ${WEEKLY_STATS.advisorsCount.toLocaleString()} advisor books`}
@@ -96,16 +94,16 @@ export function CoworkerInboxView() {
           />
           <KpiCard
             icon={<MessageCircle className="w-3.5 h-3.5" />}
-            label="Emails sent this week"
+            label="Briefs delivered this week"
             value={WEEKLY_STATS.emailsSent.toLocaleString()}
             delta={`↑ ${((emailDelta / WEEKLY_STATS.emailsSentPrev) * 100).toFixed(1)}% vs last week`}
             deltaTone="up"
           />
           <KpiCard
-            icon={<ArrowLeftRight className="w-3.5 h-3.5" />}
-            label="Avg Conv. Depth"
-            value="1.77"
-            delta="turns per conversation on average"
+            icon={<Users className="w-3.5 h-3.5" />}
+            label="Teams served"
+            value={teamsCount.toString()}
+            delta="banking destinations this week"
             deltaTone="neutral"
           />
           <KpiCard
@@ -117,12 +115,24 @@ export function CoworkerInboxView() {
           />
         </div>
 
-        {/* 3. Team status */}
+        {/* 3. Team destinations */}
+        <div>
+          <div className="px-1 mb-2.5 flex items-center justify-between">
+            <h3 className="text-[13px] font-semibold text-slate-900">Team destinations</h3>
+            <span className="text-[11px] text-slate-500">{teamsCount} banking teams · {WEEKLY_STATS.emailsSent.toLocaleString()} actions delivered</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {TEAM_DESTINATIONS.map((team) => (
+              <TeamDestinationCard key={team.id} team={team} />
+            ))}
+          </div>
+        </div>
+
+        {/* 4. Team status */}
         <div className="grid grid-cols-1 gap-3">
-          {/* Team status */}
           <div className="rounded-lg border border-slate-200 bg-white">
             <div className="px-4 py-3 border-b border-slate-100">
-              <h3 className="text-[13px] font-semibold text-slate-900">Team status</h3>
+              <h3 className="text-[13px] font-semibold text-slate-900">People Ventus works with</h3>
               <p className="text-[11.5px] text-slate-500 mt-0.5">Sample of active collaborators ({ROSTER.length} of {WEEKLY_STATS.collaboratorsTotal.toLocaleString()})</p>
             </div>
 
@@ -203,6 +213,74 @@ function KpiCard({
   );
 }
 
+const ACCENT_STYLES: Record<TeamDestination["accent"], { bar: string; chipBg: string; chipText: string; insightDot: string; hoverBorder: string }> = {
+  indigo: { bar: "bg-indigo-500", chipBg: "bg-indigo-50", chipText: "text-indigo-700", insightDot: "bg-indigo-400", hoverBorder: "hover:border-indigo-300" },
+  emerald: { bar: "bg-emerald-500", chipBg: "bg-emerald-50", chipText: "text-emerald-700", insightDot: "bg-emerald-400", hoverBorder: "hover:border-emerald-300" },
+  amber: { bar: "bg-amber-500", chipBg: "bg-amber-50", chipText: "text-amber-700", insightDot: "bg-amber-400", hoverBorder: "hover:border-amber-300" },
+  rose: { bar: "bg-rose-500", chipBg: "bg-rose-50", chipText: "text-rose-700", insightDot: "bg-rose-400", hoverBorder: "hover:border-rose-300" },
+  violet: { bar: "bg-violet-500", chipBg: "bg-violet-50", chipText: "text-violet-700", insightDot: "bg-violet-400", hoverBorder: "hover:border-violet-300" },
+  sky: { bar: "bg-sky-500", chipBg: "bg-sky-50", chipText: "text-sky-700", insightDot: "bg-sky-400", hoverBorder: "hover:border-sky-300" },
+};
+
+function TeamDestinationCard({ team }: { team: TeamDestination }) {
+  const styles = ACCENT_STYLES[team.accent];
+  const delta = team.weeklyCount - team.weeklyPrev;
+  const deltaPct = ((delta / team.weeklyPrev) * 100).toFixed(1);
+  const deltaUp = delta >= 0;
+
+  return (
+    <div className={cn("rounded-lg border border-slate-200 bg-white overflow-hidden transition-colors", styles.hoverBorder)}>
+      <div className={cn("h-1 w-full", styles.bar)} />
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h4 className="text-[13px] font-semibold text-slate-900 truncate">{team.name}</h4>
+            <p className="text-[11px] text-slate-500 mt-0.5">{team.channel}</p>
+          </div>
+          <span className={cn("shrink-0 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded", styles.chipBg, styles.chipText)}>
+            {team.channel}
+          </span>
+        </div>
+
+        <div className="mt-3 flex items-baseline gap-2">
+          <span className="text-[24px] font-bold text-slate-900 leading-none">{team.weeklyCount.toLocaleString()}</span>
+          <span className={cn("text-[11px] font-medium", deltaUp ? "text-emerald-700" : "text-rose-700")}>
+            {deltaUp ? "↑" : "↓"} {Math.abs(Number(deltaPct))}% vs last week
+          </span>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="rounded-md bg-slate-50 px-2.5 py-2 border border-slate-100">
+            <div className="text-[11px] font-semibold text-slate-900">{team.stat1.value}</div>
+            <div className="text-[10px] text-slate-500">{team.stat1.label}</div>
+          </div>
+          <div className="rounded-md bg-slate-50 px-2.5 py-2 border border-slate-100">
+            <div className="text-[11px] font-semibold text-slate-900">{team.stat2.value}</div>
+            <div className="text-[10px] text-slate-500">{team.stat2.label}</div>
+          </div>
+        </div>
+
+        <ul className="mt-3 space-y-1.5">
+          {team.insights.map((insight, idx) => (
+            <li key={idx} className="flex items-start gap-2">
+              <span className={cn("mt-1.5 h-1.5 w-1.5 rounded-full shrink-0", styles.insightDot)} />
+              <span className="text-[11.5px] leading-snug text-slate-700">{insight}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-[10.5px] text-slate-500">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+          </span>
+          Last delivery {team.lastDeliveryAgo}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CapabilityTile({
   icon,
   title,
@@ -224,4 +302,3 @@ function CapabilityTile({
     </div>
   );
 }
-
