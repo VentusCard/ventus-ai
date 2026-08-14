@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Sparkles, Pause, Play, ArrowUpRight, ArrowDownLeft, Radar,
+  Sparkles, ArrowUpRight, ArrowDownLeft, Radar,
   Mail, MessageCircle, Workflow, Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
