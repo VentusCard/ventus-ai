@@ -321,8 +321,8 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     stat1: { label: "Offer refreshes", value: "28" },
     stat2: { label: "Merchant partnerships", value: "6" },
     insights: [
-      "Daily brief: Travel & dining segment shows 23% lift in redemption intent this week.",
-      "Alert: Premium travel card offer ready for HNW households with no active travel card.",
+      "Daily brief on merchant partnership opportunities and reward-redemption intent by segment.",
+      "Flags premium card offers, lifestyle perks, and redemption-lift opportunities.",
     ],
     lastDeliveryAgo: "3 min ago",
     emailType: "Daily brief",
