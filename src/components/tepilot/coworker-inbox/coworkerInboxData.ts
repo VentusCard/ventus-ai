@@ -273,8 +273,8 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     stat1: { label: "Weekly pulses", value: "1" },
     stat2: { label: "Pending approvals", value: "4" },
     insights: [
-      "Weekly pulse: HNW life-event volume +18% WoW; education planning is the top pillar.",
-      "Alert: $47M at-risk AUM flagged from outbound-transfer signals.",
+      "Weekly pulse summarizing major trends, key takeaways and strategic opportunities across the bank.",
+      "Surfaces leadership-level themes like life-event momentum, advisor engagement, and at-risk AUM.",
     ],
     lastDeliveryAgo: "6 min ago",
     emailType: "Weekly pulse",
