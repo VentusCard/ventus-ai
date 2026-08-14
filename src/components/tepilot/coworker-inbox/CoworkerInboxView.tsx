@@ -126,46 +126,15 @@ export function CoworkerInboxView() {
           />
         </div>
 
-        {/* 3. Activity feed + Team status */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-          {/* Activity feed */}
-          <div className="lg:col-span-2 rounded-lg border border-slate-200 bg-white">
-            <div className="px-4 py-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-                <h3 className="text-[13px] font-semibold text-slate-900">What Ventus AI Coworker is working on</h3>
-              </div>
-              <p className="text-[11.5px] text-slate-500 mt-0.5">Live · updated continuously · showing {ACTIVITY_FEED.length} of {WEEKLY_STATS.actionsToday.toLocaleString()} today</p>
-            </div>
-            <ul className="divide-y divide-slate-100">
-              {ACTIVITY_FEED.map((a) => {
-                const s = KIND_STYLES[a.kind];
-                return (
-                  <li key={a.id} className="px-4 py-2.5 flex items-start gap-3 hover:bg-slate-50/60 transition-colors">
-                    <div className="relative mt-1.5 shrink-0">
-                      <span className={cn("block h-2 w-2 rounded-full", s.dot)} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={cn("text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded", s.badge)}>
-                          {s.label}
-                        </span>
-                        <span className="text-[13px] text-slate-800">{a.title}</span>
-                      </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">{a.ago}</div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
+        {/* 3. Team status */}
+        <div className="grid grid-cols-1 gap-3">
           {/* Team status */}
           <div className="rounded-lg border border-slate-200 bg-white">
             <div className="px-4 py-3 border-b border-slate-100">
               <h3 className="text-[13px] font-semibold text-slate-900">Team status</h3>
               <p className="text-[11.5px] text-slate-500 mt-0.5">Sample of active collaborators ({ROSTER.length} of {WEEKLY_STATS.collaboratorsTotal.toLocaleString()})</p>
             </div>
+
             <ul className="divide-y divide-slate-100">
               {ROSTER.map((p) => {
                 const act = PERSON_ACTIVITY[p.id] ?? { threads: 0, pendingReplies: 0 };
