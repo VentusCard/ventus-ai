@@ -129,14 +129,6 @@ export function CoworkerLiveStreamView() {
               <Radar className="w-3.5 h-3.5 text-blue-600" />
               <span className="font-semibold text-slate-900 tabular-nums">{counts.signals.toLocaleString()}</span> signals
             </span>
-            <button
-              type="button"
-              onClick={() => setPaused((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 px-2.5 py-1 text-[12px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-            >
-              {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
-              {paused ? "Resume" : "Pause"}
-            </button>
           </div>
         </div>
 
