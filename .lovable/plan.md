@@ -12,7 +12,7 @@ In `src/components/tepilot/coworker-inbox/coworkerInboxView.tsx`, each `TeamDest
 3. Retain the second insight as a concrete-but-not-numeric example, or remove it if it adds specificity.
 
 ### Example direction
-- Bank Leadership: "Weekly pulse summarizing life-event momentum and advisor engagement trends across the bank."
+- Bank Leadership: "Weekly pulse summarizing major trends, key takeaways and strategic opportunities across the bank."
 - Product & Growth: "Daily brief on product-fit gaps and cross-sell opportunities surfaced from behavioral signals."
 - Risk & Compliance: "Alert stream for outbound-transfer clusters, vulnerability indicators, and advisor-inactivity flags."
 - Rewards & Deals: "Daily brief on merchant partnership opportunities and reward-redemption intent by segment."
