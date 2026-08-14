@@ -353,8 +353,8 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     stat1: { label: "Segment-of-one briefs", value: "86" },
     stat2: { label: "Drafts in review", value: "11" },
     insights: [
-      "Campaign brief: 529 cross-sell to 42 households, expected +$3.1M AUM in 90 days.",
-      "Daily brief: Retirement readiness sequence queued for 4-advisor rollout.",
+      "Campaign brief with segment-of-one audiences and pre-drafted personalization copy.",
+      "Routes ready-to-launch campaigns to advisors and tracks draft approvals through launch.",
     ],
     lastDeliveryAgo: "22 min ago",
     emailType: "Campaign brief",
