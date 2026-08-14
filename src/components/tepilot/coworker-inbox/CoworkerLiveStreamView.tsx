@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Sparkles, Pause, Play, ArrowUpRight, ArrowDownLeft, Radar,
+  Sparkles, ArrowUpRight, ArrowDownLeft, Radar,
   Mail, MessageCircle, Workflow, Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,7 +40,6 @@ function matchesFilter(e: StreamEntry, f: FilterKey) {
 
 export function CoworkerLiveStreamView() {
   const [entries, setEntries] = useState<StreamEntry[]>(() => seedStream(18));
-  const [paused, setPaused] = useState(false);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [personFilter, setPersonFilter] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -54,7 +53,6 @@ export function CoworkerLiveStreamView() {
 
   // Rolling insertion
   useEffect(() => {
-    if (paused) return;
     let timer: number;
     const schedule = () => {
       const delay = 2500 + Math.random() * 2500;
@@ -73,7 +71,7 @@ export function CoworkerLiveStreamView() {
     };
     schedule();
     return () => window.clearTimeout(timer);
-  }, [paused]);
+  }, []);
 
   // Age the relative timestamps
   useEffect(() => {
@@ -109,14 +107,10 @@ export function CoworkerLiveStreamView() {
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2.5 w-2.5">
-              {!paused && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              )}
-              <span className={cn("relative inline-flex rounded-full h-2.5 w-2.5", paused ? "bg-slate-400" : "bg-emerald-500")} />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
             </span>
-            <span className="text-[13px] font-semibold text-slate-900">
-              {paused ? "Stream paused" : "Streaming live"}
-            </span>
+            <span className="text-[13px] font-semibold text-slate-900">Streaming live</span>
             <span className="text-[12px] text-slate-500">
               {counts.actions.toLocaleString()} actions today
             </span>
@@ -135,14 +129,6 @@ export function CoworkerLiveStreamView() {
               <Radar className="w-3.5 h-3.5 text-blue-600" />
               <span className="font-semibold text-slate-900 tabular-nums">{counts.signals.toLocaleString()}</span> signals
             </span>
-            <button
-              type="button"
-              onClick={() => setPaused((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 px-2.5 py-1 text-[12px] font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-            >
-              {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
-              {paused ? "Resume" : "Pause"}
-            </button>
           </div>
         </div>
 

@@ -10,10 +10,10 @@ import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-type ViewMode = "stream" | "inbox" | "advisor" | "leadership";
+type ViewMode = "inbox" | "stream" | "advisor" | "leadership";
 
 export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } = {}) {
-  const [viewMode, setViewMode] = useState<ViewMode>("stream");
+  const [viewMode, setViewMode] = useState<ViewMode>("inbox");
 
   const dashboardClients = useMemo(() => generateDashboardClients(60), []);
 
@@ -26,8 +26,8 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
   }, []);
 
   const toggles: { key: ViewMode; label: string; icon: React.ReactNode }[] = [
-    { key: "stream", label: "Live Work Stream", icon: <Radio className="h-4 w-4 mr-2" /> },
     { key: "inbox", label: "Coworker Dashboard", icon: <Inbox className="h-4 w-4 mr-2" /> },
+    { key: "stream", label: "Live Work Stream", icon: <Radio className="h-4 w-4 mr-2" /> },
     { key: "advisor", label: "Advisor Conv. Demo", icon: <Mail className="h-4 w-4 mr-2" /> },
     { key: "leadership", label: "Leadership Conv. Demo", icon: <Building2 className="h-4 w-4 mr-2" /> },
   ];
