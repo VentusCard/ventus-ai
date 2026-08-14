@@ -35,7 +35,39 @@ export function CoworkerInboxView() {
           </div>
         </div>
 
-        {/* 1.5 Capabilities panel */}
+        {/* 2. KPI cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <KpiCard
+            icon={<MessageCircle className="w-3.5 h-3.5" />}
+            label="Emails sent this week"
+            value={WEEKLY_STATS.emailsSent.toLocaleString()}
+            delta={`↑ ${((emailDelta / WEEKLY_STATS.emailsSentPrev) * 100).toFixed(1)}% vs last week`}
+            deltaTone="up"
+          />
+          <KpiCard
+            icon={<Users className="w-3.5 h-3.5" />}
+            label="Bank colleagues covered"
+            value={WEEKLY_STATS.collaboratorsTotal.toLocaleString()}
+            delta={`${WEEKLY_STATS.advisorsCount.toLocaleString()} advisors · ${WEEKLY_STATS.leadersCount.toLocaleString()} leaders`}
+            deltaTone="neutral"
+          />
+          <KpiCard
+            icon={<Radar className="w-3.5 h-3.5" />}
+            label="Insights surfaced"
+            value={WEEKLY_STATS.signalsSurfaced.toLocaleString()}
+            delta={`across ${WEEKLY_STATS.advisorsCount.toLocaleString()} advisor books`}
+            deltaTone="neutral"
+          />
+          <KpiCard
+            icon={<Bolt className="w-3.5 h-3.5" />}
+            label="Reply latency"
+            value={WEEKLY_STATS.ventusReplyLatency}
+            delta="when colleagues write back"
+            deltaTone="up"
+          />
+        </div>
+
+        {/* 3. Capabilities panel */}
         <div className="rounded-lg border border-slate-200 bg-white">
           <button
             type="button"
@@ -80,39 +112,7 @@ export function CoworkerInboxView() {
           )}
         </div>
 
-        {/* 2. KPI cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <KpiCard
-            icon={<MessageCircle className="w-3.5 h-3.5" />}
-            label="Emails sent this week"
-            value={WEEKLY_STATS.emailsSent.toLocaleString()}
-            delta={`↑ ${((emailDelta / WEEKLY_STATS.emailsSentPrev) * 100).toFixed(1)}% vs last week`}
-            deltaTone="up"
-          />
-          <KpiCard
-            icon={<Users className="w-3.5 h-3.5" />}
-            label="Bank colleagues covered"
-            value={WEEKLY_STATS.collaboratorsTotal.toLocaleString()}
-            delta={`${WEEKLY_STATS.advisorsCount.toLocaleString()} advisors · ${WEEKLY_STATS.leadersCount.toLocaleString()} leaders`}
-            deltaTone="neutral"
-          />
-          <KpiCard
-            icon={<Radar className="w-3.5 h-3.5" />}
-            label="Insights surfaced"
-            value={WEEKLY_STATS.signalsSurfaced.toLocaleString()}
-            delta={`across ${WEEKLY_STATS.advisorsCount.toLocaleString()} advisor books`}
-            deltaTone="neutral"
-          />
-          <KpiCard
-            icon={<Bolt className="w-3.5 h-3.5" />}
-            label="Reply latency"
-            value={WEEKLY_STATS.ventusReplyLatency}
-            delta="when colleagues write back"
-            deltaTone="up"
-          />
-        </div>
-
-        {/* 3. Footer disclaimer */}
+        {/* 4. Footer disclaimer */}
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 pt-1">
           <Sparkles className="w-3 h-3" />
           Static demo — activity, threads, and stats are illustrative.
