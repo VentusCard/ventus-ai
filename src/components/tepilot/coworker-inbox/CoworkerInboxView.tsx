@@ -160,59 +160,46 @@ const ACCENT_STYLES: Record<TeamDestination["accent"], { bar: string; chipBg: st
   sky: { bar: "bg-sky-500", chipBg: "bg-sky-50", chipText: "text-sky-700", insightDot: "bg-sky-400", hoverBorder: "hover:border-sky-300" },
 };
 
-function TeamDestinationCard({ team }: { team: TeamDestination }) {
+function TeamDestinationSliver({ team }: { team: TeamDestination }) {
   const styles = ACCENT_STYLES[team.accent];
   const delta = team.weeklyCount - team.weeklyPrev;
   const deltaPct = ((delta / team.weeklyPrev) * 100).toFixed(1);
   const deltaUp = delta >= 0;
+  const primaryInsight = team.insights[0];
 
   return (
-    <div className={cn("rounded-lg border border-slate-200 bg-white overflow-hidden transition-colors", styles.hoverBorder)}>
-      <div className={cn("h-1 w-full", styles.bar)} />
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h4 className="text-[13px] font-semibold text-slate-900 truncate">{team.name}</h4>
-            <p className="text-[11px] text-slate-500 mt-0.5">{team.emailType}</p>
+    <div className={cn("group rounded-lg border border-slate-200 bg-white overflow-hidden transition-colors hover:bg-slate-50/60", styles.hoverBorder)}>
+      <div className="flex items-stretch">
+        <div className={cn("w-1 shrink-0", styles.bar)} />
+        <div className="flex-1 px-3.5 py-3 min-w-0">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <h4 className="text-[13px] font-semibold text-slate-900 truncate">{team.name}</h4>
+              <span className={cn("shrink-0 text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded", styles.chipBg, styles.chipText)}>
+                {team.emailType}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-[18px] font-bold text-slate-900 leading-none">{team.weeklyCount.toLocaleString()}</span>
+              <span className={cn("text-[11px] font-medium", deltaUp ? "text-emerald-700" : "text-rose-700")}>
+                {deltaUp ? "↑" : "↓"} {Math.abs(Number(deltaPct))}%
+              </span>
+            </div>
           </div>
-          <span className={cn("shrink-0 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded", styles.chipBg, styles.chipText)}>
-            {team.emailType}
-          </span>
-        </div>
 
-        <div className="mt-3 flex items-baseline gap-2">
-          <span className="text-[24px] font-bold text-slate-900 leading-none">{team.weeklyCount.toLocaleString()}</span>
-          <span className={cn("text-[11px] font-medium", deltaUp ? "text-emerald-700" : "text-rose-700")}>
-            {deltaUp ? "↑" : "↓"} {Math.abs(Number(deltaPct))}% vs last week
-          </span>
-        </div>
-
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className="rounded-md bg-slate-50 px-2.5 py-2 border border-slate-100">
-            <div className="text-[11px] font-semibold text-slate-900">{team.stat1.value}</div>
-            <div className="text-[10px] text-slate-500">{team.stat1.label}</div>
+          <div className="mt-1.5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", styles.insightDot)} />
+              <span className="text-[11.5px] leading-snug text-slate-600 truncate">{primaryInsight}</span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0 text-[10.5px] text-slate-500">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+              </span>
+              {team.lastDeliveryAgo}
+            </div>
           </div>
-          <div className="rounded-md bg-slate-50 px-2.5 py-2 border border-slate-100">
-            <div className="text-[11px] font-semibold text-slate-900">{team.stat2.value}</div>
-            <div className="text-[10px] text-slate-500">{team.stat2.label}</div>
-          </div>
-        </div>
-
-        <ul className="mt-3 space-y-1.5">
-          {team.insights.map((insight, idx) => (
-            <li key={idx} className="flex items-start gap-2">
-              <span className={cn("mt-1.5 h-1.5 w-1.5 rounded-full shrink-0", styles.insightDot)} />
-              <span className="text-[11.5px] leading-snug text-slate-700">{insight}</span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-[10.5px] text-slate-500">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-          </span>
-          Last delivery {team.lastDeliveryAgo}
         </div>
       </div>
     </div>
