@@ -15,9 +15,9 @@ import type { TabValue } from "./AnalyticsContainer";
 const DASHBOARD_SECTIONS: SubTabItem[] = [
   { value: "overview", label: "Overview", icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
   { value: "customers", label: "Customers", icon: <Users className="w-3.5 h-3.5" /> },
+  { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
   { value: "reports", label: "Reports", icon: <FileBarChart className="w-3.5 h-3.5" /> },
   { value: "query", label: "Query", icon: <Terminal className="w-3.5 h-3.5" /> },
-  { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
   { value: "api", label: "API", icon: <Plug className="w-3.5 h-3.5" /> },
 ];
 
@@ -28,7 +28,7 @@ interface VentusAIDashboardViewProps {
   onOpenOpportunity?: (opportunityId: string) => void;
   onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
   onOpenChat?: (prompt?: string) => void;
-  initialSection?: "overview" | "customers" | "reports" | "query" | "risk" | "api";
+  initialSection?: "overview" | "customers" | "risk" | "reports" | "query" | "api";
 }
 
 export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInteractiveReport, onOpenChat, initialSection = "overview" }: VentusAIDashboardViewProps) {
