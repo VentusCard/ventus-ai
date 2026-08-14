@@ -49,7 +49,7 @@ export function CoworkerInboxView() {
             <div>
               <h3 className="text-[13px] font-semibold text-slate-900">Ventus AI Coworker Capabilities</h3>
               <p className="text-[11.5px] text-slate-500 mt-0.5">
-                Ventus works alongside {WEEKLY_STATS.advisorsCount.toLocaleString()} advisors and {WEEKLY_STATS.leadersCount.toLocaleString()} leaders — always thinking, always on.
+                Ventus emails {WEEKLY_STATS.collaboratorsTotal.toLocaleString()} bank colleagues personalized intelligence briefs — always thinking, always on.
               </p>
             </div>
             <ChevronDown
@@ -73,7 +73,7 @@ export function CoworkerInboxView() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-slate-100">
                 <CapabilityTile icon={<Radar className="w-3.5 h-3.5" />} title="Continuous signal detection" body="Scans every transaction across all client books in real time for life events, liquidity, and risk signals." />
-                <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Concrete guidance" body="Recommends specific next steps in product and relationship, and builds personalized outreach plans — ready for advisor review before any client contact." />
+                <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Insight emails" body="Builds and sends personalized email briefs to each bank colleague with the exact insights they need for their role." />
                 <CapabilityTile icon={<History className="w-3.5 h-3.5" />} title="Context memory" body="Remembers every thread, client history, and past recommendation — conversations pick up exactly where they left off." />
                 <CapabilityTile icon={<MessageSquare className="w-3.5 h-3.5" />} title="Instant conversational replies" body="Replies in under a second when an advisor or leader responds — deeper context, drafts, next actions, or follow-up questions on demand." accentClass="text-emerald-600" />
                 <CapabilityTile icon={<Clock className="w-3.5 h-3.5" />} title="Always-on coverage" body="Operates continuously across time zones — no queues, no downtime, no missed signals." />
@@ -86,40 +86,40 @@ export function CoworkerInboxView() {
         {/* 2. KPI cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <KpiCard
-            icon={<Radar className="w-3.5 h-3.5" />}
-            label="Signals surfaced"
-            value={WEEKLY_STATS.signalsSurfaced.toLocaleString()}
-            delta={`across ${WEEKLY_STATS.advisorsCount.toLocaleString()} advisor books`}
-            deltaTone="neutral"
-          />
-          <KpiCard
             icon={<MessageCircle className="w-3.5 h-3.5" />}
-            label="Briefs delivered this week"
+            label="Emails sent this week"
             value={WEEKLY_STATS.emailsSent.toLocaleString()}
             delta={`↑ ${((emailDelta / WEEKLY_STATS.emailsSentPrev) * 100).toFixed(1)}% vs last week`}
             deltaTone="up"
           />
           <KpiCard
             icon={<Users className="w-3.5 h-3.5" />}
-            label="Teams served"
-            value={teamsCount.toString()}
-            delta="banking destinations this week"
+            label="Bank colleagues covered"
+            value={WEEKLY_STATS.collaboratorsTotal.toLocaleString()}
+            delta={`${WEEKLY_STATS.advisorsCount.toLocaleString()} advisors · ${WEEKLY_STATS.leadersCount.toLocaleString()} leaders`}
+            deltaTone="neutral"
+          />
+          <KpiCard
+            icon={<Radar className="w-3.5 h-3.5" />}
+            label="Insights surfaced"
+            value={WEEKLY_STATS.signalsSurfaced.toLocaleString()}
+            delta={`across ${WEEKLY_STATS.advisorsCount.toLocaleString()} advisor books`}
             deltaTone="neutral"
           />
           <KpiCard
             icon={<Bolt className="w-3.5 h-3.5" />}
-            label="AI COWORKER REPLY RECEIVED"
+            label="Reply latency"
             value={WEEKLY_STATS.ventusReplyLatency}
-            delta="instant · always on"
+            delta="when colleagues write back"
             deltaTone="up"
           />
         </div>
 
-        {/* 3. Team destinations */}
+        {/* 3. Intelligence Delivery Destinations */}
         <div>
           <div className="px-1 mb-2.5 flex items-center justify-between">
-            <h3 className="text-[13px] font-semibold text-slate-900">Team destinations</h3>
-            <span className="text-[11px] text-slate-500">{teamsCount} banking teams · {WEEKLY_STATS.emailsSent.toLocaleString()} actions delivered</span>
+            <h3 className="text-[13px] font-semibold text-slate-900">Intelligence Delivery Destinations</h3>
+            <span className="text-[11px] text-slate-500">{teamsCount} banking teams · {WEEKLY_STATS.emailsSent.toLocaleString()} insight emails delivered</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {TEAM_DESTINATIONS.map((team) => (
@@ -235,10 +235,10 @@ function TeamDestinationCard({ team }: { team: TeamDestination }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h4 className="text-[13px] font-semibold text-slate-900 truncate">{team.name}</h4>
-            <p className="text-[11px] text-slate-500 mt-0.5">{team.channel}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{team.emailType}</p>
           </div>
           <span className={cn("shrink-0 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded", styles.chipBg, styles.chipText)}>
-            {team.channel}
+            {team.emailType}
           </span>
         </div>
 
