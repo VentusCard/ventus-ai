@@ -1,4 +1,5 @@
-import { Sparkles, Clock, History, MessageSquare, Workflow, Radar, FileText, MessageCircle, Bolt, Users } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, Clock, History, MessageSquare, Workflow, Radar, FileText, MessageCircle, Bolt, Users, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   WEEKLY_STATS,
@@ -7,6 +8,7 @@ import {
 } from "./coworkerInboxData";
 
 export function CoworkerInboxView() {
+  const [capabilitiesExpanded, setCapabilitiesExpanded] = useState(true);
   const emailDelta = WEEKLY_STATS.emailsSent - WEEKLY_STATS.emailsSentPrev;
 
   return (
@@ -66,20 +68,33 @@ export function CoworkerInboxView() {
 
         {/* 3. Capabilities panel */}
         <div className="rounded-lg border border-slate-200 bg-white">
-          <div className="px-4 py-3 border-b border-slate-100">
-            <h3 className="text-[13px] font-semibold text-slate-900">Ventus AI Coworker Capabilities</h3>
-            <p className="text-[11.5px] text-slate-500 mt-0.5">
-              Ventus emails {WEEKLY_STATS.collaboratorsTotal.toLocaleString()} bank colleagues personalized intelligence briefs — always thinking, always on.
-            </p>
+          <div className="px-4 py-3 border-b border-slate-100 flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-[13px] font-semibold text-slate-900">Ventus AI Coworker Capabilities</h3>
+              <p className="text-[11.5px] text-slate-500 mt-0.5">
+                Ventus emails {WEEKLY_STATS.collaboratorsTotal.toLocaleString()} bank colleagues personalized intelligence briefs — always thinking, always on.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCapabilitiesExpanded((v) => !v)}
+              className="shrink-0 flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-slate-700 px-2 py-1 rounded-md hover:bg-slate-100 transition-colors"
+              aria-expanded={capabilitiesExpanded}
+            >
+              {capabilitiesExpanded ? "Hide" : "Show"} capabilities
+              {capabilitiesExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-b border-slate-100">
-            <CapabilityTile icon={<Radar className="w-3.5 h-3.5" />} title="Continuous signal detection" body="Scans every transaction across all client books in real time for life events, liquidity, and risk signals." />
-            <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Insight emails" body="Builds and sends personalized email briefs to each bank colleague with the exact insights they need for their role." />
-            <CapabilityTile icon={<History className="w-3.5 h-3.5" />} title="Context memory" body="Remembers every thread, client history, and past recommendation — conversations pick up exactly where they left off." />
-            <CapabilityTile icon={<MessageSquare className="w-3.5 h-3.5" />} title="Instant conversational replies" body="Replies in under a second when an advisor or leader responds — deeper context, drafts, next actions, or follow-up questions on demand." accentClass="text-emerald-600" />
-            <CapabilityTile icon={<Clock className="w-3.5 h-3.5" />} title="Always-on coverage" body="Operates continuously across time zones — no queues, no downtime, no missed signals." />
-            <CapabilityTile icon={<Workflow className="w-3.5 h-3.5" />} title="Coordinated hand-offs" body="Routes retention playbooks, escalations, and cross-advisor coordination without leadership having to chase." />
-          </div>
+          {capabilitiesExpanded && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-b border-slate-100">
+              <CapabilityTile icon={<Radar className="w-3.5 h-3.5" />} title="Continuous signal detection" body="Scans every transaction across all client books in real time for life events, liquidity, and risk signals." />
+              <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Insight emails" body="Builds and sends personalized email briefs to each bank colleague with the exact insights they need for their role." />
+              <CapabilityTile icon={<History className="w-3.5 h-3.5" />} title="Context memory" body="Remembers every thread, client history, and past recommendation — conversations pick up exactly where they left off." />
+              <CapabilityTile icon={<MessageSquare className="w-3.5 h-3.5" />} title="Instant conversational replies" body="Replies in under a second when an advisor or leader responds — deeper context, drafts, next actions, or follow-up questions on demand." accentClass="text-emerald-600" />
+              <CapabilityTile icon={<Clock className="w-3.5 h-3.5" />} title="Always-on coverage" body="Operates continuously across time zones — no queues, no downtime, no missed signals." />
+              <CapabilityTile icon={<Workflow className="w-3.5 h-3.5" />} title="Coordinated hand-offs" body="Routes retention playbooks, escalations, and cross-advisor coordination without leadership having to chase." />
+            </div>
+          )}
           <div className="px-4 py-3">
             <div className="flex items-center justify-between mb-2.5">
               <h4 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">Intelligence delivery destinations</h4>
