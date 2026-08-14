@@ -3,21 +3,12 @@ import { Sparkles, ArrowLeftRight, MessageCircle, Zap, Bolt, Radar, UserRoundChe
 import { cn } from "@/lib/utils";
 import {
   ROSTER,
-  THREADS,
-  ACTIVITY_FEED,
   WEEKLY_STATS,
   PERSON_ACTIVITY,
-  type ActivityKind,
   type Person,
 } from "./coworkerInboxData";
 
 
-const KIND_STYLES: Record<ActivityKind, { dot: string; label: string; badge: string }> = {
-  advisor:    { dot: "bg-purple-500", label: "Advisor",    badge: "bg-purple-50 text-purple-700 border-purple-200" },
-  leadership: { dot: "bg-amber-500",  label: "Leadership", badge: "bg-amber-50 text-amber-700 border-amber-200" },
-  signal:     { dot: "bg-blue-500",   label: "Signal",     badge: "bg-blue-50 text-blue-700 border-blue-200" },
-  reply:      { dot: "bg-emerald-500",label: "Reply",      badge: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-};
 
 export function CoworkerInboxView() {
   const [capabilitiesOpen, setCapabilitiesOpen] = useState(false);
