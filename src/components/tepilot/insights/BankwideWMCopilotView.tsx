@@ -63,9 +63,6 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
             </Button>
           ))}
         </div>
-        <span className="text-sm text-slate-500 ml-2">
-          Wealth Management Coworker
-        </span>
       </div>
 
       {/* Content */}
