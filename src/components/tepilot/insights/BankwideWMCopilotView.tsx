@@ -37,7 +37,7 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
     <div className="flex flex-col h-full">
       {!hideHeader && <TabHeader
         icon={<Briefcase className="w-4 h-4" />}
-        title="WM Coworker"
+        title="Ventus AI Coworker"
         subtitle="An email-based Ventus AI teammate for every bank colleague"
         howItWorks="Ventus AI scans behavior across 3M+ households and emails personalized intelligence briefs to the bank employees who need them — advisors, leaders, product teams, risk, rewards, and marketing. It replies instantly when anyone writes back."
         whyItMatters="Enterprise-scale coverage without adding headcount. Every colleague gets the right insight at the right time, delivered straight to their inbox."
