@@ -289,8 +289,8 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     stat1: { label: "Product-gap alerts", value: "142" },
     stat2: { label: "Est. 90-day AUM uplift", value: "$12.4M" },
     insights: [
-      "Daily brief: 529-to-Roth rollover playbook — 14 households qualify under SECURE 2.0.",
-      "Alert: Parent-plus refinance opportunity — 9 flagged households with no outreach.",
+      "Daily brief on product-fit gaps and cross-sell opportunities surfaced from behavioral signals.",
+      "Highlights rollover playbooks, refinance moments, and next-product candidates by segment.",
     ],
     lastDeliveryAgo: "9 min ago",
     emailType: "Daily brief",
