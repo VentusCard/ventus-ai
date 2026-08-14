@@ -11,7 +11,7 @@ Rebuild the "Coworker Dashboard" sub-tab (inside AI Coworker) so it is organized
 5. Relationship Managers / Advisors — client signal briefs, outreach drafts
 6. Marketing / Campaign Ops — segment-of-one briefs, creative routing
 
-Ships with all 8; each card can be collapsed if the row gets long.
+Ships with all 6; each card can be collapsed if the row gets long.
 
 ## Layout
 
