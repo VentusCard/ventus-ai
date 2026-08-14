@@ -112,7 +112,7 @@ export function CoworkerInboxView() {
           )}
         </div>
 
-        {/* 3. Footer disclaimer */}
+        {/* 4. Footer disclaimer */}
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 pt-1">
           <Sparkles className="w-3 h-3" />
           Static demo — activity, threads, and stats are illustrative.
