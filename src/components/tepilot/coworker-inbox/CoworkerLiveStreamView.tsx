@@ -107,14 +107,10 @@ export function CoworkerLiveStreamView() {
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2.5 w-2.5">
-              {!paused && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              )}
-              <span className={cn("relative inline-flex rounded-full h-2.5 w-2.5", paused ? "bg-slate-400" : "bg-emerald-500")} />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
             </span>
-            <span className="text-[13px] font-semibold text-slate-900">
-              {paused ? "Stream paused" : "Streaming live"}
-            </span>
+            <span className="text-[13px] font-semibold text-slate-900">Streaming live</span>
             <span className="text-[12px] text-slate-500">
               {counts.actions.toLocaleString()} actions today
             </span>
