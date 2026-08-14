@@ -53,7 +53,6 @@ export function CoworkerLiveStreamView() {
 
   // Rolling insertion
   useEffect(() => {
-    if (paused) return;
     let timer: number;
     const schedule = () => {
       const delay = 2500 + Math.random() * 2500;
@@ -72,7 +71,7 @@ export function CoworkerLiveStreamView() {
     };
     schedule();
     return () => window.clearTimeout(timer);
-  }, [paused]);
+  }, []);
 
   // Age the relative timestamps
   useEffect(() => {
