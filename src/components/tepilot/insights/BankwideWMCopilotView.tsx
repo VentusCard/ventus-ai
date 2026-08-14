@@ -1,18 +1,19 @@
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Mail, Inbox, Building2 } from "lucide-react";
+import { Briefcase, Mail, Inbox, Building2, Radio } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/AdvisorNotificationsView";
 import { LeadershipNotificationsView } from "@/components/tepilot/advisor-console/LeadershipNotificationsView";
 import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
+import { CoworkerLiveStreamView } from "@/components/tepilot/coworker-inbox/CoworkerLiveStreamView";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-type ViewMode = "inbox" | "advisor" | "leadership";
+type ViewMode = "stream" | "inbox" | "advisor" | "leadership";
 
 export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } = {}) {
-  const [viewMode, setViewMode] = useState<ViewMode>("inbox");
+  const [viewMode, setViewMode] = useState<ViewMode>("stream");
 
   const dashboardClients = useMemo(() => generateDashboardClients(60), []);
 
@@ -25,10 +26,12 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
   }, []);
 
   const toggles: { key: ViewMode; label: string; icon: React.ReactNode }[] = [
+    { key: "stream", label: "Live Work Stream", icon: <Radio className="h-4 w-4 mr-2" /> },
     { key: "inbox", label: "Coworker Dashboard", icon: <Inbox className="h-4 w-4 mr-2" /> },
     { key: "advisor", label: "Advisor Conv. Demo", icon: <Mail className="h-4 w-4 mr-2" /> },
     { key: "leadership", label: "Leadership Conv. Demo", icon: <Building2 className="h-4 w-4 mr-2" /> },
   ];
+
 
   return (
     <div className="flex flex-col h-full">
