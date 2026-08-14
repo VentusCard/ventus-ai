@@ -94,9 +94,9 @@ export function CoworkerInboxView() {
                   <h4 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">Intelligence delivery destinations</h4>
                   <span className="text-[11px] text-slate-500">{TEAM_DESTINATIONS.length} banking teams · {WEEKLY_STATS.emailsSent.toLocaleString()} insight emails delivered</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                <div className="flex flex-col gap-2">
                   {TEAM_DESTINATIONS.map((team) => (
-                    <TeamDestinationCard key={team.id} team={team} />
+                    <TeamDestinationSliver key={team.id} team={team} />
                   ))}
                 </div>
               </div>
