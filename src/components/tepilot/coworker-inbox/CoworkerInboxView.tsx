@@ -2,11 +2,8 @@ import { useState } from "react";
 import { Sparkles, ChevronDown, Clock, History, MessageSquare, Workflow, Radar, FileText, MessageCircle, Bolt, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  ROSTER,
   WEEKLY_STATS,
-  PERSON_ACTIVITY,
   TEAM_DESTINATIONS,
-  type Person,
   type TeamDestination,
 } from "./coworkerInboxData";
 
@@ -128,53 +125,7 @@ export function CoworkerInboxView() {
           </div>
         </div>
 
-        {/* 4. Team status */}
-        <div className="grid grid-cols-1 gap-3">
-          <div className="rounded-lg border border-slate-200 bg-white">
-            <div className="px-4 py-3 border-b border-slate-100">
-              <h3 className="text-[13px] font-semibold text-slate-900">People Ventus works with</h3>
-              <p className="text-[11.5px] text-slate-500 mt-0.5">Sample of active collaborators ({ROSTER.length} of {WEEKLY_STATS.collaboratorsTotal.toLocaleString()})</p>
-            </div>
-
-            <ul className="divide-y divide-slate-100">
-              {ROSTER.map((p) => {
-                const act = PERSON_ACTIVITY[p.id] ?? { threads: 0, pendingReplies: 0 };
-                return (
-                  <li key={p.id} className="px-3.5 py-2.5 flex items-center gap-2.5">
-                    <div className="shrink-0 w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10.5px] font-bold">
-                      {p.initials}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[12.5px] font-medium text-slate-900 truncate">{p.name}</span>
-                        <span className={cn(
-                          "text-[9.5px] font-semibold uppercase tracking-wider px-1 py-0.5 rounded border",
-                          p.role === "advisor"
-                            ? "bg-purple-50 text-purple-700 border-purple-200"
-                            : "bg-amber-50 text-amber-700 border-amber-200"
-                        )}>
-                          {p.role === "advisor" ? "ADV" : "LEAD"}
-                        </span>
-                      </div>
-                      <div className="text-[10.5px] text-slate-500 truncate">{p.title}</div>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <div className="text-[11px] font-semibold text-slate-800">{act.threads}</div>
-                      <div className="text-[9.5px] text-slate-500">threads</div>
-                      {act.pendingReplies > 0 && (
-                        <div className="text-[9.5px] text-emerald-700 font-medium mt-0.5">
-                          {act.pendingReplies} pending
-                        </div>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
-
-        {/* 5. Footer disclaimer */}
+        {/* 4. Footer disclaimer */}
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 pt-1">
           <Sparkles className="w-3 h-3" />
           Static demo — activity, threads, and stats are illustrative.
