@@ -10,8 +10,6 @@ Rebuild the "Coworker Dashboard" sub-tab (inside AI Coworker) so it is organized
 4. Rewards & Deals — merchant partnerships, redemption lift, offer refreshes
 5. Relationship Managers / Advisors — client signal briefs, outreach drafts
 6. Marketing / Campaign Ops — segment-of-one briefs, creative routing
-7. Branch & Contact Center — pre-call context, handoff notes for frontline staff
-8. Digital Banking — in-app personalization payloads, placement decisions
 
 Ships with all 8; each card can be collapsed if the row gets long.
 
