@@ -40,7 +40,6 @@ function matchesFilter(e: StreamEntry, f: FilterKey) {
 
 export function CoworkerLiveStreamView() {
   const [entries, setEntries] = useState<StreamEntry[]>(() => seedStream(18));
-  const [paused, setPaused] = useState(false);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [personFilter, setPersonFilter] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
