@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, ChevronDown, Clock, History, MessageSquare, Workflow, Radar, FileText, Zap, MessageCircle, ArrowLeftRight, Bolt, Users } from "lucide-react";
+import { Sparkles, ChevronDown, Clock, History, MessageSquare, Workflow, Radar, FileText, MessageCircle, Bolt, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ROSTER,
