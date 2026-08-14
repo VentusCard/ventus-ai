@@ -337,8 +337,8 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     stat1: { label: "Active advisor threads", value: "9,640" },
     stat2: { label: "Reply rate", value: "61%" },
     insights: [
-      "Signal brief: College-prep cluster — 3 households need tuition-funding outreach this week.",
-      "Alert: Liquidity event detected for Robert Hayes — $2.4M inbound wire sitting in cash.",
+      "Signal brief highlighting client life events, liquidity moments, and recommended next outreach.",
+      "Prioritizes the highest-propensity households and drafts talking points for each advisor.",
     ],
     lastDeliveryAgo: "1 min ago",
     emailType: "Signal brief",
