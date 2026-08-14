@@ -72,6 +72,14 @@ export function CoworkerInboxView() {
               Ventus emails {WEEKLY_STATS.collaboratorsTotal.toLocaleString()} bank colleagues personalized intelligence briefs — always thinking, always on.
             </p>
           </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-b border-slate-100">
+            <CapabilityTile icon={<Radar className="w-3.5 h-3.5" />} title="Continuous signal detection" body="Scans every transaction across all client books in real time for life events, liquidity, and risk signals." />
+            <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Insight emails" body="Builds and sends personalized email briefs to each bank colleague with the exact insights they need for their role." />
+            <CapabilityTile icon={<History className="w-3.5 h-3.5" />} title="Context memory" body="Remembers every thread, client history, and past recommendation — conversations pick up exactly where they left off." />
+            <CapabilityTile icon={<MessageSquare className="w-3.5 h-3.5" />} title="Instant conversational replies" body="Replies in under a second when an advisor or leader responds — deeper context, drafts, next actions, or follow-up questions on demand." accentClass="text-emerald-600" />
+            <CapabilityTile icon={<Clock className="w-3.5 h-3.5" />} title="Always-on coverage" body="Operates continuously across time zones — no queues, no downtime, no missed signals." />
+            <CapabilityTile icon={<Workflow className="w-3.5 h-3.5" />} title="Coordinated hand-offs" body="Routes retention playbooks, escalations, and cross-advisor coordination without leadership having to chase." />
+          </div>
           <div className="px-4 py-3">
             <div className="flex items-center justify-between mb-2.5">
               <h4 className="text-[12px] font-semibold uppercase tracking-wider text-slate-500">Intelligence delivery destinations</h4>
@@ -82,14 +90,6 @@ export function CoworkerInboxView() {
                 <TeamDestinationSliver key={team.id} team={team} />
               ))}
             </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-slate-100">
-            <CapabilityTile icon={<Radar className="w-3.5 h-3.5" />} title="Continuous signal detection" body="Scans every transaction across all client books in real time for life events, liquidity, and risk signals." />
-            <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Insight emails" body="Builds and sends personalized email briefs to each bank colleague with the exact insights they need for their role." />
-            <CapabilityTile icon={<History className="w-3.5 h-3.5" />} title="Context memory" body="Remembers every thread, client history, and past recommendation — conversations pick up exactly where they left off." />
-            <CapabilityTile icon={<MessageSquare className="w-3.5 h-3.5" />} title="Instant conversational replies" body="Replies in under a second when an advisor or leader responds — deeper context, drafts, next actions, or follow-up questions on demand." accentClass="text-emerald-600" />
-            <CapabilityTile icon={<Clock className="w-3.5 h-3.5" />} title="Always-on coverage" body="Operates continuously across time zones — no queues, no downtime, no missed signals." />
-            <CapabilityTile icon={<Workflow className="w-3.5 h-3.5" />} title="Coordinated hand-offs" body="Routes retention playbooks, escalations, and cross-advisor coordination without leadership having to chase." />
           </div>
         </div>
 
