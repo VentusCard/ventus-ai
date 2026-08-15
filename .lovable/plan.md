@@ -42,7 +42,7 @@ Each of the six gets authored content covering:
 
 ## Interaction
 
-Demo-grade, session-only: "does" rows and delivery settings are toggleable/selectable and persist in component state for the session; "never does" rows are locked with a governed-by-bank lock icon. A "Save playbook" button shows a confirmation toast — no backend writes, no LLM calls (consistent with /bankdemo being LLM-free).
+Demo-grade, session-only. "Always does" rows can be toggled off (moving them out of the standing routine); "Sometimes does" rows can be toggled on/off and show their trigger condition inline; "Never does" rows are locked with a governed-by-bank lock icon. Delivery settings are selectable. A "Save playbook" button shows a confirmation toast — no backend writes, no LLM calls (consistent with /bankdemo being LLM-free).
 
 ## Technical notes
 
