@@ -10,7 +10,7 @@ import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-type ViewMode = "inbox" | "stream" | "advisor" | "leadership";
+type ViewMode = "inbox" | "persona" | "stream" | "advisor" | "leadership";
 
 export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } = {}) {
   const [viewMode, setViewMode] = useState<ViewMode>("inbox");
