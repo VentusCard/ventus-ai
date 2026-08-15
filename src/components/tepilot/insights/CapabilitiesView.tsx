@@ -427,6 +427,8 @@ const DETECTION_BASIS_CLASS: Record<Detection["basis"], string> = {
 
 const FLIP_MS = 420;
 const ROW_H = 24;
+/* Opaque backdrop for flap faces so folding panels never ghost through each other. */
+const PANEL_BG = "#171F31";
 
 /* A single standing signal section with a split-flap detection board. */
 function SignalSection({
