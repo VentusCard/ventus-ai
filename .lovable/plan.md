@@ -16,8 +16,9 @@ Two-column workspace, matching the existing light enterprise style (white cards,
 ┌ Coworkers ─────────┐┌ Playbook: Coworker for Relationship Managers ───────┐
 │ ● Bank Leadership  ││ Identity     name · audience · email type · cadence │
 │ ● Product & Growth ││ Mission      one-paragraph charter                  │
-│ ● Risk & Compliance││ What it does     4-6 checklist rows (toggleable)    │
-│ ● Rewards & Deals  ││ What it never does  4-6 constraint rows (locked)    │
+│ ● Risk & Compliance││ Always does     3-5 rows (green, toggleable)        │
+│ ● Rewards & Deals  ││ Sometimes does  3-5 rows (amber, condition per row) │
+│                    ││ Never does      3-5 rows (red, locked)              │
 │ ▸ Relationship Mgrs││ Signals it watches  pill row (life event, financial,│
 │ ● Marketing / Ops  ││              behavioral, demographic, risk)          │
 │                    ││ Tone & length    tone select · word cap · disclaimer│
