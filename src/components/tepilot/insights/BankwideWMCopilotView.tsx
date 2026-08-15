@@ -6,6 +6,8 @@ import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/A
 import { LeadershipNotificationsView } from "@/components/tepilot/advisor-console/LeadershipNotificationsView";
 import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
 import { CoworkerLiveStreamView } from "@/components/tepilot/coworker-inbox/CoworkerLiveStreamView";
+import { CoworkerPersonaSettingsView } from "@/components/tepilot/coworker-inbox/CoworkerPersonaSettingsView";
+
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
