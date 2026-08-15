@@ -265,7 +265,7 @@ export interface TeamDestination {
 export const TEAM_DESTINATIONS: TeamDestination[] = [
   {
     id: "leadership",
-    name: "Bank Leadership",
+    name: "Coworker for Bank Leadership",
     channel: "Email",
     accent: "indigo",
     weeklyCount: 340,
@@ -281,7 +281,7 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
   },
   {
     id: "product-growth",
-    name: "Product & Growth",
+    name: "Coworker for Product & Growth",
     channel: "Email",
     accent: "emerald",
     weeklyCount: 2840,
@@ -297,7 +297,7 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
   },
   {
     id: "risk",
-    name: "Risk & Compliance",
+    name: "Coworker for Risk & Compliance",
     channel: "Email",
     accent: "rose",
     weeklyCount: 1860,
@@ -313,7 +313,7 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
   },
   {
     id: "rewards",
-    name: "Rewards & Deals",
+    name: "Coworker for Rewards & Deals",
     channel: "Email",
     accent: "amber",
     weeklyCount: 4210,
@@ -329,7 +329,7 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
   },
   {
     id: "advisors",
-    name: "Relationship Managers",
+    name: "Coworker for Relationship Managers",
     channel: "Email",
     accent: "violet",
     weeklyCount: 19860,
@@ -345,7 +345,7 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
   },
   {
     id: "marketing",
-    name: "Marketing / Campaign Ops",
+    name: "Coworker for Marketing / Campaign Ops",
     channel: "Email",
     accent: "sky",
     weeklyCount: 1340,
