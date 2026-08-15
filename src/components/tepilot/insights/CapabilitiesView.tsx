@@ -441,26 +441,55 @@ function SignalSection({
   interval: number;
   onSelect: () => void;
 }) {
-  const [cycle, setCycle] = useState(0);
+  const [idx, setIdx] = useState(0);
+  const [rolling, setRolling] = useState(false);
+  const total = signal.examples.length;
+  const reduceMotion =
+    typeof window !== "undefined" &&
+    !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
-    let id: number;
+    let intervalId: number;
+    let settleId: number;
+    const advance = () => setIdx((current) => (current + 1) % total);
     const start = window.setTimeout(() => {
-      id = window.setInterval(() => {
-        setCycle((current) => current + 1);
+      intervalId = window.setInterval(() => {
+        if (reduceMotion) {
+          advance();
+          return;
+        }
+        setRolling(true);
+        settleId = window.setTimeout(() => {
+          setRolling(false);
+          advance();
+        }, 700);
       }, interval);
     }, startDelay);
     return () => {
       window.clearTimeout(start);
-      window.clearInterval(id);
+      window.clearTimeout(settleId);
+      window.clearInterval(intervalId);
     };
-  }, [signal.examples.length, startDelay, interval]);
+  }, [total, startDelay, interval, reduceMotion]);
 
-  const idx = cycle % signal.examples.length;
-  const previousIdx = (idx - 1 + signal.examples.length) % signal.examples.length;
-  const visibleExamples = cycle === 0
-    ? [signal.examples[idx]]
-    : [signal.examples[previousIdx], signal.examples[idx]];
+  const current = signal.examples[idx];
+  const next = signal.examples[(idx + 1) % total];
+
+  const renderRow = (example: SignalDetail["examples"][number]) => (
+    <span className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300">
+      <span className="truncate font-medium text-slate-200">{example.to}</span>
+      <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
+      <span className="truncate text-slate-400">{example.ev}</span>
+      <span
+        className={cn(
+          "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
+          DETECTION_BASIS_CLASS[example.basis],
+        )}
+      >
+        {example.basis}
+      </span>
+    </span>
+  );
 
   return (
     <button
@@ -484,35 +513,21 @@ function SignalSection({
       </span>
       <span className="relative mt-0.5 block h-5 overflow-hidden">
         <div
-          key={cycle}
-          className={cn(
-            "absolute inset-x-0 top-0",
-            cycle > 0 && "motion-safe:animate-core-roll-track",
-          )}
+          className="absolute inset-x-0 top-0"
+          style={{
+            transform: rolling ? "translate3d(0, -20px, 0)" : "translate3d(0, 0, 0)",
+            transition: rolling ? "transform 700ms cubic-bezier(0.22, 1, 0.36, 1)" : "none",
+            willChange: "transform",
+          }}
         >
-          {visibleExamples.map((example, exampleIndex) => (
-            <span
-              key={`${cycle}-${exampleIndex}`}
-              className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300"
-            >
-              <span className="truncate font-medium text-slate-200">{example.to}</span>
-              <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
-              <span className="truncate text-slate-400">{example.ev}</span>
-              <span
-                className={cn(
-                  "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
-                  DETECTION_BASIS_CLASS[example.basis],
-                )}
-              >
-                {example.basis}
-              </span>
-            </span>
-          ))}
+          {renderRow(current)}
+          {renderRow(next)}
         </div>
       </span>
     </button>
   );
 }
+
 
 
 
@@ -840,8 +855,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         signal={s}
                         count={row ? row.detected.toLocaleString() : "—"}
                         isActive={s.label === activeSignalLabel}
-                        startDelay={i * 420}
-                        interval={2600 + i * 160}
+                        startDelay={i * 900}
+                        interval={3400 + i * 520}
                         onSelect={() => selectSignal(s.label)}
                       />
                     );
