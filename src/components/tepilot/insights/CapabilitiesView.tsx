@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Layers,
@@ -441,16 +441,13 @@ function SignalSection({
   interval: number;
   onSelect: () => void;
 }) {
-  const [idx, setIdx] = useState(0);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const [cycle, setCycle] = useState(0);
 
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
     let id: number;
     const start = window.setTimeout(() => {
       id = window.setInterval(() => {
-        setIdx((i) => (i + 1) % signal.examples.length);
+        setCycle((current) => current + 1);
       }, interval);
     }, startDelay);
     return () => {
@@ -459,15 +456,11 @@ function SignalSection({
     };
   }, [signal.examples.length, startDelay, interval]);
 
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    el.classList.remove("animate-rollup");
-    void el.offsetWidth;
-    el.classList.add("animate-rollup");
-  }, [idx]);
-
-  const e = signal.examples[idx];
+  const idx = cycle % signal.examples.length;
+  const previousIdx = (idx - 1 + signal.examples.length) % signal.examples.length;
+  const visibleExamples = cycle === 0
+    ? [signal.examples[idx]]
+    : [signal.examples[previousIdx], signal.examples[idx]];
 
   return (
     <button
@@ -490,20 +483,31 @@ function SignalSection({
         </span>
       </span>
       <span className="relative mt-0.5 block h-5 overflow-hidden">
-        <div ref={trackRef} className="absolute inset-x-0 top-0">
-          <div className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300">
-            <span className="truncate font-medium text-slate-200">{e.to}</span>
-            <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
-            <span className="truncate text-slate-400">{e.ev}</span>
+        <div
+          key={cycle}
+          className={cn(
+            "absolute inset-x-0 top-0",
+            cycle > 0 && "motion-safe:animate-core-roll-track",
+          )}
+        >
+          {visibleExamples.map((example, exampleIndex) => (
             <span
-              className={cn(
-                "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
-                DETECTION_BASIS_CLASS[e.basis],
-              )}
+              key={`${cycle}-${exampleIndex}`}
+              className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300"
             >
-              {e.basis}
+              <span className="truncate font-medium text-slate-200">{example.to}</span>
+              <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
+              <span className="truncate text-slate-400">{example.ev}</span>
+              <span
+                className={cn(
+                  "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
+                  DETECTION_BASIS_CLASS[example.basis],
+                )}
+              >
+                {example.basis}
+              </span>
             </span>
-          </div>
+          ))}
         </div>
       </span>
     </button>
