@@ -8,7 +8,7 @@ import {
 } from "./coworkerInboxData";
 
 export function CoworkerInboxView() {
-  const [capabilitiesExpanded, setCapabilitiesExpanded] = useState(false);
+  const [capabilitiesExpanded, setCapabilitiesExpanded] = useState(true);
   const emailDelta = WEEKLY_STATS.emailsSent - WEEKLY_STATS.emailsSentPrev;
 
   return (

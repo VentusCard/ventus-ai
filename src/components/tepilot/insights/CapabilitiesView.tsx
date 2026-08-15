@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   Layers,
@@ -102,6 +102,31 @@ type SignalDetail = {
 
 const SIGNALS: SignalDetail[] = [
   {
+    label: "Life Event",
+    icon: CalendarHeart,
+    color: "bg-amber-500",
+    tint: "bg-amber-50 text-amber-700 border-amber-200",
+    dot: "bg-amber-500",
+    description: "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds.",
+    examples: [
+      { ev: "Title + escrow payment", to: "Home purchase in progress", basis: "1P" },
+      { ev: "OB visits + registry spend", to: "New baby, ~2 months out", basis: "1P" },
+      { ev: "Bureau tradeline maturing", to: "Auto loan renewal window", basis: "Ext" },
+      { ev: "Bursar deposit + college tours", to: "Dependent starting college", basis: "Both" },
+    ],
+    items: [
+      { label: "Home Purchase", sublabel: "Realtor, title/escrow, mortgage, HOA setup, first mortgage payment" },
+      { label: "New Baby", sublabel: "OB/midwife, buybuy BABY, pediatrician, daycare, hospital L&D" },
+      { label: "Wedding / Engagement", sublabel: "Jeweler ($2k+), venue, bridal salon, photographer, registry" },
+      { label: "College Prep (Dependent)", sublabel: "SAT/ACT/Kaplan, Common App, bursar deposits, college tours" },
+      { label: "Business Formation", sublabel: "LegalZoom, Stripe Atlas, business banking, commercial leasing" },
+      { label: "Elder Care", sublabel: "Assisted living, home health aide, geriatric care, hospice, DME" },
+      { label: "Retirement Planning", sublabel: "Advisor fees, estate attorney, Medicare supplement, downsizing" },
+      { label: "Relocation", sublabel: "Long-distance movers, vehicle shipping, extended-stay 7+ nights, new-metro utilities" },
+      { label: "Inheritance / Windfall", sublabel: "Large one-time inflow paired with estate attorney or trust services" },
+    ],
+  },
+  {
     label: "Behavioral",
     icon: Activity,
     color: "bg-blue-500",
@@ -126,31 +151,6 @@ const SIGNALS: SignalDetail[] = [
       { label: "Pets", sublabel: "Chewy, vet care, grooming, pet insurance" },
       { label: "Entertainment & Culture", sublabel: "Movies, concerts, museums, books, gaming" },
       { label: "Trip Reconstruction", sublabel: "Anchor + non-home-zip clustering into dated trips with spend breakdown" },
-    ],
-  },
-  {
-    label: "Life Event",
-    icon: CalendarHeart,
-    color: "bg-amber-500",
-    tint: "bg-amber-50 text-amber-700 border-amber-200",
-    dot: "bg-amber-500",
-    description: "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds.",
-    examples: [
-      { ev: "Title + escrow payment", to: "Home purchase in progress", basis: "1P" },
-      { ev: "OB visits + registry spend", to: "New baby, ~2 months out", basis: "1P" },
-      { ev: "Bureau tradeline maturing", to: "Auto loan renewal window", basis: "Ext" },
-      { ev: "Bursar deposit + college tours", to: "Dependent starting college", basis: "Both" },
-    ],
-    items: [
-      { label: "Home Purchase", sublabel: "Realtor, title/escrow, mortgage, HOA setup, first mortgage payment" },
-      { label: "New Baby", sublabel: "OB/midwife, buybuy BABY, pediatrician, daycare, hospital L&D" },
-      { label: "Wedding / Engagement", sublabel: "Jeweler ($2k+), venue, bridal salon, photographer, registry" },
-      { label: "College Prep (Dependent)", sublabel: "SAT/ACT/Kaplan, Common App, bursar deposits, college tours" },
-      { label: "Business Formation", sublabel: "LegalZoom, Stripe Atlas, business banking, commercial leasing" },
-      { label: "Elder Care", sublabel: "Assisted living, home health aide, geriatric care, hospice, DME" },
-      { label: "Retirement Planning", sublabel: "Advisor fees, estate attorney, Medicare supplement, downsizing" },
-      { label: "Relocation", sublabel: "Long-distance movers, vehicle shipping, extended-stay 7+ nights, new-metro utilities" },
-      { label: "Inheritance / Windfall", sublabel: "Large one-time inflow paired with estate attorney or trust services" },
     ],
   },
   {
@@ -442,54 +442,32 @@ function SignalSection({
   onSelect: () => void;
 }) {
   const [idx, setIdx] = useState(0);
-  const [rolling, setRolling] = useState(false);
-  const total = signal.examples.length;
-  const reduceMotion =
-    typeof window !== "undefined" &&
-    !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let intervalId: number;
-    let settleId: number;
-    const advance = () => setIdx((current) => (current + 1) % total);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    let id: number;
     const start = window.setTimeout(() => {
-      intervalId = window.setInterval(() => {
-        if (reduceMotion) {
-          advance();
-          return;
-        }
-        setRolling(true);
-        settleId = window.setTimeout(() => {
-          setRolling(false);
-          advance();
-        }, 700);
+      id = window.setInterval(() => {
+        setIdx((i) => (i + 1) % signal.examples.length);
       }, interval);
     }, startDelay);
     return () => {
       window.clearTimeout(start);
-      window.clearTimeout(settleId);
-      window.clearInterval(intervalId);
+      window.clearInterval(id);
     };
-  }, [total, startDelay, interval, reduceMotion]);
+  }, [signal.examples.length, startDelay, interval]);
 
-  const current = signal.examples[idx];
-  const next = signal.examples[(idx + 1) % total];
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.classList.remove("animate-rollup");
+    void el.offsetWidth;
+    el.classList.add("animate-rollup");
+  }, [idx]);
 
-  const renderRow = (example: SignalDetail["examples"][number]) => (
-    <span className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300">
-      <span className="truncate font-medium text-slate-200">{example.to}</span>
-      <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
-      <span className="truncate text-slate-400">{example.ev}</span>
-      <span
-        className={cn(
-          "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
-          DETECTION_BASIS_CLASS[example.basis],
-        )}
-      >
-        {example.basis}
-      </span>
-    </span>
-  );
+  const e = signal.examples[idx];
 
   return (
     <button
@@ -512,22 +490,25 @@ function SignalSection({
         </span>
       </span>
       <span className="relative mt-0.5 block h-5 overflow-hidden">
-        <div
-          className="absolute inset-x-0 top-0"
-          style={{
-            transform: rolling ? "translate3d(0, -20px, 0)" : "translate3d(0, 0, 0)",
-            transition: rolling ? "transform 700ms cubic-bezier(0.22, 1, 0.36, 1)" : "none",
-            willChange: "transform",
-          }}
-        >
-          {renderRow(current)}
-          {renderRow(next)}
+        <div ref={trackRef} className="absolute inset-x-0 top-0">
+          <div className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300">
+            <span className="truncate font-medium text-slate-200">{e.to}</span>
+            <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
+            <span className="truncate text-slate-400">{e.ev}</span>
+            <span
+              className={cn(
+                "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
+                DETECTION_BASIS_CLASS[e.basis],
+              )}
+            >
+              {e.basis}
+            </span>
+          </div>
         </div>
       </span>
     </button>
   );
 }
-
 
 
 
@@ -837,7 +818,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   className="h-4 w-auto brightness-0 invert opacity-95"
                 />
                 <p className="text-sm font-semibold tracking-tight text-white">
-                  Customer Intelligence Core
+                  Behavioral Intelligence &amp; Personalization Core
                 </p>
               </div>
 
@@ -855,8 +836,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         signal={s}
                         count={row ? row.detected.toLocaleString() : "—"}
                         isActive={s.label === activeSignalLabel}
-                        startDelay={i * 900}
-                        interval={3400 + i * 520}
+                        startDelay={i * 420}
+                        interval={2600 + i * 160}
                         onSelect={() => selectSignal(s.label)}
                       />
                     );
