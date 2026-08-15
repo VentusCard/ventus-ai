@@ -71,6 +71,8 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
       <div className="flex-1 min-h-0">
         {viewMode === "stream" && <CoworkerLiveStreamView />}
         {viewMode === "inbox" && <CoworkerInboxView />}
+        {viewMode === "persona" && <CoworkerPersonaSettingsView />}
+
 
         {viewMode === "advisor" && (
           <AdvisorNotificationsView
