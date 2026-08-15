@@ -27,10 +27,12 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
 
   const toggles: { key: ViewMode; label: string; icon: React.ReactNode }[] = [
     { key: "inbox", label: "Coworker Dashboard", icon: <Inbox className="h-4 w-4 mr-2" /> },
+    { key: "persona", label: "Persona Settings", icon: <SlidersHorizontal className="h-4 w-4 mr-2" /> },
     { key: "stream", label: "Live Work Stream", icon: <Radio className="h-4 w-4 mr-2" /> },
     { key: "advisor", label: "Advisor Conv. Demo", icon: <Mail className="h-4 w-4 mr-2" /> },
     { key: "leadership", label: "Leadership Conv. Demo", icon: <Building2 className="h-4 w-4 mr-2" /> },
   ];
+
 
 
   return (
