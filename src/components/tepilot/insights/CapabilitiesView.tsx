@@ -425,12 +425,7 @@ const DETECTION_BASIS_CLASS: Record<Detection["basis"], string> = {
   Both: "bg-white/[0.08] text-slate-200",
 };
 
-const FLIP_MS = 420;
-const ROW_H = 24;
-/* Opaque backdrop for flap faces so folding panels never ghost through each other. */
-const PANEL_BG = "#171F31";
-
-/* A single standing signal section with a split-flap detection board. */
+/* A single standing signal section with a rolling detection ticker. */
 function SignalSection({
   signal,
   count,
@@ -448,78 +443,59 @@ function SignalSection({
 }) {
   const [idx, setIdx] = useState(0);
   const total = signal.examples.length;
-  const flapTopRef = useRef<HTMLSpanElement | null>(null);
-  const flapBottomRef = useRef<HTMLSpanElement | null>(null);
-  const runningRef = useRef<Animation[]>([]);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const currentRowRef = useRef<HTMLSpanElement | null>(null);
+  const nextRowRef = useRef<HTMLSpanElement | null>(null);
   const reduceMotion =
     typeof window !== "undefined" &&
     !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-  // Clear finished flap animations once the new detection has been committed.
   useEffect(() => {
-    runningRef.current.forEach((a) => a.cancel());
-    runningRef.current = [];
-  }, [idx]);
-
-  useEffect(() => {
-    let timeoutId: number;
+    let intervalId: number;
     const advance = () => setIdx((current) => (current + 1) % total);
 
-    const flip = () => {
-      const top = flapTopRef.current;
-      const bottom = flapBottomRef.current;
-      if (reduceMotion || !top || !bottom || typeof top.animate !== "function") {
+    const tick = () => {
+      const track = trackRef.current;
+      if (reduceMotion || !track || typeof track.animate !== "function") {
         advance();
         return;
       }
-      const half = FLIP_MS / 2;
-      const fall = top.animate(
-        [
-          { transform: "rotateX(0deg)", filter: "brightness(1)" },
-          { transform: "rotateX(-90deg)", filter: "brightness(0.45)" },
-        ],
-        { duration: half, easing: "cubic-bezier(0.45, 0, 0.9, 0.55)", fill: "forwards" as FillMode },
+      const timing: KeyframeAnimationOptions = {
+        duration: 900,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        fill: "forwards" as FillMode,
+      };
+      const roll = track.animate(
+        [{ transform: "translate3d(0, 0, 0)" }, { transform: "translate3d(0, -50%, 0)" }],
+        timing,
       );
-      const rise = bottom.animate(
-        [
-          { transform: "rotateX(90deg)", filter: "brightness(0.45)" },
-          { transform: "rotateX(0deg)", filter: "brightness(1)" },
-        ],
-        {
-          duration: half,
-          delay: half,
-          easing: "cubic-bezier(0.16, 0.9, 0.3, 1)",
-          fill: "both" as FillMode,
-        },
-      );
-      runningRef.current = [fall, rise];
-      rise.onfinish = () => advance();
+      currentRowRef.current?.animate([{ opacity: 1 }, { opacity: 0.15 }], timing);
+      nextRowRef.current?.animate([{ opacity: 0.15 }, { opacity: 1 }], timing);
+      roll.onfinish = () => {
+        roll.cancel();
+        advance();
+      };
     };
 
-    const schedule = (delay: number) => {
-      timeoutId = window.setTimeout(() => {
-        flip();
-        // Occasional double-flip, like a board catching up.
-        const gap = Math.random() < 0.18 ? FLIP_MS + 140 : interval;
-        schedule(gap);
-      }, delay);
-    };
-    schedule(startDelay);
-
+    const start = window.setTimeout(() => {
+      intervalId = window.setInterval(tick, interval);
+    }, startDelay);
     return () => {
-      window.clearTimeout(timeoutId);
-      runningRef.current.forEach((a) => a.cancel());
-      runningRef.current = [];
+      window.clearTimeout(start);
+      window.clearInterval(intervalId);
     };
   }, [total, startDelay, interval, reduceMotion]);
 
   const current = signal.examples[idx];
   const next = signal.examples[(idx + 1) % total];
 
-  const rowContent = (example: SignalDetail["examples"][number]) => (
+  const renderRow = (
+    example: SignalDetail["examples"][number],
+    ref: React.RefObject<HTMLSpanElement>,
+  ) => (
     <span
-      className="flex items-center gap-2 text-[11.5px] leading-none text-slate-300"
-      style={{ height: ROW_H }}
+      ref={ref}
+      className="flex h-6 items-center gap-2 text-[11.5px] leading-none text-slate-300"
     >
       <span className="truncate font-medium text-slate-200">{example.to}</span>
       <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
@@ -531,36 +507,6 @@ function SignalSection({
         )}
       >
         {example.basis}
-      </span>
-    </span>
-  );
-
-  /* A clipped half of a detection line: the full row, shifted so only one half shows. */
-  const halfPanel = (
-    example: SignalDetail["examples"][number],
-    which: "top" | "bottom",
-    ref?: React.RefObject<HTMLSpanElement>,
-    animated?: boolean,
-  ) => (
-    <span
-      ref={ref}
-      className="absolute inset-x-0 block overflow-hidden"
-      style={{
-        top: which === "top" ? 0 : ROW_H / 2,
-        height: ROW_H / 2,
-        transformOrigin: which === "top" ? "bottom center" : "top center",
-        backfaceVisibility: "hidden",
-        willChange: animated ? "transform" : undefined,
-        zIndex: animated ? 2 : 1,
-        background: PANEL_BG,
-        transform: animated && which === "bottom" ? "rotateX(90deg)" : undefined,
-      }}
-    >
-      <span
-        className="absolute inset-x-0 block"
-        style={{ top: which === "top" ? 0 : -ROW_H / 2 }}
-      >
-        {rowContent(example)}
       </span>
     </span>
   );
@@ -585,21 +531,15 @@ function SignalSection({
           <b className="font-semibold text-slate-200">{count}</b> · 24h
         </span>
       </span>
-      <span
-        className="relative mt-0.5 block overflow-hidden"
-        style={{ height: ROW_H, perspective: "220px" }}
-      >
-        {/* Static faces: incoming top, outgoing bottom */}
-        {halfPanel(next, "top")}
-        {halfPanel(current, "bottom")}
-        {/* Flaps */}
-        {halfPanel(current, "top", flapTopRef, true)}
-        {halfPanel(next, "bottom", flapBottomRef, true)}
-        {/* Hinge */}
-        <span
-          className={cn("absolute inset-x-0 z-[3] h-px opacity-20", signal.color)}
-          style={{ top: ROW_H / 2 }}
-        />
+      <span className="relative mt-0.5 block h-6 overflow-hidden">
+        <div
+          ref={trackRef}
+          className="absolute inset-x-0 top-0"
+          style={{ willChange: "transform" }}
+        >
+          {renderRow(current, currentRowRef)}
+          {renderRow(next, nextRowRef)}
+        </div>
       </span>
     </button>
   );
@@ -932,8 +872,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         signal={s}
                         count={row ? row.detected.toLocaleString() : "—"}
                         isActive={s.label === activeSignalLabel}
-                        startDelay={600 + i * 310}
-                        interval={[1900, 1600, 2300, 1750, 2100][i % 5]}
+                        startDelay={i * 900}
+                        interval={3400 + i * 520}
                         onSelect={() => selectSignal(s.label)}
                       />
                     );
