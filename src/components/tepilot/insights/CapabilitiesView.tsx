@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   Layers,
@@ -442,32 +442,46 @@ function SignalSection({
   onSelect: () => void;
 }) {
   const [idx, setIdx] = useState(0);
-  const [rolling, setRolling] = useState(false);
   const total = signal.examples.length;
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const currentRowRef = useRef<HTMLSpanElement | null>(null);
+  const nextRowRef = useRef<HTMLSpanElement | null>(null);
   const reduceMotion =
     typeof window !== "undefined" &&
     !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
     let intervalId: number;
-    let settleId: number;
     const advance = () => setIdx((current) => (current + 1) % total);
+
+    const tick = () => {
+      const track = trackRef.current;
+      if (reduceMotion || !track || typeof track.animate !== "function") {
+        advance();
+        return;
+      }
+      const timing: KeyframeAnimationOptions = {
+        duration: 900,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        fill: "forwards" as FillMode,
+      };
+      const roll = track.animate(
+        [{ transform: "translate3d(0, 0, 0)" }, { transform: "translate3d(0, -50%, 0)" }],
+        timing,
+      );
+      currentRowRef.current?.animate([{ opacity: 1 }, { opacity: 0.15 }], timing);
+      nextRowRef.current?.animate([{ opacity: 0.15 }, { opacity: 1 }], timing);
+      roll.onfinish = () => {
+        roll.cancel();
+        advance();
+      };
+    };
+
     const start = window.setTimeout(() => {
-      intervalId = window.setInterval(() => {
-        if (reduceMotion) {
-          advance();
-          return;
-        }
-        setRolling(true);
-        settleId = window.setTimeout(() => {
-          setRolling(false);
-          advance();
-        }, 700);
-      }, interval);
+      intervalId = window.setInterval(tick, interval);
     }, startDelay);
     return () => {
       window.clearTimeout(start);
-      window.clearTimeout(settleId);
       window.clearInterval(intervalId);
     };
   }, [total, startDelay, interval, reduceMotion]);
@@ -475,8 +489,14 @@ function SignalSection({
   const current = signal.examples[idx];
   const next = signal.examples[(idx + 1) % total];
 
-  const renderRow = (example: SignalDetail["examples"][number]) => (
-    <span className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300">
+  const renderRow = (
+    example: SignalDetail["examples"][number],
+    ref: React.RefObject<HTMLSpanElement>,
+  ) => (
+    <span
+      ref={ref}
+      className="flex h-6 items-center gap-2 text-[11.5px] leading-none text-slate-300"
+    >
       <span className="truncate font-medium text-slate-200">{example.to}</span>
       <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
       <span className="truncate text-slate-400">{example.ev}</span>
@@ -511,17 +531,14 @@ function SignalSection({
           <b className="font-semibold text-slate-200">{count}</b> · 24h
         </span>
       </span>
-      <span className="relative mt-0.5 block h-5 overflow-hidden">
+      <span className="relative mt-0.5 block h-6 overflow-hidden">
         <div
+          ref={trackRef}
           className="absolute inset-x-0 top-0"
-          style={{
-            transform: rolling ? "translate3d(0, -20px, 0)" : "translate3d(0, 0, 0)",
-            transition: rolling ? "transform 700ms cubic-bezier(0.22, 1, 0.36, 1)" : "none",
-            willChange: "transform",
-          }}
+          style={{ willChange: "transform" }}
         >
-          {renderRow(current)}
-          {renderRow(next)}
+          {renderRow(current, currentRowRef)}
+          {renderRow(next, nextRowRef)}
         </div>
       </span>
     </button>
