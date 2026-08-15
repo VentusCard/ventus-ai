@@ -120,6 +120,10 @@ export default {
 					from: { transform: 'translateY(110%)', opacity: '0' },
 					to: { transform: 'translateY(0)', opacity: '1' }
 				},
+				'core-roll-track': {
+					from: { transform: 'translateY(0)' },
+					to: { transform: 'translateY(-50%)' }
+				},
 				// Accordion Animations
 				'accordion-down': {
 					from: { height: '0', opacity: '0' },
@@ -305,6 +309,7 @@ export default {
 			animation: {
 				// Core Animations
 				'rollup': 'rollup 0.45s cubic-bezier(0.22, 1, 0.36, 1)',
+				'core-roll-track': 'core-roll-track 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards',
 				'accordion-down': 'accordion-down 0.3s cubic-bezier(0.87, 0, 0.13, 1)',
 				'accordion-up': 'accordion-up 0.3s cubic-bezier(0.87, 0, 0.13, 1)',
 				'collapsible-down': 'collapsible-down 0.2s ease-out',
