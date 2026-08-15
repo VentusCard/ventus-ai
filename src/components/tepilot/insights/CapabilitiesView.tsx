@@ -818,7 +818,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   className="h-4 w-auto brightness-0 invert opacity-95"
                 />
                 <p className="text-sm font-semibold tracking-tight text-white">
-                  Behavioral Intelligence &amp; Personalization Core
+                  Customer Intelligence Core
                 </p>
               </div>
 
