@@ -77,14 +77,43 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
         {viewMode === "persona" && <CoworkerPersonaSettingsView />}
 
 
-        {viewMode === "advisor" && (
-          <AdvisorNotificationsView
-            clients={dashboardClients}
-            onOpenClient={handleOpenClient}
-            onPrepareWithVentus={handlePrepareWithVentus}
-          />
+        {viewMode === "examples" && (
+          <div className="flex flex-col h-full">
+            <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg w-fit mb-3">
+              {([
+                { key: "advisor" as const, label: "Advisor", icon: <Mail className="h-3.5 w-3.5 mr-1.5" /> },
+                { key: "leadership" as const, label: "Leadership", icon: <Building2 className="h-3.5 w-3.5 mr-1.5" /> },
+              ]).map((e) => (
+                <Button
+                  key={e.key}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setExampleMode(e.key)}
+                  className={cn(
+                    "h-7 px-2.5 rounded-md text-xs",
+                    exampleMode === e.key
+                      ? "bg-white shadow-sm text-slate-900"
+                      : "text-slate-600 hover:text-slate-900"
+                  )}
+                >
+                  {e.icon}
+                  {e.label}
+                </Button>
+              ))}
+            </div>
+            <div className="flex-1 min-h-0">
+              {exampleMode === "advisor" ? (
+                <AdvisorNotificationsView
+                  clients={dashboardClients}
+                  onOpenClient={handleOpenClient}
+                  onPrepareWithVentus={handlePrepareWithVentus}
+                />
+              ) : (
+                <LeadershipNotificationsView />
+              )}
+            </div>
+          </div>
         )}
-        {viewMode === "leadership" && <LeadershipNotificationsView />}
       </div>
     </div>
   );
