@@ -597,7 +597,7 @@ function SignalSection({
         {halfPanel(next, "bottom", flapBottomRef, true)}
         {/* Hinge */}
         <span
-          className={cn("absolute inset-x-0 z-[3] h-px opacity-40", signal.color)}
+          className={cn("absolute inset-x-0 z-[3] h-px opacity-20", signal.color)}
           style={{ top: ROW_H / 2 }}
         />
       </span>
