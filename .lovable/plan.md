@@ -1,6 +1,6 @@
 # Persona Settings for the AI Coworker
 
-Add a fourth sub-tab to the AI Coworker tab in /bankdemo that manages the playbook behind each of the six coworkers — who it serves, what it does, and explicitly what it will never do.
+Add a fourth sub-tab to the AI Coworker tab in /bankdemo that manages the playbook behind each of the six coworkers, governed as three settings lines: what it always does, what it sometimes does, and what it never does.
 
 ## Where it goes
 
