@@ -855,8 +855,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         signal={s}
                         count={row ? row.detected.toLocaleString() : "—"}
                         isActive={s.label === activeSignalLabel}
-                        startDelay={i * 420}
-                        interval={2600 + i * 160}
+                        startDelay={i * 900}
+                        interval={3400 + i * 520}
                         onSelect={() => selectSignal(s.label)}
                       />
                     );
