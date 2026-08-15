@@ -513,7 +513,7 @@ function SignalSection({
       </span>
       <span className="relative mt-0.5 block h-5 overflow-hidden">
         <div
-          className="absolute inset-x-0 top-0 motion-reduce:!transform-none motion-reduce:!transition-none"
+          className="absolute inset-x-0 top-0"
           style={{
             transform: rolling ? "translate3d(0, -20px, 0)" : "translate3d(0, 0, 0)",
             transition: rolling ? "transform 700ms cubic-bezier(0.22, 1, 0.36, 1)" : "none",
