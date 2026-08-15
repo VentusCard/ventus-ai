@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Mail, Inbox, Building2, Radio } from "lucide-react";
+import { Briefcase, Mail, Inbox, Building2, Radio, SlidersHorizontal } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/AdvisorNotificationsView";
 import { LeadershipNotificationsView } from "@/components/tepilot/advisor-console/LeadershipNotificationsView";
