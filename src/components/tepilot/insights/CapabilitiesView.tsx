@@ -550,7 +550,7 @@ function SignalSection({
         backfaceVisibility: "hidden",
         willChange: animated ? "transform" : undefined,
         zIndex: animated ? 2 : 1,
-        background: animated ? "linear-gradient(180deg, #16203300, #16203344)" : undefined,
+        background: PANEL_BG,
         transform: animated && which === "bottom" ? "rotateX(90deg)" : undefined,
       }}
     >
