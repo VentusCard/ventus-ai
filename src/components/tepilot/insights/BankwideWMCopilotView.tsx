@@ -12,10 +12,12 @@ import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-type ViewMode = "inbox" | "persona" | "stream" | "advisor" | "leadership";
+type ViewMode = "inbox" | "persona" | "stream" | "examples";
+type ExampleMode = "advisor" | "leadership";
 
 export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } = {}) {
   const [viewMode, setViewMode] = useState<ViewMode>("inbox");
+  const [exampleMode, setExampleMode] = useState<ExampleMode>("advisor");
 
   const dashboardClients = useMemo(() => generateDashboardClients(60), []);
 
