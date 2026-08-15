@@ -102,31 +102,6 @@ type SignalDetail = {
 
 const SIGNALS: SignalDetail[] = [
   {
-    label: "Life Event",
-    icon: CalendarHeart,
-    color: "bg-amber-500",
-    tint: "bg-amber-50 text-amber-700 border-amber-200",
-    dot: "bg-amber-500",
-    description: "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds.",
-    examples: [
-      { ev: "Title + escrow payment", to: "Home purchase in progress", basis: "1P" },
-      { ev: "OB visits + registry spend", to: "New baby, ~2 months out", basis: "1P" },
-      { ev: "Bureau tradeline maturing", to: "Auto loan renewal window", basis: "Ext" },
-      { ev: "Bursar deposit + college tours", to: "Dependent starting college", basis: "Both" },
-    ],
-    items: [
-      { label: "Home Purchase", sublabel: "Realtor, title/escrow, mortgage, HOA setup, first mortgage payment" },
-      { label: "New Baby", sublabel: "OB/midwife, buybuy BABY, pediatrician, daycare, hospital L&D" },
-      { label: "Wedding / Engagement", sublabel: "Jeweler ($2k+), venue, bridal salon, photographer, registry" },
-      { label: "College Prep (Dependent)", sublabel: "SAT/ACT/Kaplan, Common App, bursar deposits, college tours" },
-      { label: "Business Formation", sublabel: "LegalZoom, Stripe Atlas, business banking, commercial leasing" },
-      { label: "Elder Care", sublabel: "Assisted living, home health aide, geriatric care, hospice, DME" },
-      { label: "Retirement Planning", sublabel: "Advisor fees, estate attorney, Medicare supplement, downsizing" },
-      { label: "Relocation", sublabel: "Long-distance movers, vehicle shipping, extended-stay 7+ nights, new-metro utilities" },
-      { label: "Inheritance / Windfall", sublabel: "Large one-time inflow paired with estate attorney or trust services" },
-    ],
-  },
-  {
     label: "Behavioral",
     icon: Activity,
     color: "bg-blue-500",
@@ -151,6 +126,31 @@ const SIGNALS: SignalDetail[] = [
       { label: "Pets", sublabel: "Chewy, vet care, grooming, pet insurance" },
       { label: "Entertainment & Culture", sublabel: "Movies, concerts, museums, books, gaming" },
       { label: "Trip Reconstruction", sublabel: "Anchor + non-home-zip clustering into dated trips with spend breakdown" },
+    ],
+  },
+  {
+    label: "Life Event",
+    icon: CalendarHeart,
+    color: "bg-amber-500",
+    tint: "bg-amber-50 text-amber-700 border-amber-200",
+    dot: "bg-amber-500",
+    description: "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds.",
+    examples: [
+      { ev: "Title + escrow payment", to: "Home purchase in progress", basis: "1P" },
+      { ev: "OB visits + registry spend", to: "New baby, ~2 months out", basis: "1P" },
+      { ev: "Bureau tradeline maturing", to: "Auto loan renewal window", basis: "Ext" },
+      { ev: "Bursar deposit + college tours", to: "Dependent starting college", basis: "Both" },
+    ],
+    items: [
+      { label: "Home Purchase", sublabel: "Realtor, title/escrow, mortgage, HOA setup, first mortgage payment" },
+      { label: "New Baby", sublabel: "OB/midwife, buybuy BABY, pediatrician, daycare, hospital L&D" },
+      { label: "Wedding / Engagement", sublabel: "Jeweler ($2k+), venue, bridal salon, photographer, registry" },
+      { label: "College Prep (Dependent)", sublabel: "SAT/ACT/Kaplan, Common App, bursar deposits, college tours" },
+      { label: "Business Formation", sublabel: "LegalZoom, Stripe Atlas, business banking, commercial leasing" },
+      { label: "Elder Care", sublabel: "Assisted living, home health aide, geriatric care, hospice, DME" },
+      { label: "Retirement Planning", sublabel: "Advisor fees, estate attorney, Medicare supplement, downsizing" },
+      { label: "Relocation", sublabel: "Long-distance movers, vehicle shipping, extended-stay 7+ nights, new-metro utilities" },
+      { label: "Inheritance / Windfall", sublabel: "Large one-time inflow paired with estate attorney or trust services" },
     ],
   },
   {
