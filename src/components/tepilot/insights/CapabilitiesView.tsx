@@ -444,16 +444,24 @@ function SignalSection({
   const [idx, setIdx] = useState(0);
   const [rolling, setRolling] = useState(false);
   const total = signal.examples.length;
+  const reduceMotion =
+    typeof window !== "undefined" &&
+    !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
     let intervalId: number;
     let settleId: number;
+    const advance = () => setIdx((current) => (current + 1) % total);
     const start = window.setTimeout(() => {
       intervalId = window.setInterval(() => {
+        if (reduceMotion) {
+          advance();
+          return;
+        }
         setRolling(true);
         settleId = window.setTimeout(() => {
           setRolling(false);
-          setIdx((current) => (current + 1) % total);
+          advance();
         }, 700);
       }, interval);
     }, startDelay);
@@ -462,7 +470,7 @@ function SignalSection({
       window.clearTimeout(settleId);
       window.clearInterval(intervalId);
     };
-  }, [total, startDelay, interval]);
+  }, [total, startDelay, interval, reduceMotion]);
 
   const current = signal.examples[idx];
   const next = signal.examples[(idx + 1) % total];
