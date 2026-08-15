@@ -32,8 +32,9 @@ Left rail reuses the existing accent colors per destination. Right panel is scro
 
 Each of the six gets authored content covering:
 - Mission — one sentence charter, in bank language.
-- Does — e.g. for Relationship Managers: surface client life events with transaction evidence, rank households by decision window, draft talking points, follow up on unanswered briefs.
-- Doesn't — e.g. never contacts a customer directly, never sends without advisor review, never quotes exact spend amounts or transaction counts, never asserts a life event without corroborating evidence, never uses risk/stress language in customer-facing copy.
+- Always does — the standing behavior, every cycle. E.g. for Relationship Managers: send the daily signal brief, rank households by decision window, cite transaction evidence for every claim, draft talking points.
+- Sometimes does — conditional behavior, each row carrying its trigger. E.g. drafts a nurture email when the advisor asks, escalates to the regional director when a household crosses $2M inbound, follows up when a brief goes unanswered 72h.
+- Never does — hard constraints. E.g. never contacts a customer directly, never sends without advisor review, never quotes exact spend amounts or transaction counts, never asserts a life event without corroborating evidence, never uses risk/stress language in customer-facing copy.
 - Signals watched — subset of the five signal families.
 - Tone & guardrails — vaguely-specific behavioral framing, word cap, required disclaimer.
 - Escalation — which team the coworker routes to when a threshold trips.
