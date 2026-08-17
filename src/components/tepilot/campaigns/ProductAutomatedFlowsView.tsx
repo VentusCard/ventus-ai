@@ -7,13 +7,17 @@ import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
 import {
   expandFlowSignals,
+  expandFlowFilters,
   enabledAudience,
+  qualifiedAudience,
+  filterPassRate,
   signalAudience,
   SIGNAL_FAMILY_CLASS,
   SIGNAL_FAMILY_LABEL,
   type ExpandedSignal,
+  type EligibilityFilter,
 } from "@/lib/flowSignalFamilies";
-import { Zap, Play, Sparkles, ChevronDown, ChevronRight, Mail } from "lucide-react";
+import { Zap, Play, Sparkles, ChevronDown, ChevronRight, Mail, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES: (FlowCategory | "All")[] = ["All", "Lending", "Wealth", "Deposits", "Cards", "Insurance"];
@@ -141,12 +145,66 @@ function SignalRow({
   );
 }
 
+function FilterRow({
+  filter,
+  enabled,
+  open,
+  onToggle,
+  onOpen,
+}: {
+  filter: EligibilityFilter;
+  enabled: boolean;
+  open: boolean;
+  onToggle: () => void;
+  onOpen: () => void;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white">
+      <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
+        <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0 bg-slate-100 text-slate-600 border-slate-300">
+                Filter
+              </span>
+              <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{filter.label}</p>
+            </div>
+            <p className="text-[10.5px] text-slate-500 leading-snug truncate">{filter.evidence}</p>
+          </div>
+          <div className="text-right shrink-0 w-20">
+            <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Keeps</p>
+            <p className="text-[11px] font-bold text-slate-900 mt-0.5">{Math.round(filter.passRate * 100)}%</p>
+          </div>
+          <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
+        </button>
+        <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
+          <Switch checked={enabled} onCheckedChange={onToggle} />
+        </div>
+      </div>
+      {open && (
+        <div className="px-3 pb-3">
+          <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
+            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">What this checks</p>
+            <p className="text-[11px] text-slate-600 leading-snug mt-0.5">{filter.evidence}</p>
+            <p className="text-[10.5px] text-slate-500 leading-snug mt-2">
+              This is an eligibility guardrail — it never starts outreach on its own, it only narrows who
+              qualifies. Roughly {Math.round(filter.passRate * 100)}% of the triggered audience clears it.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FlowRow({
   flow,
   active,
   expanded,
   enabledSignals,
+  enabledFilters,
   onSetEnabled,
+  onSetFilters,
   onToggle,
   onExpand,
 }: {
@@ -154,16 +212,22 @@ function FlowRow({
   active: boolean;
   expanded: boolean;
   enabledSignals: Set<string>;
+  enabledFilters: Set<string>;
   onSetEnabled: (next: Set<string>) => void;
+  onSetFilters: (next: Set<string>) => void;
   onToggle: () => void;
   onExpand: () => void;
 }) {
   const Icon = flow.icon;
   const signals = useMemo(() => expandFlowSignals(flow), [flow]);
-  const [openSignal, setOpenSignal] = useState<string | null>(null);
+  const filters = useMemo(() => expandFlowFilters(flow), [flow]);
+  const [openRow, setOpenRow] = useState<string | null>(null);
 
   const enabledCount = signals.filter((s) => enabledSignals.has(s.id)).length;
-  const liveAudience = enabledAudience(flow, signals, enabledSignals);
+  const filterCount = filters.filter((f) => enabledFilters.has(f.id)).length;
+  const triggered = enabledAudience(flow, signals, enabledSignals);
+  const liveAudience = qualifiedAudience(flow, signals, enabledSignals, filters, enabledFilters);
+  const passRate = filterPassRate(filters, enabledFilters);
   const isActive = active && enabledCount > 0;
 
   const toggleSignal = (id: string) => {
@@ -171,6 +235,13 @@ function FlowRow({
     if (next.has(id)) next.delete(id);
     else next.add(id);
     onSetEnabled(next);
+  };
+
+  const toggleFilter = (id: string) => {
+    const next = new Set(enabledFilters);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onSetFilters(next);
   };
 
   return (
@@ -196,11 +267,19 @@ function FlowRow({
             <Sparkles className="w-3 h-3" />
             {enabledCount} of {signals.length} signals
           </span>
+          {filters.length > 0 && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 shrink-0">
+              <ShieldCheck className="w-3 h-3" />
+              {filterCount} of {filters.length} filters
+            </span>
+          )}
           <span className="text-xs text-slate-500 truncate">{flow.positioning}</span>
         </div>
 
         <div className="text-right shrink-0 w-28">
-          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
+          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold leading-none">
+            {filters.length > 0 ? "Qualified" : "Audience"}
+          </p>
           <p className="text-sm font-bold text-slate-900 mt-0.5">{formatAudience(liveAudience)}</p>
         </div>
 
@@ -224,10 +303,15 @@ function FlowRow({
 
       {expanded && (
         <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60 space-y-2">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-blue-500" />
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Signals this flow acts on — toggle any off, click to see the personalization
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-blue-500" />
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                Signals that trigger this flow — toggle any off, click to see the personalization
+              </p>
+            </div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 shrink-0">
+              {enabledCount} on
             </p>
           </div>
 
@@ -238,12 +322,51 @@ function FlowRow({
                 signal={sig}
                 audience={signalAudience(flow, signals, enabledSignals, sig)}
                 enabled={enabledSignals.has(sig.id)}
-                open={openSignal === sig.id}
+                open={openRow === sig.id}
                 onToggle={() => toggleSignal(sig.id)}
-                onOpen={() => setOpenSignal(openSignal === sig.id ? null : sig.id)}
+                onOpen={() => setOpenRow(openRow === sig.id ? null : sig.id)}
               />
             ))}
           </div>
+
+          <div className="flex items-center justify-between gap-3 pt-1">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Triggered audience</p>
+            <p className="text-[12px] font-bold text-slate-900">{formatAudience(triggered)}</p>
+          </div>
+
+          {filters.length > 0 && (
+            <>
+              <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-200">
+                <div className="flex items-center gap-1.5 pt-2">
+                  <ShieldCheck className="w-3 h-3 text-slate-500" />
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    Eligibility filters — narrow who qualifies
+                  </p>
+                </div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 shrink-0 pt-2">
+                  {filterCount} on · keeps {Math.round(passRate * 100)}%
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                {filters.map((f) => (
+                  <FilterRow
+                    key={f.id}
+                    filter={f}
+                    enabled={enabledFilters.has(f.id)}
+                    open={openRow === f.id}
+                    onToggle={() => toggleFilter(f.id)}
+                    onOpen={() => setOpenRow(openRow === f.id ? null : f.id)}
+                  />
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Qualified audience</p>
+                <p className="text-[13px] font-bold text-slate-900">{formatAudience(liveAudience)}</p>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -258,12 +381,19 @@ export function ProductAutomatedFlowsView() {
   );
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [signalState, setSignalState] = useState<Record<string, Set<string>>>({});
+  const [filterState, setFilterState] = useState<Record<string, Set<string>>>({});
 
   const enabledFor = (flow: ProductFlow) =>
     signalState[flow.id] ?? new Set(expandFlowSignals(flow).map((s) => s.id));
 
   const setEnabledFor = (flowId: string, next: Set<string>) =>
     setSignalState((prev) => ({ ...prev, [flowId]: next }));
+
+  const filtersFor = (flow: ProductFlow) =>
+    filterState[flow.id] ?? new Set(expandFlowFilters(flow).map((f) => f.id));
+
+  const setFiltersFor = (flowId: string, next: Set<string>) =>
+    setFilterState((prev) => ({ ...prev, [flowId]: next }));
 
   const filtered =
     category === "All"
@@ -326,7 +456,9 @@ export function ProductAutomatedFlowsView() {
             active={active.has(flow.id)}
             expanded={expandedId === flow.id}
             enabledSignals={enabledFor(flow)}
+            enabledFilters={filtersFor(flow)}
             onSetEnabled={(next) => setEnabledFor(flow.id, next)}
+            onSetFilters={(next) => setFiltersFor(flow.id, next)}
             onToggle={() => toggle(flow.id)}
 
             onExpand={() => setExpandedId(expandedId === flow.id ? null : flow.id)}
