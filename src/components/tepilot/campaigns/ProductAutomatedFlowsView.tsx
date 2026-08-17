@@ -7,7 +7,6 @@ import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
 import {
   expandFlowSignals,
-  groupByFamily,
   enabledAudience,
   signalAudience,
   SIGNAL_FAMILY_CLASS,
