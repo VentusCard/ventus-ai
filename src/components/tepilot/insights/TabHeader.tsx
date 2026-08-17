@@ -40,6 +40,35 @@ export function TabHeader({
         </div>
       </div>
       <div className="flex items-center gap-1.5 shrink-0 ml-4">
+        {sections && sections.length > 0 && activeSection && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-700 bg-white border border-slate-200 rounded-full px-2.5 py-1 hover:bg-slate-50 transition-colors">
+                {activeSection.icon}
+                {activeSection.label}
+                <ChevronDown className="w-3 h-3 text-slate-400" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="bg-white border border-slate-200 text-slate-700 min-w-[220px]"
+            >
+              {sections.map((s) => (
+                <DropdownMenuItem
+                  key={s.value}
+                  onSelect={() => onSectionChange?.(s.value)}
+                  className="text-xs gap-2 cursor-pointer focus:bg-slate-50 focus:text-slate-900"
+                >
+                  {s.icon}
+                  <span className="flex-1">{s.label}</span>
+                  {s.value === activeSection.value && (
+                    <Check className="w-3.5 h-3.5 text-blue-500" />
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <Popover>
           <PopoverTrigger asChild>
             <button className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 border border-slate-200 rounded-full px-2.5 py-0.5 hover:bg-slate-50 transition-colors">
