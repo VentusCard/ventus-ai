@@ -303,17 +303,24 @@ export function ProductPickerSection({
 function ProductRow({ product, onClick }: { product: CatalogProduct; onClick: () => void }) {
   const flow = adaptCatalogProduct(product);
   const variants = getProductVariants(product);
+  const fit = scoreProductFit(product);
+  const tone = fitTone(fit.score);
   const Icon = flow.icon;
   return (
     <button
       onClick={onClick}
+      title={fit.why}
       className="w-full flex items-center gap-2 px-2.5 h-8 text-left border-l-2 border-transparent bg-white hover:bg-slate-50 hover:border-slate-900 transition-colors"
     >
       <Icon className="w-3.5 h-3.5 shrink-0 text-slate-500" />
       <span className="text-xs truncate flex-1 text-slate-700">{product.name}</span>
+      <span className={`shrink-0 px-1.5 py-0.5 rounded-full border text-[9px] font-semibold tabular-nums ${tone.cls}`}>
+        fit {fit.score}
+      </span>
       <span className="text-[10px] font-mono text-slate-500 shrink-0 tabular-nums">
         {variants.total.toLocaleString()} campaigns
       </span>
+
       <span className="text-[10px] font-mono text-slate-400 shrink-0 tabular-nums">
         {fmt(flow.estimatedAudience)}
       </span>
