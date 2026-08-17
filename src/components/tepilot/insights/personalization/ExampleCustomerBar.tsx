@@ -8,9 +8,11 @@ interface Props {
   onSelect: (id: string) => void;
   /** Live /demo session customer name, if a session has been run. */
   sessionName?: string | null;
+  /** Renders inline (no border band / padding) so it can sit inside a card header row. */
+  compact?: boolean;
 }
 
-export function ExampleCustomerBar({ selectedId, onSelect, sessionName }: Props) {
+export function ExampleCustomerBar({ selectedId, onSelect, sessionName, compact = false }: Props) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -24,8 +26,14 @@ export function ExampleCustomerBar({ selectedId, onSelect, sessionName }: Props)
   };
 
   return (
-    <div className="px-4 py-3 border-b border-slate-200 bg-white flex flex-col lg:flex-row lg:items-center gap-3">
-      <div className="relative w-full lg:max-w-sm">
+    <div
+      className={cn(
+        "flex flex-col lg:flex-row lg:items-center gap-3",
+        compact ? "" : "px-4 py-3 border-b border-slate-200 bg-white",
+      )}
+    >
+      <div className={cn("relative w-full", compact ? "lg:max-w-[260px]" : "lg:max-w-sm")}>
+
         <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           value={query}
