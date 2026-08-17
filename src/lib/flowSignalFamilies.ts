@@ -74,25 +74,27 @@ type Tag =
   | "pet"
   | "health";
 
+// Matched against the product id, name and category only — never the marketing
+// positioning line, which produces false hits ("automatic transfers" -> auto).
 const TAG_PATTERNS: Array<[Tag, RegExp]> = [
   ["business", /business|sba|commercial|merchant|payroll|corporate|fleet|equipment|succession|key.person|workers|bop/i],
-  ["home", /mortgage|heloc|home|refinanc|renovation|property|landlord|construction/i],
-  ["auto", /auto|car|vehicle|rv|boat|marine|motorcycle|ev\b/i],
+  ["home", /mortgage|heloc|home equity|homeowner|refinanc|renovation|landlord|construction/i],
+  ["auto", /\bauto (loan|lease|insurance|refi)|\bcar\b|vehicle|\brv\b|boat|marine|motorcycle|powersport|\bev\b/i],
   ["education", /529|college|education|tuition|student/i],
   ["student", /student/i],
-  ["retirement", /retire|401|ira|annuity|pension|rollover/i],
-  ["invest", /invest|brokerage|portfolio|wealth|advisory|trust|robo|securities|sbl/i],
+  ["retirement", /retire|401|\bira\b|annuity|pension|rollover/i],
+  ["invest", /invest|brokerage|portfolio|wealth|advisory|trust|robo|securities|\bsbl\b/i],
   ["card", /card|rewards|cash.back|miles/i],
-  ["deposit", /checking|savings|deposit|cd\b|money market|hysa|sweep|certificate/i],
-  ["insurance", /insur|life|umbrella|policy|coverage|comp\b/i],
+  ["deposit", /checking|savings|deposit|\bcd\b|money market|hysa|sweep|certificate/i],
+  ["insurance", /insur|umbrella|policy|coverage|term life|whole life|workers.comp/i],
   ["travel", /travel|miles|airline|passport/i],
   ["credit", /loan|credit|line of credit|financing|lending|consolidat/i],
-  ["pet", /pet/i],
-  ["health", /health|hsa|medical|dental|disability|care/i],
+  ["pet", /\bpet\b/i],
+  ["health", /health|\bhsa\b|medical|dental|disability/i],
 ];
 
 function tagsFor(flow: ProductFlow): Set<Tag> {
-  const hay = `${flow.id} ${flow.name} ${flow.positioning}`;
+  const hay = `${flow.id} ${flow.name} ${flow.category}`;
   const tags = new Set<Tag>();
   for (const [tag, re] of TAG_PATTERNS) if (re.test(hay)) tags.add(tag);
   return tags;
