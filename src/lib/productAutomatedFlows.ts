@@ -441,6 +441,48 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     estimatedAudience: 22_000_000,
     penetration: 0.044,
   },
+  {
+    id: "money-market-account",
+    name: "Money Market Account",
+    category: "Deposits",
+    icon: BarChart3,
+    positioning: "Liquid savings with check-writing access and tiered rates for customers parking larger cash reserves.",
+    signals: [
+      { label: "Large idle checking balance", evidence: "Consistent checking balances above $50,000 with limited outbound investment or spending activity.", type: "behavioral" },
+      { label: "Competitive money market migration", evidence: "Inbound ACH from a brokerage sweep or external money market account.", type: "life-event" },
+      { label: "Liquidity preference", evidence: "Recurring large transfers between checking and savings, but no long-term CD or investment purchases.", type: "behavioral" },
+    ],
+    estimatedAudience: 22_000_000,
+    penetration: 0.044,
+  },
+  {
+    id: "teen-youth-savings",
+    name: "Teen / Youth Savings",
+    category: "Deposits",
+    icon: Smile,
+    positioning: "Guardian-managed savings and debit tools to help teens build healthy money habits early.",
+    signals: [
+      { label: "Guardian-linked minor activity", evidence: "Recurring small ACH or P2P inflows from a parent, plus age-appropriate merchant spend at gaming or retail merchants.", type: "behavioral" },
+      { label: "First job income", evidence: "New small-dollar payroll ACH deposits from an employer, often below typical adult thresholds.", type: "life-event" },
+      { label: "Youth account migration signal", evidence: "Inbound transfers from external youth banking apps or prepaid teen cards.", type: "behavioral" },
+    ],
+    estimatedAudience: 14_000_000,
+    penetration: 0.028,
+  },
+  {
+    id: "holiday-club-savings",
+    name: "Holiday Club Savings",
+    category: "Deposits",
+    icon: Gift,
+    positioning: "Short-term goal account that auto-saves for seasonal spending and disburses ahead of the holidays.",
+    signals: [
+      { label: "Seasonal spend spike", evidence: "Significant Q4 card spend at toy stores, electronics retailers, and online gift merchants.", type: "behavioral" },
+      { label: "Recurring small goal transfers", evidence: "Weekly or biweekly automatic transfers from checking into a labeled savings bucket.", type: "behavioral" },
+      { label: "Post-holiday debt consolidation", evidence: "Large January ACH or bill-pay payments to credit cards after elevated December spend.", type: "life-event" },
+    ],
+    estimatedAudience: 9_600_000,
+    penetration: 0.019,
+  },
 
   // ===== CARDS =====
   {
