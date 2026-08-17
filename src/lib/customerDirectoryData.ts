@@ -19,6 +19,11 @@ export interface DirectorySignal {
   /** Vaguely-specific evidence line. Never exact totals or transaction counts. */
   evidence: string;
   confidence: ConfidenceBand;
+  /**
+   * Where the signal came from. "external" = bureau / outside intelligence and
+   * renders an "Ext" tag on the pill. Defaults to internal (first-party) data.
+   */
+  source?: "internal" | "external";
 }
 
 export interface DirectoryCustomer {
