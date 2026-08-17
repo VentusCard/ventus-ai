@@ -2,13 +2,16 @@
 
 const CALLBACK_NAME = "__ventusGoogleMapsReady";
 
-let loadPromise: Promise<typeof google.maps> | null = null;
+/** Minimal structural typing so the app does not depend on @types/google.maps. */
+export type GoogleMapsApi = any;
+
+let loadPromise: Promise<GoogleMapsApi> | null = null;
 
 export function getMapsBrowserKey(): string | undefined {
   return import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
 }
 
-export function loadGoogleMaps(): Promise<typeof google.maps> {
+export function loadGoogleMaps(): Promise<GoogleMapsApi> {
   if (loadPromise) return loadPromise;
 
   loadPromise = new Promise((resolve, reject) => {
@@ -16,9 +19,9 @@ export function loadGoogleMaps(): Promise<typeof google.maps> {
       reject(new Error("Google Maps can only load in the browser"));
       return;
     }
-    const w = window as unknown as Record<string, unknown>;
-    if ((w.google as { maps?: unknown } | undefined)?.maps) {
-      resolve(google.maps);
+    const w = window as unknown as Record<string, any>;
+    if (w.google?.maps) {
+      resolve(w.google.maps);
       return;
     }
 
@@ -30,7 +33,7 @@ export function loadGoogleMaps(): Promise<typeof google.maps> {
 
     const channel = (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined) ?? "";
 
-    w[CALLBACK_NAME] = () => resolve(google.maps);
+    w[CALLBACK_NAME] = () => resolve(w.google.maps);
 
     const script = document.createElement("script");
     script.src =

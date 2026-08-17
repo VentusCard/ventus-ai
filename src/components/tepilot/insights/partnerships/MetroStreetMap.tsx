@@ -11,7 +11,7 @@ interface Props {
   onSelect: (id: string) => void;
 }
 
-const MAP_STYLES: google.maps.MapTypeStyle[] = [
+const MAP_STYLES: Array<Record<string, unknown>> = [
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
   { featureType: "transit", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
   { featureType: "water", elementType: "geometry", stylers: [{ color: "#dbeafe" }] },
@@ -25,8 +25,9 @@ const MAP_STYLES: google.maps.MapTypeStyle[] = [
 /** Real Google map of the selected metro with a pin per local partner. */
 export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const mapsRef = useRef<any>(null);
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
 
@@ -47,6 +48,7 @@ export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props)
     loadGoogleMaps()
       .then((maps) => {
         if (cancelled || !containerRef.current) return;
+        mapsRef.current = maps;
         mapRef.current = new maps.Map(containerRef.current, {
           center: { lat: metro.lat, lng: metro.lng },
           zoom: metro.zoom,
@@ -75,8 +77,9 @@ export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props)
 
   // Render markers
   useEffect(() => {
-    if (!ready || !mapRef.current) return;
+    if (!ready || !mapRef.current || !mapsRef.current) return;
     const map = mapRef.current;
+    const maps = mapsRef.current;
 
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
@@ -85,13 +88,13 @@ export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props)
       const color = (CATEGORY_COLORS[p.category] ?? CATEGORY_COLORS.Dining).pin;
       const active = selectedId === p.id;
       const scale = 6 + (p.estimatedValue / maxValue) * 8;
-      const marker = new google.maps.Marker({
+      const marker = new maps.Marker({
         map,
         position: { lat: p.lat, lng: p.lng },
         title: p.name,
         zIndex: active ? 999 : Math.round(p.estimatedValue / 1000),
         icon: {
-          path: google.maps.SymbolPath.CIRCLE,
+          path: maps.SymbolPath.CIRCLE,
           scale,
           fillColor: color,
           fillOpacity: active ? 1 : 0.85,
