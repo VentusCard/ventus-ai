@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
-import { Smartphone, ExternalLink, Loader2 } from "lucide-react";
+import { Smartphone, Loader2, HelpCircle } from "lucide-react";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useExecDemoSession } from "@/lib/execDemoSessionStore";
 import { EXAMPLE_CUSTOMERS } from "@/lib/personalizationExamples";
 import {
@@ -78,46 +79,33 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const isGenerating = !useSession && generated.status === "running";
 
   return (
-    <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
-      <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
+    <div className="border border-slate-200 rounded-lg bg-white overflow-hidden flex flex-col h-[calc(100vh-230px)] min-h-[560px]">
+      {/* Compact chrome: title + customer selector + status, all on one row */}
+      <div className="shrink-0 px-4 py-2.5 border-b border-slate-200 bg-slate-50/60 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex items-center gap-2 min-w-0 shrink-0">
           <Smartphone className="w-4 h-4 text-blue-500 shrink-0" />
-          <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-slate-900">Customer View</h2>
-            <p className="text-[11px] text-slate-500 mt-0.5">
-              Signals and generated customer surface for {displayName}
-            </p>
-          </div>
+          <h2 className="text-sm font-semibold text-slate-900 whitespace-nowrap">Customer View</h2>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {isGenerating && (
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-full px-2.5 py-1">
-              <Loader2 className="w-3 h-3 animate-spin" />
-              Generating experience
-            </span>
-          )}
-          {!session.hasRun && (
-            <a
-              href="/demo"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 border border-blue-200 bg-blue-50 rounded-full px-2.5 py-1 hover:bg-blue-100 transition-colors"
-            >
-              Run the demo
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
+
+        <div className="flex-1 min-w-0">
+          <ExampleCustomerBar
+            compact
+            selectedId={selectedId}
+            onSelect={setPersonalizationCustomer}
+            sessionName={sessionName}
+          />
         </div>
+
+        {isGenerating && (
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-full px-2.5 py-1 shrink-0">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Generating
+          </span>
+        )}
       </div>
 
-      <ExampleCustomerBar
-        selectedId={selectedId}
-        onSelect={setPersonalizationCustomer}
-        sessionName={sessionName}
-      />
-
-      <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="min-w-0 lg:col-span-1">
+      <div className="flex-1 min-h-0 p-3 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="min-w-0 min-h-0 lg:col-span-1">
           {useSession ? (
             <div className="border border-slate-200 rounded-lg bg-slate-50/70 px-3 py-2.5">
               <p className="text-[11px] text-slate-500 leading-relaxed">
@@ -130,42 +118,62 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           )}
         </div>
 
-        <div className="min-w-0 lg:col-span-2 grid grid-cols-1 xl:grid-cols-[minmax(300px,380px)_1fr] gap-5">
-          <div className="h-[680px] min-h-0 flex flex-col">
-            <ExecDemoPhoneView
-              customer={phoneCustomer}
-              activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
-              phase="hold"
-              showContent
-              generatedOffers={useSession ? session.generatedOffers : generated.offers}
-              detectedLifeEvents={useSession ? session.detectedLifeEvents : generated.lifeEvents}
-              productCards={useSession ? session.productCards : generated.productCards}
-              activeRollupLabel={useSession ? session.activeRollupLabel : null}
-              activeRollupPillar={useSession ? session.activeRollupPillar : null}
-              enrichedTxs={useSession ? session.enrichedTxs : null}
-              riskFlags={useSession ? session.riskFlags : null}
-              chatSignalContext={chatSignalContext}
-            />
+        <div className="min-w-0 min-h-0 lg:col-span-2 flex flex-col">
+          <div className="flex-1 min-h-0 flex justify-center">
+            <div className="w-full max-w-[400px] h-full flex flex-col">
+              <ExecDemoPhoneView
+                customer={phoneCustomer}
+                activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
+                phase="hold"
+                showContent
+                generatedOffers={useSession ? session.generatedOffers : generated.offers}
+                detectedLifeEvents={useSession ? session.detectedLifeEvents : generated.lifeEvents}
+                productCards={useSession ? session.productCards : generated.productCards}
+                activeRollupLabel={useSession ? session.activeRollupLabel : null}
+                activeRollupPillar={useSession ? session.activeRollupPillar : null}
+                enrichedTxs={useSession ? session.enrichedTxs : null}
+                riskFlags={useSession ? session.riskFlags : null}
+                chatSignalContext={chatSignalContext}
+              />
+            </div>
           </div>
 
-          <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-slate-900">{copy.title}</h3>
-            <p className="text-xs text-slate-600 leading-relaxed mt-1.5">{copy.body}</p>
-            <ul className="mt-3 space-y-2">
-              {copy.bullets.map((b) => (
-                <li key={b} className="flex items-start gap-2 text-xs text-slate-600">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-            {!useSession && generated.status === "failed" && (
-              <p className="mt-3 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-2">
-                Live generation didn't return for this customer. Showing the standard demo content
-                instead — reselect the customer to retry.
-              </p>
-            )}
+          <div className="shrink-0 mt-1.5 flex items-center justify-center gap-2 text-center">
+            <p className="text-[11px] text-slate-500 leading-snug">
+              <span className="font-semibold text-slate-700">{copy.title}</span>
+              {" — "}
+              {displayName}'s generated surface, built from the signals on the left.
+            </p>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="inline-flex items-center gap-1 text-[10.5px] font-medium text-slate-500 border border-slate-200 rounded-full px-2 py-0.5 hover:bg-slate-50 transition-colors shrink-0"
+                  aria-label="Why this surface"
+                >
+                  <HelpCircle className="w-3 h-3" />
+                  Why this surface
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="top" align="center" className="w-80 p-3">
+                <p className="text-xs text-slate-600 leading-relaxed">{copy.body}</p>
+                <ul className="mt-2.5 space-y-1.5">
+                  {copy.bullets.map((b) => (
+                    <li key={b} className="flex items-start gap-2 text-xs text-slate-600">
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </PopoverContent>
+            </Popover>
           </div>
+
+          {!useSession && generated.status === "failed" && (
+            <p className="shrink-0 mt-1.5 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5 text-center">
+              Live generation didn't return for this customer. Showing the standard demo content
+              instead — reselect the customer to retry.
+            </p>
+          )}
         </div>
       </div>
     </div>
