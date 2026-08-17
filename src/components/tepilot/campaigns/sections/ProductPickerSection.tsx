@@ -145,8 +145,12 @@ export function ProductPickerSection({
                 {offers.length}/{OFFER_MAX_COUNT}
               </span>
             </div>
+            <div className="flex items-center gap-1 mb-1">
+              <Sparkles className="w-2.5 h-2.5 text-blue-600" />
+              <p className="text-[9px] font-semibold uppercase tracking-wide text-blue-700">Ventus-suggested</p>
+            </div>
             <div className="flex flex-wrap gap-1 mb-1.5">
-              {PRESET_OFFERS.map((preset) => {
+              {suggestOffers(selected, 3).map((preset) => {
                 const already = offers.includes(preset);
                 const capped = offers.length >= OFFER_MAX_COUNT;
                 const disabled = already || capped;
@@ -156,15 +160,16 @@ export function ProductPickerSection({
                     type="button"
                     onClick={() => addOfferValue(preset)}
                     disabled={disabled}
-                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-[10px] text-slate-700 hover:bg-slate-100 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-[10px] text-blue-800 hover:bg-blue-100 hover:border-blue-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-left"
                     title={already ? "Already added" : `Add "${preset}"`}
                   >
-                    <Plus className="w-2.5 h-2.5" />
-                    {preset}
+                    <Plus className="w-2.5 h-2.5 shrink-0" />
+                    <span className="truncate max-w-[150px]">{preset}</span>
                   </button>
                 );
               })}
             </div>
+
             <div className="flex gap-1">
               <Input
                 value={offerDraft}
