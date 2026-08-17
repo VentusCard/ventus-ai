@@ -1,4 +1,3 @@
-import { taxonomyItems } from "@/lib/signalTaxonomy";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -101,7 +100,6 @@ type SignalDetail = {
   items: { label: string; sublabel: string; icon?: React.ElementType }[];
 };
 
-
 const SIGNALS: SignalDetail[] = [
   {
     label: "Behavioral",
@@ -116,7 +114,19 @@ const SIGNALS: SignalDetail[] = [
       { ev: "Equinox + Lululemon cadence", to: "Sports & active living", basis: "1P" },
       { ev: "Anchor flight + out-of-zip spend", to: "Trip reconstructed, 6 nights", basis: "Both" },
     ],
-    items: taxonomyItems("behavioral"),
+    items: [
+      { label: "Sports & Active Living", sublabel: "Equinox, Lululemon, REI, fitness classes, team leagues" },
+      { label: "Food & Dining", sublabel: "Whole Foods, Starbucks, Chipotle, delivery, meal kits" },
+      { label: "Travel & Exploration", sublabel: "Flights, hotels, car rentals, tours, travel insurance" },
+      { label: "Home & Living", sublabel: "Mortgage, utilities, Home Depot, furniture, commuting" },
+      { label: "Style & Beauty", sublabel: "Zara, Sephora, salon, jewelry, accessories" },
+      { label: "Health & Wellness", sublabel: "Doctor visits, pharmacy, therapy, spa, supplements" },
+      { label: "Technology & Digital", sublabel: "Spotify, Netflix, Adobe, devices, cloud storage" },
+      { label: "Family & Community", sublabel: "Childcare, gifts, religious orgs, kids activities" },
+      { label: "Pets", sublabel: "Chewy, vet care, grooming, pet insurance" },
+      { label: "Entertainment & Culture", sublabel: "Movies, concerts, museums, books, gaming" },
+      { label: "Trip Reconstruction", sublabel: "Anchor + non-home-zip clustering into dated trips with spend breakdown" },
+    ],
   },
   {
     label: "Life Event",
@@ -131,7 +141,17 @@ const SIGNALS: SignalDetail[] = [
       { ev: "Bureau tradeline maturing", to: "Auto loan renewal window", basis: "Ext" },
       { ev: "Bursar deposit + college tours", to: "Dependent starting college", basis: "Both" },
     ],
-    items: taxonomyItems("life-event"),
+    items: [
+      { label: "Home Purchase", sublabel: "Realtor, title/escrow, mortgage, HOA setup, first mortgage payment" },
+      { label: "New Baby", sublabel: "OB/midwife, buybuy BABY, pediatrician, daycare, hospital L&D" },
+      { label: "Wedding / Engagement", sublabel: "Jeweler ($2k+), venue, bridal salon, photographer, registry" },
+      { label: "College Prep (Dependent)", sublabel: "SAT/ACT/Kaplan, Common App, bursar deposits, college tours" },
+      { label: "Business Formation", sublabel: "LegalZoom, Stripe Atlas, business banking, commercial leasing" },
+      { label: "Elder Care", sublabel: "Assisted living, home health aide, geriatric care, hospice, DME" },
+      { label: "Retirement Planning", sublabel: "Advisor fees, estate attorney, Medicare supplement, downsizing" },
+      { label: "Relocation", sublabel: "Long-distance movers, vehicle shipping, extended-stay 7+ nights, new-metro utilities" },
+      { label: "Inheritance / Windfall", sublabel: "Large one-time inflow paired with estate attorney or trust services" },
+    ],
   },
   {
     label: "Financial",
@@ -146,7 +166,17 @@ const SIGNALS: SignalDetail[] = [
       { ev: "Mortgage servicer outflow", to: "Active mortgage payer", basis: "1P" },
       { ev: "Deposit balance trending up", to: "Growing idle cash tier", basis: "Both" },
     ],
-    items: taxonomyItems("financial"),
+    items: [
+      { label: "Active payroll deposit", sublabel: "Recurring employer ACH on a consistent cadence" },
+      { label: "Recent large inflow", sublabel: "One-off deposit well above payroll baseline (windfall, bonus)" },
+      { label: "Deposit balance trending up", sublabel: "Checking and savings growing across recent statements" },
+      { label: "Investable assets tier", sublabel: "Idle balances above typical operating-cash needs" },
+      { label: "Funds external brokerage", sublabel: "Outbound ACH to Schwab, Fidelity, Robinhood (wallet share leak)" },
+      { label: "Active mortgage payer", sublabel: "Recurring mortgage servicer outflow on file" },
+      { label: "Low credit utilization", sublabel: "Headroom on existing revolving credit lines" },
+      { label: "Healthy DTI", sublabel: "Debt service comfortably below underwriting thresholds" },
+      { label: "Subscription stack load", sublabel: "10+ active recurring digital subscriptions" },
+    ],
   },
   {
     label: "Demographic",
@@ -161,7 +191,21 @@ const SIGNALS: SignalDetail[] = [
       { ev: "Two mortgage + HOA streams", to: "Multi-property household", basis: "Both" },
       { ev: "Quarterly estimated tax", to: "Self-employed household", basis: "1P" },
     ],
-    items: taxonomyItems("demographic"),
+    items: [
+      { label: "Likely homeowner", sublabel: "Mortgage, Home Depot/Lowe's, HOA fees" },
+      { label: "Parent of young children", sublabel: "Daycare, pediatric, Carter's, infant formula volume" },
+      { label: "Parent of school-age", sublabel: "Tuition, kids activities, SAT/ACT prep" },
+      { label: "Dual-income household", sublabel: "Two distinct payroll streams to one household" },
+      { label: "Pre-retiree / empty nester", sublabel: "Medicare supplement, downsizing, no dependent-linked spend" },
+      { label: "Self-employed / 1099 household", sublabel: "Quarterly estimated tax payments, irregular platform inflows, no single employer ACH" },
+      { label: "Small business owner", sublabel: "Business banking deposits, merchant-services volume, commercial insurance, wholesale suppliers" },
+      { label: "Multi-property household", sublabel: "Two or more distinct mortgage, HOA, or property-tax streams" },
+      { label: "Rental income earner", sublabel: "Recurring inbound rent deposits or property-management payouts" },
+      { label: "Household with dependents in college", sublabel: "Bursar or tuition outflows plus 529 plan distributions" },
+      { label: "High-net-worth indicator", sublabel: "Advisory fees, trust services, private-client banking outflows" },
+      { label: "Recently relocated household", sublabel: "Sustained merchant footprint shift into a new metro" },
+      { label: "Beneficiary reasoning", sublabel: "Spend benefits self vs. dependent vs. third-party gift" },
+    ],
   },
   {
     label: "Risk",
@@ -176,7 +220,22 @@ const SIGNALS: SignalDetail[] = [
       { ev: "Repeat NSF fee events", to: "Overdraft escalation", basis: "1P" },
       { ev: "Cross-border wires off-zip", to: "Suspicious international", basis: "Both" },
     ],
-    items: taxonomyItems("risk"),
+    items: [
+      { label: "Adult entertainment", sublabel: "OnlyFans, cam sites, adult processors (CCBill/Epoch), MCC 5967" },
+      { label: "Offshore gambling", sublabel: "Bovada, Stake.com, Roobet, Curaçao books (weight 5)" },
+      { label: "Sports betting", sublabel: "DraftKings SB, FanDuel SB, BetMGM, PrizePicks (weight 3)" },
+      { label: "Casino & table games", sublabel: "MGM, Bellagio, Foxwoods, DraftKings Casino (weight 3)" },
+      { label: "Payday & short-term credit", sublabel: "ACE Cash Express, Advance America, Earnin, Dave (weight 5)" },
+      { label: "Debt collection & relief", sublabel: "Portfolio Recovery, Freedom Debt Relief, bankruptcy filings (weight 5)" },
+      { label: "Check cashing & money services", sublabel: "Western Union, MoneyGram, MoneyPak reloads (weight 4)" },
+      { label: "Overdraft & NSF activity", sublabel: "Aggregated fee events; severity escalates at 5+" },
+      { label: "Subprime credit & rent-to-own", sublabel: "Credit One, OpenSky, Rent-A-Center, DriveTime (weight 3)" },
+      { label: "Crypto mixing", sublabel: "Tornado Cash, Wasabi, CoinJoin, Monero exchanges (weight 4)" },
+      { label: "Suspicious international", sublabel: "Merchant contains INTL/OFFSHORE + non-US zip" },
+      { label: "AML structuring", sublabel: "Multiple deposits/withdrawals just below $10K (model-routed)" },
+      { label: "AML round-number layering", sublabel: "Repeated round-number cash-equivalent patterns" },
+      { label: "AML cross-border wires", sublabel: "Wire patterns inconsistent with home zip" },
+    ],
   },
 ];
 
