@@ -179,6 +179,7 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
       ) : (
         <>
 
+      <AiCampaignBrief ctx={aiCtx} onAction={handleBriefAction} />
 
       <ProductPickerSection
         selectedName={productName}
@@ -201,7 +202,13 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
         </div>
       )}
 
-      {visibleStep >= 2 && <ExclusionFunnelSection product={flow} />}
+      {visibleStep >= 2 && (
+        <ExclusionFunnelSection
+          product={flow}
+          catalogProduct={catalogProduct}
+          onAudienceChange={handleAudienceChange}
+        />
+      )}
       {visibleStep === 2 && (
         <div className="flex justify-end">
           <button
@@ -215,14 +222,19 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
       )}
 
       {visibleStep >= 3 && (
-        <MessagePreviewsSection
-          product={catalogProduct}
-          variants={variants}
-          offers={offers}
-          campaignLink={campaignLink}
-        />
+        <>
+          <MessagePreviewsSection
+            product={catalogProduct}
+            variants={variants}
+            offers={offers}
+            campaignLink={campaignLink}
+            onGuardrailChange={setGuardrailsPassed}
+          />
+          <LaunchReadinessCard ctx={aiCtx} guardrailsPassed={guardrailsPassed} />
+        </>
       )}
         </>
+
       )}
     </div>
   );
