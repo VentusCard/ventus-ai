@@ -1,12 +1,20 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
-import { FLOW_MICROSEGMENTS, type FlowMicrosegment } from "@/lib/productMicrosegments";
-import { Zap, Play, Sparkles, ChevronDown } from "lucide-react";
+import {
+  expandFlowSignals,
+  groupByFamily,
+  enabledAudience,
+  signalAudience,
+  SIGNAL_FAMILY_CLASS,
+  SIGNAL_FAMILY_LABEL,
+  type ExpandedSignal,
+} from "@/lib/flowSignalFamilies";
+import { Zap, Play, Sparkles, ChevronDown, ChevronRight, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES: (FlowCategory | "All")[] = ["All", "Lending", "Wealth", "Deposits", "Cards", "Insurance"];
@@ -25,54 +33,101 @@ function formatAudience(n: number): string {
   return n.toString();
 }
 
-function MicrosegmentCard({
-  signal,
-  segment,
-  subAudience,
-}: {
-  signal: ProductFlow["signals"][number];
-  segment: FlowMicrosegment | undefined;
-  subAudience: number;
-}) {
+function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: number }) {
+  const msg = signal.message;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 flex flex-col gap-2.5 min-w-0">
-      <div className="flex flex-col gap-1">
-        <span
-          className={cn(
-            "self-start text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
-            signal.type === "life-event"
-              ? "bg-amber-50 text-amber-700 border-amber-200"
-              : "bg-blue-50 text-blue-700 border-blue-200",
-          )}
-        >
-          {signal.type === "life-event" ? "Life Event" : "Behavioral"}
-        </span>
-        <p className="text-[12px] font-semibold text-slate-900 leading-tight">{signal.label}</p>
-        <p className="text-[10.5px] text-slate-500 leading-snug">{signal.evidence}</p>
-      </div>
-
-      <div className="border-t border-slate-100 pt-2 flex items-start justify-between gap-2">
-        <p className="text-[11px] font-semibold text-slate-900 leading-tight flex-1 min-w-0">
-          {segment?.title ?? "Microsegment"}
-        </p>
-        <div className="text-right shrink-0">
-          <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
-          <p className="text-[11px] font-bold text-slate-900 mt-0.5">{formatAudience(subAudience)}</p>
+    <div className="mt-2 rounded-lg border border-slate-200 bg-white p-3 grid gap-3 md:grid-cols-2">
+      <div className="space-y-2 min-w-0">
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
+              SIGNAL_FAMILY_CLASS[signal.family],
+            )}
+          >
+            {SIGNAL_FAMILY_LABEL[signal.family]}
+          </span>
+          <p className="text-[11px] font-semibold text-slate-900 truncate">{msg.title}</p>
+        </div>
+        <div>
+          <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Why this fires</p>
+          <p className="text-[11px] text-slate-600 leading-snug mt-0.5">{signal.evidence}</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <div>
+            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Microsegment</p>
+            <p className="text-[11px] font-bold text-slate-900">{formatAudience(audience)} customers</p>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {signal.channels.map((c) => (
+              <span
+                key={c}
+                className="text-[9.5px] font-medium px-1.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600"
+              >
+                {c}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <p className="text-[11.5px] font-semibold text-slate-900 leading-snug">{segment?.subject}</p>
-        <p className="text-[11px] text-slate-600 leading-snug whitespace-pre-line">{segment?.body}</p>
+      <div className="rounded-md border border-slate-200 bg-slate-50/70 p-2.5 flex flex-col gap-1.5 min-w-0">
+        <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
+          <Mail className="w-3 h-3" />
+          Personalized message
+        </div>
+        <p className="text-[11.5px] font-semibold text-slate-900 leading-snug">{msg.subject}</p>
+        <p className="text-[11px] text-slate-600 leading-snug whitespace-pre-line">{msg.body}</p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 text-[11px] font-medium border-slate-300 text-slate-700 hover:bg-slate-50 mt-auto self-start"
+        >
+          {msg.cta}
+        </Button>
       </div>
+    </div>
+  );
+}
 
-      <Button
-        variant="outline"
-        size="sm"
-        className="h-7 text-[11px] font-medium border-slate-300 text-slate-700 hover:bg-slate-50 mt-auto"
-      >
-        {segment?.cta ?? "Learn more"}
-      </Button>
+function SignalRow({
+  signal,
+  audience,
+  enabled,
+  open,
+  onToggle,
+  onOpen,
+}: {
+  signal: ExpandedSignal;
+  audience: number;
+  enabled: boolean;
+  open: boolean;
+  onToggle: () => void;
+  onOpen: () => void;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white">
+      <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
+        <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
+          <Switch checked={enabled} onCheckedChange={onToggle} />
+        </div>
+        <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{signal.label}</p>
+            <p className="text-[10.5px] text-slate-500 leading-snug truncate">{signal.evidence}</p>
+          </div>
+          <div className="text-right shrink-0 w-20">
+            <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
+            <p className="text-[11px] font-bold text-slate-900 mt-0.5">{formatAudience(audience)}</p>
+          </div>
+          <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
+        </button>
+      </div>
+      {open && (
+        <div className="px-3 pb-3">
+          <SignalDetail signal={signal} audience={audience} />
+        </div>
+      )}
     </div>
   );
 }
@@ -81,18 +136,41 @@ function FlowRow({
   flow,
   active,
   expanded,
+  enabledSignals,
+  onSetEnabled,
   onToggle,
   onExpand,
 }: {
   flow: ProductFlow;
   active: boolean;
   expanded: boolean;
+  enabledSignals: Set<string>;
+  onSetEnabled: (next: Set<string>) => void;
   onToggle: () => void;
   onExpand: () => void;
 }) {
   const Icon = flow.icon;
-  const subAudience = Math.round(flow.estimatedAudience / Math.max(1, flow.signals.length));
-  const microsegments = FLOW_MICROSEGMENTS[flow.id] ?? [];
+  const signals = useMemo(() => expandFlowSignals(flow), [flow]);
+  const families = useMemo(() => groupByFamily(signals), [signals]);
+  const [openSignal, setOpenSignal] = useState<string | null>(null);
+
+  const enabledCount = signals.filter((s) => enabledSignals.has(s.id)).length;
+  const liveAudience = enabledAudience(flow, signals, enabledSignals);
+  const isActive = active && enabledCount > 0;
+
+  const toggleSignal = (id: string) => {
+    const next = new Set(enabledSignals);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onSetEnabled(next);
+  };
+
+  const toggleFamily = (list: ExpandedSignal[]) => {
+    const allOn = list.every((s) => enabledSignals.has(s.id));
+    const next = new Set(enabledSignals);
+    list.forEach((s) => (allOn ? next.delete(s.id) : next.add(s.id)));
+    onSetEnabled(next);
+  };
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
@@ -115,25 +193,25 @@ function FlowRow({
         <div className="flex-1 min-w-0 flex items-center gap-3">
           <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 shrink-0">
             <Sparkles className="w-3 h-3" />
-            {flow.signals.length} {flow.signals.length === 1 ? "signal" : "signals"}
+            {enabledCount} of {signals.length} signals · {families.length} families
           </span>
           <span className="text-xs text-slate-500 truncate">{flow.positioning}</span>
         </div>
 
         <div className="text-right shrink-0 w-28">
           <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
-          <p className="text-sm font-bold text-slate-900 mt-0.5">{formatAudience(flow.estimatedAudience)}</p>
+          <p className="text-sm font-bold text-slate-900 mt-0.5">{formatAudience(liveAudience)}</p>
         </div>
 
         <Badge
           variant="outline"
           className={cn(
             "text-[10px] gap-1 border shrink-0 w-16 justify-center",
-            active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-500",
+            isActive ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-500",
           )}
         >
-          {active ? <Play className="w-2.5 h-2.5" /> : null}
-          {active ? "Active" : "Paused"}
+          {isActive ? <Play className="w-2.5 h-2.5" /> : null}
+          {isActive ? "Active" : "Paused"}
         </Badge>
 
         <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
@@ -144,29 +222,63 @@ function FlowRow({
       </button>
 
       {expanded && (
-        <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60">
-          <div className="flex items-center gap-1.5 mb-2.5">
+        <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60 space-y-3">
+          <div className="flex items-center gap-1.5">
             <Sparkles className="w-3 h-3 text-blue-500" />
             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Microsegments Ventus is enrolling
+              Signals this flow acts on — toggle any off, click to see the personalization
             </p>
           </div>
 
-          <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
-            {flow.signals.map((sig, idx) => (
-              <MicrosegmentCard
-                key={sig.label}
-                signal={sig}
-                segment={microsegments[idx]}
-                subAudience={subAudience}
-              />
-            ))}
-          </div>
+          {families.map(([family, list]) => {
+            const allOn = list.every((s) => enabledSignals.has(s.id));
+            return (
+              <div key={family} className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        "text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
+                        SIGNAL_FAMILY_CLASS[family],
+                      )}
+                    >
+                      {SIGNAL_FAMILY_LABEL[family]}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-medium">
+                      {list.length} {list.length === 1 ? "signal" : "signals"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggleFamily(list)}
+                    className="text-[10px] font-medium text-slate-500 hover:text-slate-900 transition-colors"
+                  >
+                    {allOn ? "Turn all off" : "Turn all on"}
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  {list.map((sig) => (
+                    <SignalRow
+                      key={sig.id}
+                      signal={sig}
+                      audience={signalAudience(flow, signals, enabledSignals, sig)}
+                      enabled={enabledSignals.has(sig.id)}
+                      open={openSignal === sig.id}
+                      onToggle={() => toggleSignal(sig.id)}
+                      onOpen={() => setOpenSignal(openSignal === sig.id ? null : sig.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
+
 
 export function ProductAutomatedFlowsView() {
   const [category, setCategory] = useState<FlowCategory | "All">("All");
