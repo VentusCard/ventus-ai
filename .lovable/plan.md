@@ -34,7 +34,7 @@ Add a curated set of new banking products to the `/bankdemo` Automated Flows cat
    - Financial Planning Subscription
 
 ## Implementation
-1. Update `FlowCategory` union in `src/lib/productAutomatedFlows.ts` to include `Business Banking` and `Protections & Services`.
+1. Add new `ProductFlow` entries to the existing `FlowCategory` structure in `src/lib/productAutomatedFlows.ts`.
 2. Add new `ProductFlow` entries with semantic life-event and behavioral signals, estimated audience, penetration, and Lucide icons.
 3. Import any additional Lucide icons needed.
 4. Verify `ProductAutomatedFlowsView.tsx` correctly groups and counts the new categories without hardcoded totals.
