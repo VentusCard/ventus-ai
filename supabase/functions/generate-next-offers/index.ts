@@ -7,6 +7,14 @@ const corsHeaders = {
 };
 
 const MODEL = "google/gemini-3.1-pro-preview";
+// Fast model for copy-heavy generation (behavioral + life-event deals).
+const COPY_MODEL = "google/gemini-3.5-flash";
+
+// Only the top-ranked signals per family are sent to the model. Everything below
+// the cut never surfaces in the UI, so generating copy for it only adds latency.
+const MAX_BEHAVIORAL_ROLLUPS = 2;
+const MAX_LIFE_EVENTS = 2;
+const MAX_FINANCIAL_SIGNALS = 1;
 
 const SYSTEM_PROMPT = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
 
@@ -183,12 +191,12 @@ function parseJsonLoose(raw: string): any {
   return null;
 }
 
-async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string) {
+async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string, model: string = MODEL) {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: MODEL,
+      model,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
@@ -242,10 +250,16 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const rollups = persona?.pillarRollups || [];
+    const allRollups = persona?.pillarRollups || [];
+
+    // Cap: only the top behavioral clusters by observed spend are sent to the model.
+    const rollups = allRollups
+      .filter((r: any) => (r.totalCount ?? 0) > 0)
+      .slice()
+      .sort((a: any, b: any) => (b.totalSpend ?? 0) - (a.totalSpend ?? 0))
+      .slice(0, MAX_BEHAVIORAL_ROLLUPS);
 
     const rollupList = rollups
-      .filter((r: any) => (r.totalCount ?? 0) > 0)
       .map((r: any, i: number) => {
         const cats = (r.categories || []).join(", ");
         const merchants = (r.topMerchants || []).slice(0, 6).join(", ");
@@ -267,13 +281,18 @@ serve(async (req) => {
       )
       .join("\n");
 
-    // Tag each life event with a stable id for deterministic mapping
-    const lifeEventsTagged = (lifeEvents || []).map((e: any, i: number) => ({
-      id: `LE_${i + 1}`,
-      event_name: e.event_name,
-      confidence: e.confidence,
-      evidence_merchants: e.evidence_merchants,
-    }));
+    // Cap: only the highest-confidence life events. Tag AFTER slicing so ids stay
+    // aligned with what the model actually receives.
+    const lifeEventsTagged = ((lifeEvents || []) as any[])
+      .slice()
+      .sort((a: any, b: any) => (b?.confidence ?? 0) - (a?.confidence ?? 0))
+      .slice(0, MAX_LIFE_EVENTS)
+      .map((e: any, i: number) => ({
+        id: `LE_${i + 1}`,
+        event_name: e.event_name,
+        confidence: e.confidence,
+        evidence_merchants: e.evidence_merchants,
+      }));
 
     const lifeEventList = lifeEventsTagged
       .map((e: any) => {
@@ -282,8 +301,8 @@ serve(async (req) => {
       })
       .join("\n");
 
-    // Tag each financial signal with a stable id
-    const financialSignalsTagged = (Array.isArray(financial_signals) ? financial_signals : []).map((s: any, i: number) => ({
+    // Cap: hero financial signal only.
+    const financialSignalsTagged = (Array.isArray(financial_signals) ? financial_signals : []).slice(0, MAX_FINANCIAL_SIGNALS).map((s: any, i: number) => ({
       id: `FS_${i + 1}`,
       label: s.label,
       product_family: s.product_family,
@@ -322,8 +341,8 @@ serve(async (req) => {
       : "";
 
     const tasks: Promise<Response | null>[] = [];
-    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
-    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
+    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY, COPY_MODEL) : Promise.resolve(null));
+    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY, COPY_MODEL) : Promise.resolve(null));
     tasks.push(financialSignalUserPrompt ? callGateway(FINANCIAL_SIGNAL_SYSTEM_PROMPT, financialSignalUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
 
     const [rollupRes, lifeEventRes, financialSignalRes] = await Promise.all(tasks);
