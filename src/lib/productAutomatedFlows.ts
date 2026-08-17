@@ -421,7 +421,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     positioning: "Primary checking with direct deposit, bill pay, and broad ATM access.",
     signals: [
       { label: "Paycheck anchors all their spending", evidence: "Consistent W-2 payroll money coming in via bank transfer, coupled with minimal app-to-app cash-out or external account transfers.", type: "behavioral" },
-      { label: "Made us their bill-paying bank", evidence: "Multiple online bill payment transactions to utilities, rent, and car-company lenders, indicating primary bill management.", type: "behavioral" },
+      { label: "Made us their bill-paying bank", evidence: "Multiple online bill payment transactions to utilities, rent and loan payments, showing they run their bills through us.", type: "behavioral" },
       { label: "Sharing money with a partner", evidence: "Shared address update alongside new joint account opening and recurring inter-account transfers to other known accounts.", type: "life-event" },
     ],
     estimatedAudience: 124_000_000,
@@ -795,7 +795,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     icon: Heart,
     positioning: "Fixed-rate financing for engagement, wedding, and honeymoon expenses.",
     signals: [
-      { label: "Bought expensive jewelry", evidence: "Card spend over $2k at fine-jewelry MCCs, often followed by credit card paydown.", type: "life-event" },
+      { label: "Bought expensive jewelry", evidence: "Card spend over $2k at fine-jewelry stores, often followed by credit card paydown.", type: "life-event" },
       { label: "Paying wedding vendors", evidence: "Clustered card, Bill-Pay, or outgoing bank transfers to multiple wedding-related categories like venues, caterers, or event planners.", type: "life-event" },
       { label: "Booking a honeymoon", evidence: "Clusters of card or online travel agency (OTA) spend for flights, lodging, and experiences in common honeymoon destinations.", type: "life-event" },
     ],
