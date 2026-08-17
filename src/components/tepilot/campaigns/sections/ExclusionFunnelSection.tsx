@@ -82,10 +82,13 @@ const RELEVANCE_RANK: Record<SignalRelevance, number> = { useful: 0, neutral: 1,
 
 interface Props {
   product?: ProductFlow;
+  catalogProduct?: CatalogProduct;
+  onAudienceChange?: (audience: number, base: number) => void;
 }
 
 
-export function ExclusionFunnelSection({ product }: Props) {
+export function ExclusionFunnelSection({ product, catalogProduct, onAudienceChange }: Props) {
+
   const [expanded, setExpanded] = useState<ExclusionType | null>(null);
   const [disabled, setDisabled] = useState<Set<ExclusionType>>(new Set());
   const [revealedCount, setRevealedCount] = useState(0);
