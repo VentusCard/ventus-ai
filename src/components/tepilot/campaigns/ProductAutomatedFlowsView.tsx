@@ -354,7 +354,9 @@ export function ProductAutomatedFlowsView() {
             flow={flow}
             active={active.has(flow.id)}
             expanded={expandedId === flow.id}
-            onToggle={() => toggle(flow.id)}
+            enabledSignals={enabledFor(flow)}
+            onSetEnabled={(next) => setEnabledFor(flow.id, next)}
+
             onExpand={() => setExpandedId(expandedId === flow.id ? null : flow.id)}
           />
         ))}
