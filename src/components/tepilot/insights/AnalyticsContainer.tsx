@@ -110,7 +110,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
-      { value: "growth-merchant-partnerships", label: "Merchant Partnerships", icon: Handshake },
+      { value: "growth-merchant-partnerships", label: "Rewards and Perks", icon: Handshake },
     ],
   },
   {

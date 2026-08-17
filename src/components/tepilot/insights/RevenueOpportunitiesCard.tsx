@@ -283,7 +283,7 @@ export function RevenueOpportunitiesCard({ opportunities }: RevenueOpportunities
     <div className="text-sm">
       <span className="text-primary font-medium">{formatCurrency(totalOpportunity)}</span>
       <span className="text-slate-500"> total opportunity with </span>
-      <span className="text-slate-900 font-medium">{totalMerchants} merchant partnership pitches</span>
+      <span className="text-slate-900 font-medium">{totalMerchants} Rewards and Perks</span>
       <span className="text-slate-500"> ready for negotiation.</span>
     </div>
   );

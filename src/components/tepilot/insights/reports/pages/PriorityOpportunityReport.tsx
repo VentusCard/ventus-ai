@@ -386,7 +386,7 @@ export function PriorityOpportunityReport({ opportunityId, onBack, onNavigate, o
       <div className="rounded-md border border-slate-200 bg-white overflow-hidden">
         <div className="px-4 pt-3 pb-2 border-b border-slate-100">
           <div className="text-[11px] uppercase tracking-wider font-medium text-slate-400">
-            Merchant partnerships
+            Rewards and Perks
           </div>
           <div className="text-[13px] font-semibold text-slate-900 mt-0.5">
             Deals ready to negotiate
