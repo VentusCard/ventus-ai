@@ -175,7 +175,10 @@ export function ProductAutomatedFlowsView() {
   );
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const filtered = category === "All" ? PRODUCT_FLOWS : PRODUCT_FLOWS.filter((p) => p.category === category);
+  const filtered =
+    category === "All"
+      ? [...PRODUCT_FLOWS].sort((a, b) => b.estimatedAudience - a.estimatedAudience)
+      : PRODUCT_FLOWS.filter((p) => p.category === category);
 
   const toggle = (id: string) => {
     setActive((prev) => {
