@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { searchExampleCustomers } from "@/lib/personalizationExamples";
 
 interface Props {
-  selectedId: string;
+  selectedId: string | null;
   onSelect: (id: string) => void;
   /** Live /demo session customer name, if a session has been run. */
   sessionName?: string | null;
