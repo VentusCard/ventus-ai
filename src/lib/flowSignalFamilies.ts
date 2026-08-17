@@ -25,7 +25,7 @@ export const SIGNAL_FAMILY_LABEL: Record<SignalFamily, string> = {
   behavioral: "Behavioral",
   financial: "Financial",
   demographic: "Demographic",
-  risk: "Risk",
+  risk: "Risk Filter",
 };
 
 export const SIGNAL_FAMILY_CLASS: Record<SignalFamily, string> = {
@@ -33,7 +33,7 @@ export const SIGNAL_FAMILY_CLASS: Record<SignalFamily, string> = {
   behavioral: "bg-blue-50 text-blue-700 border-blue-200",
   financial: "bg-emerald-50 text-emerald-700 border-emerald-200",
   demographic: "bg-violet-50 text-violet-700 border-violet-200",
-  risk: "bg-slate-100 text-slate-600 border-slate-300",
+  risk: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
 export interface ExpandedSignal {
@@ -255,53 +255,56 @@ const DEMOGRAPHIC: Record<string, SeedSignal> = {
   },
 };
 
+// Risk items are exclusion filters, not triggers. Each label names WHO GETS
+// REMOVED; the weight is the share of the triggered audience that still clears.
 const RISK: Record<string, SeedSignal> = {
   noOverdraft: {
-    label: "Never overdraws the account",
-    evidence: "No overdrafts or bounced payments in the last three months.",
+    label: "Recent overdrafts",
+    evidence: "Removes anyone who overdrew or bounced a payment in the last three months.",
     weight: 0.78,
   },
   healthyDti: {
-    label: "Comfortable room for a new payment",
-    evidence: "Existing loan and card payments take up a small share of what comes in each month.",
+    label: "Payments already stretched",
+    evidence: "Removes anyone whose existing loan and card payments take up too much of what comes in each month.",
     weight: 0.48,
   },
   cleanFraud: {
-    label: "No fraud or disputes on file",
-    evidence: "No fraud claims or disputed charges in the past year.",
+    label: "Fraud or dispute history",
+    evidence: "Removes accounts with a fraud claim or a disputed charge in the past year.",
     weight: 0.93,
   },
   noRecentDeclines: {
-    label: "No declined payments",
-    evidence: "No card or bank payments were turned down in the last two months.",
+    label: "Recent declined payments",
+    evidence: "Removes anyone whose card or bank payments were turned down in the last two months.",
     weight: 0.71,
   },
   collateralClean: {
-    label: "Pays their secured loans on time",
-    evidence: "Their mortgage or car loan has been paid on time with no missed months.",
+    label: "Missed secured-loan payments",
+    evidence: "Removes anyone who has fallen behind on a mortgage or car loan.",
     weight: 0.44,
   },
   cardPaysInFull: {
-    label: "Pays the card off every month",
-    evidence: "The full statement balance is paid, with no late fees.",
+    label: "Carries a revolving balance",
+    evidence: "Removes anyone rolling a balance month to month or paying the card late.",
     weight: 0.38,
   },
   bizCashBuffer: {
-    label: "Enough cash to cover payroll",
-    evidence: "The business account ends every month with more than one payroll run in it.",
+    label: "Thin payroll cushion",
+    evidence: "Removes businesses that end the month with less than one payroll run in the account.",
     weight: 0.05,
   },
   suitability: {
-    label: "Fits the profile for this product",
-    evidence: "Savings and steady income are in the range this product is meant for.",
+    label: "Outside the suitability range",
+    evidence: "Removes households whose savings or steady income fall outside what this product is built for.",
     weight: 0.29,
   },
   coverageGap: {
-    label: "Looks under-insured",
-    evidence: "Income and assets have grown, but insurance payments have not changed in years.",
+    label: "Coverage already adequate",
+    evidence: "Removes households whose insurance already tracks their income and assets.",
     weight: 0.31,
   },
 };
+
 
 const EXTRA_BEHAVIORAL: Record<string, SeedSignal> = {
   competitorProduct: {
@@ -482,15 +485,16 @@ const CHANNELS_BY_FAMILY: Record<SignalFamily, string[]> = {
 const cache = new Map<string, ExpandedSignal[]>();
 const filterCache = new Map<string, EligibilityFilter[]>();
 
-/** An eligibility guardrail: it narrows who qualifies, it never triggers a flow. */
+/** A risk filter: it removes customers from the triggered audience, never adds any. */
 export interface EligibilityFilter {
   id: string;
   label: string;
-  /** Plain-language description of what the check looks at. */
+  /** Plain-language description of who this check removes. */
   evidence: string;
-  /** Share of the triggered audience that clears this check. */
+  /** Share of the triggered audience that still clears this check. */
   passRate: number;
 }
+
 
 function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: EligibilityFilter[] } {
   const authoredCopy = FLOW_MICROSEGMENTS[flow.id] ?? [];
