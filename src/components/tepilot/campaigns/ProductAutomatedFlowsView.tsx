@@ -108,7 +108,7 @@ function SignalRow({
     <div className="rounded-lg border border-slate-200 bg-white">
       <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
         <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
-          <div className="flex-1 min-w-0 min-w-0">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 min-w-0">
               <span
                 className={cn(
