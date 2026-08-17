@@ -104,7 +104,13 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
         </div>
 
         <div className="flex-1 min-h-0 px-3 py-2.5">
-          {useSession ? (
+          {!hasSelection ? (
+            <div className="h-full flex items-center justify-center border border-dashed border-slate-200 rounded-lg bg-slate-50/40 px-4 text-center">
+              <p className="text-[11.5px] text-slate-400 leading-relaxed max-w-[220px]">
+                Search and select a customer to view their detected signals.
+              </p>
+            </div>
+          ) : useSession ? (
             <div className="border border-slate-200 rounded-lg bg-slate-50/70 px-3 py-2.5">
               <p className="text-[11px] text-slate-500 leading-relaxed">
                 Showing the live enriched output of the current demo session for {displayName}.
@@ -112,7 +118,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
               </p>
             </div>
           ) : (
-            <CustomerSignalPanel customer={example} />
+            <CustomerSignalPanel customer={example!} />
           )}
         </div>
       </div>
