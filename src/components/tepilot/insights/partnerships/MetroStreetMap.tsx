@@ -77,8 +77,9 @@ export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props)
 
   // Render markers
   useEffect(() => {
-    if (!ready || !mapRef.current) return;
+    if (!ready || !mapRef.current || !mapsRef.current) return;
     const map = mapRef.current;
+    const maps = mapsRef.current;
 
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
