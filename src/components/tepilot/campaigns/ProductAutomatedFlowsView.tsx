@@ -15,7 +15,7 @@ import {
   type SignalType,
 } from "@/lib/productAutomatedFlows";
 import { FLOW_MICROSEGMENTS, type FlowMicrosegment } from "@/lib/productMicrosegments";
-import { Zap, Play, Sparkles, ChevronDown } from "lucide-react";
+import { Zap, Play, Sparkles, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   SIGNAL_TAXONOMY,
