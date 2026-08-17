@@ -57,6 +57,9 @@ export interface LocalPartner {
   /** Position on the stylized metro street canvas (0-100 scale) */
   x: number;
   y: number;
+  /** Real-world coordinates, scattered deterministically inside the neighborhood */
+  lat: number;
+  lng: number;
 }
 
 export interface Metro {
@@ -65,6 +68,9 @@ export interface Metro {
   state: string;
   cardholders: number;
   neighborhoods: string[];
+  lat: number;
+  lng: number;
+  zoom: number;
 }
 
 export const PARTNER_CATEGORIES = [
