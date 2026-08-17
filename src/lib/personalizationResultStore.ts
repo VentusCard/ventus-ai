@@ -22,6 +22,7 @@ const EMPTY: PersonalizationEntry = {
 let store: Record<string, PersonalizationEntry> = {};
 const listeners = new Set<() => void>();
 const inFlight = new Set<string>();
+let hasPrewarmed = false;
 
 function emit() {
   listeners.forEach((l) => l());
@@ -55,6 +56,14 @@ export function ensurePersonalization(customerId: string) {
     .finally(() => {
       inFlight.delete(customerId);
     });
+}
+
+/** Prewarms the first example customer once per session. */
+export function prewarmDefaultCustomer() {
+  if (hasPrewarmed) return;
+  hasPrewarmed = true;
+  const first = EXAMPLE_CUSTOMERS[0];
+  if (first) ensurePersonalization(first.id);
 }
 
 function subscribe(listener: () => void) {
