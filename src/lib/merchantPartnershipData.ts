@@ -236,16 +236,16 @@ export const NATIONAL_PARTNERS: NationalPartner[] = NATIONAL_SEEDS.map((seed, i)
 /* ------------------------------------------------------------------ */
 
 export const METROS: Metro[] = [
-  { id: "nyc", name: "New York", state: "NY", cardholders: 412000, neighborhoods: ["SoHo", "Williamsburg", "Upper West Side", "Flatiron", "Astoria", "Park Slope"] },
-  { id: "chi", name: "Chicago", state: "IL", cardholders: 268000, neighborhoods: ["West Loop", "Lincoln Park", "Wicker Park", "Hyde Park", "River North", "Logan Square"] },
-  { id: "lax", name: "Los Angeles", state: "CA", cardholders: 344000, neighborhoods: ["Silver Lake", "Santa Monica", "Culver City", "Highland Park", "Venice", "Pasadena"] },
-  { id: "sfo", name: "San Francisco", state: "CA", cardholders: 196000, neighborhoods: ["Mission", "Hayes Valley", "Marina", "SoMa", "Noe Valley", "Richmond"] },
-  { id: "bos", name: "Boston", state: "MA", cardholders: 164000, neighborhoods: ["Back Bay", "South End", "Cambridge", "Seaport", "Somerville", "Jamaica Plain"] },
-  { id: "mia", name: "Miami", state: "FL", cardholders: 188000, neighborhoods: ["Wynwood", "Brickell", "Coral Gables", "Little Havana", "Design District", "South Beach"] },
-  { id: "dal", name: "Dallas", state: "TX", cardholders: 212000, neighborhoods: ["Deep Ellum", "Bishop Arts", "Uptown", "Knox-Henderson", "Trinity Groves", "Lakewood"] },
-  { id: "hou", name: "Houston", state: "TX", cardholders: 224000, neighborhoods: ["Montrose", "Heights", "Rice Village", "EaDo", "Midtown", "Galleria"] },
-  { id: "sea", name: "Seattle", state: "WA", cardholders: 172000, neighborhoods: ["Capitol Hill", "Ballard", "Fremont", "Belltown", "Queen Anne", "Georgetown"] },
-  { id: "atl", name: "Atlanta", state: "GA", cardholders: 198000, neighborhoods: ["Old Fourth Ward", "Buckhead", "West Midtown", "Decatur", "Virginia-Highland", "East Atlanta"] },
+  { id: "nyc", name: "New York", state: "NY", cardholders: 412000, lat: 40.7295, lng: -73.9670, zoom: 12, neighborhoods: ["SoHo", "Williamsburg", "Upper West Side", "Flatiron", "Astoria", "Park Slope"] },
+  { id: "chi", name: "Chicago", state: "IL", cardholders: 268000, lat: 41.9000, lng: -87.6450, zoom: 12, neighborhoods: ["West Loop", "Lincoln Park", "Wicker Park", "Hyde Park", "River North", "Logan Square"] },
+  { id: "lax", name: "Los Angeles", state: "CA", cardholders: 344000, lat: 34.0700, lng: -118.3400, zoom: 11, neighborhoods: ["Silver Lake", "Santa Monica", "Culver City", "Highland Park", "Venice", "Pasadena"] },
+  { id: "sfo", name: "San Francisco", state: "CA", cardholders: 196000, lat: 37.7680, lng: -122.4400, zoom: 12.5, neighborhoods: ["Mission", "Hayes Valley", "Marina", "SoMa", "Noe Valley", "Richmond"] },
+  { id: "bos", name: "Boston", state: "MA", cardholders: 164000, lat: 42.3550, lng: -71.0870, zoom: 12.5, neighborhoods: ["Back Bay", "South End", "Cambridge", "Seaport", "Somerville", "Jamaica Plain"] },
+  { id: "mia", name: "Miami", state: "FL", cardholders: 188000, lat: 25.7700, lng: -80.1950, zoom: 12, neighborhoods: ["Wynwood", "Brickell", "Coral Gables", "Little Havana", "Design District", "South Beach"] },
+  { id: "dal", name: "Dallas", state: "TX", cardholders: 212000, lat: 32.7900, lng: -96.7900, zoom: 12, neighborhoods: ["Deep Ellum", "Bishop Arts", "Uptown", "Knox-Henderson", "Trinity Groves", "Lakewood"] },
+  { id: "hou", name: "Houston", state: "TX", cardholders: 224000, lat: 29.7400, lng: -95.3900, zoom: 12, neighborhoods: ["Montrose", "Heights", "Rice Village", "EaDo", "Midtown", "Galleria"] },
+  { id: "sea", name: "Seattle", state: "WA", cardholders: 172000, lat: 47.6350, lng: -122.3400, zoom: 12, neighborhoods: ["Capitol Hill", "Ballard", "Fremont", "Belltown", "Queen Anne", "Georgetown"] },
+  { id: "atl", name: "Atlanta", state: "GA", cardholders: 198000, lat: 33.7700, lng: -84.3700, zoom: 11.7, neighborhoods: ["Old Fourth Ward", "Buckhead", "West Midtown", "Decatur", "Virginia-Highland", "East Atlanta"] },
 ];
 
 type LocalSeed = [name: string, metroId: string, neighborhoodIndex: number, category: string, cardholders: number, annualSpendK: number, avgTicket: number, upliftPct: number, fitScore: number, stage: PartnerStage, reason: string, dealConstruct: string];
