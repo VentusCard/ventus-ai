@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Megaphone, Package, Wand2, Wallet } from "lucide-react";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
@@ -9,6 +9,11 @@ import { ExclusionFunnelSection } from "./sections/ExclusionFunnelSection";
 import { MessagePreviewsSection } from "./sections/MessagePreviewsSection";
 import { SignalStudioView } from "./SignalStudioView";
 import { WalletShareView } from "@/components/tepilot/insights/WalletShareView";
+import { GoalIntentBar } from "./ai/GoalIntentBar";
+import { AiCampaignBrief } from "./ai/AiCampaignBrief";
+import { LaunchReadinessCard } from "./ai/LaunchReadinessCard";
+import type { AiBriefContext, AiNextAction } from "@/lib/campaignAiEngine";
+import type { GoalMatch } from "@/lib/campaignGoalMatcher";
 
 export type BuilderMode = "product" | "signals" | "outflow";
 
@@ -20,6 +25,11 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
   const [offers, setOffers] = useState<string[]>([]);
   const [campaignLink, setCampaignLink] = useState<string>(DEFAULT_CAMPAIGN_LINK);
   const [visibleStep, setVisibleStep] = useState<1 | 2 | 3>(1);
+  const [audience, setAudience] = useState(0);
+  const [baseAudience, setBaseAudience] = useState(0);
+  const [guardrailsPassed, setGuardrailsPassed] = useState(false);
+  const [goalExplanation, setGoalExplanation] = useState<string | null>(null);
+
 
   // Apply prefill payload from other views (e.g., Relationship Intelligence)
   useEffect(() => {
