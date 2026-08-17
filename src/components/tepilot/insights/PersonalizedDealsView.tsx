@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { Sparkles, Package, Gamepad2, Smartphone } from "lucide-react";
+import { Sparkles, Smartphone } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
-import { DealsAndPerksView } from "./DealsAndPerksView";
-import { GamificationManagement } from "./GamificationManagement";
 import { CustomerMockupPanel } from "./CustomerMockupPanel";
 import { SubTabBar, type SubTabItem } from "./SubTabBar";
 import type { TabValue } from "./AnalyticsContainer";
@@ -11,8 +9,6 @@ import type { TabValue } from "./AnalyticsContainer";
 const TABS: SubTabItem[] = [
   { value: "customer", label: "Customer View", icon: <Smartphone className="w-3.5 h-3.5" /> },
   { value: "next-deal", label: "Next-Deal Intelligence", icon: <Sparkles className="w-3.5 h-3.5" /> },
-  { value: "deals", label: "Deals & Perks", icon: <Package className="w-3.5 h-3.5" /> },
-  { value: "gamification", label: "Gamification", icon: <Gamepad2 className="w-3.5 h-3.5" /> },
 ];
 
 interface PersonalizedDealsViewProps {
@@ -27,9 +23,9 @@ export function PersonalizedDealsView({ onNavigate }: PersonalizedDealsViewProps
       <TabHeader
         icon={<Sparkles className="w-4 h-4" />}
         title="Personalized Deals"
-        subtitle="Intelligence, activation, and engagement for merchant and reward programs"
-        howItWorks="Ventus connects seasonal deal intelligence, merchant partnership activation, and gamified engagement into one coordinated personalization surface."
-        whyItMatters="Grows share-of-wallet by matching the right deal or perk to the right customer at the right time — then sustaining engagement with achievement-driven rewards."
+        subtitle="Customer-facing deal intelligence and next-deal recommendations"
+        howItWorks="Ventus scores seasonal spend curves and persona affinity to recommend the next best deal, then renders it in the customer surface."
+        whyItMatters="Grows share-of-wallet by matching the right deal to the right customer at the right time."
       />
 
       <SubTabBar items={TABS} value={active} onChange={setActive} />
@@ -38,16 +34,6 @@ export function PersonalizedDealsView({ onNavigate }: PersonalizedDealsViewProps
       {active === "next-deal" && (
         <div className="border border-slate-200 rounded-lg bg-white p-4">
           <RewardsAnalyticsDashboard hideHeader />
-        </div>
-      )}
-      {active === "deals" && (
-        <div className="border border-slate-200 rounded-lg bg-white p-4">
-          <DealsAndPerksView defaultTab="shopping" />
-        </div>
-      )}
-      {active === "gamification" && (
-        <div className="border border-slate-200 rounded-lg bg-white p-4">
-          <GamificationManagement hideHeader />
         </div>
       )}
     </div>

@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Handshake, Globe, MapPin, GitBranch, DollarSign, Users, Activity, Building2 } from "lucide-react";
+import { Handshake, Globe, MapPin, GitBranch, DollarSign, Users, Activity, Building2, Package, Gamepad2 } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { SubTabBar } from "./SubTabBar";
 import { CategoryExtensionOpportunities } from "./CategoryExtensionOpportunities";
+import { DealsAndPerksView } from "./DealsAndPerksView";
+import { GamificationManagement } from "./GamificationManagement";
 import { NationalPartnersView } from "./partnerships/NationalPartnersView";
 import { LocalPartnersView } from "./partnerships/LocalPartnersView";
 import { BrandContactDialog, type ContactTarget } from "./partnerships/BrandContactDialog";
@@ -30,9 +32,9 @@ export function MerchantPartnershipsView({ onLaunchCampaign }: Props) {
       <TabHeader
         icon={<Handshake className="w-4 h-4" />}
         title="Rewards and Perks"
-        subtitle="Plan national and local brand partnerships from where cardholders already spend"
-        howItWorks="Ventus ranks named national brands and local merchants by the spend already flowing through the card book, estimates the annual value of a co-funded partnership, and resolves the right partnerships contact so the team can open the conversation."
-        whyItMatters="Category codes describe what was bought. Named brands, sized value, and a contact turn that spend into signed partnership and co-marketing revenue."
+        subtitle="Plan brand partnerships, manage the deal and perk catalog, and run gamified engagement"
+        howItWorks="Ventus ranks named national brands and local merchants by the spend already flowing through the card book, estimates the annual value of a co-funded partnership, resolves the right partnerships contact, and hands the resulting deals and perks to the activation and engagement programs."
+        whyItMatters="Category codes describe what was bought. Named brands, sized value, a contact, and a live perk catalog turn that spend into signed partnership and co-marketing revenue."
       />
 
       <div className="grid grid-cols-4 gap-3">
@@ -54,12 +56,24 @@ export function MerchantPartnershipsView({ onLaunchCampaign }: Props) {
         items={[
           { value: "national", label: "National Partners", icon: <Globe className="w-3.5 h-3.5" /> },
           { value: "local", label: "Local Partners", icon: <MapPin className="w-3.5 h-3.5" /> },
+          { value: "deals", label: "Deals & Perks", icon: <Package className="w-3.5 h-3.5" /> },
+          { value: "gamification", label: "Gamification", icon: <Gamepad2 className="w-3.5 h-3.5" /> },
           { value: "bridges", label: "Behavioral Bridges", icon: <GitBranch className="w-3.5 h-3.5" /> },
         ]}
       />
 
       {tab === "national" && <NationalPartnersView onFindContact={setContactTarget} />}
       {tab === "local" && <LocalPartnersView onFindContact={setContactTarget} />}
+      {tab === "deals" && (
+        <div className="border border-slate-200 rounded-lg bg-white p-4">
+          <DealsAndPerksView defaultTab="shopping" />
+        </div>
+      )}
+      {tab === "gamification" && (
+        <div className="border border-slate-200 rounded-lg bg-white p-4">
+          <GamificationManagement hideHeader />
+        </div>
+      )}
       {tab === "bridges" && <CategoryExtensionOpportunities onLaunchCampaign={onLaunchCampaign} />}
 
       <BrandContactDialog target={contactTarget} onClose={() => setContactTarget(null)} />
