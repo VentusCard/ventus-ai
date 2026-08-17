@@ -296,6 +296,62 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     estimatedAudience: 6_400_000,
     penetration: 0.013,
   },
+  {
+    id: "rv-boat-loan",
+    name: "RV / Boat Loan",
+    category: "Lending",
+    icon: Ship,
+    positioning: "Recreational vehicle and marine financing for customers buying or refinancing RVs, boats, and watercraft.",
+    signals: [
+      { label: "Recreational vehicle shopping", evidence: "Card spend at RV dealerships, boat brokers, or marine supply stores, often paired with insurance prepayments.", type: "behavioral" },
+      { label: "Marina and storage payments", evidence: "Recurring ACH or card payments to marinas, boat storage facilities, or RV parks during the off-season.", type: "behavioral" },
+      { label: "Large leisure purchase deposit", evidence: "Substantial deposit or down payment to a recreational vehicle or boat dealer via wire or ACH.", type: "life-event" },
+    ],
+    estimatedAudience: 3_600_000,
+    penetration: 0.007,
+  },
+  {
+    id: "motorcycle-loan",
+    name: "Motorcycle Loan",
+    category: "Lending",
+    icon: Bike,
+    positioning: "Financing for new or used motorcycle and powersport purchases.",
+    signals: [
+      { label: "Powersport dealer engagement", evidence: "Card or ACH payments to motorcycle dealerships, powersport retailers, or accessory shops.", type: "behavioral" },
+      { label: "Insurance quote trigger", evidence: "ACH or card payment to a motorcycle insurer shortly after a dealer deposit.", type: "life-event" },
+      { label: "Competitive lender payoff", evidence: "Outbound ACH to a captive powersport lender, indicating an existing loan elsewhere.", type: "behavioral" },
+    ],
+    estimatedAudience: 2_800_000,
+    penetration: 0.006,
+  },
+  {
+    id: "construction-loan",
+    name: "Construction Loan",
+    category: "Lending",
+    icon: Hammer,
+    positioning: "Short-term financing for ground-up home construction or major renovation projects.",
+    signals: [
+      { label: "Land or lot acquisition", evidence: "Large outbound wire or ACH to a land seller, title company, or municipality for a buildable lot.", type: "life-event" },
+      { label: "Builder draw schedule", evidence: "Recurring large-value ACH or wire payments to a general contractor or construction firm.", type: "behavioral" },
+      { label: "Permit and architectural fees", evidence: "Payments to architects, structural engineers, or city permitting offices via ACH or bill-pay.", type: "life-event" },
+    ],
+    estimatedAudience: 1_400_000,
+    penetration: 0.003,
+  },
+  {
+    id: "lease-buyout-loan",
+    name: "Lease Buyout Loan",
+    category: "Lending",
+    icon: Key,
+    positioning: "Financing for customers buying out an existing auto, equipment, or real estate lease.",
+    signals: [
+      { label: "Lease-end residual payment", evidence: "Large outbound ACH or wire to a leasing company labeled 'lease buyout' or 'residual'.", type: "life-event" },
+      { label: "Ongoing lease payments", evidence: "Consistent monthly ACH debits to a captive leasing company for 24+ months.", type: "behavioral" },
+      { label: "Excess mileage or wear charges", evidence: "End-of-lease fees paid to the lessor, signaling the customer is closing the lease.", type: "life-event" },
+    ],
+    estimatedAudience: 4_200_000,
+    penetration: 0.008,
+  },
 
   // ===== DEPOSITS =====
   {
