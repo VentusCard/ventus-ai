@@ -260,7 +260,37 @@ export function ProductPickerSection({
         </div>
       ) : (
         <div className="relative">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10" />
+          <div className="mb-2.5 rounded-lg border border-blue-200 bg-blue-50/50 p-2.5">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Sparkles className="w-3 h-3 text-blue-600" />
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-800">
+                Recommended for you now
+              </p>
+              <span className="text-[10px] text-blue-500">strongest live signal support this period</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {recommendedProducts(3).map((f) => (
+                <button
+                  key={f.product.name}
+                  type="button"
+                  onClick={() => {
+                    onSelect(f.product.name);
+                    setQuery("");
+                  }}
+                  className="text-left rounded-md border border-blue-200 bg-white hover:border-blue-400 transition-colors px-2.5 py-2"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-semibold text-slate-900 truncate">{f.product.name}</span>
+                    <span className="ml-auto text-[10px] font-semibold text-blue-700 tabular-nums shrink-0">
+                      {f.score}/100
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-snug mt-0.5 line-clamp-2">{f.why}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-[86px] -translate-y-1/2 z-10" />
           <Input
             ref={inputRef}
             value={query}
@@ -269,6 +299,7 @@ export function ProductPickerSection({
             className="h-8 pl-8 text-xs bg-white border-slate-200"
           />
           <div className="mt-2 max-h-[360px] overflow-y-auto rounded-md border border-slate-200 bg-white">
+
             {grouped.length === 0 ? (
               <div className="px-3 py-4 text-center text-xs text-slate-500">No products match "{query}".</div>
             ) : (
