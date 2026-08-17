@@ -450,12 +450,24 @@ export function ProductAutomatedFlowsView() {
                 ))}
           </div>
         </div>
-        <Badge variant="outline" className="text-xs border-slate-200 bg-white">
-          <Play className="w-3 h-3 mr-1 text-emerald-600" />
-          {mode === "signals"
-            ? `${SIGNAL_TAXONOMY.length} signals detected`
-            : `${active.size} active of ${PRODUCT_FLOWS.length}`}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={mode === "signals" ? "Search signals" : "Search flows"}
+              className="h-8 w-40 sm:w-48 pl-8 pr-3 rounded-full border border-slate-200 bg-white text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-300 transition-all"
+            />
+          </div>
+          <Badge variant="outline" className="text-xs border-slate-200 bg-white">
+            <Play className="w-3 h-3 mr-1 text-emerald-600" />
+            {mode === "signals"
+              ? `${SIGNAL_TAXONOMY.length} signals detected`
+              : `${active.size} active of ${PRODUCT_FLOWS.length}`}
+          </Badge>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">
