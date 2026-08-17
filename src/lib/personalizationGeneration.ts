@@ -92,9 +92,17 @@ export interface PersonalizationGenerationResult {
   lifeEvents: LifeEvent[];
 }
 
+export interface PersonalizationProgress {
+  /** Fired as soon as the product-card call resolves, before offers finish. */
+  onProductCards?: (cards: ProductCard[] | null) => void;
+  /** Fired as soon as the offers call resolves. */
+  onOffers?: (offers: RollupOfferGroup[] | null) => void;
+}
+
 /** Fires both generation functions in parallel from the customer's signals. */
 export async function generatePersonalizedExperience(
   customer: ExampleCustomer,
+  progress?: PersonalizationProgress,
 ): Promise<PersonalizationGenerationResult> {
   const pillarRollups = buildPillarRollups(customer);
   const lifeEvents = buildLifeEvents(customer);
