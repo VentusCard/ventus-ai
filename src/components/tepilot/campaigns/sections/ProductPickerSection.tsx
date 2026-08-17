@@ -259,7 +259,8 @@ export function ProductPickerSection({
           </div>
         </div>
       ) : (
-        <div className="relative">
+        <div>
+
           <div className="mb-2.5 rounded-lg border border-blue-200 bg-blue-50/50 p-2.5">
             <div className="flex items-center gap-1.5 mb-1.5">
               <Sparkles className="w-3 h-3 text-blue-600" />
