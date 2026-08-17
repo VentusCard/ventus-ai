@@ -158,6 +158,13 @@ export function ExclusionFunnelSection({ product, catalogProduct, onAudienceChan
     (TENURE_FACTOR[filters.accountTenure] ?? 1) *
     (DEPTH_FACTOR[filters.relationshipDepth] ?? 1);
   const combinedFinal = emptyGroup ? 0 : Math.round(funnel.finalCount * retention);
+  const baseAudience = product?.estimatedAudience ?? 0;
+
+  useEffect(() => {
+    onAudienceChange?.(combinedFinal, baseAudience);
+  }, [combinedFinal, baseAudience, onAudienceChange]);
+
+
 
   const toggleArr = (key: "ageRanges" | "incomeBands" | "ficoRanges" | "regions", value: string) => {
     setFilters((f) => {
