@@ -417,7 +417,9 @@ export function resolveBrandContact(brand: string, scope: "national" | "local", 
   const first = FIRST_NAMES[h % FIRST_NAMES.length];
   const last = LAST_NAMES[(h >> 3) % LAST_NAMES.length];
   const altFirst = FIRST_NAMES[(h >> 5) % FIRST_NAMES.length];
-  const altLast = LAST_NAMES[(h >> 7) % LAST_NAMES.length];
+  const altLast = LAST_NAMES[((h >> 7) + 5) % LAST_NAMES.length] === last
+    ? LAST_NAMES[((h >> 7) + 9) % LAST_NAMES.length]
+    : LAST_NAMES[((h >> 7) + 5) % LAST_NAMES.length];
   const titles = scope === "national" ? NATIONAL_TITLES : LOCAL_TITLES;
   const title = titles[(h >> 2) % titles.length];
   const domain = domainFor(brand);
