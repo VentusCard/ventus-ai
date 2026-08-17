@@ -11,7 +11,7 @@ interface Props {
   onSelect: (id: string) => void;
 }
 
-const MAP_STYLES: google.maps.MapTypeStyle[] = [
+const MAP_STYLES: Array<Record<string, unknown>> = [
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
   { featureType: "transit", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
   { featureType: "water", elementType: "geometry", stylers: [{ color: "#dbeafe" }] },
