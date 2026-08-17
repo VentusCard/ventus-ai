@@ -49,12 +49,10 @@ function MicrosegmentCard({
         <span
           className={cn(
             "self-start text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
-            signal.type === "life-event"
-              ? "bg-amber-50 text-amber-700 border-amber-200"
-              : "bg-blue-50 text-blue-700 border-blue-200",
+            SIGNAL_FAMILY_COLOR[getSignalFamily(signal)],
           )}
         >
-          {signal.type === "life-event" ? "Life Event" : "Behavioral"}
+          {SIGNAL_FAMILY_LABEL[getSignalFamily(signal)]}
         </span>
         <p className="text-[12px] font-semibold text-slate-900 leading-tight">{signal.label}</p>
         <p className="text-[10.5px] text-slate-500 leading-snug">{signal.evidence}</p>
