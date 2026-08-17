@@ -286,6 +286,13 @@ export function ProductAutomatedFlowsView() {
     () => new Set(PRODUCT_FLOWS.filter((p) => p.defaultActive).map((p) => p.id)),
   );
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [signalState, setSignalState] = useState<Record<string, Set<string>>>({});
+
+  const enabledFor = (flow: ProductFlow) =>
+    signalState[flow.id] ?? new Set(expandFlowSignals(flow).map((s) => s.id));
+
+  const setEnabledFor = (flowId: string, next: Set<string>) =>
+    setSignalState((prev) => ({ ...prev, [flowId]: next }));
 
   const filtered =
     category === "All"
@@ -300,6 +307,7 @@ export function ProductAutomatedFlowsView() {
       return next;
     });
   };
+
 
   return (
     <div className="space-y-4">
