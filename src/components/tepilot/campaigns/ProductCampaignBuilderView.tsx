@@ -113,7 +113,7 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
     setGoalExplanation(`"${goal}" → ${match.explanation}`);
     if (match.mode === "product" && match.product) {
       setProductName(match.product.name);
-      setOffers(match.offers ?? []);
+      setOffers([]);
       setCampaignLink(DEFAULT_CAMPAIGN_LINK);
       setVisibleStep(2);
     }
