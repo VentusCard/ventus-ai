@@ -160,7 +160,6 @@ function FlowRow({
 }) {
   const Icon = flow.icon;
   const signals = useMemo(() => expandFlowSignals(flow), [flow]);
-  const families = useMemo(() => groupByFamily(signals), [signals]);
   const [openSignal, setOpenSignal] = useState<string | null>(null);
 
   const enabledCount = signals.filter((s) => enabledSignals.has(s.id)).length;
@@ -171,13 +170,6 @@ function FlowRow({
     const next = new Set(enabledSignals);
     if (next.has(id)) next.delete(id);
     else next.add(id);
-    onSetEnabled(next);
-  };
-
-  const toggleFamily = (list: ExpandedSignal[]) => {
-    const allOn = list.every((s) => enabledSignals.has(s.id));
-    const next = new Set(enabledSignals);
-    list.forEach((s) => (allOn ? next.delete(s.id) : next.add(s.id)));
     onSetEnabled(next);
   };
 
@@ -202,7 +194,7 @@ function FlowRow({
         <div className="flex-1 min-w-0 flex items-center gap-3">
           <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 shrink-0">
             <Sparkles className="w-3 h-3" />
-            {enabledCount} of {signals.length} signals · {families.length} families
+            {enabledCount} of {signals.length} signals
           </span>
           <span className="text-xs text-slate-500 truncate">{flow.positioning}</span>
         </div>
@@ -231,7 +223,7 @@ function FlowRow({
       </button>
 
       {expanded && (
-        <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60 space-y-3">
+        <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60 space-y-2">
           <div className="flex items-center gap-1.5">
             <Sparkles className="w-3 h-3 text-blue-500" />
             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
@@ -239,49 +231,19 @@ function FlowRow({
             </p>
           </div>
 
-          {families.map(([family, list]) => {
-            const allOn = list.every((s) => enabledSignals.has(s.id));
-            return (
-              <div key={family} className="space-y-1.5">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={cn(
-                        "text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
-                        SIGNAL_FAMILY_CLASS[family],
-                      )}
-                    >
-                      {SIGNAL_FAMILY_LABEL[family]}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-medium">
-                      {list.length} {list.length === 1 ? "signal" : "signals"}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleFamily(list)}
-                    className="text-[10px] font-medium text-slate-500 hover:text-slate-900 transition-colors"
-                  >
-                    {allOn ? "Turn all off" : "Turn all on"}
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  {list.map((sig) => (
-                    <SignalRow
-                      key={sig.id}
-                      signal={sig}
-                      audience={signalAudience(flow, signals, enabledSignals, sig)}
-                      enabled={enabledSignals.has(sig.id)}
-                      open={openSignal === sig.id}
-                      onToggle={() => toggleSignal(sig.id)}
-                      onOpen={() => setOpenSignal(openSignal === sig.id ? null : sig.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+          <div className="flex flex-col gap-1.5">
+            {signals.map((sig) => (
+              <SignalRow
+                key={sig.id}
+                signal={sig}
+                audience={signalAudience(flow, signals, enabledSignals, sig)}
+                enabled={enabledSignals.has(sig.id)}
+                open={openSignal === sig.id}
+                onToggle={() => toggleSignal(sig.id)}
+                onOpen={() => setOpenSignal(openSignal === sig.id ? null : sig.id)}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>
