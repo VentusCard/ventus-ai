@@ -202,7 +202,7 @@ async function callGateway(systemPrompt: string, userPrompt: string, apiKey: str
         { role: "user", content: userPrompt },
       ],
       temperature: 0.55,
-      max_tokens: 4096,
+      max_tokens: 8192,
     }),
   });
   return response;
