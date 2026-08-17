@@ -25,8 +25,9 @@ const MAP_STYLES: Array<Record<string, unknown>> = [
 /** Real Google map of the selected metro with a pin per local partner. */
 export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const mapsRef = useRef<any>(null);
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
 
