@@ -1,3 +1,4 @@
+import { taxonomyItems } from "@/lib/signalTaxonomy";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -100,7 +101,6 @@ type SignalDetail = {
   items: { label: string; sublabel: string; icon?: React.ElementType }[];
 };
 
-import { taxonomyItems } from "@/lib/signalTaxonomy";
 
 const SIGNALS: SignalDetail[] = [
   {
