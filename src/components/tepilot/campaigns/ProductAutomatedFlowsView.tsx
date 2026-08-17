@@ -7,13 +7,17 @@ import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
 import {
   expandFlowSignals,
+  expandFlowFilters,
   enabledAudience,
+  qualifiedAudience,
+  filterPassRate,
   signalAudience,
   SIGNAL_FAMILY_CLASS,
   SIGNAL_FAMILY_LABEL,
   type ExpandedSignal,
+  type EligibilityFilter,
 } from "@/lib/flowSignalFamilies";
-import { Zap, Play, Sparkles, ChevronDown, ChevronRight, Mail } from "lucide-react";
+import { Zap, Play, Sparkles, ChevronDown, ChevronRight, Mail, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES: (FlowCategory | "All")[] = ["All", "Lending", "Wealth", "Deposits", "Cards", "Insurance"];
