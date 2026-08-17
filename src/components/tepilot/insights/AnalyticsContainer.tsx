@@ -3,9 +3,6 @@ import { BankwideView } from "./BankwideView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
 import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
-
-import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
-
 import { PersonalizedRelationshipView } from "./PersonalizedRelationshipView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 
