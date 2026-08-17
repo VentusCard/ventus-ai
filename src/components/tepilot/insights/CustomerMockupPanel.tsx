@@ -68,21 +68,22 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const sessionName = session.hasRun ? session.customer?.profile?.name ?? null : null;
   const useSession = selectedId === "session" && !!session.customer;
 
-  const example = EXAMPLE_CUSTOMERS.find((c) => c.id === selectedId) ?? EXAMPLE_CUSTOMERS[0];
-  const generated = usePersonalizationResult(example.id);
+  const example = EXAMPLE_CUSTOMERS.find((c) => c.id === selectedId) ?? null;
+  const hasSelection = useSession || !!example;
+  const generated = usePersonalizationResult(example?.id ?? "");
 
   useEffect(() => {
-    if (!useSession) ensurePersonalization(example.id);
-  }, [example.id, useSession]);
+    if (!useSession && example) ensurePersonalization(example.id);
+  }, [example?.id, useSession]);
 
   const chatSignalContext = useMemo(
-    () => (useSession ? undefined : buildChatSignalContext(example)),
+    () => (useSession || !example ? undefined : buildChatSignalContext(example)),
     [useSession, example],
   );
 
-  const phoneCustomer = useSession ? session.customer! : example.demo;
-  const displayName = useSession ? sessionName : example.name;
-  const isGenerating = !useSession && generated.status === "running";
+  const phoneCustomer = useSession ? session.customer! : example?.demo ?? null;
+  const displayName = useSession ? sessionName : example?.name ?? null;
+  const isGenerating = !useSession && !!example && generated.status === "running";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-140px)] min-h-[720px]">
