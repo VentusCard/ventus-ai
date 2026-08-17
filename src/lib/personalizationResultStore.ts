@@ -44,7 +44,15 @@ export function ensurePersonalization(customerId: string) {
   inFlight.add(customerId);
   set(customerId, { status: "running", offers: null, productCards: null, lifeEvents: [] });
 
-  generatePersonalizedExperience(customer)
+  generatePersonalizedExperience(customer, {
+    // Render each half the moment it lands instead of waiting on both.
+    onProductCards: (cards) => {
+      if (cards?.length) set(customerId, { productCards: cards, status: "ready" });
+    },
+    onOffers: (offers) => {
+      if (offers?.length) set(customerId, { offers, status: "ready" });
+    },
+  })
     .then((res) => {
       const ok = Boolean(res.offers?.length || res.productCards?.length);
       set(customerId, { ...res, status: ok ? "ready" : "failed" });
