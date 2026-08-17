@@ -3,7 +3,7 @@ import { Route, Smartphone, Target } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { CustomerMockupPanel } from "./CustomerMockupPanel";
-import { SubTabBar, type SubTabItem } from "./SubTabBar";
+import { type SubTabItem } from "./SubTabBar";
 import type { TabValue } from "./AnalyticsContainer";
 
 const TABS: SubTabItem[] = [
