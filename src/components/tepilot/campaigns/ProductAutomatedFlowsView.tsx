@@ -4,7 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
-import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
+import {
+  PRODUCT_FLOWS,
+  SIGNAL_FAMILIES,
+  SIGNAL_FAMILY_COLOR,
+  SIGNAL_FAMILY_LABEL,
+  getSignalFamily,
+  type FlowCategory,
+  type ProductFlow,
+  type SignalType,
+} from "@/lib/productAutomatedFlows";
 import { FLOW_MICROSEGMENTS, type FlowMicrosegment } from "@/lib/productMicrosegments";
 import { Zap, Play, Sparkles, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
