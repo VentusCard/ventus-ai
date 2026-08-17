@@ -22,6 +22,7 @@ const EMPTY: PersonalizationEntry = {
 let store: Record<string, PersonalizationEntry> = {};
 const listeners = new Set<() => void>();
 const inFlight = new Set<string>();
+let hasPrewarmed = false;
 
 function emit() {
   listeners.forEach((l) => l());
