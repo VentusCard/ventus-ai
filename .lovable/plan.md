@@ -2,7 +2,7 @@
 
 ## What's wrong
 
-The Customer Selection card lists the first example customer as **Ricky Alvarez**, but the phone mockup next to it greets "Sarah". The example customer entries reuse the `/demo` sample customers by id, and the sample record behind the first example still carries the name **Sarah Mitchell** (with her own city and segment). The phone mockup reads the name off that underlying sample record, not off the example customer, so the two panels disagree.
+The Customer Selection card lists the first example customer as **Ricky J**, but the phone mockup next to it greets "Sarah". The example customer entries reuse the `/demo` sample customers by id, and the sample record behind the first example still carries the name **Sarah Mitchell** (with her own city and segment). The phone mockup reads the name off that underlying sample record, not off the example customer, so the two panels disagree.
 
 This affects every field the phone pulls from the sample record — the greeting, the generated-offers header, the relationship view welcome line, and the segment line.
 
