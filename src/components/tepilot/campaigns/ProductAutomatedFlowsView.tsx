@@ -331,15 +331,19 @@ export function ProductAutomatedFlowsView() {
 
   const byAudience = (a: ProductFlow, b: ProductFlow) => b.estimatedAudience - a.estimatedAudience;
 
-  const flowHasFamily = (flow: ProductFlow, fam: SignalType) =>
-    flow.signals.some((s) => getSignalFamily(s) === fam);
-
   const filtered =
-    mode === "signals"
-      ? (family === "All" ? [...PRODUCT_FLOWS] : PRODUCT_FLOWS.filter((p) => flowHasFamily(p, family))).sort(byAudience)
-      : category === "All"
-        ? [...PRODUCT_FLOWS].sort(byAudience)
-        : PRODUCT_FLOWS.filter((p) => p.category === category);
+    category === "All"
+      ? [...PRODUCT_FLOWS].sort(byAudience)
+      : PRODUCT_FLOWS.filter((p) => p.category === category);
+
+  const signalRows = (family === "All" ? SIGNAL_TAXONOMY : SIGNAL_TAXONOMY.filter((s) => s.family === family))
+    .slice()
+    .sort((a, b) => {
+      if (family === "All" && a.family !== b.family) {
+        return SIGNAL_FAMILY_ORDER.indexOf(a.family) - SIGNAL_FAMILY_ORDER.indexOf(b.family);
+      }
+      return signalAudience(b) - signalAudience(a);
+    });
 
   const switchMode = (next: "products" | "signals") => {
     setMode(next);
@@ -356,6 +360,18 @@ export function ProductAutomatedFlowsView() {
       return next;
     });
   };
+
+  const toggleSignal = (signal: TaxonomySignal, on: boolean) => {
+    setActive((prev) => {
+      const next = new Set(prev);
+      for (const flow of flowsForSignal(signal)) {
+        if (on) next.add(flow.id);
+        else next.delete(flow.id);
+      }
+      return next;
+    });
+  };
+
 
   const pillClass = (selected: boolean) =>
     cn(
