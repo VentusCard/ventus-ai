@@ -146,10 +146,20 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
         </div>
 
         <div className="flex-1 min-h-0 p-3 flex flex-col">
+          {!hasSelection ? (
+            <div className="flex-1 min-h-0 flex items-center justify-center">
+              <div className="w-full max-w-[400px] h-full flex items-center justify-center border border-dashed border-slate-200 rounded-2xl bg-slate-50/40 px-6 text-center">
+                <p className="text-[12px] text-slate-400 leading-relaxed max-w-[240px]">
+                  Select a customer to generate their personalized surface.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
           <div className="flex-1 min-h-0 flex justify-center">
             <div className="w-full max-w-[400px] h-full flex flex-col">
               <ExecDemoPhoneView
-                customer={phoneCustomer}
+                customer={phoneCustomer!}
                 activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
                 phase="hold"
                 showContent
@@ -194,8 +204,10 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
               </PopoverContent>
             </Popover>
           </div>
+            </>
+          )}
 
-          {!useSession && generated.status === "failed" && (
+          {hasSelection && !useSession && generated.status === "failed" && (
             <p className="shrink-0 mt-1.5 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5 text-center">
               Live generation didn't return for this customer. Showing the standard demo content
               instead — reselect the customer to retry.
