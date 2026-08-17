@@ -331,13 +331,25 @@ export function ProductAutomatedFlowsView() {
   const [query, setQuery] = useState("");
 
   const byAudience = (a: ProductFlow, b: ProductFlow) => b.estimatedAudience - a.estimatedAudience;
+  const q = query.trim().toLowerCase();
 
-  const filtered =
-    category === "All"
-      ? [...PRODUCT_FLOWS].sort(byAudience)
-      : PRODUCT_FLOWS.filter((p) => p.category === category);
+  const filtered = (category === "All"
+    ? [...PRODUCT_FLOWS].sort(byAudience)
+    : PRODUCT_FLOWS.filter((p) => p.category === category)
+  ).filter((p) =>
+    q
+      ? [p.name, p.category, p.positioning].some((field) => field.toLowerCase().includes(q))
+      : true,
+  );
 
   const signalRows = (family === "All" ? SIGNAL_TAXONOMY : SIGNAL_TAXONOMY.filter((s) => s.family === family))
+    .filter((s) =>
+      q
+        ? [s.label, s.detection, ...flowsForSignal(s).map((f) => f.name)].some((field) =>
+            field.toLowerCase().includes(q),
+          )
+        : true,
+    )
     .slice()
     .sort((a, b) => {
       if (family === "All" && a.family !== b.family) {
