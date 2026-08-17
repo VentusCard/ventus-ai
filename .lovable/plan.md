@@ -1,57 +1,44 @@
-# Compact Customer View Layout
+# Full-height phone inside the Customer View card
 
-Reduce vertical distance to the phone mockup in the three Personalization tabs (Personalized Deals, Product, Relationship) on /bankdemo so the customer surface is visible without excessive scrolling.
+Rework the Customer View shared by Personalized Deals, Product, and Relationship on /bankdemo so the phone mockup occupies the full height of the card instead of sitting below stacked chrome and beside a mostly empty copy column.
 
 ## Current state
 
-The Customer View panel stacks four horizontal bands before the phone:
-
-1. Panel header ("Customer View" title + generating badge + "Run the demo" link)
-2. `ExampleCustomerBar` (search input + customer chips)
-3. Main 3-column grid: signal panel (1/3), phone (h-[680px]) + explanatory copy (2/3)
-
-The copy column sits beside the phone and is mostly empty whitespace. The phone's fixed 680px height plus the stacked headers pushes it well below the fold on typical laptop viewports.
+The card stacks three horizontal bands before the phone: a panel header, the example-customer search/chips bar, then a 3-column grid where the phone has a fixed `h-[680px]` and shares its two columns with a tall "What the customer sees" copy block. The result pushes the phone far down the page and wastes the right-hand column.
 
 ## What changes
 
-1. **Merge the top chrome into one compact row**
-   - Combine the panel header and `ExampleCustomerBar` into a single `flex` row.
-   - Keep the "Customer View" title + generating badge on the left.
-   - Put the search input and customer chips on the same row to the right, wrapping only when needed.
-   - Remove the standalone "Run the demo" link; the session chip already covers this case, and the link duplicates the Demo tab navigation.
+1. **The card becomes a fixed-height workspace**
+   The Customer View card sizes itself to the remaining viewport height (roughly `calc(100vh - header/sub-tab chrome)`) rather than growing with its content. Nothing inside the card pushes the page taller; the page itself stops scrolling for this surface.
 
-2. **Flatten the explanatory copy**
-   - Move the "What the customer sees" title/body/bullets from a tall side column into a compact horizontal explainer strip directly above the phone.
-   - Truncate the body text and show the bullets in a single inline row or hide them behind a "Why this surface" popover to reclaim height.
+2. **One compact chrome row**
+   The card header and the example-customer bar merge into a single row: "Customer View" title on the left, search input and the customer chips inline to the right, generating badge at the far right. The standalone "Run the demo" link is removed.
 
-3. **Reduce phone height and let it respond to viewport**
-   - Drop the fixed `h-[680px]` to a viewport-aware height (e.g. `h-[clamp(520px,70vh,640px)]`) so the phone fits on screen without scrolling.
-   - Keep the phone centered and ensure the internal scroll container still works.
+3. **Two columns, both full height**
+   - Left (~1/3): the signal panel, scrolling internally if the signal set is tall.
+   - Right (~2/3): the phone mockup, vertically centered and stretched to the full available height of the card.
+   The phone loses its fixed 680px height and instead fills its container, so on a tall screen it renders larger and on a laptop it shrinks to fit — never clipped, never overflowing.
 
-4. **Tighten the signal panel**
-   - Reduce internal padding in `CustomerSignalPanel` from `p-3 space-y-3` to `p-2.5 space-y-2`.
-   - Keep evidence collapsed by default; the expanded state remains click-to-reveal.
-   - Shrink the "Signals detected" header line height and badge size.
-
-5. **Layout becomes a 2-column workspace**
-   - Left column (~30%): compact signal panel.
-   - Right column (~70%): explainer strip on top, phone mockup below it.
-   - Remove the third copy-only column entirely.
+4. **The explainer copy moves off the main axis**
+   "What the customer sees" no longer occupies a column. It becomes a compact caption strip directly beneath the phone (title + one line), with the three bullets available via a small "Why this surface" popover. The failure notice keeps the same placement.
 
 ```text
-[ Customer View  |  search ..  [Ricky][James][Emily][Michael][Amanda]  generating badge ]
-------------------------------------------------------------------------------------------
-| LIFE EVENTS  (pill)(pill)    |  [What the customer sees — 3 bullets as inline chips]
-| BEHAVIORAL   (pill)(pill)    |  +----------------------------------+
-| FINANCIAL    (pill)          |  |                                  |
-| DEMOGRAPHIC  (pill)(pill)    |  |         phone mockup             |
-| RISK         (pill)            |  |      (shorter, viewport-aware)   |
-|                              |  |                                  |
++--------------------------------------------------------------------------+
+| Customer View   [ search ... ] [Ricky][James][Emily][Michael][Amanda]     |
++---------------------------+----------------------------------------------+
+| LIFE EVENTS  (pill)(pill) |                                              |
+| BEHAVIORAL   (pill)(pill) |               [ phone mockup ]               |
+| FINANCIAL    (pill)       |             full card height                 |
+| DEMOGRAPHIC  (pill)       |                                              |
+| RISK         (pill)       |   What the customer sees — one line  (?)     |
++---------------------------+----------------------------------------------+
 ```
 
 ## Technical notes
 
-- Edit `src/components/tepilot/insights/CustomerMockupPanel.tsx` to merge the header/customer bar, flatten the copy, and switch to a 2-column grid.
-- Edit `src/components/tepilot/insights/personalization/CustomerSignalPanel.tsx` for tighter padding and header sizing.
-- `ExampleCustomerBar.tsx` may need a compact variant or its outer wrapper removed so it can sit inline with the panel title.
-- No data, generation, or store changes. Strict light theme and Manrope typography are preserved.
+- `CustomerMockupPanel.tsx`: card wrapper becomes `flex flex-col h-[calc(100vh-Xpx)] min-h-[560px]`; the grid body becomes `flex-1 min-h-0` with a 2-column split (`lg:grid-cols-3`, signals 1 col, phone 2 cols). The phone wrapper switches from `h-[680px]` to `flex-1 min-h-0`, centered with a max width so it doesn't stretch horizontally.
+- `ExampleCustomerBar.tsx`: gains a compact inline mode (no own border/padding band) so it renders inside the header row.
+- `CustomerSignalPanel.tsx`: outer container becomes `h-full flex flex-col` with the pill body in an `overflow-y-auto min-h-0` region; padding tightened slightly.
+- `ExecDemoPhoneView` already renders inside a flex column parent, so it inherits the new height; verify its internal scroll container still behaves at both short and tall viewports.
+- The three parent views (`PersonalizedDealsView`, `PersonalizedProductView`, `PersonalizedRelationshipView`) keep their `TabHeader` + `SubTabBar`; only the Customer View branch is affected.
+- No data, generation, or store changes. Strict light theme, Manrope typography, slate-200 borders preserved.
