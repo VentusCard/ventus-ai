@@ -26,9 +26,12 @@ export function PersonalizedDealsView({ onNavigate }: PersonalizedDealsViewProps
         subtitle="Customer-facing deal intelligence and next-deal recommendations"
         howItWorks="Ventus scores seasonal spend curves and persona affinity to recommend the next best deal, then renders it in the customer surface."
         whyItMatters="Grows share-of-wallet by matching the right deal to the right customer at the right time."
+        sections={TABS}
+        sectionValue={active}
+        onSectionChange={setActive}
       />
 
-      <SubTabBar items={TABS} value={active} onChange={setActive} />
+
 
       {active === "customer" && <CustomerMockupPanel surface="rewards" onNavigate={onNavigate} />}
       {active === "next-deal" && (
