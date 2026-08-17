@@ -1,5 +1,4 @@
 import { useSyncExternalStore } from "react";
-import { EXAMPLE_CUSTOMERS } from "@/lib/personalizationExamples";
 
 // Shared selection across the three Personalization tabs (Deals, Product,
 // Relationship) so the same example customer stays in view when switching tabs.
