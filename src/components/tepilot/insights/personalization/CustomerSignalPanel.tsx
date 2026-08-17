@@ -31,9 +31,12 @@ export function CustomerSignalPanel({ customer }: Props) {
       <div className="shrink-0 flex items-center justify-between gap-2 pb-1.5 border-b border-slate-100">
         <div className="min-w-0">
           <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
-            Signals detected
+            User selected
           </h3>
-          <p className="text-[10.5px] text-slate-500 mt-0.5 truncate">
+          <p className="text-[12px] font-semibold text-slate-900 mt-0.5 truncate">
+            {customer.name}
+          </p>
+          <p className="text-[10.5px] text-slate-500 truncate">
             {customer.segment} · {customer.city} · {customer.lifestyleType}
           </p>
         </div>
