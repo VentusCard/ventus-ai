@@ -5,9 +5,10 @@ import { EXAMPLE_CUSTOMERS } from "@/lib/personalizationExamples";
 // Relationship) so the same example customer stays in view when switching tabs.
 // "session" means: use the live /demo session customer when one exists.
 
-export type PersonalizationSelection = string; // example customer id or "session"
+// null = nothing selected yet (empty workspace state)
+export type PersonalizationSelection = string | null; // example customer id, "session", or null
 
-let selected: PersonalizationSelection = EXAMPLE_CUSTOMERS[0].id;
+let selected: PersonalizationSelection = null;
 const listeners = new Set<() => void>();
 
 export function setPersonalizationCustomer(id: PersonalizationSelection) {
