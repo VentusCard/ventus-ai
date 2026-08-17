@@ -153,6 +153,8 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
         whyItMatters="Relationship managers can reason top-down from a product OR bottom-up from what the data is actually showing — without leaving the tab."
       />
 
+      <GoalIntentBar onMatch={handleGoalMatch} lastExplanation={goalExplanation} />
+
       {/* Mode toggle */}
       <div className="inline-flex items-center gap-1 p-1 rounded-lg border border-slate-200 bg-slate-50">
         <button type="button" className={toggleBtn(mode === "product")} onClick={() => setMode("product")}>
@@ -168,6 +170,7 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
           Start from outflow
         </button>
       </div>
+
 
       {mode === "outflow" ? (
         <WalletShareView variant="growth" onLaunchCampaign={handleLaunchFromOutflow} />
