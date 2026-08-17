@@ -16,6 +16,9 @@ import {
   Filter,
 } from "lucide-react";
 import type { ProductFlow } from "@/lib/productAutomatedFlows";
+import type { CatalogProduct } from "@/types/campaign-studio";
+import { AudienceCopilot } from "@/components/tepilot/campaigns/ai/AudienceCopilot";
+
 import {
   buildAudienceFunnel,
   getProductExclusions,
@@ -82,10 +85,13 @@ const RELEVANCE_RANK: Record<SignalRelevance, number> = { useful: 0, neutral: 1,
 
 interface Props {
   product?: ProductFlow;
+  catalogProduct?: CatalogProduct;
+  onAudienceChange?: (audience: number, base: number) => void;
 }
 
 
-export function ExclusionFunnelSection({ product }: Props) {
+export function ExclusionFunnelSection({ product, catalogProduct, onAudienceChange }: Props) {
+
   const [expanded, setExpanded] = useState<ExclusionType | null>(null);
   const [disabled, setDisabled] = useState<Set<ExclusionType>>(new Set());
   const [revealedCount, setRevealedCount] = useState(0);
@@ -152,6 +158,13 @@ export function ExclusionFunnelSection({ product }: Props) {
     (TENURE_FACTOR[filters.accountTenure] ?? 1) *
     (DEPTH_FACTOR[filters.relationshipDepth] ?? 1);
   const combinedFinal = emptyGroup ? 0 : Math.round(funnel.finalCount * retention);
+  const baseAudience = product?.estimatedAudience ?? 0;
+
+  useEffect(() => {
+    onAudienceChange?.(combinedFinal, baseAudience);
+  }, [combinedFinal, baseAudience, onAudienceChange]);
+
+
 
   const toggleArr = (key: "ageRanges" | "incomeBands" | "ficoRanges" | "regions", value: string) => {
     setFilters((f) => {
@@ -191,7 +204,9 @@ export function ExclusionFunnelSection({ product }: Props) {
   };
 
   return (
+    <div className="space-y-3">
     <div className="rounded-xl border border-slate-200 bg-white p-4">
+
       <div className="flex items-center gap-2 mb-3">
         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
         <p className="text-sm font-semibold text-slate-900">Filter and Understand the Audience</p>
@@ -455,8 +470,12 @@ export function ExclusionFunnelSection({ product }: Props) {
           <span className="text-base font-mono font-semibold text-slate-900">{fmt(combinedFinal)}</span>
         </div>
       )}
+      </div>
+
+      <AudienceCopilot product={catalogProduct} audience={combinedFinal} baseAudience={baseAudience} />
     </div>
   );
+
 }
 
 function ChipGroup({

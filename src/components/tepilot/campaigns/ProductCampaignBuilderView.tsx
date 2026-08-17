@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Megaphone, Package, Wand2, Wallet } from "lucide-react";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
@@ -9,6 +9,11 @@ import { ExclusionFunnelSection } from "./sections/ExclusionFunnelSection";
 import { MessagePreviewsSection } from "./sections/MessagePreviewsSection";
 import { SignalStudioView } from "./SignalStudioView";
 import { WalletShareView } from "@/components/tepilot/insights/WalletShareView";
+import { GoalIntentBar } from "./ai/GoalIntentBar";
+import { AiCampaignBrief } from "./ai/AiCampaignBrief";
+import { LaunchReadinessCard } from "./ai/LaunchReadinessCard";
+import type { AiBriefContext, AiNextAction } from "@/lib/campaignAiEngine";
+import type { GoalMatch } from "@/lib/campaignGoalMatcher";
 
 export type BuilderMode = "product" | "signals" | "outflow";
 
@@ -20,6 +25,11 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
   const [offers, setOffers] = useState<string[]>([]);
   const [campaignLink, setCampaignLink] = useState<string>(DEFAULT_CAMPAIGN_LINK);
   const [visibleStep, setVisibleStep] = useState<1 | 2 | 3>(1);
+  const [audience, setAudience] = useState(0);
+  const [baseAudience, setBaseAudience] = useState(0);
+  const [guardrailsPassed, setGuardrailsPassed] = useState(false);
+  const [goalExplanation, setGoalExplanation] = useState<string | null>(null);
+
 
   // Apply prefill payload from other views (e.g., Relationship Intelligence)
   useEffect(() => {
@@ -72,6 +82,57 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
     [catalogProduct],
   );
 
+  useEffect(() => {
+    if (!flow) {
+      setAudience(0);
+      setBaseAudience(0);
+    } else if (visibleStep < 2) {
+      setAudience(flow.estimatedAudience);
+      setBaseAudience(flow.estimatedAudience);
+    }
+  }, [flow, visibleStep]);
+
+  const handleAudienceChange = useCallback((next: number, base: number) => {
+    setAudience(next);
+    setBaseAudience(base);
+  }, []);
+
+  const aiCtx: AiBriefContext = {
+    mode,
+    productName,
+    product: catalogProduct,
+    audience,
+    baseAudience,
+    offers,
+    campaignLink,
+    step: visibleStep,
+  };
+
+  const handleGoalMatch = (match: GoalMatch, goal: string) => {
+    setMode(match.mode);
+    setGoalExplanation(`"${goal}" → ${match.explanation}`);
+    if (match.mode === "product" && match.product) {
+      setProductName(match.product.name);
+      setOffers([]);
+      setCampaignLink(DEFAULT_CAMPAIGN_LINK);
+      setVisibleStep(2);
+    }
+  };
+
+  const handleBriefAction = (action: AiNextAction) => {
+    if (action.id.startsWith("select:")) {
+      handleSelectProduct(action.id.slice("select:".length));
+      return;
+    }
+    if (action.id === "advance" || action.id === "audience") {
+      setVisibleStep((s) => (s < 3 ? ((s + 1) as 1 | 2 | 3) : s));
+      return;
+    }
+    if (action.id === "messages") setVisibleStep(3);
+  };
+
+
+
   const nextBtnClass =
     "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600 disabled:hover:border-blue-600";
 
@@ -92,6 +153,8 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
         whyItMatters="Relationship managers can reason top-down from a product OR bottom-up from what the data is actually showing — without leaving the tab."
       />
 
+      <GoalIntentBar onMatch={handleGoalMatch} lastExplanation={goalExplanation} />
+
       {/* Mode toggle */}
       <div className="inline-flex items-center gap-1 p-1 rounded-lg border border-slate-200 bg-slate-50">
         <button type="button" className={toggleBtn(mode === "product")} onClick={() => setMode("product")}>
@@ -108,6 +171,7 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
         </button>
       </div>
 
+
       {mode === "outflow" ? (
         <WalletShareView variant="growth" onLaunchCampaign={handleLaunchFromOutflow} />
       ) : mode === "signals" ? (
@@ -115,6 +179,7 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
       ) : (
         <>
 
+      <AiCampaignBrief ctx={aiCtx} onAction={handleBriefAction} />
 
       <ProductPickerSection
         selectedName={productName}
@@ -137,7 +202,13 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
         </div>
       )}
 
-      {visibleStep >= 2 && <ExclusionFunnelSection product={flow} />}
+      {visibleStep >= 2 && (
+        <ExclusionFunnelSection
+          product={flow}
+          catalogProduct={catalogProduct}
+          onAudienceChange={handleAudienceChange}
+        />
+      )}
       {visibleStep === 2 && (
         <div className="flex justify-end">
           <button
@@ -151,14 +222,19 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
       )}
 
       {visibleStep >= 3 && (
-        <MessagePreviewsSection
-          product={catalogProduct}
-          variants={variants}
-          offers={offers}
-          campaignLink={campaignLink}
-        />
+        <>
+          <MessagePreviewsSection
+            product={catalogProduct}
+            variants={variants}
+            offers={offers}
+            campaignLink={campaignLink}
+            onGuardrailChange={setGuardrailsPassed}
+          />
+          <LaunchReadinessCard ctx={aiCtx} guardrailsPassed={guardrailsPassed} />
+        </>
       )}
         </>
+
       )}
     </div>
   );
