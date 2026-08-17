@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Smartphone, Loader2, Users } from "lucide-react";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useExecDemoSession } from "@/lib/execDemoSessionStore";
 import { EXAMPLE_CUSTOMERS } from "@/lib/personalizationExamples";
 import {
