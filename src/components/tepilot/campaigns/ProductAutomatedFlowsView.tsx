@@ -107,12 +107,19 @@ function SignalRow({
   return (
     <div className="rounded-lg border border-slate-200 bg-white">
       <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
-        <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
-          <Switch checked={enabled} onCheckedChange={onToggle} />
-        </div>
         <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{signal.label}</p>
+          <div className="flex-1 min-w-0 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span
+                className={cn(
+                  "text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0",
+                  SIGNAL_FAMILY_CLASS[signal.family],
+                )}
+              >
+                {SIGNAL_FAMILY_LABEL[signal.family]}
+              </span>
+              <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{signal.label}</p>
+            </div>
             <p className="text-[10.5px] text-slate-500 leading-snug truncate">{signal.evidence}</p>
           </div>
           <div className="text-right shrink-0 w-20">
@@ -121,6 +128,9 @@ function SignalRow({
           </div>
           <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
+        <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
+          <Switch checked={enabled} onCheckedChange={onToggle} />
+        </div>
       </div>
       {open && (
         <div className="px-3 pb-3">
