@@ -7,6 +7,14 @@ const corsHeaders = {
 };
 
 const MODEL = "google/gemini-3.1-pro-preview";
+// Fast model for copy-heavy generation (behavioral + life-event deals).
+const COPY_MODEL = "google/gemini-3.5-flash";
+
+// Only the top-ranked signals per family are sent to the model. Everything below
+// the cut never surfaces in the UI, so generating copy for it only adds latency.
+const MAX_BEHAVIORAL_ROLLUPS = 2;
+const MAX_LIFE_EVENTS = 2;
+const MAX_FINANCIAL_SIGNALS = 1;
 
 const SYSTEM_PROMPT = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
 
