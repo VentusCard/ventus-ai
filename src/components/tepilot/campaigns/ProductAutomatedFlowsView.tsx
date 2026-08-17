@@ -17,7 +17,7 @@ import {
   type ExpandedSignal,
   type EligibilityFilter,
 } from "@/lib/flowSignalFamilies";
-import { Zap, Play, Sparkles, ChevronDown, ChevronRight, Mail, ShieldCheck } from "lucide-react";
+import { Zap, Play, Sparkles, ChevronDown, ChevronRight, Mail, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES: (FlowCategory | "All")[] = ["All", "Lending", "Wealth", "Deposits", "Cards", "Insurance"];
@@ -234,7 +234,8 @@ function FlowRow({
   const triggered = enabledAudience(flow, signals, enabledSignals);
   const liveAudience = qualifiedAudience(flow, signals, enabledSignals, filters, enabledFilters);
   const passRate = filterPassRate(filters, enabledFilters);
-  const isActive = active && enabledCount > 0;
+  const totalRemoved = Math.max(0, triggered - liveAudience);
+
 
   const toggleSignal = (id: string) => {
     const next = new Set(enabledSignals);
