@@ -714,11 +714,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         <div className="flex flex-1 min-h-0 min-w-0">
           {/* Content */}
           <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-4 relative">
-            {(activeTab === 'targeting' || activeTab === 'targeting-automated-flows') && (
-              <div className="mb-4">
-                <AutonomousActivityFeed />
-              </div>
-            )}
             {renderContent()}
 
 
