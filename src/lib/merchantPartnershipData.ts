@@ -57,6 +57,9 @@ export interface LocalPartner {
   /** Position on the stylized metro street canvas (0-100 scale) */
   x: number;
   y: number;
+  /** Real-world coordinates, scattered deterministically inside the neighborhood */
+  lat: number;
+  lng: number;
 }
 
 export interface Metro {
@@ -65,6 +68,9 @@ export interface Metro {
   state: string;
   cardholders: number;
   neighborhoods: string[];
+  lat: number;
+  lng: number;
+  zoom: number;
 }
 
 export const PARTNER_CATEGORIES = [
@@ -230,16 +236,16 @@ export const NATIONAL_PARTNERS: NationalPartner[] = NATIONAL_SEEDS.map((seed, i)
 /* ------------------------------------------------------------------ */
 
 export const METROS: Metro[] = [
-  { id: "nyc", name: "New York", state: "NY", cardholders: 412000, neighborhoods: ["SoHo", "Williamsburg", "Upper West Side", "Flatiron", "Astoria", "Park Slope"] },
-  { id: "chi", name: "Chicago", state: "IL", cardholders: 268000, neighborhoods: ["West Loop", "Lincoln Park", "Wicker Park", "Hyde Park", "River North", "Logan Square"] },
-  { id: "lax", name: "Los Angeles", state: "CA", cardholders: 344000, neighborhoods: ["Silver Lake", "Santa Monica", "Culver City", "Highland Park", "Venice", "Pasadena"] },
-  { id: "sfo", name: "San Francisco", state: "CA", cardholders: 196000, neighborhoods: ["Mission", "Hayes Valley", "Marina", "SoMa", "Noe Valley", "Richmond"] },
-  { id: "bos", name: "Boston", state: "MA", cardholders: 164000, neighborhoods: ["Back Bay", "South End", "Cambridge", "Seaport", "Somerville", "Jamaica Plain"] },
-  { id: "mia", name: "Miami", state: "FL", cardholders: 188000, neighborhoods: ["Wynwood", "Brickell", "Coral Gables", "Little Havana", "Design District", "South Beach"] },
-  { id: "dal", name: "Dallas", state: "TX", cardholders: 212000, neighborhoods: ["Deep Ellum", "Bishop Arts", "Uptown", "Knox-Henderson", "Trinity Groves", "Lakewood"] },
-  { id: "hou", name: "Houston", state: "TX", cardholders: 224000, neighborhoods: ["Montrose", "Heights", "Rice Village", "EaDo", "Midtown", "Galleria"] },
-  { id: "sea", name: "Seattle", state: "WA", cardholders: 172000, neighborhoods: ["Capitol Hill", "Ballard", "Fremont", "Belltown", "Queen Anne", "Georgetown"] },
-  { id: "atl", name: "Atlanta", state: "GA", cardholders: 198000, neighborhoods: ["Old Fourth Ward", "Buckhead", "West Midtown", "Decatur", "Virginia-Highland", "East Atlanta"] },
+  { id: "nyc", name: "New York", state: "NY", cardholders: 412000, lat: 40.7295, lng: -73.9670, zoom: 12, neighborhoods: ["SoHo", "Williamsburg", "Upper West Side", "Flatiron", "Astoria", "Park Slope"] },
+  { id: "chi", name: "Chicago", state: "IL", cardholders: 268000, lat: 41.9000, lng: -87.6450, zoom: 12, neighborhoods: ["West Loop", "Lincoln Park", "Wicker Park", "Hyde Park", "River North", "Logan Square"] },
+  { id: "lax", name: "Los Angeles", state: "CA", cardholders: 344000, lat: 34.0700, lng: -118.3400, zoom: 11, neighborhoods: ["Silver Lake", "Santa Monica", "Culver City", "Highland Park", "Venice", "Pasadena"] },
+  { id: "sfo", name: "San Francisco", state: "CA", cardholders: 196000, lat: 37.7680, lng: -122.4400, zoom: 12.5, neighborhoods: ["Mission", "Hayes Valley", "Marina", "SoMa", "Noe Valley", "Richmond"] },
+  { id: "bos", name: "Boston", state: "MA", cardholders: 164000, lat: 42.3550, lng: -71.0870, zoom: 12.5, neighborhoods: ["Back Bay", "South End", "Cambridge", "Seaport", "Somerville", "Jamaica Plain"] },
+  { id: "mia", name: "Miami", state: "FL", cardholders: 188000, lat: 25.7700, lng: -80.1950, zoom: 12, neighborhoods: ["Wynwood", "Brickell", "Coral Gables", "Little Havana", "Design District", "South Beach"] },
+  { id: "dal", name: "Dallas", state: "TX", cardholders: 212000, lat: 32.7900, lng: -96.7900, zoom: 12, neighborhoods: ["Deep Ellum", "Bishop Arts", "Uptown", "Knox-Henderson", "Trinity Groves", "Lakewood"] },
+  { id: "hou", name: "Houston", state: "TX", cardholders: 224000, lat: 29.7400, lng: -95.3900, zoom: 12, neighborhoods: ["Montrose", "Heights", "Rice Village", "EaDo", "Midtown", "Galleria"] },
+  { id: "sea", name: "Seattle", state: "WA", cardholders: 172000, lat: 47.6350, lng: -122.3400, zoom: 12, neighborhoods: ["Capitol Hill", "Ballard", "Fremont", "Belltown", "Queen Anne", "Georgetown"] },
+  { id: "atl", name: "Atlanta", state: "GA", cardholders: 198000, lat: 33.7700, lng: -84.3700, zoom: 11.7, neighborhoods: ["Old Fourth Ward", "Buckhead", "West Midtown", "Decatur", "Virginia-Highland", "East Atlanta"] },
 ];
 
 type LocalSeed = [name: string, metroId: string, neighborhoodIndex: number, category: string, cardholders: number, annualSpendK: number, avgTicket: number, upliftPct: number, fitScore: number, stage: PartnerStage, reason: string, dealConstruct: string];
@@ -327,17 +333,102 @@ export const NEIGHBORHOOD_ANCHORS: Array<{ x: number; y: number }> = [
   { x: 55, y: 44 },
 ];
 
+/** Real neighborhood centers, keyed by `${metroId}:${neighborhood}`. */
+export const NEIGHBORHOOD_COORDS: Record<string, { lat: number; lng: number }> = {
+  "nyc:SoHo": { lat: 40.7233, lng: -74.0020 },
+  "nyc:Williamsburg": { lat: 40.7143, lng: -73.9570 },
+  "nyc:Upper West Side": { lat: 40.7870, lng: -73.9754 },
+  "nyc:Flatiron": { lat: 40.7401, lng: -73.9903 },
+  "nyc:Astoria": { lat: 40.7644, lng: -73.9235 },
+  "nyc:Park Slope": { lat: 40.6710, lng: -73.9814 },
+
+  "chi:West Loop": { lat: 41.8827, lng: -87.6505 },
+  "chi:Lincoln Park": { lat: 41.9214, lng: -87.6513 },
+  "chi:Wicker Park": { lat: 41.9088, lng: -87.6796 },
+  "chi:Hyde Park": { lat: 41.7943, lng: -87.5907 },
+  "chi:River North": { lat: 41.8924, lng: -87.6341 },
+  "chi:Logan Square": { lat: 41.9231, lng: -87.7085 },
+
+  "lax:Silver Lake": { lat: 34.0870, lng: -118.2700 },
+  "lax:Santa Monica": { lat: 34.0195, lng: -118.4912 },
+  "lax:Culver City": { lat: 34.0211, lng: -118.3965 },
+  "lax:Highland Park": { lat: 34.1122, lng: -118.1926 },
+  "lax:Venice": { lat: 33.9850, lng: -118.4695 },
+  "lax:Pasadena": { lat: 34.1478, lng: -118.1445 },
+
+  "sfo:Mission": { lat: 37.7599, lng: -122.4148 },
+  "sfo:Hayes Valley": { lat: 37.7765, lng: -122.4256 },
+  "sfo:Marina": { lat: 37.8021, lng: -122.4382 },
+  "sfo:SoMa": { lat: 37.7785, lng: -122.4056 },
+  "sfo:Noe Valley": { lat: 37.7502, lng: -122.4337 },
+  "sfo:Richmond": { lat: 37.7800, lng: -122.4830 },
+
+  "bos:Back Bay": { lat: 42.3503, lng: -71.0810 },
+  "bos:South End": { lat: 42.3411, lng: -71.0765 },
+  "bos:Cambridge": { lat: 42.3736, lng: -71.1097 },
+  "bos:Seaport": { lat: 42.3519, lng: -71.0431 },
+  "bos:Somerville": { lat: 42.3876, lng: -71.0995 },
+  "bos:Jamaica Plain": { lat: 42.3097, lng: -71.1151 },
+
+  "mia:Wynwood": { lat: 25.8010, lng: -80.1994 },
+  "mia:Brickell": { lat: 25.7601, lng: -80.1951 },
+  "mia:Coral Gables": { lat: 25.7215, lng: -80.2684 },
+  "mia:Little Havana": { lat: 25.7658, lng: -80.2196 },
+  "mia:Design District": { lat: 25.8130, lng: -80.1930 },
+  "mia:South Beach": { lat: 25.7826, lng: -80.1341 },
+
+  "dal:Deep Ellum": { lat: 32.7840, lng: -96.7784 },
+  "dal:Bishop Arts": { lat: 32.7495, lng: -96.8290 },
+  "dal:Uptown": { lat: 32.7996, lng: -96.8025 },
+  "dal:Knox-Henderson": { lat: 32.8199, lng: -96.7876 },
+  "dal:Trinity Groves": { lat: 32.7789, lng: -96.8283 },
+  "dal:Lakewood": { lat: 32.8143, lng: -96.7513 },
+
+  "hou:Montrose": { lat: 29.7440, lng: -95.3900 },
+  "hou:Heights": { lat: 29.7982, lng: -95.3987 },
+  "hou:Rice Village": { lat: 29.7160, lng: -95.4145 },
+  "hou:EaDo": { lat: 29.7480, lng: -95.3480 },
+  "hou:Midtown": { lat: 29.7373, lng: -95.3769 },
+  "hou:Galleria": { lat: 29.7397, lng: -95.4617 },
+
+  "sea:Capitol Hill": { lat: 47.6229, lng: -122.3212 },
+  "sea:Ballard": { lat: 47.6685, lng: -122.3843 },
+  "sea:Fremont": { lat: 47.6510, lng: -122.3500 },
+  "sea:Belltown": { lat: 47.6142, lng: -122.3459 },
+  "sea:Queen Anne": { lat: 47.6370, lng: -122.3570 },
+  "sea:Georgetown": { lat: 47.5460, lng: -122.3200 },
+
+  "atl:Old Fourth Ward": { lat: 33.7620, lng: -84.3690 },
+  "atl:Buckhead": { lat: 33.8484, lng: -84.3733 },
+  "atl:West Midtown": { lat: 33.7860, lng: -84.4120 },
+  "atl:Decatur": { lat: 33.7748, lng: -84.2963 },
+  "atl:Virginia-Highland": { lat: 33.7787, lng: -84.3540 },
+  "atl:East Atlanta": { lat: 33.7404, lng: -84.3419 },
+};
+
+/** Deterministic sub-neighborhood scatter so pins never stack on one point. */
+function scatter(base: { lat: number; lng: number }, i: number) {
+  const a = ((i * 137.508) % 360) * (Math.PI / 180);
+  const r = 0.0035 + ((i * 31) % 17) * 0.00035;
+  return { lat: base.lat + Math.sin(a) * r, lng: base.lng + Math.cos(a) * r * 1.25 };
+}
+
 export const LOCAL_PARTNERS: LocalPartner[] = LOCAL_SEEDS.map((seed, i) => {
   const [name, metroId, nIdx, category, cardholders, annualSpendK, avgTicket, upliftPct, fitScore, stage, reason, dealConstruct] = seed;
   const metro = METROS.find((m) => m.id === metroId)!;
   const anchor = NEIGHBORHOOD_ANCHORS[nIdx % NEIGHBORHOOD_ANCHORS.length];
   const jitter = (i * 37) % 11;
   const annualSpend = annualSpendK * 1_000;
+  const neighborhood = metro.neighborhoods[nIdx];
+  const coords = scatter(
+    NEIGHBORHOOD_COORDS[`${metroId}:${neighborhood}`] ?? { lat: metro.lat, lng: metro.lng },
+    i,
+  );
   return {
     id: `${metroId}-${slug(name)}`,
     name,
     metroId,
-    neighborhood: metro.neighborhoods[nIdx],
+    neighborhood,
     category,
     cardholders,
     annualSpend,
@@ -350,6 +441,8 @@ export const LOCAL_PARTNERS: LocalPartner[] = LOCAL_SEEDS.map((seed, i) => {
     dealConstruct,
     x: Math.min(92, Math.max(8, anchor.x + (jitter - 5) * 1.6)),
     y: Math.min(90, Math.max(10, anchor.y + (((i * 53) % 9) - 4) * 1.7)),
+    lat: coords.lat,
+    lng: coords.lng,
   };
 });
 

@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
-import { CATEGORY_COLORS, NEIGHBORHOOD_ANCHORS, type LocalPartner, type Metro } from "@/lib/merchantPartnershipData";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { CATEGORY_COLORS, type LocalPartner, type Metro } from "@/lib/merchantPartnershipData";
 import { formatCurrency } from "@/lib/formatHelper";
+import { loadGoogleMaps, getMapsBrowserKey } from "@/lib/googleMapsLoader";
+import { Loader2, MapPin } from "lucide-react";
 
 interface Props {
   metro: Metro;
@@ -9,65 +11,139 @@ interface Props {
   onSelect: (id: string) => void;
 }
 
-/** Stylized street-level canvas — pure SVG, no map library or tile network calls. */
+const MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "transit", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#dbeafe" }] },
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#f8fafc" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#dcfce7" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#94a3b8" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#64748b" }] },
+];
+
+/** Real Google map of the selected metro with a pin per local partner. */
 export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
+  const selectRef = useRef(onSelect);
+  selectRef.current = onSelect;
+
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [hovered, setHovered] = useState<LocalPartner | null>(null);
+  const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null);
 
   const maxValue = useMemo(() => Math.max(...partners.map((p) => p.estimatedValue), 1), [partners]);
 
-  const avenues = [12, 26, 40, 54, 68, 82, 94];
-  const streets = [10, 22, 34, 46, 58, 70, 82, 92];
+  // Init map once
+  useEffect(() => {
+    if (!getMapsBrowserKey()) {
+      setError("Map key not configured");
+      return;
+    }
+    let cancelled = false;
+    loadGoogleMaps()
+      .then((maps) => {
+        if (cancelled || !containerRef.current) return;
+        mapRef.current = new maps.Map(containerRef.current, {
+          center: { lat: metro.lat, lng: metro.lng },
+          zoom: metro.zoom,
+          styles: MAP_STYLES,
+          disableDefaultUI: true,
+          zoomControl: true,
+          gestureHandling: "greedy",
+          clickableIcons: false,
+          backgroundColor: "#f8fafc",
+        });
+        setReady(true);
+      })
+      .catch((e: Error) => !cancelled && setError(e.message));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Recenter on metro change
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    mapRef.current.setCenter({ lat: metro.lat, lng: metro.lng });
+    mapRef.current.setZoom(metro.zoom);
+  }, [ready, metro]);
+
+  // Render markers
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    const map = mapRef.current;
+
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
+
+    partners.forEach((p) => {
+      const color = (CATEGORY_COLORS[p.category] ?? CATEGORY_COLORS.Dining).pin;
+      const active = selectedId === p.id;
+      const scale = 6 + (p.estimatedValue / maxValue) * 8;
+      const marker = new google.maps.Marker({
+        map,
+        position: { lat: p.lat, lng: p.lng },
+        title: p.name,
+        zIndex: active ? 999 : Math.round(p.estimatedValue / 1000),
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale,
+          fillColor: color,
+          fillOpacity: active ? 1 : 0.85,
+          strokeColor: active ? "#0f172a" : "#ffffff",
+          strokeWeight: active ? 2.5 : 1.5,
+        },
+      });
+      marker.addListener("click", () => selectRef.current(p.id));
+      marker.addListener("mouseover", () => setHovered(p));
+      marker.addListener("mouseout", () => setHovered((h) => (h?.id === p.id ? null : h)));
+      markersRef.current.push(marker);
+    });
+
+    return () => {
+      markersRef.current.forEach((m) => m.setMap(null));
+      markersRef.current = [];
+    };
+  }, [ready, partners, selectedId, maxValue]);
+
+  // Pan to selection
+  useEffect(() => {
+    if (!ready || !mapRef.current || !selectedId) return;
+    const p = partners.find((x) => x.id === selectedId);
+    if (p) mapRef.current.panTo({ lat: p.lat, lng: p.lng });
+  }, [ready, selectedId, partners]);
+
+  const categories = useMemo(() => Array.from(new Set(partners.map((p) => p.category))), [partners]);
 
   return (
-    <div className="relative bg-white border border-slate-200 rounded-xl overflow-hidden">
-      <svg viewBox="0 0 100 100" className="w-full h-[440px]" preserveAspectRatio="none">
-        <rect width="100" height="100" fill="#f8fafc" />
+    <div
+      className="relative bg-white border border-slate-200 rounded-xl overflow-hidden"
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setHoverPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      }}
+    >
+      <div ref={containerRef} className="w-full h-[440px]" />
 
-        {/* water */}
-        <path d="M0,84 C14,80 26,90 40,88 C56,86 70,96 100,92 L100,100 L0,100 Z" fill="#dbeafe" />
-        {/* parks */}
-        <rect x="30" y="14" width="16" height="12" rx="1.5" fill="#dcfce7" />
-        <rect x="66" y="60" width="14" height="14" rx="1.5" fill="#dcfce7" />
+      {!ready && (
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-50 text-slate-500 text-xs gap-2">
+          {error ? (
+            <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{error}</span>
+          ) : (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Loading {metro.name} map…</>
+          )}
+        </div>
+      )}
 
-        {/* street grid */}
-        {avenues.map((x) => (
-          <line key={`a${x}`} x1={x} y1="0" x2={x - 4} y2="100" stroke="#e2e8f0" strokeWidth="1.1" />
-        ))}
-        {streets.map((y) => (
-          <line key={`s${y}`} x1="0" y1={y} x2="100" y2={y - 2} stroke="#eef2f6" strokeWidth="0.8" />
-        ))}
-        {/* arterials */}
-        <line x1="0" y1="52" x2="100" y2="46" stroke="#e2e8f0" strokeWidth="2.4" />
-        <line x1="54" y1="0" x2="46" y2="100" stroke="#e2e8f0" strokeWidth="2.4" />
-
-        {/* neighborhood labels */}
-        {metro.neighborhoods.map((n, i) => {
-          const a = NEIGHBORHOOD_ANCHORS[i % NEIGHBORHOOD_ANCHORS.length];
-          return (
-            <text key={n} x={a.x} y={a.y - 7} fontSize="2.4" fill="#94a3b8" fontWeight="700" textAnchor="middle" letterSpacing="0.2">
-              {n.toUpperCase()}
-            </text>
-          );
-        })}
-
-        {/* merchant pins */}
-        {partners.map((p) => {
-          const color = (CATEGORY_COLORS[p.category] ?? CATEGORY_COLORS.Dining).pin;
-          const r = 1.6 + (p.estimatedValue / maxValue) * 2.4;
-          const active = selectedId === p.id || hovered?.id === p.id;
-          return (
-            <g key={p.id} className="cursor-pointer" onMouseEnter={() => setHovered(p)} onMouseLeave={() => setHovered(null)} onClick={() => onSelect(p.id)}>
-              {active && <circle cx={p.x} cy={p.y} r={r + 2.2} fill={color} opacity={0.18} />}
-              <circle cx={p.x} cy={p.y} r={r} fill={color} stroke="#ffffff" strokeWidth={active ? 0.9 : 0.6} />
-            </g>
-          );
-        })}
-      </svg>
-
-      {hovered && (
+      {hovered && hoverPos && (
         <div
-          className="absolute pointer-events-none bg-white border border-slate-200 rounded-lg shadow-lg px-2.5 py-1.5 text-xs"
-          style={{ left: `min(${hovered.x}%, 72%)`, top: `calc(${hovered.y}% - 8px)` }}
+          className="absolute pointer-events-none z-10 bg-white border border-slate-200 rounded-lg shadow-lg px-2.5 py-1.5 text-xs"
+          style={{ left: Math.min(hoverPos.x + 12, 260), top: Math.max(hoverPos.y - 46, 8) }}
         >
           <p className="font-semibold text-slate-900">{hovered.name}</p>
           <p className="text-[11px] text-slate-500">{hovered.neighborhood} · {hovered.category}</p>
@@ -75,8 +151,8 @@ export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props)
         </div>
       )}
 
-      <div className="absolute bottom-2 left-2 flex flex-wrap gap-x-3 gap-y-1 bg-white/90 border border-slate-200 rounded-lg px-2.5 py-1.5">
-        {Array.from(new Set(partners.map((p) => p.category))).map((c) => (
+      <div className="absolute bottom-2 left-2 z-10 flex flex-wrap gap-x-3 gap-y-1 bg-white/95 border border-slate-200 rounded-lg px-2.5 py-1.5 max-w-[70%]">
+        {categories.map((c) => (
           <span key={c} className="flex items-center gap-1 text-[10px] text-slate-600">
             <span className="w-2 h-2 rounded-full" style={{ background: (CATEGORY_COLORS[c] ?? CATEGORY_COLORS.Dining).pin }} />
             {c}
