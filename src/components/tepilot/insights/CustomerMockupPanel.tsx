@@ -19,36 +19,6 @@ import type { TabValue } from "./AnalyticsContainer";
 
 type Surface = "rewards" | "product" | "relationship";
 
-const SURFACE_COPY: Record<Surface, { title: string; body: string; bullets: string[] }> = {
-  rewards: {
-    title: "What the customer sees",
-    body: "Personalized deals are generated from this customer's detected signals and delivered into their rewards surface — not from a generic segment.",
-    bullets: [
-      "Offers ranked by the customer's dominant spending signals",
-      "Merchant and category perks matched to signal evidence",
-      "Timing tuned to the customer's life-event window",
-    ],
-  },
-  product: {
-    title: "What the customer sees",
-    body: "Product recommendations surface in-app as membership and card offers, generated from the life-event, financial and behavioral signals on the left.",
-    bullets: [
-      "One primary product recommendation, not a catalog dump",
-      "Value framed in the customer's own behavior",
-      "Delivered through the channel most likely to convert",
-    ],
-  },
-  relationship: {
-    title: "What the customer sees",
-    body: "The banking assistant answers in the customer's own context — grounded in the same signals shown on the left, in demo mock-up form.",
-    bullets: [
-      "Answers grounded in the detected signal set",
-      "Behavioral tone matched to the customer's profile",
-      "Same evidence base as the advisor-facing coworker",
-    ],
-  },
-};
-
 const SURFACE_TITLE: Record<Surface, string> = {
   rewards: "Personalized Rewards",
   product: "Personalized Product",
