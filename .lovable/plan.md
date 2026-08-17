@@ -10,7 +10,7 @@ This affects every field the phone pulls from the sample record — the greeting
 
 When building the example customers, override the underlying sample record's identity fields with the example's own values:
 
-- name (Ricky Alvarez, James Rodriguez, Emily Chen, Michael Thompson, Amanda Williams)
+- name (Ricky J, James Rodriguez, Emily Chen, Michael Thompson, Amanda Williams)
 - city / location
 - segment and tier
 
