@@ -68,21 +68,22 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const sessionName = session.hasRun ? session.customer?.profile?.name ?? null : null;
   const useSession = selectedId === "session" && !!session.customer;
 
-  const example = EXAMPLE_CUSTOMERS.find((c) => c.id === selectedId) ?? EXAMPLE_CUSTOMERS[0];
-  const generated = usePersonalizationResult(example.id);
+  const example = EXAMPLE_CUSTOMERS.find((c) => c.id === selectedId) ?? null;
+  const hasSelection = useSession || !!example;
+  const generated = usePersonalizationResult(example?.id ?? "");
 
   useEffect(() => {
-    if (!useSession) ensurePersonalization(example.id);
-  }, [example.id, useSession]);
+    if (!useSession && example) ensurePersonalization(example.id);
+  }, [example?.id, useSession]);
 
   const chatSignalContext = useMemo(
-    () => (useSession ? undefined : buildChatSignalContext(example)),
+    () => (useSession || !example ? undefined : buildChatSignalContext(example)),
     [useSession, example],
   );
 
-  const phoneCustomer = useSession ? session.customer! : example.demo;
-  const displayName = useSession ? sessionName : example.name;
-  const isGenerating = !useSession && generated.status === "running";
+  const phoneCustomer = useSession ? session.customer! : example?.demo ?? null;
+  const displayName = useSession ? sessionName : example?.name ?? null;
+  const isGenerating = !useSession && !!example && generated.status === "running";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-140px)] min-h-[720px]">
@@ -103,7 +104,13 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
         </div>
 
         <div className="flex-1 min-h-0 px-3 py-2.5">
-          {useSession ? (
+          {!hasSelection ? (
+            <div className="h-full flex items-center justify-center border border-dashed border-slate-200 rounded-lg bg-slate-50/40 px-4 text-center">
+              <p className="text-[11.5px] text-slate-400 leading-relaxed max-w-[220px]">
+                Search and select a customer to view their detected signals.
+              </p>
+            </div>
+          ) : useSession ? (
             <div className="border border-slate-200 rounded-lg bg-slate-50/70 px-3 py-2.5">
               <p className="text-[11px] text-slate-500 leading-relaxed">
                 Showing the live enriched output of the current demo session for {displayName}.
@@ -111,7 +118,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
               </p>
             </div>
           ) : (
-            <CustomerSignalPanel customer={example} />
+            <CustomerSignalPanel customer={example!} />
           )}
         </div>
       </div>
@@ -139,10 +146,20 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
         </div>
 
         <div className="flex-1 min-h-0 p-3 flex flex-col">
+          {!hasSelection ? (
+            <div className="flex-1 min-h-0 flex items-center justify-center">
+              <div className="w-full max-w-[400px] h-full flex items-center justify-center border border-dashed border-slate-200 rounded-2xl bg-slate-50/40 px-6 text-center">
+                <p className="text-[12px] text-slate-400 leading-relaxed max-w-[240px]">
+                  Select a customer to generate their personalized surface.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
           <div className="flex-1 min-h-0 flex justify-center">
             <div className="w-full max-w-[400px] h-full flex flex-col">
               <ExecDemoPhoneView
-                customer={phoneCustomer}
+                customer={phoneCustomer!}
                 activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
                 phase="hold"
                 showContent
@@ -187,8 +204,10 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
               </PopoverContent>
             </Popover>
           </div>
+            </>
+          )}
 
-          {!useSession && generated.status === "failed" && (
+          {hasSelection && !useSession && generated.status === "failed" && (
             <p className="shrink-0 mt-1.5 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5 text-center">
               Live generation didn't return for this customer. Showing the standard demo content
               instead — reselect the customer to retry.
