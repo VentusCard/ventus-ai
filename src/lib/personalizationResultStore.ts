@@ -58,6 +58,14 @@ export function ensurePersonalization(customerId: string) {
     });
 }
 
+/** Prewarms the first example customer once per session. */
+export function prewarmDefaultCustomer() {
+  if (hasPrewarmed) return;
+  hasPrewarmed = true;
+  const first = EXAMPLE_CUSTOMERS[0];
+  if (first) ensurePersonalization(first.id);
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
   return () => {
