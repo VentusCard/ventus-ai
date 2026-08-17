@@ -205,6 +205,12 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     };
   }, [isResizing]);
 
+  // Prewarm the default example customer's personalized experience so the first
+  // Personalization tab selection is instant.
+  useEffect(() => {
+    prewarmDefaultCustomer();
+  }, []);
+
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
