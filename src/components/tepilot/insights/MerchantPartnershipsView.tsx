@@ -1,23 +1,68 @@
-import { Handshake } from "lucide-react";
+import { useState } from "react";
+import { Handshake, Globe, MapPin, GitBranch, DollarSign, Users, Activity, Building2 } from "lucide-react";
 import { TabHeader } from "./TabHeader";
+import { SubTabBar } from "./SubTabBar";
 import { CategoryExtensionOpportunities } from "./CategoryExtensionOpportunities";
+import { NationalPartnersView } from "./partnerships/NationalPartnersView";
+import { LocalPartnersView } from "./partnerships/LocalPartnersView";
+import { BrandContactDialog, type ContactTarget } from "./partnerships/BrandContactDialog";
+import { getPartnershipSummary } from "@/lib/merchantPartnershipData";
+import { formatCurrency, formatNumber } from "@/lib/formatHelper";
 
 interface Props {
   onLaunchCampaign?: (productName: string, offers: string[]) => void;
 }
 
 export function MerchantPartnershipsView({ onLaunchCampaign }: Props) {
+  const [tab, setTab] = useState("national");
+  const [contactTarget, setContactTarget] = useState<ContactTarget | null>(null);
+  const summary = getPartnershipSummary();
+
+  const kpis = [
+    { label: "Partner targets", value: `${summary.partnerCount}`, sub: `${summary.nationalCount} national · ${summary.localCount} local`, icon: Building2 },
+    { label: "Est. annual value", value: formatCurrency(summary.totalValue), sub: `${formatCurrency(summary.nationalValue)} national`, icon: DollarSign },
+    { label: "Cardholders reached", value: `${(summary.reach / 1_000_000).toFixed(1)}M`, sub: "across national brands", icon: Users },
+    { label: "Deals in motion", value: formatNumber(summary.inMotion), sub: "negotiating, contract, or live", icon: Activity },
+  ];
+
   return (
     <div className="space-y-4">
       <TabHeader
         icon={<Handshake className="w-4 h-4" />}
         title="Merchant Partnerships"
-        subtitle="Behaviorally adjacent products and merchant partners that category codes alone can never connect"
-        howItWorks="Ventus bridges an enriched spending subcategory to an adjacent product a customer is likely to want next, then sizes the addressable audience, revenue, and the deployment window when that spend peaks."
-        whyItMatters="Category codes describe what was bought. The behavioral bridge shows what should be offered next — turning existing spend into merchant partnership and co-marketing revenue."
+        subtitle="Plan national and local brand partnerships from where cardholders already spend"
+        howItWorks="Ventus ranks named national brands and local merchants by the spend already flowing through the card book, estimates the annual value of a co-funded partnership, and resolves the right partnerships contact so the team can open the conversation."
+        whyItMatters="Category codes describe what was bought. Named brands, sized value, and a contact turn that spend into signed partnership and co-marketing revenue."
       />
 
-      <CategoryExtensionOpportunities onLaunchCampaign={onLaunchCampaign} />
+      <div className="grid grid-cols-4 gap-3">
+        {kpis.map((k) => (
+          <div key={k.label} className="bg-slate-50 rounded-lg p-3">
+            <div className="flex items-center gap-2">
+              <k.icon className="w-4 h-4 text-slate-400" />
+              <span className="text-xs text-slate-500">{k.label}</span>
+            </div>
+            <p className="text-lg font-bold text-slate-900 mt-1">{k.value}</p>
+            <p className="text-[11px] text-slate-400">{k.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      <SubTabBar
+        value={tab}
+        onChange={setTab}
+        items={[
+          { value: "national", label: "National Partners", icon: <Globe className="w-3.5 h-3.5" /> },
+          { value: "local", label: "Local Partners", icon: <MapPin className="w-3.5 h-3.5" /> },
+          { value: "bridges", label: "Behavioral Bridges", icon: <GitBranch className="w-3.5 h-3.5" /> },
+        ]}
+      />
+
+      {tab === "national" && <NationalPartnersView onFindContact={setContactTarget} />}
+      {tab === "local" && <LocalPartnersView onFindContact={setContactTarget} />}
+      {tab === "bridges" && <CategoryExtensionOpportunities onLaunchCampaign={onLaunchCampaign} />}
+
+      <BrandContactDialog target={contactTarget} onClose={() => setContactTarget(null)} />
     </div>
   );
 }
