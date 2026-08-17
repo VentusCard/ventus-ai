@@ -290,14 +290,17 @@ export function ProductPickerSection({
               ))}
             </div>
           </div>
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-[86px] -translate-y-1/2 z-10" />
-          <Input
-            ref={inputRef}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search 44 products — cards, deposits, loans, investments, insurance, digital…"
-            className="h-8 pl-8 text-xs bg-white border-slate-200"
-          />
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10" />
+            <Input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search 44 products — cards, deposits, loans, investments, insurance, digital…"
+              className="h-8 pl-8 text-xs bg-white border-slate-200"
+            />
+          </div>
+
           <div className="mt-2 max-h-[360px] overflow-y-auto rounded-md border border-slate-200 bg-white">
 
             {grouped.length === 0 ? (
