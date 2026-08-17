@@ -685,6 +685,62 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     estimatedAudience: 7_200_000,
     penetration: 0.014,
   },
+  {
+    id: "pet-insurance",
+    name: "Pet Insurance",
+    category: "Insurance",
+    icon: PawPrint,
+    positioning: "Accident and illness coverage for dogs, cats, and other household pets.",
+    signals: [
+      { label: "Veterinary spend cluster", evidence: "Recurring card or ACH payments to veterinary clinics, pet hospitals, and prescription pet pharmacies.", type: "behavioral" },
+      { label: "New pet acquisition", evidence: "Large one-time spend at breeders, pet stores, or animal shelters, followed by pet supply purchases.", type: "life-event" },
+      { label: "Competitor policy payment", evidence: "Recurring ACH or card debits to a known pet insurance carrier.", type: "behavioral" },
+    ],
+    estimatedAudience: 11_000_000,
+    penetration: 0.022,
+  },
+  {
+    id: "identity-theft-protection",
+    name: "Identity Theft Protection",
+    category: "Insurance",
+    icon: Fingerprint,
+    positioning: "Credit monitoring, dark-web alerts, and identity restoration for security-conscious households.",
+    signals: [
+      { label: "Security-adjacent subscriptions", evidence: "Recurring payments to VPN, password-manager, or antivirus providers.", type: "behavioral" },
+      { label: "Recent fraud incident", evidence: "Disputed transactions, replacement card shipments, or credit freeze fees.", type: "life-event" },
+      { label: "Credit monitoring competitor", evidence: "Outbound ACH or card payments to a credit bureau or identity-protection service.", type: "behavioral" },
+    ],
+    estimatedAudience: 16_000_000,
+    penetration: 0.032,
+  },
+  {
+    id: "disability-insurance",
+    name: "Disability Insurance",
+    category: "Insurance",
+    icon: HeartPulse,
+    positioning: "Income-replacement coverage for primary earners during illness or injury.",
+    signals: [
+      { label: "Single-income dependency", evidence: "One dominant payroll ACH covers most household expenses and transfers to other accounts.", type: "behavioral" },
+      { label: "New family responsibility", evidence: "Birth-event cluster followed by increased housing and dependent-care expenses.", type: "life-event" },
+      { label: "Professional liability exposure", evidence: "Payments to professional associations or licensing bodies for high-income occupations.", type: "behavioral" },
+    ],
+    estimatedAudience: 13_400_000,
+    penetration: 0.027,
+  },
+  {
+    id: "auto-insurance",
+    name: "Auto Insurance",
+    category: "Insurance",
+    icon: Car,
+    positioning: "Bundled auto coverage for new vehicle purchases, lease requirements, and policy renewals.",
+    signals: [
+      { label: "New vehicle purchase", evidence: "Large ACH or wire to a dealership, followed by DMV/title fees and a new auto loan.", type: "life-event" },
+      { label: "Competitor premium payments", evidence: "Recurring ACH or card payments to a known auto insurer.", type: "behavioral" },
+      { label: "Lease or loan requirement", evidence: "New captive auto loan or lease payment, typically requiring full-coverage insurance.", type: "life-event" },
+    ],
+    estimatedAudience: 26_000_000,
+    penetration: 0.052,
+  },
 
   // ===== LIFE-EVENT FLOWS =====
   {
