@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
-import { Smartphone, Loader2, HelpCircle, Users } from "lucide-react";
+import { Smartphone, Loader2, Users } from "lucide-react";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useExecDemoSession } from "@/lib/execDemoSessionStore";
 import { EXAMPLE_CUSTOMERS } from "@/lib/personalizationExamples";
 import {
@@ -19,36 +18,6 @@ import type { TabValue } from "./AnalyticsContainer";
 
 type Surface = "rewards" | "product" | "relationship";
 
-const SURFACE_COPY: Record<Surface, { title: string; body: string; bullets: string[] }> = {
-  rewards: {
-    title: "What the customer sees",
-    body: "Personalized deals are generated from this customer's detected signals and delivered into their rewards surface — not from a generic segment.",
-    bullets: [
-      "Offers ranked by the customer's dominant spending signals",
-      "Merchant and category perks matched to signal evidence",
-      "Timing tuned to the customer's life-event window",
-    ],
-  },
-  product: {
-    title: "What the customer sees",
-    body: "Product recommendations surface in-app as membership and card offers, generated from the life-event, financial and behavioral signals on the left.",
-    bullets: [
-      "One primary product recommendation, not a catalog dump",
-      "Value framed in the customer's own behavior",
-      "Delivered through the channel most likely to convert",
-    ],
-  },
-  relationship: {
-    title: "What the customer sees",
-    body: "The banking assistant answers in the customer's own context — grounded in the same signals shown on the left, in demo mock-up form.",
-    bullets: [
-      "Answers grounded in the detected signal set",
-      "Behavioral tone matched to the customer's profile",
-      "Same evidence base as the advisor-facing coworker",
-    ],
-  },
-};
-
 const SURFACE_TITLE: Record<Surface, string> = {
   rewards: "Personalized Rewards",
   product: "Personalized Product",
@@ -63,7 +32,6 @@ interface CustomerMockupPanelProps {
 export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const session = useExecDemoSession();
   const selectedId = usePersonalizationCustomer();
-  const copy = SURFACE_COPY[surface];
 
   const sessionName = session.hasRun ? session.customer?.profile?.name ?? null : null;
   const useSession = selectedId === "session" && !!session.customer;
@@ -155,56 +123,24 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
               </div>
             </div>
           ) : (
-            <>
-          <div className="flex-1 min-h-0 flex justify-center">
-            <div className="w-full max-w-[400px] h-full flex flex-col">
-              <ExecDemoPhoneView
-                customer={phoneCustomer!}
-                activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
-                phase="hold"
-                showContent
-                generatedOffers={useSession ? session.generatedOffers : generated.offers}
-                detectedLifeEvents={useSession ? session.detectedLifeEvents : generated.lifeEvents}
-                productCards={useSession ? session.productCards : generated.productCards}
-                activeRollupLabel={useSession ? session.activeRollupLabel : null}
-                activeRollupPillar={useSession ? session.activeRollupPillar : null}
-                enrichedTxs={useSession ? session.enrichedTxs : null}
-                riskFlags={useSession ? session.riskFlags : null}
-                chatSignalContext={chatSignalContext}
-              />
+            <div className="flex-1 min-h-0 flex justify-center">
+              <div className="w-full max-w-[400px] h-full flex flex-col">
+                <ExecDemoPhoneView
+                  customer={phoneCustomer!}
+                  activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
+                  phase="hold"
+                  showContent
+                  generatedOffers={useSession ? session.generatedOffers : generated.offers}
+                  detectedLifeEvents={useSession ? session.detectedLifeEvents : generated.lifeEvents}
+                  productCards={useSession ? session.productCards : generated.productCards}
+                  activeRollupLabel={useSession ? session.activeRollupLabel : null}
+                  activeRollupPillar={useSession ? session.activeRollupPillar : null}
+                  enrichedTxs={useSession ? session.enrichedTxs : null}
+                  riskFlags={useSession ? session.riskFlags : null}
+                  chatSignalContext={chatSignalContext}
+                />
+              </div>
             </div>
-          </div>
-
-          <div className="shrink-0 mt-1.5 flex items-center justify-center gap-2 text-center">
-            <p className="text-[11px] text-slate-500 leading-snug">
-              <span className="font-semibold text-slate-700">{copy.title}</span>
-              {" — "}
-              {displayName}'s generated surface, built from the signals on the left.
-            </p>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  className="inline-flex items-center gap-1 text-[10.5px] font-medium text-slate-500 border border-slate-200 rounded-full px-2 py-0.5 hover:bg-slate-50 transition-colors shrink-0"
-                  aria-label="Why this surface"
-                >
-                  <HelpCircle className="w-3 h-3" />
-                  Why this surface
-                </button>
-              </PopoverTrigger>
-              <PopoverContent side="top" align="center" className="w-80 p-3">
-                <p className="text-xs text-slate-600 leading-relaxed">{copy.body}</p>
-                <ul className="mt-2.5 space-y-1.5">
-                  {copy.bullets.map((b) => (
-                    <li key={b} className="flex items-start gap-2 text-xs text-slate-600">
-                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </PopoverContent>
-            </Popover>
-          </div>
-            </>
           )}
 
           {hasSelection && !useSession && generated.status === "failed" && (
