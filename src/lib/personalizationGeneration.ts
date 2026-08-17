@@ -160,20 +160,30 @@ export async function generatePersonalizedExperience(
     },
   });
 
-  const [offersRes, cardsRes] = await Promise.allSettled([offersPromise, cardsPromise]);
+  // Progressive: publish each result the moment its own call resolves.
+  const offersTracked = offersPromise.then((res) => {
+    const value = (!res.error ? (res.data?.rollupOffers ?? null) : null) as RollupOfferGroup[] | null;
+    progress?.onOffers?.(value);
+    return value;
+  }).catch((err) => {
+    console.error("[PERSONALIZATION] offers failed", err);
+    progress?.onOffers?.(null);
+    return null;
+  });
 
-  const offers =
-    offersRes.status === "fulfilled" && !offersRes.value.error
-      ? ((offersRes.value.data?.rollupOffers ?? null) as RollupOfferGroup[] | null)
-      : null;
+  const cardsTracked = cardsPromise.then((res) => {
+    const value = (!res.error
+      ? (res.data?.cards ?? res.data?.product_cards ?? null)
+      : null) as ProductCard[] | null;
+    progress?.onProductCards?.(value);
+    return value;
+  }).catch((err) => {
+    console.error("[PERSONALIZATION] product cards failed", err);
+    progress?.onProductCards?.(null);
+    return null;
+  });
 
-  const productCards =
-    cardsRes.status === "fulfilled" && !cardsRes.value.error
-      ? ((cardsRes.value.data?.cards ?? cardsRes.value.data?.product_cards ?? null) as ProductCard[] | null)
-      : null;
-
-  if (offersRes.status === "rejected") console.error("[PERSONALIZATION] offers failed", offersRes.reason);
-  if (cardsRes.status === "rejected") console.error("[PERSONALIZATION] product cards failed", cardsRes.reason);
+  const [offers, productCards] = await Promise.all([offersTracked, cardsTracked]);
 
   return { offers, productCards, lifeEvents };
 }
