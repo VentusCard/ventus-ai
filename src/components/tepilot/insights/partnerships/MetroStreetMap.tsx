@@ -48,6 +48,7 @@ export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props)
     loadGoogleMaps()
       .then((maps) => {
         if (cancelled || !containerRef.current) return;
+        mapsRef.current = maps;
         mapRef.current = new maps.Map(containerRef.current, {
           center: { lat: metro.lat, lng: metro.lng },
           zoom: metro.zoom,
