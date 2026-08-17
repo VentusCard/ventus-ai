@@ -27,7 +27,7 @@ export function RewardsAnalyticsDashboard({ hideHeader = false }: RewardsAnalyti
           title="Next-Deal Intelligence"
           subtitle="Seasonal spend curves, category gaps, and persona affinity scoring"
           howItWorks="Ventus analyzes seasonal spend curves, category gaps, and persona affinity to recommend which deals to pursue and when to deploy them."
-          whyItMatters="Maximizes deal ROI by timing merchant partnerships to peak customer demand windows."
+          whyItMatters="Maximizes deal ROI by timing rewards and perks to peak customer demand windows."
         />
       )}
 

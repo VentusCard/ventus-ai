@@ -29,7 +29,7 @@ export function MerchantPartnershipsView({ onLaunchCampaign }: Props) {
     <div className="space-y-4">
       <TabHeader
         icon={<Handshake className="w-4 h-4" />}
-        title="Merchant Partnerships"
+        title="Rewards and Perks"
         subtitle="Plan national and local brand partnerships from where cardholders already spend"
         howItWorks="Ventus ranks named national brands and local merchants by the spend already flowing through the card book, estimates the annual value of a co-funded partnership, and resolves the right partnerships contact so the team can open the conversation."
         whyItMatters="Category codes describe what was bought. Named brands, sized value, and a contact turn that spend into signed partnership and co-marketing revenue."

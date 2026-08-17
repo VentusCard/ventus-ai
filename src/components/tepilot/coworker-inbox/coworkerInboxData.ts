@@ -319,7 +319,7 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     weeklyCount: 4210,
     weeklyPrev: 3890,
     stat1: { label: "Offer refreshes", value: "28" },
-    stat2: { label: "Merchant partnerships", value: "6" },
+    stat2: { label: "Rewards and Perks", value: "6" },
     insights: [
       "Daily brief on merchant partnership opportunities and reward-redemption intent by segment.",
       "Flags premium card offers, lifestyle perks, and redemption-lift opportunities.",
