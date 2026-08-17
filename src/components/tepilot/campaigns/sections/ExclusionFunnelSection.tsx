@@ -468,8 +468,12 @@ export function ExclusionFunnelSection({ product, catalogProduct, onAudienceChan
           <span className="text-base font-mono font-semibold text-slate-900">{fmt(combinedFinal)}</span>
         </div>
       )}
+      </div>
+
+      <AudienceCopilot product={catalogProduct} audience={combinedFinal} baseAudience={baseAudience} />
     </div>
   );
+
 }
 
 function ChipGroup({
