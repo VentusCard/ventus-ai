@@ -33,7 +33,6 @@ interface CustomerMockupPanelProps {
 export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const session = useExecDemoSession();
   const selectedId = usePersonalizationCustomer();
-  const copy = SURFACE_COPY[surface];
 
   const sessionName = session.hasRun ? session.customer?.profile?.name ?? null : null;
   const useSession = selectedId === "session" && !!session.customer;
