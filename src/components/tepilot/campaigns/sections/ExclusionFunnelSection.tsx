@@ -16,6 +16,9 @@ import {
   Filter,
 } from "lucide-react";
 import type { ProductFlow } from "@/lib/productAutomatedFlows";
+import type { CatalogProduct } from "@/types/campaign-studio";
+import { AudienceCopilot } from "@/components/tepilot/campaigns/ai/AudienceCopilot";
+
 import {
   buildAudienceFunnel,
   getProductExclusions,
