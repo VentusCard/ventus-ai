@@ -11,7 +11,7 @@ Today the offers/product-card generation for an example customer only fires when
 
 ## Technical notes
 
-- `src/lib/personalizationResultStore.ts`: add `prewarmAllPersonalizations()` that iterates `EXAMPLE_CUSTOMERS` and calls the existing `ensurePersonalization` with a small delay between each; guard with a module-level `hasPrewarmed` flag so it runs once per session.
+- `src/lib/personalizationResultStore.ts`: add `prewarmDefaultCustomer()` that calls `ensurePersonalization` for the first `EXAMPLE_CUSTOMERS` entry; guard with a module-level `hasPrewarmed` flag so it runs once per session.
 - `src/components/tepilot/insights/AnalyticsContainer.tsx`: call it from a mount `useEffect`.
 - No edge-function, prompt, or UI-layout changes.
 
