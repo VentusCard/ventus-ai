@@ -8,27 +8,27 @@ Two changes to the Customer View shared by **Personalized Deals**, **Personalize
 - Grid becomes a 3-column split on large screens (`lg:grid-cols-3`): signal panel = 1 column, right side = 2 columns, with the phone and the explanatory copy side by side inside it.
 - Signal pills wrap comfortably in the narrower column; confidence badges stay on the pill, evidence still expands inline on click.
 
-## 2. Wire the AI so the experience is generated, not mocked
+## 2. Wire the AI so the experience is generated from the signals
 
-Today the five example customers are hardcoded signal lists and the phone renders static demo content. Selecting a customer will instead run the same intelligence pipeline the /demo flow uses, against that customer's transaction set.
+No enrichment, no classification, no transaction processing. The five example customers' signal sets stay as they are — they are the input. Selecting a customer sends those signals straight to the generation functions.
 
-Per selected customer, in order:
+On selection:
 
-1. **Enrich** — classify the customer's transactions (`classify-transactions`).
-2. **Signals** — life events (`analyze-lifestyle-signals`), persona + financial/demographic/spending signals (`synthesize-persona`), risk (`detect-risk-transactions`).
-3. **Experience** — deals (`generate-next-offers`) and product cards (`generate-product-cards`), fed by the signals from step 2.
+- **Deals** — signals → `generate-next-offers` → personalized offers in the phone.
+- **Product** — signals → `generate-product-cards` → recommended product cards in the phone.
+- **Relationship** — signals → `consumer-chat`, prompted to answer as a mock-up demo assistant: short, illustrative in-app answers grounded in that customer's signals, with a couple of suggested starter questions.
 
 Behavior:
-- Generation starts when a customer is first selected, with each stage revealing its signal row as it lands (life events → financial → spending → demographic → risk), then the phone content fills in.
+- Both generation calls fire together when a customer is first selected; the phone shows a compact loading state until they land.
 - Results are cached per customer for the session, so switching between the three tabs or back to a previous customer is instant and fires nothing again.
-- Each stage shows a compact loading state and, on failure, falls back to the existing static signals/content for that customer so the demo never breaks.
-- The "Relationship" surface keeps its existing interactive chat, now grounded in the freshly generated signals.
+- On failure, the surface falls back to the existing static content for that customer so the demo never breaks.
+- The signal panel stays as-is (static signals, staggered reveal) — it is the source, not an output.
 
 ## Technical notes
 
-- New `src/lib/personalizationPipeline.ts` — extracts the staged edge-function sequence currently inlined in `ExecDemoPage.tsx` (`classify` → `analyze-lifestyle-signals` → `synthesize-persona` → `detect-risk-transactions` → `generate-next-offers` / `generate-product-cards`), parameterized by customer CSV + demographics. No edge-function or prompt changes.
+- New `src/lib/personalizationGeneration.ts` — maps an `ExampleCustomer`'s five signal families into the request shapes `generate-next-offers` and `generate-product-cards` already accept (`lifeEvents`, `financial_signals`, `persona.pillarRollups` / `persona_rollups`, `demographics`, `risk_flags`), derived from the signal labels/evidence rather than transactions. No edge-function or prompt changes for these two.
 - New `src/lib/personalizationResultStore.ts` — per-customer result cache + status (`idle | running | ready | failed`) exposed through `useSyncExternalStore`, same pattern as `execDemoSessionStore.ts`.
-- `CustomerSignalPanel.tsx` — reads generated signals when ready, falls back to the static ones in `personalizationExamples.ts`; per-family skeleton rows while running.
-- `CustomerMockupPanel.tsx` — new 3-column grid, passes generated offers / product cards / life events / risk flags into `ExecDemoPhoneView` exactly as the session path already does.
-- `ExecDemoPage.tsx` refactored to call the shared pipeline so /demo and the personalization tabs stay in sync (no behavior change to /demo).
+- `CustomerMockupPanel.tsx` — new 3-column grid (signals 1/3, phone + copy 2/3); passes generated offers / product cards into `ExecDemoPhoneView` the same way the session path does.
+- Consumer chat: pass the selected customer's signals as context and add a mock-up instruction to the request so replies read as short demo answers. `/demo` and `ExecDemoPage.tsx` are untouched.
 - This intentionally reintroduces AI calls on /bankdemo, scoped to the three personalization tabs and only on explicit customer selection.
+
