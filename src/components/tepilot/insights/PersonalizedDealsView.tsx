@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { Sparkles, Package, Gamepad2, Smartphone } from "lucide-react";
+import { Sparkles, Smartphone } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
-import { DealsAndPerksView } from "./DealsAndPerksView";
-import { GamificationManagement } from "./GamificationManagement";
 import { CustomerMockupPanel } from "./CustomerMockupPanel";
 import { SubTabBar, type SubTabItem } from "./SubTabBar";
 import type { TabValue } from "./AnalyticsContainer";
@@ -11,8 +9,6 @@ import type { TabValue } from "./AnalyticsContainer";
 const TABS: SubTabItem[] = [
   { value: "customer", label: "Customer View", icon: <Smartphone className="w-3.5 h-3.5" /> },
   { value: "next-deal", label: "Next-Deal Intelligence", icon: <Sparkles className="w-3.5 h-3.5" /> },
-  { value: "deals", label: "Deals & Perks", icon: <Package className="w-3.5 h-3.5" /> },
-  { value: "gamification", label: "Gamification", icon: <Gamepad2 className="w-3.5 h-3.5" /> },
 ];
 
 interface PersonalizedDealsViewProps {
