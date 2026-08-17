@@ -58,9 +58,10 @@ export const SIGNAL_FAMILY_META: {
   chip: string;
   dot: string;
 }[] = [
+  // Order matches the Systems tab: Behavioral → Life Event → Financial → Demographic → Risk.
+  { key: "spending_habit", label: "Behavioral", short: "BEH", field: "spendingHabits", chip: "bg-sky-50 text-sky-700 border-sky-200", dot: "bg-sky-500" },
   { key: "life_event", label: "Life Events", short: "LE", field: "lifeEvents", chip: "bg-violet-50 text-violet-700 border-violet-200", dot: "bg-violet-500" },
   { key: "financial", label: "Financial Signals", short: "FIN", field: "financialSignals", chip: "bg-amber-50 text-amber-800 border-amber-200", dot: "bg-amber-500" },
-  { key: "spending_habit", label: "Spending Habits", short: "SPD", field: "spendingHabits", chip: "bg-sky-50 text-sky-700 border-sky-200", dot: "bg-sky-500" },
   { key: "demographic", label: "Demographic", short: "DEM", field: "demographicSignals", chip: "bg-emerald-50 text-emerald-700 border-emerald-200", dot: "bg-emerald-500" },
   { key: "risk", label: "Risk", short: "RSK", field: "riskFlags", chip: "bg-rose-50 text-rose-700 border-rose-200", dot: "bg-rose-500" },
 ];
