@@ -196,6 +196,8 @@ export function ProductAutomatedFlowsView() {
         whyItMatters="Replaces calendar-driven campaigns with continuous, signal-driven enrollment so every product is offered when it is most relevant to the customer."
       />
 
+      <AutonomousActivityFeed />
+
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-1.5 flex-wrap">
           {CATEGORIES.map((cat) => (
