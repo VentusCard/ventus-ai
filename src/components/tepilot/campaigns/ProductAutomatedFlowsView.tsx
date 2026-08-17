@@ -4,7 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
-import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
+import {
+  PRODUCT_FLOWS,
+  SIGNAL_FAMILIES,
+  SIGNAL_FAMILY_COLOR,
+  SIGNAL_FAMILY_LABEL,
+  getSignalFamily,
+  type FlowCategory,
+  type ProductFlow,
+  type SignalType,
+} from "@/lib/productAutomatedFlows";
 import { FLOW_MICROSEGMENTS, type FlowMicrosegment } from "@/lib/productMicrosegments";
 import { Zap, Play, Sparkles, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,12 +49,10 @@ function MicrosegmentCard({
         <span
           className={cn(
             "self-start text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
-            signal.type === "life-event"
-              ? "bg-amber-50 text-amber-700 border-amber-200"
-              : "bg-blue-50 text-blue-700 border-blue-200",
+            SIGNAL_FAMILY_COLOR[getSignalFamily(signal)],
           )}
         >
-          {signal.type === "life-event" ? "Life Event" : "Behavioral"}
+          {SIGNAL_FAMILY_LABEL[getSignalFamily(signal)]}
         </span>
         <p className="text-[12px] font-semibold text-slate-900 leading-tight">{signal.label}</p>
         <p className="text-[10.5px] text-slate-500 leading-snug">{signal.evidence}</p>
@@ -169,16 +176,32 @@ function FlowRow({
 }
 
 export function ProductAutomatedFlowsView() {
+  const [mode, setMode] = useState<"products" | "signals">("products");
   const [category, setCategory] = useState<FlowCategory | "All">("All");
+  const [family, setFamily] = useState<SignalType | "All">("All");
   const [active, setActive] = useState<Set<string>>(
     () => new Set(PRODUCT_FLOWS.filter((p) => p.defaultActive).map((p) => p.id)),
   );
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  const byAudience = (a: ProductFlow, b: ProductFlow) => b.estimatedAudience - a.estimatedAudience;
+
+  const flowHasFamily = (flow: ProductFlow, fam: SignalType) =>
+    flow.signals.some((s) => getSignalFamily(s) === fam);
+
   const filtered =
-    category === "All"
-      ? [...PRODUCT_FLOWS].sort((a, b) => b.estimatedAudience - a.estimatedAudience)
-      : PRODUCT_FLOWS.filter((p) => p.category === category);
+    mode === "signals"
+      ? (family === "All" ? [...PRODUCT_FLOWS] : PRODUCT_FLOWS.filter((p) => flowHasFamily(p, family))).sort(byAudience)
+      : category === "All"
+        ? [...PRODUCT_FLOWS].sort(byAudience)
+        : PRODUCT_FLOWS.filter((p) => p.category === category);
+
+  const switchMode = (next: "products" | "signals") => {
+    setMode(next);
+    setCategory("All");
+    setFamily("All");
+    setExpandedId(null);
+  };
 
   const toggle = (id: string) => {
     setActive((prev) => {
@@ -188,6 +211,14 @@ export function ProductAutomatedFlowsView() {
       return next;
     });
   };
+
+  const pillClass = (selected: boolean) =>
+    cn(
+      "px-3 py-1.5 rounded-full text-xs font-medium border transition-all",
+      selected
+        ? "bg-slate-900 text-white border-slate-900"
+        : "bg-white text-slate-600 border-slate-200 hover:border-slate-400",
+    );
 
   return (
     <div className="space-y-4">
@@ -202,24 +233,48 @@ export function ProductAutomatedFlowsView() {
       <AutonomousActivityFeed />
 
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-medium border transition-all",
-                category === cat
-                  ? "bg-slate-900 text-white border-slate-900"
-                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-400",
-              )}
-            >
-              {cat}
-              <span className="ml-1.5 opacity-60">
-                {cat === "All" ? PRODUCT_FLOWS.length : PRODUCT_FLOWS.filter((p) => p.category === cat).length}
-              </span>
-            </button>
-          ))}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 p-0.5">
+            {(["products", "signals"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => switchMode(m)}
+                className={cn(
+                  "px-3 py-1 rounded-full text-[11px] font-semibold capitalize transition-all",
+                  mode === m ? "bg-white text-slate-900 shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700",
+                )}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {mode === "products"
+              ? CATEGORIES.map((cat) => (
+                  <button key={cat} onClick={() => setCategory(cat)} className={pillClass(category === cat)}>
+                    {cat}
+                    <span className="ml-1.5 opacity-60">
+                      {cat === "All" ? PRODUCT_FLOWS.length : PRODUCT_FLOWS.filter((p) => p.category === cat).length}
+                    </span>
+                  </button>
+                ))
+              : (["All", ...SIGNAL_FAMILIES] as const).map((fam) => (
+                  <button
+                    key={fam}
+                    onClick={() => setFamily(fam as SignalType | "All")}
+                    className={pillClass(family === fam)}
+                  >
+                    {fam === "All" ? "All" : SIGNAL_FAMILY_LABEL[fam as SignalType]}
+                    <span className="ml-1.5 opacity-60">
+                      {fam === "All"
+                        ? PRODUCT_FLOWS.length
+                        : PRODUCT_FLOWS.filter((p) => flowHasFamily(p, fam as SignalType)).length}
+                    </span>
+                  </button>
+                ))}
+          </div>
         </div>
         <Badge variant="outline" className="text-xs border-slate-200 bg-white">
           <Play className="w-3 h-3 mr-1 text-emerald-600" />
