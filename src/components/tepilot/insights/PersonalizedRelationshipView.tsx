@@ -38,9 +38,12 @@ export function PersonalizedRelationshipView({
         subtitle="Customer insights, relationship signals, and assistant conversations in one surface"
         howItWorks="Ventus enriches every transaction into relationship signals and surfaces what customers are asking the banking assistant."
         whyItMatters="One coordinated view of every relationship touchpoint — so growth, protection, and outreach all run off the same behavioral evidence."
+        sections={TABS}
+        sectionValue={active}
+        onSectionChange={setActive}
       />
 
-      <SubTabBar items={TABS} value={active} onChange={setActive} />
+
 
       {active === "customer" && <CustomerMockupPanel surface="relationship" onNavigate={onNavigate} />}
       {active === "insights" && (
