@@ -177,7 +177,20 @@ export const EXAMPLE_CUSTOMERS: ExampleCustomer[] = [
       s("Card utilization creeping", "Revolving balance rising for consecutive cycles", "Emerging"),
     ],
   },
-].map((c) => ({ ...c, demo: byId(c.id) }));
+].map((c) => {
+  const base = byId(c.id);
+  return {
+    ...c,
+    demo: {
+      ...base,
+      profile: {
+        ...base.profile,
+        name: c.name,
+        segment: c.segment as ClientProfileData["segment"],
+      },
+    },
+  };
+});
 
 export function searchExampleCustomers(query: string): ExampleCustomer[] {
   const q = query.trim().toLowerCase();
