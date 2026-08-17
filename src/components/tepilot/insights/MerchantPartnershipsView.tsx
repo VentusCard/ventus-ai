@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Handshake, Globe, MapPin, GitBranch, DollarSign, Users, Activity, Building2 } from "lucide-react";
+import { Handshake, Globe, MapPin, GitBranch, DollarSign, Users, Activity, Building2, Package, Gamepad2 } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { SubTabBar } from "./SubTabBar";
 import { CategoryExtensionOpportunities } from "./CategoryExtensionOpportunities";
+import { DealsAndPerksView } from "./DealsAndPerksView";
+import { GamificationManagement } from "./GamificationManagement";
 import { NationalPartnersView } from "./partnerships/NationalPartnersView";
 import { LocalPartnersView } from "./partnerships/LocalPartnersView";
 import { BrandContactDialog, type ContactTarget } from "./partnerships/BrandContactDialog";
