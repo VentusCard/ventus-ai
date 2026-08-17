@@ -28,11 +28,13 @@ export function ExampleCustomerBar({ selectedId, onSelect, sessionName, compact 
   return (
     <div
       className={cn(
-        "flex flex-col lg:flex-row lg:items-center gap-3",
-        compact ? "" : "px-4 py-3 border-b border-slate-200 bg-white",
+        compact
+          ? "flex flex-col gap-2"
+          : "flex flex-col lg:flex-row lg:items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white",
       )}
     >
-      <div className={cn("relative w-full", compact ? "lg:max-w-[260px]" : "lg:max-w-sm")}>
+      <div className={cn("relative w-full", compact ? "" : "lg:max-w-sm")}>
+
 
         <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
