@@ -41,6 +41,12 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const hasSelection = useSession || !!example;
   const generated = usePersonalizationResult(example?.id ?? "");
 
+  // Pre-fire generation for the default example customer (Ricky) once per session,
+  // so his surface is cached before the banker selects him.
+  useEffect(() => {
+    prewarmDefaultCustomer();
+  }, []);
+
   useEffect(() => {
     if (!useSession && example) ensurePersonalization(example.id);
   }, [example?.id, useSession]);
