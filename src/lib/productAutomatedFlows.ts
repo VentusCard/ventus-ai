@@ -585,6 +585,48 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     estimatedAudience: 6_800_000,
     penetration: 0.014,
   },
+  {
+    id: "secured-credit-card",
+    name: "Secured Credit Card",
+    category: "Cards",
+    icon: Lock,
+    positioning: "Credit-building card backed by a refundable security deposit for customers establishing or rebuilding credit.",
+    signals: [
+      { label: "Thin or rebuilding credit profile", evidence: "Limited traditional credit bureau data, reliance on debit, P2P, and prepaid products.", type: "behavioral" },
+      { label: "Credit-builder product usage", evidence: "Recurring payments to credit-builder loan providers or secured card competitors.", type: "behavioral" },
+      { label: "Recent denial or thin-file signal", evidence: "Hard inquiry followed by no new tradeline, plus continued use of cash alternatives.", type: "life-event" },
+    ],
+    estimatedAudience: 18_000_000,
+    penetration: 0.036,
+  },
+  {
+    id: "student-credit-card",
+    name: "Student Credit Card",
+    category: "Cards",
+    icon: Backpack,
+    positioning: "Starter card for college students with simple rewards and no annual fee.",
+    signals: [
+      { label: "College-affiliated spend", evidence: "Card and ACH activity at campus bookstores, meal plans, and university-related merchants.", type: "behavioral" },
+      { label: "Student income pattern", evidence: "Small, irregular payroll deposits from campus or part-time employers.", type: "life-event" },
+      { label: "First credit product search", evidence: "Inquiries or applications to known student-card issuers, often with a campus address.", type: "behavioral" },
+    ],
+    estimatedAudience: 8_400_000,
+    penetration: 0.017,
+  },
+  {
+    id: "business-credit-card",
+    name: "Business Credit Card",
+    category: "Cards",
+    icon: Building,
+    positioning: "Expense management card for small-business owners with employee cards and category rewards.",
+    signals: [
+      { label: "Business spend commingled", evidence: "Mixed business and personal card spend at office supply, SaaS, and trade-show merchants.", type: "behavioral" },
+      { label: "Payment processor revenue", evidence: "Regular deposits from Stripe, Square, or PayPal into a personal account.", type: "behavioral" },
+      { label: "Business supplier payments", evidence: "ACH or bill-pay to vendors, contractors, and professional services from a personal account.", type: "behavioral" },
+    ],
+    estimatedAudience: 12_000_000,
+    penetration: 0.024,
+  },
 
   // ===== INSURANCE =====
   {
