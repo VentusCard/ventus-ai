@@ -5,7 +5,7 @@ import { RelationshipIntelligenceView } from "./RelationshipIntelligenceView";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { CustomerMockupPanel } from "./CustomerMockupPanel";
-import { SubTabBar, type SubTabItem } from "./SubTabBar";
+import { type SubTabItem } from "./SubTabBar";
 import type { ClientProfileData } from "@/types/clientProfile";
 import type { AIInsights } from "@/types/lifestyle-signals";
 import type { TabValue } from "./AnalyticsContainer";
