@@ -8,6 +8,7 @@
 
 import { DEMO_CUSTOMERS, type DemoCustomer } from "@/lib/demoData";
 import type { DirectorySignal } from "@/lib/customerDirectoryData";
+import type { ClientProfileData } from "@/types/clientProfile";
 
 export interface ExampleCustomer {
   id: string;
