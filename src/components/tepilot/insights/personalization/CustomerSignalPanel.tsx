@@ -27,8 +27,8 @@ export function CustomerSignalPanel({ customer }: Props) {
   }, [customer.id]);
 
   return (
-    <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
-      <div className="px-3 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between gap-2">
+    <div className="border border-slate-200 rounded-lg bg-white overflow-hidden h-full flex flex-col">
+      <div className="shrink-0 px-3 py-2 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between gap-2">
         <div className="min-w-0">
           <h3 className="text-[12.5px] font-semibold text-slate-900 truncate">
             Signals detected — {customer.name}
@@ -42,7 +42,8 @@ export function CustomerSignalPanel({ customer }: Props) {
         </span>
       </div>
 
-      <div className="p-3 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll p-2.5 space-y-2.5">
+
         {SIGNAL_FAMILY_META.map((m, i) => {
           const signals = customer[m.field as keyof ExampleCustomer] as DirectorySignal[];
           const isVisible = revealed > i;
