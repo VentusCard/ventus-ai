@@ -32,4 +32,4 @@ The assigned advisor in the relationship view is a separate person (a banker, e.
 
 - `src/lib/personalizationExamples.ts`: in the final `.map`, build `demo` as `{ ...byId(c.id), profile: { ...byId(c.id).profile, name: c.name, location: c.city, segment: c.segment } }` instead of passing the shared record through by reference.
 - No changes to `src/lib/sampleData.ts` or `src/lib/demoData.ts`.
-- Verify in the browser on `/bankdemo` that the Personalized Rewards / Product / Relationship cards all greet Ricky.
+- Verify in the browser on `/bankdemo` that the Personalized Rewards / Product / Relationship cards all greet Ricky J.
