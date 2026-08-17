@@ -235,6 +235,8 @@ function FlowRow({
   const liveAudience = qualifiedAudience(flow, signals, enabledSignals, filters, enabledFilters);
   const passRate = filterPassRate(filters, enabledFilters);
   const totalRemoved = Math.max(0, triggered - liveAudience);
+  const isActive = active && enabledCount > 0;
+
 
 
   const toggleSignal = (id: string) => {
@@ -275,11 +277,12 @@ function FlowRow({
             {enabledCount} of {signals.length} signals
           </span>
           {filters.length > 0 && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 shrink-0">
-              <ShieldCheck className="w-3 h-3" />
-              {filterCount} of {filters.length} filters
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 shrink-0">
+              <ShieldAlert className="w-3 h-3" />
+              {filterCount} of {filters.length} risk filters
             </span>
           )}
+
           <span className="text-xs text-slate-500 truncate">{flow.positioning}</span>
         </div>
 
