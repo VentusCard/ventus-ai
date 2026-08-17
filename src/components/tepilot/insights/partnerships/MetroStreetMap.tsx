@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CATEGORY_COLORS, type LocalPartner, type Metro } from "@/lib/merchantPartnershipData";
+import { CATEGORY_COLORS, NEIGHBORHOOD_ANCHORS, type LocalPartner, type Metro } from "@/lib/merchantPartnershipData";
 import { formatCurrency } from "@/lib/formatHelper";
 
 interface Props {
@@ -20,7 +20,7 @@ export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props)
 
   return (
     <div className="relative bg-white border border-slate-200 rounded-xl overflow-hidden">
-      <svg viewBox="0 0 100 100" className="w-full h-[440px]" preserveAspectRatio="xMidYMid slice">
+      <svg viewBox="0 0 100 100" className="w-full h-[440px]" preserveAspectRatio="none">
         <rect width="100" height="100" fill="#f8fafc" />
 
         {/* water */}
@@ -42,13 +42,9 @@ export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props)
 
         {/* neighborhood labels */}
         {metro.neighborhoods.map((n, i) => {
-          const anchors = [
-            { x: 22, y: 22 }, { x: 66, y: 16 }, { x: 84, y: 50 },
-            { x: 44, y: 74 }, { x: 14, y: 66 }, { x: 58, y: 38 },
-          ];
-          const a = anchors[i % anchors.length];
+          const a = NEIGHBORHOOD_ANCHORS[i % NEIGHBORHOOD_ANCHORS.length];
           return (
-            <text key={n} x={a.x} y={a.y} fontSize="2.6" fill="#94a3b8" fontWeight="600" textAnchor="middle">
+            <text key={n} x={a.x} y={a.y - 7} fontSize="2.4" fill="#94a3b8" fontWeight="700" textAnchor="middle" letterSpacing="0.2">
               {n.toUpperCase()}
             </text>
           );
