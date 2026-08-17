@@ -208,6 +208,48 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     estimatedAudience: 11_200_000,
     penetration: 0.022,
   },
+  {
+    id: "401k-rollover",
+    name: "401(k) Rollover Service",
+    category: "Wealth",
+    icon: RefreshCw,
+    positioning: "Seamless rollover of employer-sponsored retirement assets into an IRA or advisory account.",
+    signals: [
+      { label: "Job change or separation", evidence: "Final payroll deposit from a prior employer, followed by a large inbound ACH from a 401(k) administrator.", type: "life-event" },
+      { label: "Retirement account fragmentation", evidence: "Multiple small inbound ACHs from prior employer plans, indicating scattered retirement assets.", type: "behavioral" },
+      { label: "Advisory engagement", evidence: "Outbound transfers to a brokerage or advisory firm after a rollover inflow.", type: "behavioral" },
+    ],
+    estimatedAudience: 14_000_000,
+    penetration: 0.028,
+  },
+  {
+    id: "able-savings",
+    name: "ABLE / Special Needs Savings",
+    category: "Wealth",
+    icon: Accessibility,
+    positioning: "Tax-advantaged savings for individuals with disabilities and their families.",
+    signals: [
+      { label: "Special needs support spend", evidence: "Recurring ACH or card payments to therapy providers, special education services, or adaptive equipment suppliers.", type: "behavioral" },
+      { label: "Guardian or trustee activity", evidence: "Bill-pay or ACH to a special needs attorney, trust company, or state ABLE plan administrator.", type: "life-event" },
+      { label: "Public benefits coordination", evidence: "Deposits from SSI or disability benefit administrators alongside medical and care-related outflows.", type: "behavioral" },
+    ],
+    estimatedAudience: 3_200_000,
+    penetration: 0.006,
+  },
+  {
+    id: "financial-planning-subscription",
+    name: "Financial Planning Subscription",
+    category: "Wealth",
+    icon: FileSpreadsheet,
+    positioning: "Ongoing digital financial planning with goal tracking, tax-aware advice, and annual check-ins.",
+    signals: [
+      { label: "DIY planning tools", evidence: "Subscription payments to budgeting or planning apps, plus recurring transfers to multiple savings goals.", type: "behavioral" },
+      { label: "Life transition complexity", evidence: "Cluster of life-event signals (marriage, home purchase, new child) within a 12-month window.", type: "life-event" },
+      { label: "Advisory fee comparison", evidence: "Outbound ACH to a fee-only planner or robo-advisor, indicating willingness to pay for guidance.", type: "behavioral" },
+    ],
+    estimatedAudience: 10_000_000,
+    penetration: 0.020,
+  },
 
   // ===== LENDING =====
   {
