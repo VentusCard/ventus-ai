@@ -190,11 +190,14 @@ function FilterRow({
         <div className="px-3 pb-3">
           <div className="mt-1 rounded-lg border border-rose-200 bg-rose-50/50 p-3">
             <p className="text-[9px] uppercase tracking-wider text-rose-500 font-semibold">Who this removes</p>
-            <p className="text-[11px] text-slate-700 leading-snug mt-0.5">{filter.evidence}</p>
-            <p className="text-[10.5px] text-slate-500 leading-snug mt-2">
-              Removes about {dropPct}% ({formatAudience(removed)} people) from the triggered audience — a
-              guardrail, never a trigger. It can never start outreach on its own.
+            <p className="text-[11px] text-slate-700 leading-snug mt-0.5">
+              −{dropPct}% of the triggered audience ({formatAudience(removed)} people) drops out here.
             </p>
+            <p className="text-[10.5px] text-slate-500 leading-snug mt-2">
+              This is a guardrail, never a trigger — it can only take customers out of the flow, never start
+              outreach on its own.
+            </p>
+
           </div>
         </div>
       )}
