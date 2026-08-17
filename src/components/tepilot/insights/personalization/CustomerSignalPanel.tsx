@@ -81,6 +81,11 @@ export function CustomerSignalPanel({ customer }: Props) {
                           )}
                         >
                           {sig.label}
+                          {sig.source === "external" && (
+                            <span className="text-[9px] font-bold uppercase tracking-wider rounded-full px-1.5 py-px bg-slate-900 text-white">
+                              Ext
+                            </span>
+                          )}
                           <span
                             className={cn(
                               "text-[9px] font-bold uppercase tracking-wider rounded-full px-1.5 py-px border border-white/60",
