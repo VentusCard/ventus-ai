@@ -49,6 +49,8 @@ interface Props {
   productDeliveryChannel?: ProductDeliveryChannel;
   aiTabTrigger?: number;
   pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null;
+  /** Persistent grounding context appended to every consumer-chat request (demo mock-up mode). */
+  chatSignalContext?: string;
   /** When true, the right phone panel renders the WM CoPilot view instead of the customer mockup. */
   wmCopilotMode?: boolean;
   /** Currently selected signal driving the WM CoPilot brief. */
@@ -62,7 +64,7 @@ interface Props {
   onCloseWMCopilot?: () => void;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile" }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile" }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -143,6 +145,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             messageNonce={pendingAIPrompt?.nonce}
             initialMessageKind={pendingAIPrompt?.kind}
             initialMessageContext={pendingAIPrompt?.signalContext}
+            baseSignalContext={chatSignalContext}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );
