@@ -204,7 +204,9 @@ export function ExclusionFunnelSection({ product, catalogProduct, onAudienceChan
   };
 
   return (
+    <div className="space-y-3">
     <div className="rounded-xl border border-slate-200 bg-white p-4">
+
       <div className="flex items-center gap-2 mb-3">
         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
         <p className="text-sm font-semibold text-slate-900">Filter and Understand the Audience</p>
