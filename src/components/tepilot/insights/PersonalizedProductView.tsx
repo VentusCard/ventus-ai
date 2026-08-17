@@ -26,9 +26,12 @@ export function PersonalizedProductView({ onNavigate }: PersonalizedProductViewP
         subtitle="The product a customer is most likely to need next — and how it reaches them"
         howItWorks="Ventus maps enriched behavioral and financial signals onto the product catalog, ranks the highest-fit next product, and delivers it through the customer's preferred channel."
         whyItMatters="Higher conversion per outreach by leading with one relevant product grounded in the customer's own spending evidence."
+        sections={TABS}
+        sectionValue={active}
+        onSectionChange={setActive}
       />
 
-      <SubTabBar items={TABS} value={active} onChange={setActive} />
+
 
       {active === "customer" && <CustomerMockupPanel surface="product" onNavigate={onNavigate} />}
       {active === "targeting" && (
