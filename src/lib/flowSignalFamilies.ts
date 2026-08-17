@@ -25,7 +25,7 @@ export const SIGNAL_FAMILY_LABEL: Record<SignalFamily, string> = {
   behavioral: "Behavioral",
   financial: "Financial",
   demographic: "Demographic",
-  risk: "Risk",
+  risk: "Risk Filter",
 };
 
 export const SIGNAL_FAMILY_CLASS: Record<SignalFamily, string> = {
@@ -485,15 +485,16 @@ const CHANNELS_BY_FAMILY: Record<SignalFamily, string[]> = {
 const cache = new Map<string, ExpandedSignal[]>();
 const filterCache = new Map<string, EligibilityFilter[]>();
 
-/** An eligibility guardrail: it narrows who qualifies, it never triggers a flow. */
+/** A risk filter: it removes customers from the triggered audience, never adds any. */
 export interface EligibilityFilter {
   id: string;
   label: string;
-  /** Plain-language description of what the check looks at. */
+  /** Plain-language description of who this check removes. */
   evidence: string;
-  /** Share of the triggered audience that clears this check. */
+  /** Share of the triggered audience that still clears this check. */
   passRate: number;
 }
+
 
 function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: EligibilityFilter[] } {
   const authoredCopy = FLOW_MICROSEGMENTS[flow.id] ?? [];
