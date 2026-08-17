@@ -9,6 +9,7 @@ import {
 } from "@/lib/personalizationCustomerStore";
 import {
   ensurePersonalization,
+  prewarmDefaultCustomer,
   usePersonalizationResult,
 } from "@/lib/personalizationResultStore";
 import { buildChatSignalContext } from "@/lib/personalizationGeneration";
@@ -39,6 +40,12 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const example = EXAMPLE_CUSTOMERS.find((c) => c.id === selectedId) ?? null;
   const hasSelection = useSession || !!example;
   const generated = usePersonalizationResult(example?.id ?? "");
+
+  // Pre-fire generation for the default example customer (Ricky) once per session,
+  // so his surface is cached before the banker selects him.
+  useEffect(() => {
+    prewarmDefaultCustomer();
+  }, []);
 
   useEffect(() => {
     if (!useSession && example) ensurePersonalization(example.id);
