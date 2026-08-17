@@ -45,6 +45,9 @@ import {
   Fingerprint,
   HeartPulse,
   Accessibility,
+  Fuel,
+  Users,
+  HardHat,
   type LucideIcon,
 } from "lucide-react";
 
