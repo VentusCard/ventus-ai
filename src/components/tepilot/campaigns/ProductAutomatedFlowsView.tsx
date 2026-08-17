@@ -344,13 +344,13 @@ function FlowRow({
             <>
               <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-200">
                 <div className="flex items-center gap-1.5 pt-2">
-                  <ShieldCheck className="w-3 h-3 text-slate-500" />
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                    Eligibility filters — narrow who qualifies
+                  <ShieldAlert className="w-3 h-3 text-rose-500" />
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-600">
+                    Risk filters — each one removes customers from the triggered audience
                   </p>
                 </div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 shrink-0 pt-2">
-                  {filterCount} on · keeps {Math.round(passRate * 100)}%
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 shrink-0 pt-2">
+                  {filterCount} on · −{Math.round((1 - passRate) * 100)}% · −{formatAudience(totalRemoved)}
                 </p>
               </div>
 
@@ -359,6 +359,7 @@ function FlowRow({
                   <FilterRow
                     key={f.id}
                     filter={f}
+                    removed={Math.round(triggered * (1 - f.passRate))}
                     enabled={enabledFilters.has(f.id)}
                     open={openRow === f.id}
                     onToggle={() => toggleFilter(f.id)}
@@ -369,10 +370,14 @@ function FlowRow({
 
               <div className="flex items-center justify-between gap-3 pt-1">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Qualified audience</p>
-                <p className="text-[13px] font-bold text-slate-900">{formatAudience(liveAudience)}</p>
+                <p className="text-[13px] font-bold text-slate-900">
+                  <span className="text-[11px] font-semibold text-rose-600 mr-2">−{formatAudience(totalRemoved)}</span>
+                  {formatAudience(liveAudience)}
+                </p>
               </div>
             </>
           )}
+
         </div>
       )}
     </div>
