@@ -56,12 +56,24 @@ export function MerchantPartnershipsView({ onLaunchCampaign }: Props) {
         items={[
           { value: "national", label: "National Partners", icon: <Globe className="w-3.5 h-3.5" /> },
           { value: "local", label: "Local Partners", icon: <MapPin className="w-3.5 h-3.5" /> },
+          { value: "deals", label: "Deals & Perks", icon: <Package className="w-3.5 h-3.5" /> },
+          { value: "gamification", label: "Gamification", icon: <Gamepad2 className="w-3.5 h-3.5" /> },
           { value: "bridges", label: "Behavioral Bridges", icon: <GitBranch className="w-3.5 h-3.5" /> },
         ]}
       />
 
       {tab === "national" && <NationalPartnersView onFindContact={setContactTarget} />}
       {tab === "local" && <LocalPartnersView onFindContact={setContactTarget} />}
+      {tab === "deals" && (
+        <div className="border border-slate-200 rounded-lg bg-white p-4">
+          <DealsAndPerksView defaultTab="shopping" />
+        </div>
+      )}
+      {tab === "gamification" && (
+        <div className="border border-slate-200 rounded-lg bg-white p-4">
+          <GamificationManagement hideHeader />
+        </div>
+      )}
       {tab === "bridges" && <CategoryExtensionOpportunities onLaunchCampaign={onLaunchCampaign} />}
 
       <BrandContactDialog target={contactTarget} onClose={() => setContactTarget(null)} />
