@@ -82,6 +82,57 @@ export function ProductCampaignBuilderView({ initialMode = "product" }: { initia
     [catalogProduct],
   );
 
+  useEffect(() => {
+    if (!flow) {
+      setAudience(0);
+      setBaseAudience(0);
+    } else if (visibleStep < 2) {
+      setAudience(flow.estimatedAudience);
+      setBaseAudience(flow.estimatedAudience);
+    }
+  }, [flow, visibleStep]);
+
+  const handleAudienceChange = useCallback((next: number, base: number) => {
+    setAudience(next);
+    setBaseAudience(base);
+  }, []);
+
+  const aiCtx: AiBriefContext = {
+    mode,
+    productName,
+    product: catalogProduct,
+    audience,
+    baseAudience,
+    offers,
+    campaignLink,
+    step: visibleStep,
+  };
+
+  const handleGoalMatch = (match: GoalMatch, goal: string) => {
+    setMode(match.mode);
+    setGoalExplanation(`"${goal}" → ${match.explanation}`);
+    if (match.mode === "product" && match.product) {
+      setProductName(match.product.name);
+      setOffers(match.offers ?? []);
+      setCampaignLink(DEFAULT_CAMPAIGN_LINK);
+      setVisibleStep(2);
+    }
+  };
+
+  const handleBriefAction = (action: AiNextAction) => {
+    if (action.id.startsWith("select:")) {
+      handleSelectProduct(action.id.slice("select:".length));
+      return;
+    }
+    if (action.id === "advance" || action.id === "audience") {
+      setVisibleStep((s) => (s < 3 ? ((s + 1) as 1 | 2 | 3) : s));
+      return;
+    }
+    if (action.id === "messages") setVisibleStep(3);
+  };
+
+
+
   const nextBtnClass =
     "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600 disabled:hover:border-blue-600";
 
