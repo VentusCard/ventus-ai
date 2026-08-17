@@ -205,11 +205,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     };
   }, [isResizing]);
 
-  // Prewarm the default example customer's personalized experience so the first
-  // Personalization tab selection is instant.
-  useEffect(() => {
-    prewarmDefaultCustomer();
-  }, []);
+  // No prewarm: the personalization workspace starts empty until a banker
+  // selects a customer, so nothing is generated up front.
 
 
   // Filter nav groups based on enabled modules
