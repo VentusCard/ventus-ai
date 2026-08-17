@@ -104,225 +104,230 @@ function tagsFor(flow: ProductFlow): Set<Tag> {
 
 const FINANCIAL: Record<string, SeedSignal> = {
   payroll: {
-    label: "Stable payroll deposits",
-    evidence: "Recurring employer direct deposits on a predictable cadence for 6+ consecutive cycles.",
+    label: "Steady paycheck coming in",
+    evidence: "The same employer deposit lands on the same schedule, month after month.",
     weight: 0.55,
   },
   surplus: {
-    label: "Surplus cash after fixed obligations",
-    evidence: "Month-end balance consistently exceeds recurring rent/mortgage, utility and card outflows.",
+    label: "Money left over each month",
+    evidence: "What comes in covers rent or mortgage, bills and cards with room to spare.",
     weight: 0.34,
   },
   depositGrowth: {
-    label: "Deposit balances trending up",
-    evidence: "Checking and savings balances rising across the trailing six statement cycles.",
+    label: "Savings are growing",
+    evidence: "Checking and savings balances have climbed steadily over the last six months.",
     weight: 0.28,
   },
   idleCash: {
-    label: "Idle cash above operating needs",
-    evidence: "Sustained non-interest balances well above 3 months of observed outflow.",
+    label: "Cash sitting still",
+    evidence: "More in checking than they spend, month after month, earning nothing.",
     weight: 0.18,
   },
   lowUtil: {
-    label: "Low revolving utilization",
-    evidence: "Statement balances stay under a third of available revolving lines.",
+    label: "Barely uses their credit limit",
+    evidence: "Card balances stay well under the limit every month.",
     weight: 0.41,
   },
   mortgagePayer: {
-    label: "Active mortgage servicer outflow",
-    evidence: "Recurring monthly ACH to a mortgage servicer with escrow-shaped amount.",
+    label: "Pays a mortgage every month",
+    evidence: "A regular payment goes out to a home loan servicer.",
     weight: 0.22,
   },
   autoPayer: {
-    label: "Active auto loan / lease payment",
-    evidence: "Fixed monthly ACH to a captive auto lender or lease administrator.",
+    label: "Pays a car loan or lease",
+    evidence: "A fixed monthly payment goes out to a car lender or leasing company.",
     weight: 0.24,
   },
   externalInvestFunding: {
-    label: "Funding held-away investments",
-    evidence: "Recurring outbound ACH to third-party brokerage or advisory platforms.",
+    label: "Investing somewhere else",
+    evidence: "Money moves out regularly to an outside brokerage or advisor.",
     weight: 0.16,
   },
   retirementContrib: {
-    label: "Retirement contribution activity",
-    evidence: "Payroll deferrals plus periodic ACH to IRA or rollover custodians.",
+    label: "Putting money toward retirement",
+    evidence: "Retirement contributions come out of pay, plus occasional transfers to a retirement account.",
     weight: 0.19,
   },
   interestSeeking: {
-    label: "Rate-seeking transfers out",
-    evidence: "Balances migrating to high-yield accounts at other institutions.",
+    label: "Chasing a better rate elsewhere",
+    evidence: "Savings are moving out to a higher-paying account at another bank.",
     weight: 0.13,
   },
   highInsuranceSpend: {
-    label: "Meaningful premium outflow",
-    evidence: "Multiple recurring insurance premium debits across carriers each month.",
+    label: "Pays several insurance premiums",
+    evidence: "Multiple insurance payments go out each month to different companies.",
     weight: 0.26,
   },
   bizRevenue: {
-    label: "Business revenue settlements",
-    evidence: "Recurring card-processor settlements (Stripe / Square / merchant acquirer) into the account.",
+    label: "Gets paid by customers through card sales",
+    evidence: "Regular payouts from a card processor land in the account.",
     weight: 0.09,
   },
   bizTaxes: {
-    label: "Estimated tax payments",
-    evidence: "Quarterly IRS / state estimated tax debits consistent with pass-through income.",
+    label: "Pays quarterly business taxes",
+    evidence: "Tax payments go out four times a year, the way business owners pay.",
     weight: 0.07,
   },
   tuitionOutflow: {
-    label: "Tuition outflow on file",
-    evidence: "Recurring ACH or bill-pay to academic institutions outside the public-school calendar.",
+    label: "Paying tuition",
+    evidence: "Regular payments go to a school or college.",
     weight: 0.11,
   },
   travelSpend: {
-    label: "Sustained travel spend",
-    evidence: "Airline, hotel and rideshare spend across multiple trips in the trailing year.",
+    label: "Travels often",
+    evidence: "Airline, hotel and ride spending across several trips this past year.",
     weight: 0.17,
   },
 };
 
 const DEMOGRAPHIC: Record<string, SeedSignal> = {
   dualIncome: {
-    label: "Dual-income household",
-    evidence: "Two distinct recurring payroll deposits landing in the same household relationship.",
+    label: "Two earners in the household",
+    evidence: "Two different paychecks land in the same household's accounts.",
     weight: 0.34,
   },
   parentYoung: {
-    label: "Parent of young children",
-    evidence: "Childcare tuition, pediatric copays and juvenile retail in a repeating monthly pattern.",
+    label: "Has young children",
+    evidence: "Daycare, children's doctor visits and kids' store spending repeat every month.",
     weight: 0.21,
   },
   parentSchoolAge: {
-    label: "Parent of school-age children",
-    evidence: "School fees, youth-sports registrations and K-12 supply spend on an academic cadence.",
+    label: "Has school-age children",
+    evidence: "School fees, youth sports sign-ups and supply runs follow the school year.",
     weight: 0.19,
   },
   homeowner: {
-    label: "Likely homeowner",
-    evidence: "Property tax, home insurance and hardware-retail spend alongside servicer payments.",
+    label: "Owns their home",
+    evidence: "Property taxes, home insurance and hardware-store spending alongside a mortgage payment.",
     weight: 0.46,
   },
   renter: {
-    label: "Likely renter",
-    evidence: "Recurring rent ACH with renters-insurance premium and no mortgage activity on file.",
+    label: "Rents their home",
+    evidence: "Rent goes out every month, with renters insurance and no mortgage payment.",
     weight: 0.32,
   },
   preRetiree: {
-    label: "Pre-retiree",
-    evidence: "Peak earnings alongside catch-up deferrals and advisory-fee debits.",
+    label: "Getting close to retirement",
+    evidence: "Peak earning years with extra retirement contributions and advisor fees.",
     weight: 0.13,
   },
   youngProfessional: {
-    label: "Early-career professional",
-    evidence: "First sustained payroll stream with student-loan servicing and urban-transit spend.",
+    label: "Early in their career",
+    evidence: "A first steady paycheck alongside student loan payments and city transit spending.",
     weight: 0.17,
   },
   selfEmployed: {
-    label: "Self-employed / 1099 earner",
-    evidence: "Irregular inbound deposits from multiple payers with quarterly tax outflow.",
+    label: "Works for themselves",
+    evidence: "Uneven payments from several clients, plus quarterly tax payments.",
     weight: 0.11,
   },
   ownerOperator: {
-    label: "Owner-operator household",
-    evidence: "Business settlements and payroll runs commingled with personal household spend.",
+    label: "Runs a business from this account",
+    evidence: "Business income and payroll run through the same account as household spending.",
     weight: 0.06,
   },
   multiVehicle: {
-    label: "Multi-vehicle household",
-    evidence: "Two or more distinct auto insurance premiums and separate fuel-station patterns.",
+    label: "More than one car in the household",
+    evidence: "Two separate car insurance payments and two different gas-station patterns.",
     weight: 0.15,
   },
   affluentHousehold: {
-    label: "Affluent household profile",
-    evidence: "Premium-tier merchant mix with advisory fees and private-club or concierge spend.",
+    label: "High-net-worth household",
+    evidence: "Premium stores, advisor fees and club or concierge spending.",
     weight: 0.08,
   },
   petOwner: {
-    label: "Pet-owning household",
-    evidence: "Recurring veterinary, grooming and pet-retail spend across the trailing year.",
+    label: "Has a pet",
+    evidence: "Vet visits, grooming and pet-store spending throughout the year.",
     weight: 0.23,
   },
   relocated: {
-    label: "Recently relocated",
-    evidence: "Sustained merchant-footprint shift into a new metro with utility set-up spend.",
+    label: "Recently moved",
+    evidence: "Everyday spending shifted to a new city, with utility setup charges.",
     weight: 0.07,
   },
   emptyNester: {
-    label: "Empty nester",
-    evidence: "Family-category outflow drops while travel and dining discretionary recovers.",
+    label: "Children have moved out",
+    evidence: "Family spending dropped off while travel and dining picked up.",
     weight: 0.14,
   },
 };
 
 const RISK: Record<string, SeedSignal> = {
   noOverdraft: {
-    label: "No overdraft or NSF (90d)",
-    evidence: "Zero overdraft, NSF or returned-item events across the trailing 90 days.",
+    label: "Never overdraws the account",
+    evidence: "No overdrafts or bounced payments in the last three months.",
     weight: 0.78,
   },
   healthyDti: {
-    label: "Healthy debt service ratio",
-    evidence: "Observed debt-service outflow comfortably below underwriting thresholds for income.",
+    label: "Comfortable room for a new payment",
+    evidence: "Existing loan and card payments take up a small share of what comes in each month.",
     weight: 0.48,
   },
-  stableTenure: {
-    label: "Stable relationship tenure",
-    evidence: "Primary relationship open longer than the cohort median with no dormancy gaps.",
-    weight: 0.55,
-  },
   cleanFraud: {
-    label: "Clean fraud & dispute history",
-    evidence: "No fraud flags or disputed-transaction cases on file in the trailing 12 months.",
+    label: "No fraud or disputes on file",
+    evidence: "No fraud claims or disputed charges in the past year.",
     weight: 0.93,
   },
   noRecentDeclines: {
-    label: "No recent declines",
-    evidence: "No card authorization or ACH declines in the trailing 60 days.",
+    label: "No declined payments",
+    evidence: "No card or bank payments were turned down in the last two months.",
     weight: 0.71,
   },
   collateralClean: {
-    label: "Collateral-ready profile",
-    evidence: "Existing secured obligations paid as agreed with no servicer delinquency markers.",
+    label: "Pays their secured loans on time",
+    evidence: "Their mortgage or car loan has been paid on time with no missed months.",
     weight: 0.44,
   },
+  cardPaysInFull: {
+    label: "Pays the card off every month",
+    evidence: "The full statement balance is paid, with no late fees.",
+    weight: 0.38,
+  },
   bizCashBuffer: {
-    label: "Operating cash buffer",
-    evidence: "Business balances cover more than one payroll cycle at all observed month-ends.",
+    label: "Enough cash to cover payroll",
+    evidence: "The business account ends every month with more than one payroll run in it.",
     weight: 0.05,
   },
   suitability: {
-    label: "Suitability screen clear",
-    evidence: "Liquid reserves and income stability meet the product's suitability floor.",
+    label: "Fits the profile for this product",
+    evidence: "Savings and steady income are in the range this product is meant for.",
     weight: 0.29,
+  },
+  coverageGap: {
+    label: "Looks under-insured",
+    evidence: "Income and assets have grown, but insurance payments have not changed in years.",
+    weight: 0.31,
   },
 };
 
 const EXTRA_BEHAVIORAL: Record<string, SeedSignal> = {
   competitorProduct: {
-    label: "Comparable product held elsewhere",
-    evidence: "Recurring payment or transfer to a competing provider of this product category.",
+    label: "Already has this at another bank",
+    evidence: "A regular payment or transfer goes to another provider of the same product.",
     weight: 0.15,
   },
   researchIntent: {
-    label: "Research & shopping intent",
-    evidence: "Comparison-site subscriptions, application fees and quote-portal charges in-market.",
+    label: "Shopping around right now",
+    evidence: "Comparison sites, quote services and application fees show up in recent spending.",
     weight: 0.09,
   },
   digitalEngaged: {
-    label: "Digitally engaged",
-    evidence: "Mobile-first authentication with card-on-file digital wallet usage each week.",
+    label: "Uses the app constantly",
+    evidence: "Signs in from their phone and pays with a digital wallet most weeks.",
     weight: 0.52,
   },
 };
 
 const EXTRA_LIFE_EVENT: Record<string, SeedSignal> = {
   incomeStepUp: {
-    label: "Income step-up",
-    evidence: "Payroll deposit amount rises 15%+ and holds for three consecutive cycles.",
+    label: "Just got a raise",
+    evidence: "The paycheck jumped and has stayed higher for three months running.",
     weight: 0.12,
   },
   householdFormation: {
-    label: "New household formed",
-    evidence: "Joint account opened with merged utility, rent and grocery outflows.",
+    label: "Started a household together",
+    evidence: "A joint account opened, with rent, utilities and groceries now shared.",
     weight: 0.06,
   },
 };
@@ -333,10 +338,18 @@ const EXTRA_LIFE_EVENT: Record<string, SeedSignal> = {
 
 function supplementalFor(flow: ProductFlow): Array<[SignalFamily, SeedSignal]> {
   const t = tagsFor(flow);
+  const name = `${flow.name} ${flow.positioning}`;
   const out: Array<[SignalFamily, SeedSignal]> = [];
   const add = (family: SignalFamily, seed: SeedSignal | undefined) => {
     if (seed && !out.some(([, s]) => s.label === seed.label)) out.push([family, seed]);
   };
+
+  // Products where the bank actually extends credit or underwrites a policy.
+  const isCard = t.has("card") && /card/i.test(name);
+  const underwritten =
+    t.has("credit") || t.has("home") || t.has("auto") || t.has("business") || t.has("insurance") || isCard;
+  const secured = t.has("home") || t.has("auto") || /secured|collateral|sbl|securities.based/i.test(name);
+  const savingsProduct = /saving|cd\b|certificate|money market|hysa|high.yield|sweep/i.test(name);
 
   // --- Financial ---
   if (t.has("business")) {
@@ -354,15 +367,16 @@ function supplementalFor(flow: ProductFlow): Array<[SignalFamily, SeedSignal]> {
     add("financial", FINANCIAL.externalInvestFunding);
     add("financial", FINANCIAL.idleCash);
   }
-  if (t.has("deposit")) {
-    add("financial", FINANCIAL.depositGrowth);
-    add("financial", FINANCIAL.interestSeeking);
-  }
-  if (t.has("card") || t.has("credit")) add("financial", FINANCIAL.lowUtil);
+  if (t.has("deposit")) add("financial", FINANCIAL.depositGrowth);
+  if (savingsProduct) add("financial", FINANCIAL.interestSeeking);
+  if (isCard || t.has("credit")) add("financial", FINANCIAL.lowUtil);
   if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend);
   if (t.has("travel")) add("financial", FINANCIAL.travelSpend);
-  add("financial", FINANCIAL.payroll);
-  if (out.filter(([f]) => f === "financial").length < 2) add("financial", FINANCIAL.surplus);
+  // Income stability matters where repayment, funding or premiums are involved.
+  if (underwritten || t.has("deposit") || t.has("retirement")) add("financial", FINANCIAL.payroll);
+  if (out.filter(([f]) => f === "financial").length < 2) {
+    add("financial", t.has("invest") || t.has("deposit") ? FINANCIAL.depositGrowth : FINANCIAL.surplus);
+  }
 
   // --- Demographic ---
   if (t.has("business")) {
@@ -374,31 +388,35 @@ function supplementalFor(flow: ProductFlow): Array<[SignalFamily, SeedSignal]> {
     add("demographic", DEMOGRAPHIC.dualIncome);
   }
   if (t.has("home")) add("demographic", DEMOGRAPHIC.homeowner);
-  if (t.has("auto")) add("demographic", DEMOGRAPHIC.multiVehicle);
+  if (t.has("auto") || t.has("insurance")) add("demographic", DEMOGRAPHIC.multiVehicle);
   if (t.has("retirement")) add("demographic", DEMOGRAPHIC.preRetiree);
   if (t.has("invest")) add("demographic", DEMOGRAPHIC.affluentHousehold);
   if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner);
-  if (t.has("student") || t.has("card")) add("demographic", DEMOGRAPHIC.youngProfessional);
+  if (t.has("student") || isCard) add("demographic", DEMOGRAPHIC.youngProfessional);
   if (t.has("insurance")) add("demographic", DEMOGRAPHIC.parentYoung);
   if (t.has("deposit")) add("demographic", DEMOGRAPHIC.renter);
-  if (out.filter(([f]) => f === "demographic").length < 2) add("demographic", DEMOGRAPHIC.dualIncome);
-
-  // --- Risk ---
-  if (t.has("credit") || t.has("home") || t.has("auto") || t.has("card")) {
-    add("risk", RISK.healthyDti);
-    add("risk", RISK.collateralClean);
+  if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester);
+  if (out.filter(([f]) => f === "demographic").length < 2) {
+    add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome);
   }
-  if (t.has("invest") || t.has("retirement")) add("risk", RISK.suitability);
-  if (t.has("business")) add("risk", RISK.bizCashBuffer);
-  if (t.has("deposit")) add("risk", RISK.noOverdraft);
-  add("risk", RISK.stableTenure);
-  if (out.filter(([f]) => f === "risk").length < 2) add("risk", RISK.cleanFraud);
+
+  // --- Risk / eligibility: only where the bank takes on exposure ---
+  if (underwritten) {
+    add("risk", RISK.healthyDti);
+    if (secured) add("risk", RISK.collateralClean);
+    if (isCard) add("risk", RISK.cardPaysInFull);
+    if (t.has("insurance")) add("risk", RISK.coverageGap);
+    if (t.has("business")) add("risk", RISK.bizCashBuffer);
+    add("risk", RISK.noOverdraft);
+  } else if (t.has("invest") || t.has("retirement")) {
+    // Advisory products: suitability, not credit risk.
+    add("risk", RISK.suitability);
+  }
 
   // --- Extra behavioral / life-event depth ---
   add("behavioral", EXTRA_BEHAVIORAL.competitorProduct);
-  if (t.has("credit") || t.has("insurance") || t.has("home") || t.has("auto")) {
-    add("behavioral", EXTRA_BEHAVIORAL.researchIntent);
-  }
+  if (underwritten) add("behavioral", EXTRA_BEHAVIORAL.researchIntent);
+  if (t.has("card") || t.has("deposit")) add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged);
   if (t.has("invest") || t.has("deposit") || t.has("credit")) {
     add("life-event", EXTRA_LIFE_EVENT.incomeStepUp);
   }
