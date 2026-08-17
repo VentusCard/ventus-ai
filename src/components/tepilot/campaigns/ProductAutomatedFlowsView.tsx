@@ -421,7 +421,7 @@ export function ProductAutomatedFlowsView() {
                     </span>
                   </button>
                 ))
-              : (["All", ...SIGNAL_FAMILIES] as const).map((fam) => (
+              : (["All", ...SIGNAL_FAMILY_ORDER] as const).map((fam) => (
                   <button
                     key={fam}
                     onClick={() => setFamily(fam as SignalType | "All")}
@@ -430,8 +430,8 @@ export function ProductAutomatedFlowsView() {
                     {fam === "All" ? "All" : SIGNAL_FAMILY_LABEL[fam as SignalType]}
                     <span className="ml-1.5 opacity-60">
                       {fam === "All"
-                        ? PRODUCT_FLOWS.length
-                        : PRODUCT_FLOWS.filter((p) => flowHasFamily(p, fam as SignalType)).length}
+                        ? SIGNAL_TAXONOMY.length
+                        : SIGNAL_TAXONOMY.filter((s) => s.family === fam).length}
                     </span>
                   </button>
                 ))}
@@ -439,22 +439,37 @@ export function ProductAutomatedFlowsView() {
         </div>
         <Badge variant="outline" className="text-xs border-slate-200 bg-white">
           <Play className="w-3 h-3 mr-1 text-emerald-600" />
-          {active.size} active of {PRODUCT_FLOWS.length}
+          {mode === "signals"
+            ? `${SIGNAL_TAXONOMY.length} signals detected`
+            : `${active.size} active of ${PRODUCT_FLOWS.length}`}
         </Badge>
       </div>
 
       <div className="flex flex-col gap-2">
-        {filtered.map((flow) => (
-          <FlowRow
-            key={flow.id}
-            flow={flow}
-            active={active.has(flow.id)}
-            expanded={expandedId === flow.id}
-            onToggle={() => toggle(flow.id)}
-            onExpand={() => setExpandedId(expandedId === flow.id ? null : flow.id)}
-          />
-        ))}
+        {mode === "signals"
+          ? signalRows.map((signal) => (
+              <SignalRow
+                key={signal.id}
+                signal={signal}
+                activeIds={active}
+                expanded={expandedId === signal.id}
+                onExpand={() => setExpandedId(expandedId === signal.id ? null : signal.id)}
+                onToggleSignal={(on) => toggleSignal(signal, on)}
+                onToggleFlow={toggle}
+              />
+            ))
+          : filtered.map((flow) => (
+              <FlowRow
+                key={flow.id}
+                flow={flow}
+                active={active.has(flow.id)}
+                expanded={expandedId === flow.id}
+                onToggle={() => toggle(flow.id)}
+                onExpand={() => setExpandedId(expandedId === flow.id ? null : flow.id)}
+              />
+            ))}
       </div>
+
     </div>
   );
 }
