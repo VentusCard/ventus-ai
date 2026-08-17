@@ -17,6 +17,13 @@ import {
 import { FLOW_MICROSEGMENTS, type FlowMicrosegment } from "@/lib/productMicrosegments";
 import { Zap, Play, Sparkles, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  SIGNAL_TAXONOMY,
+  SIGNAL_FAMILY_ORDER,
+  flowsForSignal,
+  signalAudience,
+  type TaxonomySignal,
+} from "@/lib/signalTaxonomy";
 
 const CATEGORIES: (FlowCategory | "All")[] = ["All", "Lending", "Wealth", "Deposits", "Cards", "Insurance"];
 
