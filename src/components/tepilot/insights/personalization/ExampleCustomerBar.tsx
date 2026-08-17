@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Search, X, ArrowRight, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { EXAMPLE_CUSTOMERS, searchExampleCustomers } from "@/lib/personalizationExamples";
+import { searchExampleCustomers } from "@/lib/personalizationExamples";
 
 interface Props {
   selectedId: string;
