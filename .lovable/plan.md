@@ -33,19 +33,8 @@ Add a curated set of new banking products to the `/bankdemo` Automated Flows cat
    - ABLE / Special Needs Savings
    - Financial Planning Subscription
 
-### New categories
-6. **Business Banking** (new `FlowCategory`)
-   - Business Checking
-   - Merchant Services
-   - Payroll Services
-   - Commercial Real Estate Loan
-
-7. **Protections & Services** (new `FlowCategory`)
-   - Credit Monitoring
-   - Device / Phone Protection
-
 ## Implementation
-1. Update `FlowCategory` union in `src/lib/productAutomatedFlows.ts` to include `Business Banking` and `Protections & Services`.
+1. Add new `ProductFlow` entries to the existing `FlowCategory` structure in `src/lib/productAutomatedFlows.ts`.
 2. Add new `ProductFlow` entries with semantic life-event and behavioral signals, estimated audience, penetration, and Lucide icons.
 3. Import any additional Lucide icons needed.
 4. Verify `ProductAutomatedFlowsView.tsx` correctly groups and counts the new categories without hardcoded totals.
