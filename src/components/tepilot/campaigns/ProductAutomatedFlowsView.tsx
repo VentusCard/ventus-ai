@@ -3,6 +3,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
+import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
 import { FLOW_MICROSEGMENTS, type FlowMicrosegment } from "@/lib/productMicrosegments";
 import { Zap, Play, Sparkles, ChevronDown } from "lucide-react";
