@@ -89,24 +89,6 @@ export function ExampleCustomerBar({ selectedId, onSelect, sessionName, compact 
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5">
-        {EXAMPLE_CUSTOMERS.map((c) => {
-          const active = selectedId === c.id;
-          return (
-            <button
-              key={c.id}
-              onClick={() => pick(c.id)}
-              title={`${c.segment} · ${c.city}`}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-colors",
-                active
-                  ? "border-blue-300 bg-blue-50 text-blue-700"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50",
-              )}
-            >
-              {c.name.split(" ")[0]}
-            </button>
-          );
-        })}
         {sessionName && (
           <button
             onClick={() => pick("session")}
