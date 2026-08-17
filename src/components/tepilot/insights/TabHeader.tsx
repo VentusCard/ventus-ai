@@ -1,5 +1,12 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Lightbulb, Zap } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Lightbulb, Zap, ChevronDown, Check } from "lucide-react";
+import type { SubTabItem } from "./SubTabBar";
 
 interface TabHeaderProps {
   icon: React.ReactNode;
@@ -7,9 +14,22 @@ interface TabHeaderProps {
   subtitle: string;
   howItWorks: string;
   whyItMatters: string;
+  sections?: SubTabItem[];
+  sectionValue?: string;
+  onSectionChange?: (value: string) => void;
 }
 
-export function TabHeader({ icon, title, subtitle, howItWorks, whyItMatters }: TabHeaderProps) {
+export function TabHeader({
+  icon,
+  title,
+  subtitle,
+  howItWorks,
+  whyItMatters,
+  sections,
+  sectionValue,
+  onSectionChange,
+}: TabHeaderProps) {
+  const activeSection = sections?.find((s) => s.value === sectionValue) ?? sections?.[0];
   return (
     <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
       <div className="flex items-center gap-2.5 min-w-0">
