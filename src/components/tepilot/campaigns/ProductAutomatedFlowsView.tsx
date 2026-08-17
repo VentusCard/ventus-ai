@@ -147,33 +147,38 @@ function SignalRow({
 
 function FilterRow({
   filter,
+  removed,
   enabled,
   open,
   onToggle,
   onOpen,
 }: {
   filter: EligibilityFilter;
+  removed: number;
   enabled: boolean;
   open: boolean;
   onToggle: () => void;
   onOpen: () => void;
 }) {
+  const dropPct = Math.round((1 - filter.passRate) * 100);
   return (
-    <div className="rounded-lg border border-slate-200 bg-white">
+    <div className="rounded-lg border border-rose-200 bg-white">
       <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
         <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0 bg-slate-100 text-slate-600 border-slate-300">
-                Filter
+              <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0 bg-rose-50 text-rose-700 border-rose-200">
+                Risk Filter
               </span>
               <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{filter.label}</p>
             </div>
             <p className="text-[10.5px] text-slate-500 leading-snug truncate">{filter.evidence}</p>
           </div>
-          <div className="text-right shrink-0 w-20">
-            <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Keeps</p>
-            <p className="text-[11px] font-bold text-slate-900 mt-0.5">{Math.round(filter.passRate * 100)}%</p>
+          <div className="text-right shrink-0 w-24">
+            <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Removes</p>
+            <p className="text-[11px] font-bold text-rose-600 mt-0.5">
+              −{dropPct}% · −{formatAudience(removed)}
+            </p>
           </div>
           <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
@@ -183,12 +188,12 @@ function FilterRow({
       </div>
       {open && (
         <div className="px-3 pb-3">
-          <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
-            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">What this checks</p>
-            <p className="text-[11px] text-slate-600 leading-snug mt-0.5">{filter.evidence}</p>
+          <div className="mt-1 rounded-lg border border-rose-200 bg-rose-50/50 p-3">
+            <p className="text-[9px] uppercase tracking-wider text-rose-500 font-semibold">Who this removes</p>
+            <p className="text-[11px] text-slate-700 leading-snug mt-0.5">{filter.evidence}</p>
             <p className="text-[10.5px] text-slate-500 leading-snug mt-2">
-              This is an eligibility guardrail — it never starts outreach on its own, it only narrows who
-              qualifies. Roughly {Math.round(filter.passRate * 100)}% of the triggered audience clears it.
+              Removes about {dropPct}% ({formatAudience(removed)} people) from the triggered audience — a
+              guardrail, never a trigger. It can never start outreach on its own.
             </p>
           </div>
         </div>
@@ -196,6 +201,7 @@ function FilterRow({
     </div>
   );
 }
+
 
 function FlowRow({
   flow,
