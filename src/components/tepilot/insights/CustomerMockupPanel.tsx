@@ -1,7 +1,13 @@
 import { Smartphone, ExternalLink } from "lucide-react";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { useExecDemoSession } from "@/lib/execDemoSessionStore";
+import { EXAMPLE_CUSTOMERS } from "@/lib/personalizationExamples";
+import {
+  setPersonalizationCustomer,
+  usePersonalizationCustomer,
+} from "@/lib/personalizationCustomerStore";
+import { ExampleCustomerBar } from "./personalization/ExampleCustomerBar";
+import { CustomerSignalPanel } from "./personalization/CustomerSignalPanel";
 import type { TabValue } from "./AnalyticsContainer";
 
 type Surface = "rewards" | "product" | "relationship";
@@ -43,8 +49,16 @@ interface CustomerMockupPanelProps {
 
 export function CustomerMockupPanel({ surface, onNavigate }: CustomerMockupPanelProps) {
   const session = useExecDemoSession();
-  const customer = session.customer ?? DEMO_CUSTOMERS[0];
+  const selectedId = usePersonalizationCustomer();
   const copy = SURFACE_COPY[surface];
+
+  const sessionName = session.hasRun ? session.customer?.profile?.name ?? null : null;
+  const useSession = selectedId === "session" && !!session.customer;
+
+  const example =
+    EXAMPLE_CUSTOMERS.find((c) => c.id === selectedId) ?? EXAMPLE_CUSTOMERS[0];
+  const phoneCustomer = useSession ? session.customer! : example.demo;
+  const displayName = useSession ? sessionName : example.name;
 
   return (
     <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
@@ -54,8 +68,7 @@ export function CustomerMockupPanel({ surface, onNavigate }: CustomerMockupPanel
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-slate-900">Customer View</h2>
             <p className="text-[11px] text-slate-500 mt-0.5">
-              Live mockup from the current demo session
-              {customer?.profile?.name ? ` — ${customer.profile.name}` : ""}
+              Signals and customer surface for {displayName}
             </p>
           </div>
         </div>
@@ -72,41 +85,53 @@ export function CustomerMockupPanel({ surface, onNavigate }: CustomerMockupPanel
         )}
       </div>
 
-      <div className="p-4 grid grid-cols-1 lg:grid-cols-[minmax(320px,420px)_1fr] gap-6">
+      <ExampleCustomerBar
+        selectedId={selectedId}
+        onSelect={setPersonalizationCustomer}
+        sessionName={sessionName}
+      />
+
+      <div className="p-4 grid grid-cols-1 lg:grid-cols-[1fr_minmax(320px,400px)] gap-6">
+        <div className="min-w-0 space-y-4">
+          {useSession ? (
+            <div className="border border-slate-200 rounded-lg bg-slate-50/70 px-3 py-2.5">
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Showing the live enriched output of the current demo session for{" "}
+                {displayName}. Pick an example customer above to see its detected signals.
+              </p>
+            </div>
+          ) : (
+            <CustomerSignalPanel customer={example} />
+          )}
+
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">{copy.title}</h3>
+            <p className="text-xs text-slate-600 leading-relaxed mt-1.5">{copy.body}</p>
+            <ul className="mt-3 space-y-2">
+              {copy.bullets.map((b) => (
+                <li key={b} className="flex items-start gap-2 text-xs text-slate-600">
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
         <div className="h-[680px] min-h-0 flex flex-col">
           <ExecDemoPhoneView
-            customer={customer}
+            customer={phoneCustomer}
             activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
             phase="hold"
             showContent
-            generatedOffers={session.generatedOffers}
-            detectedLifeEvents={session.detectedLifeEvents}
-            productCards={session.productCards}
-            activeRollupLabel={session.activeRollupLabel}
-            activeRollupPillar={session.activeRollupPillar}
-            enrichedTxs={session.enrichedTxs}
-            riskFlags={session.riskFlags}
+            generatedOffers={useSession ? session.generatedOffers : null}
+            detectedLifeEvents={useSession ? session.detectedLifeEvents : null}
+            productCards={useSession ? session.productCards : null}
+            activeRollupLabel={useSession ? session.activeRollupLabel : null}
+            activeRollupPillar={useSession ? session.activeRollupPillar : null}
+            enrichedTxs={useSession ? session.enrichedTxs : null}
+            riskFlags={useSession ? session.riskFlags : null}
           />
-        </div>
-
-        <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-slate-900">{copy.title}</h3>
-          <p className="text-xs text-slate-600 leading-relaxed mt-1.5">{copy.body}</p>
-          <ul className="mt-3 space-y-2">
-            {copy.bullets.map((b) => (
-              <li key={b} className="flex items-start gap-2 text-xs text-slate-600">
-                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 border border-slate-200 rounded-md bg-slate-50/70 px-3 py-2">
-            <p className="text-[11px] text-slate-500 leading-relaxed">
-              {session.hasRun
-                ? "Reflecting the enriched output of the current demo session. Re-run the Demo tab with a different customer to refresh this view."
-                : "Showing sample data — run the Demo tab to populate this view with live enriched output."}
-            </p>
-          </div>
         </div>
       </div>
     </div>
