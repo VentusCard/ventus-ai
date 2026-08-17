@@ -356,6 +356,7 @@ export function ProductAutomatedFlowsView() {
             expanded={expandedId === flow.id}
             enabledSignals={enabledFor(flow)}
             onSetEnabled={(next) => setEnabledFor(flow.id, next)}
+            onToggle={() => toggle(flow.id)}
 
             onExpand={() => setExpandedId(expandedId === flow.id ? null : flow.id)}
           />
