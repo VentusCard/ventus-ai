@@ -480,11 +480,19 @@ const CHANNELS_BY_FAMILY: Record<SignalFamily, string[]> = {
  * ------------------------------- */
 
 const cache = new Map<string, ExpandedSignal[]>();
+const filterCache = new Map<string, EligibilityFilter[]>();
 
-export function expandFlowSignals(flow: ProductFlow): ExpandedSignal[] {
-  const cached = cache.get(flow.id);
-  if (cached) return cached;
+/** An eligibility guardrail: it narrows who qualifies, it never triggers a flow. */
+export interface EligibilityFilter {
+  id: string;
+  label: string;
+  /** Plain-language description of what the check looks at. */
+  evidence: string;
+  /** Share of the triggered audience that clears this check. */
+  passRate: number;
+}
 
+function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: EligibilityFilter[] } {
   const authoredCopy = FLOW_MICROSEGMENTS[flow.id] ?? [];
 
   const authored: ExpandedSignal[] = flow.signals.map((sig: FlowSignal, idx) => {
@@ -504,8 +512,12 @@ export function expandFlowSignals(flow: ProductFlow): ExpandedSignal[] {
     };
   });
 
-  const supplemental: ExpandedSignal[] = supplementalFor(flow)
-    .filter(([, s]) => !authored.some((a) => a.label.toLowerCase() === s.label.toLowerCase()))
+  const supplemental = supplementalFor(flow).filter(
+    ([, s]) => !authored.some((a) => a.label.toLowerCase() === s.label.toLowerCase()),
+  );
+
+  const triggering: ExpandedSignal[] = supplemental
+    .filter(([family]) => family !== "risk")
     .map(([family, s]) => ({
       id: `${flow.id}--${slug(s.label)}`,
       label: s.label,
@@ -516,12 +528,58 @@ export function expandFlowSignals(flow: ProductFlow): ExpandedSignal[] {
       channels: CHANNELS_BY_FAMILY[family],
     }));
 
-  const all = [...authored, ...supplemental].sort(
+  const filters: EligibilityFilter[] = supplemental
+    .filter(([family]) => family === "risk")
+    .map(([, s]) => ({
+      id: `${flow.id}--filter--${slug(s.label)}`,
+      label: s.label,
+      evidence: s.evidence,
+      passRate: Math.min(0.98, Math.max(0.2, s.weight ?? 0.5)),
+    }));
+
+  const signals = [...authored, ...triggering].sort(
     (a, b) => SIGNAL_FAMILY_ORDER.indexOf(a.family) - SIGNAL_FAMILY_ORDER.indexOf(b.family),
   );
 
-  cache.set(flow.id, all);
-  return all;
+  return { signals, filters };
+}
+
+export function expandFlowSignals(flow: ProductFlow): ExpandedSignal[] {
+  const cached = cache.get(flow.id);
+  if (cached) return cached;
+  const { signals, filters } = buildFlow(flow);
+  cache.set(flow.id, signals);
+  filterCache.set(flow.id, filters);
+  return signals;
+}
+
+export function expandFlowFilters(flow: ProductFlow): EligibilityFilter[] {
+  const cached = filterCache.get(flow.id);
+  if (cached) return cached;
+  const { signals, filters } = buildFlow(flow);
+  cache.set(flow.id, signals);
+  filterCache.set(flow.id, filters);
+  return filters;
+}
+
+/** Combined pass rate of the enabled eligibility filters. */
+export function filterPassRate(filters: EligibilityFilter[], enabled: Set<string>): number {
+  return filters
+    .filter((f) => enabled.has(f.id))
+    .reduce((rate, f) => rate * f.passRate, 1);
+}
+
+/** Triggered audience narrowed by the enabled eligibility filters. */
+export function qualifiedAudience(
+  flow: ProductFlow,
+  signals: ExpandedSignal[],
+  enabledSignals: Set<string>,
+  filters: EligibilityFilter[],
+  enabledFilters: Set<string>,
+): number {
+  return Math.round(
+    enabledAudience(flow, signals, enabledSignals) * filterPassRate(filters, enabledFilters),
+  );
 }
 
 export function groupByFamily(signals: ExpandedSignal[]): Array<[SignalFamily, ExpandedSignal[]]> {
