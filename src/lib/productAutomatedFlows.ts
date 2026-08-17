@@ -58,13 +58,66 @@ export type FlowCategory =
   | "Cards"
   | "Insurance";
 
-export type SignalType = "life-event" | "behavioral";
+export type SignalType =
+  | "life-event"
+  | "financial"
+  | "behavioral"
+  | "demographic"
+  | "risk";
 
 export interface FlowSignal {
   label: string;
   evidence: string;
   type: SignalType;
 }
+
+export const SIGNAL_FAMILIES: SignalType[] = [
+  "life-event",
+  "financial",
+  "behavioral",
+  "demographic",
+  "risk",
+];
+
+export const SIGNAL_FAMILY_LABEL: Record<SignalType, string> = {
+  "life-event": "Life Event",
+  financial: "Financial",
+  behavioral: "Behavioral",
+  demographic: "Demographic",
+  risk: "Risk",
+};
+
+export const SIGNAL_FAMILY_COLOR: Record<SignalType, string> = {
+  "life-event": "bg-amber-50 text-amber-700 border-amber-200",
+  financial: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  behavioral: "bg-blue-50 text-blue-700 border-blue-200",
+  demographic: "bg-violet-50 text-violet-700 border-violet-200",
+  risk: "bg-rose-50 text-rose-700 border-rose-200",
+};
+
+const RISK_PATTERNS =
+  /delinquen|overdraft|\bnsf\b|late fee|collections|payday|charge-off|chargeoff|utilization|hardship|missed payment|fraud|dispute|thin file|subprime/i;
+
+const FINANCIAL_PATTERNS =
+  /tradeline|bureau|apr\b|interest rate|\brate\b|maturity|matured|\bcd\b|balance|payoff|loan|mortgage|lease|refinanc|401\(k\)|401k|pension|escrow|credit line|line of credit|principal|amortiz|premium|deductible|payroll deposit|direct deposit|wire|liquidity|net worth|equity|yield|dividend|annuity/i;
+
+const DEMOGRAPHIC_PATTERNS =
+  /median|percentile|income band|household|age \d|life stage|zip|geograph|region|cohort|family size|dependents|homeowner|renter|employer size|profession|occupation/i;
+
+/**
+ * Resolve the pillar (signal family) for a flow signal. Authored life-event and
+ * explicitly-typed families win; behavioral signals are refined into the
+ * financial / demographic / risk pillars from their evidence wording.
+ */
+export function getSignalFamily(signal: FlowSignal): SignalType {
+  const text = `${signal.label} ${signal.evidence}`;
+  if (RISK_PATTERNS.test(text)) return "risk";
+  if (signal.type !== "behavioral") return signal.type;
+  if (DEMOGRAPHIC_PATTERNS.test(text)) return "demographic";
+  if (FINANCIAL_PATTERNS.test(text)) return "financial";
+  return "behavioral";
+}
+
 
 export interface ProductFlow {
   id: string;
