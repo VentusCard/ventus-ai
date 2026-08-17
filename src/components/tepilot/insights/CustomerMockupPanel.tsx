@@ -85,7 +85,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const isGenerating = !useSession && generated.status === "running";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-230px)] min-h-[560px]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-140px)] min-h-[720px]">
       {/* ---------- Customer Selection ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
         <div className="shrink-0 px-3.5 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center gap-2">
