@@ -123,56 +123,24 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
               </div>
             </div>
           ) : (
-            <>
-          <div className="flex-1 min-h-0 flex justify-center">
-            <div className="w-full max-w-[400px] h-full flex flex-col">
-              <ExecDemoPhoneView
-                customer={phoneCustomer!}
-                activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
-                phase="hold"
-                showContent
-                generatedOffers={useSession ? session.generatedOffers : generated.offers}
-                detectedLifeEvents={useSession ? session.detectedLifeEvents : generated.lifeEvents}
-                productCards={useSession ? session.productCards : generated.productCards}
-                activeRollupLabel={useSession ? session.activeRollupLabel : null}
-                activeRollupPillar={useSession ? session.activeRollupPillar : null}
-                enrichedTxs={useSession ? session.enrichedTxs : null}
-                riskFlags={useSession ? session.riskFlags : null}
-                chatSignalContext={chatSignalContext}
-              />
+            <div className="flex-1 min-h-0 flex justify-center">
+              <div className="w-full max-w-[400px] h-full flex flex-col">
+                <ExecDemoPhoneView
+                  customer={phoneCustomer!}
+                  activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
+                  phase="hold"
+                  showContent
+                  generatedOffers={useSession ? session.generatedOffers : generated.offers}
+                  detectedLifeEvents={useSession ? session.detectedLifeEvents : generated.lifeEvents}
+                  productCards={useSession ? session.productCards : generated.productCards}
+                  activeRollupLabel={useSession ? session.activeRollupLabel : null}
+                  activeRollupPillar={useSession ? session.activeRollupPillar : null}
+                  enrichedTxs={useSession ? session.enrichedTxs : null}
+                  riskFlags={useSession ? session.riskFlags : null}
+                  chatSignalContext={chatSignalContext}
+                />
+              </div>
             </div>
-          </div>
-
-          <div className="shrink-0 mt-1.5 flex items-center justify-center gap-2 text-center">
-            <p className="text-[11px] text-slate-500 leading-snug">
-              <span className="font-semibold text-slate-700">{copy.title}</span>
-              {" — "}
-              {displayName}'s generated surface, built from the signals on the left.
-            </p>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  className="inline-flex items-center gap-1 text-[10.5px] font-medium text-slate-500 border border-slate-200 rounded-full px-2 py-0.5 hover:bg-slate-50 transition-colors shrink-0"
-                  aria-label="Why this surface"
-                >
-                  <HelpCircle className="w-3 h-3" />
-                  Why this surface
-                </button>
-              </PopoverTrigger>
-              <PopoverContent side="top" align="center" className="w-80 p-3">
-                <p className="text-xs text-slate-600 leading-relaxed">{copy.body}</p>
-                <ul className="mt-2.5 space-y-1.5">
-                  {copy.bullets.map((b) => (
-                    <li key={b} className="flex items-start gap-2 text-xs text-slate-600">
-                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </PopoverContent>
-            </Popover>
-          </div>
-            </>
           )}
 
           {hasSelection && !useSession && generated.status === "failed" && (
