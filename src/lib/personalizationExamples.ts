@@ -44,7 +44,7 @@ const byId = (id: string) => DEMO_CUSTOMERS.find((c) => c.id === id)!;
 export const EXAMPLE_CUSTOMERS: ExampleCustomer[] = [
   {
     id: "c1",
-    name: "Ricky Alvarez",
+    name: "Ricky J",
     city: "San Francisco, CA",
     segment: "Preferred",
     tier: "Preferred",
