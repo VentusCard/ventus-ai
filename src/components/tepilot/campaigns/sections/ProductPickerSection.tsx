@@ -141,7 +141,29 @@ export function ProductPickerSection({
               <p className="text-xs font-medium text-slate-900 leading-snug">{mechanics.tagline}</p>
               <p className="text-[10px] text-slate-500 mt-0.5">{mechanics.fee}</p>
             </div>
+            {(() => {
+              const fit = scoreProductFit(selected);
+              const tone = fitTone(fit.score);
+              const cann = checkCannibalization(selected.name);
+              return (
+                <>
+                  <div className="mt-2 flex items-start gap-1.5">
+                    <span className={`shrink-0 px-1.5 py-0.5 rounded-full border text-[9px] font-semibold tabular-nums ${tone.cls}`}>
+                      {tone.label} · {fit.score}/100
+                    </span>
+                    <p className="text-[10px] text-slate-500 leading-snug">{fit.why}</p>
+                  </div>
+                  {cann && (
+                    <div className="mt-2 flex items-start gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5">
+                      <AlertTriangle className="w-3 h-3 text-amber-600 mt-0.5 shrink-0" />
+                      <p className="text-[10px] text-amber-800 leading-snug">{cann.note}</p>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
+
 
           <div className="w-1/4 rounded-lg border border-slate-200 bg-white p-3 flex flex-col">
             <div className="flex items-center gap-1.5 mb-2">
