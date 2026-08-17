@@ -1,42 +1,40 @@
 # Why deals and product cards take so long — and how to fix it
 
-## What the logs show
+## Measured cause
 
-Measured from the AI Gateway logs for these two calls:
+From the AI Gateway logs for these two calls:
 
-- `generate-next-offers`: 30–48s per run, 1,000–2,400 tokens in, **4,100–6,700 tokens out**
-- `generate-product-cards`: 15–19s per run, ~4,400 tokens in, ~1,900–2,300 tokens out
+- `generate-next-offers`: 30–48s per run, ~1–2.4K tokens in, **4.1K–6.7K tokens out**
+- `generate-product-cards`: 15–19s per run, ~2K tokens out
 
-Both run on `google/gemini-3.1-pro-preview`, non-streamed, and the UI waits for the full JSON before rendering anything. So the wait is dominated by one very large single-shot generation.
+Both run on `google/gemini-3.1-pro-preview`, non-streamed, and the UI waits for the full JSON. The wait is dominated by output volume, not by network or prompt size.
 
-Root cause, in order of impact:
+`generate-next-offers` already fans out into 3 parallel gateway calls (behavioral rollups / life events / financial signals). The slow one is the behavioral call, which writes **5 deals for every cluster** in a single response.
 
-1. **Output volume.** `generate-next-offers` writes 5 collections × 5 deals, each with message, value line, value math, CTA, signal reason — roughly 6k output tokens in one response. Generation time scales almost linearly with output tokens.
-2. **Model choice.** A Pro reasoning model is used for what is mostly formatted copywriting.
-3. **No streaming / no partial render.** Nothing appears until both calls fully complete, so perceived latency equals the slowest call.
+## The existing rule this violates
+
+There is a standing rule from the earlier product-cards work: **don't generate more than the UI displays.** `generate-product-cards` was capped at 2 non-risk cards (3 with risk) for exactly that reason.
+
+The offers path never got the same treatment:
+
+- Prompt asks for **exactly 5 deals** per collection (`index.ts:85`, `:150`, `:314`)
+- The phone view renders only **3** (`GeneratedOffersPhoneView.tsx:238`)
+
+So roughly 40% of the generated deal copy is thrown away, and every collection in the payload gets generated whether or not it surfaces.
 
 ## Fix
 
-**1. Split the offers call into parallel per-collection calls**
-Instead of one call producing 5 collections, fire one call per collection (5 small calls in parallel, ~800 output tokens each). Wall-clock drops from ~45s to roughly the slowest single call (~8–12s). Results merge into the same `rollupOffers` shape, so no UI contract change.
-
-**2. Downgrade the copywriting calls to a fast model**
-Use `google/gemini-3.5-flash` for the offer-copy calls (same model already used by `deal-personalization`). Keep the Pro model only where reasoning matters — product-card selection.
-
-**3. Render progressively**
-Update the personalization result store so each collection lands in the UI as it returns, rather than waiting for the whole set. Product cards render as soon as their call finishes, independent of offers.
-
-**4. Trim the output schema**
-Drop or shorten redundant fields in the deal payload (`valueMath` duplicates `valueLine`; `signalReason` can be capped) to cut output tokens further.
+1. **Generate 3 deals per collection, not 5** — matches what the phone actually renders. Update the three system prompts and the user prompts in `generate-next-offers`.
+2. **Cap the collections sent to the model**: top 2 behavioral rollups (by spend), top 2 life events (by confidence), top 1 financial signal. Everything below the cut is dropped before the prompt is built, not after.
+3. **Lower `max_tokens`** from 8192 to a realistic ceiling for the trimmed output, and switch the behavioral/life-event copy calls to `google/gemini-3.5-flash` (already the model used by `deal-personalization`). Keep the Pro model on the financial-signal call, where the value math matters.
+4. **Render progressively** — the result store keeps `offers` and `productCards` separate already; have the phone view show product cards as soon as they land instead of waiting on both.
 
 ## Expected result
 
-First personalized content visible in ~5–8s instead of ~45s, with the rest filling in progressively.
+Offer generation output drops from ~6K to under 2K tokens; first personalized content visible in roughly 8–12s instead of 45s.
 
 ## Technical notes
 
-- `supabase/functions/generate-next-offers/index.ts`: accept an optional single-rollup mode; switch `MODEL` to a flash model for copy generation; lower `max_tokens` to fit one collection.
-- `src/lib/personalizationGeneration.ts`: fan out one invoke per pillar rollup plus life-event group, merge with `Promise.allSettled`, emit partial results via a callback.
-- `src/lib/personalizationResultStore.ts`: add incremental `offers` accumulation and a `partial` status so consumers re-render as groups arrive.
-- Phone/mockup views: show collections that have arrived instead of an all-or-nothing spinner.
-- No schema, auth, or prompt-taxonomy changes.
+- `supabase/functions/generate-next-offers/index.ts`: change "Exactly 5 deals" → 3 in `SYSTEM_PROMPT`, `LIFE_EVENT_SYSTEM_PROMPT`, `FINANCIAL_SIGNAL_SYSTEM_PROMPT` and the matching user prompts; slice rollups/life events/financial signals before building `rollupList`, `lifeEventList`, `financialSignalList`; per-call model selection in `callGateway`; `max_tokens: 3072`.
+- `src/lib/personalizationResultStore.ts`: set `productCards` as soon as that promise resolves rather than after `Promise.allSettled` on both.
+- No taxonomy, schema, or auth changes; deal copy rules and value-math grounding rules stay exactly as they are.
