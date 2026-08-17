@@ -340,7 +340,7 @@ const EXTRA_LIFE_EVENT: Record<string, SeedSignal> = {
 
 function supplementalFor(flow: ProductFlow): Array<[SignalFamily, SeedSignal]> {
   const t = tagsFor(flow);
-  const name = `${flow.name} ${flow.positioning}`;
+  const name = `${flow.id} ${flow.name} ${flow.category}`;
   const out: Array<[SignalFamily, SeedSignal]> = [];
   const add = (family: SignalFamily, seed: SeedSignal | undefined) => {
     if (seed && !out.some(([, s]) => s.label === seed.label)) out.push([family, seed]);
