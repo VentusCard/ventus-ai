@@ -250,10 +250,16 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const rollups = persona?.pillarRollups || [];
+    const allRollups = persona?.pillarRollups || [];
+
+    // Cap: only the top behavioral clusters by observed spend are sent to the model.
+    const rollups = allRollups
+      .filter((r: any) => (r.totalCount ?? 0) > 0)
+      .slice()
+      .sort((a: any, b: any) => (b.totalSpend ?? 0) - (a.totalSpend ?? 0))
+      .slice(0, MAX_BEHAVIORAL_ROLLUPS);
 
     const rollupList = rollups
-      .filter((r: any) => (r.totalCount ?? 0) > 0)
       .map((r: any, i: number) => {
         const cats = (r.categories || []).join(", ");
         const merchants = (r.topMerchants || []).slice(0, 6).join(", ");
@@ -275,13 +281,18 @@ serve(async (req) => {
       )
       .join("\n");
 
-    // Tag each life event with a stable id for deterministic mapping
-    const lifeEventsTagged = (lifeEvents || []).map((e: any, i: number) => ({
-      id: `LE_${i + 1}`,
-      event_name: e.event_name,
-      confidence: e.confidence,
-      evidence_merchants: e.evidence_merchants,
-    }));
+    // Cap: only the highest-confidence life events. Tag AFTER slicing so ids stay
+    // aligned with what the model actually receives.
+    const lifeEventsTagged = ((lifeEvents || []) as any[])
+      .slice()
+      .sort((a: any, b: any) => (b?.confidence ?? 0) - (a?.confidence ?? 0))
+      .slice(0, MAX_LIFE_EVENTS)
+      .map((e: any, i: number) => ({
+        id: `LE_${i + 1}`,
+        event_name: e.event_name,
+        confidence: e.confidence,
+        evidence_merchants: e.evidence_merchants,
+      }));
 
     const lifeEventList = lifeEventsTagged
       .map((e: any) => {
@@ -290,8 +301,8 @@ serve(async (req) => {
       })
       .join("\n");
 
-    // Tag each financial signal with a stable id
-    const financialSignalsTagged = (Array.isArray(financial_signals) ? financial_signals : []).map((s: any, i: number) => ({
+    // Cap: hero financial signal only.
+    const financialSignalsTagged = (Array.isArray(financial_signals) ? financial_signals : []).slice(0, MAX_FINANCIAL_SIGNALS).map((s: any, i: number) => ({
       id: `FS_${i + 1}`,
       label: s.label,
       product_family: s.product_family,
