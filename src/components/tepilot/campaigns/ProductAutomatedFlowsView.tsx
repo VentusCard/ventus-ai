@@ -381,12 +381,19 @@ export function ProductAutomatedFlowsView() {
   );
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [signalState, setSignalState] = useState<Record<string, Set<string>>>({});
+  const [filterState, setFilterState] = useState<Record<string, Set<string>>>({});
 
   const enabledFor = (flow: ProductFlow) =>
     signalState[flow.id] ?? new Set(expandFlowSignals(flow).map((s) => s.id));
 
   const setEnabledFor = (flowId: string, next: Set<string>) =>
     setSignalState((prev) => ({ ...prev, [flowId]: next }));
+
+  const filtersFor = (flow: ProductFlow) =>
+    filterState[flow.id] ?? new Set(expandFlowFilters(flow).map((f) => f.id));
+
+  const setFiltersFor = (flowId: string, next: Set<string>) =>
+    setFilterState((prev) => ({ ...prev, [flowId]: next }));
 
   const filtered =
     category === "All"
