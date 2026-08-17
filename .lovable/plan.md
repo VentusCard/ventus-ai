@@ -17,4 +17,4 @@ Today the offers/product-card generation for an example customer only fires when
 
 ## Note
 
-This makes /bankdemo fire AI calls on page load again (10 calls total: offers + product cards per customer), reversing the earlier "no model calls on /bankdemo load" rule — intentional per this request.
+This makes /bankdemo fire two AI calls on page load (offers + product cards for the default customer), reversing the earlier "no model calls on /bankdemo load" rule — intentional per this request.
