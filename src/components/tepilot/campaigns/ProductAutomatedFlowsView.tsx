@@ -328,6 +328,7 @@ export function ProductAutomatedFlowsView() {
     () => new Set(PRODUCT_FLOWS.filter((p) => p.defaultActive).map((p) => p.id)),
   );
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   const byAudience = (a: ProductFlow, b: ProductFlow) => b.estimatedAudience - a.estimatedAudience;
 
