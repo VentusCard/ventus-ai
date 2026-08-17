@@ -88,13 +88,13 @@ export function MetroStreetMap({ metro, partners, selectedId, onSelect }: Props)
       const color = (CATEGORY_COLORS[p.category] ?? CATEGORY_COLORS.Dining).pin;
       const active = selectedId === p.id;
       const scale = 6 + (p.estimatedValue / maxValue) * 8;
-      const marker = new google.maps.Marker({
+      const marker = new maps.Marker({
         map,
         position: { lat: p.lat, lng: p.lng },
         title: p.name,
         zIndex: active ? 999 : Math.round(p.estimatedValue / 1000),
         icon: {
-          path: google.maps.SymbolPath.CIRCLE,
+          path: maps.SymbolPath.CIRCLE,
           scale,
           fillColor: color,
           fillOpacity: active ? 1 : 0.85,
