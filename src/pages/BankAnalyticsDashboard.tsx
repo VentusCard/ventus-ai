@@ -1,9 +1,15 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 
 export default function BankAnalyticsDashboard() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.documentElement.classList.add("light-app");
+    return () => document.documentElement.classList.remove("light-app");
+  }, []);
 
   const handleBack = () => {
     if (window.opener) {
