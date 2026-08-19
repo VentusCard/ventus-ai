@@ -363,12 +363,15 @@ const EXTRA_LIFE_EVENT: Record<string, SeedSignal> = {
  * Per-product selection rules  *
  * ---------------------------- */
 
-function supplementalFor(flow: ProductFlow): Array<[SignalFamily, SeedSignal]> {
+/** [family, seed, relevance] — relevance 3 = direct product match, 2 = adjacent, 1 = generic. */
+type ScoredSeed = [SignalFamily, SeedSignal, number];
+
+function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   const t = tagsFor(flow);
-  const name = `${flow.id} ${flow.name} ${flow.category}`;
-  const out: Array<[SignalFamily, SeedSignal]> = [];
-  const add = (family: SignalFamily, seed: SeedSignal | undefined) => {
-    if (seed && !out.some(([, s]) => s.label === seed.label)) out.push([family, seed]);
+  const name = `${flow.id} ${flow.name}`;
+  const out: ScoredSeed[] = [];
+  const add = (family: SignalFamily, seed: SeedSignal | undefined, score = 2) => {
+    if (seed && !out.some(([, s]) => s.label === seed.label)) out.push([family, seed, score]);
   };
 
   // Products where the bank actually extends credit or underwrites a policy.
@@ -376,80 +379,101 @@ function supplementalFor(flow: ProductFlow): Array<[SignalFamily, SeedSignal]> {
   const underwritten =
     t.has("credit") || t.has("home") || t.has("auto") || t.has("business") || t.has("insurance") || isCard;
   const secured = t.has("home") || t.has("auto") || /secured|collateral|sbl|securities.based/i.test(name);
-  const savingsProduct = /saving|cd\b|certificate|money market|hysa|high.yield|sweep/i.test(name);
+  const savingsProduct = /savings account|cd\b|certificate|money market|hysa|high.yield|sweep/i.test(name);
 
   // --- Financial ---
   if (t.has("business")) {
-    add("financial", FINANCIAL.bizRevenue);
-    add("financial", FINANCIAL.bizTaxes);
+    add("financial", FINANCIAL.bizRevenue, 3);
+    add("financial", FINANCIAL.bizTaxes, 3);
   }
   if (t.has("home")) {
-    add("financial", FINANCIAL.mortgagePayer);
-    add("financial", FINANCIAL.surplus);
+    add("financial", FINANCIAL.mortgagePayer, 3);
+    add("financial", FINANCIAL.surplus, 2);
   }
-  if (t.has("auto")) add("financial", FINANCIAL.autoPayer);
-  if (t.has("education")) add("financial", FINANCIAL.tuitionOutflow);
-  if (t.has("retirement")) add("financial", FINANCIAL.retirementContrib);
+  if (t.has("auto")) add("financial", FINANCIAL.autoPayer, 3);
+  if (t.has("education")) {
+    add("financial", FINANCIAL.tuitionOutflow, 3);
+    add("financial", FINANCIAL.surplus, 2);
+  }
+  if (t.has("retirement")) add("financial", FINANCIAL.retirementContrib, 3);
   if (t.has("invest")) {
-    add("financial", FINANCIAL.externalInvestFunding);
-    add("financial", FINANCIAL.idleCash);
+    add("financial", FINANCIAL.externalInvestFunding, 3);
+    add("financial", FINANCIAL.idleCash, 2);
   }
-  if (t.has("deposit")) add("financial", FINANCIAL.depositGrowth);
-  if (savingsProduct) add("financial", FINANCIAL.interestSeeking);
-  if (isCard || t.has("credit")) add("financial", FINANCIAL.lowUtil);
-  if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend);
-  if (t.has("travel")) add("financial", FINANCIAL.travelSpend);
+  if (t.has("deposit")) add("financial", FINANCIAL.depositGrowth, 3);
+  if (savingsProduct) add("financial", FINANCIAL.interestSeeking, 3);
+  if (isCard || t.has("credit")) add("financial", FINANCIAL.lowUtil, 3);
+  if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend, 3);
+  if (t.has("travel")) add("financial", FINANCIAL.travelSpend, 3);
   // Income stability matters where repayment, funding or premiums are involved.
-  if (underwritten || t.has("deposit") || t.has("retirement")) add("financial", FINANCIAL.payroll);
+  if (underwritten || t.has("deposit") || t.has("retirement")) add("financial", FINANCIAL.payroll, 1);
   if (out.filter(([f]) => f === "financial").length < 2) {
-    add("financial", t.has("invest") || t.has("deposit") ? FINANCIAL.depositGrowth : FINANCIAL.surplus);
+    add("financial", t.has("invest") || t.has("deposit") ? FINANCIAL.depositGrowth : FINANCIAL.surplus, 1);
   }
 
   // --- Demographic ---
   if (t.has("business")) {
-    add("demographic", DEMOGRAPHIC.ownerOperator);
-    add("demographic", DEMOGRAPHIC.selfEmployed);
+    add("demographic", DEMOGRAPHIC.ownerOperator, 3);
+    add("demographic", DEMOGRAPHIC.selfEmployed, 3);
   }
   if (t.has("education")) {
-    add("demographic", DEMOGRAPHIC.parentSchoolAge);
-    add("demographic", DEMOGRAPHIC.dualIncome);
+    add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
+    add("demographic", DEMOGRAPHIC.dualIncome, 2);
   }
-  if (t.has("home")) add("demographic", DEMOGRAPHIC.homeowner);
-  if (t.has("auto") || t.has("insurance")) add("demographic", DEMOGRAPHIC.multiVehicle);
-  if (t.has("retirement")) add("demographic", DEMOGRAPHIC.preRetiree);
-  if (t.has("invest")) add("demographic", DEMOGRAPHIC.affluentHousehold);
-  if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner);
-  if (t.has("student") || isCard) add("demographic", DEMOGRAPHIC.youngProfessional);
-  if (t.has("insurance")) add("demographic", DEMOGRAPHIC.parentYoung);
-  if (t.has("deposit")) add("demographic", DEMOGRAPHIC.renter);
-  if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester);
+  if (t.has("home")) add("demographic", DEMOGRAPHIC.homeowner, 3);
+  if (t.has("auto") || t.has("insurance")) add("demographic", DEMOGRAPHIC.multiVehicle, 3);
+  if (t.has("retirement")) add("demographic", DEMOGRAPHIC.preRetiree, 3);
+  if (t.has("invest")) add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+  if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner, 3);
+  if (t.has("student") || isCard) add("demographic", DEMOGRAPHIC.youngProfessional, 2);
+  if (t.has("insurance")) add("demographic", DEMOGRAPHIC.parentYoung, 2);
+  if (t.has("deposit")) add("demographic", DEMOGRAPHIC.renter, 1);
+  if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester, 2);
   if (out.filter(([f]) => f === "demographic").length < 2) {
-    add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome);
+    add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome, 1);
   }
 
   // --- Risk / eligibility: only where the bank takes on exposure ---
   if (underwritten) {
-    add("risk", RISK.healthyDti);
-    if (secured) add("risk", RISK.collateralClean);
-    if (isCard) add("risk", RISK.cardPaysInFull);
-    if (t.has("insurance")) add("risk", RISK.coverageGap);
-    if (t.has("business")) add("risk", RISK.bizCashBuffer);
-    add("risk", RISK.noOverdraft);
-  } else if (t.has("invest") || t.has("retirement")) {
-    // Advisory products: suitability, not credit risk.
-    add("risk", RISK.suitability);
+    add("risk", RISK.healthyDti, 3);
+    if (secured) add("risk", RISK.collateralClean, 3);
+    if (isCard) add("risk", RISK.cardPaysInFull, 3);
+    if (t.has("insurance")) add("risk", RISK.coverageGap, 3);
+    if (t.has("business")) add("risk", RISK.bizCashBuffer, 3);
+    add("risk", RISK.noOverdraft, 2);
+  } else if (t.has("invest") || t.has("retirement") || t.has("education")) {
+    // Advisory / plan products: suitability, not credit risk.
+    add("risk", RISK.suitability, 3);
   }
 
   // --- Extra behavioral / life-event depth ---
-  add("behavioral", EXTRA_BEHAVIORAL.competitorProduct);
-  if (underwritten) add("behavioral", EXTRA_BEHAVIORAL.researchIntent);
-  if (t.has("card") || t.has("deposit")) add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged);
-  if (t.has("invest") || t.has("deposit") || t.has("credit")) {
-    add("life-event", EXTRA_LIFE_EVENT.incomeStepUp);
+  if (t.has("education")) {
+    // We can observe education SPENDING, not that a household is "saving for school".
+    add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
+    add("behavioral", EXTRA_BEHAVIORAL.educationOutbound, 3);
+  } else {
+    add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
+  }
+  if (underwritten) add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
+  if ((t.has("card") || t.has("deposit")) && !t.has("education")) {
+    add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged, 1);
+  }
+  if ((t.has("invest") || t.has("deposit") || t.has("credit")) && !t.has("education")) {
+    add("life-event", EXTRA_LIFE_EVENT.incomeStepUp, 1);
   }
 
   return out;
 }
+
+/** Max signals shown per family, authored signals included. */
+const FAMILY_CAP: Record<SignalFamily, number> = {
+  "life-event": 3,
+  behavioral: 3,
+  financial: 3,
+  demographic: 2,
+  risk: 3,
+};
+
 
 /* ------------------------------- *
  * Personalization message builder *
