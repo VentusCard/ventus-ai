@@ -221,6 +221,11 @@
 }
 
 /* Force dark text on all inputs/textareas within tepilot */
+.tepilot-theme,
+.tepilot-theme * {
+  color-scheme: light;
+}
+
 .tepilot-theme input,
 .tepilot-theme textarea,
 .tepilot-theme select,
@@ -242,6 +247,13 @@
 
   html {
     color-scheme: dark;
+  }
+
+  /* Light-themed app shells (e.g. /bankdemo, /demo) get light UA widgets + scrollbars */
+  html.light-app,
+  html.light-app body {
+    color-scheme: light;
+    background-color: #ffffff;
   }
 
   body {
