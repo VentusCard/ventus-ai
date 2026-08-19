@@ -4,21 +4,52 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
+import { AddSignalPicker, AddFilterPicker } from "./AddSignalPicker";
+import { SignalEditForm, FilterEditForm } from "./SignalEditForm";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
 import {
-  expandFlowSignals,
-  expandFlowFilters,
   enabledAudience,
   qualifiedAudience,
   filterPassRate,
   signalAudience,
+  FAMILY_SIGNAL_CAP,
+  customSignalId,
+  customFilterId,
   SIGNAL_FAMILY_CLASS,
   SIGNAL_FAMILY_LABEL,
   type ExpandedSignal,
   type EligibilityFilter,
 } from "@/lib/flowSignalFamilies";
-import { Zap, Play, Sparkles, ChevronDown, ChevronRight, Mail, ShieldAlert } from "lucide-react";
+import {
+  useFlowSignals,
+  flowSignalsNow,
+  editSignal,
+  resetSignal,
+  addSignal,
+  removeSignal,
+  editFilter,
+  resetFilter,
+  addFilter,
+  removeFilter,
+  resetFlowOverrides,
+  weightToStrength,
+  type SignalDraft,
+  type FilterDraft,
+} from "@/lib/flowSignalOverrides";
+import {
+  Zap,
+  Play,
+  Sparkles,
+  ChevronDown,
+  ChevronRight,
+  Mail,
+  ShieldAlert,
+  Pencil,
+  Trash2,
+  RotateCcw,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+
 
 const CATEGORIES: (FlowCategory | "All")[] = ["All", "Lending", "Wealth", "Deposits", "Cards", "Insurance"];
 
@@ -93,23 +124,73 @@ function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: 
   );
 }
 
+function RowActions({
+  onEdit,
+  onDelete,
+  tone = "slate",
+}: {
+  onEdit: () => void;
+  onDelete?: () => void;
+  tone?: "slate" | "rose";
+}) {
+  return (
+    <div className="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+      <button
+        type="button"
+        title="Edit signal"
+        onClick={(e) => {
+          e.stopPropagation();
+          onEdit();
+        }}
+        className={cn(
+          "p-1 rounded-md hover:bg-slate-100 text-slate-400",
+          tone === "rose" ? "hover:text-rose-600" : "hover:text-slate-800",
+        )}
+      >
+        <Pencil className="w-3.5 h-3.5" />
+      </button>
+      {onDelete && (
+        <button
+          type="button"
+          title="Remove"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="p-1 rounded-md hover:bg-rose-50 text-slate-400 hover:text-rose-600"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 function SignalRow({
   signal,
   audience,
   enabled,
   open,
+  edited,
+  custom,
   onToggle,
   onOpen,
+  onEdit,
+  onDelete,
 }: {
   signal: ExpandedSignal;
   audience: number;
   enabled: boolean;
   open: boolean;
+  edited?: boolean;
+  custom?: boolean;
   onToggle: () => void;
   onOpen: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white">
+    <div className="group rounded-lg border border-slate-200 bg-white">
       <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
         <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
           <div className="flex-1 min-w-0">
@@ -123,6 +204,11 @@ function SignalRow({
                 {SIGNAL_FAMILY_LABEL[signal.family]}
               </span>
               <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{signal.label}</p>
+              {(edited || custom) && (
+                <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
+                  {custom ? "Added" : "Edited"}
+                </span>
+              )}
             </div>
             <p className="text-[10.5px] text-slate-500 leading-snug truncate">{signal.evidence}</p>
           </div>
@@ -132,6 +218,7 @@ function SignalRow({
           </div>
           <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
+        <RowActions onEdit={onEdit} onDelete={onDelete} />
         <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
           <Switch checked={enabled} onCheckedChange={onToggle} />
         </div>
@@ -145,24 +232,33 @@ function SignalRow({
   );
 }
 
+
 function FilterRow({
   filter,
   removed,
   enabled,
   open,
+  edited,
+  custom,
   onToggle,
   onOpen,
+  onEdit,
+  onDelete,
 }: {
   filter: EligibilityFilter;
   removed: number;
   enabled: boolean;
   open: boolean;
+  edited?: boolean;
+  custom?: boolean;
   onToggle: () => void;
   onOpen: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   const dropPct = Math.round((1 - filter.passRate) * 100);
   return (
-    <div className="rounded-lg border border-rose-200 bg-white">
+    <div className="group rounded-lg border border-rose-200 bg-white">
       <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
         <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
           <div className="flex-1 min-w-0">
@@ -171,6 +267,11 @@ function FilterRow({
                 Risk Filter
               </span>
               <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{filter.label}</p>
+              {(edited || custom) && (
+                <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
+                  {custom ? "Added" : "Edited"}
+                </span>
+              )}
             </div>
             <p className="text-[10.5px] text-slate-500 leading-snug truncate">{filter.evidence}</p>
           </div>
@@ -182,10 +283,12 @@ function FilterRow({
           </div>
           <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
+        <RowActions onEdit={onEdit} onDelete={onDelete} tone="rose" />
         <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
           <Switch checked={enabled} onCheckedChange={onToggle} />
         </div>
       </div>
+
       {open && (
         <div className="px-3 pb-3">
           <div className="mt-1 rounded-lg border border-rose-200 bg-rose-50/50 p-3">
@@ -228,9 +331,10 @@ function FlowRow({
   onExpand: () => void;
 }) {
   const Icon = flow.icon;
-  const signals = useMemo(() => expandFlowSignals(flow), [flow]);
-  const filters = useMemo(() => expandFlowFilters(flow), [flow]);
+  const { signals, filters, editedSignalIds, customSignalIds, editedFilterIds, customFilterIds, hasOverrides } =
+    useFlowSignals(flow);
   const [openRow, setOpenRow] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const enabledCount = signals.filter((s) => enabledSignals.has(s.id)).length;
   const filterCount = filters.filter((f) => enabledFilters.has(f.id)).length;
@@ -240,7 +344,13 @@ function FlowRow({
   const totalRemoved = Math.max(0, triggered - liveAudience);
   const isActive = active && enabledCount > 0;
 
-
+  const overCap = useMemo(() => {
+    const counts = new Map<string, number>();
+    signals.forEach((s) => counts.set(s.family, (counts.get(s.family) ?? 0) + 1));
+    return [...counts.entries()]
+      .filter(([family, n]) => n > (FAMILY_SIGNAL_CAP[family as ExpandedSignal["family"]] ?? 3))
+      .map(([family]) => SIGNAL_FAMILY_LABEL[family as ExpandedSignal["family"]]);
+  }, [signals]);
 
   const toggleSignal = (id: string) => {
     const next = new Set(enabledSignals);
@@ -255,6 +365,19 @@ function FlowRow({
     else next.add(id);
     onSetFilters(next);
   };
+
+  const handleAddSignal = (draft: SignalDraft) => {
+    addSignal(flow.id, draft);
+    const id = customSignalId(flow.id, draft.label);
+    onSetEnabled(new Set([...enabledSignals, id]));
+  };
+
+  const handleAddFilter = (draft: FilterDraft) => {
+    addFilter(flow.id, draft);
+    const id = customFilterId(flow.id, draft.label);
+    onSetFilters(new Set([...enabledFilters, id]));
+  };
+
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
@@ -320,26 +443,74 @@ function FlowRow({
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3 h-3 text-blue-500" />
               <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                Signals that trigger this flow — toggle any off, click to see the personalization
+                Signals that trigger this flow — toggle, edit or add your own
               </p>
             </div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 shrink-0">
-              {enabledCount} on
-            </p>
+            <div className="flex items-center gap-3 shrink-0">
+              {hasOverrides && (
+                <button
+                  type="button"
+                  onClick={() => resetFlowOverrides(flow.id)}
+                  className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-700"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  Reset flow
+                </button>
+              )}
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{enabledCount} on</p>
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            {signals.map((sig) => (
-              <SignalRow
-                key={sig.id}
-                signal={sig}
-                audience={signalAudience(flow, signals, enabledSignals, sig)}
-                enabled={enabledSignals.has(sig.id)}
-                open={openRow === sig.id}
-                onToggle={() => toggleSignal(sig.id)}
-                onOpen={() => setOpenRow(openRow === sig.id ? null : sig.id)}
-              />
-            ))}
+            {signals.map((sig) =>
+              editingId === sig.id ? (
+                <SignalEditForm
+                  key={sig.id}
+                  initial={{
+                    label: sig.label,
+                    evidence: sig.evidence,
+                    family: sig.family,
+                    strength: weightToStrength(sig.weight),
+                  }}
+                  onCancel={() => setEditingId(null)}
+                  onSubmit={(draft) => {
+                    editSignal(flow.id, sig.id, draft);
+                    setEditingId(null);
+                  }}
+                  onReset={
+                    editedSignalIds.has(sig.id)
+                      ? () => {
+                          resetSignal(flow.id, sig.id);
+                          setEditingId(null);
+                        }
+                      : undefined
+                  }
+                />
+              ) : (
+                <SignalRow
+                  key={sig.id}
+                  signal={sig}
+                  audience={signalAudience(flow, signals, enabledSignals, sig)}
+                  enabled={enabledSignals.has(sig.id)}
+                  open={openRow === sig.id}
+                  edited={editedSignalIds.has(sig.id)}
+                  custom={customSignalIds.has(sig.id)}
+                  onToggle={() => toggleSignal(sig.id)}
+                  onOpen={() => setOpenRow(openRow === sig.id ? null : sig.id)}
+                  onEdit={() => setEditingId(sig.id)}
+                  onDelete={() => removeSignal(flow.id, sig.id)}
+                />
+              ),
+            )}
+
+            <AddSignalPicker existingLabels={signals.map((s) => s.label)} onAdd={handleAddSignal} />
+
+            {overCap.length > 0 && (
+              <p className="text-[10.5px] text-amber-600 px-1">
+                More {overCap.join(" and ")} signals than we'd normally fire on — still fine, just broader than the
+                default targeting.
+              </p>
+            )}
           </div>
 
           <div className="flex items-center justify-between gap-3 pt-1">
@@ -347,34 +518,60 @@ function FlowRow({
             <p className="text-[12px] font-bold text-slate-900">{formatAudience(triggered)}</p>
           </div>
 
-          {filters.length > 0 && (
-            <>
-              <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-200">
-                <div className="flex items-center gap-1.5 pt-2">
-                  <ShieldAlert className="w-3 h-3 text-rose-500" />
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-600">
-                    Risk filters — each one removes customers from the triggered audience
-                  </p>
-                </div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 shrink-0 pt-2">
-                  {filterCount} on · −{Math.round((1 - passRate) * 100)}% · −{formatAudience(totalRemoved)}
+          <>
+            <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-200">
+              <div className="flex items-center gap-1.5 pt-2">
+                <ShieldAlert className="w-3 h-3 text-rose-500" />
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-600">
+                  Risk filters — each one removes customers from the triggered audience
                 </p>
               </div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 shrink-0 pt-2">
+                {filterCount} on · −{Math.round((1 - passRate) * 100)}% · −{formatAudience(totalRemoved)}
+              </p>
+            </div>
 
-              <div className="flex flex-col gap-1.5">
-                {filters.map((f) => (
+            <div className="flex flex-col gap-1.5">
+              {filters.map((f) =>
+                editingId === f.id ? (
+                  <FilterEditForm
+                    key={f.id}
+                    initial={{ label: f.label, evidence: f.evidence, removes: 1 - f.passRate }}
+                    onCancel={() => setEditingId(null)}
+                    onSubmit={(draft) => {
+                      editFilter(flow.id, f.id, draft);
+                      setEditingId(null);
+                    }}
+                    onReset={
+                      editedFilterIds.has(f.id)
+                        ? () => {
+                            resetFilter(flow.id, f.id);
+                            setEditingId(null);
+                          }
+                        : undefined
+                    }
+                  />
+                ) : (
                   <FilterRow
                     key={f.id}
                     filter={f}
                     removed={Math.round(triggered * (1 - f.passRate))}
                     enabled={enabledFilters.has(f.id)}
                     open={openRow === f.id}
+                    edited={editedFilterIds.has(f.id)}
+                    custom={customFilterIds.has(f.id)}
                     onToggle={() => toggleFilter(f.id)}
                     onOpen={() => setOpenRow(openRow === f.id ? null : f.id)}
+                    onEdit={() => setEditingId(f.id)}
+                    onDelete={() => removeFilter(flow.id, f.id)}
                   />
-                ))}
-              </div>
+                ),
+              )}
 
+              <AddFilterPicker existingLabels={filters.map((f) => f.label)} onAdd={handleAddFilter} />
+            </div>
+
+            {filters.length > 0 && (
               <div className="flex items-center justify-between gap-3 pt-1">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Qualified audience</p>
                 <p className="text-[13px] font-bold text-slate-900">
@@ -382,11 +579,11 @@ function FlowRow({
                   {formatAudience(liveAudience)}
                 </p>
               </div>
-            </>
-          )}
-
+            )}
+          </>
         </div>
       )}
+
     </div>
   );
 }
@@ -402,13 +599,13 @@ export function ProductAutomatedFlowsView() {
   const [filterState, setFilterState] = useState<Record<string, Set<string>>>({});
 
   const enabledFor = (flow: ProductFlow) =>
-    signalState[flow.id] ?? new Set(expandFlowSignals(flow).map((s) => s.id));
+    signalState[flow.id] ?? new Set(flowSignalsNow(flow).signals.map((s) => s.id));
 
   const setEnabledFor = (flowId: string, next: Set<string>) =>
     setSignalState((prev) => ({ ...prev, [flowId]: next }));
 
   const filtersFor = (flow: ProductFlow) =>
-    filterState[flow.id] ?? new Set(expandFlowFilters(flow).map((f) => f.id));
+    filterState[flow.id] ?? new Set(flowSignalsNow(flow).filters.map((f) => f.id));
 
   const setFiltersFor = (flowId: string, next: Set<string>) =>
     setFilterState((prev) => ({ ...prev, [flowId]: next }));

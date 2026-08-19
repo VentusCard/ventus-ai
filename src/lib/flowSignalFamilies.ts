@@ -692,3 +692,33 @@ export function enabledAudience(
   const onWeight = signals.filter((s) => enabled.has(s.id)).reduce((sum, s) => sum + s.weight, 0);
   return Math.round((flow.estimatedAudience * onWeight) / totalWeight);
 }
+
+/* ------------------------------------------------------------------ *
+ * Public helpers used by the signal editor (add / edit signals).      *
+ * ------------------------------------------------------------------ */
+
+export const FAMILY_SIGNAL_CAP = FAMILY_CAP;
+
+/** Channels a signal of this family goes out on. */
+export function channelsForFamily(family: SignalFamily): string[] {
+  return CHANNELS_BY_FAMILY[family];
+}
+
+/** Builds the personalization payload for a hand-authored / edited signal. */
+export function composeSignalMessage(
+  flow: ProductFlow,
+  family: SignalFamily,
+  label: string,
+  evidence: string,
+): FlowMicrosegment {
+  return { signalLabel: label, ...FAMILY_ANGLE[family](flow, { label, evidence }) };
+}
+
+/** Stable id for a custom or library signal added to a flow. */
+export function customSignalId(flowId: string, label: string): string {
+  return `${flowId}--custom--${slug(label)}`;
+}
+
+export function customFilterId(flowId: string, label: string): string {
+  return `${flowId}--filter--custom--${slug(label)}`;
+}
