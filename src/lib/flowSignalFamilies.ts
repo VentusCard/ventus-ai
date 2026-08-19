@@ -74,8 +74,9 @@ type Tag =
   | "pet"
   | "health";
 
-// Matched against the product id, name and category only — never the marketing
-// positioning line, which produces false hits ("automatic transfers" -> auto).
+// Matched against the product id and name ONLY — never the category (which made
+// every "Wealth" product look like a brokerage) and never the marketing
+// positioning line ("automatic transfers" -> auto).
 const TAG_PATTERNS: Array<[Tag, RegExp]> = [
   ["business", /business|sba|commercial|merchant|payroll|corporate|fleet|equipment|succession|key.person|workers|bop/i],
   ["home", /mortgage|heloc|home equity|homeowner|refinanc|renovation|landlord|construction/i],
@@ -83,9 +84,11 @@ const TAG_PATTERNS: Array<[Tag, RegExp]> = [
   ["education", /529|college|education|tuition|student/i],
   ["student", /student/i],
   ["retirement", /retire|401|\bira\b|annuity|pension|rollover/i],
-  ["invest", /invest|brokerage|portfolio|wealth|advisory|trust|robo|securities|\bsbl\b/i],
+  // Requires an actual investing noun — "wealth" alone no longer qualifies.
+  ["invest", /invest|brokerage|portfolio|advisory|robo|securities|\bsbl\b|wealth management|managed account/i],
   ["card", /card|rewards|cash.back|miles/i],
-  ["deposit", /checking|savings|deposit|\bcd\b|money market|hysa|sweep|certificate/i],
+  // Requires a real deposit noun; "College Savings Plan" is not a deposit product.
+  ["deposit", /checking|savings account|deposit|\bcd\b|money market|hysa|high.yield savings|sweep|certificate/i],
   ["insurance", /insur|umbrella|policy|coverage|term life|whole life|workers.comp/i],
   ["travel", /travel|miles|airline|passport/i],
   ["credit", /loan|credit|line of credit|financing|lending|consolidat/i],
@@ -94,11 +97,19 @@ const TAG_PATTERNS: Array<[Tag, RegExp]> = [
 ];
 
 function tagsFor(flow: ProductFlow): Set<Tag> {
-  const hay = `${flow.id} ${flow.name} ${flow.category}`;
+  const hay = `${flow.id} ${flow.name}`;
   const tags = new Set<Tag>();
   for (const [tag, re] of TAG_PATTERNS) if (re.test(hay)) tags.add(tag);
+  // Education / insurance products are never investing or deposit products,
+  // even when their name mentions savings or a plan.
+  if (tags.has("education") || tags.has("insurance")) {
+    tags.delete("deposit");
+    if (!/brokerage|advisory|portfolio|managed account/i.test(hay)) tags.delete("invest");
+  }
   return tags;
 }
+
+
 
 /* ---------------------------- *
  * Supplemental signal library  *
