@@ -380,6 +380,14 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     t.has("credit") || t.has("home") || t.has("auto") || t.has("business") || t.has("insurance") || isCard;
   const secured = t.has("home") || t.has("auto") || /secured|collateral|sbl|securities.based/i.test(name);
   const savingsProduct = /savings account|cd\b|certificate|money market|hysa|high.yield|sweep/i.test(name);
+  // Education signals describe a PARENT funding a child's education. A student
+  // card is held by the student, so it never gets tuition-payer signals.
+  const parentEducation = t.has("education") && !t.has("student");
+  const autoInsurance = t.has("auto") || /auto insurance|vehicle/i.test(name);
+  const entryLevelCard = isCard && /student|secured|starter|first|cash back/i.test(name);
+  const checkingProduct = /checking/i.test(name);
+  const hasAuthoredLifeEvent = flow.signals.some((s) => s.type === "life-event");
+
 
   // --- Financial ---
   if (t.has("business")) {
