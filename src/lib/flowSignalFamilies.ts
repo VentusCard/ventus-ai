@@ -399,7 +399,7 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("financial", FINANCIAL.surplus, 2);
   }
   if (t.has("auto")) add("financial", FINANCIAL.autoPayer, 3);
-  if (t.has("education")) {
+  if (parentEducation) {
     add("financial", FINANCIAL.tuitionOutflow, 3);
     add("financial", FINANCIAL.surplus, 2);
   }
@@ -424,19 +424,24 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("demographic", DEMOGRAPHIC.ownerOperator, 3);
     add("demographic", DEMOGRAPHIC.selfEmployed, 3);
   }
-  if (t.has("education")) {
+  if (parentEducation) {
     add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
     add("demographic", DEMOGRAPHIC.dualIncome, 2);
   }
   if (t.has("home")) add("demographic", DEMOGRAPHIC.homeowner, 3);
-  if (t.has("auto") || t.has("insurance")) add("demographic", DEMOGRAPHIC.multiVehicle, 3);
+  // Only vehicle products get a vehicle-count signal — not life or pet cover.
+  if (autoInsurance) add("demographic", DEMOGRAPHIC.multiVehicle, 3);
   if (t.has("retirement")) add("demographic", DEMOGRAPHIC.preRetiree, 3);
   if (t.has("invest")) add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
   if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner, 3);
-  if (t.has("student") || isCard) add("demographic", DEMOGRAPHIC.youngProfessional, 2);
-  if (t.has("insurance")) add("demographic", DEMOGRAPHIC.parentYoung, 2);
-  if (t.has("deposit")) add("demographic", DEMOGRAPHIC.renter, 1);
-  if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester, 2);
+  // Entry-level products skew young; premium products do not.
+  if (t.has("student") || entryLevelCard) add("demographic", DEMOGRAPHIC.youngProfessional, 2);
+  if (isCard && /premium|ultra|private|luxury/i.test(name)) {
+    add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+  }
+  if (t.has("insurance") && !t.has("retirement")) add("demographic", DEMOGRAPHIC.parentYoung, 2);
+  if (checkingProduct) add("demographic", DEMOGRAPHIC.renter, 1);
+  if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester, 1);
   if (out.filter(([f]) => f === "demographic").length < 2) {
     add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome, 1);
   }
@@ -449,13 +454,13 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     if (t.has("insurance")) add("risk", RISK.coverageGap, 3);
     if (t.has("business")) add("risk", RISK.bizCashBuffer, 3);
     add("risk", RISK.noOverdraft, 2);
-  } else if (t.has("invest") || t.has("retirement") || t.has("education")) {
+  } else if (t.has("invest") || t.has("retirement") || parentEducation) {
     // Advisory / plan products: suitability, not credit risk.
     add("risk", RISK.suitability, 3);
   }
 
   // --- Extra behavioral / life-event depth ---
-  if (t.has("education")) {
+  if (parentEducation) {
     // We can observe education SPENDING, not that a household is "saving for school".
     add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
     add("behavioral", EXTRA_BEHAVIORAL.educationOutbound, 3);
@@ -463,12 +468,14 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
   }
   if (underwritten) add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
-  if ((t.has("card") || t.has("deposit")) && !t.has("education")) {
+  if ((t.has("card") || checkingProduct) && !parentEducation) {
     add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged, 1);
   }
-  if ((t.has("invest") || t.has("deposit") || t.has("credit")) && !t.has("education")) {
+  // Only used as a life-event stand-in when the product authored none.
+  if (!hasAuthoredLifeEvent && (t.has("invest") || t.has("deposit") || t.has("credit"))) {
     add("life-event", EXTRA_LIFE_EVENT.incomeStepUp, 1);
   }
+
 
   return out;
 }
