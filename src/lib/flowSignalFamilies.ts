@@ -74,18 +74,21 @@ type Tag =
   | "pet"
   | "health";
 
-// Matched against the product id, name and category only — never the marketing
-// positioning line, which produces false hits ("automatic transfers" -> auto).
+// Matched against the product id and name ONLY — never the category (which made
+// every "Wealth" product look like a brokerage) and never the marketing
+// positioning line ("automatic transfers" -> auto).
 const TAG_PATTERNS: Array<[Tag, RegExp]> = [
   ["business", /business|sba|commercial|merchant|payroll|corporate|fleet|equipment|succession|key.person|workers|bop/i],
-  ["home", /mortgage|heloc|home equity|homeowner|refinanc|renovation|landlord|construction/i],
+  ["home", /mortgage|heloc|home equity|homeowner|home refinanc|renovation|landlord|construction/i],
   ["auto", /\bauto (loan|lease|insurance|refi)|\bcar\b|vehicle|\brv\b|boat|marine|motorcycle|powersport|\bev\b/i],
   ["education", /529|college|education|tuition|student/i],
   ["student", /student/i],
   ["retirement", /retire|401|\bira\b|annuity|pension|rollover/i],
-  ["invest", /invest|brokerage|portfolio|wealth|advisory|trust|robo|securities|\bsbl\b/i],
+  // Requires an actual investing noun — "wealth" alone no longer qualifies.
+  ["invest", /invest|brokerage|portfolio|advisory|robo|securities|\bsbl\b|wealth management|managed account/i],
   ["card", /card|rewards|cash.back|miles/i],
-  ["deposit", /checking|savings|deposit|\bcd\b|money market|hysa|sweep|certificate/i],
+  // Requires a real deposit noun; "College Savings Plan" is not a deposit product.
+  ["deposit", /checking|savings account|deposit|\bcd\b|money market|hysa|high.yield savings|sweep|certificate/i],
   ["insurance", /insur|umbrella|policy|coverage|term life|whole life|workers.comp/i],
   ["travel", /travel|miles|airline|passport/i],
   ["credit", /loan|credit|line of credit|financing|lending|consolidat/i],
@@ -94,11 +97,19 @@ const TAG_PATTERNS: Array<[Tag, RegExp]> = [
 ];
 
 function tagsFor(flow: ProductFlow): Set<Tag> {
-  const hay = `${flow.id} ${flow.name} ${flow.category}`;
+  const hay = `${flow.id} ${flow.name}`;
   const tags = new Set<Tag>();
   for (const [tag, re] of TAG_PATTERNS) if (re.test(hay)) tags.add(tag);
+  // Education / insurance products are never investing or deposit products,
+  // even when their name mentions savings or a plan.
+  if (tags.has("education") || tags.has("insurance")) {
+    tags.delete("deposit");
+    if (!/brokerage|advisory|portfolio|managed account/i.test(hay)) tags.delete("invest");
+  }
   return tags;
 }
+
+
 
 /* ---------------------------- *
  * Supplemental signal library  *
@@ -322,7 +333,18 @@ const EXTRA_BEHAVIORAL: Record<string, SeedSignal> = {
     evidence: "Signs in from their phone and pays with a digital wallet most weeks.",
     weight: 0.52,
   },
+  educationSpend: {
+    label: "Spending on their kids' education",
+    evidence: "Tutoring, test prep, school fees and enrichment programs show up through the school year.",
+    weight: 0.18,
+  },
+  educationOutbound: {
+    label: "Education money going to an outside provider",
+    evidence: "Recurring transfers to an outside education account or plan administrator.",
+    weight: 0.12,
+  },
 };
+
 
 const EXTRA_LIFE_EVENT: Record<string, SeedSignal> = {
   incomeStepUp: {
@@ -341,12 +363,15 @@ const EXTRA_LIFE_EVENT: Record<string, SeedSignal> = {
  * Per-product selection rules  *
  * ---------------------------- */
 
-function supplementalFor(flow: ProductFlow): Array<[SignalFamily, SeedSignal]> {
+/** [family, seed, relevance] — relevance 3 = direct product match, 2 = adjacent, 1 = generic. */
+type ScoredSeed = [SignalFamily, SeedSignal, number];
+
+function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   const t = tagsFor(flow);
-  const name = `${flow.id} ${flow.name} ${flow.category}`;
-  const out: Array<[SignalFamily, SeedSignal]> = [];
-  const add = (family: SignalFamily, seed: SeedSignal | undefined) => {
-    if (seed && !out.some(([, s]) => s.label === seed.label)) out.push([family, seed]);
+  const name = `${flow.id} ${flow.name}`;
+  const out: ScoredSeed[] = [];
+  const add = (family: SignalFamily, seed: SeedSignal | undefined, score = 2) => {
+    if (seed && !out.some(([, s]) => s.label === seed.label)) out.push([family, seed, score]);
   };
 
   // Products where the bank actually extends credit or underwrites a policy.
@@ -354,80 +379,121 @@ function supplementalFor(flow: ProductFlow): Array<[SignalFamily, SeedSignal]> {
   const underwritten =
     t.has("credit") || t.has("home") || t.has("auto") || t.has("business") || t.has("insurance") || isCard;
   const secured = t.has("home") || t.has("auto") || /secured|collateral|sbl|securities.based/i.test(name);
-  const savingsProduct = /saving|cd\b|certificate|money market|hysa|high.yield|sweep/i.test(name);
+  const savingsProduct = /savings account|cd\b|certificate|money market|hysa|high.yield|sweep/i.test(name);
+  // Education signals describe a PARENT funding a child's education. A student
+  // card is held by the student, so it never gets tuition-payer signals.
+  const parentEducation = t.has("education") && !t.has("student");
+  const autoInsurance = t.has("auto") || /auto insurance|vehicle/i.test(name);
+  const entryLevelCard = isCard && /student|secured|starter|first|cash back/i.test(name);
+  const checkingProduct = /checking/i.test(name);
+  const hasAuthoredLifeEvent = flow.signals.some((s) => s.type === "life-event");
+
 
   // --- Financial ---
   if (t.has("business")) {
-    add("financial", FINANCIAL.bizRevenue);
-    add("financial", FINANCIAL.bizTaxes);
+    add("financial", FINANCIAL.bizRevenue, 3);
+    add("financial", FINANCIAL.bizTaxes, 3);
   }
   if (t.has("home")) {
-    add("financial", FINANCIAL.mortgagePayer);
-    add("financial", FINANCIAL.surplus);
+    add("financial", FINANCIAL.mortgagePayer, 3);
+    add("financial", FINANCIAL.surplus, 2);
   }
-  if (t.has("auto")) add("financial", FINANCIAL.autoPayer);
-  if (t.has("education")) add("financial", FINANCIAL.tuitionOutflow);
-  if (t.has("retirement")) add("financial", FINANCIAL.retirementContrib);
+  if (t.has("auto")) add("financial", FINANCIAL.autoPayer, 3);
+  if (parentEducation) {
+    add("financial", FINANCIAL.tuitionOutflow, 3);
+    add("financial", FINANCIAL.surplus, 2);
+  }
+  if (t.has("retirement")) add("financial", FINANCIAL.retirementContrib, 3);
   if (t.has("invest")) {
-    add("financial", FINANCIAL.externalInvestFunding);
-    add("financial", FINANCIAL.idleCash);
+    add("financial", FINANCIAL.externalInvestFunding, 3);
+    add("financial", FINANCIAL.idleCash, 2);
   }
-  if (t.has("deposit")) add("financial", FINANCIAL.depositGrowth);
-  if (savingsProduct) add("financial", FINANCIAL.interestSeeking);
-  if (isCard || t.has("credit")) add("financial", FINANCIAL.lowUtil);
-  if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend);
-  if (t.has("travel")) add("financial", FINANCIAL.travelSpend);
+  if (t.has("deposit")) add("financial", FINANCIAL.depositGrowth, 3);
+  if (savingsProduct) add("financial", FINANCIAL.interestSeeking, 3);
+  if (isCard || t.has("credit")) add("financial", FINANCIAL.lowUtil, 3);
+  if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend, 3);
+  if (t.has("travel")) add("financial", FINANCIAL.travelSpend, 3);
   // Income stability matters where repayment, funding or premiums are involved.
-  if (underwritten || t.has("deposit") || t.has("retirement")) add("financial", FINANCIAL.payroll);
+  if (!t.has("business") && (underwritten || t.has("deposit") || t.has("retirement"))) {
+    add("financial", FINANCIAL.payroll, 1);
+  }
   if (out.filter(([f]) => f === "financial").length < 2) {
-    add("financial", t.has("invest") || t.has("deposit") ? FINANCIAL.depositGrowth : FINANCIAL.surplus);
+    add("financial", t.has("invest") || t.has("deposit") ? FINANCIAL.depositGrowth : FINANCIAL.surplus, 1);
   }
 
   // --- Demographic ---
   if (t.has("business")) {
-    add("demographic", DEMOGRAPHIC.ownerOperator);
-    add("demographic", DEMOGRAPHIC.selfEmployed);
+    add("demographic", DEMOGRAPHIC.ownerOperator, 3);
+    add("demographic", DEMOGRAPHIC.selfEmployed, 3);
   }
-  if (t.has("education")) {
-    add("demographic", DEMOGRAPHIC.parentSchoolAge);
-    add("demographic", DEMOGRAPHIC.dualIncome);
+  if (parentEducation) {
+    add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
+    add("demographic", DEMOGRAPHIC.dualIncome, 2);
   }
-  if (t.has("home")) add("demographic", DEMOGRAPHIC.homeowner);
-  if (t.has("auto") || t.has("insurance")) add("demographic", DEMOGRAPHIC.multiVehicle);
-  if (t.has("retirement")) add("demographic", DEMOGRAPHIC.preRetiree);
-  if (t.has("invest")) add("demographic", DEMOGRAPHIC.affluentHousehold);
-  if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner);
-  if (t.has("student") || isCard) add("demographic", DEMOGRAPHIC.youngProfessional);
-  if (t.has("insurance")) add("demographic", DEMOGRAPHIC.parentYoung);
-  if (t.has("deposit")) add("demographic", DEMOGRAPHIC.renter);
-  if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester);
+  if (t.has("home")) add("demographic", DEMOGRAPHIC.homeowner, 3);
+  // Only vehicle products get a vehicle-count signal — not life or pet cover.
+  if (autoInsurance) add("demographic", DEMOGRAPHIC.multiVehicle, 3);
+  if (t.has("retirement")) add("demographic", DEMOGRAPHIC.preRetiree, 3);
+  if (t.has("invest")) add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+  if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner, 3);
+  // Entry-level products skew young; premium products do not.
+  if (t.has("student") || entryLevelCard) add("demographic", DEMOGRAPHIC.youngProfessional, 2);
+  if (isCard && /premium|ultra|private|luxury/i.test(name)) {
+    add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+  }
+  if (t.has("insurance") && !t.has("retirement")) add("demographic", DEMOGRAPHIC.parentYoung, 2);
+  if (checkingProduct) add("demographic", DEMOGRAPHIC.renter, 1);
+  if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester, 1);
   if (out.filter(([f]) => f === "demographic").length < 2) {
-    add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome);
+    add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome, 1);
   }
 
   // --- Risk / eligibility: only where the bank takes on exposure ---
   if (underwritten) {
-    add("risk", RISK.healthyDti);
-    if (secured) add("risk", RISK.collateralClean);
-    if (isCard) add("risk", RISK.cardPaysInFull);
-    if (t.has("insurance")) add("risk", RISK.coverageGap);
-    if (t.has("business")) add("risk", RISK.bizCashBuffer);
-    add("risk", RISK.noOverdraft);
-  } else if (t.has("invest") || t.has("retirement")) {
-    // Advisory products: suitability, not credit risk.
-    add("risk", RISK.suitability);
+    add("risk", RISK.healthyDti, 3);
+    if (secured) add("risk", RISK.collateralClean, 3);
+    if (isCard) add("risk", RISK.cardPaysInFull, 3);
+    if (t.has("insurance")) add("risk", RISK.coverageGap, 3);
+    if (t.has("business")) add("risk", RISK.bizCashBuffer, 3);
+    add("risk", RISK.noOverdraft, 2);
+  } else if (t.has("invest") || t.has("retirement") || parentEducation) {
+    // Advisory / plan products: suitability, not credit risk.
+    add("risk", RISK.suitability, 3);
   }
 
   // --- Extra behavioral / life-event depth ---
-  add("behavioral", EXTRA_BEHAVIORAL.competitorProduct);
-  if (underwritten) add("behavioral", EXTRA_BEHAVIORAL.researchIntent);
-  if (t.has("card") || t.has("deposit")) add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged);
-  if (t.has("invest") || t.has("deposit") || t.has("credit")) {
-    add("life-event", EXTRA_LIFE_EVENT.incomeStepUp);
+  if (parentEducation) {
+    // We can observe education SPENDING, not that a household is "saving for school".
+    // Skip when the product already authors an education-spend signal.
+    if (!flow.signals.some((s) => /educat|tutor|school|tuition/i.test(s.label))) {
+      add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
+    }
+    add("behavioral", EXTRA_BEHAVIORAL.educationOutbound, 3);
+  } else {
+    add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
   }
+  if (underwritten) add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
+  if ((t.has("card") || checkingProduct) && !parentEducation) {
+    add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged, 1);
+  }
+  // Only used as a life-event stand-in when the product authored none.
+  if (!hasAuthoredLifeEvent && !t.has("business") && (t.has("invest") || t.has("deposit") || t.has("credit"))) {
+    add("life-event", EXTRA_LIFE_EVENT.incomeStepUp, 1);
+  }
+
 
   return out;
 }
+
+/** Max signals shown per family, authored signals included. */
+const FAMILY_CAP: Record<SignalFamily, number> = {
+  "life-event": 3,
+  behavioral: 3,
+  financial: 3,
+  demographic: 2,
+  risk: 3,
+};
+
 
 /* ------------------------------- *
  * Personalization message builder *
@@ -520,7 +586,19 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
     ([, s]) => !authored.some((a) => a.label.toLowerCase() === s.label.toLowerCase()),
   );
 
-  const triggering: ExpandedSignal[] = supplemental
+  // Keep the strongest supplemental signals per family, within the family cap
+  // (authored signals always stay and count toward the cap).
+  const kept: ScoredSeed[] = [];
+  for (const family of SIGNAL_FAMILY_ORDER) {
+    const authoredCount = authored.filter((a) => a.family === family).length;
+    const room = Math.max(0, FAMILY_CAP[family] - authoredCount);
+    const pool = supplemental
+      .filter(([f]) => f === family)
+      .sort((a, b) => b[2] - a[2] || (b[1].weight ?? 0) - (a[1].weight ?? 0));
+    kept.push(...pool.slice(0, room));
+  }
+
+  const triggering: ExpandedSignal[] = kept
     .filter(([family]) => family !== "risk")
     .map(([family, s]) => ({
       id: `${flow.id}--${slug(s.label)}`,
@@ -532,7 +610,7 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
       channels: CHANNELS_BY_FAMILY[family],
     }));
 
-  const filters: EligibilityFilter[] = supplemental
+  const filters: EligibilityFilter[] = kept
     .filter(([family]) => family === "risk")
     .map(([, s]) => ({
       id: `${flow.id}--filter--${slug(s.label)}`,
@@ -544,6 +622,7 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
   const signals = [...authored, ...triggering].sort(
     (a, b) => SIGNAL_FAMILY_ORDER.indexOf(a.family) - SIGNAL_FAMILY_ORDER.indexOf(b.family),
   );
+
 
   return { signals, filters };
 }

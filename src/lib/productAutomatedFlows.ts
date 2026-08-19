@@ -89,7 +89,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     signals: [
       { label: "New baby in the household", evidence: "Clustered spend at baby supply retailers, pediatric specialist copays (card), and daycare tuition (bank transfer) after a baby arrives.", type: "life-event" },
       { label: "Has a child heading to college", evidence: "Tuition payments to academic institutions (bank transfers or online bill payments), standardized test fees (card), and out-of-town travel to university towns.", type: "life-event" },
-      { label: "Already saving for school elsewhere", evidence: "Outbound bank transfers to known 529 plan providers or brokerage education accounts, alongside internal transfers.", type: "behavioral" },
+      { label: "Paying for education outside tuition", evidence: "Card and bank payments to tutoring services, test prep, enrichment programs and school fees through the academic year.", type: "behavioral" },
     ],
     estimatedAudience: 28_400_000,
     penetration: 0.057,
