@@ -79,7 +79,7 @@ type Tag =
 // positioning line ("automatic transfers" -> auto).
 const TAG_PATTERNS: Array<[Tag, RegExp]> = [
   ["business", /business|sba|commercial|merchant|payroll|corporate|fleet|equipment|succession|key.person|workers|bop/i],
-  ["home", /mortgage|heloc|home equity|homeowner|refinanc|renovation|landlord|construction/i],
+  ["home", /mortgage|heloc|home equity|homeowner|home refinanc|renovation|landlord|construction/i],
   ["auto", /\bauto (loan|lease|insurance|refi)|\bcar\b|vehicle|\brv\b|boat|marine|motorcycle|powersport|\bev\b/i],
   ["education", /529|college|education|tuition|student/i],
   ["student", /student/i],
@@ -414,7 +414,9 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend, 3);
   if (t.has("travel")) add("financial", FINANCIAL.travelSpend, 3);
   // Income stability matters where repayment, funding or premiums are involved.
-  if (underwritten || t.has("deposit") || t.has("retirement")) add("financial", FINANCIAL.payroll, 1);
+  if (!t.has("business") && (underwritten || t.has("deposit") || t.has("retirement"))) {
+    add("financial", FINANCIAL.payroll, 1);
+  }
   if (out.filter(([f]) => f === "financial").length < 2) {
     add("financial", t.has("invest") || t.has("deposit") ? FINANCIAL.depositGrowth : FINANCIAL.surplus, 1);
   }
@@ -472,7 +474,7 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged, 1);
   }
   // Only used as a life-event stand-in when the product authored none.
-  if (!hasAuthoredLifeEvent && (t.has("invest") || t.has("deposit") || t.has("credit"))) {
+  if (!hasAuthoredLifeEvent && !t.has("business") && (t.has("invest") || t.has("deposit") || t.has("credit"))) {
     add("life-event", EXTRA_LIFE_EVENT.incomeStepUp, 1);
   }
 
