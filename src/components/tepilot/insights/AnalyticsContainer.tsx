@@ -205,8 +205,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     };
   }, [isResizing]);
 
-  // No prewarm: the personalization workspace starts empty until a banker
-  // selects a customer, so nothing is generated up front.
+  // Pre-fire generation for the default example customer (Ricky) once per
+  // session as soon as the dashboard mounts, so his personalized surface is
+  // cached before a banker opens a Personalization tab.
+  useEffect(() => {
+    prewarmDefaultCustomer();
+  }, []);
+
 
 
   // Filter nav groups based on enabled modules
