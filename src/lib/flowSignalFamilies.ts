@@ -464,7 +464,10 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   // --- Extra behavioral / life-event depth ---
   if (parentEducation) {
     // We can observe education SPENDING, not that a household is "saving for school".
-    add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
+    // Skip when the product already authors an education-spend signal.
+    if (!flow.signals.some((s) => /educat|tutor|school|tuition/i.test(s.label))) {
+      add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
+    }
     add("behavioral", EXTRA_BEHAVIORAL.educationOutbound, 3);
   } else {
     add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
