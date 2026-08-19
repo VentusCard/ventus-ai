@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import { prewarmDefaultCustomer } from "@/lib/personalizationResultStore";
+
 import { BankwideView } from "./BankwideView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
