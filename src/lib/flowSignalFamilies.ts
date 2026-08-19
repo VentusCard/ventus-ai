@@ -333,7 +333,18 @@ const EXTRA_BEHAVIORAL: Record<string, SeedSignal> = {
     evidence: "Signs in from their phone and pays with a digital wallet most weeks.",
     weight: 0.52,
   },
+  educationSpend: {
+    label: "Spending on their kids' education",
+    evidence: "Tutoring, test prep, school fees and enrichment programs show up through the school year.",
+    weight: 0.18,
+  },
+  educationOutbound: {
+    label: "Education money going to an outside provider",
+    evidence: "Recurring transfers to an outside education account or plan administrator.",
+    weight: 0.12,
+  },
 };
+
 
 const EXTRA_LIFE_EVENT: Record<string, SeedSignal> = {
   incomeStepUp: {
