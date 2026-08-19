@@ -566,7 +566,19 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
     ([, s]) => !authored.some((a) => a.label.toLowerCase() === s.label.toLowerCase()),
   );
 
-  const triggering: ExpandedSignal[] = supplemental
+  // Keep the strongest supplemental signals per family, within the family cap
+  // (authored signals always stay and count toward the cap).
+  const kept: ScoredSeed[] = [];
+  for (const family of SIGNAL_FAMILY_ORDER) {
+    const authoredCount = authored.filter((a) => a.family === family).length;
+    const room = Math.max(0, FAMILY_CAP[family] - authoredCount);
+    const pool = supplemental
+      .filter(([f]) => f === family)
+      .sort((a, b) => b[2] - a[2] || (b[1].weight ?? 0) - (a[1].weight ?? 0));
+    kept.push(...pool.slice(0, room));
+  }
+
+  const triggering: ExpandedSignal[] = kept
     .filter(([family]) => family !== "risk")
     .map(([family, s]) => ({
       id: `${flow.id}--${slug(s.label)}`,
@@ -578,7 +590,7 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
       channels: CHANNELS_BY_FAMILY[family],
     }));
 
-  const filters: EligibilityFilter[] = supplemental
+  const filters: EligibilityFilter[] = kept
     .filter(([family]) => family === "risk")
     .map(([, s]) => ({
       id: `${flow.id}--filter--${slug(s.label)}`,
@@ -590,6 +602,7 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
   const signals = [...authored, ...triggering].sort(
     (a, b) => SIGNAL_FAMILY_ORDER.indexOf(a.family) - SIGNAL_FAMILY_ORDER.indexOf(b.family),
   );
+
 
   return { signals, filters };
 }
