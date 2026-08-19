@@ -23,7 +23,7 @@ Audience math and the existing weight/pass-rate model stay as they are — only 
 ## Expected result for the 529 plan
 
 Life Event: new baby, child heading to college, (household formation drops out)
-Behavioral: already saving for school elsewhere, already has a 529 at another provider
+Behavioral: spending on education (tutoring, test prep, school fees, enrichment programs), education payments going to an outside provider
 Financial: paying tuition, money left over each month
 Demographic: has school-age children, two earners in the household
 Risk filter: outside the suitability range
