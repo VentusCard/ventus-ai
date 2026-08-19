@@ -526,9 +526,11 @@ function FlowRow({
                   Risk filters — each one removes customers from the triggered audience
                 </p>
               </div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 shrink-0 pt-2">
-                {filterCount} on · −{Math.round((1 - passRate) * 100)}% · −{formatAudience(totalRemoved)}
-              </p>
+              {filters.length > 0 && (
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 shrink-0 pt-2">
+                  {filterCount} on · −{Math.round((1 - passRate) * 100)}% · −{formatAudience(totalRemoved)}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">
