@@ -9,7 +9,7 @@ import {
 } from "@/lib/personalizationCustomerStore";
 import {
   ensurePersonalization,
-  prewarmDefaultCustomer,
+
   usePersonalizationResult,
 } from "@/lib/personalizationResultStore";
 import { buildChatSignalContext } from "@/lib/personalizationGeneration";
