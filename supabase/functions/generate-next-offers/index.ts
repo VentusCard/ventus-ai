@@ -77,6 +77,8 @@ NUMERIC VALUE LINE — REQUIRED on every deal:
 - Good: "3x points on travel ≈ $186 back on your ~$6,200 Hawaii spend this year." (math: "3% × $6,200 ≈ $186")
 - Bad (fabricated): "Save $500 vs the market average." (no market number in input)
 
+BANK NAMING RULE (STRICT): any deal for a bank/deposit/credit/investing product (savings, high-yield/APY, auto-save, round-up, checking, CD, loan, refinance, HELOC, mortgage, credit card, IRA, brokerage) MUST use the bank name given in the user prompt VERBATIM as its "merchant". NEVER invent a lender, issuer, or fintech brand (e.g. "STAR Financial", "Summit Lending", "Apex Capital") and NEVER name a real institution (Chase, Wells Fargo, Bank of America, Citi, SoFi, Marcus, Ally). Third-party retail merchants are allowed ONLY for non-bank products.
+
 OUTPUT: Valid JSON only, no markdown. Exact shape:
 {"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","imageCategory":"ski","imageQuery":"snowy ski slope","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","valueLine":"5% back ≈ $9/mo on your ~$180/mo coffee spend.","valueMath":"5% × $180 ≈ $9/mo","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
@@ -179,9 +181,9 @@ Output valid JSON only, no markdown:
 {"rollupOffers":[{"signalId":"FS_1","rollup":"Exact Signal Label","pillar":"Financial Signal","collectionMessage":"8-10 word tagline","imageCategory":"auto","imageQuery":"car keys handover","suppressedCategories":[],"deals":[{"id":"fs1_d1","merchant":"Our Bank","product":"Auto Loan Refinance","rewardValue":"−1.5% APR","message":"Lower your monthly payment without extending your term.","valueLine":"Refi at 5.99% ≈ ~$50/mo saved on your ~$685/mo VW Credit payment.","valueMath":"1.5% APR × $685/mo ≈ $50/mo","cta":"Refi in Minutes","signal":"boost","signalReason":"VW Credit auto loan renewal in ~2mo","boostCategory":"Auto Refi"},...]},...]}`;
 
 /** Bank-product detection: these deals must always be branded as the bank itself. */
-const BANK_PRODUCT_RE = /\b(loan|refi|refinance|heloc|home equity|mortgage|line of credit|credit card|debit card|savings|checking|cd\b|certificate of deposit|ira|401k|roth|brokerage|investing|investment account|wealth|advisory|overdraft|apr)\b/i;
+const BANK_PRODUCT_RE = /\b(loan|refi|refinance|heloc|home equity|mortgage|line of credit|credit card|debit card|savings|checking|cd\b|certificate of deposit|ira|401k|roth|brokerage|investing|investment account|wealth|advisory|overdraft|apr|apy|yield|high[- ]yield|money market|auto[- ]?save|round[- ]?up|deposit account)\b/i;
 /** Names that look like a bank/lender brand — used to catch invented issuers. */
-const BANKISH_MERCHANT_RE = /\b(bank|banc|bancorp|financial|credit union|federal credit|lending|lenders?|fcu)\b/i;
+const BANKISH_MERCHANT_RE = /\b(bank|banc|bancorp|financial|finance|fintech|credit union|federal credit|lending|lenders?|capital|trust co|savings|mutual|fcu|federal savings)\b/i;
 
 function resolveMerchant(merchant: string, product: string, bankLabel: string): string {
   const m = (merchant || "").trim();
@@ -191,6 +193,16 @@ function resolveMerchant(merchant: string, product: string, bankLabel: string): 
   if (BANK_PRODUCT_RE.test(p) || BANKISH_MERCHANT_RE.test(m)) return bankLabel;
   return m;
 }
+
+/** Final safety net: every deal on every path gets its merchant sanitized. */
+function sanitizeOfferMerchants(groups: any[], bankLabel: string): void {
+  for (const g of groups || []) {
+    for (const d of g?.deals || []) {
+      d.merchant = resolveMerchant(d.merchant || d.brand || "", d.product || d.product_name || "", bankLabel);
+    }
+  }
+}
+
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -530,6 +542,9 @@ serve(async (req) => {
         }
       }
     }
+
+    // Safety net across every generation path (rollup pass isn't sanitized inline).
+    sanitizeOfferMerchants(rollupOffers, bankLabel);
 
     console.log(`[NEXT-OFFERS] ◀ returning ${rollupOffers.length} groups`);
     return new Response(JSON.stringify({ rollupOffers }), {

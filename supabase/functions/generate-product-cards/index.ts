@@ -338,6 +338,34 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
     }
 
     const cards = JSON.parse(toolCall.function.arguments);
+
+    // Safety net: strip invented / real issuer brands out of product naming.
+    const BANKISH_RE = /\b(bank|banc|bancorp|financial|finance|fintech|credit union|federal credit|lending|lenders?|capital|mutual|fcu)\b/gi;
+    const label = bankLabel;
+    const scrub = (v: unknown): string => {
+      if (typeof v !== "string" || !v) return v as string;
+      // Preserve the configured label; rewrite any other bank-ish brand phrase.
+      const parts = v.split(new RegExp(`(${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"));
+      return parts
+        .map((part) =>
+          part.toLowerCase() === label.toLowerCase()
+            ? part
+            : part.replace(/\b([A-Z][\w&'-]*\s+)*[A-Z][\w&'-]*\s+(Financial|Bank|Bancorp|Lending|Capital|Credit Union|FCU)\b/g, label),
+        )
+        .join("");
+    };
+    if (Array.isArray(cards?.cards)) {
+      for (const c of cards.cards) {
+        if (typeof c.product_name === "string") {
+          c.product_name = scrub(c.product_name);
+          if (!c.product_name.toLowerCase().includes(label.toLowerCase()) && BANKISH_RE.test(c.product_name)) {
+            c.product_name = `${label} ${c.product_name}`.trim();
+          }
+        }
+        if (typeof c.offer_headline === "string") c.offer_headline = scrub(c.offer_headline);
+      }
+    }
+
     return new Response(JSON.stringify(cards), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
