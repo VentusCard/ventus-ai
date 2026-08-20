@@ -18,7 +18,8 @@ export function ExternalIntelligenceCard() {
           <div className="text-[10px] text-slate-500">ingested (24h)</div>
         </div>
       </div>
-      <table className="w-full text-[12px] px-4 pb-4">
+      <div className="px-4 pb-4">
+      <table className="w-full text-[12px]">
 
         <thead>
           <tr className="text-[10px] uppercase tracking-wide text-slate-400 border-b border-slate-100">
