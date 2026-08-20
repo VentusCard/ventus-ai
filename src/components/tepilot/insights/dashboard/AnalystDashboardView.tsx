@@ -62,7 +62,7 @@ function fmtDateTick(d: Date) {
 
 const EMPTY_FILTERS = { cardProducts: [], regions: [], ageRanges: [] };
 
-export function AnalystDashboardView({ onNavigate, onOpenOpportunity, renderVentusSliver }: AnalystDashboardViewProps) {
+export function AnalystDashboardView({ onNavigate, onOpenOpportunity, onOpenSection, renderVentusSliver }: AnalystDashboardViewProps) {
   const { range, preset, setPreset, setCustom, compare, setCompare } =
     useDashboardRange("30d");
 
