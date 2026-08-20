@@ -370,6 +370,12 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
         >
           <div className="space-y-2 min-w-0">
 
+            {hasFilters && filtered.length > 0 && (
+              <div className="text-[10px] text-slate-400 mb-1.5">
+                Showing a representative sample of {filtered.length} profiles from{" "}
+                {fmtCount(population)} matching customers.
+              </div>
+            )}
             <CustomerResultsTable
               customers={filtered}
               sortKey={sortKey}
@@ -378,6 +384,7 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
               onSelect={openCustomer}
               selectedId={selectedId}
             />
+
           </div>
           {selected && (
             <CustomerDetailPanel customer={selected} onBack={() => setSelectedId(null)} />
