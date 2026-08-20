@@ -181,7 +181,7 @@ Output valid JSON only, no markdown:
 /** Bank-product detection: these deals must always be branded as the bank itself. */
 const BANK_PRODUCT_RE = /\b(loan|refi|refinance|heloc|home equity|mortgage|line of credit|credit card|debit card|savings|checking|cd\b|certificate of deposit|ira|401k|roth|brokerage|investing|investment account|wealth|advisory|overdraft|apr)\b/i;
 /** Names that look like a bank/lender brand — used to catch invented issuers. */
-const BANKISH_MERCHANT_RE = /\b(bank|banc|financial|finance|credit union|federal credit|lending|lenders?|loans?|capital|trust|mutual|savings|advisors?|wealth|fcu)\b/i;
+const BANKISH_MERCHANT_RE = /\b(bank|banc|bancorp|financial|credit union|federal credit|lending|lenders?|fcu)\b/i;
 
 function resolveMerchant(merchant: string, product: string, bankLabel: string): string {
   const m = (merchant || "").trim();
