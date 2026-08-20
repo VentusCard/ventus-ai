@@ -92,7 +92,7 @@ export function SurfaceFeaturePanel({
         </div>
       </div>
 
-      {hasSelection && <UnitEconomicsCard surface={surface} />}
+      <UnitEconomicsCard surface={surface} />
     </div>
   );
 }
