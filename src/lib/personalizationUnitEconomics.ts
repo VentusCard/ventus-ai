@@ -12,8 +12,8 @@ export const SURFACE_LABEL: Record<EconomicsSurface, string> = {
 
 /** Editable, average-customer-level assumptions. */
 export interface EconomicsAssumptions {
-  /** Deals: incremental spend routed to the bank's rails per live offer, per year ($). */
-  spendPerOffer: number;
+  /** Deals: incremental spend routed to the bank's rails per average customer, per year ($). */
+  annualDealsSpend: number;
   /** Deals: bank take rate on directed spend (0-1). */
   takeRate: number;
   /** Product: incremental conversion rate per recommended product (0-1). */
@@ -29,7 +29,7 @@ export interface EconomicsAssumptions {
 }
 
 export const DEFAULT_ASSUMPTIONS: EconomicsAssumptions = {
-  spendPerOffer: 200,
+  annualDealsSpend: 1800,
   takeRate: 0.08,
   productConversion: 0.04,
   cacAvoided: 420,
@@ -41,6 +41,8 @@ export const DEFAULT_ASSUMPTIONS: EconomicsAssumptions = {
 export interface EconomicsLine {
   label: string;
   formula: string;
+  /** Rendered as currency unless this is set. */
+  display?: string;
   value: number;
 }
 
@@ -79,7 +81,7 @@ export function computeSurfaceEconomics(
 ): SurfaceEconomics {
   if (surface === "rewards") {
     const offers = countOffers(entry);
-    const directedSpend = offers * a.spendPerOffer;
+    const directedSpend = a.annualDealsSpend;
     const value = directedSpend * a.takeRate;
     return {
       surface,
@@ -89,13 +91,13 @@ export function computeSurfaceEconomics(
       driverCount: offers,
       lines: [
         {
-          label: "Directed spend",
-          formula: `${offers} offers × $${a.spendPerOffer.toLocaleString()} incremental spend`,
+          label: "Total deals spend",
+          formula: "Incremental spend on personalized offers / yr",
           value: directedSpend,
         },
         {
-          label: "Bank take rate",
-          formula: `$${Math.round(directedSpend).toLocaleString()} × ${(a.takeRate * 100).toFixed(1)}%`,
+          label: "Bank take",
+          formula: `${(a.takeRate * 100).toFixed(1)}% of directed spend`,
           value,
         },
       ],
@@ -116,6 +118,7 @@ export function computeSurfaceEconomics(
         {
           label: "Incremental conversions",
           formula: `${cards} products × ${(a.productConversion * 100).toFixed(1)}% lift`,
+          display: conversions.toFixed(2),
           value: conversions,
         },
         {
@@ -128,9 +131,7 @@ export function computeSurfaceEconomics(
   }
 
   const signals = countSignals(customer);
-  // More grounded signals → a slightly stronger retention effect, capped.
-  const effect = Math.min(a.attritionReduction * (0.6 + signals * 0.06), a.attritionReduction * 1.6);
-  const pointsSaved = a.baseAttrition * effect;
+  const pointsSaved = a.baseAttrition * a.attritionReduction;
   const value = pointsSaved * a.replacementCost;
   return {
     surface: "relationship",
@@ -141,7 +142,8 @@ export function computeSurfaceEconomics(
     lines: [
       {
         label: "Attrition avoided",
-        formula: `${(a.baseAttrition * 100).toFixed(1)}% base × ${(effect * 100).toFixed(1)}% reduction`,
+        formula: `${(a.baseAttrition * 100).toFixed(1)}% base × ${(a.attritionReduction * 100).toFixed(1)}% reduction`,
+        display: `${(pointsSaved * 100).toFixed(2)}pp`,
         value: pointsSaved,
       },
       {
