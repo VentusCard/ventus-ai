@@ -1,35 +1,33 @@
-# Rewrite the Key Features bullets
+# Rewrite the Key Features bullets as named capabilities
 
-## What we actually have today
+Current bullets are generic. Replace them with the actual named capabilities each surface ships, verified against the phone mockups and generation code.
 
-The three personalization tabs share one workspace: customer selection + signals (left), Key features + Unit economics (middle), phone mockup (right). The current bullets are generic marketing lines that don't describe the surfaces on screen.
+## What each surface actually ships
 
-What each surface really does:
+- **Rewards** — signal-grouped offer collections with a per-collection reason line, an "Expiring soon" strip, a rotating "Curated for {first name}" hero, and a semantic deal search bar (`useSemanticDealSearch`) that matches natural-language queries against the catalog with a reasoning line.
+- **Product** — generated product cards with headline, benefit list, eligibility line, CTA and value range, themed by lifestyle (travel, education, home, business…), each tagged with the signal type that triggered it. Delivery channel can be switched to email or SMS previews.
+- **Relationship** — membership/relationship view plus a grounded in-app assistant that answers using this customer's own signals, deals and detected life events, with proactive nudges and banker handoff.
 
-- **Personalized Rewards** — the phone shows an "Expiring soon" strip plus a rotating "Curated for {first name}" collection card. Offers are generated from the customer's five signal groups (behavioral spend, life events, financial, demographic, risk) grouped into lifestyle pillars, each with a collection message. Merchant names are sanitized so no invented bank brands appear.
-- **Personalized Product** — product cards generated against the bank's catalog, each with a headline, sub-copy and CTA, driven by life-event and financial signals with eligibility/suppression applied.
-- **Personalized Relationship** — the in-app assistant tab, answering with this customer's own signal context, plus proactive check-ins and banker handoff.
+## New bullets
 
-## Proposed bullets
+**Personalized Rewards**
+- Context-specific curation — collections built per signal group, each with its own reason line
+- Hyper-personalized messaging — copy written to the customer's behavior, never generic offer text
+- Semantic deal search — natural-language queries matched across the full catalog
+- Timing intelligence — expiring and in-season offers pushed ahead of the next spend window
 
-**Rewards**
-- Built from five signal groups — behavior, life events, financial, demographic, risk
-- Grouped into lifestyle collections with a reason line per collection
-- Timing-aware — expiring offers surface ahead of the customer's next spend window
-- Bank-safe brand handling — only real merchants and your own bank label
+**Personalized Product**
+- Signal-triggered recommendations — every card names the behavior or life event behind it
+- Offer construction — headline, benefits, eligibility and value range generated per customer
+- Lifestyle theming — visual treatment and CTA adapt to the customer's dominant pillar
+- Channel-ready delivery — same card renders in-app, as email, or as SMS
 
-**Product**
-- Ranked against the live product catalog, not a fixed list
-- Every card carries the signal that triggered it
-- Eligibility and suppression rules applied before anything surfaces
-- Copy adapts to tone and life stage, never quoting exact spend
-
-**Relationship**
-- Assistant answers from this customer's own signals, not generic scripts
-- Proactive nudges fire on life-event and financial changes
-- Escalates to a banker with the full signal context attached
-- Wellness and protection cues surface before they become problems
+**Personalized Relationship**
+- Grounded assistant — answers from this customer's signals, deals and detected events
+- Proactive nudges — life-event and financial changes trigger the right check-in
+- Banker escalation — hands off with full signal context attached
+- Protection cues — wellness and habit-shift indicators surface early
 
 ## Technical notes
 
-Edit only the `FEATURES` map in `src/components/tepilot/insights/personalization/SurfaceFeaturePanel.tsx` (label + detail per item). Keep four items per surface so the staggered reveal timing stays unchanged. No layout or logic changes.
+Edit only the `FEATURES` map in `src/components/tepilot/insights/personalization/SurfaceFeaturePanel.tsx`; keep four items per surface so the staggered reveal timing is unchanged. No layout or logic changes.
