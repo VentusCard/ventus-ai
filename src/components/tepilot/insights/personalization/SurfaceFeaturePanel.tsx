@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Sparkles, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { UnitEconomicsCard } from "./UnitEconomicsCard";
 
 export type Surface = "rewards" | "product" | "relationship";
@@ -33,8 +35,25 @@ const FEATURES: Record<Surface, { title: string; items: { label: string; detail:
   },
 };
 
-export function SurfaceFeaturePanel({ surface }: { surface: Surface }) {
+export function SurfaceFeaturePanel({
+  surface,
+  customerKey,
+}: {
+  surface: Surface;
+  customerKey?: string | null;
+}) {
   const config = FEATURES[surface];
+  const hasSelection = Boolean(customerKey);
+  const [revealed, setRevealed] = useState(0);
+
+  useEffect(() => {
+    setRevealed(0);
+    if (!hasSelection) return;
+    const timers = config.items.map((_, i) =>
+      window.setTimeout(() => setRevealed(i + 1), 120 * (i + 1)),
+    );
+    return () => timers.forEach(window.clearTimeout);
+  }, [customerKey, surface, hasSelection, config.items.length]);
 
   return (
     <div className="lg:col-span-1 min-h-0 flex flex-col gap-4">
@@ -45,24 +64,35 @@ export function SurfaceFeaturePanel({ surface }: { surface: Surface }) {
           <h2 className="text-sm font-semibold text-slate-900">{config.title}</h2>
         </div>
         <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2.5 space-y-2">
-          {config.items.map((item) => (
-            <div
-              key={item.label}
-              className="border border-slate-200 rounded-md bg-slate-50/50 px-2.5 py-2"
-            >
-              <div className="flex items-start gap-1.5">
-                <Check className="w-3.5 h-3.5 text-blue-500 mt-[1px] shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-[12px] font-semibold text-slate-900 leading-snug">{item.label}</p>
-                  <p className="text-[11px] text-slate-500 leading-relaxed mt-0.5">{item.detail}</p>
+          {!hasSelection ? (
+            <div className="h-full flex items-center justify-center border border-dashed border-slate-200 rounded-lg bg-slate-50/40 px-4 text-center">
+              <p className="text-[11.5px] text-slate-400 leading-relaxed max-w-[220px]">
+                Select a customer to see how this surface is personalized.
+              </p>
+            </div>
+          ) : (
+            config.items.map((item, i) => (
+              <div
+                key={item.label}
+                className={cn(
+                  "border border-slate-200 rounded-md bg-slate-50/50 px-2.5 py-2 transition-all duration-300",
+                  revealed > i ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1",
+                )}
+              >
+                <div className="flex items-start gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-blue-500 mt-[1px] shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-semibold text-slate-900 leading-snug">{item.label}</p>
+                    <p className="text-[11px] text-slate-500 leading-relaxed mt-0.5">{item.detail}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
-      <UnitEconomicsCard surface={surface} />
+      {hasSelection && <UnitEconomicsCard surface={surface} />}
     </div>
   );
 }
