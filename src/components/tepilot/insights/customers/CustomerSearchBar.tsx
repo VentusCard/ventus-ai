@@ -218,3 +218,20 @@ export function CustomerSearchBar({
     </div>
   );
 }
+
+function Stat({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <span className="inline-flex items-baseline gap-1 rounded-md border border-slate-200 bg-slate-50/70 px-2 py-1">
+      <span
+        className={cn(
+          "text-[12px] tabular-nums",
+          strong ? "font-semibold text-slate-900" : "font-medium text-slate-700",
+        )}
+      >
+        {value}
+      </span>
+      <span className="text-[10px] uppercase tracking-wider text-slate-400">{label}</span>
+    </span>
+  );
+}
+
