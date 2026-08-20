@@ -298,9 +298,10 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
               Segment exported from signal: {segment.label}
             </div>
             <div className="text-[11px] text-slate-600">
-              Filtered to customers carrying this signal family · {filtered.length}{" "}
-              {filtered.length === 1 ? "match" : "matches"} in the sample book
+              Filtered to customers carrying this signal · {fmtCount(population)} customers
+              in the book · {filtered.length} shown as a representative sample
             </div>
+
           </div>
           <button
             onClick={clearAll}
