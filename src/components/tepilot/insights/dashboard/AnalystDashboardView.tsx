@@ -8,6 +8,7 @@ import {
 } from "@/lib/mockBankwideData";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import type { TabValue } from "../AnalyticsContainer";
+import type { SignalFamily } from "@/lib/customerDirectoryData";
 import { ChartCard } from "./ChartCard";
 import { DashboardToolbar } from "./DashboardToolbar";
 import { InsightStrip } from "./InsightStrip";
@@ -22,6 +23,7 @@ interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
   onOpenOpportunity?: (opportunityId: string) => void;
   onOpenSection?: (section: "customers" | "risk") => void;
+  onOpenSignalSegment?: (family: SignalFamily, label: string) => void;
   renderVentusSliver?: () => React.ReactNode;
 }
 
@@ -45,6 +47,7 @@ export function AnalystDashboardView({
   onNavigate,
   onOpenOpportunity,
   onOpenSection,
+  onOpenSignalSegment,
   renderVentusSliver,
 }: AnalystDashboardViewProps) {
   const { range, preset, setPreset, setCustom, compare, setCompare } = useDashboardRange("30d");
