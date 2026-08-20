@@ -203,6 +203,10 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
   const { profilesEnriched } = getSignalCoverage();
   return SIGNAL_FAMILY_META.map((meta) => {
     const seed = FAMILY_SEED[meta.key];
+    // Sub-signals are a subset of the family: their shares can never exceed the
+    // family coverage. Normalize down when a seed set overshoots (e.g. risk).
+    const seedSum = seed.signals.reduce((n, s) => n + s.share, 0);
+    const fit = seedSum > seed.coverage ? (seed.coverage * 0.92) / seedSum : 1;
     return {
       key: meta.key,
       label: meta.label,
@@ -224,7 +228,7 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
       sparkline: seriesFor(meta.key, 14, seed.delta * 4),
       topSignals: seed.signals.map((s) => ({
         label: s.label,
-        customers: Math.round(profilesEnriched * s.share),
+        customers: Math.round(profilesEnriched * s.share * fit),
         delta: s.delta,
         evidence: s.evidence,
         confidence: s.confidence,
@@ -233,6 +237,7 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
     };
   });
 }
+
 
 export interface StreamSignal {
   signal: string;
