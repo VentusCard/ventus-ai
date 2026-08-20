@@ -62,6 +62,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
   });
 
   const total = rows.reduce((sum, r) => sum + (r.value ?? 0), 0);
+  const partial = rows.some((r) => r.value == null);
   const current = computed.find((c) => c.surface === surface)!;
 
   if (!customer) {
