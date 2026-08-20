@@ -36,8 +36,10 @@ import {
 interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
   onOpenOpportunity?: (opportunityId: string) => void;
+  onOpenSection?: (section: "customers" | "risk") => void;
   renderVentusSliver?: () => React.ReactNode;
 }
+
 
 
 function fmtCurrency(n: number) {
