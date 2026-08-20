@@ -1,4 +1,5 @@
-import { Sparkles, Check, LayoutGrid } from "lucide-react";
+import { Sparkles, Check } from "lucide-react";
+import { UnitEconomicsCard } from "./UnitEconomicsCard";
 
 export type Surface = "rewards" | "product" | "relationship";
 
@@ -61,20 +62,7 @@ export function SurfaceFeaturePanel({ surface }: { surface: Surface }) {
         </div>
       </div>
 
-      {/* Reserved */}
-      <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
-        <div className="shrink-0 px-3.5 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center gap-2">
-          <LayoutGrid className="w-4 h-4 text-slate-400 shrink-0" />
-          <h2 className="text-sm font-semibold text-slate-900">Reserved</h2>
-        </div>
-        <div className="flex-1 min-h-0 p-3">
-          <div className="h-full flex items-center justify-center border border-dashed border-slate-200 rounded-lg bg-slate-50/40 px-4 text-center">
-            <p className="text-[11.5px] text-slate-400 leading-relaxed max-w-[220px]">
-              Reserved for upcoming module.
-            </p>
-          </div>
-        </div>
-      </div>
+      <UnitEconomicsCard surface={surface} />
     </div>
   );
 }
