@@ -223,6 +223,11 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
         recentlyViewed={recentlyViewed}
         hasFilters={hasFilters}
         onClear={clearAll}
+        metrics={hasFilters ? metrics : null}
+        canExport={filtered.length > 0}
+        onExportCsv={handleExportCsv}
+        onCopyJson={handleCopyJson}
+        onCopyList={handleCopyList}
       />
 
       {!hasFilters && !selected ? (
@@ -257,18 +262,7 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
           )}
         >
           <div className="space-y-2 min-w-0">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                {filtered.length} {filtered.length === 1 ? "customer" : "customers"} ·{" "}
-                {filtered.reduce((n, c) => n + totalSignals(c), 0)} signals
-              </span>
-              <button
-                onClick={clearAll}
-                className="text-[10px] font-medium text-slate-400 hover:text-slate-700 underline underline-offset-2"
-              >
-                Clear all
-              </button>
-            </div>
+
             <CustomerResultsTable
               customers={filtered}
               sortKey={sortKey}
