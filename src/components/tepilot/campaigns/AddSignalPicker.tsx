@@ -48,9 +48,9 @@ export function AddSignalPicker({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="w-full rounded-lg border border-dashed border-slate-300 bg-white/60 px-3 py-2 text-[11.5px] font-medium text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-1.5"
+          className="w-full rounded-lg border border-dashed border-slate-300 bg-white/60 px-4 py-3 text-[13px] font-medium text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-4 h-4" />
           Add signal
         </button>
       </PopoverTrigger>
