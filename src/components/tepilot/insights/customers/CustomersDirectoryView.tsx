@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Users, Gem, CalendarHeart, ShieldAlert, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Users, Gem, CalendarHeart, ShieldAlert, Search, Radar, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TabHeader } from "../TabHeader";
 import { CustomerPortfolioStats } from "./CustomerPortfolioStats";
@@ -34,7 +34,17 @@ function haystack(c: DirectoryCustomer) {
     .toLowerCase();
 }
 
-export function CustomersDirectoryView() {
+export interface CustomerSegmentSeed {
+  family: SignalFamily;
+  label: string;
+}
+
+interface CustomersDirectoryViewProps {
+  segment?: CustomerSegmentSeed | null;
+  onClearSegment?: () => void;
+}
+
+export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDirectoryViewProps = {}) {
   const [query, setQuery] = useState("");
   const [families, setFamilies] = useState<Set<SignalFamily>>(new Set());
   const [tiers, setTiers] = useState<Set<string>>(new Set());
@@ -43,6 +53,15 @@ export function CustomersDirectoryView() {
   const [recentIds, setRecentIds] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("value");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  useEffect(() => {
+    if (!segment) return;
+    setQuickStart(null);
+    setSelectedId(null);
+    setTiers(new Set());
+    setQuery(segment.label);
+    setFamilies(new Set([segment.family]));
+  }, [segment]);
 
   const hasFilters = query.trim().length > 0 || families.size > 0 || tiers.size > 0 || !!quickStart;
 
@@ -82,6 +101,7 @@ export function CustomersDirectoryView() {
   };
 
   const clearAll = () => {
+    onClearSegment?.();
     setQuery("");
     setFamilies(new Set());
     setTiers(new Set());
@@ -135,6 +155,28 @@ export function CustomersDirectoryView() {
         howItWorks="Every profile is assembled from enriched transaction behavior. Signals are assigned once, following the priority ladder: Life Event, then Financial, then Spending Habit, then Demographic, then Risk."
         whyItMatters="Bankers stop guessing. One search returns behavioral context, the financial obligations already in play, and the next best conversation to have."
       />
+
+      {segment && (
+        <div className="flex items-center gap-2.5 rounded-lg border border-blue-200 bg-blue-50/60 px-3 py-2">
+          <Radar className="w-4 h-4 text-blue-600 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="text-[12px] font-semibold text-slate-900 truncate">
+              Segment exported from signal: {segment.label}
+            </div>
+            <div className="text-[11px] text-slate-600">
+              Filtered to customers carrying this signal family · {filtered.length}{" "}
+              {filtered.length === 1 ? "match" : "matches"} in the sample book
+            </div>
+          </div>
+          <button
+            onClick={clearAll}
+            className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 border border-slate-200 bg-white rounded-md px-2 py-1 transition-colors shrink-0"
+          >
+            <X className="w-3 h-3" />
+            Clear segment
+          </button>
+        </div>
+      )}
 
       <CustomerPortfolioStats />
 
