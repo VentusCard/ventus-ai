@@ -22,6 +22,17 @@ export interface SignalFamilyStats {
   label: string;
   chip: string;
   dot: string;
+  /** Soft card/panel tint classes for the Intelligence Dashboard. */
+  tint: string;
+  cardBorder: string;
+  cardBorderHover: string;
+  sparklineColor: string;
+  barStrong: string;
+  barLikely: string;
+  barEmerging: string;
+  rowHover: string;
+  rowHoverBorder: string;
+  openText: string;
   /** Customers carrying at least one signal in this family. */
   customers: number;
   delta: number;
