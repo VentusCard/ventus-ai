@@ -66,6 +66,21 @@ export function ensurePersonalization(customerId: string) {
     });
 }
 
+/** Drops every cached result so surfaces regenerate (e.g. after the demo bank name changes). */
+export function clearPersonalizationResults() {
+  store = {};
+  inFlight.clear();
+  hasPrewarmed = false;
+  emit();
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("demo-bank-config-changed", () => {
+    clearPersonalizationResults();
+    prewarmDefaultCustomer();
+  });
+}
+
 /** Prewarms the first example customer once per session. */
 export function prewarmDefaultCustomer() {
   if (hasPrewarmed) return;
@@ -73,6 +88,7 @@ export function prewarmDefaultCustomer() {
   const first = EXAMPLE_CUSTOMERS[0];
   if (first) ensurePersonalization(first.id);
 }
+
 
 function subscribe(listener: () => void) {
   listeners.add(listener);
