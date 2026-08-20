@@ -15,6 +15,7 @@ import {
 import { buildChatSignalContext } from "@/lib/personalizationGeneration";
 import { ExampleCustomerBar } from "./personalization/ExampleCustomerBar";
 import { CustomerSignalPanel } from "./personalization/CustomerSignalPanel";
+import { SurfaceFeaturePanel } from "./personalization/SurfaceFeaturePanel";
 import type { TabValue } from "./AnalyticsContainer";
 
 type Surface = "rewards" | "product" | "relationship";
