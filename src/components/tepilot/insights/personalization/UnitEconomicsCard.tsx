@@ -134,7 +134,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
           </div>
           <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
             <span className="text-[11.5px] font-semibold text-slate-900">
-              Total / average customer
+              {partial ? "Total so far / average customer" : "Total / average customer"}
             </span>
             <span className="text-[14px] font-bold text-blue-700 tabular-nums">
               {formatMoney(total)}
