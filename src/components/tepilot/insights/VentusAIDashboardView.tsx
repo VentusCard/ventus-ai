@@ -86,8 +86,14 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
     <div className="space-y-4">
       <SubTabBar items={DASHBOARD_SECTIONS} value={section} onChange={setSection} />
       {section === "overview" && (
-        <AnalystDashboardView onNavigate={onNavigate} onOpenOpportunity={onOpenOpportunity} renderVentusSliver={onOpenChat ? renderSliver : undefined} />
+        <AnalystDashboardView
+          onNavigate={onNavigate}
+          onOpenOpportunity={onOpenOpportunity}
+          onOpenSection={(s) => setSection(s)}
+          renderVentusSliver={onOpenChat ? renderSliver : undefined}
+        />
       )}
+
       {section === "customers" && <CustomersDirectoryView />}
       {section === "reports" && (
         <ReportsAndQueryView
