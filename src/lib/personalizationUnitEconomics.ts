@@ -12,7 +12,7 @@ export const SURFACE_LABEL: Record<EconomicsSurface, string> = {
 
 /** Editable, average-customer-level assumptions. */
 export interface EconomicsAssumptions {
-  /** Deals: incremental spend routed to the bank's rails per average customer, per year ($). */
+  /** Deals: incremental, offer-driven spend routed to the bank's rails per average customer, per year ($). */
   annualDealsSpend: number;
   /** Deals: bank take rate on directed spend (0-1). */
   takeRate: number;
@@ -29,7 +29,7 @@ export interface EconomicsAssumptions {
 }
 
 export const DEFAULT_ASSUMPTIONS: EconomicsAssumptions = {
-  annualDealsSpend: 1800,
+  annualDealsSpend: 600,
   takeRate: 0.08,
   productConversion: 0.04,
   cacAvoided: 420,
@@ -90,7 +90,7 @@ export function computeSurfaceEconomics(
       driverLabel: "live offers",
       driverCount: offers,
       lines: [
-        { label: "Total deals spend / user / yr", value: directedSpend },
+        { label: "Incremental deal spend / user / yr", value: directedSpend },
         { label: "Bank take / user / yr", value },
       ],
     };
