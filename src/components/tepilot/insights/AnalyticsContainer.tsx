@@ -422,8 +422,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     "w-full flex items-center gap-3 text-left transition-colors",
     collapsed ? "justify-center px-0 py-2" : "px-3 py-2",
     isActive
-      ? "text-[15px] font-semibold text-white bg-white/10 border-l-2 border-indigo-400 shadow-[0_0_12px_rgba(79,70,229,0.15)]"
-      : "text-[14px] font-medium text-indigo-100/80 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
+      ? "text-[16px] font-semibold text-white bg-white/10 border-l-2 border-indigo-400 shadow-[0_0_12px_rgba(79,70,229,0.15)]"
+      : "text-[15px] font-medium text-indigo-100/80 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
   );
 
   const navIconClasses = (isActive: boolean) => cn(
