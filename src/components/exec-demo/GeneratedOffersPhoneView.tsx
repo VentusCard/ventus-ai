@@ -496,10 +496,11 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         {/* ── Expiring Soon ── */}
         {!isSearchActive && expiringSoon.length > 0 && (
           <div>
-            <div className="flex items-center gap-1 mb-1.5">
-              <Clock className="w-3 h-3 text-red-500" />
-              <span className="text-[10px] font-bold text-slate-700">Expiring Soon</span>
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Clock className="w-3.5 h-3.5 text-red-500" />
+              <span className="text-[11px] font-bold text-slate-700">Expiring Soon</span>
             </div>
+
             <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
               {expiringSoon.map((deal) => {
                 const isUrgent = deal.hoursLeft < 6;
@@ -539,22 +540,23 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
             <div
               key={`${active.pillar}::${active.rollup}`}
-              className="rounded-2xl overflow-hidden border border-slate-100 flex flex-col min-h-[160px] cursor-pointer hover:shadow-md transition-shadow"
+              className="rounded-xl overflow-hidden border border-slate-100 flex flex-col min-h-[124px] cursor-pointer hover:shadow-md transition-shadow"
               style={{
                 background: "linear-gradient(145deg, #f8fafc, #ffffff)",
                 animation: `collection-slide-${direction} 0.35s ease-out`,
               }}
               onClick={() => setExpandedGroup(active)}
             >
-              <div className="h-[80px] w-full overflow-hidden">
+              <div className="h-[60px] w-full overflow-hidden">
                 <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" />
               </div>
-              <div className="px-4 pt-2.5 pb-1.5 flex-1">
-                <p className="text-[13px] font-semibold text-slate-800 leading-snug">
+              <div className="px-3 pt-2 pb-1 flex-1">
+                <p className="text-[10px] font-semibold text-slate-800 leading-snug">
                   {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
                 </p>
               </div>
-              <div className="flex items-center gap-1 px-4 pb-3 overflow-hidden">
+
+              <div className="flex items-center gap-1 px-3 pb-2.5 overflow-hidden">
                 {activeDeals.map((deal) => (
                   <span
                     key={deal.id}
