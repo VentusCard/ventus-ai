@@ -9,6 +9,7 @@ import {
   makeStreamEntry, seedStream, relativeTime,
   type StreamEntry, type StreamKind,
 } from "./coworkerStreamData";
+import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 const MAX_ENTRIES = 60;
 
@@ -107,8 +108,7 @@ export function CoworkerLiveStreamView() {
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              <PulseDot colorClass="bg-emerald-500" sizeClass="h-2.5 w-2.5" />
             </span>
             <span className="text-[13px] font-semibold text-slate-900">Streaming live</span>
             <span className="text-[12px] text-slate-500">
@@ -184,7 +184,7 @@ export function CoworkerLiveStreamView() {
                     )}
                     style={isNewest ? { animation: "fade-in 0.35s ease-out" } : undefined}
                   >
-                    <span className={cn("mt-2 block h-2 w-2 rounded-full shrink-0", s.dot)} />
+                    <PulseDot colorClass={s.dot} sizeClass="h-2 w-2" className="mt-2 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={cn("text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded", s.badge)}>

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { BOOK_CUSTOMERS, fmtCount } from "@/lib/bookScale";
 import { getSignalCoverage, getSignalFamilyStats } from "@/lib/intelligenceSignalStats";
+import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 export function CustomerPortfolioStats() {
   const { coverage, families, totalSignals } = useMemo(() => {
@@ -62,9 +63,9 @@ export function CustomerPortfolioStats() {
           ))}
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-          {families.map((f) => (
+          {families.map((f, i) => (
             <span key={f.key} className="inline-flex items-center gap-1.5 text-[10px] text-slate-500">
-              <span className={cn("w-1.5 h-1.5 rounded-full", f.dot)} />
+              <PulseDot colorClass={f.dot} sizeClass="w-1.5 h-1.5" delayMs={i * 260} />
               {f.label}
               <span className="text-slate-800 font-semibold tabular-nums">
                 {fmtCount(f.customers)}

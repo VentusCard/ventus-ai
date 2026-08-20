@@ -6,6 +6,7 @@ import {
   TEAM_DESTINATIONS,
   type TeamDestination,
 } from "./coworkerInboxData";
+import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 export function CoworkerInboxView() {
   const [capabilitiesExpanded, setCapabilitiesExpanded] = useState(false);
@@ -18,8 +19,7 @@ export function CoworkerInboxView() {
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              <PulseDot colorClass="bg-emerald-500" sizeClass="h-2.5 w-2.5" />
             </span>
             <span className="text-[13px] font-semibold text-slate-900">Ventus AI Coworker</span>
             <span className="text-[12px] text-emerald-700 font-medium">Active</span>
@@ -185,14 +185,11 @@ function TeamDestinationSliver({ team }: { team: TeamDestination }) {
 
           <div className="mt-1.5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
-              <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", styles.insightDot)} />
+              <PulseDot colorClass={styles.insightDot} sizeClass="h-1.5 w-1.5" className="shrink-0" />
               <span className="text-[11.5px] leading-snug text-slate-600 truncate">{primaryInsight}</span>
             </div>
             <div className="flex items-center gap-1.5 shrink-0 text-[10.5px] text-slate-500">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-              </span>
+              <PulseDot colorClass="bg-emerald-500" sizeClass="h-1.5 w-1.5" />
               {team.lastDeliveryAgo}
             </div>
           </div>

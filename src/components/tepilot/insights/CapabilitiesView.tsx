@@ -59,6 +59,7 @@ import {
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import { BANK_PRODUCT_CATEGORIES, BANK_PRODUCT_TOTAL } from "@/lib/bankProductCatalog";
+import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 type SourceInput = {
   label: string;
@@ -534,7 +535,7 @@ function SignalSection({
     >
       <span className={cn("absolute inset-y-0 left-0 w-[3px]", signal.color)} />
       <span className="mb-0.5 flex items-center gap-2">
-        <span className={cn("h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10", signal.dot)} />
+        <PulseDot colorClass={signal.dot} sizeClass="h-[7px] w-[7px]" delayMs={index * 320} className="ring-[3px] ring-white/10 rounded-full" />
         <span className="text-[12.5px] font-semibold tracking-tight text-slate-100">{signal.label}</span>
         <span className="ml-auto font-mono text-[11px] tabular-nums text-slate-400">
           <b className="font-semibold text-slate-200">{count}</b> · 24h
@@ -574,7 +575,7 @@ function Kpi({
   return (
     <div className="relative rounded-xl border border-slate-200 bg-white p-4">
       <div className="mb-2.5 flex items-center gap-2 text-xs font-medium text-slate-700">
-        <span className="h-1.5 w-1.5 rounded-full" style={{ background: dot }} />
+        <PulseDot color={dot} sizeClass="h-1.5 w-1.5" />
         {label}
       </div>
       <div className="text-[27px] font-semibold leading-none tracking-tight tabular-nums text-slate-900">{value}</div>

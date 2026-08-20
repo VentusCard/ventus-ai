@@ -23,6 +23,7 @@ import {
   type PlaybookRule,
   type SignalFamily,
 } from "./coworkerPersonaData";
+import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 const ACCENT_DOT: Record<TeamDestination["accent"], string> = {
   indigo: "bg-indigo-500",
@@ -154,7 +155,7 @@ export function CoworkerPersonaSettingsView() {
                 )}
               >
                 <div className="flex items-center gap-2">
-                  <span className={cn("h-2 w-2 rounded-full flex-none", ACCENT_DOT[t.accent])} />
+                  <PulseDot colorClass={ACCENT_DOT[t.accent]} sizeClass="h-2 w-2" delayMs={i * 200} />
                   <span className="text-[12.5px] font-medium text-slate-900 truncate">
                     {t.name.replace("Coworker for ", "")}
                   </span>
@@ -177,7 +178,7 @@ export function CoworkerPersonaSettingsView() {
         <div className="px-4 py-3 border-b border-slate-200 flex items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className={cn("h-2.5 w-2.5 rounded-full flex-none", ACCENT_DOT[team.accent])} />
+              <PulseDot colorClass={ACCENT_DOT[team.accent]} sizeClass="h-2.5 w-2.5" />
               <h3 className="text-[14px] font-semibold text-slate-900 truncate">{team.name}</h3>
             </div>
             <div className="mt-1 flex items-center gap-1.5 text-[11.5px] text-slate-500">
