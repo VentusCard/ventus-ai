@@ -28,9 +28,9 @@ const AnnouncementBar = () => {
           <span className="text-blue-700/80 sm:hidden"> at Finovate Fall, Boston Fintech Week, and MoneyLIVE 2026.</span>
           <Link
             to="/contact"
-            className="ml-1.5 inline-flex items-center font-semibold text-blue-600 hover:text-blue-700 underline-offset-2 hover:underline"
+            className="ml-1.5 inline-flex items-center font-semibold text-blue-600 hover:text-blue-700 underline-offset-2 hover:underline whitespace-pre-wrap"
           >
-            Contact us
+            Schedule a Meeting{"\n"}
             <span aria-hidden="true" className="ml-0.5">→</span>
           </Link>
         </p>
