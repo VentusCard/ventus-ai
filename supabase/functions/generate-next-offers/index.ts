@@ -176,7 +176,7 @@ NUMERIC VALUE LINE — REQUIRED, this is the whole point:
 - Never invent balances or rates not present in the signal. If a field is missing, ground the calc in what IS present (monthly_payment × 12, or renewal_window urgency) and label the assumption.
 
 Output valid JSON only, no markdown:
-{"rollupOffers":[{"signalId":"FS_1","rollup":"Exact Signal Label","pillar":"Financial Signal","collectionMessage":"8-10 word tagline","imageCategory":"auto","imageQuery":"car keys handover","suppressedCategories":[],"deals":[{"id":"fs1_d1","merchant":"Your Bank","product":"Auto Loan Refinance","rewardValue":"−1.5% APR","message":"Lower your monthly payment without extending your term.","valueLine":"Refi at 5.99% ≈ ~$50/mo saved on your ~$685/mo VW Credit payment.","valueMath":"1.5% APR × $685/mo ≈ $50/mo","cta":"Refi in Minutes","signal":"boost","signalReason":"VW Credit auto loan renewal in ~2mo","boostCategory":"Auto Refi"},...]},...]}`;
+{"rollupOffers":[{"signalId":"FS_1","rollup":"Exact Signal Label","pillar":"Financial Signal","collectionMessage":"8-10 word tagline","imageCategory":"auto","imageQuery":"car keys handover","suppressedCategories":[],"deals":[{"id":"fs1_d1","merchant":"Our Bank","product":"Auto Loan Refinance","rewardValue":"−1.5% APR","message":"Lower your monthly payment without extending your term.","valueLine":"Refi at 5.99% ≈ ~$50/mo saved on your ~$685/mo VW Credit payment.","valueMath":"1.5% APR × $685/mo ≈ $50/mo","cta":"Refi in Minutes","signal":"boost","signalReason":"VW Credit auto loan renewal in ~2mo","boostCategory":"Auto Refi"},...]},...]}`;
 
 /** Bank-product detection: these deals must always be branded as the bank itself. */
 const BANK_PRODUCT_RE = /\b(loan|refi|refinance|heloc|home equity|mortgage|line of credit|credit card|debit card|savings|checking|cd\b|certificate of deposit|ira|401k|roth|brokerage|investing|investment account|wealth|advisory|overdraft|apr)\b/i;
@@ -257,7 +257,7 @@ serve(async (req) => {
     const { persona, pillars, lifeEvents, bankContext, financial_signals, months_of_data } = body;
     const _bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
     if (_bankName) console.log(`[NEXT-OFFERS] customized for bank: ${_bankName}`);
-    const bankLabel = _bankName || "Your Bank";
+    const bankLabel = _bankName || "Our Bank";
     const months = Math.max(1, Math.min(24, Number(months_of_data) || 12));
     const annualize = (spend: number) => Math.round((spend / months) * 12);
 
