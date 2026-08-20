@@ -97,7 +97,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
       </div>
 
       {/* ---------- Key features + unit economics ---------- */}
-      <SurfaceFeaturePanel surface={surface} />
+      <SurfaceFeaturePanel surface={surface} customerKey={hasSelection ? selectedId ?? displayName : null} />
 
       {/* ---------- Personalized surface ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
