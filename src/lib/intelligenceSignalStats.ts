@@ -189,10 +189,14 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
       customers: Math.round(profilesEnriched * seed.coverage),
       delta: seed.delta,
       confidence: seed.confidence,
+      sparkline: seriesFor(meta.key, 14, seed.delta * 4),
       topSignals: seed.signals.map((s) => ({
         label: s.label,
         customers: Math.round(profilesEnriched * s.share),
         delta: s.delta,
+        evidence: s.evidence,
+        confidence: s.confidence,
+        trend: seriesFor(`${meta.key}:${s.label}`, 10, s.delta * 3),
       })),
     };
   });
