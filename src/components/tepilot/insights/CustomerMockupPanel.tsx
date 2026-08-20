@@ -161,11 +161,21 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
             </div>
           )}
 
-          {hasSelection && !useSession && generated.status === "failed" && (
-            <p className="shrink-0 mt-1.5 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5 text-center">
-              Live generation didn't return for this customer. Showing the standard demo content
-              instead — reselect the customer to retry.
-            </p>
+          {hasSelection && !useSession && example && generated.status === "failed" && (
+            <div className="shrink-0 mt-1.5 flex items-center justify-center gap-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5">
+              <span>
+                Live generation didn't return for this customer. Showing the standard demo content
+                instead.
+              </span>
+              <button
+                type="button"
+                onClick={() => retryPersonalization(example.id)}
+                className="inline-flex items-center gap-1 rounded border border-amber-300 bg-white px-2 py-0.5 font-medium text-amber-800 hover:bg-amber-100 transition-colors"
+              >
+                <RotateCw className="h-3 w-3" />
+                Retry
+              </button>
+            </div>
           )}
         </div>
       </div>
