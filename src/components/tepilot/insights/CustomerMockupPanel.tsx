@@ -77,11 +77,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
 
         <div className="flex-1 min-h-0 px-4 py-3">
           {!hasSelection ? (
-            <div className="h-full flex items-center justify-center border border-dashed border-slate-200 rounded-lg bg-slate-50/40 px-4 text-center">
-              <p className="text-[13px] text-slate-400 leading-relaxed max-w-[240px]">
-                Search and select a customer to view their detected signals.
-              </p>
-            </div>
+            <CustomerSignalSkeleton />
           ) : useSession ? (
             <div className="border border-slate-200 rounded-lg bg-slate-50/70 px-3 py-2.5">
               <p className="text-[12px] text-slate-500 leading-relaxed">
