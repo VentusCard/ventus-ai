@@ -81,12 +81,48 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
     return (
       <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
         <Header />
-        <div className="flex-1 min-h-0 p-3">
-          <div className="h-full flex items-center justify-center border border-dashed border-slate-200 rounded-lg bg-slate-50/40 px-4 text-center">
-            <p className="text-[11.5px] text-slate-400 leading-relaxed max-w-[220px]">
-              Select a customer to model the per-average-customer economics.
+        <div className="flex-1 min-h-0 overflow-hidden px-3 py-3 space-y-3 opacity-60 grayscale pointer-events-none select-none">
+          <div className="border border-slate-200 rounded-md bg-slate-50/50 px-3 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-2">
+              {SURFACE_LABEL[surface]}
             </p>
+            <div className="space-y-2">
+              {current.lines.map((line) => (
+                <div key={line.label} className="flex items-center justify-between gap-2">
+                  <span className="text-[11.5px] text-slate-500">{line.label}</span>
+                  <span className="text-[13px] font-bold text-slate-400 tabular-nums shrink-0">—</span>
+                </div>
+              ))}
+            </div>
           </div>
+
+          <div className="border border-slate-200 rounded-md bg-slate-50/50 px-3 py-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11.5px] font-semibold text-slate-500">
+                Total / customer / yr
+              </span>
+              <span className="text-[15px] font-bold text-slate-400 tabular-nums">—</span>
+            </div>
+            <div className="mt-2 pt-2 border-t border-slate-200 space-y-1">
+              {ALL_SURFACES.map((s) => (
+                <div key={s} className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] text-slate-500">{SURFACE_LABEL[s]}</span>
+                  <span className="text-[10.5px] text-slate-400">not generated</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="border border-slate-200 rounded-md bg-white">
+            <div className="w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] font-semibold text-slate-400">
+              <span>Assumptions</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          <p className="text-[11px] text-slate-400 text-center">
+            Select a customer to model the per-average-customer economics.
+          </p>
         </div>
       </div>
     );
