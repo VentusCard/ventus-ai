@@ -178,6 +178,20 @@ NUMERIC VALUE LINE — REQUIRED, this is the whole point:
 Output valid JSON only, no markdown:
 {"rollupOffers":[{"signalId":"FS_1","rollup":"Exact Signal Label","pillar":"Financial Signal","collectionMessage":"8-10 word tagline","imageCategory":"auto","imageQuery":"car keys handover","suppressedCategories":[],"deals":[{"id":"fs1_d1","merchant":"Your Bank","product":"Auto Loan Refinance","rewardValue":"−1.5% APR","message":"Lower your monthly payment without extending your term.","valueLine":"Refi at 5.99% ≈ ~$50/mo saved on your ~$685/mo VW Credit payment.","valueMath":"1.5% APR × $685/mo ≈ $50/mo","cta":"Refi in Minutes","signal":"boost","signalReason":"VW Credit auto loan renewal in ~2mo","boostCategory":"Auto Refi"},...]},...]}`;
 
+/** Bank-product detection: these deals must always be branded as the bank itself. */
+const BANK_PRODUCT_RE = /\b(loan|refi|refinance|heloc|home equity|mortgage|line of credit|credit card|debit card|savings|checking|cd\b|certificate of deposit|ira|401k|roth|brokerage|investing|investment account|wealth|advisory|overdraft|apr)\b/i;
+/** Names that look like a bank/lender brand — used to catch invented issuers. */
+const BANKISH_MERCHANT_RE = /\b(bank|banc|financial|finance|credit union|federal credit|lending|lenders?|loans?|capital|trust|mutual|savings|advisors?|wealth|fcu)\b/i;
+
+function resolveMerchant(merchant: string, product: string, bankLabel: string): string {
+  const m = (merchant || "").trim();
+  const p = (product || "").trim();
+  if (!m) return bankLabel;
+  if (m.toLowerCase() === bankLabel.toLowerCase()) return bankLabel;
+  if (BANK_PRODUCT_RE.test(p) || BANKISH_MERCHANT_RE.test(m)) return bankLabel;
+  return m;
+}
+
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
   const candidates = [
@@ -330,14 +344,14 @@ serve(async (req) => {
     let rollupUserPrompt = "";
     if (rollupList) rollupUserPrompt += `BEHAVIORAL CLUSTERS (with spend totals + annualized figures — use these for valueLine math):\n${rollupList}\n\n`;
     if (pillarContext) rollupUserPrompt += `SPENDING CONTEXT (annualized $):\n${pillarContext}\n\n`;
-    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. Every deal MUST include a valueLine + valueMath grounded in the numbers above. The "rollup" field MUST be the exact label string in quotes (verbatim). Return valid JSON only.`;
+    rollupUserPrompt += `BANK NAMING RULE: for any bank/financial product deal, the "merchant" MUST be "${bankLabel}" verbatim — never invent a lender or issuer brand and never name a real bank.\n\nGenerate exactly 5 boost deals for EACH cluster above. Every deal MUST include a valueLine + valueMath grounded in the numbers above. The "rollup" field MUST be the exact label string in quotes (verbatim). Return valid JSON only.`;
 
     const lifeEventUserPrompt = lifeEventList
-      ? `LIFE EVENTS (generate one rollup group per event, 5 deals each):\n${lifeEventList}\n\nFor EACH event above, produce exactly one rollup group whose "eventId" matches the id (LE_1, LE_2, ...) and whose "rollup" is the exact event_name. Every deal MUST include valueLine + valueMath (life-event product cost benchmarks are OK if you name them). Return valid JSON only.`
+      ? `LIFE EVENTS (generate one rollup group per event, 5 deals each):\n${lifeEventList}\n\nFor EACH event above, produce exactly one rollup group whose "eventId" matches the id (LE_1, LE_2, ...) and whose "rollup" is the exact event_name. Every deal MUST include valueLine + valueMath (life-event product cost benchmarks are OK if you name them). BANK NAMING RULE: for any bank/financial product deal, the "merchant" MUST be "${bankLabel}" verbatim — never invent a lender or issuer brand and never name a real bank. Return valid JSON only.`
       : "";
 
     const financialSignalUserPrompt = financialSignalList
-      ? `BANK: ${bankLabel}\n\nFINANCIAL SIGNALS (generate one rollup group per signal, 5 deals each — this is the hero of hyper-personalization):\n${financialSignalList}\n\nFor EACH signal above, produce exactly one rollup group whose "signalId" matches the id (FS_1, FS_2, ...) and whose "rollup" is the exact label. Every deal MUST include valueLine + valueMath computed from THAT signal's own numbers (monthly_payment, balance, rate). Return valid JSON only.`
+      ? `BANK: ${bankLabel}\n\nFINANCIAL SIGNALS (generate one rollup group per signal, 5 deals each — this is the hero of hyper-personalization):\n${financialSignalList}\n\nBANK NAMING RULE (STRICT): every deal for a bank product (loan, refinance, HELOC, mortgage, credit card, savings, IRA, investing, line of credit) MUST use "${bankLabel}" VERBATIM as the "merchant". NEVER invent a lender or issuer brand (e.g. "Star Financial", "Summit Lending") and NEVER name a real institution (Chase, Wells Fargo, Bank of America, Citi, SoFi, LightStream, Merrill). Third-party retail merchants are allowed ONLY for non-bank products.\n\nFor EACH signal above, produce exactly one rollup group whose "signalId" matches the id (FS_1, FS_2, ...) and whose "rollup" is the exact label. Every deal MUST include valueLine + valueMath computed from THAT signal's own numbers (monthly_payment, balance, rate). Return valid JSON only.`
       : "";
 
     const tasks: Promise<Response | null>[] = [];
@@ -393,7 +407,7 @@ serve(async (req) => {
       const normalizedGroups = lifeEventGroups.map((g: any) => {
         const normalizedDeals = (g.deals || []).map((d: any, idx: number) => ({
           id: d.id || `le_${idx}`,
-          merchant: d.merchant || d.brand || "Recommended Partner",
+          merchant: resolveMerchant(d.merchant || d.brand || "", d.product || d.product_name || "", bankLabel) || "Recommended Partner",
           product: d.product || d.product_name || "",
           rewardValue: d.rewardValue || d.reward || "",
           message: d.message || "",
@@ -475,7 +489,7 @@ serve(async (req) => {
         imageQuery: g.imageQuery || g.image_query,
         deals: (g.deals || []).map((d: any, idx: number) => ({
           id: d.id || `fs_${idx}`,
-          merchant: d.merchant || bankLabel,
+          merchant: resolveMerchant(d.merchant, d.product || d.product_name || "", bankLabel),
           product: d.product || d.product_name || "",
           rewardValue: d.rewardValue || d.reward || "",
           message: d.message || "",
