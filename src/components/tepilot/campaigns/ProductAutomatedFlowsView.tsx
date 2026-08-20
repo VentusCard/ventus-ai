@@ -72,33 +72,33 @@ function formatAudience(n: number): string {
 function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: number }) {
   const msg = signal.message;
   return (
-    <div className="mt-2 rounded-lg border border-slate-200 bg-white p-3 grid gap-3 md:grid-cols-2">
-      <div className="space-y-2 min-w-0">
+    <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4 grid gap-4 md:grid-cols-2">
+      <div className="space-y-3 min-w-0">
         <div className="flex items-center gap-2">
           <span
             className={cn(
-              "text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
+              "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border",
               SIGNAL_FAMILY_CLASS[signal.family],
             )}
           >
             {SIGNAL_FAMILY_LABEL[signal.family]}
           </span>
-          <p className="text-[11px] font-semibold text-slate-900 truncate">{msg.title}</p>
+          <p className="text-[13px] font-semibold text-slate-900 truncate">{msg.title}</p>
         </div>
         <div>
-          <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Why this fires</p>
-          <p className="text-[11px] text-slate-600 leading-snug mt-0.5">{signal.evidence}</p>
+          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Why this fires</p>
+          <p className="text-[12px] text-slate-600 leading-snug mt-1">{signal.evidence}</p>
         </div>
         <div className="flex items-center gap-4">
           <div>
-            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Microsegment</p>
-            <p className="text-[11px] font-bold text-slate-900">{formatAudience(audience)} customers</p>
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Microsegment</p>
+            <p className="text-[12px] font-bold text-slate-900">{formatAudience(audience)} customers</p>
           </div>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {signal.channels.map((c) => (
               <span
                 key={c}
-                className="text-[9.5px] font-medium px-1.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600"
+                className="text-[10.5px] font-medium px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600"
               >
                 {c}
               </span>
@@ -107,17 +107,17 @@ function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: 
         </div>
       </div>
 
-      <div className="rounded-md border border-slate-200 bg-slate-50/70 p-2.5 flex flex-col gap-1.5 min-w-0">
-        <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
-          <Mail className="w-3 h-3" />
+      <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3 flex flex-col gap-2 min-w-0">
+        <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+          <Mail className="w-3.5 h-3.5" />
           Personalized message
         </div>
-        <p className="text-[11.5px] font-semibold text-slate-900 leading-snug">{msg.subject}</p>
-        <p className="text-[11px] text-slate-600 leading-snug whitespace-pre-line">{msg.body}</p>
+        <p className="text-[13px] font-semibold text-slate-900 leading-snug">{msg.subject}</p>
+        <p className="text-[12px] text-slate-600 leading-snug whitespace-pre-line">{msg.body}</p>
         <Button
           variant="outline"
           size="sm"
-          className="h-7 text-[11px] font-medium border-slate-300 text-slate-700 hover:bg-slate-50 mt-auto self-start"
+          className="h-8 text-[12px] font-medium border-slate-300 text-slate-700 hover:bg-slate-50 mt-auto self-start"
         >
           {msg.cta}
         </Button>
