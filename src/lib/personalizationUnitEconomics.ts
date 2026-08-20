@@ -40,7 +40,7 @@ export const DEFAULT_ASSUMPTIONS: EconomicsAssumptions = {
 
 export interface EconomicsLine {
   label: string;
-  formula: string;
+  formula?: string;
   /** Rendered as currency unless this is set. */
   display?: string;
   value: number;
