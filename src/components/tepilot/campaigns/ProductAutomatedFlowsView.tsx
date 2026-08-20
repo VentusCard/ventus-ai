@@ -193,32 +193,32 @@ function SignalRow({
 }) {
   return (
     <div className="group rounded-lg border border-slate-200 bg-white">
-      <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
+      <div className={cn("flex items-center gap-3 px-4 py-3", !enabled && "opacity-50")}>
         <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 min-w-0">
               <span
                 className={cn(
-                  "text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0",
+                  "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0",
                   SIGNAL_FAMILY_CLASS[signal.family],
                 )}
               >
                 {SIGNAL_FAMILY_LABEL[signal.family]}
               </span>
-              <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{signal.label}</p>
+              <p className="text-[13px] font-semibold text-slate-900 leading-tight truncate">{signal.label}</p>
               {(edited || custom) && (
-                <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
                   {custom ? "Added" : "Edited"}
                 </span>
               )}
             </div>
-            <p className="text-[10.5px] text-slate-500 leading-snug truncate">{signal.evidence}</p>
+            <p className="text-[12px] text-slate-500 leading-snug truncate">{signal.evidence}</p>
           </div>
-          <div className="text-right shrink-0 w-20">
-            <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
-            <p className="text-[11px] font-bold text-slate-900 mt-0.5">{formatAudience(audience)}</p>
+          <div className="text-right shrink-0 w-24">
+            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
+            <p className="text-[13px] font-bold text-slate-900 mt-0.5">{formatAudience(audience)}</p>
           </div>
-          <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
+          <ChevronRight className={cn("w-5 h-5 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
         <RowActions onEdit={onEdit} onDelete={onDelete} />
         <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
@@ -226,7 +226,7 @@ function SignalRow({
         </div>
       </div>
       {open && (
-        <div className="px-3 pb-3">
+        <div className="px-4 pb-4">
           <SignalDetail signal={signal} audience={audience} />
         </div>
       )}
