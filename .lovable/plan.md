@@ -1,21 +1,23 @@
 # Fix: "Live generation didn't return for this customer"
 
-## Cause (verified)
+## Updated read of the cause
 
-The frontend is not pointed at the project backend.
+Two separate things show up in the signals, and the credit top-up likely resolves the live one.
 
-- The preview network log shows `generate-next-offers` and `generate-product-cards` POSTed to `http://127.0.0.1:54321/...`, failing instantly with `Failed to fetch`. That address is the local-development fallback used when the backend URL/key variables are empty.
-- The project env file currently contains only the two Google Maps connector keys. The three backend variables documented in `.env.example` (`VITE_SUPABASE_PROJECT_ID`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) are missing.
+1. Backend function logs from the last few minutes show `generate-next-offers` booting, matching both life events, and returning 5 groups. So the deployed functions are up and answering — this is not a dead-backend situation right now.
+2. The preview network snapshot captured earlier shows both calls going to the local-development fallback address and failing instantly. That snapshot predates the current state and matches an earlier session where the frontend backend variables were empty.
+3. Out-of-credits (a 402 from the AI gateway inside the function) produces exactly this banner: the call completes, but returns no offers/cards, so the store marks the customer `failed` and the UI falls back to static content.
 
-So the banner is accurate: generation is failing at the network layer, not in the model or prompts. This is the same regression as before — the env values keep getting dropped from the preview environment.
+Given the credits were just reloaded, the most likely remaining state is simply a stale cached `failed` entry plus needing a fresh attempt.
 
-## Fix
+## Plan
 
-1. Restore the three backend environment variables in the project env file, leaving the Google Maps entries intact.
-2. Restart the dev server so Vite picks up the values.
-3. Verify in the preview: load `/bankdemo`, open a Personalization tab, select Ricky, and confirm both function calls return 200 and deals plus product cards render with no amber fallback banner.
+1. Reload `/bankdemo`, open a Personalization tab and select Ricky, and watch the two calls end to end (status code plus response body) to confirm they now return offers and product cards.
+2. If the calls still return empty, read the function logs for the AI gateway status to distinguish a credit/rate error from an empty model response, and surface that status in the banner instead of the generic "didn't return" wording.
+3. If the calls are again hitting the local fallback address, restore the three backend environment variables in the project env file (keeping the Google Maps entries intact) and restart the dev server.
+4. Add a retry affordance so a transient failure doesn't require reselecting the customer: a "Retry" action on the banner that clears that customer's cached entry and refires generation.
 
 ## Notes
 
-- No application code changes. `personalizationGeneration.ts`, `personalizationResultStore.ts`, and `CustomerMockupPanel.tsx` already handle progressive rendering and failure fallback correctly.
-- The same gap breaks every other backend-backed feature in this preview (enrichment, chat, campaign generation); this restores those too.
+- No changes to prompts, generation payloads, or edge-function logic.
+- Step 4 is the only behavior change; steps 1-3 are verification and environment repair.
