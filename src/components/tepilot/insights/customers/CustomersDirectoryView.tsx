@@ -59,11 +59,12 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     setQuickStart(null);
     setSelectedId(null);
     setTiers(new Set());
-    setQuery(segment.label);
+    setQuery("");
     setFamilies(new Set([segment.family]));
   }, [segment]);
 
-  const hasFilters = query.trim().length > 0 || families.size > 0 || tiers.size > 0 || !!quickStart;
+  const hasFilters =
+    query.trim().length > 0 || families.size > 0 || tiers.size > 0 || !!quickStart || !!segment;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -76,6 +77,27 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
       }
       return true;
     });
+
+    // Signal-level segment: narrow to customers whose signals in that family
+    // share meaningful words with the exported signal. Falls back to the whole
+    // family when nothing matches, so the segment is never empty.
+    if (segment) {
+      const meta = SIGNAL_FAMILY_META.find((m) => m.key === segment.family);
+      const words = segment.label
+        .toLowerCase()
+        .split(/[^a-z]+/)
+        .filter((w) => w.length > 3 && !STOP_WORDS.has(w));
+      if (meta && words.length > 0) {
+        const narrowed = list.filter((c) =>
+          c[meta.field].some((s) => {
+            const text = `${s.label} ${s.evidence}`.toLowerCase();
+            return words.some((w) => text.includes(w));
+          }),
+        );
+        if (narrowed.length > 0) list = narrowed;
+      }
+    }
+
     if (quickStart === "life-event") list = list.filter((c) => c.lifeEvents.length > 0);
     if (quickStart === "risk") list = list.filter((c) => c.riskFlags.length > 0);
     return sortCustomers(list, quickStart === "value" ? "value" : sortKey, quickStart === "value" ? "desc" : sortDir);
