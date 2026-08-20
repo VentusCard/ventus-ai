@@ -77,8 +77,8 @@ export function ExampleCustomerBar({ selectedId, onSelect, sessionName, compact 
               >
                 <div className="min-w-0">
                   <div className="text-[12px] font-semibold text-slate-900 truncate">{c.name}</div>
-                  <div className="text-[11px] text-slate-500 truncate">
-                    {c.segment} · {c.city} · {c.lifestyleType}
+                  <div className="text-[11px] text-slate-500 truncate tabular-nums">
+                    Customer ID: {c.customerId}
                   </div>
                 </div>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />

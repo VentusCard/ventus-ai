@@ -34,7 +34,10 @@ export function CustomerSignalPanel({ customer }: Props) {
             User selected
           </h3>
           <p className="text-[14px] font-semibold text-slate-900 mt-0.5 truncate">
-            {customer.name}
+            {customer.name}{" "}
+            <span className="text-[12px] font-medium text-slate-500 tabular-nums">
+              · {customer.customerId}
+            </span>
           </p>
         </div>
         <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
