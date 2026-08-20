@@ -13,54 +13,40 @@ The Behavioral row currently cycles through fairly broad pillar labels:
 These read as categories, not as the specific behavioral fingerprints Ventus can infer.
 
 ## Proposed new Behavioral examples
-Replace the four examples with a broader, more specific set that demonstrates granular behavioral detection. Each item keeps the existing `{ to: signal, ev: evidence, basis }` shape, with `to` as the specific label and `ev` as the supporting transaction pattern.
+Replace the four examples with a broader, more specific set that demonstrates granular behavioral detection. Mix three label styles so the ticker does not feel repetitive:
+
+1. **Identity / role labels** — what this customer is (e.g., "Luxury goods auctioneer").
+2. **Frequency-led patterns** — how often a behavior repeats (e.g., "Bi-weekly weekend tennis").
+3. **Situational clusters** — a specific context or occasion (e.g., "Summer outdoor-gear cycle").
+
+Each item keeps the existing `{ to: signal, ev: evidence, basis }` shape, with `to` as the specific label and `ev` as the supporting transaction pattern.
 
 ```text
 Behavioral
-├── Sports & Fitness
+├── Identity / Role
+│   Luxury goods auctioneer               →  Sotheby's/Christie's + high-value collectible purchases
+│   Golf club member                        →  Country club dues + pro shop + course charges
+│   Fine dining regular                     →  Michelin/steakhouse reservations, $400+ dinners
+│   Concert season subscriber               →  Symphony/opera recurring tickets
+│   Multi-streaming household               →  Netflix/Spotify/HBO/Disney+, 8+ services
+│
+├── Frequency-led patterns
 │   Bi-weekly weekend tennis                →  Court fees + tennis shop, every other Sat/Sun
-│   Sunday morning yoga studio              →  CorePower/YogaWorks, 9-11am, 3x/month
-│   Twice-weekly CrossFit box               →  Recurring box fee + supplement store
-│   Monthly ski-pass + mountain lodging     →  Ikon/Epic pass, resort charges, winter cluster
-│
-├── Travel
-│   Annual tropical vacation                →  Caribbean/Mexico hotel + airline, Jan/Feb
-│   Quarterly business trip to Chicago      →  ORD flights + downtown hotels, Thu-Sun
-│   Weekend beach getaways                  →  Coastal hotels + gas, Friday departures
-│   International summer trip                 →  Foreign transactions + long-haul airline
-│
-├── Food & Dining
-│   Daily 8am coffee ritual                 →  Starbucks/Coffee bean, weekday mornings
-│   Friday date-night steakhouse            →  Ruth's Chris/Mastro's, Friday evenings
-│   Weekly meal-kit subscriber              →  HelloFresh/Blue Apron, recurring charge
-│   Lunch rotation Sweetgreen/Chipotle      →  Fast-casual salad/burrito, weekdays
-│
-├── Shopping & Style
-│   Quarterly Nordstrom/Saks refresh        →  Department-store spikes every ~90 days
-│   Monthly Sephora beauty run              →  Recurring beauty retailer, ~$150 cycle
-│   REI outdoor-gear cycle                  →  REI + Patagonia, spring/fall peaks
-│
-├── Home & Living
-│   Weekend Home Depot project cycle        →  Hardware + garden, Saturday mornings
-│   Monthly Costco bulk run                 →  Costco warehouse, first weekend
-│   Bi-weekly house-cleaning service        →  Recurring home-service payment
-│
-├── Pets
-│   Monthly Chewy auto-ship               →  Recurring pet-food subscription
+│   Sunday morning yoga regular             →  CorePower/YogaWorks, 9-11am, 3x/month
+│   Annual tropical vacationer              →  Caribbean/Mexico hotel + airline, Jan/Feb
+│   Quarterly business traveler to Chicago  →  ORD flights + downtown hotels, Thu-Sun
+│   Daily 8am coffee ritual                 →  Starbucks, weekday mornings
+│   Friday date-night steakhouse regular    →  Ruth's Chris/Mastro's, Friday evenings
+│   Monthly Chewy auto-ship                 →  Recurring pet-food subscription
 │   Quarterly vet wellness visits           →  Banfield/pet hospital, ~90 days
 │
-├── Entertainment & Culture
-│   Friday movie-theater habit              →  AMC/Regal, Friday evening tickets
-│   Season concert-ticket buyer             →  Ticketmaster, recurring show purchases
-│   Monthly Broadway/show tickets           →  Theater district merchants
-│
-├── Technology & Digital
-│   Annual device upgrade cycle             →  Apple Store + carrier financing spikes
-│   Multi-streaming subscriber              →  Netflix/Spotify/HBO/Disney+, 8+ services
-│
-└── Family & Community
-    Saturday kids-activity circuit          →  Sports leagues, activity centers, weekend
-    Seasonal back-to-school shopping        →  Target/Old Navy/Kids' apparel, July/Aug
+└── Situational / Occasion
+    Summer outdoor-gear cycle               →  REI + Patagonia, spring/fall peaks
+    Weekend beach getaways                  →  Coastal hotels + gas, Friday departures
+    Saturday kids-activity parent           →  Sports leagues, activity centers, weekend
+    Seasonal back-to-school shopper         →  Target/Old Navy/Kids' apparel, July/Aug
+    International summer trip               →  Foreign transactions + long-haul airline
+    Weekend Home Depot project cycle        →  Hardware + garden, Saturday mornings
 ```
 
 ## Implementation
