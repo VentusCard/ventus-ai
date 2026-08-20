@@ -48,7 +48,7 @@ export function AddSignalPicker({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="w-full rounded-lg border border-dashed border-slate-300 bg-white/60 px-4 py-3 text-[13px] font-medium text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
+          className="w-full rounded-lg border border-dashed border-slate-300 bg-white/60 px-4 py-2.5 text-[13px] font-medium text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Add signal
@@ -185,7 +185,7 @@ export function AddFilterPicker({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="w-full rounded-lg border border-dashed border-rose-200 bg-white/60 px-4 py-3 text-[13px] font-medium text-rose-500 hover:border-rose-400 hover:text-rose-600 transition-colors flex items-center justify-center gap-2"
+          className="w-full rounded-lg border border-dashed border-rose-200 bg-white/60 px-4 py-2.5 text-[13px] font-medium text-rose-500 hover:border-rose-400 hover:text-rose-600 transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Add risk filter
