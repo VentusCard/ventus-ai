@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Users, Gem, CalendarHeart, ShieldAlert, Search, Radar, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { fmtCount, scaleSample, shareOf } from "@/lib/bookScale";
+import { getSignalFamilyStats } from "@/lib/intelligenceSignalStats";
+
 
 function parseValueK(value: string) {
   const m = value.match(/([\d.]+)\s*(k|M)/i);
@@ -122,16 +125,46 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     .map((id) => CUSTOMER_DIRECTORY.find((c) => c.id === id))
     .filter(Boolean) as DirectoryCustomer[];
 
+  // Book-scale population for the current selection. A signal segment reports
+  // the real cohort behind the signal; ad-hoc filters scale the sampled slice.
+  const population = useMemo(() => {
+    if (segment) {
+      const fam = getSignalFamilyStats().find((f) => f.key === segment.family);
+      if (fam) {
+        const key = segment.label.toLowerCase();
+        const match =
+          fam.topSignals.find((s) => s.label.toLowerCase() === key) ??
+          fam.topSignals.find(
+            (s) => key.includes(s.label.toLowerCase()) || s.label.toLowerCase().includes(key),
+          );
+        return match?.customers ?? fam.customers;
+      }
+    }
+    return scaleSample(filtered.length, CUSTOMER_DIRECTORY.length);
+  }, [segment, filtered.length]);
+
   const metrics = useMemo(() => {
-    const signals = filtered.reduce((n, c) => n + totalSignals(c), 0);
-    const valueK = filtered.reduce((n, c) => n + parseValueK(c.relationshipValue), 0);
+    const sampleCustomers = Math.max(filtered.length, 1);
+    const sampleSignals = filtered.reduce((n, c) => n + totalSignals(c), 0);
+    const sampleValueK = filtered.reduce((n, c) => n + parseValueK(c.relationshipValue), 0);
+    const factor = population / sampleCustomers;
+    const valueK = sampleValueK * factor;
     return {
-      customers: filtered.length,
-      signals,
-      sharePct: CUSTOMER_DIRECTORY.length ? (filtered.length / CUSTOMER_DIRECTORY.length) * 100 : 0,
-      valueLabel: valueK >= 1000 ? `$${(valueK / 1000).toFixed(1)}M` : `$${Math.round(valueK)}K`,
+      customers: population,
+      customersLabel: fmtCount(population),
+      signals: Math.round(sampleSignals * factor),
+      signalsLabel: fmtCount(sampleSignals * factor),
+      sharePct: shareOf(population) * 100,
+      valueLabel:
+        valueK >= 1_000_000
+          ? `$${(valueK / 1_000_000).toFixed(1)}B`
+          : valueK >= 1000
+            ? `$${(valueK / 1000).toFixed(1)}M`
+            : `$${Math.round(valueK)}K`,
+      sampleSize: filtered.length,
     };
-  }, [filtered]);
+  }, [filtered, population]);
+
 
   const segmentSlug = (segment?.label ?? "customer-segment")
     .toLowerCase()
@@ -265,9 +298,10 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
               Segment exported from signal: {segment.label}
             </div>
             <div className="text-[11px] text-slate-600">
-              Filtered to customers carrying this signal family · {filtered.length}{" "}
-              {filtered.length === 1 ? "match" : "matches"} in the sample book
+              Filtered to customers carrying this signal · {fmtCount(population)} customers
+              in the book · {filtered.length} shown as a representative sample
             </div>
+
           </div>
           <button
             onClick={clearAll}
@@ -336,6 +370,12 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
         >
           <div className="space-y-2 min-w-0">
 
+            {hasFilters && filtered.length > 0 && (
+              <div className="text-[10px] text-slate-400 mb-1.5">
+                Showing a representative sample of {filtered.length} profiles from{" "}
+                {fmtCount(population)} matching customers.
+              </div>
+            )}
             <CustomerResultsTable
               customers={filtered}
               sortKey={sortKey}
@@ -344,6 +384,7 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
               onSelect={openCustomer}
               selectedId={selectedId}
             />
+
           </div>
           {selected && (
             <CustomerDetailPanel customer={selected} onBack={() => setSelectedId(null)} />

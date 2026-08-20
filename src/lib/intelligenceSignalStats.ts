@@ -3,6 +3,12 @@
 // LLM, no backend. Copy stays "vaguely specific": no exact per-customer amounts.
 
 import { SIGNAL_FAMILY_META, type SignalFamily } from "@/lib/customerDirectoryData";
+import {
+  BOOK_CUSTOMERS,
+  ENRICHED_PROFILES,
+  fmtCount as fmtBookCount,
+} from "@/lib/bookScale";
+
 
 export type SignalConfidence = "strong" | "likely" | "emerging";
 
@@ -68,7 +74,11 @@ export interface ExternalSourceStat {
   matchRate: number;
 }
 
-const TOTAL_CUSTOMERS = 75_000_000;
+const TOTAL_CUSTOMERS = BOOK_CUSTOMERS;
+/** Everything below was authored against a 75M book; keep the ratios, rebase the size. */
+const LEGACY_BOOK = 75_000_000;
+const REBASE = TOTAL_CUSTOMERS / LEGACY_BOOK;
+
 
 interface SeedSignal {
   label: string;
@@ -175,23 +185,28 @@ function seriesFor(key: string, points = 12, drift = 0): number[] {
 }
 
 export function getSignalCoverage(): SignalCoverageStats {
-  const profilesEnriched = 71_400_000;
+  const profilesEnriched = ENRICHED_PROFILES;
   return {
     totalCustomers: TOTAL_CUSTOMERS,
     profilesEnriched,
     coveragePct: (profilesEnriched / TOTAL_CUSTOMERS) * 100,
-    signals24h: 4_820_000,
+    signals24h: Math.round(4_820_000 * REBASE),
     avgSignalsPerCustomer: 6.4,
     lifeEventsActive: Math.round(profilesEnriched * FAMILY_SEED.life_event.coverage),
-    externalSignals24h: 1_140_000,
+    externalSignals24h: Math.round(1_140_000 * REBASE),
     strongPct: 58.2,
   };
 }
+
 
 export function getSignalFamilyStats(): SignalFamilyStats[] {
   const { profilesEnriched } = getSignalCoverage();
   return SIGNAL_FAMILY_META.map((meta) => {
     const seed = FAMILY_SEED[meta.key];
+    // Sub-signals are a subset of the family: their shares can never exceed the
+    // family coverage. Normalize down when a seed set overshoots (e.g. risk).
+    const seedSum = seed.signals.reduce((n, s) => n + s.share, 0);
+    const fit = seedSum > seed.coverage ? (seed.coverage * 0.92) / seedSum : 1;
     return {
       key: meta.key,
       label: meta.label,
@@ -213,7 +228,7 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
       sparkline: seriesFor(meta.key, 14, seed.delta * 4),
       topSignals: seed.signals.map((s) => ({
         label: s.label,
-        customers: Math.round(profilesEnriched * s.share),
+        customers: Math.round(profilesEnriched * s.share * fit),
         delta: s.delta,
         evidence: s.evidence,
         confidence: s.confidence,
@@ -222,6 +237,7 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
     };
   });
 }
+
 
 export interface StreamSignal {
   signal: string;
@@ -264,8 +280,6 @@ export const EXTERNAL_SOURCES: ExternalSourceStat[] = [
 ];
 
 export function fmtCount(n: number): string {
-  if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `${(n / 1e3).toFixed(0)}K`;
-  return n.toLocaleString();
+  return fmtBookCount(n);
 }
+

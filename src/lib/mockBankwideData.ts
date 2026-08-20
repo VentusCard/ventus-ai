@@ -16,13 +16,16 @@ import type {
   PillarDeepDiveCell,
 } from '@/types/bankwide';
 import { PILLAR_COLORS, LIFESTYLE_PILLARS } from '@/lib/sampleData';
+import { BOOK_CUSTOMERS } from '@/lib/bookScale';
+
 
 // Lifestyle pillars (12 pillars matching the single customer view)
 const PILLARS = LIFESTYLE_PILLARS;
 
-// Base data for 120M accounts from 75M users
-const TOTAL_ACCOUNTS = 120_000_000;
-const TOTAL_USERS = 75_000_000;
+// Base data: accounts per user held at 1.6, sized off the canonical book.
+const TOTAL_USERS = BOOK_CUSTOMERS;
+const TOTAL_ACCOUNTS = Math.round(BOOK_CUSTOMERS * 1.6);
+
 const TOTAL_ANNUAL_SPEND = 385_000_000_000; // $385B
 
 // Card products with realistic distributions

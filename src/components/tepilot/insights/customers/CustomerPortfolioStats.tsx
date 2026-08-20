@@ -1,46 +1,31 @@
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import {
-  CUSTOMER_DIRECTORY,
-  SIGNAL_FAMILY_META,
-  type DirectoryCustomer,
-} from "@/lib/customerDirectoryData";
-
-function totalSignals(c: DirectoryCustomer) {
-  return SIGNAL_FAMILY_META.reduce((n, m) => n + c[m.field].length, 0);
-}
+import { BOOK_CUSTOMERS, fmtCount } from "@/lib/bookScale";
+import { getSignalCoverage, getSignalFamilyStats } from "@/lib/intelligenceSignalStats";
 
 export function CustomerPortfolioStats() {
-  const stats = useMemo(() => {
-    const book = CUSTOMER_DIRECTORY;
-    const withLifeEvent = book.filter((c) => c.lifeEvents.length > 0).length;
-    const withFinancial = book.filter((c) => c.financialSignals.length > 0).length;
-    const withRisk = book.filter((c) => c.riskFlags.length > 0).length;
-    const signals = book.reduce((n, c) => n + totalSignals(c), 0);
-    const byFamily = SIGNAL_FAMILY_META.map((m) => ({
-      ...m,
-      count: book.reduce((n, c) => n + c[m.field].length, 0),
-    }));
-    return { count: book.length, withLifeEvent, withFinancial, withRisk, signals, byFamily };
+  const { coverage, families, totalSignals } = useMemo(() => {
+    const coverage = getSignalCoverage();
+    const families = getSignalFamilyStats();
+    // A customer can carry several signals inside a family; family headcount
+    // times the family's average depth gives the signal volume.
+    const totalSignals = Math.round(
+      coverage.profilesEnriched * coverage.avgSignalsPerCustomer,
+    );
+    return { coverage, families, totalSignals };
   }, []);
 
-  // Enterprise-scale book (national retail + preferred footprint).
-  // The 15 records below are a sampled slice of this population.
-  const SCALE = 68_200_000 / Math.max(stats.count, 1);
-  const fmt = (n: number) => {
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-    if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-    return `${Math.round(n)}`;
-  };
-  const scaled = (n: number) => fmt(n * SCALE);
+  const familyCount = (key: string) => families.find((f) => f.key === key)?.customers ?? 0;
 
   const tiles = [
-    { label: "Customers in book", value: "68.2M", note: "Enriched and signal-ready" },
-    { label: "Active life events", value: scaled(stats.withLifeEvent), note: "Time-sensitive conversations" },
-    { label: "Financial obligations", value: scaled(stats.withFinancial), note: "Loans, leases, investments" },
-    { label: "Carrying risk signals", value: scaled(stats.withRisk), note: "Monitor before outreach" },
-    { label: "Signals detected", value: scaled(stats.signals), note: "Across five families" },
+    { label: "Customers in book", value: fmtCount(BOOK_CUSTOMERS), note: "Enriched and signal-ready" },
+    { label: "Active life events", value: fmtCount(familyCount("life_event")), note: "Time-sensitive conversations" },
+    { label: "Financial obligations", value: fmtCount(familyCount("financial")), note: "Loans, leases, investments" },
+    { label: "Carrying risk signals", value: fmtCount(familyCount("risk")), note: "Monitor before outreach" },
+    { label: "Signals detected", value: fmtCount(totalSignals), note: "Across five families" },
   ];
+
+  const familyTotal = families.reduce((n, f) => n + f.customers, 0);
 
   return (
     <div className="space-y-2.5">
@@ -61,25 +46,32 @@ export function CustomerPortfolioStats() {
       <div className="border border-slate-200 rounded-lg bg-white px-3 py-2.5">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400">
-            Signal distribution across the book
+            Customers covered by each signal family
           </span>
-          <span className="text-[10px] text-slate-400">{scaled(stats.signals)} total</span>
+          <span className="text-[10px] text-slate-400">
+            {fmtCount(coverage.profilesEnriched)} profiles enriched
+          </span>
         </div>
         <div className="flex h-1.5 rounded-full overflow-hidden bg-slate-100">
-          {stats.byFamily.map((f) => (
+          {families.map((f) => (
             <div
               key={f.key}
               className={cn(f.dot)}
-              style={{ width: `${(f.count / Math.max(stats.signals, 1)) * 100}%` }}
+              style={{ width: `${(f.customers / Math.max(familyTotal, 1)) * 100}%` }}
             />
           ))}
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-          {stats.byFamily.map((f) => (
+          {families.map((f) => (
             <span key={f.key} className="inline-flex items-center gap-1.5 text-[10px] text-slate-500">
               <span className={cn("w-1.5 h-1.5 rounded-full", f.dot)} />
               {f.label}
-              <span className="text-slate-800 font-semibold tabular-nums">{scaled(f.count)}</span>
+              <span className="text-slate-800 font-semibold tabular-nums">
+                {fmtCount(f.customers)}
+              </span>
+              <span className="text-slate-400 tabular-nums">
+                {((f.customers / BOOK_CUSTOMERS) * 100).toFixed(1)}%
+              </span>
             </span>
           ))}
         </div>
