@@ -48,7 +48,7 @@ export function SignalFamilyPanel({
               {family.delta >= 0 ? "+" : ""}
               {family.delta.toFixed(1)}% · 24h
             </span>
-            <Sparkline data={family.sparkline} width={96} height={20} />
+            <Sparkline data={family.sparkline} width={96} height={20} stroke={family.sparklineColor} />
           </div>
           <div className="text-[11px] text-slate-500 mt-1.5">
             {family.confidence.strong}% strong · {family.confidence.likely}% likely ·{" "}
