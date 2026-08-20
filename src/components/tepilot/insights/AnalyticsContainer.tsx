@@ -142,12 +142,12 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [chatOpen, setChatOpen] = useState(false);
   const [pendingChatPrompt, setPendingChatPrompt] = useState<string | null>(null);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
-  const [sidebarWidth, setSidebarWidth] = useState(300);
+  const [sidebarWidth, setSidebarWidth] = useState(340);
   const [isResizing, setIsResizing] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const dragStartX = useRef(0);
-  const dragStartWidth = useRef(300);
+  const dragStartWidth = useRef(340);
 
   const openInteractiveReport = (id: InteractiveReportId, payload?: { opportunityId?: string }) => {
     if (id === 'priority-opportunity') {
@@ -174,8 +174,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
 
 
-  const MIN_SIDEBAR_WIDTH = 220;
-  const MAX_SIDEBAR_WIDTH = 420;
+  const MIN_SIDEBAR_WIDTH = 260;
+  const MAX_SIDEBAR_WIDTH = 460;
 
   const handleResizeStart = (e: React.PointerEvent) => {
     if (collapsed) return;
@@ -422,8 +422,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     "w-full flex items-center gap-3 text-left transition-colors",
     collapsed ? "justify-center px-0 py-2" : "px-3 py-2",
     isActive
-      ? "text-[15px] font-semibold text-white bg-white/10 border-l-2 border-indigo-400 shadow-[0_0_12px_rgba(79,70,229,0.15)]"
-      : "text-[14px] font-medium text-indigo-100/80 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
+      ? "text-[16px] font-semibold text-white bg-white/10 border-l-2 border-indigo-400 shadow-[0_0_12px_rgba(79,70,229,0.15)]"
+      : "text-[15px] font-medium text-indigo-100/80 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
   );
 
   const navIconClasses = (isActive: boolean) => cn(
@@ -496,7 +496,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               return (
                 <div key={group.label}>
                   {!collapsed && (
-                    <div className="px-3 py-1.5 text-[12px] font-semibold uppercase tracking-wider text-indigo-100/90">
+                    <div className="px-3 py-1.5 text-[13px] font-semibold uppercase tracking-wider text-indigo-100/90">
                       {group.label}
                     </div>
                   )}
@@ -523,7 +523,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               }}
             >
               {!collapsed && (
-                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[12px] font-semibold uppercase tracking-wider text-indigo-100/90 hover:text-white">
+                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[13px] font-semibold uppercase tracking-wider text-indigo-100/90 hover:text-white">
                   {group.label}
                   <ChevronDown className={cn("w-3 h-3 transition-transform text-indigo-100/80", isOpen ? "rotate-0" : "-rotate-90")} />
                 </CollapsibleTrigger>
