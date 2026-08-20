@@ -22,6 +22,17 @@ export interface SignalFamilyStats {
   label: string;
   chip: string;
   dot: string;
+  /** Soft card/panel tint classes for the Intelligence Dashboard. */
+  tint: string;
+  cardBorder: string;
+  cardBorderHover: string;
+  sparklineColor: string;
+  barStrong: string;
+  barLikely: string;
+  barEmerging: string;
+  rowHover: string;
+  rowHoverBorder: string;
+  openText: string;
   /** Customers carrying at least one signal in this family. */
   customers: number;
   delta: number;
@@ -186,6 +197,16 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
       label: meta.label,
       chip: meta.chip,
       dot: meta.dot,
+      tint: meta.tint,
+      cardBorder: meta.cardBorder,
+      cardBorderHover: meta.cardBorderHover,
+      sparklineColor: meta.sparkline,
+      barStrong: meta.barStrong,
+      barLikely: meta.barLikely,
+      barEmerging: meta.barEmerging,
+      rowHover: meta.rowHover,
+      rowHoverBorder: meta.rowHoverBorder,
+      openText: meta.openText,
       customers: Math.round(profilesEnriched * seed.coverage),
       delta: seed.delta,
       confidence: seed.confidence,

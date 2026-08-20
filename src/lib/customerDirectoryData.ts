@@ -57,13 +57,109 @@ export const SIGNAL_FAMILY_META: {
   /** Light-theme pill styling. Red is reserved for risk only. */
   chip: string;
   dot: string;
+  /** Soft card/panel tint classes for the Intelligence Dashboard. */
+  tint: string;
+  cardBorder: string;
+  cardBorderHover: string;
+  sparkline: string;
+  barStrong: string;
+  barLikely: string;
+  barEmerging: string;
+  rowHover: string;
+  rowHoverBorder: string;
+  openText: string;
 }[] = [
   // Order matches the Systems tab: Behavioral → Life Event → Financial → Demographic → Risk.
-  { key: "spending_habit", label: "Behavioral", short: "BEH", field: "spendingHabits", chip: "bg-sky-50 text-sky-700 border-sky-200", dot: "bg-sky-500" },
-  { key: "life_event", label: "Life Events", short: "LE", field: "lifeEvents", chip: "bg-violet-50 text-violet-700 border-violet-200", dot: "bg-violet-500" },
-  { key: "financial", label: "Financial Signals", short: "FIN", field: "financialSignals", chip: "bg-amber-50 text-amber-800 border-amber-200", dot: "bg-amber-500" },
-  { key: "demographic", label: "Demographic", short: "DEM", field: "demographicSignals", chip: "bg-emerald-50 text-emerald-700 border-emerald-200", dot: "bg-emerald-500" },
-  { key: "risk", label: "Risk", short: "RSK", field: "riskFlags", chip: "bg-rose-50 text-rose-700 border-rose-200", dot: "bg-rose-500" },
+  {
+    key: "spending_habit",
+    label: "Behavioral",
+    short: "BEH",
+    field: "spendingHabits",
+    chip: "bg-sky-50 text-sky-700 border-sky-200",
+    dot: "bg-sky-500",
+    tint: "bg-sky-50/60",
+    cardBorder: "border-sky-200",
+    cardBorderHover: "group-hover:border-sky-300",
+    sparkline: "#0ea5e9",
+    barStrong: "bg-sky-700",
+    barLikely: "bg-sky-400",
+    barEmerging: "bg-sky-200",
+    rowHover: "hover:bg-sky-50/50",
+    rowHoverBorder: "hover:border-sky-300",
+    openText: "group-hover:text-sky-700",
+  },
+  {
+    key: "life_event",
+    label: "Life Events",
+    short: "LE",
+    field: "lifeEvents",
+    chip: "bg-violet-50 text-violet-700 border-violet-200",
+    dot: "bg-violet-500",
+    tint: "bg-violet-50/60",
+    cardBorder: "border-violet-200",
+    cardBorderHover: "group-hover:border-violet-300",
+    sparkline: "#8b5cf6",
+    barStrong: "bg-violet-700",
+    barLikely: "bg-violet-400",
+    barEmerging: "bg-violet-200",
+    rowHover: "hover:bg-violet-50/50",
+    rowHoverBorder: "hover:border-violet-300",
+    openText: "group-hover:text-violet-700",
+  },
+  {
+    key: "financial",
+    label: "Financial Signals",
+    short: "FIN",
+    field: "financialSignals",
+    chip: "bg-amber-50 text-amber-800 border-amber-200",
+    dot: "bg-amber-500",
+    tint: "bg-amber-50/60",
+    cardBorder: "border-amber-200",
+    cardBorderHover: "group-hover:border-amber-300",
+    sparkline: "#f59e0b",
+    barStrong: "bg-amber-700",
+    barLikely: "bg-amber-400",
+    barEmerging: "bg-amber-200",
+    rowHover: "hover:bg-amber-50/50",
+    rowHoverBorder: "hover:border-amber-300",
+    openText: "group-hover:text-amber-700",
+  },
+  {
+    key: "demographic",
+    label: "Demographic",
+    short: "DEM",
+    field: "demographicSignals",
+    chip: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    dot: "bg-emerald-500",
+    tint: "bg-emerald-50/60",
+    cardBorder: "border-emerald-200",
+    cardBorderHover: "group-hover:border-emerald-300",
+    sparkline: "#10b981",
+    barStrong: "bg-emerald-700",
+    barLikely: "bg-emerald-400",
+    barEmerging: "bg-emerald-200",
+    rowHover: "hover:bg-emerald-50/50",
+    rowHoverBorder: "hover:border-emerald-300",
+    openText: "group-hover:text-emerald-700",
+  },
+  {
+    key: "risk",
+    label: "Risk",
+    short: "RSK",
+    field: "riskFlags",
+    chip: "bg-rose-50 text-rose-700 border-rose-200",
+    dot: "bg-rose-500",
+    tint: "bg-rose-50/60",
+    cardBorder: "border-rose-200",
+    cardBorderHover: "group-hover:border-rose-300",
+    sparkline: "#f43f5e",
+    barStrong: "bg-rose-700",
+    barLikely: "bg-rose-400",
+    barEmerging: "bg-rose-200",
+    rowHover: "hover:bg-rose-50/50",
+    rowHoverBorder: "hover:border-rose-300",
+    openText: "group-hover:text-rose-700",
+  },
 ];
 
 const s = (label: string, evidence: string, confidence: ConfidenceBand): DirectorySignal => ({

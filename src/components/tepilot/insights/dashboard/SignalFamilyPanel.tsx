@@ -30,7 +30,7 @@ export function SignalFamilyPanel({
   return (
     <div className="col-span-full rounded-lg border border-slate-300 bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-200">
+      <div className={`flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-200 ${family.tint}`}>
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
             <span
@@ -48,7 +48,7 @@ export function SignalFamilyPanel({
               {family.delta >= 0 ? "+" : ""}
               {family.delta.toFixed(1)}% · 24h
             </span>
-            <Sparkline data={family.sparkline} width={96} height={20} />
+            <Sparkline data={family.sparkline} width={96} height={20} stroke={family.sparklineColor} />
           </div>
           <div className="text-[11px] text-slate-500 mt-1.5">
             {family.confidence.strong}% strong · {family.confidence.likely}% likely ·{" "}
@@ -87,15 +87,15 @@ export function SignalFamilyPanel({
       <div className="px-4 pt-3">
         <div className="flex h-1.5 rounded-full overflow-hidden bg-slate-100">
           <span
-            className="bg-slate-800"
+            className={family.barStrong}
             style={{ width: `${(family.confidence.strong / total) * 100}%` }}
           />
           <span
-            className="bg-slate-400"
+            className={family.barLikely}
             style={{ width: `${(family.confidence.likely / total) * 100}%` }}
           />
           <span
-            className="bg-slate-200"
+            className={family.barEmerging}
             style={{ width: `${(family.confidence.emerging / total) * 100}%` }}
           />
         </div>
@@ -108,7 +108,7 @@ export function SignalFamilyPanel({
             key={s.label}
             type="button"
             onClick={() => onOpenSignal(family.key, s.label)}
-            className="group text-left rounded-md border border-slate-200 bg-white px-3 py-2.5 hover:border-blue-300 hover:bg-blue-50/40 transition-colors"
+            className={`group text-left rounded-md border border-slate-200 bg-white px-3 py-2.5 transition-colors ${family.rowHoverBorder} ${family.rowHover}`}
           >
             <div className="flex items-center gap-2">
               <span className="text-[12.5px] font-semibold text-slate-900 truncate flex-1">
@@ -133,8 +133,8 @@ export function SignalFamilyPanel({
                 {s.delta >= 0 ? "+" : ""}
                 {s.delta.toFixed(1)}%
               </span>
-              <Sparkline data={s.trend} width={56} height={16} stroke="#94a3b8" />
-              <span className="ml-auto inline-flex items-center gap-1 text-[10.5px] font-medium text-slate-400 group-hover:text-blue-700 transition-colors">
+              <Sparkline data={s.trend} width={56} height={16} stroke={family.sparklineColor} />
+              <span className={`ml-auto inline-flex items-center gap-1 text-[10.5px] font-medium text-slate-400 transition-colors ${family.openText}`}>
                 Open segment
                 <ArrowRight className="w-3 h-3" />
               </span>
