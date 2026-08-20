@@ -117,7 +117,13 @@ export function AnalystDashboardView({
           Behavioral → Life event → Financial → Demographic → Risk
         </span>
       </div>
-      <SignalFamilyBoard onOpenFamily={onOpenSection} />
+      <SignalFamilyBoard
+        onOpenSignal={(family, label) =>
+          onOpenSignalSegment
+            ? onOpenSignalSegment(family, label)
+            : onOpenSection?.(family === "risk" ? "risk" : "customers")
+        }
+      />
 
       {/* Live stream + taxonomy */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
