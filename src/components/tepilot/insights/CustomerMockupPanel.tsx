@@ -96,7 +96,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
       </div>
 
       {/* ---------- Personalized surface ---------- */}
-      <div className="lg:col-span-2 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
+      <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
         <div className="shrink-0 px-3.5 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <Smartphone className="w-4 h-4 text-blue-500 shrink-0" />
