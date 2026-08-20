@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useSaveSequence, PLAYBOOK_STAGES } from "@/hooks/useSaveSequence";
+import { SaveSequence } from "@/components/tepilot/common/SaveSequence";
 import { TEAM_DESTINATIONS, type TeamDestination } from "./coworkerInboxData";
 import {
   COWORKER_PLAYBOOKS,
@@ -57,6 +59,7 @@ export function CoworkerPersonaSettingsView() {
   const [selectedId, setSelectedId] = useState(TEAM_DESTINATIONS[0].id);
   const [drafts, setDrafts] = useState<Record<string, Playbook>>({});
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const save = useSaveSequence({ stages: PLAYBOOK_STAGES });
 
   const team = useMemo(
     () => TEAM_DESTINATIONS.find((t) => t.id === selectedId) ?? TEAM_DESTINATIONS[0],
@@ -64,12 +67,15 @@ export function CoworkerPersonaSettingsView() {
   );
   const playbook = drafts[team.id] ?? COWORKER_PLAYBOOKS[team.id];
 
-  const update = (mutate: (pb: Playbook) => void) =>
+  const applyDraft = (mutate: (pb: Playbook) => void) =>
     setDrafts((prev) => {
       const base = clone(prev[team.id] ?? COWORKER_PLAYBOOKS[team.id]);
       mutate(base);
       return { ...prev, [team.id]: base };
     });
+
+  const update = (mutate: (pb: Playbook) => void) => save.run(() => applyDraft(mutate));
+
 
   const resetPlaybook = () => {
     setDrafts((prev) => {
@@ -84,12 +90,15 @@ export function CoworkerPersonaSettingsView() {
       }
       return next;
     });
+    save.run();
     toast.success("Playbook reset to default");
   };
 
   const isOn = (rule: PlaybookRule) => overrides[rule.id] ?? rule.on ?? true;
   const toggle = (rule: PlaybookRule) =>
-    setOverrides((prev) => ({ ...prev, [rule.id]: !(prev[rule.id] ?? rule.on ?? true) }));
+    save.run(() =>
+      setOverrides((prev) => ({ ...prev, [rule.id]: !(prev[rule.id] ?? rule.on ?? true) })),
+    );
 
   const editRule = (group: RuleGroupKey, id: string, patch: Partial<PlaybookRule>) =>
     update((pb) => {
@@ -182,6 +191,7 @@ export function CoworkerPersonaSettingsView() {
             </div>
           </div>
           <div className="flex-none flex items-center gap-2">
+            <SaveSequence status={save.status} label={save.stageLabel} className="mr-1" />
             <button
               type="button"
               onClick={resetPlaybook}
@@ -192,7 +202,8 @@ export function CoworkerPersonaSettingsView() {
             </button>
             <button
               type="button"
-              onClick={() => toast.success("Playbook saved for this session")}
+              onClick={() => save.run()}
+              disabled={save.isBusy}
               className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-1.5 text-[12px] font-medium text-slate-50 hover:bg-slate-800"
             >
               <Save className="h-3.5 w-3.5" />

@@ -50,13 +50,22 @@ interface GamificationManagementProps {
   hideHeader?: boolean;
 }
 
+import { useSaveSequence, CONTENT_STAGES } from "@/hooks/useSaveSequence";
+import { SaveSequence } from "@/components/tepilot/common/SaveSequence";
+
 export function GamificationManagement({ hideHeader = false }: GamificationManagementProps) {
   const initial = getGamificationMetrics();
   const [achievements, setAchievements] = useState<ManagedAchievement[]>(initial.achievements);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<ManagedAchievement | null>(null);
 
+  const save = useSaveSequence({ stages: CONTENT_STAGES });
+
   const handleSave = (a: ManagedAchievement) => {
+    save.run(() => commitAchievement(a));
+  };
+
+  const commitAchievement = (a: ManagedAchievement) => {
     setAchievements((prev) => {
       const idx = prev.findIndex((x) => x.id === a.id);
       if (idx >= 0) {
@@ -69,8 +78,10 @@ export function GamificationManagement({ hideHeader = false }: GamificationManag
   };
 
   const toggleActive = (id: string) => {
-    setAchievements((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, isActive: !a.isActive } : a))
+    save.run(() =>
+      setAchievements((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, isActive: !a.isActive } : a)),
+      ),
     );
   };
 
@@ -92,7 +103,8 @@ export function GamificationManagement({ hideHeader = false }: GamificationManag
           whyItMatters="Increases transaction frequency and card-top-of-wallet status through behavioral reinforcement loops."
         />
       )}
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end gap-3">
+        <SaveSequence status={save.status} label={save.stageLabel} />
         <Button
           size="sm"
           onClick={() => { setEditing(null); setEditorOpen(true); }}

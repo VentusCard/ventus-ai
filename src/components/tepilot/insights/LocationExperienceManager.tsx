@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TabHeader } from "./TabHeader";
+import { useSaveSequence, CONTENT_STAGES } from "@/hooks/useSaveSequence";
+import { SaveSequence } from "@/components/tepilot/common/SaveSequence";
 import {
   INITIAL_PERKS, CATEGORY_CONFIG, TIER_COLORS,
   type LocationPerk, type PerkCategory, type Eligibility,
@@ -70,7 +72,13 @@ export function LocationExperienceManager() {
     setEditDialog({ open: true, perk });
   };
 
+  const save = useSaveSequence({ stages: CONTENT_STAGES });
+
   const handleSave = () => {
+    save.run(() => commitPerk());
+  };
+
+  const commitPerk = () => {
     if (editDialog.perk) {
       setPerks(prev => prev.map(p => p.id === editDialog.perk!.id ? { ...formData, id: p.id } : p));
     } else {
@@ -79,8 +87,10 @@ export function LocationExperienceManager() {
     setEditDialog({ open: false, perk: null });
   };
 
-  const handleDelete = (id: string) => setPerks(prev => prev.filter(p => p.id !== id));
-  const toggleActive = (id: string) => setPerks(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
+  const handleDelete = (id: string) =>
+    save.run(() => setPerks(prev => prev.filter(p => p.id !== id)));
+  const toggleActive = (id: string) =>
+    save.run(() => setPerks(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p)));
   const cityCount = (city: string) => perks.filter(p => p.city === city).length;
   const activeCount = perks.filter(p => p.active).length;
 
@@ -134,6 +144,7 @@ export function LocationExperienceManager() {
           </SelectContent>
         </Select>
         <div className="flex-1 min-w-[20px]" />
+        <SaveSequence status={save.status} label={save.stageLabel} />
         <Button onClick={openCreate} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="h-4 w-4 mr-1.5" />
           Add Experience
