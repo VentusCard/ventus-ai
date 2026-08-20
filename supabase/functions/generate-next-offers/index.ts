@@ -77,6 +77,8 @@ NUMERIC VALUE LINE — REQUIRED on every deal:
 - Good: "3x points on travel ≈ $186 back on your ~$6,200 Hawaii spend this year." (math: "3% × $6,200 ≈ $186")
 - Bad (fabricated): "Save $500 vs the market average." (no market number in input)
 
+BANK NAMING RULE (STRICT): any deal for a bank/deposit/credit/investing product (savings, high-yield/APY, auto-save, round-up, checking, CD, loan, refinance, HELOC, mortgage, credit card, IRA, brokerage) MUST use the bank name given in the user prompt VERBATIM as its "merchant". NEVER invent a lender, issuer, or fintech brand (e.g. "STAR Financial", "Summit Lending", "Apex Capital") and NEVER name a real institution (Chase, Wells Fargo, Bank of America, Citi, SoFi, Marcus, Ally). Third-party retail merchants are allowed ONLY for non-bank products.
+
 OUTPUT: Valid JSON only, no markdown. Exact shape:
 {"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","imageCategory":"ski","imageQuery":"snowy ski slope","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","valueLine":"5% back ≈ $9/mo on your ~$180/mo coffee spend.","valueMath":"5% × $180 ≈ $9/mo","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
