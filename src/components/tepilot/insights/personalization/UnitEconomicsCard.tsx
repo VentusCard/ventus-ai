@@ -24,7 +24,7 @@ const ASSUMPTION_FIELDS: {
   pct?: boolean;
   step?: number;
 }[] = [
-  { key: "spendPerOffer", label: "Spend / offer", suffix: "$", step: 25 },
+  { key: "annualDealsSpend", label: "Deals spend / yr", suffix: "$", step: 100 },
   { key: "takeRate", label: "Take rate", pct: true, step: 0.5 },
   { key: "productConversion", label: "Product lift", pct: true, step: 0.5 },
   { key: "cacAvoided", label: "CAC avoided", suffix: "$", step: 20 },
