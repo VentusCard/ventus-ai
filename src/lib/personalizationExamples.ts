@@ -12,6 +12,7 @@ import type { ClientProfileData } from "@/types/clientProfile";
 
 export interface ExampleCustomer {
   id: string;
+  customerId: string;
   name: string;
   city: string;
   segment: string;
