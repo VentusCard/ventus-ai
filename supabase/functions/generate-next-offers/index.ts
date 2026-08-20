@@ -543,6 +543,9 @@ serve(async (req) => {
       }
     }
 
+    // Safety net across every generation path (rollup pass isn't sanitized inline).
+    sanitizeOfferMerchants(rollupOffers, bankLabel);
+
     console.log(`[NEXT-OFFERS] ◀ returning ${rollupOffers.length} groups`);
     return new Response(JSON.stringify({ rollupOffers }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
