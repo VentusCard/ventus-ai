@@ -133,8 +133,8 @@ export function SignalFamilyPanel({
                 {s.delta >= 0 ? "+" : ""}
                 {s.delta.toFixed(1)}%
               </span>
-              <Sparkline data={s.trend} width={56} height={16} stroke="#94a3b8" />
-              <span className="ml-auto inline-flex items-center gap-1 text-[10.5px] font-medium text-slate-400 group-hover:text-blue-700 transition-colors">
+              <Sparkline data={s.trend} width={56} height={16} stroke={family.sparklineColor} />
+              <span className={`ml-auto inline-flex items-center gap-1 text-[10.5px] font-medium text-slate-400 transition-colors ${family.openText}`}>
                 Open segment
                 <ArrowRight className="w-3 h-3" />
               </span>
