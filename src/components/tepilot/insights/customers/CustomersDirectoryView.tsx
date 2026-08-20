@@ -122,16 +122,46 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     .map((id) => CUSTOMER_DIRECTORY.find((c) => c.id === id))
     .filter(Boolean) as DirectoryCustomer[];
 
+  // Book-scale population for the current selection. A signal segment reports
+  // the real cohort behind the signal; ad-hoc filters scale the sampled slice.
+  const population = useMemo(() => {
+    if (segment) {
+      const fam = getSignalFamilyStats().find((f) => f.key === segment.family);
+      if (fam) {
+        const key = segment.label.toLowerCase();
+        const match =
+          fam.topSignals.find((s) => s.label.toLowerCase() === key) ??
+          fam.topSignals.find(
+            (s) => key.includes(s.label.toLowerCase()) || s.label.toLowerCase().includes(key),
+          );
+        return match?.customers ?? fam.customers;
+      }
+    }
+    return scaleSample(filtered.length, CUSTOMER_DIRECTORY.length);
+  }, [segment, filtered.length]);
+
   const metrics = useMemo(() => {
-    const signals = filtered.reduce((n, c) => n + totalSignals(c), 0);
-    const valueK = filtered.reduce((n, c) => n + parseValueK(c.relationshipValue), 0);
+    const sampleCustomers = Math.max(filtered.length, 1);
+    const sampleSignals = filtered.reduce((n, c) => n + totalSignals(c), 0);
+    const sampleValueK = filtered.reduce((n, c) => n + parseValueK(c.relationshipValue), 0);
+    const factor = population / sampleCustomers;
+    const valueK = sampleValueK * factor;
     return {
-      customers: filtered.length,
-      signals,
-      sharePct: CUSTOMER_DIRECTORY.length ? (filtered.length / CUSTOMER_DIRECTORY.length) * 100 : 0,
-      valueLabel: valueK >= 1000 ? `$${(valueK / 1000).toFixed(1)}M` : `$${Math.round(valueK)}K`,
+      customers: population,
+      customersLabel: fmtCount(population),
+      signals: Math.round(sampleSignals * factor),
+      signalsLabel: fmtCount(sampleSignals * factor),
+      sharePct: shareOf(population) * 100,
+      valueLabel:
+        valueK >= 1_000_000
+          ? `$${(valueK / 1_000_000).toFixed(1)}B`
+          : valueK >= 1000
+            ? `$${(valueK / 1000).toFixed(1)}M`
+            : `$${Math.round(valueK)}K`,
+      sampleSize: filtered.length,
     };
-  }, [filtered]);
+  }, [filtered, population]);
+
 
   const segmentSlug = (segment?.label ?? "customer-segment")
     .toLowerCase()
