@@ -1,10 +1,24 @@
-import { Search, X, ArrowRight } from "lucide-react";
+import { Search, X, ArrowRight, Download, MoreHorizontal, Copy, FileJson } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   SIGNAL_FAMILY_META,
   type DirectoryCustomer,
   type SignalFamily,
 } from "@/lib/customerDirectoryData";
+
+export interface SegmentMetrics {
+  customers: number;
+  signals: number;
+  sharePct: number;
+  valueLabel: string;
+}
 
 interface Props {
   query: string;
@@ -18,6 +32,11 @@ interface Props {
   recentlyViewed: DirectoryCustomer[];
   hasFilters: boolean;
   onClear: () => void;
+  metrics?: SegmentMetrics | null;
+  canExport?: boolean;
+  onExportCsv?: () => void;
+  onCopyJson?: () => void;
+  onCopyList?: () => void;
 }
 
 const TIERS = ["Mass", "Preferred", "Premier", "Private"];
@@ -34,10 +53,27 @@ export function CustomerSearchBar({
   recentlyViewed,
   hasFilters,
   onClear,
+  metrics,
+  canExport,
+  onExportCsv,
+  onCopyJson,
+  onCopyList,
 }: Props) {
+  const showBar = !!metrics;
   return (
     <div className="border border-slate-200 rounded-lg bg-white p-4">
-      <div className="relative max-w-3xl mx-auto">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-2.5">
+        {showBar && (
+          <div className="flex flex-wrap items-center gap-1.5 shrink-0 order-2 lg:order-1">
+            <Stat label="customers" value={metrics!.customers.toLocaleString()} strong />
+            <Stat label="signals" value={metrics!.signals.toLocaleString()} />
+            <Stat label="of book" value={`${metrics!.sharePct.toFixed(1)}%`} />
+            <Stat label="value" value={metrics!.valueLabel} />
+          </div>
+        )}
+
+        <div className="relative flex-1 min-w-0 order-1 lg:order-2">
+
         <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           value={query}
@@ -76,7 +112,47 @@ export function CustomerSearchBar({
             ))}
           </div>
         )}
+        </div>
+
+        {showBar && (
+          <div className="flex items-center gap-1.5 shrink-0 order-3">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!canExport}
+              onClick={onExportCsv}
+              className="h-9 border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-[12px]"
+            >
+              <Download className="w-3.5 h-3.5 mr-1.5" />
+              Export CSV
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!canExport}
+                  className="h-9 w-9 p-0 border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-white border-slate-200">
+                <DropdownMenuItem onClick={onCopyJson} className="text-[12px] text-slate-700">
+                  <FileJson className="w-3.5 h-3.5 mr-2" />
+                  Copy as JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onCopyList} className="text-[12px] text-slate-700">
+                  <Copy className="w-3.5 h-3.5 mr-2" />
+                  Copy customer list
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
+
+
 
       <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3">
         {SIGNAL_FAMILY_META.map((m) => {
@@ -142,3 +218,20 @@ export function CustomerSearchBar({
     </div>
   );
 }
+
+function Stat({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <span className="inline-flex items-baseline gap-1 rounded-md border border-slate-200 bg-slate-50/70 px-2 py-1">
+      <span
+        className={cn(
+          "text-[12px] tabular-nums",
+          strong ? "font-semibold text-slate-900" : "font-medium text-slate-700",
+        )}
+      >
+        {value}
+      </span>
+      <span className="text-[10px] uppercase tracking-wider text-slate-400">{label}</span>
+    </span>
+  );
+}
+

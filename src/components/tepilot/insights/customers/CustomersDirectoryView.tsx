@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Users, Gem, CalendarHeart, ShieldAlert, Search, Radar, X } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+function parseValueK(value: string) {
+  const m = value.match(/([\d.]+)\s*(k|M)/i);
+  if (!m) return 0;
+  return parseFloat(m[1]) * (m[2].toLowerCase() === "m" ? 1000 : 1);
+}
+
 import { TabHeader } from "../TabHeader";
 import { CustomerPortfolioStats } from "./CustomerPortfolioStats";
 import { CustomerSearchBar } from "./CustomerSearchBar";
@@ -114,10 +122,75 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     .map((id) => CUSTOMER_DIRECTORY.find((c) => c.id === id))
     .filter(Boolean) as DirectoryCustomer[];
 
+  const metrics = useMemo(() => {
+    const signals = filtered.reduce((n, c) => n + totalSignals(c), 0);
+    const valueK = filtered.reduce((n, c) => n + parseValueK(c.relationshipValue), 0);
+    return {
+      customers: filtered.length,
+      signals,
+      sharePct: CUSTOMER_DIRECTORY.length ? (filtered.length / CUSTOMER_DIRECTORY.length) * 100 : 0,
+      valueLabel: valueK >= 1000 ? `$${(valueK / 1000).toFixed(1)}M` : `$${Math.round(valueK)}K`,
+    };
+  }, [filtered]);
+
+  const segmentSlug = (segment?.label ?? "customer-segment")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 48);
+
+  const handleExportCsv = () => {
+    if (filtered.length === 0) return;
+    const header = [
+      "Name", "Email", "City", "Segment", "Tier", "Relationship Value",
+      "Products", "Life Events", "Financial Signals", "Spending Habits",
+      "Demographic Signals", "Risk Flags", "Total Signals",
+    ];
+    const rows = filtered.map((c) => [
+      c.name, c.email, c.city, c.segment, c.tier, c.relationshipValue,
+      c.products.join("; "),
+      c.lifeEvents.length, c.financialSignals.length, c.spendingHabits.length,
+      c.demographicSignals.length, c.riskFlags.length, totalSignals(c),
+    ]);
+    const csv = [header, ...rows]
+      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${segmentSlug}-${filtered.length}-customers.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${filtered.length} customers to CSV`);
+  };
+
+  const handleCopyJson = () => {
+    if (filtered.length === 0) return;
+    navigator.clipboard.writeText(
+      JSON.stringify(
+        filtered.map((c) => ({
+          id: c.id, name: c.name, email: c.email, city: c.city, segment: c.segment,
+          tier: c.tier, relationshipValue: c.relationshipValue, products: c.products,
+          totalSignals: totalSignals(c),
+        })),
+        null,
+        2,
+      ),
+    );
+    toast.success(`Copied ${filtered.length} customer records as JSON`);
+  };
+
+  const handleCopyList = () => {
+    if (filtered.length === 0) return;
+    navigator.clipboard.writeText(filtered.map((c) => `${c.name} <${c.email}>`).join("\n"));
+    toast.success(`Copied ${filtered.length} customers to clipboard`);
+  };
+
   const openCustomer = (id: string) => {
     setSelectedId(id);
     setRecentIds((prev) => [id, ...prev.filter((p) => p !== id)].slice(0, 5));
   };
+
 
   const handleSort = (key: SortKey) => {
     setQuickStart(null);
@@ -223,6 +296,11 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
         recentlyViewed={recentlyViewed}
         hasFilters={hasFilters}
         onClear={clearAll}
+        metrics={hasFilters ? metrics : null}
+        canExport={filtered.length > 0}
+        onExportCsv={handleExportCsv}
+        onCopyJson={handleCopyJson}
+        onCopyList={handleCopyList}
       />
 
       {!hasFilters && !selected ? (
@@ -257,18 +335,7 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
           )}
         >
           <div className="space-y-2 min-w-0">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                {filtered.length} {filtered.length === 1 ? "customer" : "customers"} ·{" "}
-                {filtered.reduce((n, c) => n + totalSignals(c), 0)} signals
-              </span>
-              <button
-                onClick={clearAll}
-                className="text-[10px] font-medium text-slate-400 hover:text-slate-700 underline underline-offset-2"
-              >
-                Clear all
-              </button>
-            </div>
+
             <CustomerResultsTable
               customers={filtered}
               sortKey={sortKey}
