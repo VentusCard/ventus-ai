@@ -112,7 +112,47 @@ export function CustomerSearchBar({
             ))}
           </div>
         )}
+        </div>
+
+        {showBar && (
+          <div className="flex items-center gap-1.5 shrink-0 order-3">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!canExport}
+              onClick={onExportCsv}
+              className="h-9 border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-[12px]"
+            >
+              <Download className="w-3.5 h-3.5 mr-1.5" />
+              Export CSV
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!canExport}
+                  className="h-9 w-9 p-0 border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-white border-slate-200">
+                <DropdownMenuItem onClick={onCopyJson} className="text-[12px] text-slate-700">
+                  <FileJson className="w-3.5 h-3.5 mr-2" />
+                  Copy as JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onCopyList} className="text-[12px] text-slate-700">
+                  <Copy className="w-3.5 h-3.5 mr-2" />
+                  Copy customer list
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
+
+
 
       <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3">
         {SIGNAL_FAMILY_META.map((m) => {
