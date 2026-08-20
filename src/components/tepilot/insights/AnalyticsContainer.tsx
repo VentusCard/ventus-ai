@@ -496,7 +496,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               return (
                 <div key={group.label}>
                   {!collapsed && (
-                    <div className="px-3 py-1.5 text-[12px] font-semibold uppercase tracking-wider text-indigo-100/90">
+                    <div className="px-3 py-1.5 text-[13px] font-semibold uppercase tracking-wider text-indigo-100/90">
                       {group.label}
                     </div>
                   )}
@@ -523,7 +523,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               }}
             >
               {!collapsed && (
-                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[12px] font-semibold uppercase tracking-wider text-indigo-100/90 hover:text-white">
+                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[13px] font-semibold uppercase tracking-wider text-indigo-100/90 hover:text-white">
                   {group.label}
                   <ChevronDown className={cn("w-3 h-3 transition-transform text-indigo-100/80", isOpen ? "rotate-0" : "-rotate-90")} />
                 </CollapsibleTrigger>
