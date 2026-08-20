@@ -174,8 +174,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
 
 
-  const MIN_SIDEBAR_WIDTH = 220;
-  const MAX_SIDEBAR_WIDTH = 420;
+  const MIN_SIDEBAR_WIDTH = 260;
+  const MAX_SIDEBAR_WIDTH = 460;
 
   const handleResizeStart = (e: React.PointerEvent) => {
     if (collapsed) return;
