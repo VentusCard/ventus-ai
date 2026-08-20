@@ -28,19 +28,15 @@ export function CustomerSignalPanel({ customer }: Props) {
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      <div className="shrink-0 flex items-start justify-between gap-3 pb-2.5 border-b border-slate-100">
-        <div className="min-w-0">
-          <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
-            User selected
-          </h3>
-          <p className="text-[14px] font-semibold text-slate-900 mt-0.5 truncate">
-            {customer.name}{" "}
-            <span className="text-[12px] font-medium text-slate-500 tabular-nums">
-              · {customer.customerId}
-            </span>
-          </p>
-        </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
+      <div className="shrink-0 flex items-center justify-between gap-3 pb-2 border-b border-slate-100">
+        <p className="min-w-0 text-[14px] font-semibold text-slate-900 truncate">
+          {customer.name}{" "}
+          <span className="text-[12px] font-medium text-slate-500 tabular-nums">
+            · {customer.customerId}
+          </span>
+        </p>
+        <span className="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           Ready
         </span>
       </div>
@@ -120,19 +116,12 @@ export function CustomerSignalPanel({ customer }: Props) {
 export function CustomerSignalSkeleton() {
   return (
     <div className="h-full flex flex-col min-h-0 opacity-70 select-none pointer-events-none">
-      <div className="shrink-0 flex items-start justify-between gap-3 pb-2.5 border-b border-slate-100">
-        <div className="min-w-0">
-          <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            No customer selected
-          </h3>
-          <p className="text-[14px] font-semibold text-slate-400 mt-0.5">
-            Search a customer above
-          </p>
-          <p className="text-[12px] text-slate-400">
-            These signal families are detected per customer
-          </p>
-        </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
+      <div className="shrink-0 flex items-center justify-between gap-3 pb-2 border-b border-slate-100">
+        <p className="min-w-0 text-[14px] font-semibold text-slate-400 truncate">
+          No customer selected
+        </p>
+        <span className="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-2 py-0.5 shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
           Idle
         </span>
       </div>
