@@ -155,7 +155,7 @@ export function CoworkerPersonaSettingsView() {
                 )}
               >
                 <div className="flex items-center gap-2">
-                  <PulseDot colorClass={ACCENT_DOT[t.accent]} sizeClass="h-2 w-2" delayMs={i * 200} />
+                  <PulseDot colorClass={ACCENT_DOT[t.accent]} sizeClass="h-2 w-2" />
                   <span className="text-[12.5px] font-medium text-slate-900 truncate">
                     {t.name.replace("Coworker for ", "")}
                   </span>
