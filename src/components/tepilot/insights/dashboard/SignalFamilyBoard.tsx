@@ -1,12 +1,33 @@
-import { ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { getSignalFamilyStats, fmtCount } from "@/lib/intelligenceSignalStats";
+import type { SignalFamily } from "@/lib/customerDirectoryData";
+import { Sparkline } from "./Sparkline";
+import { SignalFamilyPanel } from "./SignalFamilyPanel";
 
 interface SignalFamilyBoardProps {
-  onOpenFamily?: (section: "customers" | "risk") => void;
+  onOpenSignal?: (family: SignalFamily, label: string) => void;
 }
 
-export function SignalFamilyBoard({ onOpenFamily }: SignalFamilyBoardProps) {
+export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
   const families = getSignalFamilyStats();
+  const [expanded, setExpanded] = useState<SignalFamily | null>(null);
+
+  const active = expanded ? families.find((f) => f.key === expanded) ?? null : null;
+
+  if (active) {
+    return (
+      <div className="grid grid-cols-1 gap-3">
+        <SignalFamilyPanel
+          family={active}
+          families={families}
+          onSwitchFamily={(k) => setExpanded(k)}
+          onClose={() => setExpanded(null)}
+          onOpenSignal={(f, label) => onOpenSignal?.(f, label)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
@@ -16,46 +37,57 @@ export function SignalFamilyBoard({ onOpenFamily }: SignalFamilyBoardProps) {
           <button
             key={f.key}
             type="button"
-            onClick={() => onOpenFamily?.(f.key === "risk" ? "risk" : "customers")}
-            className="group text-left rounded-md border border-slate-200 bg-white p-3 hover:border-slate-300 hover:shadow-sm transition-all"
+            onClick={() => setExpanded(f.key)}
+            className="group text-left rounded-md border border-slate-200 bg-white p-3 hover:border-slate-400 hover:shadow-sm transition-all"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[11px] font-medium ${f.chip}`}>
+              <span
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[11px] font-medium ${f.chip}`}
+              >
                 <span className={`w-1.5 h-1.5 rounded-full ${f.dot}`} />
                 {f.label}
               </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-600 transition-colors" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-600 transition-colors" />
             </div>
 
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-[20px] font-semibold text-slate-900 tabular-nums leading-none">
-                {fmtCount(f.customers)}
-              </span>
-              <span className={`text-[11px] tabular-nums ${f.delta >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                {f.delta >= 0 ? "+" : ""}{f.delta.toFixed(1)}%
-              </span>
-            </div>
-            <div className="text-[10px] text-slate-500 mt-0.5">customers carrying this family · 24h</div>
-
-            <div className="mt-2.5 space-y-1">
-              {f.topSignals.map((s) => (
-                <div key={s.label} className="flex items-center gap-2 text-[11px]">
-                  <span className="text-slate-700 truncate flex-1">{s.label}</span>
-                  <span className="text-slate-500 tabular-nums shrink-0">{fmtCount(s.customers)}</span>
+            <div className="mt-2.5 flex items-end justify-between gap-2">
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[22px] font-semibold text-slate-900 tabular-nums leading-none">
+                    {fmtCount(f.customers)}
+                  </span>
+                  <span
+                    className={`text-[11px] tabular-nums ${f.delta >= 0 ? "text-emerald-600" : "text-rose-600"}`}
+                  >
+                    {f.delta >= 0 ? "+" : ""}
+                    {f.delta.toFixed(1)}%
+                  </span>
                 </div>
-              ))}
+                <div className="text-[10px] text-slate-500 mt-1">customers · 24h</div>
+              </div>
+              <Sparkline data={f.sparkline} width={70} height={24} stroke="#94a3b8" />
             </div>
 
             <div className="mt-2.5">
               <div className="flex h-1.5 rounded-full overflow-hidden bg-slate-100">
-                <span className="bg-slate-800" style={{ width: `${(f.confidence.strong / total) * 100}%` }} />
-                <span className="bg-slate-400" style={{ width: `${(f.confidence.likely / total) * 100}%` }} />
-                <span className="bg-slate-200" style={{ width: `${(f.confidence.emerging / total) * 100}%` }} />
+                <span
+                  className="bg-slate-800"
+                  style={{ width: `${(f.confidence.strong / total) * 100}%` }}
+                />
+                <span
+                  className="bg-slate-400"
+                  style={{ width: `${(f.confidence.likely / total) * 100}%` }}
+                />
+                <span
+                  className="bg-slate-200"
+                  style={{ width: `${(f.confidence.emerging / total) * 100}%` }}
+                />
               </div>
               <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1">
                 <span>{f.confidence.strong}% strong</span>
-                <span>{f.confidence.likely}% likely</span>
-                <span>{f.confidence.emerging}% emerging</span>
+                <span className="text-slate-400 group-hover:text-slate-700 transition-colors">
+                  {f.topSignals.length} signals
+                </span>
               </div>
             </div>
           </button>
