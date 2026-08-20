@@ -178,7 +178,7 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     <div className="space-y-3">
       <TabHeader
         icon={<Users className="w-4 h-4" />}
-        title="Customers"
+        title="Customer Segments"
         subtitle="Search your book and open any customer's five signal families"
         howItWorks="Every profile is assembled from enriched transaction behavior. Signals are assigned once, following the priority ladder: Life Event, then Financial, then Spending Habit, then Demographic, then Risk."
         whyItMatters="Bankers stop guessing. One search returns behavioral context, the financial obligations already in play, and the next best conversation to have."
