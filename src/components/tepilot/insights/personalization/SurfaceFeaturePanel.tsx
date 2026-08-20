@@ -63,32 +63,43 @@ export function SurfaceFeaturePanel({
           <Sparkles className="w-4 h-4 text-blue-500 shrink-0" />
           <h2 className="text-sm font-semibold text-slate-900">{config.title}</h2>
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2.5 space-y-2">
-          {!hasSelection ? (
-            <div className="h-full flex items-center justify-center border border-dashed border-slate-200 rounded-lg bg-slate-50/40 px-4 text-center">
-              <p className="text-[11.5px] text-slate-400 leading-relaxed max-w-[220px]">
-                Select a customer to see how this surface is personalized.
-              </p>
-            </div>
-          ) : (
-            config.items.map((item, i) => (
-              <div
-                key={item.label}
-                className={cn(
-                  "border border-slate-200 rounded-md bg-slate-50/50 px-2.5 py-2 transition-all duration-300",
-                  revealed > i ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1",
-                )}
-              >
-                <div className="flex items-start gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-blue-500 mt-[1px] shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[12px] font-semibold text-slate-900 leading-snug">{item.label}</p>
-                    <p className="text-[11px] text-slate-500 leading-relaxed mt-0.5">{item.detail}</p>
-                  </div>
+        <div
+          className={cn(
+            "flex-1 min-h-0 overflow-y-auto px-3 py-2.5 space-y-2",
+            !hasSelection && "opacity-60 grayscale pointer-events-none select-none",
+          )}
+        >
+          {config.items.map((item, i) => (
+            <div
+              key={item.label}
+              className={cn(
+                "border border-slate-200 rounded-md bg-slate-50/50 px-2.5 py-2 transition-all duration-300",
+                !hasSelection || revealed > i
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-1",
+              )}
+            >
+              <div className="flex items-start gap-1.5">
+                <Check
+                  className={cn(
+                    "w-3.5 h-3.5 mt-[1px] shrink-0",
+                    hasSelection ? "text-blue-500" : "text-slate-400",
+                  )}
+                />
+                <div className="min-w-0">
+                  <p
+                    className={cn(
+                      "text-[12px] font-semibold leading-snug",
+                      hasSelection ? "text-slate-900" : "text-slate-500",
+                    )}
+                  >
+                    {item.label}
+                  </p>
+                  <p className="text-[11px] text-slate-400 leading-relaxed mt-0.5">{item.detail}</p>
                 </div>
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
       </div>
 
