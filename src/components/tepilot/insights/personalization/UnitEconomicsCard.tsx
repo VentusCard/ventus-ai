@@ -82,7 +82,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
 
   return (
     <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
-      <Header value={total} />
+      <Header value={total} partial={partial} />
 
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2.5 space-y-2.5">
         {/* This surface */}
