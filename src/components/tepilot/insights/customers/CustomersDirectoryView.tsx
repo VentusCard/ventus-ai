@@ -20,6 +20,12 @@ import {
 
 type QuickStart = "value" | "life-event" | "risk";
 
+const STOP_WORDS = new Set([
+  "with", "this", "that", "their", "from", "soon", "here", "away", "under",
+  "over", "into", "have", "held", "keep", "very", "than", "then", "they",
+  "underway", "sight", "play", "rising",
+]);
+
 function haystack(c: DirectoryCustomer) {
   return [
     c.name,
@@ -101,7 +107,7 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     if (quickStart === "life-event") list = list.filter((c) => c.lifeEvents.length > 0);
     if (quickStart === "risk") list = list.filter((c) => c.riskFlags.length > 0);
     return sortCustomers(list, quickStart === "value" ? "value" : sortKey, quickStart === "value" ? "desc" : sortDir);
-  }, [query, families, tiers, quickStart, sortKey, sortDir]);
+  }, [query, families, tiers, quickStart, sortKey, sortDir, segment]);
 
   const selected = selectedId ? CUSTOMER_DIRECTORY.find((c) => c.id === selectedId) ?? null : null;
   const recentlyViewed = recentIds
