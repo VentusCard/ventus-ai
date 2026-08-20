@@ -36,9 +36,6 @@ export function CustomerSignalPanel({ customer }: Props) {
           <p className="text-[14px] font-semibold text-slate-900 mt-0.5 truncate">
             {customer.name}
           </p>
-          <p className="text-[12px] text-slate-500 truncate">
-            {customer.segment} · {customer.city} · {customer.lifestyleType}
-          </p>
         </div>
         <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
           Ready
