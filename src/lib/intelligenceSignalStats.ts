@@ -4,10 +4,17 @@
 
 import { SIGNAL_FAMILY_META, type SignalFamily } from "@/lib/customerDirectoryData";
 
+export type SignalConfidence = "strong" | "likely" | "emerging";
+
 export interface SignalRollup {
   label: string;
   customers: number;
   delta: number; // 24h % change
+  /** What Ventus saw in the enriched data. */
+  evidence: string;
+  confidence: SignalConfidence;
+  /** Short deterministic trend series (relative, unitless). */
+  trend: number[];
 }
 
 export interface SignalFamilyStats {
@@ -19,6 +26,7 @@ export interface SignalFamilyStats {
   customers: number;
   delta: number;
   topSignals: SignalRollup[];
+  sparkline: number[];
   confidence: { strong: number; likely: number; emerging: number };
 }
 
