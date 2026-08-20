@@ -14,8 +14,15 @@ In `supabase/functions/generate-next-offers/index.ts`:
 2. **Server-side enforcement:** in the financial-signal mapping step, when a deal's product is a bank product (loan, refinance, HELOC, mortgage, card, savings, IRA, investing, line of credit), overwrite `merchant` with `bankLabel` instead of trusting the model's value. This guarantees the mockup can never show an invented bank name even if the model ignores the prompt.
 3. Apply the same "never invent or name real banks" line to the life-event and rollup prompts, where the same drift can occur on financial deals.
 
+## Demo bank setting
+
+The demo bank name is configured in the access dialog (`SimplePasswordGate`), stored in localStorage by `demoBankConfig.ts`, and passed to the generation functions as `bankContext` — the personalization path (`personalizationGeneration.ts`) already sends it on both offer and product-card calls. Two gaps there:
+
+4. **Generic mode wording is inconsistent:** `generate-next-offers` falls back to "Your Bank" while `generate-product-cards` falls back to "Our Bank", so the same mockup can show both. Standardize on one label ("Your Bank") across both functions.
+5. **Stale cache on bank change:** personalization results are cached per customer for the session, so changing the bank name in settings leaves previously generated deals showing the old label. Include the active bank name in the cache key (or clear the personalization result cache when `setDemoBankConfig` runs) so the surface regenerates with the new bank.
+
 ## Notes
 
-- No frontend changes; `GeneratedOffersPhoneView` just renders `deal.merchant`.
-- If a custom bank name is set in demo settings, that name is used everywhere; otherwise deals read "Your Bank".
-- Redeploying the function is enough; cached per-customer results refresh on reload.
+- No visual/layout changes; `GeneratedOffersPhoneView` just renders `deal.merchant`.
+- With a custom bank name set, bank-product deals read that name; otherwise "Your Bank".
+
