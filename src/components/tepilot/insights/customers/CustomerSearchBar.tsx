@@ -1,10 +1,24 @@
-import { Search, X, ArrowRight } from "lucide-react";
+import { Search, X, ArrowRight, Download, MoreHorizontal, Copy, FileJson } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   SIGNAL_FAMILY_META,
   type DirectoryCustomer,
   type SignalFamily,
 } from "@/lib/customerDirectoryData";
+
+export interface SegmentMetrics {
+  customers: number;
+  signals: number;
+  sharePct: number;
+  valueLabel: string;
+}
 
 interface Props {
   query: string;
@@ -18,6 +32,11 @@ interface Props {
   recentlyViewed: DirectoryCustomer[];
   hasFilters: boolean;
   onClear: () => void;
+  metrics?: SegmentMetrics | null;
+  canExport?: boolean;
+  onExportCsv?: () => void;
+  onCopyJson?: () => void;
+  onCopyList?: () => void;
 }
 
 const TIERS = ["Mass", "Preferred", "Premier", "Private"];
@@ -34,10 +53,27 @@ export function CustomerSearchBar({
   recentlyViewed,
   hasFilters,
   onClear,
+  metrics,
+  canExport,
+  onExportCsv,
+  onCopyJson,
+  onCopyList,
 }: Props) {
+  const showBar = !!metrics;
   return (
     <div className="border border-slate-200 rounded-lg bg-white p-4">
-      <div className="relative max-w-3xl mx-auto">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-2.5">
+        {showBar && (
+          <div className="flex flex-wrap items-center gap-1.5 shrink-0 order-2 lg:order-1">
+            <Stat label="customers" value={metrics!.customers.toLocaleString()} strong />
+            <Stat label="signals" value={metrics!.signals.toLocaleString()} />
+            <Stat label="of book" value={`${metrics!.sharePct.toFixed(1)}%`} />
+            <Stat label="value" value={metrics!.valueLabel} />
+          </div>
+        )}
+
+        <div className="relative flex-1 min-w-0 order-1 lg:order-2">
+
         <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           value={query}
