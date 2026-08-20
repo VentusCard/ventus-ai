@@ -24,7 +24,7 @@ const ASSUMPTION_FIELDS: {
   pct?: boolean;
   step?: number;
 }[] = [
-  { key: "spendPerOffer", label: "Spend / offer", suffix: "$", step: 25 },
+  { key: "annualDealsSpend", label: "Deals spend / yr", suffix: "$", step: 100 },
   { key: "takeRate", label: "Take rate", pct: true, step: 0.5 },
   { key: "productConversion", label: "Product lift", pct: true, step: 0.5 },
   { key: "cacAvoided", label: "CAC avoided", suffix: "$", step: 20 },
@@ -62,6 +62,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
   });
 
   const total = rows.reduce((sum, r) => sum + (r.value ?? 0), 0);
+  const partial = rows.some((r) => r.value == null);
   const current = computed.find((c) => c.surface === surface)!;
 
   if (!customer) {
@@ -81,7 +82,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
 
   return (
     <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
-      <Header value={total} />
+      <Header value={total} partial={partial} />
 
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2.5 space-y-2.5">
         {/* This surface */}
@@ -105,9 +106,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
                   <p className="text-[10px] text-slate-500 leading-tight">{line.formula}</p>
                 </div>
                 <span className="text-[11px] font-semibold text-slate-700 tabular-nums shrink-0">
-                  {line.label.includes("conversions") || line.label.includes("Attrition")
-                    ? line.value.toFixed(3)
-                    : formatMoney(line.value)}
+                  {line.display ?? formatMoney(line.value)}
                 </span>
               </div>
             ))}
@@ -135,7 +134,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
           </div>
           <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
             <span className="text-[11.5px] font-semibold text-slate-900">
-              Total / average customer
+              {partial ? "Total so far / average customer" : "Total / average customer"}
             </span>
             <span className="text-[14px] font-bold text-blue-700 tabular-nums">
               {formatMoney(total)}
@@ -196,7 +195,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
   );
 }
 
-function Header({ value }: { value?: number }) {
+function Header({ value, partial }: { value?: number; partial?: boolean }) {
   return (
     <div className="shrink-0 px-3.5 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between gap-2">
       <div className="flex items-center gap-2 min-w-0">
@@ -205,7 +204,7 @@ function Header({ value }: { value?: number }) {
       </div>
       {value != null && (
         <span className="text-[11px] font-semibold text-blue-700 tabular-nums shrink-0">
-          {formatMoney(value)} / customer / yr
+          {formatMoney(value)}{partial ? " so far" : ""} / customer / yr
         </span>
       )}
     </div>
