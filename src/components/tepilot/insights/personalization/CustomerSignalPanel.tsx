@@ -115,3 +115,50 @@ export function CustomerSignalPanel({ customer }: Props) {
     </div>
   );
 }
+
+/** Greyed-out preview shown before a customer is selected. */
+export function CustomerSignalSkeleton() {
+  return (
+    <div className="h-full flex flex-col min-h-0 opacity-70 select-none pointer-events-none">
+      <div className="shrink-0 flex items-start justify-between gap-3 pb-2.5 border-b border-slate-100">
+        <div className="min-w-0">
+          <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            No customer selected
+          </h3>
+          <p className="text-[14px] font-semibold text-slate-400 mt-0.5">
+            Search a customer above
+          </p>
+          <p className="text-[12px] text-slate-400">
+            These signal families are detected per customer
+          </p>
+        </div>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
+          Idle
+        </span>
+      </div>
+
+      <div className="flex-1 min-h-0 overflow-hidden pt-3 pr-1 space-y-3">
+        {SIGNAL_FAMILY_META.map((m) => (
+          <div key={m.key}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={cn("w-2 h-2 rounded-full opacity-40", m.dot)} />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                {m.label}
+              </span>
+              <div className="flex-1 h-px bg-slate-100" />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[0, 1].map((i) => (
+                <span
+                  key={i}
+                  className="h-[30px] rounded-full bg-slate-100 border border-slate-200 animate-pulse"
+                  style={{ width: i === 0 ? 128 : 92 }}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
