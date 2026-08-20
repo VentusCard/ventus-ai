@@ -496,10 +496,11 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         {/* ── Expiring Soon ── */}
         {!isSearchActive && expiringSoon.length > 0 && (
           <div>
-            <div className="flex items-center gap-1 mb-1.5">
-              <Clock className="w-3 h-3 text-red-500" />
-              <span className="text-[10px] font-bold text-slate-700">Expiring Soon</span>
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Clock className="w-3.5 h-3.5 text-red-500" />
+              <span className="text-[11px] font-bold text-slate-700">Expiring Soon</span>
             </div>
+
             <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
               {expiringSoon.map((deal) => {
                 const isUrgent = deal.hoursLeft < 6;
