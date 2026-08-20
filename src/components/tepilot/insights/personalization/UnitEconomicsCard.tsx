@@ -31,7 +31,6 @@ const ASSUMPTION_FIELDS: {
   { key: "baseAttrition", label: "Base attrition", pct: true, step: 0.5 },
   { key: "attritionReduction", label: "Attrition cut", pct: true, step: 1 },
   { key: "replacementCost", label: "Replacement cost", suffix: "$", step: 25 },
-  { key: "portfolioSize", label: "Portfolio size", step: 100000 },
 ];
 
 export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
@@ -140,14 +139,6 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
             </span>
             <span className="text-[14px] font-bold text-blue-700 tabular-nums">
               {formatMoney(total)}
-            </span>
-          </div>
-          <div className="mt-1 flex items-center justify-between">
-            <span className="text-[10.5px] text-slate-500">
-              × {assumptions.portfolioSize.toLocaleString()} customers
-            </span>
-            <span className="text-[11.5px] font-semibold text-slate-700 tabular-nums">
-              {formatMoney(total * assumptions.portfolioSize)} / yr
             </span>
           </div>
         </div>
