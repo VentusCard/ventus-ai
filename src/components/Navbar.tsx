@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3, Bot, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
+import AnnouncementBar from "./AnnouncementBar";
 
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
@@ -49,6 +50,7 @@ const Navbar = () => {
 
   return (
     <div className="absolute top-0 left-0 right-0 z-50">
+      <AnnouncementBar />
       <nav className={`transition-colors duration-300 ${isTransparent ? "bg-[#0A1628]" : "bg-transparent"}`}>
       {/* Desktop navbar */}
       <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
