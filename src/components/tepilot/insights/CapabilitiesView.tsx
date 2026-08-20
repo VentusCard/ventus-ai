@@ -505,12 +505,14 @@ function SignalSection({
       ref={ref}
       className="flex h-6 items-center gap-2 text-[11.5px] leading-none text-slate-300"
     >
-      <span className="truncate font-medium text-slate-200">{example.to}</span>
-      <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
-      <span className="truncate text-slate-400">{example.ev}</span>
+      <span className="relative z-10 truncate bg-inherit font-medium text-slate-200">
+        {example.to}
+      </span>
+      <span className="relative z-0 flex-none text-[10px] text-slate-500">&rarr;</span>
+      <span className="relative z-0 truncate text-slate-400">{example.ev}</span>
       <span
         className={cn(
-          "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
+          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
           DETECTION_BASIS_CLASS[example.basis],
         )}
       >
