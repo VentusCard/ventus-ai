@@ -890,7 +890,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           dot="#1E9E6A"
           value={
             <>
-              99<span className="text-sm font-medium text-slate-400">%</span>
+              99<span className="text-sm font-medium text-slate-400">&nbsp;%</span>
             </>
           }
           foot={<span>Rail-agnostic behavioral enrichment</span>}
