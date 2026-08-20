@@ -85,8 +85,6 @@ type Destination = {
   team: TeamKey;
 };
 
-
-
 type Detection = { ev: string; to: string; basis: "1P" | "Ext" | "Both" };
 
 type SignalDetail = {
@@ -107,17 +105,18 @@ const SIGNALS: SignalDetail[] = [
     color: "bg-blue-500",
     tint: "bg-blue-50 text-blue-700 border-blue-200",
     dot: "bg-blue-500",
-    description: "Recurring spending habits classified across 11 lifestyle pillars from merchant and subcategory clusters.",
+    description:
+      "Recurring spending habits classified across 11 lifestyle pillars from merchant and subcategory clusters.",
     examples: [
       { to: "Luxury goods auctioneer", ev: "Sotheby's/Christie's + high-value collectible purchases", basis: "Both" },
-      { to: "Golf club member", ev: "Country club dues + pro shop + course charges", basis: "1P" },
+      { to: "Country club member", ev: "Country club dues + pro shop + course charges", basis: "1P" },
       { to: "Fine dining regular", ev: "Michelin/steakhouse reservations, $400+ dinners", basis: "1P" },
       { to: "Concert season subscriber", ev: "Symphony/opera recurring tickets", basis: "1P" },
       { to: "Bi-weekly weekend tennis", ev: "Court fees + tennis shop, every other Sat/Sun", basis: "1P" },
       { to: "Annual tropical vacationer", ev: "Caribbean/Mexico hotel + airline, Jan/Feb", basis: "Both" },
       { to: "Quarterly business traveler to Chicago", ev: "ORD flights + downtown hotels, Thu-Sun", basis: "Both" },
-      { to: "Daily 8am coffee ritual", ev: "Starbucks, weekday mornings", basis: "1P" },
-      { to: "Friday date-night steakhouse regular", ev: "Ruth's Chris/Mastro's, Friday evenings", basis: "1P" },
+      { to: "Daily pre-work coffee run", ev: "Starbucks, Dunkin weekday mornings", basis: "1P" },
+      { to: "Weekend date-night dine out regular", ev: "Ruth's Chris/Mastro's, Friday evenings", basis: "1P" },
       { to: "Monthly Chewy auto-ship", ev: "Recurring pet-food subscription", basis: "1P" },
       { to: "Summer outdoor-gear cycle", ev: "REI + Patagonia, spring/fall peaks", basis: "1P" },
       { to: "Saturday kids-activity parent", ev: "Sports leagues, activity centers, weekend", basis: "1P" },
@@ -133,7 +132,10 @@ const SIGNALS: SignalDetail[] = [
       { label: "Family & Community", sublabel: "Childcare, gifts, religious orgs, kids activities" },
       { label: "Pets", sublabel: "Chewy, vet care, grooming, pet insurance" },
       { label: "Entertainment & Culture", sublabel: "Movies, concerts, museums, books, gaming" },
-      { label: "Trip Reconstruction", sublabel: "Anchor + non-home-zip clustering into dated trips with spend breakdown" },
+      {
+        label: "Trip Reconstruction",
+        sublabel: "Anchor + non-home-zip clustering into dated trips with spend breakdown",
+      },
     ],
   },
   {
@@ -142,7 +144,8 @@ const SIGNALS: SignalDetail[] = [
     color: "bg-amber-500",
     tint: "bg-amber-50 text-amber-700 border-amber-200",
     dot: "bg-amber-500",
-    description: "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds.",
+    description:
+      "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds.",
     examples: [
       { ev: "Title + escrow payment", to: "Home purchase in progress", basis: "1P" },
       { ev: "OB visits + registry spend", to: "New baby, ~2 months out", basis: "1P" },
@@ -157,8 +160,14 @@ const SIGNALS: SignalDetail[] = [
       { label: "Business Formation", sublabel: "LegalZoom, Stripe Atlas, business banking, commercial leasing" },
       { label: "Elder Care", sublabel: "Assisted living, home health aide, geriatric care, hospice, DME" },
       { label: "Retirement Planning", sublabel: "Advisor fees, estate attorney, Medicare supplement, downsizing" },
-      { label: "Relocation", sublabel: "Long-distance movers, vehicle shipping, extended-stay 7+ nights, new-metro utilities" },
-      { label: "Inheritance / Windfall", sublabel: "Large one-time inflow paired with estate attorney or trust services" },
+      {
+        label: "Relocation",
+        sublabel: "Long-distance movers, vehicle shipping, extended-stay 7+ nights, new-metro utilities",
+      },
+      {
+        label: "Inheritance / Windfall",
+        sublabel: "Large one-time inflow paired with estate attorney or trust services",
+      },
     ],
   },
   {
@@ -179,7 +188,10 @@ const SIGNALS: SignalDetail[] = [
       { label: "Recent large inflow", sublabel: "One-off deposit well above payroll baseline (windfall, bonus)" },
       { label: "Deposit balance trending up", sublabel: "Checking and savings growing across recent statements" },
       { label: "Investable assets tier", sublabel: "Idle balances above typical operating-cash needs" },
-      { label: "Funds external brokerage", sublabel: "Outbound ACH to Schwab, Fidelity, Robinhood (wallet share leak)" },
+      {
+        label: "Funds external brokerage",
+        sublabel: "Outbound ACH to Schwab, Fidelity, Robinhood (wallet share leak)",
+      },
       { label: "Active mortgage payer", sublabel: "Recurring mortgage servicer outflow on file" },
       { label: "Low credit utilization", sublabel: "Headroom on existing revolving credit lines" },
       { label: "Healthy DTI", sublabel: "Debt service comfortably below underwriting thresholds" },
@@ -192,7 +204,8 @@ const SIGNALS: SignalDetail[] = [
     color: "bg-violet-500",
     tint: "bg-violet-50 text-violet-700 border-violet-200",
     dot: "bg-violet-500",
-    description: "Behaviorally inferred household and life-stage attributes with direct product and timing implications.",
+    description:
+      "Behaviorally inferred household and life-stage attributes with direct product and timing implications.",
     examples: [
       { ev: "Merchant services + wholesale", to: "Small business owner", basis: "1P" },
       { ev: "Two payroll streams, one address", to: "Dual-income household", basis: "1P" },
@@ -205,11 +218,20 @@ const SIGNALS: SignalDetail[] = [
       { label: "Parent of school-age", sublabel: "Tuition, kids activities, SAT/ACT prep" },
       { label: "Dual-income household", sublabel: "Two distinct payroll streams to one household" },
       { label: "Pre-retiree / empty nester", sublabel: "Medicare supplement, downsizing, no dependent-linked spend" },
-      { label: "Self-employed / 1099 household", sublabel: "Quarterly estimated tax payments, irregular platform inflows, no single employer ACH" },
-      { label: "Small business owner", sublabel: "Business banking deposits, merchant-services volume, commercial insurance, wholesale suppliers" },
+      {
+        label: "Self-employed / 1099 household",
+        sublabel: "Quarterly estimated tax payments, irregular platform inflows, no single employer ACH",
+      },
+      {
+        label: "Small business owner",
+        sublabel: "Business banking deposits, merchant-services volume, commercial insurance, wholesale suppliers",
+      },
       { label: "Multi-property household", sublabel: "Two or more distinct mortgage, HOA, or property-tax streams" },
       { label: "Rental income earner", sublabel: "Recurring inbound rent deposits or property-management payouts" },
-      { label: "Household with dependents in college", sublabel: "Bursar or tuition outflows plus 529 plan distributions" },
+      {
+        label: "Household with dependents in college",
+        sublabel: "Bursar or tuition outflows plus 529 plan distributions",
+      },
       { label: "High-net-worth indicator", sublabel: "Advisory fees, trust services, private-client banking outflows" },
       { label: "Recently relocated household", sublabel: "Sustained merchant footprint shift into a new metro" },
       { label: "Beneficiary reasoning", sublabel: "Spend benefits self vs. dependent vs. third-party gift" },
@@ -221,7 +243,8 @@ const SIGNALS: SignalDetail[] = [
     color: "bg-rose-500",
     tint: "bg-rose-50 text-rose-700 border-rose-200",
     dot: "bg-rose-500",
-    description: "Deterministic keyword/MCC flags for Vice and Financial Distress plus model-routed AML, bucketed with severity scores.",
+    description:
+      "Deterministic keyword/MCC flags for Vice and Financial Distress plus model-routed AML, bucketed with severity scores.",
     examples: [
       { ev: "Deposits just under $10K", to: "AML structuring pattern", basis: "1P" },
       { ev: "Payday lender outflows", to: "Financial distress, weight 5", basis: "1P" },
@@ -234,7 +257,10 @@ const SIGNALS: SignalDetail[] = [
       { label: "Sports betting", sublabel: "DraftKings SB, FanDuel SB, BetMGM, PrizePicks (weight 3)" },
       { label: "Casino & table games", sublabel: "MGM, Bellagio, Foxwoods, DraftKings Casino (weight 3)" },
       { label: "Payday & short-term credit", sublabel: "ACE Cash Express, Advance America, Earnin, Dave (weight 5)" },
-      { label: "Debt collection & relief", sublabel: "Portfolio Recovery, Freedom Debt Relief, bankruptcy filings (weight 5)" },
+      {
+        label: "Debt collection & relief",
+        sublabel: "Portfolio Recovery, Freedom Debt Relief, bankruptcy filings (weight 5)",
+      },
       { label: "Check cashing & money services", sublabel: "Western Union, MoneyGram, MoneyPak reloads (weight 4)" },
       { label: "Overdraft & NSF activity", sublabel: "Aggregated fee events; severity escalates at 5+" },
       { label: "Subprime credit & rent-to-own", sublabel: "Credit One, OpenSky, Rent-A-Center, DriveTime (weight 3)" },
@@ -287,18 +313,11 @@ const DESTINATIONS: Destination[] = [
   { name: "Loyalty & Retention", channel: "Digital Banking", team: "rewards" },
 ];
 
-
 function Connector({ amber }: { amber?: boolean }) {
   const stroke = amber ? "#D9A441" : "#94A3B8";
   return (
     <div className="flex items-center justify-center py-3 lg:py-0" aria-hidden>
-      <svg
-        width="52"
-        height="20"
-        viewBox="0 0 52 20"
-        fill="none"
-        className="opacity-70 max-lg:rotate-90"
-      >
+      <svg width="52" height="20" viewBox="0 0 52 20" fill="none" className="opacity-70 max-lg:rotate-90">
         <path
           d="M2 10H43"
           stroke={stroke}
@@ -327,7 +346,6 @@ function Connector({ amber }: { amber?: boolean }) {
   );
 }
 
-
 function NodeCard({
   icon: Icon,
   label,
@@ -348,9 +366,7 @@ function NodeCard({
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{label}</div>
-        {sublabel ? (
-          <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div>
-        ) : null}
+        {sublabel ? <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div> : null}
       </div>
       {badge ? (
         <span className="flex-none rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] text-emerald-600">
@@ -379,9 +395,7 @@ function SourceGroupCard({
       onClick={onSelect}
       className={cn(
         "flex min-h-[52px] w-full flex-1 items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
-        isActive
-          ? "border-sky-300 ring-1 ring-sky-200"
-          : "border-slate-100 hover:border-slate-200",
+        isActive ? "border-sky-300 ring-1 ring-sky-200" : "border-slate-100 hover:border-slate-200",
       )}
     >
       <div
@@ -392,10 +406,8 @@ function SourceGroupCard({
       >
         <Icon className="h-4 w-4" />
       </div>
-        <div className="min-w-0 flex-1">
-        <div className="truncate text-[13px] font-medium leading-tight text-slate-900">
-          {group.provider}
-        </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{group.provider}</div>
         <div className="mt-px truncate font-mono text-[11px] text-slate-400">
           {group.sublabel} · {group.inputs.length} sources
         </div>
@@ -404,8 +416,6 @@ function SourceGroupCard({
     </button>
   );
 }
-
-
 
 const SIGNAL_BASIS: Record<string, "First-party" | "Both" | "Modeled"> = {
   "Life Event": "Both",
@@ -455,8 +465,7 @@ function SignalSection({
   const currentRowRef = useRef<HTMLSpanElement | null>(null);
   const nextRowRef = useRef<HTMLSpanElement | null>(null);
   const reduceMotion =
-    typeof window !== "undefined" &&
-    !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
     let intervalId: number;
@@ -497,17 +506,9 @@ function SignalSection({
   const current = signal.examples[idx];
   const next = signal.examples[(idx + 1) % total];
 
-  const renderRow = (
-    example: SignalDetail["examples"][number],
-    ref: React.RefObject<HTMLSpanElement>,
-  ) => (
-    <span
-      ref={ref}
-      className="flex h-6 items-center gap-2 text-[11.5px] leading-none text-slate-300"
-    >
-      <span className="relative z-10 truncate bg-inherit font-medium text-slate-200">
-        {example.to}
-      </span>
+  const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
+    <span ref={ref} className="flex h-6 items-center gap-2 text-[11.5px] leading-none text-slate-300">
+      <span className="relative z-10 truncate bg-inherit font-medium text-slate-200">{example.to}</span>
       <span className="relative z-0 flex-none text-[10px] text-slate-500">&rarr;</span>
       <span className="relative z-0 truncate text-slate-400">{example.ev}</span>
       <span
@@ -533,20 +534,14 @@ function SignalSection({
     >
       <span className={cn("absolute inset-y-0 left-0 w-[3px]", signal.color)} />
       <span className="mb-0.5 flex items-center gap-2">
-        <span
-          className={cn("h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10", signal.dot)}
-        />
+        <span className={cn("h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10", signal.dot)} />
         <span className="text-[12.5px] font-semibold tracking-tight text-slate-100">{signal.label}</span>
         <span className="ml-auto font-mono text-[11px] tabular-nums text-slate-400">
           <b className="font-semibold text-slate-200">{count}</b> · 24h
         </span>
       </span>
       <span className="relative mt-0.5 block h-6 overflow-hidden">
-        <div
-          ref={trackRef}
-          className="absolute inset-x-0 top-0"
-          style={{ willChange: "transform" }}
-        >
+        <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
           {renderRow(next, nextRowRef)}
         </div>
@@ -554,9 +549,6 @@ function SignalSection({
     </button>
   );
 }
-
-
-
 
 function Sparkline({ points, stroke }: { points: string; stroke: string }) {
   return (
@@ -593,7 +585,6 @@ function Kpi({
 }
 
 export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
-
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   const sourceGroups: SourceGroup[] = [
     {
@@ -603,31 +594,72 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       description:
         "The bank's system-of-record spine — verified identity, every payment rail, and the full product portfolio the customer holds today.",
       inputs: [
-        { label: "Name, DOB, SSN", sublabel: "Core identity tuple used for identity resolution across systems", icon: UserCircle },
+        {
+          label: "Name, DOB, SSN",
+          sublabel: "Core identity tuple used for identity resolution across systems",
+          icon: UserCircle,
+        },
         { label: "Address & contact", sublabel: "Residential address, phone, and email of record", icon: MapPin },
-        { label: "Document verification — ID / passport", sublabel: "Government ID scan + liveness check outcome", icon: FileCheck },
-        { label: "Sanctions, PEP & watchlists", sublabel: "OFAC, PEP, and adverse-media screening status", icon: ShieldCheck },
-        { label: "Employer & occupation", sublabel: "Self-reported employer and occupation from onboarding forms", icon: Briefcase },
-        { label: "Card auth & posted", sublabel: "Live authorization stream and settled postings from the card processor", icon: CreditCard },
-        { label: "ACH debit / credit", sublabel: "NACHA-cleared debits and credits including recurring payroll", icon: ArrowLeftRight },
-        { label: "Wires in / out", sublabel: "Domestic and international wire activity with counterparty detail", icon: Landmark },
+        {
+          label: "Document verification — ID / passport",
+          sublabel: "Government ID scan + liveness check outcome",
+          icon: FileCheck,
+        },
+        {
+          label: "Sanctions, PEP & watchlists",
+          sublabel: "OFAC, PEP, and adverse-media screening status",
+          icon: ShieldCheck,
+        },
+        {
+          label: "Employer & occupation",
+          sublabel: "Self-reported employer and occupation from onboarding forms",
+          icon: Briefcase,
+        },
+        {
+          label: "Card auth & posted",
+          sublabel: "Live authorization stream and settled postings from the card processor",
+          icon: CreditCard,
+        },
+        {
+          label: "ACH debit / credit",
+          sublabel: "NACHA-cleared debits and credits including recurring payroll",
+          icon: ArrowLeftRight,
+        },
+        {
+          label: "Wires in / out",
+          sublabel: "Domestic and international wire activity with counterparty detail",
+          icon: Landmark,
+        },
         { label: "Zelle", sublabel: "P2P transfers with contact-level counterparties", icon: Send },
         { label: "RTP / FedNow", sublabel: "Real-time payment rails, 24/7 clearing", icon: Zap },
         { label: "Bill pay & checks", sublabel: "Scheduled bill pay and posted paper/e-check activity", icon: Receipt },
         { label: "Checking & savings", sublabel: "Deposit accounts, balances, and interest posture", icon: Wallet },
         { label: "Credit & debit cards", sublabel: "Card products held, limits, and utilization", icon: CreditCard },
         { label: "Loans & mortgage", sublabel: "Auto, personal, HELOC, and mortgage servicing", icon: Home },
-        { label: "Investments & brokerage", sublabel: "In-house brokerage and managed-portfolio holdings", icon: PiggyBank },
-        { label: "Statements & balances", sublabel: "Historical statement cycles for balance trending", icon: FileText },
+        {
+          label: "Investments & brokerage",
+          sublabel: "In-house brokerage and managed-portfolio holdings",
+          icon: PiggyBank,
+        },
+        {
+          label: "Statements & balances",
+          sublabel: "Historical statement cycles for balance trending",
+          icon: FileText,
+        },
       ],
     },
     {
       provider: "Digital Banking",
       sublabel: "app + web telemetry",
       icon: Smartphone,
-      description: "Behavioral telemetry from the mobile app and web banking — how customers engage with the bank's digital surface.",
+      description:
+        "Behavioral telemetry from the mobile app and web banking — how customers engage with the bank's digital surface.",
       inputs: [
-        { label: "App sessions & screens", sublabel: "Session duration, screen views, and navigation paths in mobile", icon: Smartphone },
+        {
+          label: "App sessions & screens",
+          sublabel: "Session duration, screen views, and navigation paths in mobile",
+          icon: Smartphone,
+        },
         { label: "Web sessions & pages", sublabel: "Online banking session telemetry and page views", icon: Gauge },
         { label: "Search & clicks", sublabel: "In-app search terms and CTA click-through", icon: Search },
         { label: "Push & in-app notifications", sublabel: "Notifications sent, opened, and dismissed", icon: Bell },
@@ -638,13 +670,34 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       provider: "External Intelligence 1",
       sublabel: "national data partnerships",
       icon: Gauge,
-      description: "Credit bureau file plus household wealth, property, and demographic enrichment from national data partnerships.",
+      description:
+        "Credit bureau file plus household wealth, property, and demographic enrichment from national data partnerships.",
       inputs: [
         { label: "Credit File", sublabel: "Bureau tradelines, utilization, and score", icon: Gauge, fcra: true },
-        { label: "Wealth Data", sublabel: "Estimated household investable assets and net-worth tier", icon: PiggyBank, fcra: false },
-        { label: "Loans & Payments", sublabel: "Auto loans, mortgage history, HELOC, and personal loan servicing", icon: Receipt, fcra: false },
-        { label: "Property Data", sublabel: "Property ownership, valuation, and equity estimate", icon: Home, fcra: false },
-        { label: "Demographics Data", sublabel: "Household composition, age, income band, life stage", icon: Users, fcra: false },
+        {
+          label: "Wealth Data",
+          sublabel: "Estimated household investable assets and net-worth tier",
+          icon: PiggyBank,
+          fcra: false,
+        },
+        {
+          label: "Loans & Payments",
+          sublabel: "Auto loans, mortgage history, HELOC, and personal loan servicing",
+          icon: Receipt,
+          fcra: false,
+        },
+        {
+          label: "Property Data",
+          sublabel: "Property ownership, valuation, and equity estimate",
+          icon: Home,
+          fcra: false,
+        },
+        {
+          label: "Demographics Data",
+          sublabel: "Household composition, age, income band, life stage",
+          icon: Users,
+          fcra: false,
+        },
       ],
     },
     {
@@ -653,13 +706,48 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       icon: Sparkles,
       description: "Lifestyle, vehicle, life-event, and firmographic enrichment from national data partnerships.",
       inputs: [
-        { label: "Interests & hobbies", sublabel: "Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions", icon: Heart, fcra: false },
-        { label: "Auto & VIN", sublabel: "Registered vehicles, make/model, and ownership tenure", icon: Car, fcra: false },
-        { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles, fcra: false },
-        { label: "Public records", sublabel: "Bankruptcies, liens, judgments, and UCC filings", icon: FileText, fcra: false },
-        { label: "Firmographics (business owner)", sublabel: "SIC code, employee count, estimated sales volume, years in business, website", icon: Building2, fcra: false },
-        { label: "Licenses & registrations", sublabel: "Pilot, hunting, boat, and driver's license history — wealth/lifestyle proxies", icon: BadgeCheck, fcra: false },
-        { label: "New movers & pre-movers", sublabel: "In-market relocation signal: pre-move intent and recent-move flag", icon: Truck, fcra: false },
+        {
+          label: "Interests & hobbies",
+          sublabel: "Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions",
+          icon: Heart,
+          fcra: false,
+        },
+        {
+          label: "Auto & VIN",
+          sublabel: "Registered vehicles, make/model, and ownership tenure",
+          icon: Car,
+          fcra: false,
+        },
+        {
+          label: "Life events",
+          sublabel: "Marriage, new child, home purchase, relocation flags",
+          icon: Sparkles,
+          fcra: false,
+        },
+        {
+          label: "Public records",
+          sublabel: "Bankruptcies, liens, judgments, and UCC filings",
+          icon: FileText,
+          fcra: false,
+        },
+        {
+          label: "Firmographics (business owner)",
+          sublabel: "SIC code, employee count, estimated sales volume, years in business, website",
+          icon: Building2,
+          fcra: false,
+        },
+        {
+          label: "Licenses & registrations",
+          sublabel: "Pilot, hunting, boat, and driver's license history — wealth/lifestyle proxies",
+          icon: BadgeCheck,
+          fcra: false,
+        },
+        {
+          label: "New movers & pre-movers",
+          sublabel: "In-market relocation signal: pre-move intent and recent-move flag",
+          icon: Truck,
+          fcra: false,
+        },
       ],
     },
     {
@@ -670,21 +758,45 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       onOpen: onOpenProducts,
       openLabel: `Open Bank Context tab`,
       inputs: [
-        { label: "Consumer Banking Products", sublabel: "Checking, savings, debit, credit cards, and digital wallets", icon: Wallet },
-        { label: "Consumer Lending Products", sublabel: "Mortgages, auto, personal, HELOC, and student loans", icon: Home },
-        { label: "Wealth & Investment Products", sublabel: "Brokerage, managed portfolios, trusts, and advisory tiers", icon: Gem },
-        { label: "Locations & Hours", sublabel: "Branch network, ATM coverage, and regional operating schedules", icon: MapPin },
-        { label: "Departments", sublabel: "RM assignment rules, advisor specializations, and escalation paths", icon: Users },
-        { label: "Customer Segments & Tiers", sublabel: "Mass market, affluent, and private-banking thresholds", icon: Crown },
+        {
+          label: "Consumer Banking Products",
+          sublabel: "Checking, savings, debit, credit cards, and digital wallets",
+          icon: Wallet,
+        },
+        {
+          label: "Consumer Lending Products",
+          sublabel: "Mortgages, auto, personal, HELOC, and student loans",
+          icon: Home,
+        },
+        {
+          label: "Wealth & Investment Products",
+          sublabel: "Brokerage, managed portfolios, trusts, and advisory tiers",
+          icon: Gem,
+        },
+        {
+          label: "Locations & Hours",
+          sublabel: "Branch network, ATM coverage, and regional operating schedules",
+          icon: MapPin,
+        },
+        {
+          label: "Departments",
+          sublabel: "RM assignment rules, advisor specializations, and escalation paths",
+          icon: Users,
+        },
+        {
+          label: "Customer Segments & Tiers",
+          sublabel: "Mass market, affluent, and private-banking thresholds",
+          icon: Crown,
+        },
       ],
     },
   ];
 
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
   const [activeSourceLabel, setActiveSourceLabel] = useState<string | null>(null);
-  const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
+  const activeSignal = activeSignalLabel ? (SIGNALS.find((s) => s.label === activeSignalLabel) ?? null) : null;
   const activeSourceGroup = activeSourceLabel
-    ? sourceGroups.find((g) => g.provider === activeSourceLabel) ?? null
+    ? (sourceGroups.find((g) => g.provider === activeSourceLabel) ?? null)
     : null;
   const activeSource = activeSourceGroup
     ? {
@@ -840,7 +952,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-2">
-
               {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
@@ -858,14 +969,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           <div className="min-w-0 p-1.5">
             <div className="h-full overflow-hidden rounded-xl bg-gradient-to-b from-[#0E1626] to-[#131E31] p-4">
               <div className="flex items-center gap-2.5">
-                <img
-                  src={ventusLogoTransparent}
-                  alt="Ventus"
-                  className="h-4 w-auto brightness-0 invert opacity-95"
-                />
-                <p className="text-sm font-semibold tracking-tight text-white">
-                  Customer Intelligence Core
-                </p>
+                <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto brightness-0 invert opacity-95" />
+                <p className="text-sm font-semibold tracking-tight text-white">Customer Intelligence Core</p>
               </div>
 
               {/* Signals column */}
@@ -913,19 +1018,14 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     key={d.name}
                     className="relative flex min-h-[34px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
                   >
-                    <span
-                      className="absolute inset-y-0 left-0 w-[3px]"
-                      style={{ background: team.color }}
-                    />
+                    <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
                     <span
                       className="flex-none rounded px-1.5 py-px text-[9.5px] font-medium leading-none"
                       style={{ background: `${team.color}14`, color: team.color }}
                     >
                       {team.label}
                     </span>
-                    <span className="truncate text-[12.5px] font-medium leading-tight text-slate-800">
-                      {d.name}
-                    </span>
+                    <span className="truncate text-[12.5px] font-medium leading-tight text-slate-800">{d.name}</span>
                     <span className="ml-auto flex-none rounded bg-slate-100 px-1.5 py-px font-mono text-[9.5px] leading-none text-slate-500">
                       {d.channel}
                     </span>
@@ -933,10 +1033,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 );
               })}
             </div>
-
           </div>
         </div>
-
 
         {/* Shared detail panel — signal or application */}
         {activeDetail && ActiveIcon && (
@@ -945,12 +1043,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col"
           >
             <div className="flex items-start gap-3 mb-5">
-              <div
-                className={cn(
-                  "flex items-center justify-center w-9 h-9 rounded-lg shrink-0",
-                  activeDetail.color,
-                )}
-              >
+              <div className={cn("flex items-center justify-center w-9 h-9 rounded-lg shrink-0", activeDetail.color)}>
                 <ActiveIcon className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
@@ -959,18 +1052,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     {activeDetailKind}
                   </span>
                   <h3 className="text-[15px] font-bold text-slate-900">{activeDetail.label}</h3>
-                  <span
-                    className={cn(
-                      "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
-                      activeDetail.tint,
-                    )}
-                  >
+                  <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded border", activeDetail.tint)}>
                     {activeDetail.items.length} {activeDetailCountNoun}
                   </span>
                 </div>
-                <p className="text-[12px] text-slate-600 mt-1 leading-snug">
-                  {activeDetail.description}
-                </p>
+                <p className="text-[12px] text-slate-600 mt-1 leading-snug">{activeDetail.description}</p>
               </div>
               {activeSource?.onOpen && (
                 <button
@@ -984,70 +1070,53 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               )}
             </div>
 
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {activeDetail.items.map((item) => {
-                  const ItemIcon = (item as any).icon as React.ElementType | undefined;
-                  const itemFcra = (item as any).fcra as boolean | undefined;
-                  return ItemIcon ? (
+              {activeDetail.items.map((item) => {
+                const ItemIcon = (item as any).icon as React.ElementType | undefined;
+                const itemFcra = (item as any).fcra as boolean | undefined;
+                return ItemIcon ? (
+                  <div
+                    key={item.label}
+                    className="rounded-lg border border-slate-200 bg-white p-3.5 flex items-start gap-3"
+                  >
                     <div
-                      key={item.label}
-                      className="rounded-lg border border-slate-200 bg-white p-3.5 flex items-start gap-3"
+                      className={cn(
+                        "flex items-center justify-center w-8 h-8 rounded-lg shrink-0 border",
+                        activeDetail.tint,
+                      )}
                     >
-                      <div
-                        className={cn(
-                          "flex items-center justify-center w-8 h-8 rounded-lg shrink-0 border",
-                          activeDetail.tint,
-                        )}
-                      >
-                        <ItemIcon className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
-                            {item.label}
-                          </div>
-                          {activeSourceLabel === "External Intelligence" && (
-                            itemFcra ? (
-                              <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                                FCRA
-                              </span>
-                            ) : (
-                              <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                                non-FCRA
-                              </span>
-                            )
-                          )}
-                        </div>
-                        <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
-                          {item.sublabel}
-                        </div>
-                      </div>
+                      <ItemIcon className="w-4 h-4" />
                     </div>
-
-                  ) : (
-                    <div key={item.label} className="flex items-start gap-2.5">
-                      <span
-                        className={cn(
-                          "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
-                          activeDetail.dot,
-                        )}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
-                          {item.label}
-                        </div>
-                        <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
-                          {item.sublabel}
-                        </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">{item.label}</div>
+                        {activeSourceLabel === "External Intelligence" &&
+                          (itemFcra ? (
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                              FCRA
+                            </span>
+                          ) : (
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                              non-FCRA
+                            </span>
+                          ))}
                       </div>
+                      <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">{item.sublabel}</div>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                ) : (
+                  <div key={item.label} className="flex items-start gap-2.5">
+                    <span className={cn("w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]", activeDetail.dot)} />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">{item.label}</div>
+                      <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">{item.sublabel}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
-
       </div>
 
       {/* Lower grid: signal detection + system health */}
@@ -1077,11 +1146,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </thead>
             <tbody>
               {signalRows.map((r) => (
-                <tr
-                  key={r.label}
-                  className="cursor-pointer hover:bg-slate-50/60"
-                  onClick={() => selectSignal(r.label)}
-                >
+                <tr key={r.label} className="cursor-pointer hover:bg-slate-50/60" onClick={() => selectSignal(r.label)}>
                   <td className="border-b border-slate-100 px-[18px] py-3 text-[13px] text-slate-900">
                     <span className="flex items-center gap-2.5 font-medium">
                       <span className={cn("h-[9px] w-[9px] flex-none rounded-[3px]", r.dot)} />
@@ -1089,7 +1154,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     </span>
                   </td>
                   <td className="border-b border-slate-100 px-[18px] py-3">
-                    <span className={cn("rounded px-1.5 py-0.5 font-mono text-[10px] font-medium", BASIS_BADGE[r.basis])}>
+                    <span
+                      className={cn("rounded px-1.5 py-0.5 font-mono text-[10px] font-medium", BASIS_BADGE[r.basis])}
+                    >
                       {r.basis}
                     </span>
                   </td>
@@ -1144,9 +1211,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               >
                 <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
                 <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-slate-700">{g.provider}</span>
-                <span className="flex-none font-mono text-[11px] text-slate-400">
-                  {g.inputs.length} inputs · live
-                </span>
+                <span className="flex-none font-mono text-[11px] text-slate-400">{g.inputs.length} inputs · live</span>
               </div>
             ))}
           </div>
@@ -1155,4 +1220,3 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
     </div>
   );
 }
-
