@@ -65,7 +65,7 @@ export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
                 </div>
                 <div className="text-[10px] text-slate-500 mt-1">customers · 24h</div>
               </div>
-              <Sparkline data={f.sparkline} width={70} height={24} stroke={f.sparkline} />
+              <Sparkline data={f.sparkline} width={70} height={24} stroke={f.sparklineColor} />
             </div>
 
             <div className="mt-2.5">
