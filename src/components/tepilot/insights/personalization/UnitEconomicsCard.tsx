@@ -39,6 +39,19 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
   const entry = usePersonalizationResult(customer?.id ?? "");
   const { assumptions, contributions } = useEconomicsState();
   const [showAssumptions, setShowAssumptions] = useState(false);
+  const [revealed, setRevealed] = useState(0);
+
+  useEffect(() => {
+    setRevealed(0);
+    if (!customer) return;
+    const timers = [0, 1, 2].map((i) =>
+      window.setTimeout(() => setRevealed(i + 1), 120 * (i + 1)),
+    );
+    return () => timers.forEach(window.clearTimeout);
+  }, [customer?.id, surface]);
+
+  const revealCls = (i: number) =>
+    `transition-all duration-300 ${revealed > i ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"}`;
 
   const computed = useMemo(
     () =>
@@ -85,7 +98,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
 
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-3">
         {/* Current surface metrics */}
-        <div className="border border-blue-200 rounded-md bg-blue-50/40 px-3 py-3">
+        <div className={`border border-blue-200 rounded-md bg-blue-50/40 px-3 py-3 ${revealCls(0)}`}>
           <p className="text-[11px] font-semibold uppercase tracking-wide text-blue-700 mb-2">
             {SURFACE_LABEL[current.surface]}
           </p>
@@ -102,7 +115,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
         </div>
 
         {/* Running total */}
-        <div className="border border-slate-200 rounded-md bg-slate-50/50 px-3 py-3">
+        <div className={`border border-slate-200 rounded-md bg-slate-50/50 px-3 py-3 ${revealCls(1)}`}>
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11.5px] font-semibold text-slate-900">
               {partial ? "Total so far / customer / yr" : "Total / customer / yr"}
@@ -128,7 +141,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
         </div>
 
         {/* Assumptions */}
-        <div className="border border-slate-200 rounded-md bg-white">
+        <div className={`border border-slate-200 rounded-md bg-white ${revealCls(2)}`}>
           <button
             type="button"
             onClick={() => setShowAssumptions((v) => !v)}
