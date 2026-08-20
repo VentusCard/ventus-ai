@@ -15,10 +15,14 @@ import {
 
 export interface SegmentMetrics {
   customers: number;
+  customersLabel: string;
   signals: number;
+  signalsLabel: string;
   sharePct: number;
   valueLabel: string;
+  sampleSize: number;
 }
+
 
 interface Props {
   query: string;
