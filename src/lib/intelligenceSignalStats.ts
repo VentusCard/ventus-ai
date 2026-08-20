@@ -185,18 +185,19 @@ function seriesFor(key: string, points = 12, drift = 0): number[] {
 }
 
 export function getSignalCoverage(): SignalCoverageStats {
-  const profilesEnriched = 71_400_000;
+  const profilesEnriched = ENRICHED_PROFILES;
   return {
     totalCustomers: TOTAL_CUSTOMERS,
     profilesEnriched,
     coveragePct: (profilesEnriched / TOTAL_CUSTOMERS) * 100,
-    signals24h: 4_820_000,
+    signals24h: Math.round(4_820_000 * REBASE),
     avgSignalsPerCustomer: 6.4,
     lifeEventsActive: Math.round(profilesEnriched * FAMILY_SEED.life_event.coverage),
-    externalSignals24h: 1_140_000,
+    externalSignals24h: Math.round(1_140_000 * REBASE),
     strongPct: 58.2,
   };
 }
+
 
 export function getSignalFamilyStats(): SignalFamilyStats[] {
   const { profilesEnriched } = getSignalCoverage();
