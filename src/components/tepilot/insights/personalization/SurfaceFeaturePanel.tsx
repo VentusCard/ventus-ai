@@ -9,28 +9,28 @@ const FEATURES: Record<Surface, { title: string; items: { label: string; detail:
   rewards: {
     title: "Key features",
     items: [
-      { label: "Seasonal spend curves", detail: "Offer timing follows the customer's own category rhythm." },
-      { label: "Persona affinity ranking", detail: "Deals ordered by fit against detected behavioral signals." },
-      { label: "Generated from live signals", detail: "Every offer traces back to observable transaction evidence." },
-      { label: "Redemption-ready", detail: "Surfaces directly in the wallet experience — no separate campaign." },
+      { label: "Context-specific curation", detail: "Collections built per signal group, each with its own reason line." },
+      { label: "Hyper-personalized messaging", detail: "Copy written to the customer's behavior, never generic offer text." },
+      { label: "Semantic deal search", detail: "Natural-language queries matched across the full catalog." },
+      { label: "Timing intelligence", detail: "Expiring and in-season offers pushed ahead of the next spend window." },
     ],
   },
   product: {
     title: "Key features",
     items: [
-      { label: "Next-best-product fit", detail: "Signals scored against the full product catalog." },
-      { label: "Evidence-grounded rationale", detail: "Each recommendation carries the behavior that triggered it." },
-      { label: "Channel routing", detail: "Delivered through the customer's most responsive surface." },
-      { label: "Eligibility guardrails", detail: "Suppression rules applied before anything reaches the customer." },
+      { label: "Signal-triggered recommendations", detail: "Every card names the behavior or life event behind it." },
+      { label: "Offer construction", detail: "Headline, benefits, eligibility and value range generated per customer." },
+      { label: "Lifestyle theming", detail: "Visual treatment and CTA adapt to the customer's dominant pillar." },
+      { label: "Channel-ready delivery", detail: "The same card renders in-app, as email, or as SMS." },
     ],
   },
   relationship: {
     title: "Key features",
     items: [
-      { label: "Grounded assistant", detail: "Answers built from this customer's own signals, not generic copy." },
-      { label: "Proactive nudges", detail: "Life-event and financial signals prompt the right check-in." },
-      { label: "Banker escalation", detail: "Complex threads hand off with full context attached." },
-      { label: "Protection cues", detail: "Wellness and risk indicators surface before they become problems." },
+      { label: "Grounded assistant", detail: "Answers from this customer's signals, deals and detected events." },
+      { label: "Proactive nudges", detail: "Life-event and financial changes trigger the right check-in." },
+      { label: "Banker escalation", detail: "Hands off with full signal context attached." },
+      { label: "Protection cues", detail: "Wellness and habit-shift indicators surface early." },
     ],
   },
 };
