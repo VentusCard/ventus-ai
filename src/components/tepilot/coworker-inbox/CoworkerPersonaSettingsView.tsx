@@ -57,6 +57,7 @@ export function CoworkerPersonaSettingsView() {
   const [selectedId, setSelectedId] = useState(TEAM_DESTINATIONS[0].id);
   const [drafts, setDrafts] = useState<Record<string, Playbook>>({});
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const save = useSaveSequence({ stages: PLAYBOOK_STAGES });
 
   const team = useMemo(
     () => TEAM_DESTINATIONS.find((t) => t.id === selectedId) ?? TEAM_DESTINATIONS[0],
@@ -64,12 +65,15 @@ export function CoworkerPersonaSettingsView() {
   );
   const playbook = drafts[team.id] ?? COWORKER_PLAYBOOKS[team.id];
 
-  const update = (mutate: (pb: Playbook) => void) =>
+  const applyDraft = (mutate: (pb: Playbook) => void) =>
     setDrafts((prev) => {
       const base = clone(prev[team.id] ?? COWORKER_PLAYBOOKS[team.id]);
       mutate(base);
       return { ...prev, [team.id]: base };
     });
+
+  const update = (mutate: (pb: Playbook) => void) => save.run(() => applyDraft(mutate));
+
 
   const resetPlaybook = () => {
     setDrafts((prev) => {
