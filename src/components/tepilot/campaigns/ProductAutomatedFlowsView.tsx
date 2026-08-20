@@ -261,29 +261,29 @@ function FilterRow({
   const dropPct = Math.round((1 - filter.passRate) * 100);
   return (
     <div className="group rounded-lg border border-rose-200 bg-white">
-      <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
+      <div className={cn("flex items-center gap-3 px-4 py-3", !enabled && "opacity-50")}>
         <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0 bg-rose-50 text-rose-700 border-rose-200">
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 bg-rose-50 text-rose-700 border-rose-200">
                 Risk Filter
               </span>
-              <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{filter.label}</p>
+              <p className="text-[13px] font-semibold text-slate-900 leading-tight truncate">{filter.label}</p>
               {(edited || custom) && (
-                <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
                   {custom ? "Added" : "Edited"}
                 </span>
               )}
             </div>
-            <p className="text-[10.5px] text-slate-500 leading-snug truncate">{filter.evidence}</p>
+            <p className="text-[12px] text-slate-500 leading-snug truncate">{filter.evidence}</p>
           </div>
-          <div className="text-right shrink-0 w-24">
-            <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Removes</p>
-            <p className="text-[11px] font-bold text-rose-600 mt-0.5">
+          <div className="text-right shrink-0 w-28">
+            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Removes</p>
+            <p className="text-[13px] font-bold text-rose-600 mt-0.5">
               −{dropPct}% · −{formatAudience(removed)}
             </p>
           </div>
-          <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
+          <ChevronRight className={cn("w-5 h-5 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
         <RowActions onEdit={onEdit} onDelete={onDelete} tone="rose" />
         <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
@@ -292,13 +292,13 @@ function FilterRow({
       </div>
 
       {open && (
-        <div className="px-3 pb-3">
-          <div className="mt-1 rounded-lg border border-rose-200 bg-rose-50/50 p-3">
-            <p className="text-[9px] uppercase tracking-wider text-rose-500 font-semibold">Who this removes</p>
-            <p className="text-[11px] text-slate-700 leading-snug mt-0.5">
+        <div className="px-4 pb-4">
+          <div className="mt-1 rounded-lg border border-rose-200 bg-rose-50/50 p-4">
+            <p className="text-[10px] uppercase tracking-wider text-rose-500 font-semibold">Who this removes</p>
+            <p className="text-[12px] text-slate-700 leading-snug mt-1">
               −{dropPct}% of the triggered audience ({formatAudience(removed)} people) drops out here.
             </p>
-            <p className="text-[10.5px] text-slate-500 leading-snug mt-2">
+            <p className="text-[12px] text-slate-500 leading-snug mt-2">
               This is a guardrail, never a trigger — it can only take customers out of the flow, never start
               outreach on its own.
             </p>
