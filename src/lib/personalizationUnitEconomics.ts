@@ -26,8 +26,6 @@ export interface EconomicsAssumptions {
   attritionReduction: number;
   /** Relationship: cost to replace a lost customer ($). */
   replacementCost: number;
-  /** Portfolio size used for the annualized program line. */
-  portfolioSize: number;
 }
 
 export const DEFAULT_ASSUMPTIONS: EconomicsAssumptions = {
@@ -38,7 +36,6 @@ export const DEFAULT_ASSUMPTIONS: EconomicsAssumptions = {
   baseAttrition: 0.12,
   attritionReduction: 0.15,
   replacementCost: 650,
-  portfolioSize: 1_000_000,
 };
 
 export interface EconomicsLine {
