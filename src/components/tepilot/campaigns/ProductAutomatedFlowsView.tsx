@@ -469,7 +469,7 @@ function FlowRow({
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {signals.map((sig) =>
               editingId === sig.id ? (
                 <SignalEditForm
@@ -541,7 +541,7 @@ function FlowRow({
               )}
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
               {filters.map((f) =>
                 editingId === f.id ? (
                   <FilterEditForm
