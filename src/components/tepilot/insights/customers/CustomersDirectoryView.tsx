@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Users, Gem, CalendarHeart, ShieldAlert, Search, Radar, X } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+function parseValueK(value: string) {
+  const m = value.match(/([\d.]+)\s*(k|M)/i);
+  if (!m) return 0;
+  return parseFloat(m[1]) * (m[2].toLowerCase() === "m" ? 1000 : 1);
+}
+
 import { TabHeader } from "../TabHeader";
 import { CustomerPortfolioStats } from "./CustomerPortfolioStats";
 import { CustomerSearchBar } from "./CustomerSearchBar";
