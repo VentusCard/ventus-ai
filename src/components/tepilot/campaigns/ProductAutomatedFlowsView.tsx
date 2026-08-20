@@ -49,6 +49,7 @@ import {
   Pencil,
   Trash2,
   RotateCcw,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -114,6 +115,19 @@ function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: 
         </div>
         <p className="text-[13px] font-semibold text-slate-900 leading-snug">{msg.subject}</p>
         <p className="text-[12px] text-slate-600 leading-snug whitespace-pre-line">{msg.body}</p>
+        {msg.benefits?.length > 0 && (
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">What they get</p>
+            <ul className="mt-1 space-y-0.5">
+              {msg.benefits.slice(0, 3).map((b) => (
+                <li key={b} className="flex items-start gap-1.5 text-[12px] text-slate-600 leading-snug">
+                  <Check className="w-3 h-3 mt-0.5 shrink-0 text-emerald-600" />
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <Button
           variant="outline"
           size="sm"
@@ -121,6 +135,7 @@ function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: 
         >
           {msg.cta}
         </Button>
+
       </div>
     </div>
   );

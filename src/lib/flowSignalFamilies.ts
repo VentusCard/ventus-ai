@@ -9,6 +9,12 @@
 
 import type { ProductFlow, FlowSignal } from "./productAutomatedFlows";
 import { FLOW_MICROSEGMENTS, type FlowMicrosegment } from "./productMicrosegments";
+import { benefitsForFlow } from "./productFlowBenefits";
+
+/** Microsegment copy plus the concrete product benefits shown with it. */
+export interface SignalMessage extends FlowMicrosegment {
+  benefits: string[];
+}
 
 export type SignalFamily = "life-event" | "behavioral" | "financial" | "demographic" | "risk";
 
@@ -44,7 +50,7 @@ export interface ExpandedSignal {
   /** Relative reach weight used to split the flow audience across signals. */
   weight: number;
   /** Hyper-personalization payload shown when the signal is opened. */
-  message: FlowMicrosegment;
+  message: SignalMessage;
   channels: string[];
 }
 
@@ -503,38 +509,281 @@ function slug(label: string): string {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-const FAMILY_ANGLE: Record<SignalFamily, (flow: ProductFlow, s: SeedSignal) => Omit<FlowMicrosegment, "signalLabel">> = {
-  "life-event": (flow, s) => ({
-    title: `${s.label} · ${flow.name}`,
-    subject: "Something changed — here's what it unlocks",
-    body: `Hi {{first_name}},\nWe noticed a shift in your day-to-day money movement. When life moves, ${flow.name} is one of the first things worth revisiting — we've lined up the details so you can decide quickly.`,
-    cta: `Review ${flow.name}`,
-  }),
-  behavioral: (flow, s) => ({
-    title: `${s.label} · ${flow.name}`,
-    subject: "You're already doing this — here's a better fit",
-    body: `Hi {{first_name}},\nYour recent pattern of activity lines up closely with what ${flow.name} is built for. Bringing it in-house usually means fewer moving parts and better terms.`,
-    cta: `Compare ${flow.name}`,
-  }),
-  financial: (flow) => ({
-    title: `Financially ready · ${flow.name}`,
-    subject: "Your numbers are ready for this",
-    body: `Hi {{first_name}},\nBased on how your balances and obligations have been trending, ${flow.name} looks like a comfortable next step — no change to your day-to-day required.`,
-    cta: `See your options`,
-  }),
-  demographic: (flow) => ({
-    title: `Household fit · ${flow.name}`,
-    subject: "Built for households like yours",
-    body: `Hi {{first_name}},\nHouseholds with your shape of spending tend to get the most out of ${flow.name}. Here's the short version of how it would work for you.`,
-    cta: `See how it works`,
-  }),
-  risk: (flow) => ({
-    title: `Pre-qualified · ${flow.name}`,
-    subject: "You're already through the hard part",
-    body: `Hi {{first_name}},\nYour account history clears the checks we'd normally run for ${flow.name}. That means a shorter path and fewer questions when you're ready.`,
-    cta: `Start pre-qualified`,
-  }),
+/** Signal archetype -> the observation line + framing used in the message. */
+interface Angle {
+  /** Short microsegment name. */
+  title: string;
+  subject: string;
+  /** Observation of the behavior, tied to what the product does about it. */
+  open: (noun: string) => string;
+  /** Overrides the product's default CTA verb when the moment calls for it. */
+  cta?: string;
+}
+
+// Keyed by the seed key in the libraries above (resolved by label at build time).
+const ARCHETYPE_ANGLE: Record<string, Angle> = {
+  // --- Financial ---
+  payroll: {
+    title: "Steady Income",
+    subject: "Your income makes this straightforward",
+    open: (n) => `Your pay arrives on a predictable schedule, which is the single thing that makes ${n} simple to approve and easy to fit into a month.`,
+  },
+  surplus: {
+    title: "Room in the Budget",
+    subject: "There's room here — here's a good use for it",
+    open: (n) => `After the essentials are covered, there's consistently something left over. Putting a portion of it toward ${n} turns that margin into progress instead of drift.`,
+  },
+  depositGrowth: {
+    title: "Balances Trending Up",
+    subject: "Your balances are growing — let's put them to work",
+    open: (n) => `Your balances have been climbing steadily. At this point ${n} is usually the next move, so the growth compounds instead of just accumulating.`,
+  },
+  idleCash: {
+    title: "Cash Sitting Still",
+    subject: "Cash that could be earning",
+    open: (n) => `You're holding more in checking than a typical month needs. Moving the excess into ${n} keeps it available while it finally earns something.`,
+    cta: "Put it to work",
+  },
+  lowUtil: {
+    title: "Light Credit User",
+    subject: "You use credit well — this rewards that",
+    open: (n) => `You keep balances well under your limit, which is exactly the profile that gets the best terms on ${n}.`,
+  },
+  mortgagePayer: {
+    title: "Mortgage Holder",
+    subject: "Your home has been quietly working for you",
+    open: (n) => `Every mortgage payment has been building equity. ${n[0].toUpperCase()}${n.slice(1)} is how that equity becomes usable without touching the loan you already have.`,
+  },
+  autoPayer: {
+    title: "Active Vehicle Payment",
+    subject: "Worth a second look at that payment",
+    open: (n) => `You're carrying a fixed vehicle payment each month. It's worth 10 minutes to see what ${n} would change about the number and the term.`,
+  },
+  externalInvestFunding: {
+    title: "Investing Elsewhere",
+    subject: "Your investing is happening somewhere else",
+    open: (n) => `Money leaves regularly for an outside investment platform. With ${n}, those positions sit beside your everyday accounts — one view, one login, usually lower cost.`,
+    cta: "Bring it together",
+  },
+  retirementContrib: {
+    title: "Actively Saving for Retirement",
+    subject: "You're already saving — this adds to it",
+    open: (n) => `You're contributing toward retirement consistently. ${n[0].toUpperCase()}${n.slice(1)} sits alongside that and gives the same dollars a bit more room to work.`,
+  },
+  interestSeeking: {
+    title: "Rate Shopper",
+    subject: "You shouldn't have to bank elsewhere for a better rate",
+    open: (n) => `Savings have been moving out to a higher-paying account somewhere else. ${n[0].toUpperCase()}${n.slice(1)} means you don't have to keep money at two banks to get a competitive rate.`,
+    cta: "Compare the rate",
+  },
+  highInsuranceSpend: {
+    title: "Multiple Premiums",
+    subject: "Several policies, several bills",
+    open: (n) => `You're paying premiums to more than one insurer each month. Consolidating around ${n} usually means one renewal date and a bundling discount.`,
+    cta: "Compare and bundle",
+  },
+  bizRevenue: {
+    title: "Card Revenue Business",
+    subject: "Your sales already run through here",
+    open: (n) => `Card settlements land in this account regularly. That deposit history is the underwriting for ${n} — nothing extra to prove.`,
+  },
+  bizTaxes: {
+    title: "Quarterly Tax Filer",
+    subject: "Built for how your business pays",
+    open: (n) => `You pay taxes on a quarterly schedule the way owner-operators do. ${n[0].toUpperCase()}${n.slice(1)} is structured around that rhythm rather than a salaried one.`,
+  },
+  tuitionOutflow: {
+    title: "Paying Tuition Now",
+    subject: "Tuition is going out either way",
+    open: (n) => `Tuition payments are already leaving each term. Routing part of that through ${n} means the same money does more before it's spent.`,
+  },
+  travelSpend: {
+    title: "Frequent Traveler",
+    subject: "You travel enough for this to pay off",
+    open: (n) => `Flights, hotels and rides show up across several trips this year. That's the spend level where ${n} stops being a nice-to-have and starts paying for itself.`,
+  },
+
+  // --- Demographic ---
+  dualIncome: {
+    title: "Dual-Income Household",
+    subject: "Two incomes, one plan",
+    open: (n) => `Two paychecks land in this household. ${n[0].toUpperCase()}${n.slice(1)} is easiest to qualify for and fund when income comes from both sides.`,
+  },
+  parentYoung: {
+    title: "Parents of Young Children",
+    subject: "The years that make this matter most",
+    open: (n) => `Daycare, pediatric visits and kids' spending are a standing part of your month. Families at this stage get the most out of ${n}.`,
+  },
+  parentSchoolAge: {
+    title: "Parents of School-Age Kids",
+    subject: "The school years go faster than the bill",
+    open: (n) => `School fees and activities follow your calendar every year. ${n[0].toUpperCase()}${n.slice(1)} is how families get ahead of the bigger bill that comes later.`,
+  },
+  homeowner: {
+    title: "Homeowner",
+    subject: "Your home is part of your financial picture",
+    open: (n) => `Property taxes, insurance and upkeep say this is your home, not a rental. ${n[0].toUpperCase()}${n.slice(1)} is built around owning rather than renting.`,
+  },
+  renter: {
+    title: "Renter",
+    subject: "Made for renting, not owning",
+    open: (n) => `Rent goes out monthly and there's no mortgage in the picture. ${n[0].toUpperCase()}${n.slice(1)} is designed for that setup — no home equity required.`,
+  },
+  preRetiree: {
+    title: "Approaching Retirement",
+    subject: "The decade that decides the next thirty years",
+    open: (n) => `You're in peak earning years with retirement in view. This is the window where ${n} changes the outcome most.`,
+  },
+  youngProfessional: {
+    title: "Early Career",
+    subject: "Start it now, thank yourself later",
+    open: (n) => `A first steady paycheck alongside student loans and city living. ${n[0].toUpperCase()}${n.slice(1)} is built to start small and grow with the income.`,
+  },
+  selfEmployed: {
+    title: "Self-Employed",
+    subject: "Built for uneven income",
+    open: (n) => `Income arrives from several clients on an uneven schedule. ${n[0].toUpperCase()}${n.slice(1)} is underwritten on deposit history, not a W-2.`,
+  },
+  ownerOperator: {
+    title: "Owner-Operator",
+    subject: "Business and household in one account",
+    open: (n) => `Business income and household spending share the same account today. ${n[0].toUpperCase()}${n.slice(1)} is the cleanest way to separate the two without adding work.`,
+  },
+  multiVehicle: {
+    title: "Multi-Vehicle Household",
+    subject: "Two cars, two premiums",
+    open: (n) => `There's more than one vehicle in the household, each with its own policy. ${n[0].toUpperCase()}${n.slice(1)} prices them together instead of separately.`,
+  },
+  affluentHousehold: {
+    title: "Affluent Household",
+    subject: "A setup that matches the balance sheet",
+    open: (n) => `Your spending pattern reflects a household whose finances have outgrown standard products. ${n[0].toUpperCase()}${n.slice(1)} is where that complexity gets handled properly.`,
+  },
+  petOwner: {
+    title: "Pet Owner",
+    subject: "For the member of the family with four legs",
+    open: (n) => `Vet visits and pet spending run through the year. ${n[0].toUpperCase()}${n.slice(1)} keeps one unexpected visit from becoming a hard decision.`,
+  },
+  relocated: {
+    title: "Recently Relocated",
+    subject: "New city, worth a fresh look",
+    open: (n) => `Your everyday spending moved to a new area recently. A move is the natural moment to get ${n} set up correctly for where you are now.`,
+  },
+  emptyNester: {
+    title: "Empty Nester",
+    subject: "The budget just changed shape",
+    open: (n) => `Family spending has eased while travel and dining have picked up. ${n[0].toUpperCase()}${n.slice(1)} fits the version of the budget you're living in now.`,
+  },
+
+  // --- Behavioral ---
+  competitorProduct: {
+    title: "Held at Another Provider",
+    subject: "You already have this — just not with us",
+    open: (n) => `A regular payment goes to another provider for the same thing. Bringing ${n} in-house usually means better terms and one fewer login.`,
+    cta: "Compare side by side",
+  },
+  researchIntent: {
+    title: "Actively Shopping",
+    subject: "Since you're already comparing",
+    open: (n) => `Comparison and quote activity shows up in recent spending. Before you decide, here's what ${n} looks like with your history already on file.`,
+    cta: "See your terms",
+  },
+  digitalEngaged: {
+    title: "Highly Digital",
+    subject: "Two taps and it's done",
+    open: (n) => `You handle almost everything from the app. ${n[0].toUpperCase()}${n.slice(1)} opens the same way — no branch visit, no paperwork.`,
+    cta: "Open it in the app",
+  },
+  educationSpend: {
+    title: "Investing in Their Education",
+    subject: "You're already spending on their education",
+    open: (n) => `Tutoring, fees and enrichment show up through the school year. ${n[0].toUpperCase()}${n.slice(1)} makes the bigger education bill ahead a lot easier to meet.`,
+  },
+  educationOutbound: {
+    title: "Education Plan Elsewhere",
+    subject: "Your education savings are held elsewhere",
+    open: (n) => `Education contributions leave regularly for an outside plan. Moving to ${n} keeps the same tax treatment and puts it next to your other accounts.`,
+    cta: "Compare plans",
+  },
+
+  // --- Life event ---
+  incomeStepUp: {
+    title: "Recent Income Increase",
+    subject: "Your paycheck grew — decide where it goes",
+    open: (n) => `Your paycheck stepped up and has held there for a few months. This is the window where directing part of the increase into ${n} is easiest.`,
+  },
+  householdFormation: {
+    title: "New Household",
+    subject: "Two lives, one set of accounts",
+    open: (n) => `Rent, utilities and groceries are being shared now. ${n[0].toUpperCase()}${n.slice(1)} is usually the first thing worth setting up jointly.`,
+  },
 };
+
+const FAMILY_FALLBACK: Record<SignalFamily, Angle> = {
+  "life-event": {
+    title: "Life Event Trigger",
+    subject: "Something changed — here's what it opens up",
+    open: (n) => `Your day-to-day money movement shifted recently. When life moves, ${n} is one of the first things worth revisiting.`,
+  },
+  behavioral: {
+    title: "Behavioral Match",
+    subject: "You're already doing this — here's a better fit",
+    open: (n) => `Your recent activity lines up closely with what ${n} is built for. Bringing it in-house usually means fewer moving parts and better terms.`,
+  },
+  financial: {
+    title: "Financially Ready",
+    subject: "Your numbers are ready for this",
+    open: (n) => `Your balances and obligations have been trending in a direction that makes ${n} a comfortable next step — no change to your day-to-day required.`,
+  },
+  demographic: {
+    title: "Household Fit",
+    subject: "Built for households like yours",
+    open: (n) => `Households shaped like yours tend to get the most out of ${n}. Here's the short version of how it would work.`,
+  },
+  risk: {
+    title: "Pre-Qualified",
+    subject: "You're already through the hard part",
+    open: (n) => `Your account history clears the checks we'd normally run for ${n}. That means a shorter path and fewer questions.`,
+  },
+};
+
+/** seed label -> archetype key, built once from the libraries above. */
+const ARCHETYPE_BY_LABEL: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  const libs = [FINANCIAL, DEMOGRAPHIC, EXTRA_BEHAVIORAL, EXTRA_LIFE_EVENT];
+  for (const lib of libs) {
+    for (const [key, seed] of Object.entries(lib)) map[seed.label.toLowerCase()] = key;
+  }
+  return map;
+})();
+
+function composeMessage(
+  flow: ProductFlow,
+  family: SignalFamily,
+  label: string,
+  evidence: string,
+): SignalMessage {
+  const profile = benefitsForFlow(flow);
+  const archetype = ARCHETYPE_BY_LABEL[label.toLowerCase()];
+  const angle = (archetype && ARCHETYPE_ANGLE[archetype]) || FAMILY_FALLBACK[family];
+  const [b1, b2, b3] = profile.benefits;
+
+  const body = [
+    "Hi {{first_name}},",
+    angle.open(profile.noun),
+    `What that means for you: ${b1.toLowerCase()}, ${b2.toLowerCase()}, and ${b3.toLowerCase()}.`,
+    profile.proof,
+  ].join("\n");
+
+  return {
+    signalLabel: label,
+    title: `${angle.title} · ${flow.name}`,
+    subject: angle.subject,
+    body,
+    cta: angle.cta ?? profile.ctaVerb,
+    benefits: profile.benefits,
+  };
+}
 
 const CHANNELS_BY_FAMILY: Record<SignalFamily, string[]> = {
   "life-event": ["Email", "In-app", "Advisor brief"],
@@ -543,6 +792,7 @@ const CHANNELS_BY_FAMILY: Record<SignalFamily, string[]> = {
   demographic: ["In-app", "Email"],
   risk: ["Advisor brief", "In-app"],
 };
+
 
 /* ------------------------------- *
  * Public expansion entry point    *
@@ -574,10 +824,9 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
       evidence: sig.evidence,
       family,
       weight: family === "life-event" ? 0.2 : 0.3,
-      message: copy ?? {
-        signalLabel: sig.label,
-        ...FAMILY_ANGLE[family](flow, { label: sig.label, evidence: sig.evidence }),
-      },
+      message: copy
+        ? { ...copy, benefits: benefitsForFlow(flow).benefits }
+        : composeMessage(flow, family, sig.label, sig.evidence),
       channels: CHANNELS_BY_FAMILY[family],
     };
   });
@@ -606,7 +855,7 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
       evidence: s.evidence,
       family,
       weight: s.weight ?? 0.2,
-      message: { signalLabel: s.label, ...FAMILY_ANGLE[family](flow, s) },
+      message: composeMessage(flow, family, s.label, s.evidence),
       channels: CHANNELS_BY_FAMILY[family],
     }));
 
@@ -710,8 +959,8 @@ export function composeSignalMessage(
   family: SignalFamily,
   label: string,
   evidence: string,
-): FlowMicrosegment {
-  return { signalLabel: label, ...FAMILY_ANGLE[family](flow, { label, evidence }) };
+): SignalMessage {
+  return composeMessage(flow, family, label, evidence);
 }
 
 /** Stable id for a custom or library signal added to a flow. */
