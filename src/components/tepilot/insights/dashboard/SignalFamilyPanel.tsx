@@ -30,7 +30,7 @@ export function SignalFamilyPanel({
   return (
     <div className="col-span-full rounded-lg border border-slate-300 bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-200">
+      <div className={`flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-200 ${family.tint}`}>
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
             <span
