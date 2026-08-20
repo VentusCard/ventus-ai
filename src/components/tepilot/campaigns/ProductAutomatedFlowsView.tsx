@@ -549,7 +549,7 @@ function FlowRow({
                     initial={{ label: f.label, evidence: f.evidence, removes: 1 - f.passRate }}
                     onCancel={() => setEditingId(null)}
                     onSubmit={(draft) => {
-                      editFilter(flow.id, f.id, draft);
+                      save.run(() => editFilter(flow.id, f.id, draft));
                       setEditingId(null);
                     }}
                     onReset={
@@ -573,7 +573,7 @@ function FlowRow({
                     onToggle={() => toggleFilter(f.id)}
                     onOpen={() => setOpenRow(openRow === f.id ? null : f.id)}
                     onEdit={() => setEditingId(f.id)}
-                    onDelete={() => removeFilter(flow.id, f.id)}
+                    onDelete={() => save.run(() => removeFilter(flow.id, f.id))}
                   />
                 ),
               )}
