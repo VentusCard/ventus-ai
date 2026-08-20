@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { useSaveSequence, SIGNAL_STAGES } from "@/hooks/useSaveSequence";
+import { SaveSequence } from "@/components/tepilot/common/SaveSequence";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -142,6 +144,8 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
     return targetingMode === "life_event" ? lifeEventCriteria.eventTypes : [];
   }, [targetingMode, lifeEventCriteria.eventTypes]);
 
+  const segmentSave = useSaveSequence({ stages: SIGNAL_STAGES, doneLabel: "Segment synced" });
+
   const handleSaveSegment = () => {
     const segment: Partial<SavedSegment> = {
       targetingMode,
@@ -161,7 +165,7 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
         break;
     }
 
-    onSaveSegment(segment);
+    segmentSave.run(() => onSaveSegment(segment));
   };
 
   return (
@@ -286,7 +290,8 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
                 lifestyleCriteria={targetingMode === "lifestyle" ? lifestyleCriteria : undefined}
                 productCriteria={targetingMode === "product" ? productCriteria : undefined}
               />
-              <Button onClick={handleSaveSegment}>
+              <SaveSequence status={segmentSave.status} label={segmentSave.stageLabel} className="self-center" />
+              <Button onClick={handleSaveSegment} disabled={segmentSave.isBusy}>
                 <Bookmark className="w-4 h-4 mr-2" />
                 Save Segment
               </Button>
