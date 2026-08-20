@@ -40,7 +40,7 @@ export const DEFAULT_ASSUMPTIONS: EconomicsAssumptions = {
 
 export interface EconomicsLine {
   label: string;
-  formula: string;
+  formula?: string;
   /** Rendered as currency unless this is set. */
   display?: string;
   value: number;
@@ -90,16 +90,8 @@ export function computeSurfaceEconomics(
       driverLabel: "live offers",
       driverCount: offers,
       lines: [
-        {
-          label: "Total deals spend",
-          formula: "Incremental spend on personalized offers / yr",
-          value: directedSpend,
-        },
-        {
-          label: "Bank take",
-          formula: `${(a.takeRate * 100).toFixed(1)}% of directed spend`,
-          value,
-        },
+        { label: "Total deals spend / user / yr", value: directedSpend },
+        { label: "Bank take / user / yr", value },
       ],
     };
   }
@@ -115,17 +107,8 @@ export function computeSurfaceEconomics(
       driverLabel: "recommended products",
       driverCount: cards,
       lines: [
-        {
-          label: "Incremental conversions",
-          formula: `${cards} products × ${(a.productConversion * 100).toFixed(1)}% lift`,
-          display: conversions.toFixed(2),
-          value: conversions,
-        },
-        {
-          label: "CAC avoided",
-          formula: `${conversions.toFixed(2)} conversions × $${a.cacAvoided.toLocaleString()} CAC`,
-          value,
-        },
+        { label: "Recommended products", value: cards },
+        { label: "CAC avoided / user / yr", value },
       ],
     };
   }
@@ -140,17 +123,8 @@ export function computeSurfaceEconomics(
     driverLabel: "grounded signals",
     driverCount: signals,
     lines: [
-      {
-        label: "Attrition avoided",
-        formula: `${(a.baseAttrition * 100).toFixed(1)}% base × ${(a.attritionReduction * 100).toFixed(1)}% reduction`,
-        display: `${(pointsSaved * 100).toFixed(2)}pp`,
-        value: pointsSaved,
-      },
-      {
-        label: "Retention cost saved",
-        formula: `${(pointsSaved * 100).toFixed(2)}pp × $${a.replacementCost.toLocaleString()} replacement`,
-        value,
-      },
+      { label: "Attrition reduction", value: pointsSaved },
+      { label: "Retention cost saved / user / yr", value },
     ],
   };
 }

@@ -46,7 +46,6 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
     [customer, entry, assumptions],
   );
 
-  // Accumulate into the shared store so totals persist across tab switches.
   useEffect(() => {
     if (!customer) return;
     computed.forEach((c) => {
@@ -84,28 +83,17 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
     <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
       <Header value={total} partial={partial} />
 
-      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2.5 space-y-2.5">
-        {/* This surface */}
-        <div className="border border-blue-200 rounded-md bg-blue-50/40 px-2.5 py-2">
-          <div className="flex items-baseline justify-between gap-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-blue-700">
-              This surface — {SURFACE_LABEL[current.surface]}
-            </p>
-            <span className="text-[13px] font-bold text-slate-900 tabular-nums">
-              {current.ready ? formatMoney(current.value) : "—"}
-            </span>
-          </div>
-          <p className="text-[10.5px] text-slate-500 mt-0.5">
-            {current.driverCount} {current.driverLabel} · per average customer / year
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-3">
+        {/* Current surface metrics */}
+        <div className="border border-blue-200 rounded-md bg-blue-50/40 px-3 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-blue-700 mb-2">
+            {SURFACE_LABEL[current.surface]}
           </p>
-          <div className="mt-1.5 space-y-1">
+          <div className="space-y-2">
             {current.lines.map((line) => (
-              <div key={line.label} className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-medium text-slate-800 leading-tight">{line.label}</p>
-                  <p className="text-[10px] text-slate-500 leading-tight">{line.formula}</p>
-                </div>
-                <span className="text-[11px] font-semibold text-slate-700 tabular-nums shrink-0">
+              <div key={line.label} className="flex items-center justify-between gap-2">
+                <span className="text-[11.5px] text-slate-700">{line.label}</span>
+                <span className="text-[13px] font-bold text-slate-900 tabular-nums shrink-0">
                   {line.display ?? formatMoney(line.value)}
                 </span>
               </div>
@@ -114,31 +102,28 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
         </div>
 
         {/* Running total */}
-        <div className="border border-slate-200 rounded-md bg-slate-50/50 px-2.5 py-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            Running total
-          </p>
-          <div className="mt-1.5 space-y-1">
+        <div className="border border-slate-200 rounded-md bg-slate-50/50 px-3 py-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11.5px] font-semibold text-slate-900">
+              {partial ? "Total so far / customer / yr" : "Total / customer / yr"}
+            </span>
+            <span className="text-[15px] font-bold text-blue-700 tabular-nums">
+              {formatMoney(total)}
+            </span>
+          </div>
+          <div className="mt-2 pt-2 border-t border-slate-200 space-y-1">
             {rows.map((row) => (
               <div key={row.surface} className="flex items-center justify-between gap-2">
-                <span className="text-[11.5px] text-slate-700">{SURFACE_LABEL[row.surface]}</span>
+                <span className="text-[11px] text-slate-600">{SURFACE_LABEL[row.surface]}</span>
                 {row.value == null ? (
-                  <span className="text-[10.5px] text-slate-400">not generated yet</span>
+                  <span className="text-[10.5px] text-slate-400">not generated</span>
                 ) : (
-                  <span className="text-[11.5px] font-semibold text-slate-900 tabular-nums">
+                  <span className="text-[11.5px] font-semibold text-slate-800 tabular-nums">
                     {formatMoney(row.value)}
                   </span>
                 )}
               </div>
             ))}
-          </div>
-          <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
-            <span className="text-[11.5px] font-semibold text-slate-900">
-              {partial ? "Total so far / average customer" : "Total / average customer"}
-            </span>
-            <span className="text-[14px] font-bold text-blue-700 tabular-nums">
-              {formatMoney(total)}
-            </span>
           </div>
         </div>
 
