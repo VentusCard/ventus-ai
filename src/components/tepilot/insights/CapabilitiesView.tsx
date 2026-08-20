@@ -535,7 +535,7 @@ function SignalSection({
     >
       <span className={cn("absolute inset-y-0 left-0 w-[3px]", signal.color)} />
       <span className="mb-0.5 flex items-center gap-2">
-        <PulseDot colorClass={signal.dot} sizeClass="h-[7px] w-[7px]" delayMs={index * 320} className="ring-[3px] ring-white/10 rounded-full" />
+        <PulseDot colorClass={signal.dot} sizeClass="h-[7px] w-[7px]" delayMs={startDelay} className="ring-[3px] ring-white/10 rounded-full" />
         <span className="text-[12.5px] font-semibold tracking-tight text-slate-100">{signal.label}</span>
         <span className="ml-auto font-mono text-[11px] tabular-nums text-slate-400">
           <b className="font-semibold text-slate-200">{count}</b> · 24h
