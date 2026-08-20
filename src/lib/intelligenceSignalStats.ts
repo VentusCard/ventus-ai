@@ -4,10 +4,17 @@
 
 import { SIGNAL_FAMILY_META, type SignalFamily } from "@/lib/customerDirectoryData";
 
+export type SignalConfidence = "strong" | "likely" | "emerging";
+
 export interface SignalRollup {
   label: string;
   customers: number;
   delta: number; // 24h % change
+  /** What Ventus saw in the enriched data. */
+  evidence: string;
+  confidence: SignalConfidence;
+  /** Short deterministic trend series (relative, unitless). */
+  trend: number[];
 }
 
 export interface SignalFamilyStats {
@@ -19,6 +26,7 @@ export interface SignalFamilyStats {
   customers: number;
   delta: number;
   topSignals: SignalRollup[];
+  sparkline: number[];
   confidence: { strong: number; likely: number; emerging: number };
 }
 
@@ -51,13 +59,21 @@ export interface ExternalSourceStat {
 
 const TOTAL_CUSTOMERS = 75_000_000;
 
+interface SeedSignal {
+  label: string;
+  share: number;
+  delta: number;
+  evidence: string;
+  confidence: SignalConfidence;
+}
+
 const FAMILY_SEED: Record<
   SignalFamily,
   {
     coverage: number; // share of enriched customers carrying the family
     delta: number;
     confidence: { strong: number; likely: number; emerging: number };
-    signals: { label: string; share: number; delta: number }[];
+    signals: SeedSignal[];
   }
 > = {
   spending_habit: {
@@ -65,10 +81,14 @@ const FAMILY_SEED: Record<
     delta: 1.4,
     confidence: { strong: 61, likely: 29, emerging: 10 },
     signals: [
-      { label: "Weeknight delivery habit", share: 0.21, delta: 2.6 },
-      { label: "Frequent leisure traveler", share: 0.16, delta: 4.1 },
-      { label: "Fitness studio regular", share: 0.13, delta: 1.2 },
-      { label: "Premium grocery preference", share: 0.11, delta: -0.6 },
+      { label: "Weeknight delivery habit", share: 0.21, delta: 2.6, confidence: "strong", evidence: "Delivery platforms three-plus weeknights, same window" },
+      { label: "Frequent leisure traveler", share: 0.16, delta: 4.1, confidence: "strong", evidence: "Non-corporate fares plus hotel stays across seasons" },
+      { label: "Fitness studio regular", share: 0.13, delta: 1.2, confidence: "strong", evidence: "Recurring studio dues alongside athletic retail" },
+      { label: "Premium grocery preference", share: 0.11, delta: -0.6, confidence: "likely", evidence: "Basket mix skews specialty grocers over value chains" },
+      { label: "Weekend cyclist", share: 0.084, delta: 3.2, confidence: "likely", evidence: "Bike shop and route-app charges clustered on Saturdays" },
+      { label: "Quarterly business travel", share: 0.067, delta: 2.1, confidence: "strong", evidence: "Repeat weekday fares on the same corridor" },
+      { label: "Pet owner", share: 0.058, delta: 0.9, confidence: "strong", evidence: "Recurring pet supply deliveries and grooming visits" },
+      { label: "Home improvement project", share: 0.043, delta: 5.4, confidence: "emerging", evidence: "Trade supply and contractor payments over two cycles" },
     ],
   },
   life_event: {
@@ -76,10 +96,14 @@ const FAMILY_SEED: Record<
     delta: 3.8,
     confidence: { strong: 44, likely: 38, emerging: 18 },
     signals: [
-      { label: "College-bound child", share: 0.052, delta: 6.3 },
-      { label: "First home purchase underway", share: 0.041, delta: 3.1 },
-      { label: "New baby at home", share: 0.036, delta: 2.4 },
-      { label: "Retirement in sight", share: 0.029, delta: 1.8 },
+      { label: "College-bound child", share: 0.052, delta: 6.3, confidence: "strong", evidence: "Test prep, campus visits and admissions fees" },
+      { label: "First home purchase underway", share: 0.041, delta: 3.1, confidence: "strong", evidence: "Inspection, appraisal and escrow-related payments" },
+      { label: "New baby at home", share: 0.036, delta: 2.4, confidence: "strong", evidence: "Pediatric visits and infant supply subscriptions" },
+      { label: "Retirement in sight", share: 0.029, delta: 1.8, confidence: "likely", evidence: "Payroll tapering with benefit-plan servicing activity" },
+      { label: "Relocation considered", share: 0.024, delta: 4.7, confidence: "emerging", evidence: "Housing searches concentrated in one new metro" },
+      { label: "Wedding in planning", share: 0.019, delta: 3.9, confidence: "likely", evidence: "Venue deposits and bridal-category merchants" },
+      { label: "Second property in play", share: 0.014, delta: 2.2, confidence: "emerging", evidence: "Property records show a new title search" },
+      { label: "Caring for a parent", share: 0.011, delta: 1.4, confidence: "emerging", evidence: "Senior care and medical transport charges recurring" },
     ],
   },
   financial: {
@@ -87,10 +111,14 @@ const FAMILY_SEED: Record<
     delta: 2.1,
     confidence: { strong: 68, likely: 25, emerging: 7 },
     signals: [
-      { label: "Mortgage servicing elsewhere", share: 0.14, delta: 1.1 },
-      { label: "Auto loan maturing soon", share: 0.096, delta: 5.2 },
-      { label: "Retirement money held away", share: 0.083, delta: 2.7 },
-      { label: "Brokerage contributions outbound", share: 0.061, delta: 3.4 },
+      { label: "Mortgage servicing elsewhere", share: 0.14, delta: 1.1, confidence: "strong", evidence: "Monthly servicer debit to an outside lender" },
+      { label: "Auto loan maturing soon", share: 0.096, delta: 5.2, confidence: "strong", evidence: "Outside servicer tradeline nearing term" },
+      { label: "Retirement money held away", share: 0.083, delta: 2.7, confidence: "strong", evidence: "Outside retirement rail with no rollover here" },
+      { label: "Brokerage contributions outbound", share: 0.061, delta: 3.4, confidence: "strong", evidence: "Scheduled transfers to a third-party brokerage" },
+      { label: "Chasing a better rate", share: 0.047, delta: 4.6, confidence: "likely", evidence: "Balances drifting toward outside high-yield" },
+      { label: "Lease ending this year", share: 0.032, delta: 3.0, confidence: "likely", evidence: "Registry record shows lease term closing" },
+      { label: "Business banking elsewhere", share: 0.026, delta: 2.3, confidence: "likely", evidence: "Merchant settlement deposits from an outside bank" },
+      { label: "Insurance premiums outbound", share: 0.021, delta: 0.7, confidence: "emerging", evidence: "Carrier drafts with no policy held here" },
     ],
   },
   demographic: {
@@ -98,10 +126,13 @@ const FAMILY_SEED: Record<
     delta: 0.6,
     confidence: { strong: 57, likely: 33, emerging: 10 },
     signals: [
-      { label: "Dual-income household", share: 0.19, delta: 0.4 },
-      { label: "High-income urban renter", share: 0.12, delta: 1.9 },
-      { label: "Multi-generation household", share: 0.074, delta: 0.8 },
-      { label: "Income trajectory rising", share: 0.058, delta: 3.6 },
+      { label: "Dual-income household", share: 0.19, delta: 0.4, confidence: "strong", evidence: "Two payroll rails on different cycles" },
+      { label: "High-income urban renter", share: 0.12, delta: 1.9, confidence: "strong", evidence: "Metro rent debit with no mortgage servicing" },
+      { label: "Multi-generation household", share: 0.074, delta: 0.8, confidence: "likely", evidence: "Care, tuition and senior spend under one address" },
+      { label: "Income trajectory rising", share: 0.058, delta: 3.6, confidence: "likely", evidence: "Payroll step-ups across consecutive quarters" },
+      { label: "Young professional", share: 0.049, delta: 1.5, confidence: "likely", evidence: "Early-career payroll with high discretionary mix" },
+      { label: "Household with school-age kids", share: 0.038, delta: 0.6, confidence: "strong", evidence: "School fees and youth activity merchants" },
+      { label: "Self-employed income", share: 0.027, delta: 2.8, confidence: "emerging", evidence: "Irregular deposits from platform payors" },
     ],
   },
   risk: {
@@ -109,13 +140,28 @@ const FAMILY_SEED: Record<
     delta: -1.2,
     confidence: { strong: 31, likely: 41, emerging: 28 },
     signals: [
-      { label: "Card utilization creeping", share: 0.048, delta: 2.2 },
-      { label: "Cash buffer thinning", share: 0.033, delta: -1.6 },
-      { label: "Large cash left uninvested", share: 0.027, delta: 0.9 },
-      { label: "Short credit history", share: 0.019, delta: -0.3 },
+      { label: "Card utilization creeping", share: 0.048, delta: 2.2, confidence: "likely", evidence: "Revolving balance up two straight cycles" },
+      { label: "Cash buffer thinning", share: 0.033, delta: -1.6, confidence: "likely", evidence: "End-of-month balance trending toward zero" },
+      { label: "Large cash left uninvested", share: 0.027, delta: 0.9, confidence: "strong", evidence: "Idle deposit balance well above spend needs" },
+      { label: "Short credit history", share: 0.019, delta: -0.3, confidence: "emerging", evidence: "Thin tradeline depth relative to income band" },
+      { label: "Income volatility", share: 0.015, delta: 1.7, confidence: "likely", evidence: "Deposit amounts swinging cycle over cycle" },
+      { label: "Overdraft frequency rising", share: 0.011, delta: 2.9, confidence: "emerging", evidence: "Repeat negative-balance days within a quarter" },
     ],
   },
 };
+
+/** Deterministic pseudo-trend series derived from a string key. */
+function seriesFor(key: string, points = 12, drift = 0): number[] {
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) % 100000;
+  const out: number[] = [];
+  for (let i = 0; i < points; i++) {
+    h = (h * 1103515245 + 12345) % 2147483648;
+    const noise = (h / 2147483648) * 0.4 - 0.2;
+    out.push(Number((1 + noise + (drift / 100) * (i / points)).toFixed(4)));
+  }
+  return out;
+}
 
 export function getSignalCoverage(): SignalCoverageStats {
   const profilesEnriched = 71_400_000;
@@ -143,10 +189,14 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
       customers: Math.round(profilesEnriched * seed.coverage),
       delta: seed.delta,
       confidence: seed.confidence,
+      sparkline: seriesFor(meta.key, 14, seed.delta * 4),
       topSignals: seed.signals.map((s) => ({
         label: s.label,
         customers: Math.round(profilesEnriched * s.share),
         delta: s.delta,
+        evidence: s.evidence,
+        confidence: s.confidence,
+        trend: seriesFor(`${meta.key}:${s.label}`, 10, s.delta * 3),
       })),
     };
   });

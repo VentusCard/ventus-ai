@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { SignalFamily } from "@/lib/customerDirectoryData";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
@@ -35,6 +36,7 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
 
   const [section, setSection] = useState<string>(initialSection);
   const [consoleQuery, setConsoleQuery] = useState<string | undefined>(undefined);
+  const [signalSegment, setSignalSegment] = useState<{ family: SignalFamily; label: string } | null>(null);
   useEffect(() => { setSection(initialSection); }, [initialSection]);
 
   const renderSliver = () => (
@@ -90,11 +92,25 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
           onNavigate={onNavigate}
           onOpenOpportunity={onOpenOpportunity}
           onOpenSection={(s) => setSection(s)}
+          onOpenSignalSegment={(family, label) => {
+            if (family === "risk") {
+              setSignalSegment(null);
+              setSection("risk");
+              return;
+            }
+            setSignalSegment({ family, label });
+            setSection("customers");
+          }}
           renderVentusSliver={onOpenChat ? renderSliver : undefined}
         />
       )}
 
-      {section === "customers" && <CustomersDirectoryView />}
+      {section === "customers" && (
+        <CustomersDirectoryView
+          segment={signalSegment}
+          onClearSegment={() => setSignalSegment(null)}
+        />
+      )}
       {section === "reports" && (
         <ReportsAndQueryView
           onOpenInteractiveReport={onOpenInteractiveReport}
