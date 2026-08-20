@@ -74,7 +74,11 @@ export interface ExternalSourceStat {
   matchRate: number;
 }
 
-const TOTAL_CUSTOMERS = 75_000_000;
+const TOTAL_CUSTOMERS = BOOK_CUSTOMERS;
+/** Everything below was authored against a 75M book; keep the ratios, rebase the size. */
+const LEGACY_BOOK = 75_000_000;
+const REBASE = TOTAL_CUSTOMERS / LEGACY_BOOK;
+
 
 interface SeedSignal {
   label: string;
