@@ -5,6 +5,7 @@ import {
   type DirectoryCustomer,
   type DirectorySignal,
 } from "@/lib/customerDirectoryData";
+import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 const CONFIDENCE_STYLE: Record<DirectorySignal["confidence"], string> = {
   Emerging: "bg-white/70 text-slate-500",
@@ -107,7 +108,7 @@ export function CustomerDetailPanel({ customer, onBack }: Props) {
             return (
               <div key={m.key}>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={cn("w-1.5 h-1.5 rounded-full", m.dot)} />
+                  <PulseDot colorClass={m.dot} sizeClass="w-1.5 h-1.5" />
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     {m.label}
                   </span>

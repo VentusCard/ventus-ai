@@ -12,6 +12,7 @@ import {
   type DirectoryCustomer,
   type SignalFamily,
 } from "@/lib/customerDirectoryData";
+import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 export interface SegmentMetrics {
   customers: number;
@@ -171,7 +172,7 @@ export function CustomerSearchBar({
                 active ? m.chip : "border-slate-200 text-slate-500 hover:bg-slate-50",
               )}
             >
-              <span className={cn("w-1.5 h-1.5 rounded-full", active ? m.dot : "bg-slate-300")} />
+              <PulseDot colorClass={active ? m.dot : "bg-slate-300"} sizeClass="w-1.5 h-1.5" pulse={active} />
               {m.label}
             </button>
           );

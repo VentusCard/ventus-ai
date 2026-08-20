@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { SIGNAL_FAMILY_META, type DirectorySignal } from "@/lib/customerDirectoryData";
 import type { ExampleCustomer } from "@/lib/personalizationExamples";
+import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 const CONFIDENCE_STYLE: Record<DirectorySignal["confidence"], string> = {
   Emerging: "bg-white/70 text-slate-500",
@@ -36,7 +37,7 @@ export function CustomerSignalPanel({ customer }: Props) {
           </span>
         </p>
         <span className="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 shrink-0">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <PulseDot colorClass="bg-emerald-500" sizeClass="w-1.5 h-1.5" />
           Ready
         </span>
       </div>
@@ -54,7 +55,7 @@ export function CustomerSignalPanel({ customer }: Props) {
               )}
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className={cn("w-2 h-2 rounded-full", m.dot)} />
+                <PulseDot colorClass={m.dot} sizeClass="w-2 h-2" />
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   {m.label}
                 </span>

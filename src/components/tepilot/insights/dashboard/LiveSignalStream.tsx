@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Radio } from "lucide-react";
 import { SIGNAL_STREAM } from "@/lib/intelligenceSignalStats";
 import { SIGNAL_FAMILY_META } from "@/lib/customerDirectoryData";
+import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 const FAMILY_CHIP = Object.fromEntries(SIGNAL_FAMILY_META.map((m) => [m.key, m]));
 const VISIBLE = 6;
@@ -36,7 +37,7 @@ export function LiveSignalStream() {
               key={`${r.signal}-${i}`}
               className="flex items-center gap-2 py-1.5 border-b border-slate-50 last:border-0"
             >
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${meta?.dot ?? "bg-slate-400"}`} />
+              <PulseDot colorClass={meta?.dot ?? "bg-slate-400"} sizeClass="w-1.5 h-1.5" delayMs={i * 220} className="shrink-0" />
               <span className="text-[12px] font-medium text-slate-900 truncate max-w-[42%]">{r.signal}</span>
               <span className="text-slate-300 text-[11px] shrink-0">→</span>
               <span className="text-[11px] text-slate-500 truncate flex-1">{r.evidence}</span>
