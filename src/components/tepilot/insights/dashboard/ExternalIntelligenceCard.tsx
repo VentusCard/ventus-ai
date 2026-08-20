@@ -38,6 +38,7 @@ export function ExternalIntelligenceCard() {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

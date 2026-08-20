@@ -145,7 +145,7 @@ export function AnalystDashboardView({
 
 
       {/* Pillar mix + external intelligence */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ChartCard
           title="Spend by lifestyle pillar"
           hint="Share of enriched volume"
@@ -189,7 +189,7 @@ export function AnalystDashboardView({
       </div>
 
       {/* Pillar table + opportunities */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ChartCard
           title="Top pillars by spend"
           hint={`${pillarData.length} pillars · ${range.label.toLowerCase()}`}
@@ -275,7 +275,7 @@ export function AnalystDashboardView({
       </div>
 
       {/* Portfolio context — scale only */}
-      <div className="rounded-md border border-slate-200 bg-white px-4 py-2.5">
+      <div className="rounded-md border border-slate-200 bg-white px-4 py-3">
         <div className="flex items-center flex-wrap gap-x-6 gap-y-2">
           <span className="text-[10px] uppercase tracking-wide text-slate-400 shrink-0">
             Portfolio context
