@@ -573,7 +573,7 @@ function Kpi({
 }) {
   return (
     <div className="relative rounded-xl border border-slate-200 bg-white p-4">
-      <div className="mb-2.5 flex items-center gap-2 text-xs font-medium text-slate-400">
+      <div className="mb-2.5 flex items-center gap-2 text-xs font-medium text-slate-700">
         <span className="h-1.5 w-1.5 rounded-full" style={{ background: dot }} />
         {label}
       </div>
