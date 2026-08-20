@@ -321,10 +321,25 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      if (response.status === 402 || response.status === 403) {
+        return new Response(
+          JSON.stringify({
+            error:
+              response.status === 402
+                ? "AI credits exhausted. Add credits in Settings → Workspace → Usage to resume generation."
+                : "AI access is blocked by workspace policy.",
+          }),
+          {
+            status: response.status,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
       return new Response(JSON.stringify({ error: "AI gateway error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+
     }
 
     const data = await response.json();
