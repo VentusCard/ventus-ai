@@ -69,10 +69,11 @@ export function CustomerSearchBar({
       <div className="flex flex-col lg:flex-row lg:items-center gap-2.5">
         {showBar && (
           <div className="flex flex-wrap items-center gap-1.5 shrink-0 order-2 lg:order-1">
-            <Stat label="customers" value={metrics!.customers.toLocaleString()} strong />
-            <Stat label="signals" value={metrics!.signals.toLocaleString()} />
+            <Stat label="customers" value={metrics!.customersLabel} strong />
+            <Stat label="signals" value={metrics!.signalsLabel} />
             <Stat label="of book" value={`${metrics!.sharePct.toFixed(1)}%`} />
             <Stat label="value" value={metrics!.valueLabel} />
+
           </div>
         )}
 
