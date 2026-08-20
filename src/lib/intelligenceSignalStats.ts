@@ -3,6 +3,12 @@
 // LLM, no backend. Copy stays "vaguely specific": no exact per-customer amounts.
 
 import { SIGNAL_FAMILY_META, type SignalFamily } from "@/lib/customerDirectoryData";
+import {
+  BOOK_CUSTOMERS,
+  ENRICHED_PROFILES,
+  fmtCount as fmtBookCount,
+} from "@/lib/bookScale";
+
 
 export type SignalConfidence = "strong" | "likely" | "emerging";
 
