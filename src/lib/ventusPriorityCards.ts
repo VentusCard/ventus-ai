@@ -35,7 +35,7 @@ export function getVentusPriorityCards(
   const coverage = getSignalCoverage();
   const families = getSignalFamilyStats();
   const financial = families.find((f) => f.key === "financial");
-  const behavioral = families.find((f) => f.key === "spendingHabits") ?? families[0];
+  const behavioral = families.find((f) => f.key === "spending_habit") ?? families[0];
 
   const ranked = [...opportunities].sort(
     (a, b) => b.totalOpportunityAmount - a.totalOpportunityAmount,
