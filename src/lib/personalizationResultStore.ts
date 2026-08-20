@@ -66,6 +66,15 @@ export function ensurePersonalization(customerId: string) {
     });
 }
 
+/** Clears one customer's cached result and fires generation again. */
+export function retryPersonalization(customerId: string) {
+  inFlight.delete(customerId);
+  const { [customerId]: _drop, ...rest } = store;
+  store = rest;
+  emit();
+  ensurePersonalization(customerId);
+}
+
 /** Drops every cached result so surfaces regenerate (e.g. after the demo bank name changes). */
 export function clearPersonalizationResults() {
   store = {};
