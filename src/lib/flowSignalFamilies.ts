@@ -9,6 +9,12 @@
 
 import type { ProductFlow, FlowSignal } from "./productAutomatedFlows";
 import { FLOW_MICROSEGMENTS, type FlowMicrosegment } from "./productMicrosegments";
+import { benefitsForFlow } from "./productFlowBenefits";
+
+/** Microsegment copy plus the concrete product benefits shown with it. */
+export interface SignalMessage extends FlowMicrosegment {
+  benefits: string[];
+}
 
 export type SignalFamily = "life-event" | "behavioral" | "financial" | "demographic" | "risk";
 
@@ -44,7 +50,7 @@ export interface ExpandedSignal {
   /** Relative reach weight used to split the flow audience across signals. */
   weight: number;
   /** Hyper-personalization payload shown when the signal is opened. */
-  message: FlowMicrosegment;
+  message: SignalMessage;
   channels: string[];
 }
 
@@ -818,10 +824,9 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
       evidence: sig.evidence,
       family,
       weight: family === "life-event" ? 0.2 : 0.3,
-      message: copy ?? {
-        signalLabel: sig.label,
-        ...FAMILY_ANGLE[family](flow, { label: sig.label, evidence: sig.evidence }),
-      },
+      message: copy
+        ? { ...copy, benefits: benefitsForFlow(flow).benefits }
+        : composeMessage(flow, family, sig.label, sig.evidence),
       channels: CHANNELS_BY_FAMILY[family],
     };
   });
@@ -850,7 +855,7 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
       evidence: s.evidence,
       family,
       weight: s.weight ?? 0.2,
-      message: { signalLabel: s.label, ...FAMILY_ANGLE[family](flow, s) },
+      message: composeMessage(flow, family, s.label, s.evidence),
       channels: CHANNELS_BY_FAMILY[family],
     }));
 
@@ -954,8 +959,8 @@ export function composeSignalMessage(
   family: SignalFamily,
   label: string,
   evidence: string,
-): FlowMicrosegment {
-  return { signalLabel: label, ...FAMILY_ANGLE[family](flow, { label, evidence }) };
+): SignalMessage {
+  return composeMessage(flow, family, label, evidence);
 }
 
 /** Stable id for a custom or library signal added to a flow. */
