@@ -14,7 +14,7 @@ import {
 } from "@/lib/personalizationResultStore";
 import { buildChatSignalContext } from "@/lib/personalizationGeneration";
 import { ExampleCustomerBar } from "./personalization/ExampleCustomerBar";
-import { CustomerSignalPanel } from "./personalization/CustomerSignalPanel";
+import { CustomerSignalPanel, CustomerSignalSkeleton } from "./personalization/CustomerSignalPanel";
 import { SurfaceFeaturePanel } from "./personalization/SurfaceFeaturePanel";
 import type { TabValue } from "./AnalyticsContainer";
 
@@ -118,11 +118,26 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
 
         <div className="flex-1 min-h-0 p-3 flex flex-col">
           {!hasSelection ? (
-            <div className="flex-1 min-h-0 flex items-center justify-center">
-              <div className="w-full max-w-[400px] h-full flex items-center justify-center border border-dashed border-slate-200 rounded-2xl bg-slate-50/40 px-6 text-center">
-                <p className="text-[12px] text-slate-400 leading-relaxed max-w-[240px]">
-                  Select a customer to generate their personalized surface.
-                </p>
+            <div className="flex-1 min-h-0 flex justify-center relative">
+              <div className="w-full max-w-[400px] h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none">
+                <ExecDemoPhoneView
+                  customer={EXAMPLE_CUSTOMERS[0].demo}
+                  activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
+                  phase="hold"
+                  showContent
+                  generatedOffers={null}
+                  detectedLifeEvents={null}
+                  productCards={null}
+                  activeRollupLabel={null}
+                  activeRollupPillar={null}
+                  enrichedTxs={null}
+                  riskFlags={null}
+                />
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-[11.5px] font-semibold text-slate-500 bg-white/90 border border-slate-200 rounded-full px-3 py-1.5 shadow-sm">
+                  Select a customer to generate this surface
+                </span>
               </div>
             </div>
           ) : (
