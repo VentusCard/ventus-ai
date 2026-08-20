@@ -16,7 +16,7 @@ import { SignalFamilyBoard } from "./SignalFamilyBoard";
 import { LiveSignalStream } from "./LiveSignalStream";
 import { TaxonomyCoverageCard } from "./TaxonomyCoverageCard";
 import { ExternalIntelligenceCard } from "./ExternalIntelligenceCard";
-import { deltaFor, useDashboardRange } from "./useDashboardRange";
+import { useDashboardRange } from "./useDashboardRange";
 
 interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
@@ -81,26 +81,27 @@ export function AnalystDashboardView({
   return (
     <div className="space-y-3">
       {/* Page header */}
-      <div className="flex items-baseline justify-between">
-        <div className="flex items-center gap-2">
-          <LayoutDashboard className="w-4 h-4 text-slate-500" />
-          <h2 className="text-[15px] font-semibold text-slate-900">
-            Customer Intelligence Database
-          </h2>
-          <span className="text-[11px] text-slate-400">
-            Every signal Ventus extracts across the portfolio
-          </span>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <LayoutDashboard className="w-4 h-4 text-slate-500 shrink-0" />
+          <div className="flex items-baseline gap-2 min-w-0 flex-wrap">
+            <h2 className="text-[15px] font-semibold text-slate-900 whitespace-nowrap">
+              Customer Intelligence Database
+            </h2>
+            <span className="text-[11px] text-slate-400">
+              Every signal Ventus extracts across the portfolio
+            </span>
+          </div>
         </div>
+        <DashboardToolbar
+          range={range}
+          preset={preset}
+          setPreset={setPreset}
+          setCustom={setCustom}
+          compare={compare}
+          setCompare={setCompare}
+        />
       </div>
-
-      <DashboardToolbar
-        range={range}
-        preset={preset}
-        setPreset={setPreset}
-        setCustom={setCustom}
-        compare={compare}
-        setCompare={setCompare}
-      />
 
       <InsightStrip opportunities={opportunities} onOpen={(id) => onOpenOpportunity?.(id)} />
 
