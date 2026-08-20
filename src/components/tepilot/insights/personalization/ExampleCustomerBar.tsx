@@ -49,10 +49,10 @@ export function ExampleCustomerBar({ selectedId, onSelect, sessionName, compact 
             if (e.key === "Enter" && matches[0]) pick(matches[0].id);
             if (e.key === "Escape") setOpen(false);
           }}
-          placeholder={compact ? "Search customers" : "Search example customers by name, city, product, or signal"}
+          placeholder={compact ? "Search customers by name, city, product, or signal" : "Search example customers by name, city, product, or signal"}
           className={cn(
-            "w-full pl-9 pr-8 text-[12.5px] border border-slate-200 rounded-lg bg-slate-50/60 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-blue-300 focus:bg-white transition",
-            compact ? "py-1.5" : "py-2",
+            "w-full pl-9 pr-8 text-[13px] border border-slate-200 rounded-lg bg-slate-50/60 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400/40 focus:border-blue-300 focus:bg-white transition",
+            compact ? "py-2" : "py-2",
           )}
 
         />
