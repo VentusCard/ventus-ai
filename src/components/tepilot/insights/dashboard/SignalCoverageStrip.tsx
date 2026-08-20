@@ -13,9 +13,9 @@ export function SignalCoverageStrip() {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
       {tiles.map((t) => (
-        <div key={t.label} className="rounded-md border border-slate-200 bg-white px-3 py-2.5">
+        <div key={t.label} className="rounded-md border border-slate-200 bg-white px-4 py-3">
           <div className="text-[11px] font-medium text-slate-700 leading-tight">{t.label}</div>
           <div className="text-[20px] font-semibold text-slate-900 leading-tight mt-1 tabular-nums">
             {t.value}
