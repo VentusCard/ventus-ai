@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Users, Gem, CalendarHeart, ShieldAlert, Search, Radar, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { fmtCount, scaleSample, shareOf } from "@/lib/bookScale";
+import { getSignalFamilyStats } from "@/lib/intelligenceSignalStats";
+
 
 function parseValueK(value: string) {
   const m = value.match(/([\d.]+)\s*(k|M)/i);
