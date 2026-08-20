@@ -21,7 +21,7 @@ const AnnouncementBar = () => {
 
   return (
     <div className="relative w-full bg-blue-50 border-b border-blue-100">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 h-9 md:h-10 flex items-center justify-center gap-3">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 min-h-[36px] md:min-h-[40px] py-1.5 md:py-2 flex items-center justify-center gap-3">
         <p className="text-xs md:text-sm text-blue-900 leading-tight">
           <span className="font-semibold">See Ventus AI live this fall</span>
           <span className="text-blue-700/80 hidden sm:inline"> — Finovate Fall, Boston Fintech Week, and MoneyLIVE 2026.</span>
