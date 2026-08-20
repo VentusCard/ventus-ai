@@ -4,19 +4,20 @@ Replace the "Reserved" placeholder in the right column of Personalized Deals, Pe
 
 ## What the user sees
 
-Card header: "Unit economics" with a per-customer annual value figure.
+Card header: "Unit economics" with an annual value **per average customer**. All three surfaces are modeled at the average-customer level (not portfolio totals), then summed.
 
 **This surface** (changes per tab, driven by the generated content):
-- Deals: number of live offers, assumed redemption rate, average margin per redemption, interchange lift → annual contribution.
-- Product: number of recommended products, conversion rate, average annual revenue per product → annual contribution.
-- Relationship: retention/attrition-avoided value, servicing cost deflected by the assistant, advisor hours saved → annual contribution.
+- Deals — incremental spend routed through the bank's rails x take rate. Default assumptions: incremental redeemed spend per customer/year, take rate ~8% (so ~$200 of directed spend ≈ $15–20 to the bank). Scales with the number of live offers generated for the customer.
+- Product — conversion lift x CAC avoided. Default assumptions: recommended products x incremental conversion rate x cost of acquiring that product through normal channels (CAC), so the value is the acquisition cost the bank does not pay.
+- Relationship — attrition reduction x retention/replacement cost. Default assumptions: baseline annual attrition rate, percentage-point reduction from the assisted relationship, x cost to replace that customer.
 
-Each line shows driver → assumption → value, so it reads as a calculation and not a static number.
+Each line renders as an explicit formula (driver x assumption x rate = value) with the assumptions visible and editable inline, so it reads as a calculation.
 
 **Running total** (identical on all three tabs):
-- Three rows, one per surface: Deals / Product / Relationship, each with its contribution and a state marker (counted, or "not generated yet" until that tab's data exists).
-- Total annual value per customer = sum of the three.
-- A portfolio line: per-customer total x a portfolio size input (default 1,000,000 customers, editable inline) → annualized program value.
+- Three rows, one per surface: Deals / Product / Relationship, each with its per-average-customer contribution and a state marker (counted, or "not generated yet" until that tab's data exists).
+- Total annual value per average customer = sum of the three.
+- Optional portfolio line: per-customer total x portfolio size (default 1,000,000, editable inline) → annualized program value.
+
 
 Before a customer is selected the card shows the same dashed empty state as the rest of the workspace.
 
