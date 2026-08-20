@@ -87,15 +87,15 @@ export function SignalFamilyPanel({
       <div className="px-4 pt-3">
         <div className="flex h-1.5 rounded-full overflow-hidden bg-slate-100">
           <span
-            className="bg-slate-800"
+            className={family.barStrong}
             style={{ width: `${(family.confidence.strong / total) * 100}%` }}
           />
           <span
-            className="bg-slate-400"
+            className={family.barLikely}
             style={{ width: `${(family.confidence.likely / total) * 100}%` }}
           />
           <span
-            className="bg-slate-200"
+            className={family.barEmerging}
             style={{ width: `${(family.confidence.emerging / total) * 100}%` }}
           />
         </div>
