@@ -108,7 +108,7 @@ export function SignalFamilyPanel({
             key={s.label}
             type="button"
             onClick={() => onOpenSignal(family.key, s.label)}
-            className="group text-left rounded-md border border-slate-200 bg-white px-3 py-2.5 hover:border-blue-300 hover:bg-blue-50/40 transition-colors"
+            className={`group text-left rounded-md border border-slate-200 bg-white px-3 py-2.5 transition-colors ${family.rowHoverBorder} ${family.rowHover}`}
           >
             <div className="flex items-center gap-2">
               <span className="text-[12.5px] font-semibold text-slate-900 truncate flex-1">
