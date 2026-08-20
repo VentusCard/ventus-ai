@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useSaveSequence, SIGNAL_STAGES } from "@/hooks/useSaveSequence";
+import { SaveSequence } from "@/components/tepilot/common/SaveSequence";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -335,6 +337,7 @@ function FlowRow({
     useFlowSignals(flow);
   const [openRow, setOpenRow] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const save = useSaveSequence({ stages: SIGNAL_STAGES, doneLabel: "Audience synced" });
 
   const enabledCount = signals.filter((s) => enabledSignals.has(s.id)).length;
   const filterCount = filters.filter((f) => enabledFilters.has(f.id)).length;
@@ -352,31 +355,35 @@ function FlowRow({
       .map(([family]) => SIGNAL_FAMILY_LABEL[family as ExpandedSignal["family"]]);
   }, [signals]);
 
-  const toggleSignal = (id: string) => {
-    const next = new Set(enabledSignals);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    onSetEnabled(next);
-  };
+  const toggleSignal = (id: string) =>
+    save.run(() => {
+      const next = new Set(enabledSignals);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      onSetEnabled(next);
+    });
 
-  const toggleFilter = (id: string) => {
-    const next = new Set(enabledFilters);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    onSetFilters(next);
-  };
+  const toggleFilter = (id: string) =>
+    save.run(() => {
+      const next = new Set(enabledFilters);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      onSetFilters(next);
+    });
 
-  const handleAddSignal = (draft: SignalDraft) => {
-    addSignal(flow.id, draft);
-    const id = customSignalId(flow.id, draft.label);
-    onSetEnabled(new Set([...enabledSignals, id]));
-  };
+  const handleAddSignal = (draft: SignalDraft) =>
+    save.run(() => {
+      addSignal(flow.id, draft);
+      const id = customSignalId(flow.id, draft.label);
+      onSetEnabled(new Set([...enabledSignals, id]));
+    });
 
-  const handleAddFilter = (draft: FilterDraft) => {
-    addFilter(flow.id, draft);
-    const id = customFilterId(flow.id, draft.label);
-    onSetFilters(new Set([...enabledFilters, id]));
-  };
+  const handleAddFilter = (draft: FilterDraft) =>
+    save.run(() => {
+      addFilter(flow.id, draft);
+      const id = customFilterId(flow.id, draft.label);
+      onSetFilters(new Set([...enabledFilters, id]));
+    });
 
 
   return (
@@ -447,10 +454,11 @@ function FlowRow({
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0">
+              <SaveSequence status={save.status} label={save.stageLabel} />
               {hasOverrides && (
                 <button
                   type="button"
-                  onClick={() => resetFlowOverrides(flow.id)}
+                  onClick={() => save.run(() => resetFlowOverrides(flow.id))}
                   className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-700"
                 >
                   <RotateCcw className="w-3 h-3" />
@@ -474,13 +482,13 @@ function FlowRow({
                   }}
                   onCancel={() => setEditingId(null)}
                   onSubmit={(draft) => {
-                    editSignal(flow.id, sig.id, draft);
+                    save.run(() => editSignal(flow.id, sig.id, draft));
                     setEditingId(null);
                   }}
                   onReset={
                     editedSignalIds.has(sig.id)
                       ? () => {
-                          resetSignal(flow.id, sig.id);
+                          save.run(() => resetSignal(flow.id, sig.id));
                           setEditingId(null);
                         }
                       : undefined
@@ -498,7 +506,7 @@ function FlowRow({
                   onToggle={() => toggleSignal(sig.id)}
                   onOpen={() => setOpenRow(openRow === sig.id ? null : sig.id)}
                   onEdit={() => setEditingId(sig.id)}
-                  onDelete={() => removeSignal(flow.id, sig.id)}
+                  onDelete={() => save.run(() => removeSignal(flow.id, sig.id))}
                 />
               ),
             )}
@@ -547,7 +555,7 @@ function FlowRow({
                     onReset={
                       editedFilterIds.has(f.id)
                         ? () => {
-                            resetFilter(flow.id, f.id);
+                            save.run(() => resetFilter(flow.id, f.id));
                             setEditingId(null);
                           }
                         : undefined
