@@ -105,9 +105,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
                   <p className="text-[10px] text-slate-500 leading-tight">{line.formula}</p>
                 </div>
                 <span className="text-[11px] font-semibold text-slate-700 tabular-nums shrink-0">
-                  {line.label.includes("conversions") || line.label.includes("Attrition")
-                    ? line.value.toFixed(3)
-                    : formatMoney(line.value)}
+                  {line.display ?? formatMoney(line.value)}
                 </span>
               </div>
             ))}
