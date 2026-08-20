@@ -1,44 +1,33 @@
-import { Sparkles, ArrowRight, TrendingUp, AlertCircle } from "lucide-react";
-import type { RevenueOpportunity } from "@/types/bankwide";
+import { CalendarHeart, Gift, ArrowRight, Repeat } from "lucide-react";
+import type { VentusPriorityCard, VentusCardTone } from "@/lib/ventusPriorityCards";
 import { cn } from "@/lib/utils";
 
 interface InsightStripProps {
-  opportunities: RevenueOpportunity[];
-  onOpen?: (opportunityId: string) => void;
+  cards: VentusPriorityCard[];
+  onOpen?: (card: VentusPriorityCard) => void;
 }
 
-const PRIORITY_STYLE: Record<
-  RevenueOpportunity["priority"],
-  { tone: string; icon: typeof Sparkles; label: string }
-> = {
-  high: { tone: "text-amber-700 bg-amber-50 border-amber-100", icon: AlertCircle, label: "High priority" },
-  medium: { tone: "text-blue-700 bg-blue-50 border-blue-100", icon: TrendingUp, label: "Opportunity" },
-  low: { tone: "text-slate-600 bg-slate-50 border-slate-100", icon: Sparkles, label: "Signal" },
+const TONE_STYLE: Record<VentusCardTone, { tone: string; icon: typeof Gift }> = {
+  "life-event": { tone: "text-violet-700 bg-violet-50 border-violet-100", icon: CalendarHeart },
+  offer: { tone: "text-blue-700 bg-blue-50 border-blue-100", icon: Gift },
+  flow: { tone: "text-emerald-700 bg-emerald-50 border-emerald-100", icon: Repeat },
 };
 
-function compactDollars(n: number) {
-  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `$${(n / 1e3).toFixed(1)}K`;
-  return `$${n.toFixed(0)}`;
-}
-
-export function InsightStrip({ opportunities, onOpen }: InsightStripProps) {
-  const top = opportunities.slice(0, 3);
-  if (top.length === 0) return null;
+export function InsightStrip({ cards, onOpen }: InsightStripProps) {
+  if (cards.length === 0) return null;
 
   return (
     <div className="rounded-md border border-slate-200 bg-white overflow-hidden">
-      <div className="flex divide-x divide-slate-100">
-        {top.map((op) => {
-          const style = PRIORITY_STYLE[op.priority];
+      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+        {cards.map((card) => {
+          const style = TONE_STYLE[card.tone];
           const Icon = style.icon;
           return (
             <button
-              key={op.id}
+              key={card.id}
               type="button"
-              onClick={() => onOpen?.(op.id)}
-              className="flex-1 min-w-0 p-3 flex gap-3 text-left hover:bg-slate-50/70 transition-colors group"
+              onClick={() => onOpen?.(card)}
+              className="min-w-0 px-4 py-3 flex gap-3 text-left hover:bg-slate-50/70 transition-colors group"
             >
               <div
                 className={cn(
@@ -51,23 +40,23 @@ export function InsightStrip({ opportunities, onOpen }: InsightStripProps) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline gap-2">
                   <span className="text-[10px] uppercase tracking-wide text-slate-400 font-medium">
-                    {style.label}
+                    {card.label}
                   </span>
-                  <span className="text-[11px] text-slate-500 tabular-nums">
-                    {compactDollars(op.totalOpportunityAmount)} · {(op.affectedUsers / 1e6).toFixed(1)}M users
+                  <span className="text-[11px] text-slate-500 tabular-nums truncate">
+                    {card.metric}
                   </span>
                 </div>
                 <div className="text-[13px] font-medium text-slate-900 leading-tight mt-0.5 truncate">
-                  {op.gapTitle}
+                  {card.headline}
                 </div>
-                <div className="text-[11px] text-slate-500 truncate mt-0.5">
-                  {op.strategicInsight}
+                <div className="text-[11px] text-slate-500 leading-snug mt-0.5 line-clamp-2">
+                  {card.insight}
                 </div>
+                <span className="mt-1.5 text-[11px] text-blue-600 inline-flex items-center gap-0.5 group-hover:gap-1 transition-all">
+                  {card.cta}
+                  <ArrowRight className="w-3 h-3" />
+                </span>
               </div>
-              <span className="shrink-0 self-start text-[11px] text-blue-600 inline-flex items-center gap-0.5 mt-0.5 group-hover:gap-1 transition-all">
-                Open report
-                <ArrowRight className="w-3 h-3" />
-              </span>
             </button>
           );
         })}

@@ -18,6 +18,7 @@ import { LiveSignalStream } from "./LiveSignalStream";
 import { TaxonomyCoverageCard } from "./TaxonomyCoverageCard";
 import { ExternalIntelligenceCard } from "./ExternalIntelligenceCard";
 import { deltaFor, useDashboardRange } from "./useDashboardRange";
+import { getVentusPriorityCards } from "@/lib/ventusPriorityCards";
 
 interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
@@ -55,6 +56,7 @@ export function AnalystDashboardView({
   const metrics = useMemo(() => getBankwideMetrics(EMPTY_FILTERS), []);
   const pillarDist = useMemo(() => getPillarDistribution(EMPTY_FILTERS), []);
   const opportunities = useMemo(() => getRevenueOpportunities(EMPTY_FILTERS), []);
+  const priorityCards = useMemo(() => getVentusPriorityCards(opportunities), [opportunities]);
 
   const days = Math.max(1, Math.round((+range.end - +range.start) / 86_400_000) + 1);
   const rangeSpend = (metrics.totalAnnualSpend / 365) * days;
@@ -82,7 +84,7 @@ export function AnalystDashboardView({
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Page header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
@@ -106,7 +108,10 @@ export function AnalystDashboardView({
         />
       </div>
 
-      <InsightStrip opportunities={opportunities} onOpen={(id) => onOpenOpportunity?.(id)} />
+      <InsightStrip
+        cards={priorityCards}
+        onOpen={(card) => card.opportunityId && onOpenOpportunity?.(card.opportunityId)}
+      />
 
       {renderVentusSliver?.()}
 
@@ -114,30 +119,33 @@ export function AnalystDashboardView({
       <SignalCoverageStrip />
 
       {/* Signal families */}
-      <div className="flex items-baseline gap-2 pt-1">
-        <h3 className="text-[13px] font-semibold text-slate-900">Signal families</h3>
-        <span className="text-[11px] text-slate-400">
-          Behavioral → Life event → Financial → Demographic → Risk
-        </span>
+      <div className="space-y-4">
+        <div className="flex items-baseline gap-2">
+          <h3 className="text-[13px] font-semibold text-slate-900">Signal families</h3>
+          <span className="text-[11px] text-slate-400">
+            Behavioral → Life event → Financial → Demographic → Risk
+          </span>
+        </div>
+        <SignalFamilyBoard
+          onOpenSignal={(family, label) =>
+            onOpenSignalSegment
+              ? onOpenSignalSegment(family, label)
+              : onOpenSection?.(family === "risk" ? "risk" : "customers")
+          }
+        />
       </div>
-      <SignalFamilyBoard
-        onOpenSignal={(family, label) =>
-          onOpenSignalSegment
-            ? onOpenSignalSegment(family, label)
-            : onOpenSection?.(family === "risk" ? "risk" : "customers")
-        }
-      />
 
       {/* Live stream + taxonomy */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
           <LiveSignalStream />
         </div>
         <TaxonomyCoverageCard />
       </div>
 
+
       {/* Pillar mix + external intelligence */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ChartCard
           title="Spend by lifestyle pillar"
           hint="Share of enriched volume"
@@ -181,7 +189,7 @@ export function AnalystDashboardView({
       </div>
 
       {/* Pillar table + opportunities */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ChartCard
           title="Top pillars by spend"
           hint={`${pillarData.length} pillars · ${range.label.toLowerCase()}`}
@@ -267,7 +275,7 @@ export function AnalystDashboardView({
       </div>
 
       {/* Portfolio context — scale only */}
-      <div className="rounded-md border border-slate-200 bg-white px-4 py-2.5">
+      <div className="rounded-md border border-slate-200 bg-white px-4 py-3">
         <div className="flex items-center flex-wrap gap-x-6 gap-y-2">
           <span className="text-[10px] uppercase tracking-wide text-slate-400 shrink-0">
             Portfolio context
