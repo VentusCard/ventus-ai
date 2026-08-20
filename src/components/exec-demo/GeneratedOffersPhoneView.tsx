@@ -556,7 +556,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                 </p>
               </div>
 
-              <div className="flex items-center gap-1 px-4 pb-3 overflow-hidden">
+              <div className="flex items-center gap-1 px-3 pb-2.5 overflow-hidden">
                 {activeDeals.map((deal) => (
                   <span
                     key={deal.id}
