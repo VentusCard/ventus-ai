@@ -16,6 +16,8 @@ import type {
   PillarDeepDiveCell,
 } from '@/types/bankwide';
 import { PILLAR_COLORS, LIFESTYLE_PILLARS } from '@/lib/sampleData';
+import { BOOK_CUSTOMERS } from '@/lib/bookScale';
+
 
 // Lifestyle pillars (12 pillars matching the single customer view)
 const PILLARS = LIFESTYLE_PILLARS;
