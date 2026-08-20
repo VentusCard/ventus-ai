@@ -16,7 +16,7 @@ import { SignalFamilyBoard } from "./SignalFamilyBoard";
 import { LiveSignalStream } from "./LiveSignalStream";
 import { TaxonomyCoverageCard } from "./TaxonomyCoverageCard";
 import { ExternalIntelligenceCard } from "./ExternalIntelligenceCard";
-import { useDashboardRange } from "./useDashboardRange";
+import { deltaFor, useDashboardRange } from "./useDashboardRange";
 
 interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
