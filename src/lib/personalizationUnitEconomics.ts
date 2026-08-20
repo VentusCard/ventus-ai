@@ -177,12 +177,13 @@ export function setAssumption<K extends keyof EconomicsAssumptions>(
   value: EconomicsAssumptions[K],
 ) {
   if (state.assumptions[key] === value) return;
-  state = { ...state, assumptions: { ...state.assumptions, [key]: value } };
+  // Cached contributions were computed with the old assumptions — drop them.
+  state = { assumptions: { ...state.assumptions, [key]: value }, contributions: {} };
   emit();
 }
 
 export function resetAssumptions() {
-  state = { ...state, assumptions: DEFAULT_ASSUMPTIONS };
+  state = { assumptions: DEFAULT_ASSUMPTIONS, contributions: {} };
   emit();
 }
 
