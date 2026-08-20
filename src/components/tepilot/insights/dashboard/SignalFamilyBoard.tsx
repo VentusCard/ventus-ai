@@ -38,7 +38,7 @@ export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
             key={f.key}
             type="button"
             onClick={() => setExpanded(f.key)}
-            className="group text-left rounded-md border border-slate-200 bg-white p-3 hover:border-slate-400 hover:shadow-sm transition-all"
+            className={`group text-left rounded-md border p-3 hover:shadow-sm transition-all ${f.tint} ${f.cardBorder} ${f.cardBorderHover}`}
           >
             <div className="flex items-center justify-between gap-2">
               <span
@@ -65,21 +65,21 @@ export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
                 </div>
                 <div className="text-[10px] text-slate-500 mt-1">customers · 24h</div>
               </div>
-              <Sparkline data={f.sparkline} width={70} height={24} stroke="#94a3b8" />
+              <Sparkline data={f.sparkline} width={70} height={24} stroke={f.sparkline} />
             </div>
 
             <div className="mt-2.5">
-              <div className="flex h-1.5 rounded-full overflow-hidden bg-slate-100">
+              <div className="flex h-1.5 rounded-full overflow-hidden bg-white/60">
                 <span
-                  className="bg-slate-800"
+                  className={f.barStrong}
                   style={{ width: `${(f.confidence.strong / total) * 100}%` }}
                 />
                 <span
-                  className="bg-slate-400"
+                  className={f.barLikely}
                   style={{ width: `${(f.confidence.likely / total) * 100}%` }}
                 />
                 <span
-                  className="bg-slate-200"
+                  className={f.barEmerging}
                   style={{ width: `${(f.confidence.emerging / total) * 100}%` }}
                 />
               </div>
