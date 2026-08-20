@@ -156,6 +156,9 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           )}
         </div>
       </div>
+
+      {/* ---------- Key features + reserved ---------- */}
+      <SurfaceFeaturePanel surface={surface} />
     </div>
   );
 }
