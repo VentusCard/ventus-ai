@@ -763,7 +763,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       {/* KPI strip */}
       <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi
-          label="Customers modeled"
+          label="Customers Profile Enriched"
           dot="#2563EB"
           value="418,204"
           foot={
@@ -784,7 +784,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           foot={<span>Rail-agnostic behavioral enrichment</span>}
         />
         <Kpi
-          label="Active signals (24h)"
+          label="External signals Ingested (24h)"
           dot="#1E9E6A"
           value={totalDetections.toLocaleString()}
           foot={
