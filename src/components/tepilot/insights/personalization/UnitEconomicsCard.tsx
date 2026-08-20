@@ -39,6 +39,19 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
   const entry = usePersonalizationResult(customer?.id ?? "");
   const { assumptions, contributions } = useEconomicsState();
   const [showAssumptions, setShowAssumptions] = useState(false);
+  const [revealed, setRevealed] = useState(0);
+
+  useEffect(() => {
+    setRevealed(0);
+    if (!customer) return;
+    const timers = [0, 1, 2].map((i) =>
+      window.setTimeout(() => setRevealed(i + 1), 120 * (i + 1)),
+    );
+    return () => timers.forEach(window.clearTimeout);
+  }, [customer?.id, surface]);
+
+  const revealCls = (i: number) =>
+    `transition-all duration-300 ${revealed > i ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"}`;
 
   const computed = useMemo(
     () =>
