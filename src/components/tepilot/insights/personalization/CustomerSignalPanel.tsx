@@ -28,27 +28,24 @@ export function CustomerSignalPanel({ customer }: Props) {
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      <div className="shrink-0 flex items-center justify-between gap-2 pb-1.5 border-b border-slate-100">
+      <div className="shrink-0 flex items-start justify-between gap-3 pb-2.5 border-b border-slate-100">
         <div className="min-w-0">
           <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 truncate">
             User selected
           </h3>
-          <p className="text-[12px] font-semibold text-slate-900 mt-0.5 truncate">
+          <p className="text-[14px] font-semibold text-slate-900 mt-0.5 truncate">
             {customer.name}
           </p>
-          <p className="text-[10.5px] text-slate-500 truncate">
+          <p className="text-[12px] text-slate-500 truncate">
             {customer.segment} · {customer.city} · {customer.lifestyleType}
           </p>
         </div>
-        <span className="text-[9.5px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 shrink-0">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1 shrink-0 mt-0.5">
           Ready
         </span>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll pt-2.5 pr-1 space-y-2.5">
-
-
-
+      <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll pt-3 pr-1 space-y-3">
         {SIGNAL_FAMILY_META.map((m, i) => {
           const signals = customer[m.field as keyof ExampleCustomer] as DirectorySignal[];
           const isVisible = revealed > i;
@@ -60,19 +57,19 @@ export function CustomerSignalPanel({ customer }: Props) {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1",
               )}
             >
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className={cn("w-1.5 h-1.5 rounded-full", m.dot)} />
-                <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={cn("w-2 h-2 rounded-full", m.dot)} />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   {m.label}
                 </span>
-                <span className="text-[9.5px] text-slate-400 tabular-nums">{signals.length}</span>
+                <span className="text-[11px] text-slate-400 tabular-nums">{signals.length}</span>
                 <div className="flex-1 h-px bg-slate-100" />
               </div>
 
               {signals.length === 0 ? (
-                <p className="text-[11px] text-slate-400 italic">No signals detected</p>
+                <p className="text-[12px] text-slate-400 italic">No signals detected</p>
               ) : (
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {signals.map((sig) => {
                     const key = `${m.key}:${sig.label}`;
                     const isOpen = expanded === key;
@@ -81,20 +78,20 @@ export function CustomerSignalPanel({ customer }: Props) {
                         <button
                           onClick={() => setExpanded(isOpen ? null : key)}
                           className={cn(
-                            "inline-flex items-center gap-2 text-[11.5px] px-3 py-1.5 font-semibold rounded-full border transition-all duration-200",
+                            "inline-flex items-center gap-2 text-[13px] px-3.5 py-2 font-semibold rounded-full border transition-all duration-200",
                             m.chip,
                             isOpen ? "ring-2 ring-offset-1 ring-slate-200" : "hover:brightness-95",
                           )}
                         >
                           {sig.label}
                           {sig.source === "external" && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider rounded-full px-1.5 py-px bg-slate-900 text-white">
+                            <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-1.5 py-px bg-slate-900 text-white">
                               Ext
                             </span>
                           )}
                           <span
                             className={cn(
-                              "text-[9px] font-bold uppercase tracking-wider rounded-full px-1.5 py-px border border-white/60",
+                              "text-[10px] font-bold uppercase tracking-wider rounded-full px-1.5 py-px border border-white/60",
                               CONFIDENCE_STYLE[sig.confidence],
                             )}
                           >
@@ -102,7 +99,7 @@ export function CustomerSignalPanel({ customer }: Props) {
                           </span>
                         </button>
                         {isOpen && (
-                          <p className="mt-1.5 text-[11px] text-slate-600 leading-snug border-l-2 border-slate-200 pl-2.5">
+                          <p className="mt-2 text-[12px] text-slate-600 leading-relaxed border-l-2 border-slate-200 pl-3">
                             {sig.evidence}
                           </p>
                         )}
