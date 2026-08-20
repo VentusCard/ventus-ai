@@ -72,33 +72,33 @@ function formatAudience(n: number): string {
 function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: number }) {
   const msg = signal.message;
   return (
-    <div className="mt-2 rounded-lg border border-slate-200 bg-white p-3 grid gap-3 md:grid-cols-2">
-      <div className="space-y-2 min-w-0">
+    <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4 grid gap-4 md:grid-cols-2">
+      <div className="space-y-3 min-w-0">
         <div className="flex items-center gap-2">
           <span
             className={cn(
-              "text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
+              "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border",
               SIGNAL_FAMILY_CLASS[signal.family],
             )}
           >
             {SIGNAL_FAMILY_LABEL[signal.family]}
           </span>
-          <p className="text-[11px] font-semibold text-slate-900 truncate">{msg.title}</p>
+          <p className="text-[13px] font-semibold text-slate-900 truncate">{msg.title}</p>
         </div>
         <div>
-          <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Why this fires</p>
-          <p className="text-[11px] text-slate-600 leading-snug mt-0.5">{signal.evidence}</p>
+          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Why this fires</p>
+          <p className="text-[12px] text-slate-600 leading-snug mt-1">{signal.evidence}</p>
         </div>
         <div className="flex items-center gap-4">
           <div>
-            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Microsegment</p>
-            <p className="text-[11px] font-bold text-slate-900">{formatAudience(audience)} customers</p>
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Microsegment</p>
+            <p className="text-[12px] font-bold text-slate-900">{formatAudience(audience)} customers</p>
           </div>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {signal.channels.map((c) => (
               <span
                 key={c}
-                className="text-[9.5px] font-medium px-1.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600"
+                className="text-[10.5px] font-medium px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600"
               >
                 {c}
               </span>
@@ -107,17 +107,17 @@ function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: 
         </div>
       </div>
 
-      <div className="rounded-md border border-slate-200 bg-slate-50/70 p-2.5 flex flex-col gap-1.5 min-w-0">
-        <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-slate-400 font-semibold">
-          <Mail className="w-3 h-3" />
+      <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3 flex flex-col gap-2 min-w-0">
+        <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+          <Mail className="w-3.5 h-3.5" />
           Personalized message
         </div>
-        <p className="text-[11.5px] font-semibold text-slate-900 leading-snug">{msg.subject}</p>
-        <p className="text-[11px] text-slate-600 leading-snug whitespace-pre-line">{msg.body}</p>
+        <p className="text-[13px] font-semibold text-slate-900 leading-snug">{msg.subject}</p>
+        <p className="text-[12px] text-slate-600 leading-snug whitespace-pre-line">{msg.body}</p>
         <Button
           variant="outline"
           size="sm"
-          className="h-7 text-[11px] font-medium border-slate-300 text-slate-700 hover:bg-slate-50 mt-auto self-start"
+          className="h-8 text-[12px] font-medium border-slate-300 text-slate-700 hover:bg-slate-50 mt-auto self-start"
         >
           {msg.cta}
         </Button>
@@ -193,32 +193,32 @@ function SignalRow({
 }) {
   return (
     <div className="group rounded-lg border border-slate-200 bg-white">
-      <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
+      <div className={cn("flex items-center gap-3 px-4 py-3", !enabled && "opacity-50")}>
         <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 min-w-0">
               <span
                 className={cn(
-                  "text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0",
+                  "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0",
                   SIGNAL_FAMILY_CLASS[signal.family],
                 )}
               >
                 {SIGNAL_FAMILY_LABEL[signal.family]}
               </span>
-              <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{signal.label}</p>
+              <p className="text-[13px] font-semibold text-slate-900 leading-tight truncate">{signal.label}</p>
               {(edited || custom) && (
-                <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
                   {custom ? "Added" : "Edited"}
                 </span>
               )}
             </div>
-            <p className="text-[10.5px] text-slate-500 leading-snug truncate">{signal.evidence}</p>
+            <p className="text-[12px] text-slate-500 leading-snug truncate">{signal.evidence}</p>
           </div>
-          <div className="text-right shrink-0 w-20">
-            <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
-            <p className="text-[11px] font-bold text-slate-900 mt-0.5">{formatAudience(audience)}</p>
+          <div className="text-right shrink-0 w-24">
+            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
+            <p className="text-[13px] font-bold text-slate-900 mt-0.5">{formatAudience(audience)}</p>
           </div>
-          <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
+          <ChevronRight className={cn("w-5 h-5 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
         <RowActions onEdit={onEdit} onDelete={onDelete} />
         <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
@@ -226,7 +226,7 @@ function SignalRow({
         </div>
       </div>
       {open && (
-        <div className="px-3 pb-3">
+        <div className="px-4 pb-4">
           <SignalDetail signal={signal} audience={audience} />
         </div>
       )}
@@ -261,29 +261,29 @@ function FilterRow({
   const dropPct = Math.round((1 - filter.passRate) * 100);
   return (
     <div className="group rounded-lg border border-rose-200 bg-white">
-      <div className={cn("flex items-center gap-3 px-3 py-2", !enabled && "opacity-50")}>
+      <div className={cn("flex items-center gap-3 px-4 py-3", !enabled && "opacity-50")}>
         <button type="button" onClick={onOpen} className="flex-1 min-w-0 text-left flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0 bg-rose-50 text-rose-700 border-rose-200">
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 bg-rose-50 text-rose-700 border-rose-200">
                 Risk Filter
               </span>
-              <p className="text-[12px] font-semibold text-slate-900 leading-tight truncate">{filter.label}</p>
+              <p className="text-[13px] font-semibold text-slate-900 leading-tight truncate">{filter.label}</p>
               {(edited || custom) && (
-                <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 shrink-0">
                   {custom ? "Added" : "Edited"}
                 </span>
               )}
             </div>
-            <p className="text-[10.5px] text-slate-500 leading-snug truncate">{filter.evidence}</p>
+            <p className="text-[12px] text-slate-500 leading-snug truncate">{filter.evidence}</p>
           </div>
-          <div className="text-right shrink-0 w-24">
-            <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Removes</p>
-            <p className="text-[11px] font-bold text-rose-600 mt-0.5">
+          <div className="text-right shrink-0 w-28">
+            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Removes</p>
+            <p className="text-[13px] font-bold text-rose-600 mt-0.5">
               −{dropPct}% · −{formatAudience(removed)}
             </p>
           </div>
-          <ChevronRight className={cn("w-4 h-4 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
+          <ChevronRight className={cn("w-5 h-5 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
         <RowActions onEdit={onEdit} onDelete={onDelete} tone="rose" />
         <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
@@ -292,13 +292,13 @@ function FilterRow({
       </div>
 
       {open && (
-        <div className="px-3 pb-3">
-          <div className="mt-1 rounded-lg border border-rose-200 bg-rose-50/50 p-3">
-            <p className="text-[9px] uppercase tracking-wider text-rose-500 font-semibold">Who this removes</p>
-            <p className="text-[11px] text-slate-700 leading-snug mt-0.5">
+        <div className="px-4 pb-4">
+          <div className="mt-1 rounded-lg border border-rose-200 bg-rose-50/50 p-4">
+            <p className="text-[10px] uppercase tracking-wider text-rose-500 font-semibold">Who this removes</p>
+            <p className="text-[12px] text-slate-700 leading-snug mt-1">
               −{dropPct}% of the triggered audience ({formatAudience(removed)} people) drops out here.
             </p>
-            <p className="text-[10.5px] text-slate-500 leading-snug mt-2">
+            <p className="text-[12px] text-slate-500 leading-snug mt-2">
               This is a guardrail, never a trigger — it can only take customers out of the flow, never start
               outreach on its own.
             </p>
@@ -469,7 +469,7 @@ function FlowRow({
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {signals.map((sig) =>
               editingId === sig.id ? (
                 <SignalEditForm
@@ -541,7 +541,7 @@ function FlowRow({
               )}
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
               {filters.map((f) =>
                 editingId === f.id ? (
                   <FilterEditForm
