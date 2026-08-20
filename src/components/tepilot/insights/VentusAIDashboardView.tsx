@@ -15,7 +15,7 @@ import type { TabValue } from "./AnalyticsContainer";
 
 const DASHBOARD_SECTIONS: SubTabItem[] = [
   { value: "overview", label: "Overview", icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
-  { value: "customers", label: "Customers", icon: <Users className="w-3.5 h-3.5" /> },
+  { value: "customers", label: "Segments", icon: <Users className="w-3.5 h-3.5" /> },
   { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
   { value: "reports", label: "Reports", icon: <FileBarChart className="w-3.5 h-3.5" /> },
   { value: "query", label: "Query", icon: <Terminal className="w-3.5 h-3.5" /> },
