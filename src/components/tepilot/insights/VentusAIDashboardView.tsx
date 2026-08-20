@@ -101,6 +101,15 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
             setSignalSegment({ family, label });
             setSection("customers");
           }}
+          onOpenSignalSegment={(family, label) => {
+            if (family === "risk") {
+              setSignalSegment(null);
+              setSection("risk");
+              return;
+            }
+            setSignalSegment({ family, label });
+            setSection("customers");
+          }}
           renderVentusSliver={onOpenChat ? renderSliver : undefined}
         />
       )}
