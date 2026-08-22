@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import type { SignalFamily } from "@/lib/customerDirectoryData";
+import { cn } from "@/lib/utils";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
@@ -45,10 +46,25 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
     [],
   );
 
+  const [priorityIndex, setPriorityIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused || priorityCards.length < 2) return;
+    const t = window.setInterval(() => {
+      setPriorityIndex((i) => (i + 1) % priorityCards.length);
+    }, 5000);
+    return () => window.clearInterval(t);
+  }, [paused, priorityCards.length]);
+
+  const activeCard = priorityCards[priorityIndex % Math.max(priorityCards.length, 1)];
+
   const renderSliver = () => (
     <button
       type="button"
       onClick={() => onOpenChat?.()}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
       className="group w-full text-left rounded-xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 shadow-sm hover:shadow-md transition-all overflow-hidden"
     >
       <div className="px-4 py-3">
@@ -65,47 +81,66 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
                 Delivered by Ventus AI
               </span>
             </div>
-            <div className="text-[11px] text-slate-400 mt-0.5 truncate">
-              Open the chat for the full briefing — segment, addressable value and next step.
+            <div className="h-[18px] overflow-hidden mt-0.5">
+              {activeCard && (
+                <span
+                  key={activeCard.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenChat?.(getPriorityPrompt(activeCard));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onOpenChat?.(getPriorityPrompt(activeCard));
+                    }
+                  }}
+                  className="ventus-roll-in flex items-center gap-2 h-[18px] cursor-pointer group/item"
+                >
+                  <span className="text-[11.5px] font-medium text-white truncate group-hover/item:underline">
+                    {activeCard.headline}
+                  </span>
+                  <span className="text-[10.5px] text-blue-100/80 tabular-nums truncate shrink-0">
+                    {activeCard.metric}
+                  </span>
+                </span>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-1 text-blue-200 group-hover:text-white transition-colors shrink-0">
-            <Sparkles className="w-3.5 h-3.5" />
-            <ArrowUpRight className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1.5 shrink-0">
+            {priorityCards.length > 1 && (
+              <div className="hidden sm:flex items-center gap-1 mr-1">
+                {priorityCards.map((card, i) => (
+                  <span
+                    key={card.id}
+                    role="button"
+                    tabIndex={-1}
+                    aria-label={card.headline}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPriorityIndex(i);
+                    }}
+                    className={cn(
+                      "block w-1.5 h-1.5 rounded-full transition-colors cursor-pointer",
+                      i === priorityIndex ? "bg-blue-300" : "bg-white/25 hover:bg-white/50",
+                    )}
+                  />
+                ))}
+              </div>
+            )}
+            <div className="flex items-center gap-1 text-blue-200 group-hover:text-white transition-colors">
+              <Sparkles className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </div>
           </div>
-        </div>
-
-        <div className="mt-2.5 grid grid-cols-1 md:grid-cols-3 gap-1.5">
-          {priorityCards.map((card) => (
-            <span
-              key={card.id}
-              role="button"
-              tabIndex={0}
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenChat?.(getPriorityPrompt(card));
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onOpenChat?.(getPriorityPrompt(card));
-                }
-              }}
-              className="min-w-0 rounded-md border border-white/10 bg-white/10 px-2.5 py-1.5 hover:bg-white/20 transition-colors cursor-pointer"
-            >
-              <span className="block text-[11.5px] font-medium text-white truncate">
-                {card.headline}
-              </span>
-              <span className="block text-[10.5px] text-blue-100/80 tabular-nums truncate">
-                {card.metric}
-              </span>
-            </span>
-          ))}
         </div>
       </div>
     </button>
   );
+
 
   return (
     <div className="space-y-4">
