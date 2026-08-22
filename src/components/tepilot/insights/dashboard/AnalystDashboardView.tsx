@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { LayoutDashboard } from "lucide-react";
 import {
@@ -17,9 +17,7 @@ import { LiveSignalStream } from "./LiveSignalStream";
 import { TaxonomyCoverageCard } from "./TaxonomyCoverageCard";
 import { ExternalIntelligenceCard } from "./ExternalIntelligenceCard";
 import { deltaFor, useDashboardRange } from "./useDashboardRange";
-import { cn } from "@/lib/utils";
 
-type Density = "compact" | "full";
 type AnalyticsPanel =
   | "pillars"
   | "opportunities"
@@ -28,7 +26,6 @@ type AnalyticsPanel =
   | "external"
   | "coverage";
 
-const DENSITY_KEY = "ventus.intelligence.density";
 
 interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
@@ -60,18 +57,8 @@ export function AnalystDashboardView({
   const metrics = useMemo(() => getBankwideMetrics(EMPTY_FILTERS), []);
   const pillarDist = useMemo(() => getPillarDistribution(EMPTY_FILTERS), []);
   const opportunities = useMemo(() => getRevenueOpportunities(EMPTY_FILTERS), []);
-  const [density, setDensityState] = useState<Density>("compact");
-  const [panel, setPanel] = useState<AnalyticsPanel>("pillars");
 
-  useEffect(() => {
-    const saved = localStorage.getItem(DENSITY_KEY);
-    if (saved === "compact" || saved === "full") setDensityState(saved);
-  }, []);
 
-  const setDensity = (d: Density) => {
-    setDensityState(d);
-    localStorage.setItem(DENSITY_KEY, d);
-  };
 
   const days = Math.max(1, Math.round((+range.end - +range.start) / 86_400_000) + 1);
   const rangeSpend = (metrics.totalAnnualSpend / 365) * days;
@@ -250,23 +237,7 @@ export function AnalystDashboardView({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center rounded-md border border-slate-200 bg-white p-0.5">
-            {(["compact", "full"] as Density[]).map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => setDensity(d)}
-                className={cn(
-                  "px-2 h-7 rounded text-[11px] capitalize transition-colors",
-                  density === d
-                    ? "bg-slate-900 text-white"
-                    : "text-slate-600 hover:bg-slate-50",
-                )}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
+
           <DashboardToolbar
             range={range}
             preset={preset}
@@ -303,41 +274,16 @@ export function AnalystDashboardView({
         />
       </div>
 
-      {/* Portfolio analytics — one panel at a time in compact mode */}
+      {/* Portfolio analytics */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h3 className="text-[13px] font-semibold text-slate-900">Portfolio analytics</h3>
-          {density === "compact" && (
-            <div className="flex items-center gap-1 rounded-md border border-slate-200 bg-white p-0.5 flex-wrap">
-              {PANELS.map((p) => (
-                <button
-                  key={p.value}
-                  type="button"
-                  onClick={() => setPanel(p.value)}
-                  className={cn(
-                    "h-7 px-2.5 rounded text-[11px] transition-colors",
-                    panel === p.value
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-50",
-                  )}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          )}
+        <h3 className="text-[13px] font-semibold text-slate-900">Portfolio analytics</h3>
+        <div className="space-y-4">
+          {PANELS.map((p) => (
+            <div key={p.value}>{p.node}</div>
+          ))}
         </div>
-
-        {density === "compact" ? (
-          PANELS.find((p) => p.value === panel)?.node
-        ) : (
-          <div className="space-y-4">
-            {PANELS.map((p) => (
-              <div key={p.value}>{p.node}</div>
-            ))}
-          </div>
-        )}
       </div>
+
     </div>
 
   );
