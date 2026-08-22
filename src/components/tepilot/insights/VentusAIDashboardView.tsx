@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { SignalFamily } from "@/lib/customerDirectoryData";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
@@ -8,7 +8,8 @@ import { SubTabBar, type SubTabItem } from "./SubTabBar";
 import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { QueryConsoleView } from "./QueryConsoleView";
 import { ApiAccessView } from "./api/ApiAccessView";
-import { VENTUS_QUICK_ACTIONS } from "./VentusAIChatPage";
+import { getVentusPriorityCards, getPriorityPrompt } from "@/lib/ventusPriorityCards";
+import { getRevenueOpportunities } from "@/lib/mockBankwideData";
 import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
 import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal, Users, Plug } from "lucide-react";
 import type { TabValue } from "./AnalyticsContainer";
@@ -22,7 +23,7 @@ const DASHBOARD_SECTIONS: SubTabItem[] = [
   { value: "api", label: "API", icon: <Plug className="w-3.5 h-3.5" /> },
 ];
 
-const SLIVER_CHIPS = VENTUS_QUICK_ACTIONS.slice(0, 2);
+const EMPTY_FILTERS = { cardProducts: [], regions: [], ageRanges: [] };
 
 interface VentusAIDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
@@ -39,46 +40,68 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
   const [signalSegment, setSignalSegment] = useState<{ family: SignalFamily; label: string } | null>(null);
   useEffect(() => { setSection(initialSection); }, [initialSection]);
 
+  const priorityCards = useMemo(
+    () => getVentusPriorityCards(getRevenueOpportunities(EMPTY_FILTERS)),
+    [],
+  );
+
   const renderSliver = () => (
     <button
       type="button"
       onClick={() => onOpenChat?.()}
       className="group w-full text-left rounded-xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 shadow-sm hover:shadow-md transition-all overflow-hidden"
     >
-      <div className="flex items-center gap-3 px-4 py-3">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-400/30 shrink-0">
-          <span className="text-sm font-black text-blue-300 leading-none">V</span>
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] font-semibold text-white truncate">
-              Ask Ventus AI
-            </span>
-            <span className="text-[11px] text-blue-200/80 truncate hidden sm:inline">
-              Leadership briefing — your bankwide book
-            </span>
+      <div className="px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-400/30 shrink-0">
+            <span className="text-sm font-black text-blue-300 leading-none">V</span>
           </div>
-          <div className="text-[11px] text-slate-400 mt-0.5 truncate">
-            Ask about outflow, growth pillars, life-event signals…
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[13px] font-semibold text-white truncate">
+                {priorityCards.length} priorities in your book right now
+              </span>
+              <span className="text-[11px] text-blue-200/80 truncate hidden sm:inline">
+                Delivered by Ventus AI
+              </span>
+            </div>
+            <div className="text-[11px] text-slate-400 mt-0.5 truncate">
+              Open the chat for the full briefing — segment, addressable value and next step.
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-blue-200 group-hover:text-white transition-colors shrink-0">
+            <Sparkles className="w-3.5 h-3.5" />
+            <ArrowUpRight className="w-3.5 h-3.5" />
           </div>
         </div>
-        <div className="hidden md:flex items-center gap-1.5">
-          {SLIVER_CHIPS.map((chip) => (
+
+        <div className="mt-2.5 grid grid-cols-1 md:grid-cols-3 gap-1.5">
+          {priorityCards.map((card) => (
             <span
-              key={chip}
+              key={card.id}
+              role="button"
+              tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
-                onOpenChat?.(chip);
+                onOpenChat?.(getPriorityPrompt(card));
               }}
-              className="px-2 py-1 text-[11px] rounded-md bg-white/10 text-blue-100 hover:bg-white/20 border border-white/10 transition-colors cursor-pointer"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onOpenChat?.(getPriorityPrompt(card));
+                }
+              }}
+              className="min-w-0 rounded-md border border-white/10 bg-white/10 px-2.5 py-1.5 hover:bg-white/20 transition-colors cursor-pointer"
             >
-              {chip}
+              <span className="block text-[11.5px] font-medium text-white truncate">
+                {card.headline}
+              </span>
+              <span className="block text-[10.5px] text-blue-100/80 tabular-nums truncate">
+                {card.metric}
+              </span>
             </span>
           ))}
-        </div>
-        <div className="flex items-center gap-1 text-blue-200 group-hover:text-white transition-colors shrink-0">
-          <Sparkles className="w-3.5 h-3.5" />
-          <ArrowUpRight className="w-3.5 h-3.5" />
         </div>
       </div>
     </button>

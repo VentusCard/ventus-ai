@@ -734,6 +734,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                 pendingPrompt={activeTab === 'ventus-chat' ? pendingChatPrompt : null}
                 onPendingPromptConsumed={() => setPendingChatPrompt(null)}
                 onNavigate={(tab) => setActiveTab(tab as TabValue)}
+                onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })}
               />
             </div>
 
