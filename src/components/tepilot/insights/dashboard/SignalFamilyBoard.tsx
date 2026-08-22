@@ -15,30 +15,19 @@ export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
 
   const active = expanded ? families.find((f) => f.key === expanded) ?? null : null;
 
-  if (active) {
-    return (
-      <div className="grid grid-cols-1 gap-3">
-        <SignalFamilyPanel
-          family={active}
-          families={families}
-          onSwitchFamily={(k) => setExpanded(k)}
-          onClose={() => setExpanded(null)}
-          onOpenSignal={(f, label) => onOpenSignal?.(f, label)}
-        />
-      </div>
-    );
-  }
-
   return (
+    <div className="space-y-3">
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
       {families.map((f) => {
         const total = f.confidence.strong + f.confidence.likely + f.confidence.emerging;
+        const isActive = expanded === f.key;
         return (
           <button
             key={f.key}
             type="button"
-            onClick={() => setExpanded(f.key)}
-            className={`group text-left rounded-md border p-3 hover:shadow-sm transition-all ${f.tint} ${f.cardBorder} ${f.cardBorderHover}`}
+            onClick={() => setExpanded(isActive ? null : f.key)}
+            aria-expanded={isActive}
+            className={`group text-left rounded-md border p-3 hover:shadow-sm transition-all ${f.tint} ${f.cardBorder} ${f.cardBorderHover} ${isActive ? "ring-2 ring-slate-900/15 border-slate-400 shadow-sm" : ""}`}
           >
             <div className="flex items-center justify-between gap-2">
               <span
