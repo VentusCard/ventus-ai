@@ -303,41 +303,16 @@ export function AnalystDashboardView({
         />
       </div>
 
-      {/* Portfolio analytics — one panel at a time in compact mode */}
+      {/* Portfolio analytics */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h3 className="text-[13px] font-semibold text-slate-900">Portfolio analytics</h3>
-          {density === "compact" && (
-            <div className="flex items-center gap-1 rounded-md border border-slate-200 bg-white p-0.5 flex-wrap">
-              {PANELS.map((p) => (
-                <button
-                  key={p.value}
-                  type="button"
-                  onClick={() => setPanel(p.value)}
-                  className={cn(
-                    "h-7 px-2.5 rounded text-[11px] transition-colors",
-                    panel === p.value
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-50",
-                  )}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          )}
+        <h3 className="text-[13px] font-semibold text-slate-900">Portfolio analytics</h3>
+        <div className="space-y-4">
+          {PANELS.map((p) => (
+            <div key={p.value}>{p.node}</div>
+          ))}
         </div>
-
-        {density === "compact" ? (
-          PANELS.find((p) => p.value === panel)?.node
-        ) : (
-          <div className="space-y-4">
-            {PANELS.map((p) => (
-              <div key={p.value}>{p.node}</div>
-            ))}
-          </div>
-        )}
       </div>
+
     </div>
 
   );
