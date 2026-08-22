@@ -85,5 +85,15 @@ export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
         );
       })}
     </div>
+
+    {active && (
+      <SignalFamilyPanel
+        key={active.key}
+        family={active}
+        onClose={() => setExpanded(null)}
+        onOpenSignal={(f, label) => onOpenSignal?.(f, label)}
+      />
+    )}
+    </div>
   );
 }
