@@ -91,8 +91,9 @@ export function SignalFamilyPanel({
               </span>
               <span
                 title={`Strong ${s.confidence.strong}% · Likely ${s.confidence.likely}% · Emerging ${s.confidence.emerging}%`}
-                className="px-1.5 py-[1px] rounded-full border border-slate-200 bg-slate-50 text-slate-600 text-[9.5px] font-medium tracking-wide shrink-0 tabular-nums"
+                className={`px-1.5 py-[1px] rounded-full border text-[9.5px] font-medium tracking-wide shrink-0 tabular-nums ${STRONG_PILL[family.key][pillStep(s.confidence.strong)]}`}
               >
+
                 {s.confidence.strong}% strong
               </span>
             </div>
