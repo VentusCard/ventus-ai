@@ -45,12 +45,6 @@ function fmtCurrency(n: number) {
   return `$${n.toFixed(0)}`;
 }
 
-function fmtNum(n: number) {
-  if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `${(n / 1e3).toFixed(1)}K`;
-  return n.toLocaleString();
-}
 
 const EMPTY_FILTERS = { cardProducts: [], regions: [], ageRanges: [] };
 
@@ -81,8 +75,6 @@ export function AnalystDashboardView({
 
   const days = Math.max(1, Math.round((+range.end - +range.start) / 86_400_000) + 1);
   const rangeSpend = (metrics.totalAnnualSpend / 365) * days;
-  const rangeTransactions =
-    metrics.avgTransactionsPerAccount * (days / 30) * metrics.totalAccounts;
 
   const pillarData = useMemo(
     () =>
@@ -95,14 +87,6 @@ export function AnalystDashboardView({
 
   const topPillars = pillarData.slice(0, 6);
 
-  const portfolioContext = [
-    { label: "Total accounts", value: fmtNum(metrics.totalAccounts) },
-    { label: "Unique users", value: fmtNum(metrics.totalUsers) },
-    { label: "Card spend", value: fmtCurrency(rangeSpend) },
-    { label: "Transactions", value: fmtNum(rangeTransactions) },
-    { label: "Active acct rate", value: `${metrics.activeAccountRate.toFixed(1)}%` },
-    { label: "Wallet share", value: "38.4%" },
-  ];
 
   const pillarPanel = (
     <ChartCard
@@ -294,15 +278,6 @@ export function AnalystDashboardView({
         </div>
       </div>
 
-      {/* Portfolio context — scale only, one line */}
-      <div className="flex items-center flex-wrap gap-x-5 gap-y-1 -mt-1">
-        {portfolioContext.map((p) => (
-          <div key={p.label} className="flex items-baseline gap-1.5">
-            <span className="text-[12px] font-semibold text-slate-900 tabular-nums">{p.value}</span>
-            <span className="text-[11px] text-slate-500">{p.label}</span>
-          </div>
-        ))}
-      </div>
 
       {/* Ventus delivers the priorities */}
       {renderVentusSliver?.()}
