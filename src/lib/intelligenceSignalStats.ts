@@ -88,6 +88,26 @@ const TOTAL_CUSTOMERS = BOOK_CUSTOMERS;
 const LEGACY_BOOK = 75_000_000;
 const REBASE = TOTAL_CUSTOMERS / LEGACY_BOOK;
 
+/** Base evidence-strength distribution per seed tier. */
+const TIER_MIX: Record<SignalConfidence, ConfidenceMix> = {
+  strong: { strong: 74, likely: 19, emerging: 7 },
+  likely: { strong: 48, likely: 38, emerging: 14 },
+  emerging: { strong: 26, likely: 39, emerging: 35 },
+};
+
+/** Deterministic ±5pt jitter so tiles don't all read identically. */
+function mixFor(key: string, tier: SignalConfidence): ConfidenceMix {
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) % 100003;
+  const base = TIER_MIX[tier];
+  const jitter = (h % 11) - 5; // -5..5
+  const strong = Math.min(92, Math.max(12, base.strong + jitter));
+  const remainder = 100 - strong;
+  const likelyShare = base.likely / (base.likely + base.emerging);
+  const likely = Math.round(remainder * likelyShare);
+  return { strong, likely, emerging: 100 - strong - likely };
+}
+
 
 interface SeedSignal {
   label: string;
