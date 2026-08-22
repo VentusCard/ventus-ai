@@ -294,15 +294,6 @@ export function AnalystDashboardView({
         </div>
       </div>
 
-      {/* Portfolio context — scale only, one line */}
-      <div className="flex items-center flex-wrap gap-x-5 gap-y-1 -mt-1">
-        {portfolioContext.map((p) => (
-          <div key={p.label} className="flex items-baseline gap-1.5">
-            <span className="text-[12px] font-semibold text-slate-900 tabular-nums">{p.value}</span>
-            <span className="text-[11px] text-slate-500">{p.label}</span>
-          </div>
-        ))}
-      </div>
 
       {/* Ventus delivers the priorities */}
       {renderVentusSliver?.()}
