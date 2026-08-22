@@ -250,23 +250,7 @@ export function AnalystDashboardView({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center rounded-md border border-slate-200 bg-white p-0.5">
-            {(["compact", "full"] as Density[]).map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => setDensity(d)}
-                className={cn(
-                  "px-2 h-7 rounded text-[11px] capitalize transition-colors",
-                  density === d
-                    ? "bg-slate-900 text-white"
-                    : "text-slate-600 hover:bg-slate-50",
-                )}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
+
           <DashboardToolbar
             range={range}
             preset={preset}
