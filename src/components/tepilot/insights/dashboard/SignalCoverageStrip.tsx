@@ -26,3 +26,20 @@ export function SignalCoverageStrip() {
     </div>
   );
 }
+
+/** Compact one-line variant used as a caption under the signal-families header. */
+export function SignalCoverageCaption() {
+  const c = getSignalCoverage();
+  const bits = [
+    `${fmtCount(c.profilesEnriched)} profiles enriched (${c.coveragePct.toFixed(1)}%)`,
+    `${fmtCount(c.signals24h)} signals in 24h`,
+    `${c.avgSignalsPerCustomer.toFixed(1)} avg per customer`,
+    `${fmtCount(c.lifeEventsActive)} life events active`,
+    `${c.strongPct.toFixed(1)}% strong confidence`,
+  ];
+  return (
+    <div className="text-[11px] text-slate-500 tabular-nums">
+      {bits.join(" · ")}
+    </div>
+  );
+}
