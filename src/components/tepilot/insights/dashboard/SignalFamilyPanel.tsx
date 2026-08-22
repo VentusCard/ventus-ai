@@ -84,7 +84,7 @@ export function SignalFamilyPanel({
       </div>
 
       {/* Signals */}
-      <div className="p-3 grid grid-cols-1 lg:grid-cols-2 gap-2">
+      <div className="p-3 grid grid-cols-1 lg:grid-cols-2 gap-2 h-[260px] overflow-y-auto">
         {family.topSignals.map((s) => (
           <button
             key={s.label}
