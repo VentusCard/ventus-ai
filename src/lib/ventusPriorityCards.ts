@@ -88,9 +88,9 @@ export const PRIORITY_ACTION: Record<
   VentusCardTone,
   { label: string; tab: string }
 > = {
-  "life-event": { label: "Open the segment", tab: "customers" },
-  offer: { label: "Open personalization", tab: "next-purchase" },
-  flow: { label: "Open automated flows", tab: "product-automated-flows" },
+  "life-event": { label: "Open the segment", tab: "ventus-ai-dashboard" },
+  offer: { label: "Open personalization", tab: "targeting" },
+  flow: { label: "Open automated flows", tab: "targeting-automated-flows" },
 };
 
 /** The question the chatbot answers when a priority is opened from a chip. */
