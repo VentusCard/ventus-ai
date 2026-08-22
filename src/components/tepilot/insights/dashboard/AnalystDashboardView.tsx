@@ -60,18 +60,8 @@ export function AnalystDashboardView({
   const metrics = useMemo(() => getBankwideMetrics(EMPTY_FILTERS), []);
   const pillarDist = useMemo(() => getPillarDistribution(EMPTY_FILTERS), []);
   const opportunities = useMemo(() => getRevenueOpportunities(EMPTY_FILTERS), []);
-  const [density, setDensityState] = useState<Density>("compact");
-  const [panel, setPanel] = useState<AnalyticsPanel>("pillars");
 
-  useEffect(() => {
-    const saved = localStorage.getItem(DENSITY_KEY);
-    if (saved === "compact" || saved === "full") setDensityState(saved);
-  }, []);
 
-  const setDensity = (d: Density) => {
-    setDensityState(d);
-    localStorage.setItem(DENSITY_KEY, d);
-  };
 
   const days = Math.max(1, Math.round((+range.end - +range.start) / 86_400_000) + 1);
   const rangeSpend = (metrics.totalAnnualSpend / 365) * days;
