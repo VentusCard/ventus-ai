@@ -6,9 +6,12 @@ The Overview sub-tab currently stacks nine full-width blocks with no hierarchy: 
 
 Keep every piece of data, but move from one long scroll to a short, prioritized page with progressive disclosure.
 
-### 1. Lead with one answer layer
-- Keep the three priority cards at the top, visually promoted (larger, clearly the "what to do now" row).
-- Move the Ask Ventus banner directly under them as the single secondary action.
+### 1. Priorities move into Ventus AI chat
+The three standalone priority cards disappear from the Overview page. Instead, Ventus delivers them:
+- The Ask Ventus banner becomes the single top block, opening with a short AI-voiced line: "3 priorities in your book right now" plus the three headlines as compact one-line chips (life event / offer / flow) with their customer + addressable metric.
+- Clicking a chip opens the Ventus AI chat with that priority as the opening turn — a chat message that states the signal, the population, the addressable value, and the recommended next step, with an action button that deep-links to the same destination the card used (briefing report / personalization / flow).
+- Opening the chat with no chip selected starts with the same priorities briefing message, so the chatbot is the place priorities live.
+
 
 ### 2. Signal families become the core of the page
 - Keep the 5-family board, but drop the coverage strip into the family board header as a one-line caption instead of its own section.
@@ -23,12 +26,16 @@ The portfolio context bar (accounts, users, spend, transactions, wallet share) b
 ### 5. Density control
 Add a "Compact / Full" toggle next to the date range in the toolbar. Compact (default) shows steps 1, 2 and the collapsed analytics section; Full expands every analytics panel at once for users who want the current firehose. Preference persists in localStorage.
 
-Net effect: first screen = priorities + signal families. Everything else is one click away rather than three scrolls down.
+Net effect: first screen = Ventus briefing + signal families. Everything else is one click away rather than three scrolls down.
 
 ## Technical notes
 
-- `AnalystDashboardView.tsx`: restructure the layout, add the density state (localStorage key) and the analytics panel switcher. No data logic changes — the same `getBankwideMetrics` / `getPillarDistribution` / `getRevenueOpportunities` / `getVentusPriorityCards` calls feed the same components.
+- `getVentusPriorityCards` stays the data source; it now feeds the chat sliver and the chat's opening briefing instead of `InsightStrip`. `InsightStrip.tsx` is retired from the Overview.
+- `VentusAIDashboardView.tsx`: the sliver renders the priority chips and passes a selected priority into `onOpenChat`.
+- `VentusAIChatPage.tsx` / chat panel: accept a priority seed, render the briefing as the first assistant message with an action button routing through the existing `onOpenOpportunity` / navigation callbacks so `report-priority-opportunity` and the personalization/flow tabs still open.
+- `AnalystDashboardView.tsx`: restructure the layout, add the density state (localStorage key) and the analytics panel switcher. No data logic changes — the same `getBankwideMetrics` / `getPillarDistribution` / `getRevenueOpportunities` calls feed the same components.
 - `SignalCoverageStrip.tsx`: render as an inline caption variant.
 - `LiveSignalStream`, `TaxonomyCoverageCard`, `ExternalIntelligenceCard`, `ChartCard` blocks: unchanged internally, just re-parented into the switcher.
 - Sub-tabs (Overview / Segments / Risk / Reports / Query / API) and all navigation callbacks stay as-is.
 - Strict light theme, existing slate borders and type scale preserved.
+
