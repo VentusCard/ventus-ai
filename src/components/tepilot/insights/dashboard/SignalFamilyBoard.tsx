@@ -36,7 +36,9 @@ export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
                 <span className={`w-1.5 h-1.5 rounded-full ${f.dot}`} />
                 {f.label}
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-600 transition-colors" />
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-all ${isActive ? "rotate-180 text-slate-700" : "text-slate-300 group-hover:text-slate-600"}`}
+              />
             </div>
 
             <div className="mt-2.5 flex items-end justify-between gap-2">
