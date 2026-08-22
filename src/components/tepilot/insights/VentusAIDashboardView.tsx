@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import type { SignalFamily } from "@/lib/customerDirectoryData";
+import { cn } from "@/lib/utils";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
