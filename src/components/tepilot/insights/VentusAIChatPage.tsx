@@ -1,10 +1,15 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { ArrowUp, Compass, FileText, LineChart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import { PromptRail } from "./ventus-chat/PromptRail";
 import { ContextPanel } from "./ventus-chat/ContextPanel";
 import { ChatMessage } from "./ventus-chat/ChatMessage";
+import { PriorityBriefing } from "./ventus-chat/PriorityBriefing";
+import { getRevenueOpportunities } from "@/lib/mockBankwideData";
+import { getVentusPriorityCards } from "@/lib/ventusPriorityCards";
+
+const EMPTY_FILTERS = { cardProducts: [], regions: [], ageRanges: [] };
 
 export const LEADERSHIP_CONTEXT = {
   role: "Ventus AI briefing analyst for bank executive leadership",
@@ -70,6 +75,8 @@ interface VentusAIChatPageProps {
   onPendingPromptConsumed?: () => void;
   active?: boolean;
   onNavigate?: (tab: string) => void;
+  /** Deep-link into the priority briefing report for an opportunity. */
+  onOpenOpportunity?: (opportunityId: string) => void;
 }
 
 export function VentusAIChatPage({
@@ -77,11 +84,17 @@ export function VentusAIChatPage({
   onPendingPromptConsumed,
   active = true,
   onNavigate,
+  onOpenOpportunity,
 }: VentusAIChatPageProps) {
   const [input, setInput] = useState("");
   const [loadingStep, setLoadingStep] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const priorityCards = useMemo(
+    () => getVentusPriorityCards(getRevenueOpportunities(EMPTY_FILTERS)),
+    [],
+  );
 
   const { messages, isLoading, sendMessage } = useAdvisorChat({
     advisorContext: LEADERSHIP_CONTEXT,
@@ -166,7 +179,22 @@ export function VentusAIChatPage({
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
           <div className="mx-auto w-full max-w-[760px] space-y-6">
             {!hasMessages ? (
-              <div className="pt-8">
+              <div className="pt-2">
+                <PriorityBriefing
+                  cards={priorityCards}
+                  onAsk={(prompt) => handleSend(prompt)}
+                  onOpenOpportunity={onOpenOpportunity}
+                  onNavigate={onNavigate}
+                />
+
+                <div className="my-6 flex items-center gap-3">
+                  <span className="h-px flex-1 bg-slate-200" />
+                  <span className="text-[10.5px] uppercase tracking-wide text-slate-400">
+                    Or ask anything
+                  </span>
+                  <span className="h-px flex-1 bg-slate-200" />
+                </div>
+
                 <div className="mb-6 text-center">
                   <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600">
                     <span className="text-xl font-black leading-none text-white">V</span>
