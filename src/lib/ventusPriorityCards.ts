@@ -82,3 +82,18 @@ export function getVentusPriorityCards(
     },
   ];
 }
+
+/** Destination each priority hands off to once Ventus has delivered it. */
+export const PRIORITY_ACTION: Record<
+  VentusCardTone,
+  { label: string; tab: string }
+> = {
+  "life-event": { label: "Open the segment", tab: "ventus-ai-dashboard" },
+  offer: { label: "Open personalization", tab: "targeting" },
+  flow: { label: "Open automated flows", tab: "targeting-automated-flows" },
+};
+
+/** The question the chatbot answers when a priority is opened from a chip. */
+export function getPriorityPrompt(card: VentusPriorityCard): string {
+  return `Brief me on this priority: ${card.headline}. ${card.metric}. What did Ventus detect, who is in the segment, and what should we do next?`;
+}
