@@ -5,8 +5,6 @@ import { Sparkline } from "./Sparkline";
 
 interface SignalFamilyPanelProps {
   family: SignalFamilyStats;
-  families: SignalFamilyStats[];
-  onSwitchFamily: (key: SignalFamily) => void;
   onClose: () => void;
   onOpenSignal: (family: SignalFamily, label: string) => void;
 }
@@ -19,8 +17,6 @@ const CONFIDENCE_CHIP: Record<string, string> = {
 
 export function SignalFamilyPanel({
   family,
-  families,
-  onSwitchFamily,
   onClose,
   onOpenSignal,
 }: SignalFamilyPanelProps) {
@@ -28,7 +24,7 @@ export function SignalFamilyPanel({
     family.confidence.strong + family.confidence.likely + family.confidence.emerging;
 
   return (
-    <div className="col-span-full rounded-lg border border-slate-300 bg-white shadow-sm">
+    <div className="col-span-full rounded-lg border border-slate-300 bg-white shadow-sm animate-in fade-in slide-in-from-top-1 duration-200">
       {/* Header */}
       <div className={`flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-200 ${family.tint}`}>
         <div className="min-w-0">
@@ -58,20 +54,6 @@ export function SignalFamilyPanel({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          <div className="hidden lg:flex items-center gap-1">
-            {families
-              .filter((f) => f.key !== family.key)
-              .map((f) => (
-                <button
-                  key={f.key}
-                  type="button"
-                  onClick={() => onSwitchFamily(f.key)}
-                  className="px-2 py-1 rounded-md border border-slate-200 bg-white text-[10.5px] font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900 transition-colors whitespace-nowrap"
-                >
-                  {f.label}
-                </button>
-              ))}
-          </div>
           <button
             type="button"
             onClick={onClose}
@@ -102,7 +84,7 @@ export function SignalFamilyPanel({
       </div>
 
       {/* Signals */}
-      <div className="p-3 grid grid-cols-1 lg:grid-cols-2 gap-2">
+      <div className="p-3 grid grid-cols-1 lg:grid-cols-2 gap-2 h-[260px] overflow-y-auto">
         {family.topSignals.map((s) => (
           <button
             key={s.label}
