@@ -95,14 +95,6 @@ export function AnalystDashboardView({
 
   const topPillars = pillarData.slice(0, 6);
 
-  const portfolioContext = [
-    { label: "Total accounts", value: fmtNum(metrics.totalAccounts) },
-    { label: "Unique users", value: fmtNum(metrics.totalUsers) },
-    { label: "Card spend", value: fmtCurrency(rangeSpend) },
-    { label: "Transactions", value: fmtNum(rangeTransactions) },
-    { label: "Active acct rate", value: `${metrics.activeAccountRate.toFixed(1)}%` },
-    { label: "Wallet share", value: "38.4%" },
-  ];
 
   const pillarPanel = (
     <ChartCard
