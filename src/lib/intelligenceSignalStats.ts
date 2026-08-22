@@ -12,16 +12,25 @@ import {
 
 export type SignalConfidence = "strong" | "likely" | "emerging";
 
+/** Distribution of evidence strength across the customers carrying a signal. */
+export interface ConfidenceMix {
+  strong: number;
+  likely: number;
+  emerging: number;
+}
+
 export interface SignalRollup {
   label: string;
   customers: number;
   delta: number; // 24h % change
   /** What Ventus saw in the enriched data. */
   evidence: string;
-  confidence: SignalConfidence;
+  /** Confidence is a per-customer property — expose the population split. */
+  confidence: ConfidenceMix;
   /** Short deterministic trend series (relative, unitless). */
   trend: number[];
 }
+
 
 export interface SignalFamilyStats {
   key: SignalFamily;
@@ -78,6 +87,26 @@ const TOTAL_CUSTOMERS = BOOK_CUSTOMERS;
 /** Everything below was authored against a 75M book; keep the ratios, rebase the size. */
 const LEGACY_BOOK = 75_000_000;
 const REBASE = TOTAL_CUSTOMERS / LEGACY_BOOK;
+
+/** Base evidence-strength distribution per seed tier. */
+const TIER_MIX: Record<SignalConfidence, ConfidenceMix> = {
+  strong: { strong: 74, likely: 19, emerging: 7 },
+  likely: { strong: 48, likely: 38, emerging: 14 },
+  emerging: { strong: 26, likely: 39, emerging: 35 },
+};
+
+/** Deterministic ±5pt jitter so tiles don't all read identically. */
+function mixFor(key: string, tier: SignalConfidence): ConfidenceMix {
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) % 100003;
+  const base = TIER_MIX[tier];
+  const jitter = (h % 11) - 5; // -5..5
+  const strong = Math.min(92, Math.max(12, base.strong + jitter));
+  const remainder = 100 - strong;
+  const likelyShare = base.likely / (base.likely + base.emerging);
+  const likely = Math.round(remainder * likelyShare);
+  return { strong, likely, emerging: 100 - strong - likely };
+}
 
 
 interface SeedSignal {
@@ -231,7 +260,7 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
         customers: Math.round(profilesEnriched * s.share * fit),
         delta: s.delta,
         evidence: s.evidence,
-        confidence: s.confidence,
+        confidence: mixFor(`${meta.key}:${s.label}`, s.confidence),
         trend: seriesFor(`${meta.key}:${s.label}`, 10, s.delta * 3),
       })),
     };

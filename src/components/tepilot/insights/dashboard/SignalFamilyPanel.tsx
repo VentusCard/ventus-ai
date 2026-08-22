@@ -9,11 +9,6 @@ interface SignalFamilyPanelProps {
   onOpenSignal: (family: SignalFamily, label: string) => void;
 }
 
-const CONFIDENCE_CHIP: Record<string, string> = {
-  strong: "bg-slate-900 text-white border-slate-900",
-  likely: "bg-slate-100 text-slate-700 border-slate-200",
-  emerging: "bg-white text-slate-500 border-slate-200",
-};
 
 export function SignalFamilyPanel({
   family,
@@ -53,9 +48,10 @@ export function SignalFamilyPanel({
                 {s.label}
               </span>
               <span
-                className={`px-1.5 py-[1px] rounded-full border text-[9.5px] font-medium uppercase tracking-wide shrink-0 ${CONFIDENCE_CHIP[s.confidence]}`}
+                title={`Strong ${s.confidence.strong}% · Likely ${s.confidence.likely}% · Emerging ${s.confidence.emerging}%`}
+                className="px-1.5 py-[1px] rounded-full border border-slate-200 bg-slate-50 text-slate-600 text-[9.5px] font-medium tracking-wide shrink-0 tabular-nums"
               >
-                {s.confidence}
+                {s.confidence.strong}% strong
               </span>
             </div>
 
@@ -77,6 +73,17 @@ export function SignalFamilyPanel({
                 className={`ml-auto w-3 h-3 shrink-0 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity ${family.openText}`}
               />
             </div>
+
+            {/* Evidence-strength split across this signal's population */}
+            <div
+              title={`Strong ${s.confidence.strong}% · Likely ${s.confidence.likely}% · Emerging ${s.confidence.emerging}%`}
+              className="mt-2 h-1 w-full rounded-full overflow-hidden bg-slate-100 flex"
+            >
+              <div className={family.barStrong} style={{ width: `${s.confidence.strong}%` }} />
+              <div className={family.barLikely} style={{ width: `${s.confidence.likely}%` }} />
+              <div className={family.barEmerging} style={{ width: `${s.confidence.emerging}%` }} />
+            </div>
+
           </button>
         ))}
       </div>
