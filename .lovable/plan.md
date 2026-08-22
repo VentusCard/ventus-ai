@@ -6,9 +6,12 @@ The Overview sub-tab currently stacks nine full-width blocks with no hierarchy: 
 
 Keep every piece of data, but move from one long scroll to a short, prioritized page with progressive disclosure.
 
-### 1. Lead with one answer layer
-- Keep the three priority cards at the top, visually promoted (larger, clearly the "what to do now" row).
-- Move the Ask Ventus banner directly under them as the single secondary action.
+### 1. Priorities move into Ventus AI chat
+The three standalone priority cards disappear from the Overview page. Instead, Ventus delivers them:
+- The Ask Ventus banner becomes the single top block, opening with a short AI-voiced line: "3 priorities in your book right now" plus the three headlines as compact one-line chips (life event / offer / flow) with their customer + addressable metric.
+- Clicking a chip opens the Ventus AI chat with that priority as the opening turn — a chat message that states the signal, the population, the addressable value, and the recommended next step, with an action button that deep-links to the same destination the card used (briefing report / personalization / flow).
+- Opening the chat with no chip selected starts with the same priorities briefing message, so the chatbot is the place priorities live.
+
 
 ### 2. Signal families become the core of the page
 - Keep the 5-family board, but drop the coverage strip into the family board header as a one-line caption instead of its own section.
