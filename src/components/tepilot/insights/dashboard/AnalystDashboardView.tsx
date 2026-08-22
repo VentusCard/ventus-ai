@@ -45,12 +45,6 @@ function fmtCurrency(n: number) {
   return `$${n.toFixed(0)}`;
 }
 
-function fmtNum(n: number) {
-  if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;
-  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `${(n / 1e3).toFixed(1)}K`;
-  return n.toLocaleString();
-}
 
 const EMPTY_FILTERS = { cardProducts: [], regions: [], ageRanges: [] };
 
