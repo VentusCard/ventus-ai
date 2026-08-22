@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { LayoutDashboard } from "lucide-react";
 import {
@@ -17,9 +17,7 @@ import { LiveSignalStream } from "./LiveSignalStream";
 import { TaxonomyCoverageCard } from "./TaxonomyCoverageCard";
 import { ExternalIntelligenceCard } from "./ExternalIntelligenceCard";
 import { deltaFor, useDashboardRange } from "./useDashboardRange";
-import { cn } from "@/lib/utils";
 
-type Density = "compact" | "full";
 type AnalyticsPanel =
   | "pillars"
   | "opportunities"
@@ -28,7 +26,6 @@ type AnalyticsPanel =
   | "external"
   | "coverage";
 
-const DENSITY_KEY = "ventus.intelligence.density";
 
 interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
