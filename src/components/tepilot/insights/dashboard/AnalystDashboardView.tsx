@@ -364,6 +364,6 @@ export function AnalystDashboardView({
         )}
       </div>
     </div>
-    </div>
+
   );
 }
