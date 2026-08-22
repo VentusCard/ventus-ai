@@ -40,46 +40,46 @@ export function SignalFamilyPanel({
 
 
       {/* Signals */}
-      <div className="p-3 grid grid-cols-1 lg:grid-cols-2 gap-2 h-[260px] overflow-y-auto">
+      <div className="p-3 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5">
         {family.topSignals.map((s) => (
           <button
             key={s.label}
             type="button"
             onClick={() => onOpenSignal(family.key, s.label)}
-            className={`group text-left rounded-md border border-slate-200 bg-white px-3 py-2.5 transition-colors ${family.rowHoverBorder} ${family.rowHover}`}
+            className={`group text-left rounded-md border border-slate-200 bg-white px-2.5 py-2 transition-colors ${family.rowHoverBorder} ${family.rowHover}`}
           >
-            <div className="flex items-center gap-2">
-              <span className="text-[12.5px] font-semibold text-slate-900 truncate flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[12px] font-semibold text-slate-900 truncate flex-1">
                 {s.label}
               </span>
               <span
-                className={`px-1.5 py-[1px] rounded-full border text-[9.5px] font-medium uppercase tracking-wide shrink-0 ${CONFIDENCE_CHIP[s.confidence]}`}
+                className={`px-1 py-[1px] rounded-full border text-[9px] font-medium uppercase tracking-wide shrink-0 ${CONFIDENCE_CHIP[s.confidence]}`}
               >
                 {s.confidence}
               </span>
             </div>
 
-            <div className="text-[11px] text-slate-500 mt-1 truncate">{s.evidence}</div>
+            <div className="text-[10.5px] text-slate-500 mt-0.5 truncate">{s.evidence}</div>
 
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-[14px] font-semibold text-slate-900 tabular-nums leading-none">
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <span className="text-[13px] font-semibold text-slate-900 tabular-nums leading-none">
                 {fmtCount(s.customers)}
               </span>
               <span
-                className={`text-[10.5px] tabular-nums ${s.delta >= 0 ? "text-emerald-600" : "text-rose-600"}`}
+                className={`text-[10px] tabular-nums ${s.delta >= 0 ? "text-emerald-600" : "text-rose-600"}`}
               >
                 {s.delta >= 0 ? "+" : ""}
                 {s.delta.toFixed(1)}%
               </span>
-              <Sparkline data={s.trend} width={56} height={16} stroke={family.sparklineColor} />
-              <span className={`ml-auto inline-flex items-center gap-1 text-[10.5px] font-medium text-slate-400 transition-colors ${family.openText}`}>
-                Open segment
-                <ArrowRight className="w-3 h-3" />
-              </span>
+              <Sparkline data={s.trend} width={44} height={14} stroke={family.sparklineColor} />
+              <ArrowRight
+                className={`ml-auto w-3 h-3 shrink-0 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity ${family.openText}`}
+              />
             </div>
           </button>
         ))}
       </div>
+
     </div>
   );
 }
