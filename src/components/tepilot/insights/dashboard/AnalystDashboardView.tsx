@@ -81,8 +81,6 @@ export function AnalystDashboardView({
 
   const days = Math.max(1, Math.round((+range.end - +range.start) / 86_400_000) + 1);
   const rangeSpend = (metrics.totalAnnualSpend / 365) * days;
-  const rangeTransactions =
-    metrics.avgTransactionsPerAccount * (days / 30) * metrics.totalAccounts;
 
   const pillarData = useMemo(
     () =>
