@@ -28,12 +28,14 @@ export function TabHeader({
 }: TabHeaderProps) {
   const activeSection = sections?.find((s) => s.value === sectionValue) ?? sections?.[0];
   return (
-    <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 min-h-[42px]">
-      <div className="flex items-center gap-2.5 min-w-0">
-        <div className="shrink-0 text-slate-500">{icon}</div>
-        <h2 className="text-base font-bold text-slate-900 leading-tight shrink-0">{title}</h2>
-        <span className="shrink-0 h-3 w-px bg-slate-200" />
-        <p className="text-[11px] text-slate-400 leading-tight truncate">{subtitle}</p>
+    <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 min-h-[52px]">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="shrink-0 text-slate-500 [&>svg]:h-6 [&>svg]:w-6">{icon}</div>
+        <h2 className="text-2xl font-semibold tracking-tight text-slate-900 leading-tight shrink-0">
+          {title}
+        </h2>
+        <span className="shrink-0 h-5 w-px bg-slate-200" />
+        <p className="text-[14.5px] font-medium text-slate-700 leading-tight truncate">{subtitle}</p>
       </div>
       <div className="flex items-center gap-1.5 shrink-0 ml-4">
         {sections && sections.length > 0 && activeSection && (
