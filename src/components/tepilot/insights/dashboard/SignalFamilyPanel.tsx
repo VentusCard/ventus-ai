@@ -9,6 +9,48 @@ interface SignalFamilyPanelProps {
   onOpenSignal: (family: SignalFamily, label: string) => void;
 }
 
+/** Static Tailwind classes: family color × strong-share intensity step. */
+const STRONG_PILL: Record<SignalFamily, [string, string, string, string]> = {
+  spending_habit: [
+    "bg-sky-50 text-sky-600/80 border-sky-100",
+    "bg-sky-100 text-sky-700 border-sky-200",
+    "bg-sky-300 text-sky-900 border-sky-400",
+    "bg-sky-700 text-white border-sky-700",
+  ],
+  life_event: [
+    "bg-violet-50 text-violet-600/80 border-violet-100",
+    "bg-violet-100 text-violet-700 border-violet-200",
+    "bg-violet-300 text-violet-900 border-violet-400",
+    "bg-violet-700 text-white border-violet-700",
+  ],
+  financial: [
+    "bg-amber-50 text-amber-700/80 border-amber-100",
+    "bg-amber-100 text-amber-800 border-amber-200",
+    "bg-amber-300 text-amber-900 border-amber-400",
+    "bg-amber-700 text-white border-amber-700",
+  ],
+  demographic: [
+    "bg-emerald-50 text-emerald-600/80 border-emerald-100",
+    "bg-emerald-100 text-emerald-700 border-emerald-200",
+    "bg-emerald-300 text-emerald-900 border-emerald-400",
+    "bg-emerald-700 text-white border-emerald-700",
+  ],
+  risk: [
+    "bg-rose-50 text-rose-600/80 border-rose-100",
+    "bg-rose-100 text-rose-700 border-rose-200",
+    "bg-rose-300 text-rose-900 border-rose-400",
+    "bg-rose-700 text-white border-rose-700",
+  ],
+};
+
+/** 0 = faint, 3 = deepest. */
+function pillStep(strongPct: number): 0 | 1 | 2 | 3 {
+  if (strongPct >= 70) return 3;
+  if (strongPct >= 55) return 2;
+  if (strongPct >= 40) return 1;
+  return 0;
+}
+
 
 export function SignalFamilyPanel({
   family,
@@ -49,8 +91,9 @@ export function SignalFamilyPanel({
               </span>
               <span
                 title={`Strong ${s.confidence.strong}% · Likely ${s.confidence.likely}% · Emerging ${s.confidence.emerging}%`}
-                className="px-1.5 py-[1px] rounded-full border border-slate-200 bg-slate-50 text-slate-600 text-[9.5px] font-medium tracking-wide shrink-0 tabular-nums"
+                className={`px-1.5 py-[1px] rounded-full border text-[9.5px] font-medium tracking-wide shrink-0 tabular-nums ${STRONG_PILL[family.key][pillStep(s.confidence.strong)]}`}
               >
+
                 {s.confidence.strong}% strong
               </span>
             </div>
