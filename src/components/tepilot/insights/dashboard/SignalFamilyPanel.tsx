@@ -5,8 +5,6 @@ import { Sparkline } from "./Sparkline";
 
 interface SignalFamilyPanelProps {
   family: SignalFamilyStats;
-  families: SignalFamilyStats[];
-  onSwitchFamily: (key: SignalFamily) => void;
   onClose: () => void;
   onOpenSignal: (family: SignalFamily, label: string) => void;
 }
@@ -19,8 +17,6 @@ const CONFIDENCE_CHIP: Record<string, string> = {
 
 export function SignalFamilyPanel({
   family,
-  families,
-  onSwitchFamily,
   onClose,
   onOpenSignal,
 }: SignalFamilyPanelProps) {
@@ -28,7 +24,7 @@ export function SignalFamilyPanel({
     family.confidence.strong + family.confidence.likely + family.confidence.emerging;
 
   return (
-    <div className="col-span-full rounded-lg border border-slate-300 bg-white shadow-sm">
+    <div className="col-span-full rounded-lg border border-slate-300 bg-white shadow-sm animate-in fade-in slide-in-from-top-1 duration-200">
       {/* Header */}
       <div className={`flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-200 ${family.tint}`}>
         <div className="min-w-0">
