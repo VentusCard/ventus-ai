@@ -12,16 +12,25 @@ import {
 
 export type SignalConfidence = "strong" | "likely" | "emerging";
 
+/** Distribution of evidence strength across the customers carrying a signal. */
+export interface ConfidenceMix {
+  strong: number;
+  likely: number;
+  emerging: number;
+}
+
 export interface SignalRollup {
   label: string;
   customers: number;
   delta: number; // 24h % change
   /** What Ventus saw in the enriched data. */
   evidence: string;
-  confidence: SignalConfidence;
+  /** Confidence is a per-customer property — expose the population split. */
+  confidence: ConfidenceMix;
   /** Short deterministic trend series (relative, unitless). */
   trend: number[];
 }
+
 
 export interface SignalFamilyStats {
   key: SignalFamily;
