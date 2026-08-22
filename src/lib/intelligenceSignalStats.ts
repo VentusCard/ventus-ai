@@ -260,7 +260,7 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
         customers: Math.round(profilesEnriched * s.share * fit),
         delta: s.delta,
         evidence: s.evidence,
-        confidence: s.confidence,
+        confidence: mixFor(`${meta.key}:${s.label}`, s.confidence),
         trend: seriesFor(`${meta.key}:${s.label}`, 10, s.delta * 3),
       })),
     };
