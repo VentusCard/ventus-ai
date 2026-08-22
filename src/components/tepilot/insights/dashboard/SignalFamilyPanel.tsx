@@ -54,20 +54,6 @@ export function SignalFamilyPanel({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          <div className="hidden lg:flex items-center gap-1">
-            {families
-              .filter((f) => f.key !== family.key)
-              .map((f) => (
-                <button
-                  key={f.key}
-                  type="button"
-                  onClick={() => onSwitchFamily(f.key)}
-                  className="px-2 py-1 rounded-md border border-slate-200 bg-white text-[10.5px] font-medium text-slate-600 hover:border-slate-400 hover:text-slate-900 transition-colors whitespace-nowrap"
-                >
-                  {f.label}
-                </button>
-              ))}
-          </div>
           <button
             type="button"
             onClick={onClose}
