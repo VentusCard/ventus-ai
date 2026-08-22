@@ -20,68 +20,24 @@ export function SignalFamilyPanel({
   onClose,
   onOpenSignal,
 }: SignalFamilyPanelProps) {
-  const total =
-    family.confidence.strong + family.confidence.likely + family.confidence.emerging;
-
   return (
     <div className="col-span-full rounded-lg border border-slate-300 bg-white shadow-sm animate-in fade-in slide-in-from-top-1 duration-200">
-      {/* Header */}
-      <div className={`flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-200 ${family.tint}`}>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span
-              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[11px] font-medium ${family.chip}`}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${family.dot}`} />
-              {family.label}
-            </span>
-            <span className="text-[22px] font-semibold text-slate-900 tabular-nums leading-none">
-              {fmtCount(family.customers)}
-            </span>
-            <span
-              className={`text-[11px] tabular-nums ${family.delta >= 0 ? "text-emerald-600" : "text-rose-600"}`}
-            >
-              {family.delta >= 0 ? "+" : ""}
-              {family.delta.toFixed(1)}% · 24h
-            </span>
-            <Sparkline data={family.sparkline} width={96} height={20} stroke={family.sparklineColor} />
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1.5">
-            {family.confidence.strong}% strong · {family.confidence.likely}% likely ·{" "}
-            {family.confidence.emerging}% emerging · click any signal to open that segment in
-            Customers
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Collapse signal family"
-            className="p-1.5 rounded-md border border-slate-200 text-slate-500 hover:text-slate-900 hover:border-slate-400 transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
+      {/* Slim bar */}
+      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-slate-200">
+        <span className="text-[11px] text-slate-500 truncate">
+          Click any signal to open that segment in Customers
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Collapse signal family"
+          className="p-1.5 rounded-md border border-slate-200 text-slate-500 hover:text-slate-900 hover:border-slate-400 transition-colors shrink-0"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
       </div>
 
-      {/* Confidence bar */}
-      <div className="px-4 pt-3">
-        <div className="flex h-1.5 rounded-full overflow-hidden bg-slate-100">
-          <span
-            className={family.barStrong}
-            style={{ width: `${(family.confidence.strong / total) * 100}%` }}
-          />
-          <span
-            className={family.barLikely}
-            style={{ width: `${(family.confidence.likely / total) * 100}%` }}
-          />
-          <span
-            className={family.barEmerging}
-            style={{ width: `${(family.confidence.emerging / total) * 100}%` }}
-          />
-        </div>
-      </div>
+
 
       {/* Signals */}
       <div className="p-3 grid grid-cols-1 lg:grid-cols-2 gap-2 h-[260px] overflow-y-auto">
