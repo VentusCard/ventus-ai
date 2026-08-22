@@ -11,7 +11,7 @@ interface SignalFamilyBoardProps {
 
 export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
   const families = getSignalFamilyStats();
-  const [expanded, setExpanded] = useState<SignalFamily | null>(null);
+  const [expanded, setExpanded] = useState<SignalFamily | null>("life_event");
 
   const active = expanded ? families.find((f) => f.key === expanded) ?? null : null;
 
