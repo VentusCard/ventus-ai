@@ -9,11 +9,6 @@ interface SignalFamilyPanelProps {
   onOpenSignal: (family: SignalFamily, label: string) => void;
 }
 
-const CONFIDENCE_CHIP: Record<string, string> = {
-  strong: "bg-slate-900 text-white border-slate-900",
-  likely: "bg-slate-100 text-slate-700 border-slate-200",
-  emerging: "bg-white text-slate-500 border-slate-200",
-};
 
 export function SignalFamilyPanel({
   family,
