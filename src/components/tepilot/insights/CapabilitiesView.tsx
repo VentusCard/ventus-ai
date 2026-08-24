@@ -416,7 +416,7 @@ function SourceGroupCard({
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13.5px] font-semibold leading-tight text-slate-900">{group.provider}</div>
-        <div className="truncate font-mono text-[11.5px] text-slate-400">
+        <div className="font-mono text-[11.5px] leading-snug text-slate-400">
           {group.sublabel} · {group.inputs.length} sources
         </div>
       </div>
