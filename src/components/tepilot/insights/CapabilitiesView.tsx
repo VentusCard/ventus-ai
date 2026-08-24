@@ -274,6 +274,13 @@ const SIGNALS: SignalDetail[] = [
   },
 ];
 
+/** Total 24h external signal detections — shared with the Intelligence Database KPI strip. */
+export const TOTAL_SIGNAL_DETECTIONS_24H = SIGNALS.reduce(
+  (n, s, i) => n + (640 + s.items.length * 187 + i * 53),
+  0,
+);
+
+
 type WorkflowChipKind = "signal" | "destination" | "product" | "system";
 type WorkflowChip = { label: string; kind: WorkflowChipKind };
 type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
