@@ -1,0 +1,47 @@
+import { PRODUCT_FLOWS } from "@/lib/productAutomatedFlows";
+
+export interface ChannelStat {
+  id: "digital" | "email" | "sms";
+  label: string;
+  flows: number;
+  reach: string;
+  status: "Live" | "Capped" | "Held";
+}
+
+const totalProducts = PRODUCT_FLOWS.length;
+const activeProducts = PRODUCT_FLOWS.filter((f) => f.defaultActive).length;
+const totalSignals = PRODUCT_FLOWS.reduce((n, f) => n + f.signals.length, 0);
+
+// Human review gates (mocked governance state)
+const MARKETING_PENDING = 9;
+const OWNER_PENDING = 4;
+
+export const FLOW_GOVERNANCE = {
+  products: {
+    total: totalProducts,
+    active: activeProducts,
+    draft: totalProducts - activeProducts,
+  },
+  signals: {
+    total: totalSignals,
+    avgPerProduct: Math.round((totalSignals / Math.max(totalProducts, 1)) * 10) / 10,
+    custom: 12,
+  },
+  marketing: {
+    approved: totalProducts - MARKETING_PENDING,
+    pending: MARKETING_PENDING,
+    lastReviewed: "reviewed 2h ago",
+  },
+  owner: {
+    approved: totalProducts - MARKETING_PENDING - OWNER_PENDING,
+    pending: OWNER_PENDING,
+    oldestOwner: "Consumer Lending",
+  },
+  live: totalProducts - MARKETING_PENDING - OWNER_PENDING,
+};
+
+export const CHANNEL_STATS: ChannelStat[] = [
+  { id: "digital", label: "Digital banking", flows: 41, reach: "312K sessions / 24h", status: "Live" },
+  { id: "email", label: "Email", flows: 58, reach: "1.24M sent / 24h", status: "Live" },
+  { id: "sms", label: "SMS", flows: 17, reach: "86K delivered / 24h", status: "Capped" },
+];
