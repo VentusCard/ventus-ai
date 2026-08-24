@@ -217,7 +217,7 @@ function parseJsonLoose(raw: string): any {
   return null;
 }
 
-async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string, model: string = MODEL) {
+async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string, model: string = MODEL, maxTokens = 8192) {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
@@ -228,7 +228,7 @@ async function callGateway(systemPrompt: string, userPrompt: string, apiKey: str
         { role: "user", content: userPrompt },
       ],
       temperature: 0.55,
-      max_tokens: 8192,
+      max_tokens: maxTokens,
     }),
   });
   return response;
