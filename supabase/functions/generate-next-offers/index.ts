@@ -9,6 +9,8 @@ const corsHeaders = {
 const MODEL = "google/gemini-3.1-pro-preview";
 // Fast model for copy-heavy generation (behavioral + life-event deals).
 const COPY_MODEL = "google/gemini-3.5-flash";
+// Strict output ceiling for the two copy calls — they were the top token burner.
+const COPY_MAX_TOKENS = 3000;
 
 // Only the top-ranked signals per family are sent to the model. Everything below
 // the cut never surfaces in the UI, so generating copy for it only adds latency.
@@ -217,7 +219,7 @@ function parseJsonLoose(raw: string): any {
   return null;
 }
 
-async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string, model: string = MODEL) {
+async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string, model: string = MODEL, maxTokens = 8192) {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
@@ -228,7 +230,7 @@ async function callGateway(systemPrompt: string, userPrompt: string, apiKey: str
         { role: "user", content: userPrompt },
       ],
       temperature: 0.55,
-      max_tokens: 8192,
+      max_tokens: maxTokens,
     }),
   });
   return response;
@@ -367,8 +369,8 @@ serve(async (req) => {
       : "";
 
     const tasks: Promise<Response | null>[] = [];
-    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY, COPY_MODEL) : Promise.resolve(null));
-    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY, COPY_MODEL) : Promise.resolve(null));
+    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY, COPY_MODEL, COPY_MAX_TOKENS) : Promise.resolve(null));
+    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY, COPY_MODEL, COPY_MAX_TOKENS) : Promise.resolve(null));
     tasks.push(financialSignalUserPrompt ? callGateway(FINANCIAL_SIGNAL_SYSTEM_PROMPT, financialSignalUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
 
     const [rollupRes, lifeEventRes, financialSignalRes] = await Promise.all(tasks);
