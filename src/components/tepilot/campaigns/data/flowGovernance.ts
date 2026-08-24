@@ -41,6 +41,12 @@ export const FLOW_GOVERNANCE = {
     oldestOwner: "Consumer Lending",
   },
   live: totalProducts - MARKETING_PENDING - OWNER_PENDING,
+  readySignals: totalSignals - MARKETING_PENDING - OWNER_PENDING,
+  progressPct: Math.round(
+    ((totalSignals - MARKETING_PENDING - OWNER_PENDING) /
+      Math.max(totalSignals, 1)) *
+      100,
+  ),
 };
 
 export const CHANNEL_STATS: ChannelStat[] = [
