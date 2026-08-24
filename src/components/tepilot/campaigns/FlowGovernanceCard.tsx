@@ -149,7 +149,7 @@ function StageTile({ stage, index }: { stage: Stage; index: number }) {
 }
 
 function ChannelTile() {
-  const total = CHANNEL_STATS.reduce((n, c) => n + c.flows, 0);
+  const total = G.readySignals;
   return (
     <div className="flex flex-1 items-stretch min-w-0">
       <div className="flex-1 px-3 py-3 min-w-0">
