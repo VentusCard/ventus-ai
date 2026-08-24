@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
-import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
+import { FlowGovernanceCard } from "./FlowGovernanceCard";
 import { AddSignalPicker, AddFilterPicker } from "./AddSignalPicker";
 import { SignalEditForm, FilterEditForm } from "./SignalEditForm";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
