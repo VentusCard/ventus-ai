@@ -95,7 +95,7 @@ function StageTile({ stage, index }: { stage: Stage; index: number }) {
               <Icon className="w-4 h-4 text-slate-500" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-slate-700 truncate">
+              <p className="text-[11px] font-semibold text-slate-700 leading-tight line-clamp-2">
                 {stage.label}
               </p>
             </div>
@@ -124,7 +124,7 @@ function StageTile({ stage, index }: { stage: Stage; index: number }) {
           </span>
         </div>
 
-        <p className="mt-1.5 text-[11px] text-slate-500 leading-snug truncate">
+        <p className="mt-1.5 text-[11px] text-slate-500 leading-snug line-clamp-2">
           {stage.detail}
         </p>
       </div>
