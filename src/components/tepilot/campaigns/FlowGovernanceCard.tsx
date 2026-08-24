@@ -9,6 +9,12 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { FLOW_GOVERNANCE, CHANNEL_STATS } from "./data/flowGovernance";
 
 const G = FLOW_GOVERNANCE;
@@ -49,7 +55,7 @@ const STAGES: Stage[] = [
     label: "Marketing approval",
     icon: Megaphone,
     value: G.marketing.pending.toString(),
-    detail: `${G.marketing.approved} approved · reviewed 2h ago`,
+    detail: `${G.marketing.approved} approved · ${G.marketing.lastReviewed}`,
     chip: "Pending",
     state: "pending",
   },
@@ -95,7 +101,7 @@ function StageTile({ stage, index }: { stage: Stage; index: number }) {
               <Icon className="w-4 h-4 text-slate-500" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-slate-700 leading-tight line-clamp-2">
+              <p className="text-[11px] font-semibold text-slate-700 leading-tight truncate">
                 {stage.label}
               </p>
             </div>
@@ -124,9 +130,16 @@ function StageTile({ stage, index }: { stage: Stage; index: number }) {
           </span>
         </div>
 
-        <p className="mt-1.5 text-[11px] text-slate-500 leading-snug line-clamp-2">
-          {stage.detail}
-        </p>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <p className="mt-1.5 text-[11px] text-slate-500 leading-snug truncate cursor-default">
+              {stage.detail}
+            </p>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-[220px]">
+            <p className="text-[11px] text-slate-600">{stage.detail}</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
       <div className="flex items-center pr-1">
         <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
@@ -136,6 +149,7 @@ function StageTile({ stage, index }: { stage: Stage; index: number }) {
 }
 
 function ChannelTile() {
+  const total = CHANNEL_STATS.reduce((n, c) => n + c.flows, 0);
   return (
     <div className="flex flex-1 items-stretch min-w-0">
       <div className="flex-1 px-3 py-3 min-w-0">
@@ -157,34 +171,41 @@ function ChannelTile() {
 
         <div className="mt-2 flex items-baseline gap-2">
           <span className="text-[26px] font-bold tabular-nums leading-none text-slate-900">
-            {CHANNEL_STATS.reduce((n, c) => n + c.flows, 0)}
+            {total}
           </span>
           <span className="text-[10px] text-slate-400 font-medium">
             stage 5
           </span>
         </div>
 
-        <div className="mt-2 flex flex-col gap-1">
+        <div className="mt-1.5 flex items-center gap-2 overflow-hidden">
           {CHANNEL_STATS.map((c) => {
             const Icon = CHANNEL_ICON[c.id];
             return (
-              <div key={c.id} className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <Icon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                  <span className="text-[11px] font-medium text-slate-700 leading-tight line-clamp-1 min-w-0">
-                    {c.label}
-                  </span>
-                  <span className="text-[11px] font-semibold text-slate-900 tabular-nums shrink-0">
-                    {c.flows}
-                  </span>
-                  <span
-                    className={cn("w-1.5 h-1.5 rounded-full shrink-0", CHANNEL_STATUS_DOT[c.status])}
-                  />
-                </div>
-                <p className="pl-5 text-[10px] text-slate-400 leading-tight truncate">
-                  {c.reach}
-                </p>
-              </div>
+              <Tooltip key={c.id}>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1.5 min-w-0 cursor-default">
+                    <Icon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                    <span className="hidden xl:inline text-[11px] font-medium text-slate-700 truncate">
+                      {c.shortLabel}
+                    </span>
+                    <span className="text-[11px] font-semibold text-slate-900 tabular-nums shrink-0">
+                      {c.flows}
+                    </span>
+                    <span
+                      className={cn(
+                        "w-1.5 h-1.5 rounded-full shrink-0",
+                        CHANNEL_STATUS_DOT[c.status],
+                      )}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-[220px]">
+                  <p className="text-[12px] font-semibold text-slate-900">{c.label}</p>
+                  <p className="text-[11px] text-slate-500">{c.reach}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Status: {c.status}</p>
+                </TooltipContent>
+              </Tooltip>
             );
           })}
         </div>
@@ -197,48 +218,50 @@ export function FlowGovernanceCard() {
   const livePct = Math.round((G.live / Math.max(G.products.total, 1)) * 100);
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-200">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="relative flex items-center justify-center w-5 h-5">
-            <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-60 animate-ping" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+    <TooltipProvider>
+      <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+        <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-200">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="relative flex items-center justify-center w-5 h-5">
+              <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-60 animate-ping" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            </div>
+            <span className="text-[14px] font-semibold text-slate-900">
+              Flow governance
+            </span>
+            <span className="text-[12px] text-slate-500 truncate hidden md:inline">
+              how automated flows reach customers
+            </span>
           </div>
-          <span className="text-[14px] font-semibold text-slate-900">
-            Flow governance
-          </span>
-          <span className="text-[12px] text-slate-500 truncate hidden md:inline">
-            how automated flows reach customers
-          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[12px] font-semibold text-slate-900 tabular-nums">
+              {G.live} of {G.products.total} products live
+            </span>
+            <span className="text-[11px] text-slate-500">
+              {livePct}%
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[12px] font-semibold text-slate-900 tabular-nums">
-            {G.live} of {G.products.total} products live
-          </span>
-          <span className="text-[11px] text-slate-500">
-            {livePct}%
-          </span>
-        </div>
-      </div>
 
-      <div className="flex items-stretch divide-x divide-slate-100">
-        {STAGES.map((s, i) => (
-          <StageTile key={s.key} stage={s} index={i} />
-        ))}
-        <ChannelTile />
-      </div>
-
-      <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex items-center gap-3">
-        <div className="h-2 flex-1 rounded-full bg-slate-200 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-emerald-500 transition-all"
-            style={{ width: `${livePct}%` }}
-          />
+        <div className="flex items-stretch divide-x divide-slate-100">
+          {STAGES.map((s, i) => (
+            <StageTile key={s.key} stage={s} index={i} />
+          ))}
+          <ChannelTile />
         </div>
-        <span className="text-[11px] text-slate-500 tabular-nums shrink-0">
-          {livePct}% of mapped products are live on at least one channel
-        </span>
+
+        <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex items-center gap-3">
+          <div className="h-2 flex-1 rounded-full bg-slate-200 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all"
+              style={{ width: `${livePct}%` }}
+            />
+          </div>
+          <span className="text-[11px] text-slate-500 tabular-nums shrink-0">
+            {livePct}% of mapped products are live on at least one channel
+          </span>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
