@@ -367,8 +367,8 @@ serve(async (req) => {
       : "";
 
     const tasks: Promise<Response | null>[] = [];
-    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY, COPY_MODEL) : Promise.resolve(null));
-    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY, COPY_MODEL) : Promise.resolve(null));
+    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY, COPY_MODEL, COPY_MAX_TOKENS) : Promise.resolve(null));
+    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY, COPY_MODEL, COPY_MAX_TOKENS) : Promise.resolve(null));
     tasks.push(financialSignalUserPrompt ? callGateway(FINANCIAL_SIGNAL_SYSTEM_PROMPT, financialSignalUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
 
     const [rollupRes, lifeEventRes, financialSignalRes] = await Promise.all(tasks);
