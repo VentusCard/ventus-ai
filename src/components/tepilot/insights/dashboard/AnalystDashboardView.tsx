@@ -10,6 +10,7 @@ import { PILLAR_COLORS } from "@/lib/sampleData";
 import type { TabValue } from "../AnalyticsContainer";
 import type { SignalFamily } from "@/lib/customerDirectoryData";
 import { ChartCard } from "./ChartCard";
+import { IntelligenceKpiStrip } from "./IntelligenceKpiStrip";
 import { DashboardToolbar } from "./DashboardToolbar";
 import { SignalCoverageStrip, SignalCoverageCaption } from "./SignalCoverageStrip";
 import { SignalFamilyBoard } from "./SignalFamilyBoard";
