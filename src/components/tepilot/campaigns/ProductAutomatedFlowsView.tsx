@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
-import { AutonomousActivityFeed } from "./AutonomousActivityFeed";
+import { FlowGovernanceCard } from "./FlowGovernanceCard";
 import { AddSignalPicker, AddFilterPicker } from "./AddSignalPicker";
 import { SignalEditForm, FilterEditForm } from "./SignalEditForm";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
@@ -660,7 +660,7 @@ export function ProductAutomatedFlowsView() {
         whyItMatters="Replaces calendar-driven campaigns with continuous, signal-driven enrollment so every product is offered when it is most relevant to the customer."
       />
 
-      <AutonomousActivityFeed />
+      <FlowGovernanceCard />
 
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-1.5 flex-wrap">
