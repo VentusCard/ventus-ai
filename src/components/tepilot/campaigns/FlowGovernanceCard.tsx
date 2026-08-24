@@ -215,8 +215,6 @@ function ChannelTile() {
 }
 
 export function FlowGovernanceCard() {
-  const livePct = Math.round((G.live / Math.max(G.products.total, 1)) * 100);
-
   return (
     <TooltipProvider>
       <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
@@ -235,10 +233,10 @@ export function FlowGovernanceCard() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-[12px] font-semibold text-slate-900 tabular-nums">
-              {G.live} of {G.products.total} products live
+              {G.readySignals} of {G.signals.total} signals ready
             </span>
             <span className="text-[11px] text-slate-500">
-              {livePct}%
+              {G.progressPct}%
             </span>
           </div>
         </div>
@@ -253,12 +251,12 @@ export function FlowGovernanceCard() {
         <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex items-center gap-3">
           <div className="h-2 flex-1 rounded-full bg-slate-200 overflow-hidden">
             <div
-              className="h-full rounded-full bg-emerald-500 transition-all"
-              style={{ width: `${livePct}%` }}
+              className="h-full rounded-full bg-blue-500 transition-all"
+              style={{ width: `${G.progressPct}%` }}
             />
           </div>
           <span className="text-[11px] text-slate-500 tabular-nums shrink-0">
-            {livePct}% of mapped products are live on at least one channel
+            {G.progressPct}% of mapped signals have cleared both approval gates
           </span>
         </div>
       </div>
