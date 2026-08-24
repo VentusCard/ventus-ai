@@ -812,7 +812,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
     detected: 640 + s.items.length * 187 + i * 53,
     confidence: [88, 76, 71, 64, 82][i % 5],
   }));
-  const totalDetections = signalRows.reduce((n, r) => n + r.detected, 0);
+  
 
   return (
     <div className="space-y-6">
