@@ -250,6 +250,9 @@ export function AnalystDashboardView({
       </div>
 
 
+      {/* Compact KPI strip */}
+      <IntelligenceKpiStrip />
+
       {/* Ventus delivers the priorities */}
       {renderVentusSliver?.()}
 
