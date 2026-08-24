@@ -55,7 +55,7 @@ const STAGES: Stage[] = [
   },
   {
     key: "owner",
-    label: "Product owner approval",
+    label: "Owner sign-off",
     icon: UserCheck,
     value: G.owner.pending.toString(),
     detail: `${G.owner.approved} signed off · oldest: ${G.owner.oldestOwner}`,
