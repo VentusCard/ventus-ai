@@ -558,39 +558,6 @@ function SignalSection({
   );
 }
 
-function Sparkline({ points, stroke }: { points: string; stroke: string }) {
-  return (
-    <svg className="absolute right-4 top-4" width="60" height="22" viewBox="0 0 60 22" fill="none" aria-hidden>
-      <path d={points} stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function Kpi({
-  label,
-  dot,
-  value,
-  foot,
-  spark,
-}: {
-  label: string;
-  dot: string;
-  value: React.ReactNode;
-  foot: React.ReactNode;
-  spark?: { points: string; stroke: string };
-}) {
-  return (
-    <div className="relative rounded-xl border border-slate-200 bg-white p-4">
-      <div className="mb-2.5 flex items-center gap-2 text-xs font-medium text-slate-700">
-        <PulseDot color={dot} sizeClass="h-1.5 w-1.5" />
-        {label}
-      </div>
-      <div className="text-[27px] font-semibold leading-none tracking-tight tabular-nums text-slate-900">{value}</div>
-      <div className="mt-2.5 font-mono text-[11.5px] text-slate-400">{foot}</div>
-      {spark && <Sparkline points={spark.points} stroke={spark.stroke} />}
-    </div>
-  );
-}
 
 export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
