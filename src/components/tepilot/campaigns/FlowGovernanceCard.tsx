@@ -164,24 +164,26 @@ function ChannelTile() {
           </span>
         </div>
 
-        <div className="mt-2 flex flex-col gap-1.5">
+        <div className="mt-2 flex flex-col gap-1">
           {CHANNEL_STATS.map((c) => {
             const Icon = CHANNEL_ICON[c.id];
             return (
-              <div key={c.id} className="flex items-center gap-2 min-w-0">
-                <Icon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span className="text-[11px] font-medium text-slate-700 truncate min-w-0">
-                  {c.label}
-                </span>
-                <span className="text-[11px] font-semibold text-slate-900 tabular-nums shrink-0">
-                  {c.flows}
-                </span>
-                <span
-                  className={cn("w-1.5 h-1.5 rounded-full shrink-0", CHANNEL_STATUS_DOT[c.status])}
-                />
-                <span className="text-[10px] text-slate-400 truncate ml-auto pl-2">
+              <div key={c.id} className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <Icon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <span className="text-[11px] font-medium text-slate-700 leading-tight line-clamp-1 min-w-0">
+                    {c.label}
+                  </span>
+                  <span className="text-[11px] font-semibold text-slate-900 tabular-nums shrink-0">
+                    {c.flows}
+                  </span>
+                  <span
+                    className={cn("w-1.5 h-1.5 rounded-full shrink-0", CHANNEL_STATUS_DOT[c.status])}
+                  />
+                </div>
+                <p className="pl-5 text-[10px] text-slate-400 leading-tight truncate">
                   {c.reach}
-                </span>
+                </p>
               </div>
             );
           })}
