@@ -146,7 +146,7 @@ function ChannelTile() {
             </div>
             <div className="min-w-0">
               <p className="text-[11px] font-semibold text-slate-700 truncate">
-                Channels assigned
+                Channels
               </p>
             </div>
           </div>
