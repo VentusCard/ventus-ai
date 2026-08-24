@@ -880,53 +880,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         </div>
       </div>
 
-      {/* KPI strip */}
-      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi
-          label="Customers Profile Enriched"
-          dot="#2563EB"
-          value="418,204"
-          foot={
-            <span className="text-emerald-600">
-              ▲ 1.2% <span className="text-slate-400">vs last week</span>
-            </span>
-          }
-          spark={{ points: "M1 17L10 15L19 16L28 11L37 12L46 6L59 3", stroke: "#2563EB" }}
-        />
-        <Kpi
-          label="Enrichment coverage"
-          dot="#1E9E6A"
-          value={
-            <>
-              99<span className="text-sm font-medium text-slate-400">&nbsp;%</span>
-            </>
-          }
-          foot={<span>Rail-agnostic behavioral enrichment</span>}
-        />
-        <Kpi
-          label="External signals Ingested (24h)"
-          dot="#1E9E6A"
-          value={totalDetections.toLocaleString()}
-          foot={
-            <span className="text-emerald-600">
-              ▲ 340 <span className="text-slate-400">today</span>
-            </span>
-          }
-          spark={{ points: "M1 14L10 16L19 9L28 12L37 7L46 9L59 4", stroke: "#1E9E6A" }}
-        />
-        <Kpi
-          label="Activations routed (24h)"
-          dot="#6D4AD4"
-          value="6,213"
-          foot={
-            <span className="text-emerald-600">
-              ▲ 8.4% <span className="text-slate-400">vs avg</span>
-            </span>
-          }
-          spark={{ points: "M1 15L10 13L19 14L28 9L37 10L46 5L59 4", stroke: "#6D4AD4" }}
-        />
-      </div>
-
       {/* Section head */}
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2.5 text-sm font-semibold text-slate-900">
