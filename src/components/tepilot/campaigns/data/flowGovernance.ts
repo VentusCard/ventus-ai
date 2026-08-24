@@ -29,12 +29,14 @@ export const FLOW_GOVERNANCE = {
     custom: 12,
   },
   marketing: {
-    approved: totalProducts - MARKETING_PENDING,
+    total: totalSignals,
+    approved: totalSignals - MARKETING_PENDING,
     pending: MARKETING_PENDING,
     lastReviewed: "reviewed 2h ago",
   },
   owner: {
-    approved: totalProducts - MARKETING_PENDING - OWNER_PENDING,
+    total: totalSignals,
+    approved: totalSignals - MARKETING_PENDING - OWNER_PENDING,
     pending: OWNER_PENDING,
     oldestOwner: "Consumer Lending",
   },
