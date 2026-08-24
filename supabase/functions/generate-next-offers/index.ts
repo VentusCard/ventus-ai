@@ -9,6 +9,8 @@ const corsHeaders = {
 const MODEL = "google/gemini-3.1-pro-preview";
 // Fast model for copy-heavy generation (behavioral + life-event deals).
 const COPY_MODEL = "google/gemini-3.5-flash";
+// Strict output ceiling for the two copy calls — they were the top token burner.
+const COPY_MAX_TOKENS = 3000;
 
 // Only the top-ranked signals per family are sent to the model. Everything below
 // the cut never surfaces in the UI, so generating copy for it only adds latency.
