@@ -3,6 +3,7 @@ import { PRODUCT_FLOWS } from "@/lib/productAutomatedFlows";
 export interface ChannelStat {
   id: "digital" | "email" | "sms";
   label: string;
+  shortLabel: string;
   flows: number;
   reach: string;
   status: "Live" | "Capped" | "Held";
@@ -41,7 +42,7 @@ export const FLOW_GOVERNANCE = {
 };
 
 export const CHANNEL_STATS: ChannelStat[] = [
-  { id: "digital", label: "Digital banking", flows: 41, reach: "312K sessions / 24h", status: "Live" },
-  { id: "email", label: "Email", flows: 58, reach: "1.24M sent / 24h", status: "Live" },
-  { id: "sms", label: "SMS", flows: 17, reach: "86K delivered / 24h", status: "Capped" },
+  { id: "digital", label: "Digital banking", shortLabel: "Digital", flows: 41, reach: "312K sessions / 24h", status: "Live" },
+  { id: "email", label: "Email", shortLabel: "Email", flows: 58, reach: "1.24M sent / 24h", status: "Live" },
+  { id: "sms", label: "SMS", shortLabel: "SMS", flows: 17, reach: "86K delivered / 24h", status: "Capped" },
 ];
