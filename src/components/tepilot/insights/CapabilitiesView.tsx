@@ -274,6 +274,13 @@ const SIGNALS: SignalDetail[] = [
   },
 ];
 
+/** Total 24h external signal detections — shared with the Intelligence Database KPI strip. */
+export const TOTAL_SIGNAL_DETECTIONS_24H = SIGNALS.reduce(
+  (n, s, i) => n + (640 + s.items.length * 187 + i * 53),
+  0,
+);
+
+
 type WorkflowChipKind = "signal" | "destination" | "product" | "system";
 type WorkflowChip = { label: string; kind: WorkflowChipKind };
 type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
@@ -551,39 +558,6 @@ function SignalSection({
   );
 }
 
-function Sparkline({ points, stroke }: { points: string; stroke: string }) {
-  return (
-    <svg className="absolute right-4 top-4" width="60" height="22" viewBox="0 0 60 22" fill="none" aria-hidden>
-      <path d={points} stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function Kpi({
-  label,
-  dot,
-  value,
-  foot,
-  spark,
-}: {
-  label: string;
-  dot: string;
-  value: React.ReactNode;
-  foot: React.ReactNode;
-  spark?: { points: string; stroke: string };
-}) {
-  return (
-    <div className="relative rounded-xl border border-slate-200 bg-white p-4">
-      <div className="mb-2.5 flex items-center gap-2 text-xs font-medium text-slate-700">
-        <PulseDot color={dot} sizeClass="h-1.5 w-1.5" />
-        {label}
-      </div>
-      <div className="text-[27px] font-semibold leading-none tracking-tight tabular-nums text-slate-900">{value}</div>
-      <div className="mt-2.5 font-mono text-[11.5px] text-slate-400">{foot}</div>
-      {spark && <Sparkline points={spark.points} stroke={spark.stroke} />}
-    </div>
-  );
-}
 
 export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
@@ -838,7 +812,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
     detected: 640 + s.items.length * 187 + i * 53,
     confidence: [88, 76, 71, 64, 82][i % 5],
   }));
-  const totalDetections = signalRows.reduce((n, r) => n + r.detected, 0);
+  
 
   return (
     <div className="space-y-6">
@@ -871,53 +845,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             Export
           </button>
         </div>
-      </div>
-
-      {/* KPI strip */}
-      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi
-          label="Customers Profile Enriched"
-          dot="#2563EB"
-          value="418,204"
-          foot={
-            <span className="text-emerald-600">
-              ▲ 1.2% <span className="text-slate-400">vs last week</span>
-            </span>
-          }
-          spark={{ points: "M1 17L10 15L19 16L28 11L37 12L46 6L59 3", stroke: "#2563EB" }}
-        />
-        <Kpi
-          label="Enrichment coverage"
-          dot="#1E9E6A"
-          value={
-            <>
-              99<span className="text-sm font-medium text-slate-400">&nbsp;%</span>
-            </>
-          }
-          foot={<span>Rail-agnostic behavioral enrichment</span>}
-        />
-        <Kpi
-          label="External signals Ingested (24h)"
-          dot="#1E9E6A"
-          value={totalDetections.toLocaleString()}
-          foot={
-            <span className="text-emerald-600">
-              ▲ 340 <span className="text-slate-400">today</span>
-            </span>
-          }
-          spark={{ points: "M1 14L10 16L19 9L28 12L37 7L46 9L59 4", stroke: "#1E9E6A" }}
-        />
-        <Kpi
-          label="Activations routed (24h)"
-          dot="#6D4AD4"
-          value="6,213"
-          foot={
-            <span className="text-emerald-600">
-              ▲ 8.4% <span className="text-slate-400">vs avg</span>
-            </span>
-          }
-          spark={{ points: "M1 15L10 13L19 14L28 9L37 10L46 5L59 4", stroke: "#6D4AD4" }}
-        />
       </div>
 
       {/* Section head */}
