@@ -325,9 +325,9 @@ function Connector({ amber }: { amber?: boolean }) {
   const stroke = amber ? "#D9A441" : "#94A3B8";
   return (
     <div className="flex items-center justify-center py-3 lg:py-0" aria-hidden>
-      <svg width="44" height="20" viewBox="0 0 44 20" fill="none" className="opacity-70 max-lg:rotate-90">
+      <svg width="52" height="20" viewBox="0 0 52 20" fill="none" className="opacity-70 max-lg:rotate-90">
         <path
-          d="M2 10H35"
+          d="M2 10H43"
           stroke={stroke}
           strokeWidth="1.3"
           strokeLinecap="round"
@@ -343,7 +343,7 @@ function Connector({ amber }: { amber?: boolean }) {
           style={{ animationDelay: amber ? "0.5s" : "0s" }}
         />
         <path
-          d="M32 5.5L38.5 10L32 14.5"
+          d="M40 5.5L46.5 10L40 14.5"
           stroke={stroke}
           strokeWidth="1.3"
           strokeLinecap="round"
@@ -402,25 +402,25 @@ function SourceGroupCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex min-h-[58px] w-full flex-1 items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-3 text-left transition-colors",
+        "flex min-h-[52px] w-full flex-1 items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
         isActive ? "border-sky-300 ring-1 ring-sky-200" : "border-slate-100 hover:border-slate-200",
       )}
     >
       <div
         className={cn(
-          "flex h-[32px] w-[32px] flex-none items-center justify-center rounded-lg",
+          "flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg",
           isExternal ? "bg-amber-50 text-amber-600" : "bg-sky-50 text-sky-600",
         )}
       >
-        <Icon className="h-[18px] w-[18px]" />
+        <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13.5px] font-semibold leading-tight text-slate-900">{group.provider}</div>
-        <div className="font-mono text-[11.5px] leading-snug text-slate-400">
+        <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{group.provider}</div>
+        <div className="mt-px truncate font-mono text-[11px] text-slate-400">
           {group.sublabel} · {group.inputs.length} sources
         </div>
       </div>
-      <span className="h-2 w-2 flex-none rounded-full bg-emerald-500 animate-pulse" />
+      <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
     </button>
   );
 }
@@ -515,13 +515,13 @@ function SignalSection({
   const next = signal.examples[(idx + 1) % total];
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-7 items-center gap-2 text-[12px] leading-none text-slate-300">
+    <span ref={ref} className="flex h-6 items-center gap-2 text-[11.5px] leading-none text-slate-300">
       <span className="relative z-10 truncate bg-inherit font-medium text-slate-200">{example.to}</span>
-      <span className="relative z-0 flex-none text-[10.5px] text-slate-500">&rarr;</span>
+      <span className="relative z-0 flex-none text-[10px] text-slate-500">&rarr;</span>
       <span className="relative z-0 truncate text-slate-400">{example.ev}</span>
       <span
         className={cn(
-          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[10px] tracking-wide",
+          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
           DETECTION_BASIS_CLASS[example.basis],
         )}
       >
@@ -535,20 +535,20 @@ function SignalSection({
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-3 pl-3 pr-3 text-left transition-colors",
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
         "border-white/[0.08] bg-white/[0.045]",
         isActive ? "border-white/25 bg-white/[0.11]" : "hover:bg-white/[0.08]",
       )}
     >
       <span className={cn("absolute inset-y-0 left-0 w-[3px]", signal.color)} />
-      <span className="mb-1 flex items-center gap-2">
+      <span className="mb-0.5 flex items-center gap-2">
         <PulseDot colorClass={signal.dot} sizeClass="h-[7px] w-[7px]" delayMs={startDelay} className="ring-[3px] ring-white/10 rounded-full" />
-        <span className="text-[13px] font-semibold tracking-tight text-slate-100">{signal.label}</span>
-        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-400">
+        <span className="text-[12.5px] font-semibold tracking-tight text-slate-100">{signal.label}</span>
+        <span className="ml-auto font-mono text-[11px] tabular-nums text-slate-400">
           <b className="font-semibold text-slate-200">{count}</b> · 24h
         </span>
       </span>
-      <span className="relative mt-0.5 block h-7 overflow-hidden">
+      <span className="relative mt-0.5 block h-6 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
           {renderRow(next, nextRowRef)}
@@ -868,7 +868,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
         {/* Pipeline board */}
-        <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1.1fr_44px_1.8fr_44px_1.1fr] min-h-[540px]">
+        <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
           <div className="flex h-full min-w-0 flex-col p-4">
             <div className="mb-3.5 flex items-center gap-2">
@@ -934,8 +934,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
                 Activation destinations
               </span>
-              <span className="ml-auto font-mono text-[11px] text-slate-400">
-                {visibleDestinations.length} destinations
+              <span className="ml-auto text-[12px] font-medium italic text-slate-500">
+                Every Customer, Every Colleague
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -944,21 +944,19 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[48px] flex-1 flex-col justify-center gap-1 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2 py-2"
+                    className="relative flex min-h-[34px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
                   >
                     <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
-                    <span className="truncate text-[13px] font-semibold leading-tight text-slate-900">{d.name}</span>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="flex-none rounded px-1.5 py-px text-[9.5px] font-bold uppercase tracking-wider"
-                        style={{ background: `${team.color}14`, color: team.color }}
-                      >
-                        {team.label}
-                      </span>
-                      <span className="font-mono text-[10px] leading-none text-slate-400">
-                        {d.channel}
-                      </span>
-                    </div>
+                    <span
+                      className="flex-none rounded px-1.5 py-px text-[9.5px] font-medium leading-none"
+                      style={{ background: `${team.color}14`, color: team.color }}
+                    >
+                      {team.label}
+                    </span>
+                    <span className="truncate text-[12.5px] font-medium leading-tight text-slate-800">{d.name}</span>
+                    <span className="ml-auto flex-none rounded bg-slate-100 px-1.5 py-px font-mono text-[9.5px] leading-none text-slate-500">
+                      {d.channel}
+                    </span>
                   </div>
                 );
               })}
