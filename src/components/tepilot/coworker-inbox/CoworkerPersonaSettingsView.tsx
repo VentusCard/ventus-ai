@@ -636,3 +636,65 @@ function RuleGroup({
     </section>
   );
 }
+
+function ExamplesPanel({
+  team,
+  example,
+}: {
+  team: TeamDestination;
+  example?: CoworkerExample;
+}) {
+  if (!example) return null;
+  const role = team.name.replace("Coworker for ", "");
+
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white">
+      <div className="flex items-baseline justify-between gap-3 border-b border-slate-200 px-3 py-2.5">
+        <SectionLabel>
+          <Mail className="inline h-3 w-3 mr-1 -mt-px" />
+          Examples
+        </SectionLabel>
+        <span className="text-[11px] text-slate-500">First message it sends</span>
+      </div>
+
+      <div className="p-3">
+        <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10.5px] font-medium text-slate-600">
+              <PulseDot colorClass={ACCENT_DOT[team.accent]} sizeClass="h-1.5 w-1.5" />
+              Ventus AI · {role}
+            </span>
+            <span className="text-[10.5px] text-slate-400">{team.emailType}</span>
+          </div>
+          <p className="mt-2 text-[13px] font-semibold text-slate-900">{example.subject}</p>
+          <p className="mt-1.5 whitespace-pre-line text-[12.5px] leading-relaxed text-slate-700">
+            {example.body}
+          </p>
+        </div>
+
+        <div className="mt-3 rounded-md border border-slate-200 bg-white px-3 py-2">
+          <p className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
+            Why this lands
+          </p>
+          <p className="mt-1 text-[12px] leading-relaxed text-slate-600">{example.why}</p>
+        </div>
+
+        <div className="mt-3">
+          <p className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
+            Reply and it will…
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {example.replyPrompts.map((p) => (
+              <span
+                key={p}
+                className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-600"
+              >
+                “{p}”
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
