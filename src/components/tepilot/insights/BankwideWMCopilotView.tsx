@@ -1,18 +1,19 @@
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Mail, Inbox, Building2, Radio, SlidersHorizontal } from "lucide-react";
+import { Briefcase, Mail, Inbox, Building2, Radio, SlidersHorizontal, UserSquare2 } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/AdvisorNotificationsView";
 import { LeadershipNotificationsView } from "@/components/tepilot/advisor-console/LeadershipNotificationsView";
 import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
 import { CoworkerLiveStreamView } from "@/components/tepilot/coworker-inbox/CoworkerLiveStreamView";
 import { CoworkerPersonaSettingsView } from "@/components/tepilot/coworker-inbox/CoworkerPersonaSettingsView";
+import { CoworkerUserViewPanel } from "@/components/tepilot/coworker-inbox/CoworkerUserViewPanel";
 
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-type ViewMode = "inbox" | "persona" | "stream" | "examples";
+type ViewMode = "inbox" | "userview" | "persona" | "stream" | "examples";
 type ExampleMode = "advisor" | "leadership";
 
 export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } = {}) {
@@ -31,6 +32,7 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
 
   const toggles: { key: ViewMode; label: string; icon: React.ReactNode }[] = [
     { key: "inbox", label: "Coworker Dashboard", icon: <Inbox className="h-4 w-4 mr-2" /> },
+    { key: "userview", label: "User View", icon: <UserSquare2 className="h-4 w-4 mr-2" /> },
     { key: "persona", label: "Persona Settings", icon: <SlidersHorizontal className="h-4 w-4 mr-2" /> },
     { key: "stream", label: "Live Work Stream", icon: <Radio className="h-4 w-4 mr-2" /> },
     { key: "examples", label: "Examples", icon: <Mail className="h-4 w-4 mr-2" /> },
@@ -74,6 +76,7 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
       <div className="flex-1 min-h-0">
         {viewMode === "stream" && <CoworkerLiveStreamView />}
         {viewMode === "inbox" && <CoworkerInboxView />}
+        {viewMode === "userview" && <CoworkerUserViewPanel />}
         {viewMode === "persona" && <CoworkerPersonaSettingsView />}
 
 
