@@ -19,6 +19,8 @@ import { SaveSequence } from "@/components/tepilot/common/SaveSequence";
 import { TEAM_DESTINATIONS, type TeamDestination } from "./coworkerInboxData";
 import {
   COWORKER_PLAYBOOKS,
+  COWORKER_EXAMPLES,
+  type CoworkerExample,
   type Playbook,
   type PlaybookRule,
   type SignalFamily,
