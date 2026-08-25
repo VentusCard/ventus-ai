@@ -92,15 +92,91 @@ const COLLECTION_IMAGE_BANK: Record<string, string> = {
 
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1557683316-973673baf926?w=400&h=200&fit=crop";
 
-function getCollectionImage(group: { imageCategory?: string; imageQuery?: string } | null | undefined): string {
-  if (!group) return DEFAULT_IMAGE;
-  const cat = (group.imageCategory || "").toLowerCase().trim();
-  if (cat && cat !== "other" && COLLECTION_IMAGE_BANK[cat]) return COLLECTION_IMAGE_BANK[cat];
-  if (group.imageQuery && group.imageQuery.trim()) {
-    return `https://source.unsplash.com/400x200/?${encodeURIComponent(group.imageQuery.trim())}`;
+// Aliases for categories the prompts can emit that aren't literal bank keys.
+const CATEGORY_ALIASES: Record<string, string> = {
+  travel: "travel-generic", flight: "travel-generic", flights: "travel-generic",
+  hotel: "travel-urban", city: "travel-urban", urban: "travel-urban",
+  fitness: "running", gym: "running", sports: "running", outdoors: "hiking",
+  food: "dining", restaurant: "dining", groceries: "grocery",
+  shopping: "fashion", apparel: "fashion", style: "fashion",
+  electronics: "tech", gaming: "tech", music: "entertainment", movies: "entertainment",
+  health: "wellness", spa: "wellness", selfcare: "wellness",
+  family: "kids", school: "kids", education: "kids", college: "kids",
+  house: "home", moving: "home", renovation: "home", furniture: "home",
+  car: "auto", vehicle: "auto", banking: "finance", money: "finance", investing: "finance",
+};
+
+// Keyword → bank key, used when the model returns "other"/unknown and only an imageQuery.
+const KEYWORD_MAP: [RegExp, string][] = [
+  [/\b(ski|snowboard|slope|alpine|snow)\b/, "ski"],
+  [/\b(beach|ocean|surf|coast|island|resort)\b/, "beach"],
+  [/\b(tennis|pickleball|racquet|court|padel)\b/, "tennis"],
+  [/\b(golf|fairway|putting|caddie)\b/, "golf"],
+  [/\b(bike|biking|cycl|peloton)\b/, "cycling"],
+  [/\b(run|running|marathon|jog|track|sneaker)\b/, "running"],
+  [/\b(yoga|pilates|meditat|stretch|studio)\b/, "yoga"],
+  [/\b(hike|hiking|trail|climb|climbing|mountain|backpack)\b/, "hiking"],
+  [/\b(camp|camping|tent|campfire|rv)\b/, "camping"],
+  [/\b(boat|sail|marina|kayak|yacht|paddle)\b/, "boating"],
+  [/\b(wine|vineyard|winery|sommelier|cocktail|brewery|beer)\b/, "wine"],
+  [/\b(coffee|espresso|cafe|barista|latte)\b/, "coffee"],
+  [/\b(dining|restaurant|dinner|chef|meal|food|kitchen|cook)\b/, "dining"],
+  [/\b(wedding|bride|engagement|bridal|marriage)\b/, "wedding"],
+  [/\b(baby|newborn|nursery|infant|stroller|maternity)\b/, "baby"],
+  [/\b(kid|kids|child|children|school|classroom|college|dorm|student|toy)\b/, "kids"],
+  [/\b(pet|dog|cat|puppy|veterinar)\b/, "pet"],
+  [/\b(fashion|apparel|clothing|boutique|wardrobe|shoe|handbag|style)\b/, "fashion"],
+  [/\b(beauty|cosmetic|makeup|skincare|salon|hair)\b/, "beauty"],
+  [/\b(wellness|spa|massage|therapy|mindful|health)\b/, "wellness"],
+  [/\b(tech|laptop|gadget|device|headphone|computer|gaming|console|smart)\b/, "tech"],
+  [/\b(home|house|apartment|furniture|interior|renovat|mov(e|ing)|decor|mortgage)\b/, "home"],
+  [/\b(garden|plant|yard|landscap|patio|outdoor furniture)\b/, "garden"],
+  [/\b(car|auto|vehicle|driving|tire|garage|ev charging)\b/, "auto"],
+  [/\b(city|urban|skyline|downtown|hotel|metro)\b/, "travel-urban"],
+  [/\b(travel|flight|airport|airline|passport|vacation|trip|luggage|getaway)\b/, "travel-generic"],
+  [/\b(finance|bank|loan|credit|savings|invest|refinanc|payment|apr)\b/, "finance"],
+  [/\b(concert|festival|music|movie|cinema|streaming|show|entertain|event|ticket)\b/, "entertainment"],
+  [/\b(grocery|groceries|supermarket|produce|pantry)\b/, "grocery"],
+];
+
+function resolveFromText(text: string): string | null {
+  const t = text.toLowerCase();
+  for (const [re, key] of KEYWORD_MAP) {
+    if (re.test(t)) return COLLECTION_IMAGE_BANK[key];
   }
+  return null;
+}
+
+function getCollectionImage(
+  group: { imageCategory?: string; imageQuery?: string; rollup?: string; pillar?: string } | null | undefined
+): string {
+  if (!group) return DEFAULT_IMAGE;
+
+  const rawCat = (group.imageCategory || "").toLowerCase().trim();
+  if (rawCat && rawCat !== "other") {
+    const key = COLLECTION_IMAGE_BANK[rawCat] ? rawCat : CATEGORY_ALIASES[rawCat];
+    if (key && COLLECTION_IMAGE_BANK[key]) return COLLECTION_IMAGE_BANK[key];
+  }
+
+  // Keyword resolution against the query, then the rollup label.
+  const fromQuery = group.imageQuery ? resolveFromText(group.imageQuery) : null;
+  if (fromQuery) return fromQuery;
+  const fromLabel = group.rollup ? resolveFromText(group.rollup) : null;
+  if (fromLabel) return fromLabel;
+
+  // Pillar-based default.
+  const pillar = (group.pillar || "").toLowerCase();
+  if (pillar.includes("life event")) return COLLECTION_IMAGE_BANK.home;
+  if (pillar.includes("financial")) return COLLECTION_IMAGE_BANK.finance;
   return DEFAULT_IMAGE;
 }
+
+function handleImageError(e: React.SyntheticEvent<HTMLImageElement>) {
+  const img = e.currentTarget;
+  if (img.src === DEFAULT_IMAGE) return;
+  img.src = DEFAULT_IMAGE;
+}
+
 
 interface Props {
   offerGroups: RollupOfferGroup[];
@@ -273,7 +349,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         </button>
 
         <div className="h-[90px] w-full overflow-hidden">
-          <img src={imgSrc} alt="" className="w-full h-full object-cover" />
+          <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={handleImageError} />
         </div>
 
         <div className="px-3 pt-2.5 pb-1">
@@ -548,7 +624,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               onClick={() => setExpandedGroup(active)}
             >
               <div className="h-[60px] w-full overflow-hidden">
-                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" />
+                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={handleImageError} />
               </div>
               <div className="px-3 pt-2 pb-1 flex-1">
                 <p className="text-[10px] font-semibold text-slate-800 leading-snug">
