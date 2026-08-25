@@ -56,6 +56,43 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
     [useSession, example],
   );
 
+  // ── Signal pill → deal collection focus ──
+  const [focused, setFocused] = useState<{ label: string; pillar: string } | null>(null);
+
+  useEffect(() => {
+    setFocused(null);
+  }, [selectedId, surface]);
+
+  const lifeEventLabels = useMemo(
+    () => new Set((example?.lifeEvents ?? []).map((s) => s.label)),
+    [example],
+  );
+
+  const pillarForSignal = (label: string) =>
+    lifeEventLabels.has(label) ? "Life Event" : pillarFor(label);
+
+  const availableLabels = useMemo(() => {
+    if (!example || !generated.offers?.length) return null;
+    const labels = new Set<string>();
+    for (const meta of SIGNAL_FAMILY_META) {
+      const sigs = (example[meta.field as keyof typeof example] ?? []) as DirectorySignal[];
+      if (!Array.isArray(sigs)) continue;
+      for (const s of sigs) {
+        if (findGroupForLabel(s.label, pillarForSignal(s.label), generated.offers)) {
+          labels.add(s.label);
+        }
+      }
+    }
+    return labels;
+  }, [example, generated.offers, lifeEventLabels]);
+
+  const handleSignalClick = (sig: DirectorySignal) => {
+    const pillar = pillarForSignal(sig.label);
+    if (!generated.offers?.length) return;
+    if (!findGroupForLabel(sig.label, pillar, generated.offers)) return;
+    setFocused((prev) => (prev?.label === sig.label ? null : { label: sig.label, pillar }));
+  };
+
   const phoneCustomer = useSession ? session.customer! : example?.demo ?? null;
   const displayName = useSession ? sessionName : example?.name ?? null;
   const isGenerating = !useSession && !!example && generated.status === "running";
