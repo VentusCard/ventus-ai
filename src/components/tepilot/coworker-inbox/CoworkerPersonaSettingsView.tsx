@@ -19,6 +19,8 @@ import { SaveSequence } from "@/components/tepilot/common/SaveSequence";
 import { TEAM_DESTINATIONS, type TeamDestination } from "./coworkerInboxData";
 import {
   COWORKER_PLAYBOOKS,
+  COWORKER_EXAMPLES,
+  type CoworkerExample,
   type Playbook,
   type PlaybookRule,
   type SignalFamily,
@@ -225,106 +227,117 @@ export function CoworkerPersonaSettingsView() {
             />
           </section>
 
-          {/* Three settings lines */}
-          <RuleGroup
-            title="What it always does"
-            hint="Standing behavior, every cycle"
-            tone="always"
-            rules={playbook.always}
-            isOn={isOn}
-            onToggle={toggle}
-            onEdit={(id, patch) => editRule("always", id, patch)}
-            onAdd={() => addRule("always")}
-            onRemove={(id) => removeRule("always", id)}
-          />
-          <RuleGroup
-            title="What it sometimes does"
-            hint="Conditional — runs only when the trigger fires"
-            tone="sometimes"
-            rules={playbook.sometimes}
-            isOn={isOn}
-            onToggle={toggle}
-            onEdit={(id, patch) => editRule("sometimes", id, patch)}
-            onAdd={() => addRule("sometimes")}
-            onRemove={(id) => removeRule("sometimes", id)}
-          />
-          <RuleGroup
-            title="What it never does"
-            hint="Governed by the bank — editable, not toggleable"
-            tone="never"
-            rules={playbook.never}
-            isOn={isOn}
-            onToggle={toggle}
-            onEdit={(id, patch) => editRule("never", id, patch)}
-            onAdd={() => addRule("never")}
-            onRemove={(id) => removeRule("never", id)}
-          />
-
-          {/* Signals */}
-          <section>
-            <SectionLabel>
-              <Radar className="inline h-3 w-3 mr-1 -mt-px" />
-              Signals it watches
-            </SectionLabel>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {ALL_SIGNALS.map((s) => {
-                const active = playbook.signals.includes(s);
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => toggleSignal(s)}
-                    className={cn(
-                      "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
-                      active
-                        ? "border-slate-300 bg-slate-100 text-slate-800"
-                        : "border-dashed border-slate-200 bg-white text-slate-400 hover:bg-slate-50",
-                    )}
-                  >
-                    {s}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Tone + escalation */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <section className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
-              <SectionLabel>Tone &amp; length</SectionLabel>
-              <dl className="mt-2 space-y-1.5">
-                <Row
-                  label="Tone"
-                  value={playbook.tone}
-                  onCommit={(v) => update((pb) => (pb.tone = v))}
-                />
-                <Row
-                  label="Word cap"
-                  value={playbook.wordCap}
-                  onCommit={(v) => update((pb) => (pb.wordCap = v))}
-                />
-                <Row
-                  label="Disclaimer"
-                  value={playbook.disclaimer}
-                  multiline
-                  onCommit={(v) => update((pb) => (pb.disclaimer = v))}
-                />
-              </dl>
-            </section>
-            <section className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
-              <SectionLabel>
-                <ArrowUpRight className="inline h-3 w-3 mr-1 -mt-px" />
-                Escalation
-              </SectionLabel>
-              <EditableText
-                value={playbook.escalation}
-                multiline
-                onCommit={(v) => update((pb) => (pb.escalation = v))}
-                className="mt-2 block text-[12px] leading-relaxed text-slate-700"
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+            {/* Rules column */}
+            <div className="min-w-0 space-y-4">
+              {/* Three settings lines */}
+              <RuleGroup
+                title="What it always does"
+                hint="Standing behavior, every cycle"
+                tone="always"
+                rules={playbook.always}
+                isOn={isOn}
+                onToggle={toggle}
+                onEdit={(id, patch) => editRule("always", id, patch)}
+                onAdd={() => addRule("always")}
+                onRemove={(id) => removeRule("always", id)}
               />
-            </section>
+              <RuleGroup
+                title="What it sometimes does"
+                hint="Conditional — runs only when the trigger fires"
+                tone="sometimes"
+                rules={playbook.sometimes}
+                isOn={isOn}
+                onToggle={toggle}
+                onEdit={(id, patch) => editRule("sometimes", id, patch)}
+                onAdd={() => addRule("sometimes")}
+                onRemove={(id) => removeRule("sometimes", id)}
+              />
+              <RuleGroup
+                title="What it never does"
+                hint="Governed by the bank — editable, not toggleable"
+                tone="never"
+                rules={playbook.never}
+                isOn={isOn}
+                onToggle={toggle}
+                onEdit={(id, patch) => editRule("never", id, patch)}
+                onAdd={() => addRule("never")}
+                onRemove={(id) => removeRule("never", id)}
+              />
+
+              {/* Signals */}
+              <section>
+                <SectionLabel>
+                  <Radar className="inline h-3 w-3 mr-1 -mt-px" />
+                  Signals it watches
+                </SectionLabel>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {ALL_SIGNALS.map((s) => {
+                    const active = playbook.signals.includes(s);
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => toggleSignal(s)}
+                        className={cn(
+                          "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                          active
+                            ? "border-slate-300 bg-slate-100 text-slate-800"
+                            : "border-dashed border-slate-200 bg-white text-slate-400 hover:bg-slate-50",
+                        )}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {/* Tone + escalation */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                <section className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+                  <SectionLabel>Tone &amp; length</SectionLabel>
+                  <dl className="mt-2 space-y-1.5">
+                    <Row
+                      label="Tone"
+                      value={playbook.tone}
+                      onCommit={(v) => update((pb) => (pb.tone = v))}
+                    />
+                    <Row
+                      label="Word cap"
+                      value={playbook.wordCap}
+                      onCommit={(v) => update((pb) => (pb.wordCap = v))}
+                    />
+                    <Row
+                      label="Disclaimer"
+                      value={playbook.disclaimer}
+                      multiline
+                      onCommit={(v) => update((pb) => (pb.disclaimer = v))}
+                    />
+                  </dl>
+                </section>
+                <section className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+                  <SectionLabel>
+                    <ArrowUpRight className="inline h-3 w-3 mr-1 -mt-px" />
+                    Escalation
+                  </SectionLabel>
+                  <EditableText
+                    value={playbook.escalation}
+                    multiline
+                    onCommit={(v) => update((pb) => (pb.escalation = v))}
+                    className="mt-2 block text-[12px] leading-relaxed text-slate-700"
+                  />
+                </section>
+              </div>
+            </div>
+
+            {/* Examples column */}
+            <div className="min-w-0 lg:sticky lg:top-0">
+              <ExamplesPanel team={team} example={COWORKER_EXAMPLES[team.id]} />
+            </div>
           </div>
         </div>
+
 
         {/* Delivery footer */}
         <div className="border-t border-slate-200 bg-slate-50/70 px-4 py-2.5 flex flex-wrap items-center gap-x-5 gap-y-1 text-[11.5px] text-slate-600">
@@ -620,6 +633,68 @@ function RuleGroup({
         <Plus className="h-3.5 w-3.5" />
         Add rule
       </button>
+    </section>
+  );
+}
+
+function ExamplesPanel({
+  team,
+  example,
+}: {
+  team: TeamDestination;
+  example?: CoworkerExample;
+}) {
+  if (!example) return null;
+  const role = team.name.replace("Coworker for ", "");
+
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white">
+      <div className="flex items-baseline justify-between gap-3 border-b border-slate-200 px-3 py-2.5">
+        <SectionLabel>
+          <Mail className="inline h-3 w-3 mr-1 -mt-px" />
+          Examples
+        </SectionLabel>
+        <span className="text-[11px] text-slate-500">First message it sends</span>
+      </div>
+
+      <div className="p-3">
+        <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10.5px] font-medium text-slate-600">
+              <PulseDot colorClass={ACCENT_DOT[team.accent]} sizeClass="h-1.5 w-1.5" />
+              Ventus AI · {role}
+            </span>
+            <span className="text-[10.5px] text-slate-400">{team.emailType}</span>
+          </div>
+          <p className="mt-2 text-[13px] font-semibold text-slate-900">{example.subject}</p>
+          <p className="mt-1.5 whitespace-pre-line text-[12.5px] leading-relaxed text-slate-700">
+            {example.body}
+          </p>
+        </div>
+
+        <div className="mt-3 rounded-md border border-slate-200 bg-white px-3 py-2">
+          <p className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
+            Why this lands
+          </p>
+          <p className="mt-1 text-[12px] leading-relaxed text-slate-600">{example.why}</p>
+        </div>
+
+        <div className="mt-3">
+          <p className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
+            Reply and it will…
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {example.replyPrompts.map((p) => (
+              <span
+                key={p}
+                className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-600"
+              >
+                “{p}”
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

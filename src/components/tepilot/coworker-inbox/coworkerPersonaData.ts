@@ -207,3 +207,50 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     delivery: { sendWindow: "Tue + Thu 8:00 AM local", frequency: "Twice weekly", replySla: "< 1 min" },
   },
 };
+
+export interface CoworkerExample {
+  subject: string;
+  body: string;
+  why: string;
+  replyPrompts: string[];
+}
+
+/** Illustrative first message each coworker sends. Read-only demo content. */
+export const COWORKER_EXAMPLES: Record<string, CoworkerExample> = {
+  leadership: {
+    subject: "Three things moved this week",
+    body: "Inbound liquidity concentrated in two regions this week, while a familiar pattern showed up underneath it: a growing share of households routing money to institutions you don't hold. Deposit momentum looks healthy on the surface; underneath, share-of-wallet is the story. Second, the pre-retirement cohort is expanding faster than advisor coverage in the Southeast. Third, a product gap now spans enough households to be worth a campaign rather than a conversation. Decisions worth your attention: coverage in the Southeast, and whether the gap gets a brief.",
+    why: "No customer names, no exact amounts — three decisions instead of a dashboard.",
+    replyPrompts: ["Break the Southeast out by region", "Draft the campaign brief"],
+  },
+  "product-growth": {
+    subject: "A gap that keeps showing up",
+    body: "Households in the mid-affluent band keep showing behavior consistent with a product you offer — and then buying it elsewhere. The behavioral evidence is consistent: recurring payments leaving the bank on a fixed cadence, at an institution that isn't you. Fit is high, conversion is below baseline, which usually means eligibility or pricing, not demand. Suggested next step: a positioning test before a build.",
+    why: "Evidence first, mapped to an existing product, and it names the likely blocker.",
+    replyPrompts: ["Show the behavioral evidence", "Compare fit against conversion"],
+  },
+  risk: {
+    subject: "Two cohorts overlapped on the same households",
+    body: "A set of households matched both the outbound-clustering pattern and the buffer-erosion pattern within the same week. Neither is conclusive alone; together they're worth a look. The transaction evidence is attached to each flag, and the merchant identities behind the obfuscated descriptors have been resolved. No action has been taken — this is behavior, not intent.",
+    why: "Neutral and evidence-attached; judgment stays explicitly with a human.",
+    replyPrompts: ["Open the evidence for the overlap", "Route this to compliance review"],
+  },
+  rewards: {
+    subject: "Where the offers are missing the spend",
+    body: "Two of the current perks are under-indexing for a second straight week, and the spend they were meant to catch is going to merchants you have no agreement with. There's a partnership candidate in that list with meaningful wallet share and no competing deal. Separately, one city's spend mix shifted enough to justify refreshing its local perks.",
+    why: "Lifestyle-led, no exact spend or visit counts, ends with a concrete move.",
+    replyPrompts: ["Rank the partnership candidates", "Refresh that city's perk set"],
+  },
+  advisors: {
+    subject: "Two relationships worth a call today",
+    body: "One household in your book shows the pattern that usually precedes a liquidity event — the timing window is short, and the evidence is in the account activity rather than anything they've told you. A second household has been quietly funding a goal at another institution for months. Opening lines are drafted for both. Everything else in your book can wait until tomorrow.",
+    why: "Ranked by decision window, evidence-backed, and the opener is already written.",
+    replyPrompts: ["Draft the nurture email", "Why is this one ranked first?"],
+  },
+  marketing: {
+    subject: "An audience that's ready, with copy attached",
+    body: "A segment built from behavior rather than demographics is large enough to run and fresh enough to matter. Draft copy is written to the benefit, never to the signal — the customer reads relevance, not surveillance. It's sitting in the approval queue with a named reviewer; nothing sends until someone signs off. The audience definition expires in 30 days.",
+    why: "Brand-safe and approval-gated, with no signal leakage in the copy.",
+    replyPrompts: ["Show the audience definition", "Rewrite the copy for SMS"],
+  },
+};
