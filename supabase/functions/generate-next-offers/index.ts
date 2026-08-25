@@ -525,6 +525,7 @@ serve(async (req) => {
       const data = await financialSignalRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
       const parsed = parseJsonLoose(raw);
+      if (!parsed) console.error(`Failed to parse financial-signal AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
       let fsGroups: any[] = [];
       if (parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)) fsGroups = parsed.rollupOffers;
       else if (Array.isArray(parsed)) fsGroups = parsed;
