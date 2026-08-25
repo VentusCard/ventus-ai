@@ -349,7 +349,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         </button>
 
         <div className="h-[90px] w-full overflow-hidden">
-          <img src={imgSrc} alt="" className="w-full h-full object-cover" />
+          <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={handleImageError} />
         </div>
 
         <div className="px-3 pt-2.5 pb-1">
