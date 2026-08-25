@@ -218,7 +218,37 @@ function parseJsonLoose(raw: string): any {
   for (const c of candidates) {
     try { return JSON.parse(c); } catch { /* try next */ }
   }
+  return repairTruncatedJson(raw);
+}
+
+/**
+ * Salvage a response that was cut off by max_tokens: trim back to the last
+ * complete deal object and close the remaining brackets so a near-miss still
+ * yields deals instead of an empty collection.
+ */
+function repairTruncatedJson(raw: string): any {
+  const start = raw.indexOf("{");
+  if (start < 0) return null;
+  const body = raw.slice(start);
+  // Walk back to the last "}" that closes a well-formed object, then try to
+  // close the enclosing deals array / group / envelope at each candidate.
+  for (let i = body.length - 1; i >= 0; i--) {
+    if (body[i] !== "}") continue;
+    const head = body.slice(0, i + 1);
+    for (const tail of ["", "]}", "]}]}", "}]}", "]}]}}"]) {
+      try {
+        const parsed = JSON.parse(head + tail);
+        if (parsed && typeof parsed === "object") return parsed;
+      } catch { /* try next tail */ }
+    }
+  }
   return null;
+}
+
+function describeCompletion(data: any): string {
+  const finish = data?.choices?.[0]?.finish_reason ?? "unknown";
+  const out = data?.usage?.completion_tokens ?? "?";
+  return `finish_reason=${finish} completion_tokens=${out}`;
 }
 
 async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string, model: string = MODEL, maxTokens = 8192) {
@@ -233,6 +263,8 @@ async function callGateway(systemPrompt: string, userPrompt: string, apiKey: str
       ],
       temperature: 0.55,
       max_tokens: maxTokens,
+      // Structured output — without it the model sometimes returns reasoning prose.
+      response_format: { type: "json_object" },
     }),
   });
   return response;
