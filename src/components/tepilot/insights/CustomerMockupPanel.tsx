@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useScrollIntoWorkspace } from "@/hooks/useScrollIntoWorkspace";
 import { Smartphone, Loader2, Users, RotateCw } from "lucide-react";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { useExecDemoSession } from "@/lib/execDemoSessionStore";
@@ -97,8 +98,13 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const displayName = useSession ? sessionName : example?.name ?? null;
   const isGenerating = !useSession && !!example && generated.status === "running";
 
+  const workspaceRef = useScrollIntoWorkspace(hasSelection, `${surface}:${selectedId ?? ""}`);
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1.2fr] gap-4 h-[calc(100vh-140px)] min-h-[720px]">
+    <div
+      ref={workspaceRef}
+      className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1.2fr] gap-4 h-[calc(100vh-140px)] min-h-[720px]"
+    >
       {/* ---------- Customer Selection ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
         <div className="shrink-0 px-4 py-3 border-b border-slate-200 bg-slate-50/60">
