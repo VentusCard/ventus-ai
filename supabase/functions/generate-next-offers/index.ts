@@ -434,13 +434,14 @@ serve(async (req) => {
       const raw = data.choices?.[0]?.message?.content || "";
       const parsed = parseJsonLoose(raw);
       if (parsed?.rollupOffers) rollupOffers.push(...parsed.rollupOffers);
-      else console.error("Failed to parse rollup AI response:", raw.slice(0, 500));
+      else console.error(`Failed to parse rollup AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
     }
 
     if (lifeEventRes && lifeEventsTagged.length > 0) {
       const data = await lifeEventRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
       const parsed = parseJsonLoose(raw);
+      if (!parsed) console.error(`Failed to parse life-event AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
 
       let lifeEventGroups: any[] = [];
       if (parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)) {
