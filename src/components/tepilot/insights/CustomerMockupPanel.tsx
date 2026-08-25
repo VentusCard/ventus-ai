@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Smartphone, Loader2, Users, RotateCw } from "lucide-react";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import { useExecDemoSession } from "@/lib/execDemoSessionStore";
@@ -12,7 +12,9 @@ import {
   retryPersonalization,
   usePersonalizationResult,
 } from "@/lib/personalizationResultStore";
-import { buildChatSignalContext } from "@/lib/personalizationGeneration";
+import { buildChatSignalContext, pillarFor } from "@/lib/personalizationGeneration";
+import { findGroupForLabel } from "@/components/exec-demo/GeneratedOffersPhoneView";
+import { SIGNAL_FAMILY_META, type DirectorySignal } from "@/lib/customerDirectoryData";
 import { ExampleCustomerBar } from "./personalization/ExampleCustomerBar";
 import { CustomerSignalPanel, CustomerSignalSkeleton } from "./personalization/CustomerSignalPanel";
 import { SurfaceFeaturePanel } from "./personalization/SurfaceFeaturePanel";
@@ -54,6 +56,43 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
     [useSession, example],
   );
 
+  // ── Signal pill → deal collection focus ──
+  const [focused, setFocused] = useState<{ label: string; pillar: string } | null>(null);
+
+  useEffect(() => {
+    setFocused(null);
+  }, [selectedId, surface]);
+
+  const lifeEventLabels = useMemo(
+    () => new Set((example?.lifeEvents ?? []).map((s) => s.label)),
+    [example],
+  );
+
+  const pillarForSignal = (label: string) =>
+    lifeEventLabels.has(label) ? "Life Event" : pillarFor(label);
+
+  const availableLabels = useMemo(() => {
+    if (!example || !generated.offers?.length) return null;
+    const labels = new Set<string>();
+    for (const meta of SIGNAL_FAMILY_META) {
+      const sigs = (example[meta.field as keyof typeof example] ?? []) as DirectorySignal[];
+      if (!Array.isArray(sigs)) continue;
+      for (const s of sigs) {
+        if (findGroupForLabel(s.label, pillarForSignal(s.label), generated.offers)) {
+          labels.add(s.label);
+        }
+      }
+    }
+    return labels;
+  }, [example, generated.offers, lifeEventLabels]);
+
+  const handleSignalClick = (sig: DirectorySignal) => {
+    const pillar = pillarForSignal(sig.label);
+    if (!generated.offers?.length) return;
+    if (!findGroupForLabel(sig.label, pillar, generated.offers)) return;
+    setFocused((prev) => (prev?.label === sig.label ? null : { label: sig.label, pillar }));
+  };
+
   const phoneCustomer = useSession ? session.customer! : example?.demo ?? null;
   const displayName = useSession ? sessionName : example?.name ?? null;
   const isGenerating = !useSession && !!example && generated.status === "running";
@@ -86,7 +125,12 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
               </p>
             </div>
           ) : (
-            <CustomerSignalPanel customer={example!} />
+            <CustomerSignalPanel
+              customer={example!}
+              focusedLabel={focused?.label ?? null}
+              availableLabels={availableLabels}
+              onSignalClick={handleSignalClick}
+            />
           )}
         </div>
       </div>
@@ -151,8 +195,8 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
                   generatedOffers={useSession ? session.generatedOffers : generated.offers}
                   detectedLifeEvents={useSession ? session.detectedLifeEvents : generated.lifeEvents}
                   productCards={useSession ? session.productCards : generated.productCards}
-                  activeRollupLabel={useSession ? session.activeRollupLabel : null}
-                  activeRollupPillar={useSession ? session.activeRollupPillar : null}
+                  activeRollupLabel={useSession ? session.activeRollupLabel : focused?.label ?? null}
+                  activeRollupPillar={useSession ? session.activeRollupPillar : focused?.pillar ?? null}
                   enrichedTxs={useSession ? session.enrichedTxs : null}
                   riskFlags={useSession ? session.riskFlags : null}
                   chatSignalContext={chatSignalContext}

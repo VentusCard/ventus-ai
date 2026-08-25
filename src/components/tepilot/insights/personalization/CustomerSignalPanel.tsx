@@ -12,9 +12,19 @@ const CONFIDENCE_STYLE: Record<DirectorySignal["confidence"], string> = {
 
 interface Props {
   customer: ExampleCustomer;
+  /** Label of the signal currently driving the phone collection. */
+  focusedLabel?: string | null;
+  /** Labels that resolve to a generated collection. `null` = unknown (still generating). */
+  availableLabels?: Set<string> | null;
+  onSignalClick?: (signal: DirectorySignal) => void;
 }
 
-export function CustomerSignalPanel({ customer }: Props) {
+export function CustomerSignalPanel({
+  customer,
+  focusedLabel = null,
+  availableLabels = null,
+  onSignalClick,
+}: Props) {
   const [revealed, setRevealed] = useState(0);
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -70,14 +80,29 @@ export function CustomerSignalPanel({ customer }: Props) {
                   {signals.map((sig) => {
                     const key = `${m.key}:${sig.label}`;
                     const isOpen = expanded === key;
+                    const isFocused = focusedLabel === sig.label;
+                    const hasCollection = availableLabels ? availableLabels.has(sig.label) : true;
                     return (
                       <div key={key} className={isOpen ? "w-full" : ""}>
                         <button
-                          onClick={() => setExpanded(isOpen ? null : key)}
+                          onClick={() => {
+                            setExpanded(isOpen ? null : key);
+                            onSignalClick?.(sig);
+                          }}
+                          title={
+                            hasCollection
+                              ? "Show this signal's deal collection"
+                              : "No collection generated for this signal yet"
+                          }
                           className={cn(
                             "inline-flex items-center gap-2 text-[13px] px-3.5 py-2 font-semibold rounded-full border transition-all duration-200",
                             m.chip,
-                            isOpen ? "ring-2 ring-offset-1 ring-slate-200" : "hover:brightness-95",
+                            !hasCollection && "opacity-55",
+                            isFocused
+                              ? "ring-2 ring-offset-1 ring-blue-400 shadow-sm"
+                              : isOpen
+                                ? "ring-2 ring-offset-1 ring-slate-200"
+                                : "hover:brightness-95",
                           )}
                         >
                           {sig.label}
