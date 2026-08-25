@@ -19,7 +19,7 @@ Inside the right playbook card, the body becomes two columns:
 └───────────────────────────┴─────────────────────────────────────┘
 ```
 
-- Rules column ~60%, Examples column ~40%; the Examples column sticks to the top while the rules scroll.
+- Rules column ~50%, Examples column ~50%; the Examples column sticks to the top while the rules scroll.
 - Below `lg` the Examples column drops underneath the rules (single column) so nothing squeezes.
 - Rendered as a light email-card: sender chip (Ventus AI · role), subject, body, footer note. Strict light theme, no `dark:` classes.
 - Read-only content — this is illustration, not another editable form.
