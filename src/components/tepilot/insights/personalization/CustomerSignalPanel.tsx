@@ -12,9 +12,19 @@ const CONFIDENCE_STYLE: Record<DirectorySignal["confidence"], string> = {
 
 interface Props {
   customer: ExampleCustomer;
+  /** Label of the signal currently driving the phone collection. */
+  focusedLabel?: string | null;
+  /** Labels that resolve to a generated collection. `null` = unknown (still generating). */
+  availableLabels?: Set<string> | null;
+  onSignalClick?: (signal: DirectorySignal) => void;
 }
 
-export function CustomerSignalPanel({ customer }: Props) {
+export function CustomerSignalPanel({
+  customer,
+  focusedLabel = null,
+  availableLabels = null,
+  onSignalClick,
+}: Props) {
   const [revealed, setRevealed] = useState(0);
   const [expanded, setExpanded] = useState<string | null>(null);
 
