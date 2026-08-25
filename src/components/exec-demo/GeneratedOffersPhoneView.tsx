@@ -624,7 +624,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               onClick={() => setExpandedGroup(active)}
             >
               <div className="h-[60px] w-full overflow-hidden">
-                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" />
+                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={handleImageError} />
               </div>
               <div className="px-3 pt-2 pb-1 flex-1">
                 <p className="text-[10px] font-semibold text-slate-800 leading-snug">
