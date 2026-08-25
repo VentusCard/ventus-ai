@@ -195,8 +195,8 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
                   generatedOffers={useSession ? session.generatedOffers : generated.offers}
                   detectedLifeEvents={useSession ? session.detectedLifeEvents : generated.lifeEvents}
                   productCards={useSession ? session.productCards : generated.productCards}
-                  activeRollupLabel={useSession ? session.activeRollupLabel : null}
-                  activeRollupPillar={useSession ? session.activeRollupPillar : null}
+                  activeRollupLabel={useSession ? session.activeRollupLabel : focused?.label ?? null}
+                  activeRollupPillar={useSession ? session.activeRollupPillar : focused?.pillar ?? null}
                   enrichedTxs={useSession ? session.enrichedTxs : null}
                   riskFlags={useSession ? session.riskFlags : null}
                   chatSignalContext={chatSignalContext}
