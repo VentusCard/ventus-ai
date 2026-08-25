@@ -25,7 +25,7 @@ const SPEND_WEIGHT: Record<DirectorySignal["confidence"], { spend: number; count
   Emerging: { spend: 1900, count: 12 },
 };
 
-function pillarFor(label: string): string {
+export function pillarFor(label: string): string {
   const l = label.toLowerCase();
   if (/travel|flight|trip|hotel/.test(l)) return "Travel & Leisure";
   if (/dining|restaurant|food|coffee|grocery/.test(l)) return "Food & Dining";
