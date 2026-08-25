@@ -125,7 +125,12 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
               </p>
             </div>
           ) : (
-            <CustomerSignalPanel customer={example!} />
+            <CustomerSignalPanel
+              customer={example!}
+              focusedLabel={focused?.label ?? null}
+              availableLabels={availableLabels}
+              onSignalClick={handleSignalClick}
+            />
           )}
         </div>
       </div>
