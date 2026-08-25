@@ -657,7 +657,7 @@ function ExamplesPanel({
         <span className="text-[11px] text-slate-500">First message it sends</span>
       </div>
 
-      <div className="p-3">
+      <div className="p-3 space-y-3">
         <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10.5px] font-medium text-slate-600">
@@ -672,14 +672,7 @@ function ExamplesPanel({
           </p>
         </div>
 
-        <div className="mt-3 rounded-md border border-slate-200 bg-white px-3 py-2">
-          <p className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
-            Why this lands
-          </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-slate-600">{example.why}</p>
-        </div>
-
-        <div className="mt-3">
+        <div>
           <p className="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
             Reply and it will…
           </p>
