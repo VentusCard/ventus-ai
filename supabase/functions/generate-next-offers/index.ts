@@ -10,12 +10,14 @@ const MODEL = "google/gemini-3.1-pro-preview";
 // Fast model for copy-heavy generation (behavioral + life-event deals).
 const COPY_MODEL = "google/gemini-3.5-flash";
 // Strict output ceiling for the two copy calls — they were the top token burner.
-const COPY_MAX_TOKENS = 3000;
+const COPY_MAX_TOKENS = 4000;
 
 // Only the top-ranked signals per family are sent to the model. Everything below
 // the cut never surfaces in the UI, so generating copy for it only adds latency.
-const MAX_BEHAVIORAL_ROLLUPS = 2;
-const MAX_LIFE_EVENTS = 2;
+// One group per copy family keeps each response inside COPY_MAX_TOKENS — two
+// clusters × 5 grounded deals overflowed and truncated the JSON mid-object.
+const MAX_BEHAVIORAL_ROLLUPS = 1;
+const MAX_LIFE_EVENTS = 1;
 const MAX_FINANCIAL_SIGNALS = 1;
 
 const SYSTEM_PROMPT = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
@@ -216,7 +218,37 @@ function parseJsonLoose(raw: string): any {
   for (const c of candidates) {
     try { return JSON.parse(c); } catch { /* try next */ }
   }
+  return repairTruncatedJson(raw);
+}
+
+/**
+ * Salvage a response that was cut off by max_tokens: trim back to the last
+ * complete deal object and close the remaining brackets so a near-miss still
+ * yields deals instead of an empty collection.
+ */
+function repairTruncatedJson(raw: string): any {
+  const start = raw.indexOf("{");
+  if (start < 0) return null;
+  const body = raw.slice(start);
+  // Walk back to the last "}" that closes a well-formed object, then try to
+  // close the enclosing deals array / group / envelope at each candidate.
+  for (let i = body.length - 1; i >= 0; i--) {
+    if (body[i] !== "}") continue;
+    const head = body.slice(0, i + 1);
+    for (const tail of ["", "]}", "]}]}", "}]}", "]}]}}"]) {
+      try {
+        const parsed = JSON.parse(head + tail);
+        if (parsed && typeof parsed === "object") return parsed;
+      } catch { /* try next tail */ }
+    }
+  }
   return null;
+}
+
+function describeCompletion(data: any): string {
+  const finish = data?.choices?.[0]?.finish_reason ?? "unknown";
+  const out = data?.usage?.completion_tokens ?? "?";
+  return `finish_reason=${finish} completion_tokens=${out}`;
 }
 
 async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string, model: string = MODEL, maxTokens = 8192) {
@@ -231,6 +263,8 @@ async function callGateway(systemPrompt: string, userPrompt: string, apiKey: str
       ],
       temperature: 0.55,
       max_tokens: maxTokens,
+      // Structured output — without it the model sometimes returns reasoning prose.
+      response_format: { type: "json_object" },
     }),
   });
   return response;
@@ -400,13 +434,14 @@ serve(async (req) => {
       const raw = data.choices?.[0]?.message?.content || "";
       const parsed = parseJsonLoose(raw);
       if (parsed?.rollupOffers) rollupOffers.push(...parsed.rollupOffers);
-      else console.error("Failed to parse rollup AI response:", raw.slice(0, 500));
+      else console.error(`Failed to parse rollup AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
     }
 
     if (lifeEventRes && lifeEventsTagged.length > 0) {
       const data = await lifeEventRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
       const parsed = parseJsonLoose(raw);
+      if (!parsed) console.error(`Failed to parse life-event AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
 
       let lifeEventGroups: any[] = [];
       if (parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)) {
@@ -490,6 +525,7 @@ serve(async (req) => {
       const data = await financialSignalRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
       const parsed = parseJsonLoose(raw);
+      if (!parsed) console.error(`Failed to parse financial-signal AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
       let fsGroups: any[] = [];
       if (parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)) fsGroups = parsed.rollupOffers;
       else if (Array.isArray(parsed)) fsGroups = parsed;
