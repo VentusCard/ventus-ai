@@ -12,7 +12,9 @@ import {
   retryPersonalization,
   usePersonalizationResult,
 } from "@/lib/personalizationResultStore";
-import { buildChatSignalContext } from "@/lib/personalizationGeneration";
+import { buildChatSignalContext, pillarFor } from "@/lib/personalizationGeneration";
+import { findGroupForLabel } from "@/components/exec-demo/GeneratedOffersPhoneView";
+import { SIGNAL_FAMILY_META, type DirectorySignal } from "@/lib/customerDirectoryData";
 import { ExampleCustomerBar } from "./personalization/ExampleCustomerBar";
 import { CustomerSignalPanel, CustomerSignalSkeleton } from "./personalization/CustomerSignalPanel";
 import { SurfaceFeaturePanel } from "./personalization/SurfaceFeaturePanel";
