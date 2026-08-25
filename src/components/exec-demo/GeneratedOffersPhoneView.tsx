@@ -115,7 +115,7 @@ const STOPWORDS = new Set(["the","a","an","of","for","to","and","in","on","at","
 const normLabel = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const tokenizeLabel = (s: string) => normLabel(s).split(/\s+/).filter(t => t.length > 2 && !STOPWORDS.has(t));
 
-function findGroupForLabel(label: string, pillar: string | null | undefined, groups: RollupOfferGroup[]): RollupOfferGroup | null {
+export function findGroupForLabel(label: string, pillar: string | null | undefined, groups: RollupOfferGroup[]): RollupOfferGroup | null {
   const scoped = !pillar
     ? groups
     : groups.filter(g => pillar === "Life Event" ? g.pillar === "Life Event" : g.pillar !== "Life Event");
