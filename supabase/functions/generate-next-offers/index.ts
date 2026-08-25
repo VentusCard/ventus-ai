@@ -10,12 +10,14 @@ const MODEL = "google/gemini-3.1-pro-preview";
 // Fast model for copy-heavy generation (behavioral + life-event deals).
 const COPY_MODEL = "google/gemini-3.5-flash";
 // Strict output ceiling for the two copy calls — they were the top token burner.
-const COPY_MAX_TOKENS = 3000;
+const COPY_MAX_TOKENS = 4000;
 
 // Only the top-ranked signals per family are sent to the model. Everything below
 // the cut never surfaces in the UI, so generating copy for it only adds latency.
-const MAX_BEHAVIORAL_ROLLUPS = 2;
-const MAX_LIFE_EVENTS = 2;
+// One group per copy family keeps each response inside COPY_MAX_TOKENS — two
+// clusters × 5 grounded deals overflowed and truncated the JSON mid-object.
+const MAX_BEHAVIORAL_ROLLUPS = 1;
+const MAX_LIFE_EVENTS = 1;
 const MAX_FINANCIAL_SIGNALS = 1;
 
 const SYSTEM_PROMPT = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
