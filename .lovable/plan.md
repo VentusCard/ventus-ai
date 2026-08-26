@@ -29,9 +29,10 @@ Everything else currently fired is either unused on that tab or regenerating fix
 
 **1. Freeze the five demo customers into a snapshot.** Generate offers + product cards once per customer for the default bank, and commit the results as `src/lib/personalizationSnapshots.ts`. `ensurePersonalization` serves the snapshot instantly (status `ready`, zero calls) and only falls back to live generation when the demo bank is set to a custom name — the only input that changes the copy. Result: the standard demo runs with **zero** model calls and no spinner.
 
-**2. Remove the blind prewarm.** Delete the `prewarmDefaultCustomer()` mount effect in `AnalyticsContainer.tsx`; with snapshots there is nothing to warm, and in custom-bank mode warming should follow intent (hover/focus of a Personalization nav item), not page load.
+**2. Keep the prewarm.** `prewarmDefaultCustomer()` stays on dashboard mount so all three personalization tabs are ready before the user gets there. With snapshots it becomes a free, instant store hydration for the default bank. In custom-bank mode it still fires the live pipeline on mount, exactly as today — just once per customer/bank, since results are then cached (step 5) instead of re-run on each load.
 
-**3. Generate per surface in the custom-bank path.** Give `generatePersonalizedExperience` a `need: "offers" | "cards"` argument and have `CustomerMockupPanel` pass what its surface renders, so the Rewards tab never pays for product cards and the Product tab never pays for three offer calls.
+**3. Generate per surface on demand, prewarm everything.** Give `generatePersonalizedExperience` a `need: "offers" | "cards" | "all"` argument. The prewarm uses `all` (all three tabs are needed); an on-demand generation triggered by opening a single tab requests only what that surface renders, so a cache miss on the Rewards tab doesn't pay for product cards.
+
 
 **4. Trim the two functions for the custom-bank path.**
 - `generate-product-cards` uses only `life_events[0]`, `persona_rollups[0]`, `financial_signals[0]` (with `[1]` fallbacks), yet serializes every rollup plus 8 pillars — that is its 4.3K input. Send only the slots it can use, and move it to `gemini-3.5-flash`; three short cards do not need the pro model.
