@@ -54,22 +54,22 @@ export const EXAMPLE_CUSTOMERS: ExampleCustomer[] = [
     lifestyleType: "Wellness Explorer",
     products: ["Premium Card", "Checking", "Cashback Card", "Mortgage"],
     spendingHabits: [
-      s("Frequent leisure traveler", "Repeat airline and resort bookings, mostly island destinations", "Strong"),
-      s("Fitness studio regular", "Steady studio dues plus seasonal activewear purchases", "Strong"),
-      s("Dog owner", "Recurring pet supply deliveries and grooming visits", "Likely"),
+      s("Biweekly tennis", "Recurring court and club charges on a two-week cadence", "Strong"),
+      s("Recurring pet expenditures", "Repeat pet supply, vet and grooming activity", "Strong"),
+      ext("Annual tropical vacation in December", "Outside travel booking history each December", "Likely"),
     ],
     lifeEvents: [
-      s("College-bound child", "Test prep, campus visits and admissions fees across two quarters", "Strong"),
-      ext("Auto loan maturing soon", "Outside lender tradeline nearing the end of its term", "Likely"),
+      s("Buying a new house", "Pre-mover to new-homeowner: earnest deposit, inspection, moving and setup spend", "Strong"),
     ],
     financialSignals: [
-      s("Building a savings buffer", "Repeat transfers into savings ahead of a large planned payment", "Likely"),
+      s("Recurring transfers to an outside brokerage", "Steady outbound transfers to a non-bank investment account", "Strong"),
+      ext("Car loan expiring in ~4 months", "Outside lender tradeline nearing the end of its term", "Likely"),
     ],
     demographicSignals: [
-      s("Dual-income household", "Two recurring paychecks arriving on different cycles", "Strong"),
+      s("Small business owner", "Merchant-services deposits and business-expense pattern", "Strong"),
     ],
     riskFlags: [
-      s("Card balance creeping up", "Revolving balance higher for two straight cycles", "Emerging"),
+      s("Gambling", "Recurring casino and sports-betting activity", "Emerging"),
     ],
   },
   {
