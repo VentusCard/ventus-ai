@@ -261,12 +261,7 @@ export function AnalystDashboardView({
       {/* Signal families */}
       <div className="space-y-3">
         <div className="flex items-baseline justify-between gap-2 flex-wrap">
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-[13px] font-semibold text-slate-900">Signal families</h3>
-            <span className="text-[11px] text-slate-400">
-              Behavioral → Life event → Financial → Demographic → Risk
-            </span>
-          </div>
+          <h3 className="text-[13px] font-semibold text-slate-900">Signal families</h3>
           <SignalCoverageCaption />
         </div>
         <SignalFamilyBoard
