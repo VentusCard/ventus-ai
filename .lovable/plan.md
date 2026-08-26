@@ -1,44 +1,59 @@
-# /bankdemo: which LLM calls fire, and which are waste
+# /bankdemo personalization: stop generating what's already static
 
-## What the logs show
+## What actually runs on the three personalization tabs
 
-Every `/bankdemo` personalization run produces the same cluster of **four** gateway calls within ~25s (e.g. 2026-08-26T01:52:14–01:52:24Z, log_ids `01a03bc4-61ba-7e14…`, `01a03bc4-61bb-788f…`, `01a03bc4-6210-722a…`, `01a03bc4-62bb-7036…`; identical clusters at 2026-08-25T17:09 and 17:10):
+The left panel (life events, behavioral, financial, demographic, risk pills) is **static data** — it comes from `EXAMPLE_CUSTOMERS` in `src/lib/personalizationExamples.ts`, five hand-authored customers. No model produces it. `generated.lifeEvents` in the store is likewise just `buildLifeEvents(customer)` — a mapping of those same static pills, not a detection result.
 
-| Call | Model | Tokens (in/out) | Cost |
+So the only live model work on those tabs is generating the phone content, and it is always the same four gateway calls (confirmed in the gateway logs, e.g. the 2026-08-26T01:52:14–01:52:24Z cluster `01a03bc4-61ba-7e14…`, `01a03bc4-61bb-788f…`, `01a03bc4-6210-722a…`, `01a03bc4-62bb-7036…`, repeated identically at 2026-08-25T17:09 and 17:10):
+
+| Call | Model | Tokens in/out | Cost |
 |---|---|---|---|
 | offers → behavioral rollup copy | gemini-3.5-flash | 1.6K / 3.0K | ~0.030 |
 | offers → life-event copy | gemini-3.5-flash | 2.5K / 3.3K | ~0.034 |
 | offers → financial-signal copy | gemini-3.1-pro | 1.1K / 3.2K | ~0.041 |
 | product cards | gemini-3.1-pro | 4.3K / 2.4K | ~0.037 |
 
-≈0.14 credits and ~25s per customer, and it repeats on every page reload.
+≈0.14 credits and ~25 seconds per customer, re-run on every page load.
 
-## The waste, in order of size
+Because the inputs are static, **the outputs are deterministic per customer** — the same five signal sets are sent to the model over and over to get materially the same five collections and three cards back.
 
-**1. It fires before anyone asks.** `AnalyticsContainer.tsx` calls `prewarmDefaultCustomer()` in a mount effect, so all four calls run on every `/bankdemo` load — including loads that never reach a Personalization tab. Nothing is persisted, so a refresh mid-demo re-fires the whole cluster.
+## What is genuinely needed
 
-**2. Both generators fire on every surface, but each surface renders only one of them.** `CustomerMockupPanel` always calls `generatePersonalizedExperience`, which fires offers *and* product cards. But the phone maps surfaces to a single view: `rewards` → offers only, `product` → the relationship/email/SMS view, which reads only `productCards`. So on the Rewards tab the product-card call (pro model, 4.3K in) is pure waste, and on the Product tab the three offer calls are pure waste.
+- Rewards tab → `rollupOffers` only.
+- Product tab → `productCards` only (relationship/email/SMS views read nothing else).
+- AI chat tab → no pre-generation; `consumer-chat` fires only when the user sends a message, and `detect-risk-transactions` only on the "risk factors" action. Both stay as-is.
 
-**3. The product-cards prompt ships far more input than it uses.** Its own rules use only `life_events[0]`, `persona_rollups[0]`, and `financial_signals[0]` (slots 1–3, with `[1]` as fallback), yet the request serializes the *entire* rollup list and up to 8 pillars — that's the 4.3K input tokens. It also runs on `gemini-3.1-pro-preview` to write three short cards.
+Everything else currently fired is either unused on that tab or regenerating fixed content.
 
-**4. The offers function makes three calls to produce three groups.** `MAX_BEHAVIORAL_ROLLUPS`, `MAX_LIFE_EVENTS` and `MAX_FINANCIAL_SIGNALS` are all `1`, so each call returns exactly one collection of 5 deals. Three separate round-trips (one on the pro model) for three small groups is the dominant latency.
+## Plan
 
-## Fix
+**1. Freeze the five demo customers into a snapshot.** Generate offers + product cards once per customer for the default bank, and commit the results as `src/lib/personalizationSnapshots.ts`. `ensurePersonalization` serves the snapshot instantly (status `ready`, zero calls) and only falls back to live generation when the demo bank is set to a custom name — the only input that changes the copy. Result: the standard demo runs with **zero** model calls and no spinner.
 
-1. **Delete the blind prewarm** in `AnalyticsContainer.tsx`. Warm on intent instead: prefetch on hover/focus of the Personalization nav items. The existing `ensurePersonalization` call in `CustomerMockupPanel` still covers direct navigation.
-2. **Cache across reloads**: persist the personalization store in `sessionStorage`, keyed by customer id + demo bank name. `clearPersonalizationResults()` on bank-config change stays, so renaming the bank still regenerates.
-3. **Generate per surface**: give `generatePersonalizedExperience` a `need: "offers" | "cards" | "both"` argument and have `CustomerMockupPanel` pass what its surface actually renders. Keep the cache per-part so switching tabs fills in the missing half instead of refiring both. (The AI-chat surface passes product recommendations, so it asks for cards.)
-4. **Trim the product-cards payload and model**: send only the slot-1/slot-2 candidates the prompt is allowed to use (top 2 per family, drop the pillar dump), and move the call to `google/gemini-3.5-flash` — three short cards do not need the pro model. Expect ~4.3K in → under 1K.
-5. **Skip empty families** in `generate-next-offers` (already partly true) and move the financial-signal call to `gemini-3.5-flash` as well, keeping its value-math prompt rules unchanged; verify one run's output quality before keeping it.
+**2. Remove the blind prewarm.** Delete the `prewarmDefaultCustomer()` mount effect in `AnalyticsContainer.tsx`; with snapshots there is nothing to warm, and in custom-bank mode warming should follow intent (hover/focus of a Personalization nav item), not page load.
 
-Expected: a `/bankdemo` load that never opens personalization costs **0 credits** instead of ~0.14; a run that does open it drops to 1–3 calls and roughly half the credits, with first content appearing sooner.
+**3. Generate per surface in the custom-bank path.** Give `generatePersonalizedExperience` a `need: "offers" | "cards"` argument and have `CustomerMockupPanel` pass what its surface renders, so the Rewards tab never pays for product cards and the Product tab never pays for three offer calls.
+
+**4. Trim the two functions for the custom-bank path.**
+- `generate-product-cards` uses only `life_events[0]`, `persona_rollups[0]`, `financial_signals[0]` (with `[1]` fallbacks), yet serializes every rollup plus 8 pillars — that is its 4.3K input. Send only the slots it can use, and move it to `gemini-3.5-flash`; three short cards do not need the pro model.
+- `generate-next-offers` caps every family at 1 group already; move the financial-signal call to `gemini-3.5-flash` too, prompt rules unchanged, and skip any family whose list is empty.
+
+**5. Persist live results across reloads** (custom-bank mode only): sessionStorage-backed store keyed by customer id + bank name, cleared by the existing `clearPersonalizationResults()` on bank change.
+
+## Expected result
+
+| Scenario | Today | After |
+|---|---|---|
+| Load `/bankdemo`, never open personalization | 4 calls, ~0.14 cr | 0 |
+| Open a personalization tab, default bank | 4 calls, ~25s wait | 0 calls, instant |
+| Custom bank name, one tab | 4 calls | 1–3 calls, ~half the credits |
 
 ## Technical notes
 
-- `src/components/tepilot/insights/AnalyticsContainer.tsx` — remove the prewarm effect, add hover/focus prefetch on the Personalization nav entries.
-- `src/lib/personalizationResultStore.ts` — sessionStorage hydrate/persist; per-part status so `need` requests merge.
-- `src/lib/personalizationGeneration.ts` — accept `need`; conditionally build each invoke.
-- `src/components/tepilot/insights/CustomerMockupPanel.tsx` — pass `need` derived from `surface`.
-- `supabase/functions/generate-product-cards/index.ts` — slice inputs to the slots the prompt uses; switch model.
-- `supabase/functions/generate-next-offers/index.ts` — model change on the financial-signal call only.
-- No prompt-rule, taxonomy, deal-format, or UI changes.
+- New `src/lib/personalizationSnapshots.ts`: `Record<customerId, { offers, productCards }>`, produced by running the current pipeline once per customer and pasting the JSON. Types reuse `RollupOfferGroup` and `ProductCard`.
+- `src/lib/personalizationResultStore.ts`: snapshot lookup first; live path only when `getBankPromptContext()` is non-null; sessionStorage persistence for the live path.
+- `src/lib/personalizationGeneration.ts`: add `need`; conditionally build each `functions.invoke`.
+- `src/components/tepilot/insights/CustomerMockupPanel.tsx`: derive `need` from `surface`.
+- `src/components/tepilot/insights/AnalyticsContainer.tsx`: drop the prewarm effect.
+- `supabase/functions/generate-product-cards/index.ts`: slice inputs to the used slots; model → `google/gemini-3.5-flash`.
+- `supabase/functions/generate-next-offers/index.ts`: financial-signal call model only.
+- No changes to signal data, prompt rules, deal format, or any UI layout.
