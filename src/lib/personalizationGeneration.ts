@@ -99,10 +99,14 @@ export interface PersonalizationProgress {
   onOffers?: (offers: RollupOfferGroup[] | null) => void;
 }
 
-/** Fires both generation functions in parallel from the customer's signals. */
+/** Which generated payloads the calling surface actually renders. */
+export type PersonalizationNeed = "offers" | "cards" | "all";
+
+/** Fires the generation functions the requested surface needs. */
 export async function generatePersonalizedExperience(
   customer: ExampleCustomer,
   progress?: PersonalizationProgress,
+  need: PersonalizationNeed = "all",
 ): Promise<PersonalizationGenerationResult> {
   const pillarRollups = buildPillarRollups(customer);
   const lifeEvents = buildLifeEvents(customer);
