@@ -1433,7 +1433,7 @@ const SNAPSHOTS = {
       }
     ]
   }
-}; as unknown as Record<string, PersonalizationSnapshot>;
+} as unknown as Record<string, PersonalizationSnapshot>;
 
 export function getPersonalizationSnapshot(customerId: string): PersonalizationSnapshot | null {
   return SNAPSHOTS[customerId] ?? null;
