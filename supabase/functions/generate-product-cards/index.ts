@@ -182,7 +182,7 @@ DEMOGRAPHICS:
 ${JSON.stringify(demographics || {}, null, 2)}
 
 BEHAVIORAL PERSONA ROLLUPS:
-${JSON.stringify((persona_rollups || []).map((r: any) => ({
+${JSON.stringify((persona_rollups || []).slice(0, 2).map((r: any) => ({
   pillar: r.pillar,
   label: r.label,
   categories: r.categories,
@@ -191,16 +191,16 @@ ${JSON.stringify((persona_rollups || []).map((r: any) => ({
 })), null, 2)}
 
 SPENDING PILLARS (top categories):
-${JSON.stringify((pillars || []).slice(0, 8).map((p: any) => ({
+${JSON.stringify((pillars || []).slice(0, 3).map((p: any) => ({
   pillar: p.pillar,
   label: p.label,
   count: p.count,
   totalSpend: p.totalSpend,
-  subcategories: p.subcategories?.slice(0, 5),
+  subcategories: p.subcategories?.slice(0, 3),
 })), null, 2)}
 
 DETECTED LIFE EVENTS:
-${JSON.stringify((life_events || []).map((e: any) => ({
+${JSON.stringify((life_events || []).slice(0, 2).map((e: any) => ({
   event_name: e.event_name,
   confidence: e.confidence,
   project_type: e.financial_projection?.project_type,
@@ -209,13 +209,13 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
 })), null, 2)}
 
 FINANCIAL SIGNALS (existing loans, mortgages, brokerage relationships — HIGHEST PRIORITY for slot 3):
-${JSON.stringify((financial_signals || []).map((f: any) => ({
+${JSON.stringify((financial_signals || []).slice(0, 2).map((f: any) => ({
   label: f.label,
   product_family: f.product_family,
   servicer: f.servicer,
   monthly_amount_band: f.monthly_amount_band,
   cadence: f.cadence,
-  talking_points: (f.talking_points || []).slice(0, 3),
+  talking_points: (f.talking_points || []).slice(0, 2),
 })), null, 2)}
 
 Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, financial-signal monthly_amount_band, demographics income). Do not invent unrelated figures.
