@@ -230,7 +230,7 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3.1-pro-preview",
+        model: "google/gemini-3.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
