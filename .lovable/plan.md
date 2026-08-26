@@ -11,9 +11,9 @@ Behavioral
 
 Life Event
 - Buying a new house (pre-mover → new homeowner) — earnest deposit, inspection, moving and setup spend
-- External: Car loan expiring in ~4 months — outside lender tradeline nearing end of term
 
 Financial
+- External: Car loan expiring in ~4 months — outside lender tradeline nearing end of term
 - Recurring transfers to an outside brokerage — steady outbound transfers to a non-bank investment account
 
 Demographic
