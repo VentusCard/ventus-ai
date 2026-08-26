@@ -29,9 +29,10 @@ Everything else currently fired is either unused on that tab or regenerating fix
 
 **1. Freeze the five demo customers into a snapshot.** Generate offers + product cards once per customer for the default bank, and commit the results as `src/lib/personalizationSnapshots.ts`. `ensurePersonalization` serves the snapshot instantly (status `ready`, zero calls) and only falls back to live generation when the demo bank is set to a custom name — the only input that changes the copy. Result: the standard demo runs with **zero** model calls and no spinner.
 
-**2. Remove the blind prewarm.** Delete the `prewarmDefaultCustomer()` mount effect in `AnalyticsContainer.tsx`; with snapshots there is nothing to warm, and in custom-bank mode warming should follow intent (hover/focus of a Personalization nav item), not page load.
+**2. Keep the prewarm.** `prewarmDefaultCustomer()` stays on dashboard mount so all three personalization tabs are ready before the user gets there. With snapshots it becomes a free, instant store hydration for the default bank. In custom-bank mode it still fires the live pipeline on mount, exactly as today — just once per customer/bank, since results are then cached (step 5) instead of re-run on each load.
 
-**3. Generate per surface in the custom-bank path.** Give `generatePersonalizedExperience` a `need: "offers" | "cards"` argument and have `CustomerMockupPanel` pass what its surface renders, so the Rewards tab never pays for product cards and the Product tab never pays for three offer calls.
+**3. Generate per surface on demand, prewarm everything.** Give `generatePersonalizedExperience` a `need: "offers" | "cards" | "all"` argument. The prewarm uses `all` (all three tabs are needed); an on-demand generation triggered by opening a single tab requests only what that surface renders, so a cache miss on the Rewards tab doesn't pay for product cards.
+
 
 **4. Trim the two functions for the custom-bank path.**
 - `generate-product-cards` uses only `life_events[0]`, `persona_rollups[0]`, `financial_signals[0]` (with `[1]` fallbacks), yet serializes every rollup plus 8 pillars — that is its 4.3K input. Send only the slots it can use, and move it to `gemini-3.5-flash`; three short cards do not need the pro model.
@@ -43,17 +44,18 @@ Everything else currently fired is either unused on that tab or regenerating fix
 
 | Scenario | Today | After |
 |---|---|---|
-| Load `/bankdemo`, never open personalization | 4 calls, ~0.14 cr | 0 |
-| Open a personalization tab, default bank | 4 calls, ~25s wait | 0 calls, instant |
-| Custom bank name, one tab | 4 calls | 1–3 calls, ~half the credits |
+| Load `/bankdemo`, default bank | 4 calls, ~0.14 cr | 0 calls (snapshot prewarm) |
+| Open any personalization tab, default bank | ~25s wait | instant, all 3 tabs ready |
+| Custom bank, first load | 4 calls every load | 4 calls once, cached after |
+| Custom bank, single-tab cache miss | 4 calls | 1–3 calls, cheaper models |
 
 ## Technical notes
 
 - New `src/lib/personalizationSnapshots.ts`: `Record<customerId, { offers, productCards }>`, produced by running the current pipeline once per customer and pasting the JSON. Types reuse `RollupOfferGroup` and `ProductCard`.
 - `src/lib/personalizationResultStore.ts`: snapshot lookup first; live path only when `getBankPromptContext()` is non-null; sessionStorage persistence for the live path.
 - `src/lib/personalizationGeneration.ts`: add `need`; conditionally build each `functions.invoke`.
-- `src/components/tepilot/insights/CustomerMockupPanel.tsx`: derive `need` from `surface`.
-- `src/components/tepilot/insights/AnalyticsContainer.tsx`: drop the prewarm effect.
+- `src/components/tepilot/insights/CustomerMockupPanel.tsx`: derive `need` from `surface` for on-demand generation.
+- `src/components/tepilot/insights/AnalyticsContainer.tsx`: prewarm effect kept, calls with `need: "all"`.
 - `supabase/functions/generate-product-cards/index.ts`: slice inputs to the used slots; model → `google/gemini-3.5-flash`.
 - `supabase/functions/generate-next-offers/index.ts`: financial-signal call model only.
 - No changes to signal data, prompt rules, deal format, or any UI layout.
