@@ -44,17 +44,18 @@ Everything else currently fired is either unused on that tab or regenerating fix
 
 | Scenario | Today | After |
 |---|---|---|
-| Load `/bankdemo`, never open personalization | 4 calls, ~0.14 cr | 0 |
-| Open a personalization tab, default bank | 4 calls, ~25s wait | 0 calls, instant |
-| Custom bank name, one tab | 4 calls | 1–3 calls, ~half the credits |
+| Load `/bankdemo`, default bank | 4 calls, ~0.14 cr | 0 calls (snapshot prewarm) |
+| Open any personalization tab, default bank | ~25s wait | instant, all 3 tabs ready |
+| Custom bank, first load | 4 calls every load | 4 calls once, cached after |
+| Custom bank, single-tab cache miss | 4 calls | 1–3 calls, cheaper models |
 
 ## Technical notes
 
 - New `src/lib/personalizationSnapshots.ts`: `Record<customerId, { offers, productCards }>`, produced by running the current pipeline once per customer and pasting the JSON. Types reuse `RollupOfferGroup` and `ProductCard`.
 - `src/lib/personalizationResultStore.ts`: snapshot lookup first; live path only when `getBankPromptContext()` is non-null; sessionStorage persistence for the live path.
 - `src/lib/personalizationGeneration.ts`: add `need`; conditionally build each `functions.invoke`.
-- `src/components/tepilot/insights/CustomerMockupPanel.tsx`: derive `need` from `surface`.
-- `src/components/tepilot/insights/AnalyticsContainer.tsx`: drop the prewarm effect.
+- `src/components/tepilot/insights/CustomerMockupPanel.tsx`: derive `need` from `surface` for on-demand generation.
+- `src/components/tepilot/insights/AnalyticsContainer.tsx`: prewarm effect kept, calls with `need: "all"`.
 - `supabase/functions/generate-product-cards/index.ts`: slice inputs to the used slots; model → `google/gemini-3.5-flash`.
 - `supabase/functions/generate-next-offers/index.ts`: financial-signal call model only.
 - No changes to signal data, prompt rules, deal format, or any UI layout.
