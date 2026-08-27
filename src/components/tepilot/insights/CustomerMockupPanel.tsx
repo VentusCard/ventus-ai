@@ -174,7 +174,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
             <div className="flex-1 min-h-0 flex justify-center relative">
               <div
                 className="h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none"
-                style={{ width: "min(100%, calc((100vh - 200px) * 0.95))", maxWidth: "100%" }}
+                style={{ width: "min(100%, calc((100vh - 200px) * 0.60))", maxWidth: "100%" }}
               >
                 <ExecDemoPhoneView
                   customer={EXAMPLE_CUSTOMERS[0].demo}
@@ -201,7 +201,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
             <div className="flex-1 min-h-0 flex justify-center">
               <div
                 className="h-full flex flex-col"
-                style={{ width: "min(100%, calc((100vh - 200px) * 0.95))", maxWidth: "100%" }}
+                style={{ width: "min(100%, calc((100vh - 200px) * 0.60))", maxWidth: "100%" }}
               >
                 <ExecDemoPhoneView
                   customer={phoneCustomer!}
