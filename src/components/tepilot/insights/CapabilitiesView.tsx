@@ -399,25 +399,48 @@ function SourceGroupCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex min-h-[58px] w-full flex-1 items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
+        "flex min-h-[76px] w-full flex-1 items-center gap-3 rounded-[10px] border bg-white px-3.5 py-3 text-left transition-colors",
         isActive ? "border-sky-300 ring-1 ring-sky-200" : "border-slate-100 hover:border-slate-200",
       )}
     >
       <div
         className={cn(
-          "flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg",
+          "flex h-[34px] w-[34px] flex-none items-center justify-center rounded-lg",
           isExternal ? "bg-amber-50 text-amber-600" : "bg-sky-50 text-sky-600",
         )}
       >
-        <Icon className="h-4 w-4" />
+        <Icon className="h-[18px] w-[18px]" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{group.provider}</div>
-        <div className="mt-px truncate font-mono text-[11px] text-slate-500">
-          {group.sublabel} · {group.inputs.length} sources
+        <div className="flex items-center gap-2">
+          <span className="truncate text-[15px] font-semibold leading-tight text-slate-900">
+            {group.provider}
+          </span>
+          <span className="ml-auto flex flex-none items-center gap-1.5 text-[11px] font-medium text-emerald-600">
+            <PulseDot sizeClass="h-1.5 w-1.5" />
+            Live
+          </span>
+        </div>
+        <div className="mt-0.5 truncate text-[12.5px] text-slate-600">{group.sublabel}</div>
+        <div className="mt-1.5 flex items-center gap-1.5">
+          <span
+            className={cn(
+              "rounded-full px-2 py-0.5 text-[11px] font-medium",
+              isExternal ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700",
+            )}
+          >
+            {group.inputs.length} source feeds
+          </span>
+          <span
+            className={cn(
+              "rounded-full px-2 py-0.5 text-[11px] font-medium",
+              isExternal ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700",
+            )}
+          >
+            {isExternal ? "External · Modeled" : "Internal"}
+          </span>
         </div>
       </div>
-      <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
     </button>
   );
 }
