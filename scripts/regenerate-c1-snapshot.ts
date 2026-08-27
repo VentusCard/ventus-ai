@@ -30,7 +30,7 @@ const demographics = {
   products_held: c.products.join(", "),
   demographic_signals: c.demographicSignals.map((s) => s.label).join(", "),
 };
-const bankContext = { bankName: "Our Bank" };
+const bankContext = null;
 
 async function call(fn: string, body: unknown) {
   const res = await fetch(`${URL}/${fn}`, {
