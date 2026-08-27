@@ -375,7 +375,7 @@ function NodeCard({
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{label}</div>
-        {sublabel ? <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div> : null}
+        {sublabel ? <div className="mt-px truncate font-mono text-[11px] text-slate-500">{sublabel}</div> : null}
       </div>
       {badge ? (
         <span className="flex-none rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] text-emerald-600">
@@ -417,7 +417,7 @@ function SourceGroupCard({
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{group.provider}</div>
-        <div className="mt-px truncate font-mono text-[11px] text-slate-400">
+        <div className="mt-px truncate font-mono text-[11px] text-slate-500">
           {group.sublabel} · {group.inputs.length} sources
         </div>
       </div>
@@ -531,8 +531,8 @@ const DEFAULT_DARK_STYLE: DarkFamilyStyle = {
   activeSurface: "bg-white/[0.11]",
   activeBorder: "border-white/25",
   chip: "bg-white/10 border border-white/15",
-  icon: "text-slate-200",
-  label: "text-slate-100",
+  icon: "text-slate-100",
+  label: "text-white",
   bar: "bg-slate-400",
 };
 
@@ -615,10 +615,10 @@ function SignalSection({
   const next = signal.examples[(idx + 1) % total];
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-8 items-center gap-2 text-[12.5px] leading-none text-slate-200">
+    <span ref={ref} className="flex h-8 items-center gap-2 text-[12.5px] leading-none text-slate-100">
       <span className="relative z-10 truncate font-medium text-white">{example.to}</span>
-      <span className="relative z-0 flex-none text-[11px] text-slate-400">&rarr;</span>
-      <span className="relative z-0 truncate text-slate-300">{example.ev}</span>
+      <span className="relative z-0 flex-none text-[11px] text-slate-300">&rarr;</span>
+      <span className="relative z-0 truncate text-slate-200">{example.ev}</span>
       <span
         className={cn(
           "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[10px] tracking-wide",
@@ -656,7 +656,7 @@ function SignalSection({
           delayMs={startDelay}
           className="rounded-full ring-[3px] ring-white/10"
         />
-        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-300">
+        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-200">
           <b className="font-semibold text-white">{count}</b> · 24h
         </span>
       </span>
@@ -944,7 +944,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           </p>
         </div>
         <div className="flex flex-none items-center gap-2.5">
-          <span className="font-mono text-[11px] text-slate-400">Updated 12s ago</span>
+          <span className="font-mono text-[11px] text-slate-500">Updated 12s ago</span>
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
@@ -982,10 +982,10 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           {/* Sources */}
           <div className="flex h-full min-w-0 flex-col p-5">
             <div className="mb-3.5 flex items-center gap-2">
-              <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
+              <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
                 Data sources
               </span>
-              <span className="ml-auto font-mono text-[11px] text-slate-400">
+              <span className="ml-auto font-mono text-[11.5px] text-slate-600">
                 {sourceGroups.length} groups · {totalSourceInputs} sources
               </span>
             </div>
@@ -1013,7 +1013,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
-                <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
+                <div className="mb-2.5 whitespace-nowrap font-mono text-[11px] uppercase tracking-wider text-slate-300">
                   Signals · what we detect
                 </div>
                 <div className="flex flex-col gap-2">
@@ -1041,10 +1041,10 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           {/* Destinations */}
           <div className="flex h-full min-w-0 flex-col p-5">
             <div className="mb-3.5 flex items-center gap-2">
-              <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
+              <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
                 Activation destinations
               </span>
-              <span className="ml-auto text-[12px] font-medium italic text-slate-500">
+              <span className="ml-auto text-[12px] font-medium italic text-slate-600">
                 Every Customer, Every Colleague
               </span>
             </div>
@@ -1064,7 +1064,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       {team.label}
                     </span>
                     <span className="truncate text-[12.5px] font-medium leading-tight text-slate-800">{d.name}</span>
-                    <span className="ml-auto flex-none rounded bg-slate-100 px-1.5 py-px font-mono text-[9.5px] leading-none text-slate-500">
+                    <span className="ml-auto flex-none rounded bg-slate-100 px-1.5 py-px font-mono text-[11px] leading-none text-slate-600">
                       {d.channel}
                     </span>
                   </div>
@@ -1086,7 +1086,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                     {activeDetailKind}
                   </span>
                   <h3 className="text-[15px] font-bold text-slate-900">{activeDetail.label}</h3>
@@ -1139,7 +1139,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             </span>
                           ))}
                       </div>
-                      <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">{item.sublabel}</div>
+                      <div className="text-[11.5px] text-slate-600 leading-snug mt-0.5">{item.sublabel}</div>
                     </div>
                   </div>
                 ) : (
@@ -1147,7 +1147,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     <span className={cn("w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]", activeDetail.dot)} />
                     <div className="min-w-0 flex-1">
                       <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">{item.label}</div>
-                      <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">{item.sublabel}</div>
+                      <div className="text-[11.5px] text-slate-600 leading-snug mt-0.5">{item.sublabel}</div>
                     </div>
                   </div>
                 );
