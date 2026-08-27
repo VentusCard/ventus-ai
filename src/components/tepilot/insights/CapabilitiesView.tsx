@@ -993,7 +993,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
           {/* Core */}
           <div className="min-w-0 p-1.5">
-            <div className="h-full overflow-hidden rounded-xl bg-gradient-to-b from-[#0E1626] to-[#131E31] p-4">
+            <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-4">
               <div className="flex items-center gap-2.5">
                 <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto brightness-0 invert opacity-95" />
                 <p className="text-sm font-semibold tracking-tight text-white">Customer Intelligence Core</p>
