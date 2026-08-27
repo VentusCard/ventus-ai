@@ -1116,7 +1116,7 @@ export function CapabilitiesView() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">{item.label}</div>
-                        {activeSourceLabel === "External Intelligence" &&
+                        {activeSourceLabel?.startsWith("External Intelligence") &&
                           (itemFcra ? (
                             <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
                               FCRA
