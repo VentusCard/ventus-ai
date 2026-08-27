@@ -262,13 +262,15 @@ const ScrollDrivenHero = () => {
 
   return (
     <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
-      <HueField
-        blobs={[
-          { hue: "violet", size: 720, top: "4%", left: "-10%", opacity: 0.4 },
-          { hue: "sky", size: 640, top: "28%", left: "34%", opacity: 0.35 },
-        ]}
-        className="!absolute inset-x-0 top-0 h-screen"
-      />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-screen overflow-hidden" aria-hidden>
+        <HueField
+          blobs={[
+            { hue: "violet", size: 720, top: "4%", left: "-10%", opacity: 0.4 },
+            { hue: "sky", size: 640, top: "28%", left: "34%", opacity: 0.35 },
+          ]}
+        />
+      </div>
+
       <div className="sticky top-0 xl:h-screen min-h-screen flex items-start justify-center overflow-visible pt-24 md:pt-28 xl:pt-16 pb-10">
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
