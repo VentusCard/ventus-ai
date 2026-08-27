@@ -59,6 +59,31 @@ const THEME_VALUE: Record<string, string> = {
   lifestyle: "$150–$300/yr",
 };
 
+/**
+ * Keep the quote a complete thought. If copy runs past the space the card can
+ * show, trim back to the last sentence boundary that fits rather than cutting
+ * mid-word. Applies to live-generated and cached snapshot copy alike.
+ */
+const QUOTE_MAX_CHARS = 165;
+
+export function fitQuote(raw: string): string {
+  const text = (raw || "").trim().replace(/\s+/g, " ");
+  if (text.length <= QUOTE_MAX_CHARS) return text;
+
+  const window = text.slice(0, QUOTE_MAX_CHARS + 1);
+  const lastSentence = Math.max(
+    window.lastIndexOf(". "),
+    window.lastIndexOf("? "),
+    window.lastIndexOf("! "),
+  );
+  if (lastSentence > 60) return text.slice(0, lastSentence + 1).trim();
+
+  // No usable sentence break — end cleanly on a word boundary.
+  const lastSpace = window.lastIndexOf(" ");
+  const clipped = text.slice(0, lastSpace > 60 ? lastSpace : QUOTE_MAX_CHARS).trim();
+  return clipped.replace(/[,;:\-—]$/, "") + "…";
+}
+
 interface Props {
   cards: ProductCard[];
   customerName?: string;
@@ -145,8 +170,9 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         </div>
                         <p className={`font-bold text-slate-800 leading-tight line-clamp-2 flex-1 ${compact ? "text-[14px]" : "text-[15px]"}`}>{card.product_name}</p>
                       </div>
-                      <p className={`text-slate-600 italic leading-snug ${compact ? "text-[12px] line-clamp-3" : "text-[12px] line-clamp-3"}`}>"{card.quote}"</p>
-                      <div className="space-y-1.5 flex-1">
+                      <p className={`text-slate-600 italic leading-snug shrink-0 ${compact ? "text-[12px] line-clamp-4" : "text-[12px] line-clamp-4"}`}>"{fitQuote(card.quote)}"</p>
+                      <div className="space-y-1.5 flex-1 min-h-0">
+
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
                             <Check className={`mt-0.5 shrink-0 ${compact ? "w-3.5 h-3.5" : "w-3.5 h-3.5"}`} style={{ color: style.accent }} />
