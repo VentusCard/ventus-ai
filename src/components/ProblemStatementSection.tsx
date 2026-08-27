@@ -24,7 +24,7 @@ const columns = [
 
 const ProblemStatementSection = () => {
   return (
-    <section className="bg-white w-full scroll-mt-20 pt-24 md:pt-28 pb-14 md:pb-20 relative z-10 overflow-hidden">
+    <section id="problem" className="bg-white w-full scroll-mt-20 pt-24 md:pt-28 pb-14 md:pb-20 relative z-10 overflow-hidden">
       <HueField
         blobs={[
           { hue: "sky", size: 720, top: "-25%", right: "-12%" },

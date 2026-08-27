@@ -298,18 +298,28 @@ const ScrollDrivenHero = () => {
               Ventus AI orchestrates a hyper-personalized banking experience for every customer with your existing stack
             </p>
 
-            <Button
-              className="order-4 xl:order-none mt-6 xl:mt-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-700 ease-out h-12 px-10 text-base gap-2"
-              onClick={() => navigate("/contact")}
+            <div className="order-4 xl:order-none mt-6 xl:mt-7 flex flex-col sm:flex-row items-center gap-3 transition-all duration-700 ease-out"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(20px)",
                 transitionDelay: "300ms",
               }}
             >
-              Schedule a Demo
-              <ArrowRight className="w-4 h-4" />
-            </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-10 text-base gap-2"
+                onClick={() => navigate("/contact")}
+              >
+                Schedule a Demo
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="h-12 px-10 text-base border-slate-300 text-gray-700 hover:bg-slate-50 hover:text-gray-900"
+                onClick={() => document.getElementById("problem")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                Learn More
+              </Button>
+            </div>
 
           </div>
 
