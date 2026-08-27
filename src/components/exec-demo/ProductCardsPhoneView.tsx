@@ -59,6 +59,32 @@ const THEME_VALUE: Record<string, string> = {
   lifestyle: "$150–$300/yr",
 };
 
+const THEME_CTA: Record<string, string> = {
+  travel: "Plan Your Trip",
+  dining: "Start Earning",
+  fitness: "Claim Your Perk",
+  shopping: "Unlock Rewards",
+  entertainment: "Get Early Access",
+  home: "Check Your Equity",
+  education: "Open a Plan",
+  retirement: "Review Your Plan",
+  family: "Set Up Family",
+  business: "Grow Your Business",
+  wellness: "Start Your Benefit",
+  lifestyle: "See Your Offer",
+};
+
+const CTA_MAX_CHARS = 22;
+
+export function fitCta(raw: string | undefined, theme: string): string {
+  const text = (raw || "").trim().replace(/\s+/g, " ").replace(/[.!]+$/, "");
+  const label = text || THEME_CTA[theme] || "Learn More";
+  if (label.length <= CTA_MAX_CHARS) return label;
+  const window = label.slice(0, CTA_MAX_CHARS + 1);
+  const lastSpace = window.lastIndexOf(" ");
+  return (lastSpace > 8 ? label.slice(0, lastSpace) : label.slice(0, CTA_MAX_CHARS)).trim();
+}
+
 /**
  * Keep the quote a complete thought. If copy runs past the space the card can
  * show, trim back to the last sentence boundary that fits rather than cutting
@@ -190,7 +216,8 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         className={`w-full rounded-xl font-bold text-white flex items-center justify-center gap-1 shadow-sm ${compact ? "py-2.5 text-[12px]" : "py-2.5 text-[12px]"}`}
                         style={{ background: style.accent }}
                       >
-                        Learn More <ChevronRight className={`${compact ? "w-3.5 h-3.5" : "w-3.5 h-3.5"}`} />
+                        <span className="truncate">{fitCta(card.cta, card.theme)}</span>
+                        <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                       </button>
                     </div>
                   </div>
