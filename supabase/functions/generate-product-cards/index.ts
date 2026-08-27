@@ -266,7 +266,7 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
                         },
                         quote: {
                           type: "string",
-                          description: "1-2 sentence consumer-facing copy following the Ventus thesis tone. MUST include one personalized dollar-estimate (e.g. 'estimated $215', 'roughly $1,400') tied to the customer's actual signal or spending pattern.",
+                          description: "ONE complete consumer-facing sentence, 90-140 characters, ending in a period — must be a complete sentence and never trail off. MUST include one personalized dollar-estimate (e.g. 'estimated $215', 'roughly $1,400') tied to the customer's actual signal or spending pattern.",
                         },
                         signal_label: {
                           type: "string",
