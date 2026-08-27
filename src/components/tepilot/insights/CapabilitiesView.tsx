@@ -1060,19 +1060,16 @@ export function CapabilitiesView() {
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[38px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
+                    className="relative flex min-h-[44px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-3"
                   >
                     <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
                     <span
-                      className="flex-none rounded px-1.5 py-px text-[11px] font-semibold leading-none"
+                      className="flex-none rounded px-2 py-1 text-[13px] font-semibold leading-none"
                       style={{ background: `${team.color}14`, color: team.color }}
                     >
                       {team.label}
                     </span>
-                    <span className="truncate text-[12.5px] font-medium leading-tight text-slate-900">{d.name}</span>
-                    <span className="ml-auto flex-none rounded bg-slate-100 px-1.5 py-px font-mono text-[11px] leading-none text-slate-600">
-                      {d.channel}
-                    </span>
+                    <span className="truncate text-[14px] font-medium leading-tight text-slate-900">{d.name}</span>
                   </div>
                 );
               })}
