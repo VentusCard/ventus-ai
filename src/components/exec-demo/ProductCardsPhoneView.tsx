@@ -125,43 +125,43 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
           >
             {cards.map((card, i) => {
               const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
-              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, compact ? 2 : 3);
+              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
               const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
               const ThemeIcon = style.icon;
 
               return (
-                <div key={i} className="w-full shrink-0 px-1">
+                <div key={i} className="w-full shrink-0 px-1 h-full">
                   <div
                     className="rounded-2xl shadow-md overflow-hidden h-full flex flex-col"
                     style={{ background: style.gradient, borderTop: `3px solid ${style.accent}` }}
                   >
-                    <div className={`${compact ? "p-3 gap-2" : "p-5 gap-2.5"} flex flex-col flex-1`}>
+                    <div className={`${compact ? "p-4 gap-2.5" : "p-5 gap-2.5"} flex flex-col flex-1`}>
                       <div className="flex items-start gap-2.5">
                         <div
-                          className={`${compact ? "w-8 h-8" : "w-9 h-9"} rounded-xl flex items-center justify-center shrink-0 shadow-sm`}
+                          className={`${compact ? "w-9 h-9" : "w-9 h-9"} rounded-xl flex items-center justify-center shrink-0 shadow-sm`}
                           style={{ background: "rgba(255,255,255,0.75)", color: style.accent }}
                         >
-                          <ThemeIcon className={`${compact ? "w-4 h-4" : "w-5 h-5"}`} />
+                          <ThemeIcon className={`${compact ? "w-4.5 h-4.5" : "w-5 h-5"}`} />
                         </div>
-                        <p className={`font-bold text-slate-800 leading-tight line-clamp-2 flex-1 ${compact ? "text-[13px]" : "text-[15px]"}`}>{card.product_name}</p>
+                        <p className={`font-bold text-slate-800 leading-tight line-clamp-2 flex-1 ${compact ? "text-[14px]" : "text-[15px]"}`}>{card.product_name}</p>
                       </div>
-                      <p className={`text-slate-600 italic leading-snug ${compact ? "text-[11px] line-clamp-2" : "text-[12px] line-clamp-3"}`}>"{card.quote}"</p>
-                      <div className={`space-y-1.5 flex-1 ${compact ? "space-y-1" : "space-y-1.5"}`}>
+                      <p className={`text-slate-600 italic leading-snug ${compact ? "text-[12px] line-clamp-3" : "text-[12px] line-clamp-3"}`}>"{card.quote}"</p>
+                      <div className="space-y-1.5 flex-1">
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
-                            <Check className={`mt-0.5 shrink-0 ${compact ? "w-3 h-3" : "w-3.5 h-3.5"}`} style={{ color: style.accent }} />
-                            <span className={`text-slate-700 leading-snug font-medium ${compact ? "text-[11px]" : "text-[12px]"}`}>{b}</span>
+                            <Check className={`mt-0.5 shrink-0 ${compact ? "w-3.5 h-3.5" : "w-3.5 h-3.5"}`} style={{ color: style.accent }} />
+                            <span className={`text-slate-700 leading-snug font-medium ${compact ? "text-[12px]" : "text-[12px]"}`}>{b}</span>
                           </div>
                         ))}
                       </div>
-                      <p className={`font-bold leading-tight ${compact ? "text-[11px]" : "text-[12px]"}`} style={{ color: style.accent }}>
+                      <p className={`font-bold leading-tight ${compact ? "text-[12px]" : "text-[12px]"}`} style={{ color: style.accent }}>
                         Est. {value}
                       </p>
                       <button
-                        className={`w-full rounded-xl font-bold text-white flex items-center justify-center gap-1 shadow-sm ${compact ? "py-2 text-[11px]" : "py-2.5 text-[12px]"}`}
+                        className={`w-full rounded-xl font-bold text-white flex items-center justify-center gap-1 shadow-sm ${compact ? "py-2.5 text-[12px]" : "py-2.5 text-[12px]"}`}
                         style={{ background: style.accent }}
                       >
-                        Learn More <ChevronRight className={`${compact ? "w-3 h-3" : "w-3.5 h-3.5"}`} />
+                        Learn More <ChevronRight className={`${compact ? "w-3.5 h-3.5" : "w-3.5 h-3.5"}`} />
                       </button>
                     </div>
                   </div>
