@@ -49,8 +49,11 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
 
 
   useEffect(() => {
-    if (!useSession && example) ensurePersonalization(example.id);
-  }, [example?.id, useSession]);
+    // Only ask for what this surface renders: rewards reads offers, product
+    // reads product cards, relationship/messaging reads both.
+    const need = surface === "rewards" ? "offers" : surface === "product" ? "cards" : "all";
+    if (!useSession && example) ensurePersonalization(example.id, need);
+  }, [example?.id, useSession, surface]);
 
   const chatSignalContext = useMemo(
     () => (useSession || !example ? undefined : buildChatSignalContext(example)),

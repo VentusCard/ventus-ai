@@ -99,10 +99,14 @@ export interface PersonalizationProgress {
   onOffers?: (offers: RollupOfferGroup[] | null) => void;
 }
 
-/** Fires both generation functions in parallel from the customer's signals. */
+/** Which generated payloads the calling surface actually renders. */
+export type PersonalizationNeed = "offers" | "cards" | "all";
+
+/** Fires the generation functions the requested surface needs. */
 export async function generatePersonalizedExperience(
   customer: ExampleCustomer,
   progress?: PersonalizationProgress,
+  need: PersonalizationNeed = "all",
 ): Promise<PersonalizationGenerationResult> {
   const pillarRollups = buildPillarRollups(customer);
   const lifeEvents = buildLifeEvents(customer);
@@ -119,69 +123,85 @@ export async function generatePersonalizedExperience(
     reason: `${r.label} — ${r.evidence}`,
   }));
 
-  const offersPromise = supabase.functions.invoke("generate-next-offers", {
-    body: {
-      persona: { pillarRollups },
-      pillars: pillarRollups.map((r) => ({
-        pillar: r.pillar,
-        label: r.label,
-        count: r.totalCount,
-        totalSpend: r.totalSpend,
-        topMerchants: [],
-        subcategories: [],
-      })),
-      lifeEvents: lifeEvents.map((e: any) => ({
-        event_name: e.event_name,
-        confidence: e.confidence,
-        evidence_merchants: [],
-      })),
-      financial_signals: financialSignals,
-      demographics,
-      months_of_data: 12,
-      bankContext,
-    },
-  });
+  const wantOffers = need === "all" || need === "offers";
+  const wantCards = need === "all" || need === "cards";
 
-  const cardsPromise = supabase.functions.invoke("generate-product-cards", {
-    body: {
-      life_events: lifeEvents,
-      persona_rollups: pillarRollups,
-      pillars: pillarRollups.map((r) => ({
-        pillar: r.pillar,
-        label: r.label,
-        count: r.totalCount,
-        totalSpend: r.totalSpend,
-        subcategories: [],
-      })),
-      demographics,
-      financial_signals: financialSignals,
-      risk_flags: riskFlags,
-      bankContext,
-    },
-  });
+  const offersPromise = wantOffers
+    ? supabase.functions.invoke("generate-next-offers", {
+        body: {
+          persona: { pillarRollups },
+          pillars: pillarRollups.map((r) => ({
+            pillar: r.pillar,
+            label: r.label,
+            count: r.totalCount,
+            totalSpend: r.totalSpend,
+            topMerchants: [],
+            subcategories: [],
+          })),
+          lifeEvents: lifeEvents.map((e: any) => ({
+            event_name: e.event_name,
+            confidence: e.confidence,
+            evidence_merchants: [],
+          })),
+          financial_signals: financialSignals,
+          demographics,
+          months_of_data: 12,
+          bankContext,
+        },
+      })
+    : null;
+
+  // The card prompt only reads the first one or two entries of each family.
+  const cardsPromise = wantCards
+    ? supabase.functions.invoke("generate-product-cards", {
+        body: {
+          life_events: lifeEvents.slice(0, 2),
+          persona_rollups: pillarRollups.slice(0, 2),
+          pillars: pillarRollups.slice(0, 3).map((r) => ({
+            pillar: r.pillar,
+            label: r.label,
+            count: r.totalCount,
+            totalSpend: r.totalSpend,
+            subcategories: [],
+          })),
+          demographics,
+          financial_signals: financialSignals.slice(0, 2),
+          risk_flags: riskFlags,
+          bankContext,
+        },
+      })
+    : null;
 
   // Progressive: publish each result the moment its own call resolves.
-  const offersTracked = offersPromise.then((res) => {
-    const value = (!res.error ? (res.data?.rollupOffers ?? null) : null) as RollupOfferGroup[] | null;
-    progress?.onOffers?.(value);
-    return value;
-  }).catch((err) => {
-    console.error("[PERSONALIZATION] offers failed", err);
-    progress?.onOffers?.(null);
-    return null;
-  });
+  const offersTracked = offersPromise
+    ? offersPromise
+        .then((res) => {
+          const value = (!res.error ? (res.data?.rollupOffers ?? null) : null) as RollupOfferGroup[] | null;
+          progress?.onOffers?.(value);
+          return value;
+        })
+        .catch((err) => {
+          console.error("[PERSONALIZATION] offers failed", err);
+          progress?.onOffers?.(null);
+          return null;
+        })
+    : Promise.resolve(null);
 
-  const cardsTracked = cardsPromise.then((res) => {
-    const value = (!res.error
-      ? (res.data?.cards ?? res.data?.product_cards ?? null)
-      : null) as ProductCard[] | null;
-    progress?.onProductCards?.(value);
-    return value;
-  }).catch((err) => {
-    console.error("[PERSONALIZATION] product cards failed", err);
-    progress?.onProductCards?.(null);
-    return null;
-  });
+  const cardsTracked = cardsPromise
+    ? cardsPromise
+        .then((res) => {
+          const value = (!res.error
+            ? (res.data?.cards ?? res.data?.product_cards ?? null)
+            : null) as ProductCard[] | null;
+          progress?.onProductCards?.(value);
+          return value;
+        })
+        .catch((err) => {
+          console.error("[PERSONALIZATION] product cards failed", err);
+          progress?.onProductCards?.(null);
+          return null;
+        })
+    : Promise.resolve(null);
 
   const [offers, productCards] = await Promise.all([offersTracked, cardsTracked]);
 
