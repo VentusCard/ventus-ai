@@ -67,7 +67,10 @@ const THEME_VALUE: Record<string, string> = {
 const QUOTE_MAX_CHARS = 165;
 
 export function fitQuote(raw: string): string {
-  const text = (raw || "").trim().replace(/\s+/g, " ");
+  const text = (raw || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/^["“”']+|["“”']+$/g, "");
   if (text.length <= QUOTE_MAX_CHARS) return text;
 
   const window = text.slice(0, QUOTE_MAX_CHARS + 1);
@@ -170,7 +173,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         </div>
                         <p className={`font-bold text-slate-800 leading-tight line-clamp-2 flex-1 ${compact ? "text-[14px]" : "text-[15px]"}`}>{card.product_name}</p>
                       </div>
-                      <p className={`text-slate-600 italic leading-snug shrink-0 ${compact ? "text-[12px] line-clamp-4" : "text-[12px] line-clamp-4"}`}>"{fitQuote(card.quote)}"</p>
+                      <p className={`text-slate-600 italic leading-snug shrink-0 ${compact ? "text-[12px] line-clamp-4" : "text-[12px] line-clamp-4"}`}>{fitQuote(card.quote)}</p>
                       <div className="space-y-1.5 flex-1 min-h-0">
 
                         {benefits.map((b, bi) => (
@@ -217,20 +220,6 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
           </>
         )}
       </div>
-
-      {/* Dots */}
-      {total > 1 && (
-        <div className="flex items-center justify-center gap-1.5 mt-2">
-          {cards.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              aria-label={`Go to card ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all ${i === index ? "w-4 bg-slate-700" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`}
-            />
-          ))}
-        </div>
-      )}
 
       {!compact && (
         <p className="text-[9px] text-slate-300 text-center px-4 mt-2">
