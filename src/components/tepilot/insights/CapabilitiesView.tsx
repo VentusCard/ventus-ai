@@ -847,9 +847,9 @@ export function CapabilitiesView() {
     },
   ];
 
-  const sourceSections: { title: string; groups: SourceGroup[] }[] = [
-    { title: "Internal signals", groups: sourceGroups.slice(0, 2) },
-    { title: "External signals", groups: sourceGroups.slice(2, 4) },
+  const sourceSections: { title: string; tagline: string; groups: SourceGroup[] }[] = [
+    { title: "Internal signals", tagline: "Rail-agnostic transaction enrichment", groups: sourceGroups.slice(0, 2) },
+    { title: "External signals", tagline: "Source-agnostic behavioral intelligence", groups: sourceGroups.slice(2, 4) },
   ];
 
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
@@ -974,6 +974,9 @@ export function CapabilitiesView() {
                         {section.groups.length} sources
                       </span>
                     </div>
+                    <p className="text-[12px] font-medium leading-snug text-slate-600">
+                      {section.tagline}
+                    </p>
                     <div className="flex min-w-0 flex-1 flex-col gap-2">
                       {section.groups.map((g) => (
                         <SourceGroupCard
