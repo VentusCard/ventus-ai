@@ -561,8 +561,11 @@ function SignalSection({
   const reduceMotion =
     typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
+  const animationRef = useRef<Animation | null>(null);
+
   useEffect(() => {
     let intervalId: number;
+    let cancelled = false;
     const advance = () => setIdx((current) => (current + 1) % total);
 
     const tick = () => {
@@ -571,18 +574,28 @@ function SignalSection({
         advance();
         return;
       }
+      // Roll by the exact measured row height so sub-pixel layout can't leave a fractional offset.
+      const rowHeight = Math.round(currentRowRef.current?.getBoundingClientRect().height ?? 28);
       const timing: KeyframeAnimationOptions = {
         duration: 900,
         easing: "cubic-bezier(0.22, 1, 0.36, 1)",
         fill: "forwards" as FillMode,
       };
+      animationRef.current?.cancel();
       const roll = track.animate(
-        [{ transform: "translate3d(0, 0, 0)" }, { transform: "translate3d(0, -50%, 0)" }],
+        [
+          { transform: "translate3d(0, 0, 0)" },
+          { transform: `translate3d(0, -${rowHeight}px, 0)` },
+        ],
         timing,
       );
+      animationRef.current = roll;
       roll.onfinish = () => {
+        if (cancelled) return;
+        // Paint the next row first, then drop the transform in the same frame.
+        flushSync(advance);
         roll.cancel();
-        advance();
+        if (animationRef.current === roll) animationRef.current = null;
       };
     };
 
@@ -590,8 +603,11 @@ function SignalSection({
       intervalId = window.setInterval(tick, interval);
     }, startDelay);
     return () => {
+      cancelled = true;
       window.clearTimeout(start);
       window.clearInterval(intervalId);
+      animationRef.current?.cancel();
+      animationRef.current = null;
     };
   }, [total, startDelay, interval, reduceMotion]);
 
