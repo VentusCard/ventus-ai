@@ -466,7 +466,7 @@ serve(async (req) => {
       let parsed = parseJsonLoose(raw);
       if (!hasDeals(parsed)) {
         console.error(
-          `[NEXT-OFFERS] behavioral copy unusable (${describeCompletion(data)}) for clusters: ${rollupsTagged.map((r: any) => `"${r.label}"`).join(", ")} — retrying compact`,
+          `[NEXT-OFFERS] behavioral copy unusable (${describeCompletion(data)}) for clusters: ${rollups.map((r: any) => `"${r.label}"`).join(", ")} — retrying compact`,
           raw.slice(0, 300),
         );
         // One bounded retry with terser copy so the JSON fits the ceiling.
