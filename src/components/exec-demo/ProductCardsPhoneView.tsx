@@ -74,15 +74,25 @@ const THEME_CTA: Record<string, string> = {
   lifestyle: "See Your Offer",
 };
 
-const CTA_MAX_CHARS = 22;
-
+/** Full CTA label — never truncated; the button steps type size down instead. */
 export function fitCta(raw: string | undefined, theme: string): string {
   const text = (raw || "").trim().replace(/\s+/g, " ").replace(/[.!]+$/, "");
-  const label = text || THEME_CTA[theme] || "Learn More";
-  if (label.length <= CTA_MAX_CHARS) return label;
-  const window = label.slice(0, CTA_MAX_CHARS + 1);
-  const lastSpace = window.lastIndexOf(" ");
-  return (lastSpace > 8 ? label.slice(0, lastSpace) : label.slice(0, CTA_MAX_CHARS)).trim();
+  return text || THEME_CTA[theme] || "Learn More";
+}
+
+/** Step the CTA type size down so long labels still fit on one line. */
+export function ctaSizeClass(label: string): string {
+  if (label.length > 26) return "text-[10.5px]";
+  if (label.length > 20) return "text-[11px]";
+  return "text-[12px]";
+}
+
+/** Step the product-name type size down instead of clamping to an ellipsis. */
+export function nameSizeClass(name: string, compact: boolean): string {
+  const len = (name || "").length;
+  if (len > 38) return compact ? "text-[12.5px]" : "text-[13px]";
+  if (len > 28) return compact ? "text-[13px]" : "text-[14px]";
+  return compact ? "text-[14px]" : "text-[15px]";
 }
 
 /**
