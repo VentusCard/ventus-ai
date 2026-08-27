@@ -247,21 +247,22 @@ const SNAPSHOTS = {
     ],
     "productCards": [
       {
-        "cta": "Unlock Your Home's Value",
+        "cta": "Get Pre-Approved",
         "theme": "home",
         "benefits": [
-          "0.25% relationship rate discount with autopay",
-          "Borrow up to 85% of your equity limits",
-          "No closing fees on lines under $250K"
+          "0.25% rate discount with autopay and relationship banking",
+          "Down payments from 3% on qualifying purchase loans",
+          "60-day rate lock while you shop"
         ],
-        "eligibility": "Preferred Rewards eligible — earn more based on balance",
+        "eligibility": "Pre-qualified — rates from 6.25% APR",
         "type": "life_event",
-        "product_name": "Our Bank Home Equity Line of Credit",
+        "product_name": "Our Bank Preferred Mortgage",
         "signal_label": "Buying a new house",
-        "cta_sub": "Soft credit check only · Instant pre-qualification",
-        "quote": "Your equity could unlock an estimated $45,000 for projects in your new space.",
-        "offer_headline": "HELOC rates from 7.24% variable APR"
+        "cta_sub": "Soft credit check only · Decision in minutes",
+        "quote": "A relationship rate could save an estimated $2,400 a year on your new place.",
+        "offer_headline": "30-yr fixed from 6.25% APR"
       },
+
       {
         "type": "behavioral",
         "cta_sub": "Decision in seconds · Use card immediately",
