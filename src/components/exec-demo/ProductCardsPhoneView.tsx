@@ -189,7 +189,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
           >
             {cards.map((card, i) => {
               const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
-              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
+              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, compact ? 2 : 3);
               const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
               const ThemeIcon = style.icon;
               const cta = fitCta(card.cta, card.theme);
@@ -210,7 +210,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         </div>
                         <p className={`font-bold text-slate-800 leading-tight flex-1 ${nameSizeClass(card.product_name, compact)}`}>{card.product_name}</p>
                       </div>
-                      <p className="text-slate-600 leading-snug shrink-0 text-[11.5px]">{fitQuote(card.quote)}</p>
+                      <p className="text-slate-700 leading-relaxed shrink-0 text-[12.5px]">{fitQuote(card.quote)}</p>
                       <div className="space-y-1.5 flex-1 min-h-0 pt-2 border-t border-black/5">
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
