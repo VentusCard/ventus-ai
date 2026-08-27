@@ -170,8 +170,9 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         </div>
                         <p className={`font-bold text-slate-800 leading-tight line-clamp-2 flex-1 ${compact ? "text-[14px]" : "text-[15px]"}`}>{card.product_name}</p>
                       </div>
-                      <p className={`text-slate-600 italic leading-snug ${compact ? "text-[12px] line-clamp-3" : "text-[12px] line-clamp-3"}`}>"{card.quote}"</p>
-                      <div className="space-y-1.5 flex-1">
+                      <p className={`text-slate-600 italic leading-snug shrink-0 ${compact ? "text-[12px] line-clamp-4" : "text-[12px] line-clamp-4"}`}>"{fitQuote(card.quote)}"</p>
+                      <div className="space-y-1.5 flex-1 min-h-0">
+
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
                             <Check className={`mt-0.5 shrink-0 ${compact ? "w-3.5 h-3.5" : "w-3.5 h-3.5"}`} style={{ color: style.accent }} />
