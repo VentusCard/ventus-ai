@@ -59,6 +59,31 @@ const THEME_VALUE: Record<string, string> = {
   lifestyle: "$150–$300/yr",
 };
 
+/**
+ * Keep the quote a complete thought. If copy runs past the space the card can
+ * show, trim back to the last sentence boundary that fits rather than cutting
+ * mid-word. Applies to live-generated and cached snapshot copy alike.
+ */
+const QUOTE_MAX_CHARS = 165;
+
+export function fitQuote(raw: string): string {
+  const text = (raw || "").trim().replace(/\s+/g, " ");
+  if (text.length <= QUOTE_MAX_CHARS) return text;
+
+  const window = text.slice(0, QUOTE_MAX_CHARS + 1);
+  const lastSentence = Math.max(
+    window.lastIndexOf(". "),
+    window.lastIndexOf("? "),
+    window.lastIndexOf("! "),
+  );
+  if (lastSentence > 60) return text.slice(0, lastSentence + 1).trim();
+
+  // No usable sentence break — end cleanly on a word boundary.
+  const lastSpace = window.lastIndexOf(" ");
+  const clipped = text.slice(0, lastSpace > 60 ? lastSpace : QUOTE_MAX_CHARS).trim();
+  return clipped.replace(/[,;:\-—]$/, "") + "…";
+}
+
 interface Props {
   cards: ProductCard[];
   customerName?: string;
