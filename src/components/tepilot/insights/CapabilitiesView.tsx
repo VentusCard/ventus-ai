@@ -1042,7 +1042,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           <Connector amber />
 
           {/* Destinations */}
-          <div className="flex h-full min-w-0 flex-col p-4">
+          <div className="flex h-full min-w-0 flex-col p-5">
             <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
                 Activation destinations
@@ -1057,7 +1057,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[34px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
+                    className="relative flex min-h-[38px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
                   >
                     <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
                     <span
