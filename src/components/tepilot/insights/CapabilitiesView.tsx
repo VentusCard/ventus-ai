@@ -964,9 +964,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2.5 text-sm font-semibold text-slate-900">
           Intelligence pipeline
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-medium text-slate-400">
-            real-time
-          </span>
         </h2>
         {onOpenProducts && (
           <button
