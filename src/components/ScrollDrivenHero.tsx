@@ -309,7 +309,7 @@ const ScrollDrivenHero = () => {
                 className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-10 text-base gap-2"
                 onClick={() => navigate("/contact")}
               >
-                Schedule a Demo
+                Schedule Demo
                 <ArrowRight className="w-4 h-4" />
               </Button>
               <Button
