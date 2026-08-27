@@ -863,8 +863,6 @@ export function CapabilitiesView() {
           icon: i.icon,
           fcra: i.fcra,
         })),
-        onOpen: activeSourceGroup.onOpen,
-        openLabel: activeSourceGroup.openLabel,
       }
     : null;
   const activeDetail = activeSignal ?? activeSource;
@@ -928,15 +926,6 @@ export function CapabilitiesView() {
         <h2 className="flex items-center gap-2.5 text-sm font-semibold text-slate-900">
           Intelligence pipeline
         </h2>
-        {onOpenProducts && (
-          <button
-            type="button"
-            onClick={onOpenProducts}
-            className="flex items-center gap-1.5 text-[12.5px] font-medium text-sky-600 hover:text-sky-700"
-          >
-            Configure sources →
-          </button>
-        )}
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
@@ -949,17 +938,29 @@ export function CapabilitiesView() {
                 Data sources
               </span>
               <span className="ml-auto font-mono text-[11.5px] text-slate-600">
-                {sourceGroups.length} groups · {totalSourceInputs} sources
+                2 groups · {totalSourceInputs} sources
               </span>
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-2">
-              {sourceGroups.map((g) => (
-                <SourceGroupCard
-                  key={g.provider}
-                  group={g}
-                  isActive={activeSourceLabel === g.provider}
-                  onSelect={() => selectSource(g.provider)}
-                />
+            <div className="flex min-w-0 flex-1 flex-col gap-3">
+              {sourceSections.map((section) => (
+                <div key={section.title} className="flex min-w-0 flex-1 flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
+                      {section.title}
+                    </span>
+                    <span className="ml-auto font-mono text-[11px] text-slate-500">
+                      {section.groups.length}
+                    </span>
+                  </div>
+                  {section.groups.map((g) => (
+                    <SourceGroupCard
+                      key={g.provider}
+                      group={g}
+                      isActive={activeSourceLabel === g.provider}
+                      onSelect={() => selectSource(g.provider)}
+                    />
+                  ))}
+                </div>
               ))}
             </div>
           </div>
@@ -1059,16 +1060,6 @@ export function CapabilitiesView() {
                 </div>
                 <p className="text-[12px] text-slate-600 mt-1 leading-snug">{activeDetail.description}</p>
               </div>
-              {activeSource?.onOpen && (
-                <button
-                  type="button"
-                  onClick={activeSource.onOpen}
-                  className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-2 py-1 rounded transition-colors"
-                >
-                  <span>{activeSource.openLabel ?? "Open"}</span>
-                  <ArrowUpRight className="w-3 h-3" />
-                </button>
-              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
