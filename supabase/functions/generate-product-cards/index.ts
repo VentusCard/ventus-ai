@@ -70,7 +70,11 @@ CARD 2 — LIFE EVENT:
 - Based on a detected life event (education, home, retirement, etc.)
 - Frame as a general financial wellness tip, not "we detected X"
 - Never say "we noticed", "based on your transactions", "our data shows"
-- Product should be a concrete financial instrument (529, HYSA, HELOC, etc.)
+- Product should be a concrete financial instrument (529, HYSA, Mortgage, HELOC, etc.)
+- HOME EVENTS — MATCH THE STAGE (STRICT):
+  - Shopping for / buying / moving into a new home, pre-approval, house hunting, closing → PURCHASE FINANCING: "${bankLabel} Preferred Mortgage" (or Mortgage Pre-Approval / Rate Lock). NEVER a HELOC — the customer has no equity yet.
+  - Only recommend a HELOC when the customer is an ESTABLISHED homeowner (existing mortgage in financial_signals, renovation/home-improvement behavior, or a home owned for years) and the need is drawing on built-up equity.
+  - Refinance only when an existing mortgage signal is present.
 - Quote: 1-2 sentences, empathetic, forward-looking
 - CRITICAL: The quote must NEVER name the life event directly. Use indirect, euphemistic language instead:
   - "new baby" → "a major family milestone"
@@ -124,7 +128,7 @@ Required by field:
     - Travel card + tropical rollup ($4,200 travel spend): "At 3x on travel, that's roughly $215 back on your next trip."
     - 529 for college prep: "Saving $250/mo could grow to an estimated $58,000 by college."
     - HYSA: "On a $10K balance, that's about $450 more a year than average."
-    - HELOC after a home purchase: "Your equity could unlock an estimated $45,000 for projects."
+    - Mortgage for a home purchase: "A relationship rate could save an estimated $2,400 a year."
   The estimate must be plausible and grounded in the input data — do NOT invent unrelated numbers.
 - eligibility: When possible include a numeric anchor: "Pre-qualified — rates from 2.99% APR", "FDIC insured up to $250,000", "Open with as little as $25".
 - cta_sub: May include a number when relevant: "Funded in under 5 minutes", "Rate locked for 60 days".
