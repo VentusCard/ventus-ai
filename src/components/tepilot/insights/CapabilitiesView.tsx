@@ -441,15 +441,15 @@ const BASIS_BADGE: Record<string, string> = {
 };
 
 const BASIS_BADGE_DARK: Record<string, string> = {
-  "First-party": "bg-sky-400/15 text-sky-200",
-  Both: "bg-white/[0.08] text-slate-200",
-  Modeled: "bg-amber-400/15 text-amber-200",
+  "First-party": "bg-sky-400/20 text-sky-100",
+  Both: "bg-white/[0.12] text-slate-100",
+  Modeled: "bg-amber-400/20 text-amber-100",
 };
 
 const DETECTION_BASIS_CLASS: Record<Detection["basis"], string> = {
-  "1P": "bg-sky-400/15 text-sky-200",
-  Ext: "bg-amber-400/15 text-amber-200",
-  Both: "bg-white/[0.08] text-slate-200",
+  "1P": "bg-sky-400/20 text-sky-100",
+  Ext: "bg-amber-400/20 text-amber-100",
+  Both: "bg-white/[0.12] text-slate-100",
 };
 
 /* Per-family chrome for the signal cards on the dark Intelligence Core panel.
@@ -621,7 +621,7 @@ function SignalSection({
       <span className="relative z-0 truncate text-slate-200">{example.ev}</span>
       <span
         className={cn(
-          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[10px] tracking-wide",
+          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[11px] tracking-wide",
           DETECTION_BASIS_CLASS[example.basis],
         )}
       >
@@ -1058,12 +1058,12 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   >
                     <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
                     <span
-                      className="flex-none rounded px-1.5 py-px text-[9.5px] font-medium leading-none"
+                      className="flex-none rounded px-1.5 py-px text-[11px] font-semibold leading-none"
                       style={{ background: `${team.color}14`, color: team.color }}
                     >
                       {team.label}
                     </span>
-                    <span className="truncate text-[12.5px] font-medium leading-tight text-slate-800">{d.name}</span>
+                    <span className="truncate text-[12.5px] font-medium leading-tight text-slate-900">{d.name}</span>
                     <span className="ml-auto flex-none rounded bg-slate-100 px-1.5 py-px font-mono text-[11px] leading-none text-slate-600">
                       {d.channel}
                     </span>
@@ -1090,7 +1090,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     {activeDetailKind}
                   </span>
                   <h3 className="text-[15px] font-bold text-slate-900">{activeDetail.label}</h3>
-                  <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded border", activeDetail.tint)}>
+                  <span className={cn("text-[11px] font-semibold px-1.5 py-0.5 rounded border", activeDetail.tint)}>
                     {activeDetail.items.length} {activeDetailCountNoun}
                   </span>
                 </div>
