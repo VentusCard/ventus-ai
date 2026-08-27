@@ -70,7 +70,11 @@ CARD 2 — LIFE EVENT:
 - Based on a detected life event (education, home, retirement, etc.)
 - Frame as a general financial wellness tip, not "we detected X"
 - Never say "we noticed", "based on your transactions", "our data shows"
-- Product should be a concrete financial instrument (529, HYSA, HELOC, etc.)
+- Product should be a concrete financial instrument (529, HYSA, Mortgage, HELOC, etc.)
+- HOME EVENTS — MATCH THE STAGE (STRICT):
+  - Shopping for / buying / moving into a new home, pre-approval, house hunting, closing → PURCHASE FINANCING: "${bankLabel} Preferred Mortgage" (or Mortgage Pre-Approval / Rate Lock). NEVER a HELOC — the customer has no equity yet.
+  - Only recommend a HELOC when the customer is an ESTABLISHED homeowner (existing mortgage in financial_signals, renovation/home-improvement behavior, or a home owned for years) and the need is drawing on built-up equity.
+  - Refinance only when an existing mortgage signal is present.
 - Quote: 1-2 sentences, empathetic, forward-looking
 - CRITICAL: The quote must NEVER name the life event directly. Use indirect, euphemistic language instead:
   - "new baby" → "a major family milestone"
