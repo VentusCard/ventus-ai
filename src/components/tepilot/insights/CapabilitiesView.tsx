@@ -977,7 +977,7 @@ export function CapabilitiesView() {
                     <p
                       className={cn(
                         "text-[14px] font-bold leading-snug",
-                        isExternal ? "text-amber-700" : "text-sky-700",
+                        isExternal ? "text-amber-900" : "text-sky-900",
                       )}
                     >
                       {section.tagline}
