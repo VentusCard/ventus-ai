@@ -106,12 +106,12 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   return (
     <div
       ref={workspaceRef}
-      className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1.2fr] gap-4 h-[calc(100vh-140px)] min-h-[720px]"
+      className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.05fr_1.35fr] gap-4 h-[calc(100vh-140px)] min-h-[720px]"
     >
       {/* ---------- Customer Selection ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
-        <div className="shrink-0 px-4 py-3 border-b border-slate-200 bg-slate-50/60">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="shrink-0 px-4 py-2.5 border-b border-slate-200 bg-slate-50/60">
+          <div className="flex items-center gap-2 mb-1.5">
             <Users className="w-4 h-4 text-blue-500 shrink-0" />
             <h2 className="text-sm font-semibold text-slate-900">Customer Selection</h2>
           </div>
@@ -149,7 +149,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
 
       {/* ---------- Personalized surface ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
-        <div className="shrink-0 px-3.5 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between gap-3">
+        <div className="shrink-0 px-4 py-2 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <Smartphone className="w-4 h-4 text-blue-500 shrink-0" />
             <h2 className="text-sm font-semibold text-slate-900 truncate">
@@ -169,10 +169,11 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           )}
         </div>
 
-        <div className="flex-1 min-h-0 p-3 flex flex-col">
+        <div className="flex-1 min-h-0 p-2.5 flex flex-col">
           {!hasSelection ? (
             <div className="flex-1 min-h-0 flex justify-center relative">
-              <div className="w-full max-w-[400px] h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none">
+              <div style={{ maxWidth: "min(100%, calc((100vh - 260px) * 0.5))" }}
+                className="w-full max-w-[460px] h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none">
                 <ExecDemoPhoneView
                   customer={EXAMPLE_CUSTOMERS[0].demo}
                   activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
@@ -195,7 +196,10 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
             </div>
           ) : (
             <div className="flex-1 min-h-0 flex justify-center">
-              <div className="w-full max-w-[400px] h-full flex flex-col">
+              <div
+                className="w-full max-w-[460px] h-full flex flex-col"
+                style={{ maxWidth: "min(100%, calc((100vh - 260px) * 0.5))" }}
+              >
                 <ExecDemoPhoneView
                   customer={phoneCustomer!}
                   activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
