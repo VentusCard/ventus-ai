@@ -14,6 +14,44 @@ export interface ProductCard {
   cta_sub?: string;
 }
 
+/**
+ * Signal-family palette — mirrors SIGNAL_FAMILY_META in customerDirectoryData.ts.
+ * Cards are colored by the family that produced them, not by lifestyle theme.
+ * Rose is reserved for risk and is display-only (the generator never emits risk cards).
+ */
+export const FAMILY_STYLES: Record<string, { accent: string; label: string; gradient: string }> = {
+  behavioral: {
+    accent: "#2563eb",
+    label: "Behavioral",
+    gradient: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%)",
+  },
+  life_event: {
+    accent: "#f59e0b",
+    label: "Life Event",
+    gradient: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fff7ed 100%)",
+  },
+  financial_signal: {
+    accent: "#10b981",
+    label: "Financial Signal",
+    gradient: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdfa 100%)",
+  },
+  demographic: {
+    accent: "#8b5cf6",
+    label: "Demographic",
+    gradient: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #faf5ff 100%)",
+  },
+  risk: {
+    accent: "#f43f5e",
+    label: "Risk",
+    gradient: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 50%, #fef2f2 100%)",
+  },
+};
+
+/** Resolve the family styling for a card; falls back to behavioral (blue). */
+export function familyStyle(type: string | undefined) {
+  return FAMILY_STYLES[type || ""] || FAMILY_STYLES.behavioral;
+}
+
 export const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof Plane; gradient: string }> = {
   travel: { accent: "#3b82f6", text: "#1e3a5f", icon: Plane, gradient: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%)" },
   dining: { accent: "#f59e0b", text: "#92400e", icon: Utensils, gradient: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fff7ed 100%)" },
