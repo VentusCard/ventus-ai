@@ -1,4 +1,5 @@
 import ScrollReveal from "@/components/ScrollReveal";
+import HueField from "@/components/HueField";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -136,8 +137,14 @@ const nextCards = [
 const SolutionSections = () => {
   return (
     <>
-      <section className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
+      <section className="bg-white py-20 relative overflow-hidden">
+        <HueField
+          blobs={[
+            { hue: "sky", size: 620, top: "-12%", left: "-8%" },
+            { hue: "violet", size: 560, bottom: "-20%", right: "-6%", opacity: 0.45 },
+          ]}
+        />
+        <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
           <ScrollReveal>
             <div className="mb-12 max-w-4xl">
               <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Solutions</p>
@@ -190,8 +197,14 @@ const SolutionSections = () => {
       </section>
 
       {/* Bank-Wide Intelligence */}
-      <section className="bg-white py-20 border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
+      <section className="bg-white py-20 border-y border-gray-200 relative overflow-hidden">
+        <HueField
+          blobs={[
+            { hue: "indigo", size: 680, top: "-18%", right: "-10%" },
+            { hue: "warm", size: 480, bottom: "-15%", left: "-5%", opacity: 0.5 },
+          ]}
+        />
+        <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
           <ScrollReveal>
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
               <div>
