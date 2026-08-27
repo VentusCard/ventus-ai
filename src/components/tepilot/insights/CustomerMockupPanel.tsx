@@ -106,7 +106,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   return (
     <div
       ref={workspaceRef}
-      className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.05fr_1.35fr] gap-4 h-[calc(100vh-140px)] min-h-[720px]"
+      className="grid grid-cols-1 lg:grid-cols-[0.8fr_0.95fr_1.75fr] gap-4 h-[calc(100vh-140px)] min-h-[720px]"
     >
       {/* ---------- Customer Selection ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
@@ -169,18 +169,19 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           )}
         </div>
 
-        <div className="flex-1 min-h-0 p-2.5 flex flex-col">
+        <div className="flex-1 min-h-0 p-1.5 flex flex-col">
           {!hasSelection ? (
             <div className="flex-1 min-h-0 flex justify-center relative">
               <div
-                className="w-full h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none"
-                style={{ maxWidth: "min(100%, 520px, calc((100vh - 260px) * 0.52))" }}
+                className="h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none"
+                style={{ width: "min(100%, calc((100vh - 200px) * 0.95))", maxWidth: "100%" }}
               >
                 <ExecDemoPhoneView
                   customer={EXAMPLE_CUSTOMERS[0].demo}
                   activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
                   phase="hold"
                   showContent
+                  frame="compact"
                   generatedOffers={null}
                   detectedLifeEvents={null}
                   productCards={null}
@@ -199,14 +200,15 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           ) : (
             <div className="flex-1 min-h-0 flex justify-center">
               <div
-                className="w-full h-full flex flex-col"
-                style={{ maxWidth: "min(100%, 520px, calc((100vh - 260px) * 0.52))" }}
+                className="h-full flex flex-col"
+                style={{ width: "min(100%, calc((100vh - 200px) * 0.95))", maxWidth: "100%" }}
               >
                 <ExecDemoPhoneView
                   customer={phoneCustomer!}
                   activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
                   phase="hold"
                   showContent
+                  frame="compact"
                   generatedOffers={useSession ? session.generatedOffers : generated.offers}
                   detectedLifeEvents={useSession ? session.detectedLifeEvents : generated.lifeEvents}
                   productCards={useSession ? session.productCards : generated.productCards}
