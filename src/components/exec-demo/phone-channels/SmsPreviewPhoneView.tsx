@@ -1,5 +1,5 @@
 import { ChevronLeft, Phone, Video, Info } from "lucide-react";
-import { THEME_STYLES, type ProductCard } from "../ProductCardsPhoneView";
+import { familyStyle, type ProductCard } from "../ProductCardsPhoneView";
 
 interface Props {
   cards: ProductCard[];
@@ -16,7 +16,7 @@ export default function SmsPreviewPhoneView({ cards, customerName, bankLabel = "
     );
   }
   const card = cards[0];
-  const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
+  const style = familyStyle(card.type);
   const firstName = (customerName ?? "there").split(" ")[0];
   const benefit = (card.benefits && card.benefits[0]) || "Preferred rate for you";
   const cta = card.cta || "Learn more";
