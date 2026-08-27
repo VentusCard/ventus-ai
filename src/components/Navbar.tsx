@@ -51,7 +51,7 @@ const Navbar = () => {
   return (
     <div className="absolute top-0 left-0 right-0 z-50">
       <AnnouncementBar />
-      <nav className={`transition-colors duration-300 ${isTransparent ? "bg-[#0A1628]" : "bg-transparent"}`}>
+      <nav className={`transition-colors duration-300 ${isTransparent ? "bg-[#0A1628]" : "ventus-glass-nav"}`}>
       {/* Desktop navbar */}
       <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
