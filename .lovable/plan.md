@@ -53,6 +53,14 @@ All source and destination rows use the same anatomy so the eye reads left-to-ri
 - Reduce family-card saturation one step (`/30` → `/22` surfaces) so the center reads as the focal point without overpowering the columns; keep border and accent-bar hues at full strength.
 - Align the first family card's top edge with the first source card's top edge.
 
+### 5. De-cramp the Customer Intelligence Core header
+
+The dark panel's top block (eyebrow, title, count) is squeezed against the panel edges and the first family card:
+
+- Panel padding: `p-4` → `px-6 pt-6 pb-5`.
+- Header stack: eyebrow (11.5px mono uppercase slate-300, tracking wider), then the "Customer Intelligence Core" title at `text-xl semibold` with its own line, then the meta count moved to the header's right side aligned to the title baseline instead of crowding the eyebrow row.
+- Add `mb-5` breathing room between the header block and the first signal family card; family cards keep their current internal layout (label row + 24h count + ticker) but the gap between cards goes to `space-y-3`.
+
 ### 5. Typography scale (applies board-wide)
 
 | Role | Size / weight | Color |
