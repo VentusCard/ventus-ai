@@ -1,4 +1,4 @@
-# Make the Intelligence pipeline read as one cohesive system
+# Make the Intelligence pipeline one cohesive system + de-cramp the Core header
 
 ## What the screenshot shows today
 
