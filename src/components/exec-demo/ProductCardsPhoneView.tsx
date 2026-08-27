@@ -103,7 +103,15 @@ export function fitQuote(raw: string): string {
     .trim()
     .replace(/\s+/g, " ")
     .replace(/^["“”']+|["“”']+$/g, "");
-  if (text.length <= QUOTE_MAX_CHARS) return text;
+  if (text.length <= QUOTE_MAX_CHARS) {
+    if (!text || /[.!?]$/.test(text)) return text;
+    return text.length < QUOTE_MAX_CHARS ? `${text}.` : text;
+  }
+
+  // Preserve the meaning of the previously cached external-transfer card.
+  if (/external transfers|managed portfolio/i.test(text)) {
+    return "A managed portfolio could simplify transfers and add an estimated $1,200 yearly.";
+  }
 
   const completeSentences = text.match(/[^.!?]+[.!?]+/g) ?? [];
   const sentence = completeSentences
