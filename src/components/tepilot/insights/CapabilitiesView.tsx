@@ -991,13 +991,18 @@ export function CapabilitiesView() {
           {/* Core */}
           <div className="min-w-0 p-1.5">
             <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-5">
-              <div className="mb-3.5 flex items-center gap-2.5 border-b border-white/10 pb-3">
-                <img src={ventusLogoTransparent} alt="Ventus" className="h-[18px] w-auto brightness-0 invert opacity-95" />
-                <p className="text-[15px] font-semibold tracking-tight text-white">Customer Intelligence Core</p>
-                <span className="ml-auto whitespace-nowrap font-mono text-[11.5px] text-slate-400">
-                  5 families · 233 signals
-                </span>
+              <div className="mb-3.5 border-b border-white/10 pb-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto shrink-0 brightness-0 invert opacity-95" />
+                  <p className="truncate text-[14px] font-semibold tracking-tight text-white">
+                    Customer Intelligence Core
+                  </p>
+                </div>
+                <p className="mt-1 whitespace-nowrap font-mono text-[11px] text-slate-400">
+                  5 families · 233 signals · 24h
+                </p>
               </div>
+
 
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
