@@ -25,8 +25,6 @@ import {
   Briefcase,
   Home,
   PiggyBank,
-  Package,
-  ArrowUpRight,
   ChevronDown,
   Tag,
   Sparkles,
