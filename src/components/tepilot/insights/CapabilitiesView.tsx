@@ -75,8 +75,6 @@ type SourceGroup = {
   icon: React.ElementType;
   description: string;
   inputs: SourceInput[];
-  onOpen?: () => void;
-  openLabel?: string;
 };
 
 type TeamKey = "leadership" | "growth" | "rewards";
@@ -672,7 +670,7 @@ function SignalSection({
 }
 
 
-export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
+export function CapabilitiesView() {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   const sourceGroups: SourceGroup[] = [
     {
