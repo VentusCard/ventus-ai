@@ -974,23 +974,14 @@ export function CapabilitiesView() {
                         {section.groups.length} sources
                       </span>
                     </div>
-                    <div
+                    <p
                       className={cn(
-                        "flex items-center gap-2 rounded-lg border-l-4 bg-white px-3 py-2 shadow-sm",
-                        isExternal
-                          ? "border-l-amber-400 text-amber-800"
-                          : "border-l-sky-500 text-sky-800",
+                        "text-[14px] font-bold leading-snug",
+                        isExternal ? "text-amber-700" : "text-sky-700",
                       )}
                     >
-                      {isExternal ? (
-                        <Sparkles className="h-4 w-4 shrink-0 text-amber-500" />
-                      ) : (
-                        <Route className="h-4 w-4 shrink-0 text-sky-500" />
-                      )}
-                      <p className="text-[13.5px] font-semibold leading-snug">
-                        {section.tagline}
-                      </p>
-                    </div>
+                      {section.tagline}
+                    </p>
                     <div className="flex min-w-0 flex-1 flex-col gap-2">
                       {section.groups.map((g) => (
                         <SourceGroupCard
