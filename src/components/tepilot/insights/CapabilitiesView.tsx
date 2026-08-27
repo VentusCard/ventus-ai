@@ -467,58 +467,58 @@ type DarkFamilyStyle = {
 
 const SIGNAL_DARK_STYLE: Record<string, DarkFamilyStyle> = {
   Behavioral: {
-    surface: "bg-gradient-to-r from-blue-500/[0.38] via-blue-500/[0.18] to-blue-500/[0.04]",
-    hover: "hover:from-blue-500/[0.48] hover:via-blue-500/[0.24]",
+    surface: "bg-blue-600/30",
+    hover: "hover:bg-blue-600/38",
     border: "border-blue-400/55",
-    activeSurface: "from-blue-500/[0.55] via-blue-500/[0.30] to-blue-500/[0.08]",
-    activeBorder: "border-blue-300/70 ring-1 ring-blue-400/50",
-    chip: "bg-blue-500/30 border border-blue-400/40",
-    icon: "text-blue-100",
-    label: "text-blue-50",
+    activeSurface: "bg-blue-600/45",
+    activeBorder: "border-blue-300/70 ring-2 ring-blue-400/60",
+    chip: "bg-blue-500 border border-white/20",
+    icon: "text-white",
+    label: "text-white",
     bar: "bg-blue-300",
   },
   "Life Event": {
-    surface: "bg-gradient-to-r from-amber-500/[0.38] via-amber-500/[0.18] to-amber-500/[0.04]",
-    hover: "hover:from-amber-500/[0.48] hover:via-amber-500/[0.24]",
+    surface: "bg-amber-600/30",
+    hover: "hover:bg-amber-600/38",
     border: "border-amber-400/55",
-    activeSurface: "from-amber-500/[0.55] via-amber-500/[0.30] to-amber-500/[0.08]",
-    activeBorder: "border-amber-300/70 ring-1 ring-amber-400/50",
-    chip: "bg-amber-500/30 border border-amber-400/40",
-    icon: "text-amber-100",
-    label: "text-amber-50",
+    activeSurface: "bg-amber-600/45",
+    activeBorder: "border-amber-300/70 ring-2 ring-amber-400/60",
+    chip: "bg-amber-500 border border-white/20",
+    icon: "text-white",
+    label: "text-white",
     bar: "bg-amber-300",
   },
   Financial: {
-    surface: "bg-gradient-to-r from-emerald-500/[0.38] via-emerald-500/[0.18] to-emerald-500/[0.04]",
-    hover: "hover:from-emerald-500/[0.48] hover:via-emerald-500/[0.24]",
+    surface: "bg-emerald-600/30",
+    hover: "hover:bg-emerald-600/38",
     border: "border-emerald-400/55",
-    activeSurface: "from-emerald-500/[0.55] via-emerald-500/[0.30] to-emerald-500/[0.08]",
-    activeBorder: "border-emerald-300/70 ring-1 ring-emerald-400/50",
-    chip: "bg-emerald-500/30 border border-emerald-400/40",
-    icon: "text-emerald-100",
-    label: "text-emerald-50",
+    activeSurface: "bg-emerald-600/45",
+    activeBorder: "border-emerald-300/70 ring-2 ring-emerald-400/60",
+    chip: "bg-emerald-500 border border-white/20",
+    icon: "text-white",
+    label: "text-white",
     bar: "bg-emerald-300",
   },
   Demographic: {
-    surface: "bg-gradient-to-r from-violet-500/[0.38] via-violet-500/[0.18] to-violet-500/[0.04]",
-    hover: "hover:from-violet-500/[0.48] hover:via-violet-500/[0.24]",
+    surface: "bg-violet-600/30",
+    hover: "hover:bg-violet-600/38",
     border: "border-violet-400/55",
-    activeSurface: "from-violet-500/[0.55] via-violet-500/[0.30] to-violet-500/[0.08]",
-    activeBorder: "border-violet-300/70 ring-1 ring-violet-400/50",
-    chip: "bg-violet-500/30 border border-violet-400/40",
-    icon: "text-violet-100",
-    label: "text-violet-50",
+    activeSurface: "bg-violet-600/45",
+    activeBorder: "border-violet-300/70 ring-2 ring-violet-400/60",
+    chip: "bg-violet-500 border border-white/20",
+    icon: "text-white",
+    label: "text-white",
     bar: "bg-violet-300",
   },
   Risk: {
-    surface: "bg-gradient-to-r from-rose-500/[0.38] via-rose-500/[0.18] to-rose-500/[0.04]",
-    hover: "hover:from-rose-500/[0.48] hover:via-rose-500/[0.24]",
+    surface: "bg-rose-600/30",
+    hover: "hover:bg-rose-600/38",
     border: "border-rose-400/55",
-    activeSurface: "from-rose-500/[0.55] via-rose-500/[0.30] to-rose-500/[0.08]",
-    activeBorder: "border-rose-300/70 ring-1 ring-rose-400/50",
-    chip: "bg-rose-500/30 border border-rose-400/40",
-    icon: "text-rose-100",
-    label: "text-rose-50",
+    activeSurface: "bg-rose-600/45",
+    activeBorder: "border-rose-300/70 ring-2 ring-rose-400/60",
+    chip: "bg-rose-500 border border-white/20",
+    icon: "text-white",
+    label: "text-white",
     bar: "bg-rose-300",
   },
 };
@@ -579,8 +579,8 @@ function SignalSection({
         [{ transform: "translate3d(0, 0, 0)" }, { transform: "translate3d(0, -50%, 0)" }],
         timing,
       );
-      currentRowRef.current?.animate([{ opacity: 1 }, { opacity: 0.15 }], timing);
-      nextRowRef.current?.animate([{ opacity: 0.15 }, { opacity: 1 }], timing);
+      currentRowRef.current?.animate([{ opacity: 1 }, { opacity: 0.25 }], timing);
+      nextRowRef.current?.animate([{ opacity: 0.25 }, { opacity: 1 }], timing);
       roll.onfinish = () => {
         roll.cancel();
         advance();
@@ -600,13 +600,13 @@ function SignalSection({
   const next = signal.examples[(idx + 1) % total];
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-6 items-center gap-2 text-[11.5px] leading-none text-slate-300">
-      <span className="relative z-10 truncate font-medium text-slate-200">{example.to}</span>
-      <span className="relative z-0 flex-none text-[10px] text-slate-500">&rarr;</span>
-      <span className="relative z-0 truncate text-slate-400">{example.ev}</span>
+    <span ref={ref} className="flex h-7 items-center gap-2 text-[12.5px] leading-none text-slate-200">
+      <span className="relative z-10 truncate font-medium text-white">{example.to}</span>
+      <span className="relative z-0 flex-none text-[11px] text-slate-400">&rarr;</span>
+      <span className="relative z-0 truncate text-slate-300">{example.ev}</span>
       <span
         className={cn(
-          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
+          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[10px] tracking-wide",
           DETECTION_BASIS_CLASS[example.basis],
         )}
       >
@@ -623,30 +623,30 @@ function SignalSection({
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-all duration-200",
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
         style.surface,
         style.border,
         isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
       )}
     >
-      <span className={cn("absolute inset-y-0 left-0 w-[4px]", style.bar)} />
+      <span className={cn("absolute inset-y-0 left-0 w-[5px]", style.bar)} />
       <span className="mb-0.5 flex items-center gap-2">
-        <span className={cn("flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[5px]", style.chip)}>
-          <Icon className={cn("h-[11px] w-[11px]", style.icon)} />
+        <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px]", style.chip)}>
+          <Icon className={cn("h-3.5 w-3.5", style.icon)} />
         </span>
-        <span className={cn("text-[12.5px] font-semibold tracking-tight", style.label)}>{signal.label}</span>
+        <span className={cn("text-[13px] font-semibold tracking-tight drop-shadow-sm", style.label)}>{signal.label}</span>
         <PulseDot
           colorClass={signal.dot}
           sizeClass="h-[6px] w-[6px]"
           delayMs={startDelay}
           className="rounded-full ring-[3px] ring-white/10"
         />
-        <span className="ml-auto font-mono text-[11px] tabular-nums text-slate-400">
-          <b className={cn("font-semibold", style.label)}>{count}</b> · 24h
+        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-300">
+          <b className="font-semibold text-white">{count}</b> · 24h
         </span>
       </span>
 
-      <span className="relative mt-0.5 block h-6 overflow-hidden">
+      <span className="relative mt-0.5 block h-7 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
           {renderRow(next, nextRowRef)}
