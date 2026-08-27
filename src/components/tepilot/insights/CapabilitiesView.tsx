@@ -1030,33 +1030,43 @@ export function CapabilitiesView() {
 
           {/* Destinations */}
           <div className="flex h-full min-w-0 flex-col p-5">
-            <div className="mb-3.5 flex items-center gap-2">
+            <div className="mb-3.5 flex items-center gap-2 whitespace-nowrap">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
-                Activation destinations
+                Activation
               </span>
-              <span className="ml-auto text-[12px] font-medium italic text-slate-600">
-                Every Customer, Every Colleague
+              <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-500">
+                {visibleDestinations.length} destinations
               </span>
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
               {visibleDestinations.map((d) => {
                 const team = TEAMS[d.team];
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[38px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
+                    className="flex min-h-[56px] flex-1 flex-col justify-center gap-1 overflow-hidden rounded-lg border border-slate-100 px-3 py-2"
                   >
-                    <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
-                    <span
-                      className="flex-none rounded px-1.5 py-px text-[11px] font-semibold leading-none"
-                      style={{ background: `${team.color}14`, color: team.color }}
-                    >
-                      {team.label}
-                    </span>
-                    <span className="truncate text-[12.5px] font-medium leading-tight text-slate-900">{d.name}</span>
-                    <span className="ml-auto flex-none rounded bg-slate-100 px-1.5 py-px font-mono text-[11px] leading-none text-slate-600">
-                      {d.channel}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="truncate text-[14px] font-semibold leading-tight text-slate-900">{d.name}</span>
+                      <span className="ml-auto flex flex-none items-center gap-1.5 text-[11px] font-medium text-emerald-600">
+                        <PulseDot sizeClass="h-1.5 w-1.5" />
+                        Live
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+                        style={{ background: `${team.color}14`, color: team.color }}
+                      >
+                        {team.label}
+                      </span>
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+                        style={{ background: `${team.color}0a`, color: team.color }}
+                      >
+                        {d.channel}
+                      </span>
+                    </div>
                   </div>
                 );
               })}
