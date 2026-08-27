@@ -951,15 +951,15 @@ export function CapabilitiesView() {
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
         {/* Pipeline board */}
-        <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
+        <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1.05fr_44px_1.15fr_44px_1.05fr]">
           {/* Sources */}
           <div className="flex h-full min-w-0 flex-col p-5">
-            <div className="mb-3.5 flex items-center gap-2">
+            <div className="mb-3.5 flex items-center gap-2 whitespace-nowrap">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
                 Data sources
               </span>
-              <span className="ml-auto font-mono text-[11.5px] text-slate-600">
-                2 groups · {totalSourceInputs} sources
+              <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-500">
+                2 groups · {totalSourceInputs} feeds
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -990,18 +990,23 @@ export function CapabilitiesView() {
 
           {/* Core */}
           <div className="min-w-0 p-1.5">
-            <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-4">
-              <div className="flex items-center gap-2.5">
-                <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto brightness-0 invert opacity-95" />
-                <p className="text-sm font-semibold tracking-tight text-white">Customer Intelligence Core</p>
+            <div className="h-full overflow-hidden rounded-xl bg-[#141432] px-6 pb-5 pt-6">
+              <div className="mb-5">
+                <div className="whitespace-nowrap font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-300">
+                  Signals · what we detect
+                </div>
+                <div className="mt-1.5 flex items-baseline gap-2.5">
+                  <img src={ventusLogoTransparent} alt="Ventus" className="h-[18px] w-auto self-center brightness-0 invert opacity-95" />
+                  <p className="text-xl font-semibold tracking-tight text-white">Customer Intelligence Core</p>
+                  <span className="ml-auto whitespace-nowrap font-mono text-[11.5px] tabular-nums text-slate-400">
+                    5 families · 24h
+                  </span>
+                </div>
               </div>
 
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
-                <div className="mb-2.5 whitespace-nowrap font-mono text-[11px] uppercase tracking-wider text-slate-300">
-                  Signals · what we detect
-                </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   {SIGNALS.map((s, i) => {
                     const row = signalRows.find((r) => r.label === s.label);
                     return (
