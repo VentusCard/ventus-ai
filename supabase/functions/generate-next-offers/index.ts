@@ -227,26 +227,53 @@ function parseJsonLoose(raw: string): any {
 
 /**
  * Salvage a response that was cut off by max_tokens: trim back to the last
- * complete deal object and close the remaining brackets so a near-miss still
- * yields deals instead of an empty collection.
+ * complete object and close every still-open bracket (string-aware) so a
+ * near-miss still yields deals instead of an empty collection.
  */
 function repairTruncatedJson(raw: string): any {
   const start = raw.indexOf("{");
   if (start < 0) return null;
   const body = raw.slice(start);
-  // Walk back to the last "}" that closes a well-formed object, then try to
-  // close the enclosing deals array / group / envelope at each candidate.
-  for (let i = body.length - 1; i >= 0; i--) {
-    if (body[i] !== "}") continue;
-    const head = body.slice(0, i + 1);
-    for (const tail of ["", "]}", "]}]}", "}]}", "]}]}}"]) {
-      try {
-        const parsed = JSON.parse(head + tail);
-        if (parsed && typeof parsed === "object") return parsed;
-      } catch { /* try next tail */ }
+
+  // Track bracket depth outside of strings so we know exactly how to close.
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+  // depthAt[i] = snapshot of the stack right after consuming char i.
+  const closeCandidates: { end: number; tail: string }[] = [];
+
+  for (let i = 0; i < body.length; i++) {
+    const ch = body[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') { inString = true; continue; }
+    if (ch === "{" || ch === "[") { stack.push(ch === "{" ? "}" : "]"); continue; }
+    if (ch === "}" || ch === "]") {
+      stack.pop();
+      // A complete object/array boundary — record how to close from here.
+      closeCandidates.push({ end: i, tail: stack.slice().reverse().join("") });
     }
   }
+
+  for (let c = closeCandidates.length - 1; c >= 0; c--) {
+    const { end, tail } = closeCandidates[c];
+    try {
+      const parsed = JSON.parse(body.slice(0, end + 1) + tail);
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch { /* try an earlier boundary */ }
+  }
   return null;
+}
+
+/** True when the parsed payload actually carries at least one usable deal. */
+function hasDeals(parsed: any): boolean {
+  const groups = parsed?.rollupOffers;
+  if (!Array.isArray(groups)) return false;
+  return groups.some((g: any) => Array.isArray(g?.deals) && g.deals.length > 0);
 }
 
 function describeCompletion(data: any): string {
