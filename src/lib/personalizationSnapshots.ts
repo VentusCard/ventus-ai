@@ -259,7 +259,7 @@ const SNAPSHOTS = {
         "product_name": "Our Bank Home Equity Line of Credit",
         "signal_label": "Buying a new house",
         "cta_sub": "Soft credit check only · Instant pre-qualification",
-        "quote": "Putting down roots in a new space often comes with early customization needs. Accessing your equity could deliver an estimated $45,000 in flexible funding to tailor your environment.",
+        "quote": "Your equity could unlock an estimated $45,000 for projects in your new space.",
         "offer_headline": "HELOC rates from 7.24% variable APR"
       },
       {
@@ -268,7 +268,7 @@ const SNAPSHOTS = {
         "theme": "wellness",
         "eligibility": "Pre-approved · No impact to credit score",
         "offer_headline": "Earn 3% cash back on active lifestyle gear",
-        "quote": "Your commitment to your active routines is valuable. Earning 3% cash back on your regular court times and gear could put an estimated $192 back in your pocket annually.",
+        "quote": "Earn 3% cash back on court time and gear—roughly $192 back each year.",
         "product_name": "Our Bank Unlimited Cash Rewards Card",
         "signal_label": "Biweekly tennis",
         "benefits": [
@@ -290,7 +290,7 @@ const SNAPSHOTS = {
         ],
         "theme": "retirement",
         "cta_sub": "Transfer funds online in under 3 minutes",
-        "quote": "Consolidating your external transfers into a single managed portfolio can simplify your tracking. Investing those recurring funds with us could yield an estimated $1,200 more over the next year.",
+        "quote": "A managed portfolio could simplify transfers and add an estimated $1,200 yearly.",
         "eligibility": "Open with as little as $1,000 balance",
         "cta": "Build Your Next Chapter"
       }
@@ -540,7 +540,7 @@ const SNAPSHOTS = {
         ],
         "type": "life_event",
         "cta_sub": "Soft credit check · Get pre-qualified instantly",
-        "quote": "As you prepare for putting down roots, securing a competitive rate early is key. An estimated $2,400 per year could be saved over the lifetime of your loan through our exclusive member discounts.",
+        "quote": "A relationship rate could save an estimated $2,400 each year on your new home.",
         "eligibility": "Preferred Rewards members enjoy rate discounts",
         "theme": "home",
         "signal_label": "First home purchase underway",
@@ -555,7 +555,7 @@ const SNAPSHOTS = {
           "No foreign transaction fees for global travel"
         ],
         "theme": "shopping",
-        "quote": "At 3x points on your favorite gear and platforms, your software and gadget habits could earn you roughly $192 back each year on your regular purchases.",
+        "quote": "Earn 3x on favorite gear and platforms—roughly $192 back each year.",
         "eligibility": "Open to existing Our Bank clients",
         "cta_sub": "Apply in 2 minutes · Use card instantly",
         "product_name": "Our Bank Premium Tech Rewards Card",
@@ -572,7 +572,7 @@ const SNAPSHOTS = {
           "No annual fee and $0 foreign transaction fees",
           "$200 statement credit after spending $1,000 in 90 days"
         ],
-        "quote": "Why settle for less when you deserve more. Moving your everyday card activity over could yield an estimated $280 back annually based on your typical spending profile.",
+        "quote": "Moving everyday card activity could return an estimated $280 each year.",
         "eligibility": "Pre-qualified based on relationship status",
         "offer_headline": "Earn unlimited 1.5% cash back on all everyday purchases",
         "type": "financial_signal",
@@ -819,7 +819,7 @@ const SNAPSHOTS = {
         "eligibility": "Open with as little as $25",
         "product_name": "Our Bank 529 College Savings Plan",
         "signal_label": "Estate planning started",
-        "quote": "Starting now with $500/mo could grow to an estimated $120,000 by the time they start this exciting next chapter.",
+        "quote": "Saving $500 monthly could grow to an estimated $120,000 for their next chapter.",
         "benefits": [
           "Tax-free growth on qualified education expenses",
           "Up to $10,000 state tax deduction per year",
@@ -845,7 +845,7 @@ const SNAPSHOTS = {
         "cta": "Maximize Your Family Budget",
         "type": "behavioral",
         "offer_headline": "Earn unlimited 2% cash back on family essentials",
-        "quote": "With roughly $6,400 in seasonal family expenses, you could earn an estimated $128 back on your regular household purchases."
+        "quote": "Family purchases could earn an estimated $128 back on seasonal expenses."
       },
       {
         "type": "financial_signal",
@@ -856,7 +856,7 @@ const SNAPSHOTS = {
           "No transaction fees on automatic rebalancing"
         ],
         "eligibility": "Preferred Rewards eligible for Private clients",
-        "quote": "By coordinating your external holdings, you could save an estimated $1,200 annually in redundant management fees.",
+        "quote": "Coordinating external holdings could save an estimated $1,200 in annual fees.",
         "product_name": "Our Bank Guided Investing",
         "offer_headline": "Consolidate investments under 1.50% lower average fees",
         "signal_label": "Investments held elsewhere",
@@ -1105,7 +1105,7 @@ const SNAPSHOTS = {
         "theme": "retirement",
         "type": "life_event",
         "cta_sub": "Set up automatic contributions in minutes",
-        "quote": "Consolidating your retirement savings could help you streamline your strategy and potentially add an estimated $12,000 to your long-term projection through optimized tax-efficient growth.",
+        "quote": "A consolidated retirement plan could add an estimated $12,000 over time.",
         "benefits": [
           "Up to 75% bonus rewards with Preferred Rewards membership",
           "Tax-advantaged growth on annual contributions up to $8,000",
@@ -1123,7 +1123,7 @@ const SNAPSHOTS = {
         "theme": "wellness",
         "signal_label": "Golf club member",
         "offer_headline": "Earn 3x points on golf, leisure, and wellness activities",
-        "quote": "With your regular club outings, earning premium multipliers on your annual $6,400 leisure spend translates to roughly $192 back in travel value each year.",
+        "quote": "Premium rewards on club outings could return roughly $192 in travel value yearly.",
         "eligibility": "Pre-qualified · No impact to credit score",
         "benefits": [
           "Earn 3x points on golf green fees and country club dues",
@@ -1135,7 +1135,7 @@ const SNAPSHOTS = {
         "product_name": "Our Bank Guided Investing",
         "signal_label": "Retirement money held away",
         "cta": "Plan Your Next Phase",
-        "quote": "Bringing your external retirement accounts under Our Bank's unified management could save you an estimated $1,800 annually in redundant platform fees while optimizing your asset allocation.",
+        "quote": "Combining retirement accounts could save an estimated $1,800 in annual fees.",
         "type": "financial_signal",
         "cta_sub": "Consultation takes less than 10 minutes",
         "benefits": [
@@ -1392,7 +1392,7 @@ const SNAPSHOTS = {
         "cta_sub": "Takes under 3 minutes to apply",
         "eligibility": "Pre-approved · Based on private relationship",
         "cta": "Prepare for the Milestone",
-        "quote": "With a major family milestone and your new professional chapter ahead, directing your new income into a rewarding card could return an estimated $1,200 annually based on your typical spending.",
+        "quote": "A rewards card for this next chapter could return an estimated $1,200 annually.",
         "benefits": [
           "Earn 2.00% cash back on all retail purchases",
           "Receive $200 annual statement credit for career services",
@@ -1407,7 +1407,7 @@ const SNAPSHOTS = {
         ],
         "eligibility": "Pre-qualified for Private Banking clients",
         "cta": "Elevate Your Shopping Routine",
-        "quote": "Your shopping preferences show a great appreciation for quality, which means your regular boutique visits could earn you roughly $192 back each season on your $6,400 retail spend.",
+        "quote": "Boutique purchases could earn roughly $192 back each season.",
         "offer_headline": "Earn 3x points on high-end fashion and retail purchases",
         "signal_label": "Fashion and retail regular",
         "product_name": "Our Bank Customized Cash Rewards Card",
@@ -1416,7 +1416,7 @@ const SNAPSHOTS = {
         "type": "behavioral"
       },
       {
-        "quote": "Leaving your extra cash in checking means missing out on valuable yield. Moving that idle money into Our Bank Advantage Savings could earn you an estimated $2,250 more per year in interest.",
+        "quote": "Moving idle cash to savings could earn an estimated $2,250 more each year.",
         "benefits": [
           "Earn 4.50% APY — 10x the national average savings rate",
           "Enjoy $0 monthly service fees and $0 transfer fees",
