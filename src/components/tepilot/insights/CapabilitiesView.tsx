@@ -25,8 +25,6 @@ import {
   Briefcase,
   Home,
   PiggyBank,
-  Package,
-  ArrowUpRight,
   ChevronDown,
   Tag,
   Sparkles,
@@ -59,7 +57,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
-import { BANK_PRODUCT_CATEGORIES, BANK_PRODUCT_TOTAL } from "@/lib/bankProductCatalog";
+
 import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 type SourceInput = {
@@ -75,8 +73,6 @@ type SourceGroup = {
   icon: React.ElementType;
   description: string;
   inputs: SourceInput[];
-  onOpen?: () => void;
-  openLabel?: string;
 };
 
 type TeamKey = "leadership" | "growth" | "rewards";
@@ -672,7 +668,7 @@ function SignalSection({
 }
 
 
-export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
+export function CapabilitiesView() {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   const sourceGroups: SourceGroup[] = [
     {
@@ -838,46 +834,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         },
       ],
     },
-    {
-      provider: "Bank Context",
-      sublabel: "products · locations · org",
-      icon: Package,
-      description: `The bank's operational context — products, locations, organizational structure, and customer tiers — that shapes what Ventus can recommend and to whom. ${BANK_PRODUCT_TOTAL} products across the catalog.`,
-      onOpen: onOpenProducts,
-      openLabel: `Open Bank Context tab`,
-      inputs: [
-        {
-          label: "Consumer Banking Products",
-          sublabel: "Checking, savings, debit, credit cards, and digital wallets",
-          icon: Wallet,
-        },
-        {
-          label: "Consumer Lending Products",
-          sublabel: "Mortgages, auto, personal, HELOC, and student loans",
-          icon: Home,
-        },
-        {
-          label: "Wealth & Investment Products",
-          sublabel: "Brokerage, managed portfolios, trusts, and advisory tiers",
-          icon: Gem,
-        },
-        {
-          label: "Locations & Hours",
-          sublabel: "Branch network, ATM coverage, and regional operating schedules",
-          icon: MapPin,
-        },
-        {
-          label: "Departments",
-          sublabel: "RM assignment rules, advisor specializations, and escalation paths",
-          icon: Users,
-        },
-        {
-          label: "Customer Segments & Tiers",
-          sublabel: "Mass market, affluent, and private-banking thresholds",
-          icon: Crown,
-        },
-      ],
-    },
+  ];
+
+  const sourceSections: { title: string; groups: SourceGroup[] }[] = [
+    { title: "Internal signals", groups: sourceGroups.slice(0, 2) },
+    { title: "External signals", groups: sourceGroups.slice(2, 4) },
   ];
 
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
@@ -900,8 +861,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           icon: i.icon,
           fcra: i.fcra,
         })),
-        onOpen: activeSourceGroup.onOpen,
-        openLabel: activeSourceGroup.openLabel,
       }
     : null;
   const activeDetail = activeSignal ?? activeSource;
@@ -965,15 +924,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         <h2 className="flex items-center gap-2.5 text-sm font-semibold text-slate-900">
           Intelligence pipeline
         </h2>
-        {onOpenProducts && (
-          <button
-            type="button"
-            onClick={onOpenProducts}
-            className="flex items-center gap-1.5 text-[12.5px] font-medium text-sky-600 hover:text-sky-700"
-          >
-            Configure sources →
-          </button>
-        )}
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
@@ -986,17 +936,29 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 Data sources
               </span>
               <span className="ml-auto font-mono text-[11.5px] text-slate-600">
-                {sourceGroups.length} groups · {totalSourceInputs} sources
+                2 groups · {totalSourceInputs} sources
               </span>
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-2">
-              {sourceGroups.map((g) => (
-                <SourceGroupCard
-                  key={g.provider}
-                  group={g}
-                  isActive={activeSourceLabel === g.provider}
-                  onSelect={() => selectSource(g.provider)}
-                />
+            <div className="flex min-w-0 flex-1 flex-col gap-3">
+              {sourceSections.map((section) => (
+                <div key={section.title} className="flex min-w-0 flex-1 flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
+                      {section.title}
+                    </span>
+                    <span className="ml-auto font-mono text-[11px] text-slate-500">
+                      {section.groups.length}
+                    </span>
+                  </div>
+                  {section.groups.map((g) => (
+                    <SourceGroupCard
+                      key={g.provider}
+                      group={g}
+                      isActive={activeSourceLabel === g.provider}
+                      onSelect={() => selectSource(g.provider)}
+                    />
+                  ))}
+                </div>
               ))}
             </div>
           </div>
@@ -1096,16 +1058,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 </div>
                 <p className="text-[12px] text-slate-600 mt-1 leading-snug">{activeDetail.description}</p>
               </div>
-              {activeSource?.onOpen && (
-                <button
-                  type="button"
-                  onClick={activeSource.onOpen}
-                  className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-2 py-1 rounded transition-colors"
-                >
-                  <span>{activeSource.openLabel ?? "Open"}</span>
-                  <ArrowUpRight className="w-3 h-3" />
-                </button>
-              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
