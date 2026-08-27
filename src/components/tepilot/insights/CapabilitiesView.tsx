@@ -57,7 +57,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
-import { BANK_PRODUCT_CATEGORIES } from "@/lib/bankProductCatalog";
+
 import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
 type SourceInput = {
