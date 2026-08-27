@@ -58,7 +58,7 @@ export function SignalFamilyPanel({
   onOpenSignal,
 }: SignalFamilyPanelProps) {
   return (
-    <div className="col-span-full rounded-lg border border-slate-300 bg-white shadow-sm animate-in fade-in slide-in-from-top-1 duration-200">
+    <div className={`col-span-full rounded-lg border ${family.cardBorder} bg-white shadow-sm animate-in fade-in slide-in-from-top-1 duration-200`}>
       {/* Slim bar */}
       <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-slate-200">
         <span className="text-[11px] text-slate-500 truncate">
