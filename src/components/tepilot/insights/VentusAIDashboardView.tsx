@@ -65,11 +65,12 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
       onClick={() => onOpenChat?.()}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="group w-full text-left rounded-xl border border-blue-200/70 bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-slate-50 shadow-sm hover:shadow-md hover:border-blue-300 hover:from-blue-50 hover:to-white transition-all overflow-hidden"
+      className="group relative w-full text-left rounded-xl border border-indigo-200/70 bg-gradient-to-r from-sky-100/90 via-indigo-100/80 to-violet-100/70 shadow-sm hover:shadow-md hover:border-indigo-300 hover:from-sky-100 hover:via-indigo-100 hover:to-violet-100 transition-all overflow-hidden"
     >
-      <div className="px-4 py-3">
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-sky-500 via-indigo-500 to-violet-500" />
+      <div className="pl-5 pr-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 border border-blue-600/30 shrink-0">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 via-indigo-500 to-violet-500 border border-indigo-600/30 shadow-sm shrink-0">
             <span className="text-sm font-black text-white leading-none">V</span>
           </div>
           <div className="min-w-0 flex-1">
@@ -100,10 +101,10 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
                   }}
                   className="ventus-roll-in flex items-center gap-2 h-[18px] cursor-pointer group/item"
                 >
-                  <span className="text-[11.5px] font-medium text-slate-700 truncate group-hover/item:text-blue-600 group-hover/item:underline">
+                  <span className="text-[11.5px] font-medium text-slate-700 truncate group-hover/item:text-indigo-600 group-hover/item:underline">
                     {activeCard.headline}
                   </span>
-                  <span className="text-[10.5px] text-slate-500 tabular-nums truncate shrink-0">
+                  <span className="text-[10.5px] text-slate-600 tabular-nums truncate shrink-0">
                     {activeCard.metric}
                   </span>
                 </span>
@@ -125,13 +126,13 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
                     }}
                     className={cn(
                       "block w-1.5 h-1.5 rounded-full transition-colors cursor-pointer",
-                      i === priorityIndex ? "bg-blue-500" : "bg-blue-200 hover:bg-blue-400",
+                      i === priorityIndex ? "bg-indigo-500" : "bg-indigo-200 hover:bg-indigo-400",
                     )}
                   />
                 ))}
               </div>
             )}
-            <div className="flex items-center gap-1 text-blue-400 group-hover:text-blue-600 transition-colors">
+            <div className="flex items-center gap-1 text-indigo-500 group-hover:text-indigo-600 transition-colors">
               <Sparkles className="w-3.5 h-3.5" />
               <ArrowUpRight className="w-3.5 h-3.5" />
             </div>
