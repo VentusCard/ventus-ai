@@ -451,6 +451,91 @@ const DETECTION_BASIS_CLASS: Record<Detection["basis"], string> = {
   Both: "bg-white/[0.08] text-slate-200",
 };
 
+/* Per-family chrome for the signal cards on the dark Intelligence Core panel.
+   Hues mirror the shared family palette (blue / amber / emerald / violet / rose). */
+type DarkFamilyStyle = {
+  surface: string;
+  hover: string;
+  border: string;
+  activeSurface: string;
+  activeBorder: string;
+  chip: string;
+  icon: string;
+  label: string;
+  bar: string;
+};
+
+const SIGNAL_DARK_STYLE: Record<string, DarkFamilyStyle> = {
+  Behavioral: {
+    surface: "bg-gradient-to-r from-blue-500/[0.22] via-blue-500/[0.09] to-transparent",
+    hover: "hover:from-blue-500/[0.32] hover:via-blue-500/[0.14]",
+    border: "border-blue-400/30",
+    activeSurface: "from-blue-500/[0.38] via-blue-500/[0.18] to-blue-500/[0.04]",
+    activeBorder: "border-blue-300/60 ring-1 ring-blue-400/30",
+    chip: "bg-blue-500/20 border border-blue-400/30",
+    icon: "text-blue-200",
+    label: "text-blue-50",
+    bar: "bg-blue-400",
+  },
+  "Life Event": {
+    surface: "bg-gradient-to-r from-amber-500/[0.22] via-amber-500/[0.09] to-transparent",
+    hover: "hover:from-amber-500/[0.32] hover:via-amber-500/[0.14]",
+    border: "border-amber-400/30",
+    activeSurface: "from-amber-500/[0.38] via-amber-500/[0.18] to-amber-500/[0.04]",
+    activeBorder: "border-amber-300/60 ring-1 ring-amber-400/30",
+    chip: "bg-amber-500/20 border border-amber-400/30",
+    icon: "text-amber-200",
+    label: "text-amber-50",
+    bar: "bg-amber-400",
+  },
+  Financial: {
+    surface: "bg-gradient-to-r from-emerald-500/[0.22] via-emerald-500/[0.09] to-transparent",
+    hover: "hover:from-emerald-500/[0.32] hover:via-emerald-500/[0.14]",
+    border: "border-emerald-400/30",
+    activeSurface: "from-emerald-500/[0.38] via-emerald-500/[0.18] to-emerald-500/[0.04]",
+    activeBorder: "border-emerald-300/60 ring-1 ring-emerald-400/30",
+    chip: "bg-emerald-500/20 border border-emerald-400/30",
+    icon: "text-emerald-200",
+    label: "text-emerald-50",
+    bar: "bg-emerald-400",
+  },
+  Demographic: {
+    surface: "bg-gradient-to-r from-violet-500/[0.22] via-violet-500/[0.09] to-transparent",
+    hover: "hover:from-violet-500/[0.32] hover:via-violet-500/[0.14]",
+    border: "border-violet-400/30",
+    activeSurface: "from-violet-500/[0.38] via-violet-500/[0.18] to-violet-500/[0.04]",
+    activeBorder: "border-violet-300/60 ring-1 ring-violet-400/30",
+    chip: "bg-violet-500/20 border border-violet-400/30",
+    icon: "text-violet-200",
+    label: "text-violet-50",
+    bar: "bg-violet-400",
+  },
+  Risk: {
+    surface: "bg-gradient-to-r from-rose-500/[0.22] via-rose-500/[0.09] to-transparent",
+    hover: "hover:from-rose-500/[0.32] hover:via-rose-500/[0.14]",
+    border: "border-rose-400/30",
+    activeSurface: "from-rose-500/[0.38] via-rose-500/[0.18] to-rose-500/[0.04]",
+    activeBorder: "border-rose-300/60 ring-1 ring-rose-400/30",
+    chip: "bg-rose-500/20 border border-rose-400/30",
+    icon: "text-rose-200",
+    label: "text-rose-50",
+    bar: "bg-rose-400",
+  },
+};
+
+const DEFAULT_DARK_STYLE: DarkFamilyStyle = {
+  surface: "bg-white/[0.045]",
+  hover: "hover:bg-white/[0.08]",
+  border: "border-white/[0.08]",
+  activeSurface: "bg-white/[0.11]",
+  activeBorder: "border-white/25",
+  chip: "bg-white/10 border border-white/15",
+  icon: "text-slate-200",
+  label: "text-slate-100",
+  bar: "bg-slate-400",
+};
+
+
 /* A single standing signal section with a rolling detection ticker. */
 function SignalSection({
   signal,
@@ -516,7 +601,7 @@ function SignalSection({
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
     <span ref={ref} className="flex h-6 items-center gap-2 text-[11.5px] leading-none text-slate-300">
-      <span className="relative z-10 truncate bg-inherit font-medium text-slate-200">{example.to}</span>
+      <span className="relative z-10 truncate font-medium text-slate-200">{example.to}</span>
       <span className="relative z-0 flex-none text-[10px] text-slate-500">&rarr;</span>
       <span className="relative z-0 truncate text-slate-400">{example.ev}</span>
       <span
@@ -530,24 +615,37 @@ function SignalSection({
     </span>
   );
 
+  const style = SIGNAL_DARK_STYLE[signal.label] ?? DEFAULT_DARK_STYLE;
+  const Icon = signal.icon;
+
   return (
     <button
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
-        "border-white/[0.08] bg-white/[0.045]",
-        isActive ? "border-white/25 bg-white/[0.11]" : "hover:bg-white/[0.08]",
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-all duration-200",
+        style.surface,
+        style.border,
+        isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
       )}
     >
-      <span className={cn("absolute inset-y-0 left-0 w-[3px]", signal.color)} />
+      <span className={cn("absolute inset-y-0 left-0 w-[4px]", style.bar)} />
       <span className="mb-0.5 flex items-center gap-2">
-        <PulseDot colorClass={signal.dot} sizeClass="h-[7px] w-[7px]" delayMs={startDelay} className="ring-[3px] ring-white/10 rounded-full" />
-        <span className="text-[12.5px] font-semibold tracking-tight text-slate-100">{signal.label}</span>
+        <span className={cn("flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[5px]", style.chip)}>
+          <Icon className={cn("h-[11px] w-[11px]", style.icon)} />
+        </span>
+        <span className={cn("text-[12.5px] font-semibold tracking-tight", style.label)}>{signal.label}</span>
+        <PulseDot
+          colorClass={signal.dot}
+          sizeClass="h-[6px] w-[6px]"
+          delayMs={startDelay}
+          className="rounded-full ring-[3px] ring-white/10"
+        />
         <span className="ml-auto font-mono text-[11px] tabular-nums text-slate-400">
-          <b className="font-semibold text-slate-200">{count}</b> · 24h
+          <b className={cn("font-semibold", style.label)}>{count}</b> · 24h
         </span>
       </span>
+
       <span className="relative mt-0.5 block h-6 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
