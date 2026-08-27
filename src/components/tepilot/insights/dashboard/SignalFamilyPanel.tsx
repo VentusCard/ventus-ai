@@ -12,28 +12,28 @@ interface SignalFamilyPanelProps {
 /** Static Tailwind classes: family color × strong-share intensity step. */
 const STRONG_PILL: Record<SignalFamily, [string, string, string, string]> = {
   spending_habit: [
-    "bg-sky-50 text-sky-600/80 border-sky-100",
-    "bg-sky-100 text-sky-700 border-sky-200",
-    "bg-sky-300 text-sky-900 border-sky-400",
-    "bg-sky-700 text-white border-sky-700",
+    "bg-blue-50 text-blue-600/80 border-blue-100",
+    "bg-blue-100 text-blue-700 border-blue-200",
+    "bg-blue-300 text-blue-900 border-blue-400",
+    "bg-blue-700 text-white border-blue-700",
   ],
   life_event: [
-    "bg-violet-50 text-violet-600/80 border-violet-100",
-    "bg-violet-100 text-violet-700 border-violet-200",
-    "bg-violet-300 text-violet-900 border-violet-400",
-    "bg-violet-700 text-white border-violet-700",
-  ],
-  financial: [
     "bg-amber-50 text-amber-700/80 border-amber-100",
     "bg-amber-100 text-amber-800 border-amber-200",
     "bg-amber-300 text-amber-900 border-amber-400",
     "bg-amber-700 text-white border-amber-700",
   ],
-  demographic: [
+  financial: [
     "bg-emerald-50 text-emerald-600/80 border-emerald-100",
     "bg-emerald-100 text-emerald-700 border-emerald-200",
     "bg-emerald-300 text-emerald-900 border-emerald-400",
     "bg-emerald-700 text-white border-emerald-700",
+  ],
+  demographic: [
+    "bg-violet-50 text-violet-600/80 border-violet-100",
+    "bg-violet-100 text-violet-700 border-violet-200",
+    "bg-violet-300 text-violet-900 border-violet-400",
+    "bg-violet-700 text-white border-violet-700",
   ],
   risk: [
     "bg-rose-50 text-rose-600/80 border-rose-100",
