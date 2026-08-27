@@ -252,13 +252,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         >
                           <ThemeIcon className={`${compact ? "w-4.5 h-4.5" : "w-5 h-5"}`} />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <span
-                            className="inline-block rounded-full px-1.5 py-[1px] text-[9px] font-bold uppercase tracking-wide mb-1"
-                            style={{ background: "rgba(255,255,255,0.8)", color: fam.accent }}
-                          >
-                            {fam.label}
-                          </span>
+                        <div className="flex-1 min-w-0 flex items-center">
                           <p className={`font-bold text-slate-800 leading-tight ${nameSizeClass(card.product_name, compact)}`}>{card.product_name}</p>
                         </div>
                       </div>
