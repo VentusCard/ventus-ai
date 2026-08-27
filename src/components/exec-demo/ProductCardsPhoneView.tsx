@@ -231,47 +231,57 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
             style={{ transform: `translateX(-${index * 100}%)` }}
           >
             {cards.map((card, i) => {
-              const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
+              const theme = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
+              const fam = familyStyle(card.type);
               const benefits = (card.benefits?.length ? card.benefits : THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
               const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
-              const ThemeIcon = style.icon;
+              const ThemeIcon = theme.icon;
               const cta = fitCta(card.cta, card.theme);
 
               return (
                 <div key={i} className="w-full shrink-0 px-1 h-full">
                   <div
                     className="rounded-2xl shadow-md overflow-hidden h-full flex flex-col"
-                    style={{ background: style.gradient, borderTop: `3px solid ${style.accent}` }}
+                    style={{ background: fam.gradient, borderTop: `3px solid ${fam.accent}` }}
                   >
                     <div className={`${compact ? "p-4 grid grid-rows-[auto_auto_minmax(0,1fr)_auto_auto] gap-2.5" : "p-5 gap-2.5 flex flex-col"} flex-1 min-h-0`}>
                       <div className="flex items-start gap-2.5">
                         <div
                           className={`${compact ? "w-9 h-9" : "w-9 h-9"} rounded-xl flex items-center justify-center shrink-0 shadow-sm`}
-                          style={{ background: "rgba(255,255,255,0.75)", color: style.accent }}
+                          style={{ background: "rgba(255,255,255,0.75)", color: fam.accent }}
                         >
                           <ThemeIcon className={`${compact ? "w-4.5 h-4.5" : "w-5 h-5"}`} />
                         </div>
-                        <p className={`font-bold text-slate-800 leading-tight flex-1 ${nameSizeClass(card.product_name, compact)}`}>{card.product_name}</p>
+                        <div className="flex-1 min-w-0">
+                          <span
+                            className="inline-block rounded-full px-1.5 py-[1px] text-[9px] font-bold uppercase tracking-wide mb-1"
+                            style={{ background: "rgba(255,255,255,0.8)", color: fam.accent }}
+                          >
+                            {fam.label}
+                          </span>
+                          <p className={`font-bold text-slate-800 leading-tight ${nameSizeClass(card.product_name, compact)}`}>{card.product_name}</p>
+                        </div>
                       </div>
                       <p className="text-slate-700 leading-relaxed shrink-0 text-[12.5px]">{fitQuote(card.quote)}</p>
                       <div className="flex flex-col justify-evenly gap-1.5 min-h-0 pt-2 border-t border-black/5">
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
-                            <Check className="mt-0.5 shrink-0 w-3.5 h-3.5" style={{ color: style.accent }} />
+                            <Check className="mt-0.5 shrink-0 w-3.5 h-3.5" style={{ color: fam.accent }} />
                             <span className="text-slate-700 leading-snug font-medium text-[12px]">{b}</span>
                           </div>
                         ))}
                       </div>
-                      <p className="font-bold leading-tight text-[13px]" style={{ color: style.accent }}>
+                      <p className="font-bold leading-tight text-[13px]" style={{ color: fam.accent }}>
                         Est. {value}
                       </p>
                       <button
                         className="w-full rounded-xl font-bold text-white flex items-center justify-center gap-1.5 shadow-sm py-2.5 px-2"
-                        style={{ background: style.accent }}
+                        style={{ background: fam.accent }}
                       >
                         <span className={`whitespace-nowrap ${ctaSizeClass(cta)}`}>{cta}</span>
                         <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                       </button>
+
                     </div>
                   </div>
                 </div>
