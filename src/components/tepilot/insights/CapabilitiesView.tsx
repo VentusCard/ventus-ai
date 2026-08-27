@@ -951,26 +951,42 @@ export function CapabilitiesView() {
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-3">
-              {sourceSections.map((section) => (
-                <div key={section.title} className="flex min-w-0 flex-1 flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
-                      {section.title}
-                    </span>
-                    <span className="ml-auto font-mono text-[11px] text-slate-500">
-                      {section.groups.length}
-                    </span>
+              {sourceSections.map((section) => {
+                const isExternal = /external/i.test(section.title);
+                return (
+                  <div
+                    key={section.title}
+                    className={cn(
+                      "flex min-w-0 flex-1 flex-col gap-2.5 rounded-xl border p-3",
+                      isExternal ? "border-amber-100 bg-amber-50/40" : "border-sky-100 bg-sky-50/40",
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "rounded-md px-2 py-1 text-[11.5px] font-semibold uppercase tracking-wider",
+                          isExternal ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700",
+                        )}
+                      >
+                        {section.title}
+                      </span>
+                      <span className="ml-auto font-mono text-[11px] text-slate-500">
+                        {section.groups.length} sources
+                      </span>
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                      {section.groups.map((g) => (
+                        <SourceGroupCard
+                          key={g.provider}
+                          group={g}
+                          isActive={activeSourceLabel === g.provider}
+                          onSelect={() => selectSource(g.provider)}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  {section.groups.map((g) => (
-                    <SourceGroupCard
-                      key={g.provider}
-                      group={g}
-                      isActive={activeSourceLabel === g.provider}
-                      onSelect={() => selectSource(g.provider)}
-                    />
-                  ))}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
