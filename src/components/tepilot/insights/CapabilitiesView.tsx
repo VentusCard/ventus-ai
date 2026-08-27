@@ -402,15 +402,15 @@ function SourceGroupCard({
         "flex w-full items-center gap-3 rounded-lg border bg-white px-3 py-3 text-left transition-colors",
         isActive
           ? isExternal
-            ? "border-amber-300 ring-1 ring-amber-200"
-            : "border-sky-300 ring-1 ring-sky-200"
+            ? "border-zinc-300 ring-1 ring-zinc-200"
+            : "border-slate-300 ring-1 ring-slate-200"
           : "border-slate-100 hover:border-slate-200",
       )}
     >
       <div
         className={cn(
           "flex h-[34px] w-[34px] flex-none items-center justify-center rounded-lg",
-          isExternal ? "bg-amber-50 text-amber-600" : "bg-sky-50 text-sky-600",
+          isExternal ? "bg-zinc-100 text-zinc-600" : "bg-slate-100 text-slate-600",
         )}
       >
         <Icon className="h-[18px] w-[18px]" />
@@ -424,7 +424,7 @@ function SourceGroupCard({
       <span
         className={cn(
           "flex-none rounded-full px-2 py-0.5 text-[11px] font-medium",
-          isExternal ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700",
+          isExternal ? "bg-zinc-100 text-zinc-700" : "bg-slate-100 text-slate-700",
         )}
       >
         {group.inputs.length} feeds
@@ -958,14 +958,14 @@ export function CapabilitiesView() {
                     key={section.title}
                     className={cn(
                       "flex min-w-0 flex-1 flex-col gap-2.5 rounded-xl border p-3",
-                      isExternal ? "border-amber-100 bg-amber-50/40" : "border-sky-100 bg-sky-50/40",
+                      isExternal ? "border-zinc-200 bg-zinc-50/60" : "border-slate-200 bg-slate-50/50",
                     )}
                   >
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
                           "rounded-md px-2 py-1 text-[11.5px] font-semibold uppercase tracking-wider",
-                          isExternal ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700",
+                          isExternal ? "bg-zinc-200 text-zinc-700" : "bg-slate-200 text-slate-700",
                         )}
                       >
                         {section.title}
@@ -977,7 +977,7 @@ export function CapabilitiesView() {
                     <p
                       className={cn(
                         "text-[14px] font-bold leading-snug",
-                        isExternal ? "text-amber-900" : "text-sky-900",
+                        isExternal ? "text-zinc-800" : "text-slate-800",
                       )}
                     >
                       {section.tagline}
