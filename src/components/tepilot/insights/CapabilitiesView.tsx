@@ -981,9 +981,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
         {/* Pipeline board */}
-        <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
+        <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
-          <div className="flex h-full min-w-0 flex-col p-4">
+          <div className="flex h-full min-w-0 flex-col p-5">
             <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
                 Data sources
