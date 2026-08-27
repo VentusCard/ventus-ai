@@ -64,7 +64,7 @@ const THEME_VALUE: Record<string, string> = {
  * show, trim back to the last sentence boundary that fits rather than cutting
  * mid-word. Applies to live-generated and cached snapshot copy alike.
  */
-const QUOTE_MAX_CHARS = 165;
+const QUOTE_MAX_CHARS = 90;
 
 export function fitQuote(raw: string): string {
   const text = (raw || "")
