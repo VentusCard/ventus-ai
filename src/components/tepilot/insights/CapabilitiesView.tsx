@@ -403,7 +403,7 @@ function SourceGroupCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex min-h-[52px] w-full flex-1 items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
+        "flex min-h-[58px] w-full flex-1 items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
         isActive ? "border-sky-300 ring-1 ring-sky-200" : "border-slate-100 hover:border-slate-200",
       )}
     >
