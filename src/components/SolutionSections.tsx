@@ -150,7 +150,7 @@ const SolutionSections = () => {
             {nextCards.map((section) => (
               <div
                 key={section.id}
-                className="rounded-[20px] border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col"
+                className="ventus-glass rounded-[20px] overflow-hidden flex flex-col"
               >
                 <div className="p-6 lg:p-7 flex flex-col flex-1">
                   <p className="text-[11px] font-semibold tracking-widest uppercase text-blue-600 mb-3">
@@ -163,7 +163,7 @@ const SolutionSections = () => {
                     {section.body}
                   </p>
                 </div>
-                <div className="bg-gray-50 border-t border-gray-200 p-5">
+                <div className="bg-white/45 border-t border-white/60 p-5">
                   <div className="rounded-[14px] border border-gray-200 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden">
                     <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 border-b border-gray-200">
                       <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
@@ -204,7 +204,7 @@ const SolutionSections = () => {
                 </p>
               </div>
               <div>
-                <div className="rounded-[20px] border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] overflow-hidden">
+                <div className="ventus-glass rounded-[20px] overflow-hidden">
                   <div className="flex items-center gap-1.5 px-4 py-3 bg-gray-100 border-b border-gray-200">
                     <span className="w-3 h-3 rounded-full bg-red-400" />
                     <span className="w-3 h-3 rounded-full bg-yellow-400" />
