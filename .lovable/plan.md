@@ -33,7 +33,7 @@ Color every generated product surface by the card's signal family, not its lifes
 
 ## Technical notes
 
-- New export `FAMILY_STYLES` in `ProductCardsPhoneView.tsx` mapping `ProductCard["type"]` to `{ accent, gradient, label }`; `THEME_STYLES` stays but is reduced to icon lookup for the color-independent parts.
+- New export `FAMILY_STYLES` in `ProductCardsPhoneView.tsx` keyed by all five family keys (`behavioral`, `life_event`, `financial_signal`, `demographic`, `risk`) to `{ accent, gradient, label }`, hues sourced from `SIGNAL_FAMILY_META` so the two palettes stay in sync; `THEME_STYLES` stays but is reduced to icon lookup.
 - Existing `THEME_BENEFITS`, `THEME_VALUE`, `THEME_CTA` keep working off `theme` — copy is unchanged.
 - No edge-function or prompt changes; this is presentation only.
 
