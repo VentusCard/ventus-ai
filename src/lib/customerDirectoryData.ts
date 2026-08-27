@@ -61,6 +61,7 @@ export const SIGNAL_FAMILY_META: {
   tint: string;
   cardBorder: string;
   cardBorderHover: string;
+  cardRing: string;
   sparkline: string;
   barStrong: string;
   barLikely: string;
