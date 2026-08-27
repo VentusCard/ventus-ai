@@ -207,26 +207,25 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         >
                           <ThemeIcon className={`${compact ? "w-4.5 h-4.5" : "w-5 h-5"}`} />
                         </div>
-                        <p className={`font-bold text-slate-800 leading-tight line-clamp-2 flex-1 ${compact ? "text-[14px]" : "text-[15px]"}`}>{card.product_name}</p>
+                        <p className={`font-bold text-slate-800 leading-tight flex-1 ${nameSizeClass(card.product_name, compact)}`}>{card.product_name}</p>
                       </div>
-                      <p className={`text-slate-600 italic leading-snug shrink-0 ${compact ? "text-[12px] line-clamp-4" : "text-[12px] line-clamp-4"}`}>{fitQuote(card.quote)}</p>
-                      <div className="space-y-1.5 flex-1 min-h-0">
-
+                      <p className="text-slate-600 leading-snug shrink-0 text-[11.5px]">{fitQuote(card.quote)}</p>
+                      <div className="space-y-1.5 flex-1 min-h-0 pt-2 border-t border-black/5">
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
-                            <Check className={`mt-0.5 shrink-0 ${compact ? "w-3.5 h-3.5" : "w-3.5 h-3.5"}`} style={{ color: style.accent }} />
-                            <span className={`text-slate-700 leading-snug font-medium ${compact ? "text-[12px]" : "text-[12px]"}`}>{b}</span>
+                            <Check className="mt-0.5 shrink-0 w-3.5 h-3.5" style={{ color: style.accent }} />
+                            <span className="text-slate-700 leading-snug font-medium text-[12px]">{b}</span>
                           </div>
                         ))}
                       </div>
-                      <p className={`font-bold leading-tight ${compact ? "text-[12px]" : "text-[12px]"}`} style={{ color: style.accent }}>
+                      <p className="font-bold leading-tight text-[13px]" style={{ color: style.accent }}>
                         Est. {value}
                       </p>
                       <button
-                        className={`w-full rounded-xl font-bold text-white flex items-center justify-center gap-1 shadow-sm ${compact ? "py-2.5 text-[12px]" : "py-2.5 text-[12px]"}`}
+                        className="w-full rounded-xl font-bold text-white flex items-center justify-center gap-1.5 shadow-sm py-2.5 px-2"
                         style={{ background: style.accent }}
                       >
-                        <span className="truncate">{fitCta(card.cta, card.theme)}</span>
+                        <span className={`whitespace-nowrap ${ctaSizeClass(cta)}`}>{cta}</span>
                         <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                       </button>
                     </div>
