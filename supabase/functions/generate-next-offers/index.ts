@@ -463,9 +463,32 @@ serve(async (req) => {
     if (rollupRes) {
       const data = await rollupRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
-      const parsed = parseJsonLoose(raw);
-      if (parsed?.rollupOffers) rollupOffers.push(...parsed.rollupOffers);
-      else console.error(`Failed to parse rollup AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
+      let parsed = parseJsonLoose(raw);
+      if (!hasDeals(parsed)) {
+        console.error(
+          `[NEXT-OFFERS] behavioral copy unusable (${describeCompletion(data)}) for clusters: ${rollupsTagged.map((r: any) => `"${r.label}"`).join(", ")} — retrying compact`,
+          raw.slice(0, 300),
+        );
+        // One bounded retry with terser copy so the JSON fits the ceiling.
+        const compactPrompt = `${rollupUserPrompt}\n\nOUTPUT BUDGET (STRICT): keep it terse so the JSON is COMPLETE. message ≤ 9 words, valueLine ≤ 12 words, valueMath ≤ 30 chars, signalReason ≤ 8 words, suppressedCategories ≤ 2 entries. Never stop mid-object — a complete JSON document matters more than long copy.`;
+        const retryRes = await callGateway(SYSTEM_PROMPT, compactPrompt, LOVABLE_API_KEY, COPY_MODEL, BEHAVIORAL_MAX_TOKENS);
+        if (retryRes?.ok) {
+          const retryData = await retryRes.json();
+          const retryRaw = retryData.choices?.[0]?.message?.content || "";
+          const retryParsed = parseJsonLoose(retryRaw);
+          if (hasDeals(retryParsed)) parsed = retryParsed;
+          else console.error(`[NEXT-OFFERS] behavioral retry also unusable (${describeCompletion(retryData)})`, retryRaw.slice(0, 300));
+        } else if (retryRes) {
+          console.error("[NEXT-OFFERS] behavioral retry gateway error:", retryRes.status);
+        }
+      }
+      if (hasDeals(parsed)) {
+        rollupOffers.push(...parsed.rollupOffers);
+        const dealCount = parsed.rollupOffers.reduce((n: number, g: any) => n + (g?.deals?.length || 0), 0);
+        console.log(`[NEXT-OFFERS] behavioral → ${parsed.rollupOffers.length} group(s), ${dealCount} deal(s)`);
+      } else {
+        console.error("[NEXT-OFFERS] behavioral produced no deals after retry — cluster dropped");
+      }
     }
 
     if (lifeEventRes && lifeEventsTagged.length > 0) {
