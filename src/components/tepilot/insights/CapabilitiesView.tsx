@@ -957,7 +957,7 @@ export function CapabilitiesView() {
                   <div
                     key={section.title}
                     className={cn(
-                      "flex min-w-0 flex-1 flex-col gap-2.5 rounded-xl border p-3",
+                      "flex min-w-0 flex-1 flex-col gap-3 rounded-xl border p-3",
                       isExternal ? "border-zinc-200 bg-zinc-50/60" : "border-slate-200 bg-slate-50/50",
                     )}
                   >
@@ -976,7 +976,7 @@ export function CapabilitiesView() {
                     </div>
                     <p
                       className={cn(
-                        "text-[14px] font-bold leading-snug",
+                        "py-2 text-[14px] font-bold leading-snug",
                         isExternal ? "text-zinc-800" : "text-slate-800",
                       )}
                     >
