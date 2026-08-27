@@ -413,7 +413,7 @@ function SourceGroupCard({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-[14px] font-semibold leading-tight text-slate-900">
+          <span className="truncate text-[15px] font-semibold leading-tight text-slate-900">
             {group.provider}
           </span>
           <span className="ml-auto flex flex-none items-center gap-1.5 text-[11px] font-medium text-emerald-600">
@@ -421,7 +421,7 @@ function SourceGroupCard({
             Live
           </span>
         </div>
-        <div className="mt-0.5 truncate text-[12px] text-slate-600">{group.sublabel}</div>
+        <div className="mt-0.5 truncate text-[12.5px] text-slate-600">{group.sublabel}</div>
         <div className="mt-1.5 flex items-center gap-1.5">
           <span
             className={cn(
@@ -487,10 +487,10 @@ type DarkFamilyStyle = {
 
 const SIGNAL_DARK_STYLE: Record<string, DarkFamilyStyle> = {
   Behavioral: {
-    surface: "bg-blue-600/22",
-    hover: "hover:bg-blue-600/30",
+    surface: "bg-blue-600/30",
+    hover: "hover:bg-blue-600/38",
     border: "border-blue-400/55",
-    activeSurface: "bg-blue-600/38",
+    activeSurface: "bg-blue-600/45",
     activeBorder: "border-blue-300/70 ring-2 ring-blue-400/60",
     chip: "bg-blue-500 border border-white/20",
     icon: "text-white",
@@ -498,10 +498,10 @@ const SIGNAL_DARK_STYLE: Record<string, DarkFamilyStyle> = {
     bar: "bg-blue-300",
   },
   "Life Event": {
-    surface: "bg-amber-600/22",
-    hover: "hover:bg-amber-600/30",
+    surface: "bg-amber-600/30",
+    hover: "hover:bg-amber-600/38",
     border: "border-amber-400/55",
-    activeSurface: "bg-amber-600/38",
+    activeSurface: "bg-amber-600/45",
     activeBorder: "border-amber-300/70 ring-2 ring-amber-400/60",
     chip: "bg-amber-500 border border-white/20",
     icon: "text-white",
@@ -509,10 +509,10 @@ const SIGNAL_DARK_STYLE: Record<string, DarkFamilyStyle> = {
     bar: "bg-amber-300",
   },
   Financial: {
-    surface: "bg-emerald-600/22",
-    hover: "hover:bg-emerald-600/30",
+    surface: "bg-emerald-600/30",
+    hover: "hover:bg-emerald-600/38",
     border: "border-emerald-400/55",
-    activeSurface: "bg-emerald-600/38",
+    activeSurface: "bg-emerald-600/45",
     activeBorder: "border-emerald-300/70 ring-2 ring-emerald-400/60",
     chip: "bg-emerald-500 border border-white/20",
     icon: "text-white",
@@ -520,10 +520,10 @@ const SIGNAL_DARK_STYLE: Record<string, DarkFamilyStyle> = {
     bar: "bg-emerald-300",
   },
   Demographic: {
-    surface: "bg-violet-600/22",
-    hover: "hover:bg-violet-600/30",
+    surface: "bg-violet-600/30",
+    hover: "hover:bg-violet-600/38",
     border: "border-violet-400/55",
-    activeSurface: "bg-violet-600/38",
+    activeSurface: "bg-violet-600/45",
     activeBorder: "border-violet-300/70 ring-2 ring-violet-400/60",
     chip: "bg-violet-500 border border-white/20",
     icon: "text-white",
@@ -531,10 +531,10 @@ const SIGNAL_DARK_STYLE: Record<string, DarkFamilyStyle> = {
     bar: "bg-violet-300",
   },
   Risk: {
-    surface: "bg-rose-600/22",
-    hover: "hover:bg-rose-600/30",
+    surface: "bg-rose-600/30",
+    hover: "hover:bg-rose-600/38",
     border: "border-rose-400/55",
-    activeSurface: "bg-rose-600/38",
+    activeSurface: "bg-rose-600/45",
     activeBorder: "border-rose-300/70 ring-2 ring-rose-400/60",
     chip: "bg-rose-500 border border-white/20",
     icon: "text-white",
@@ -947,22 +947,19 @@ export function CapabilitiesView() {
         <h2 className="flex items-center gap-2.5 text-sm font-semibold text-slate-900">
           Intelligence pipeline
         </h2>
-        <span className="text-[12px] font-medium italic text-slate-600">
-          Every Customer, Every Colleague
-        </span>
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
         {/* Pipeline board */}
-        <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1.05fr_44px_1.15fr_44px_1.05fr]">
+        <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
           <div className="flex h-full min-w-0 flex-col p-5">
-            <div className="mb-3.5 flex items-center gap-2 whitespace-nowrap">
+            <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
                 Data sources
               </span>
-              <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-500">
-                2 groups · {totalSourceInputs} feeds
+              <span className="ml-auto font-mono text-[11.5px] text-slate-600">
+                2 groups · {totalSourceInputs} sources
               </span>
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -993,23 +990,18 @@ export function CapabilitiesView() {
 
           {/* Core */}
           <div className="min-w-0 p-1.5">
-            <div className="h-full overflow-hidden rounded-xl bg-[#141432] px-6 pb-5 pt-6">
-              <div className="mb-5">
-                <div className="whitespace-nowrap font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-300">
-                  Signals · what we detect
-                </div>
-                <div className="mt-1.5 flex items-baseline gap-2.5">
-                  <img src={ventusLogoTransparent} alt="Ventus" className="h-[18px] w-auto self-center brightness-0 invert opacity-95" />
-                  <p className="text-xl font-semibold tracking-tight text-white">Customer Intelligence Core</p>
-                  <span className="ml-auto whitespace-nowrap font-mono text-[11.5px] tabular-nums text-slate-400">
-                    5 families · 24h
-                  </span>
-                </div>
+            <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-4">
+              <div className="flex items-center gap-2.5">
+                <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto brightness-0 invert opacity-95" />
+                <p className="text-sm font-semibold tracking-tight text-white">Customer Intelligence Core</p>
               </div>
 
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
-                <div className="flex flex-col gap-3">
+                <div className="mb-2.5 whitespace-nowrap font-mono text-[11px] uppercase tracking-wider text-slate-300">
+                  Signals · what we detect
+                </div>
+                <div className="flex flex-col gap-2">
                   {SIGNALS.map((s, i) => {
                     const row = signalRows.find((r) => r.label === s.label);
                     return (
@@ -1033,43 +1025,33 @@ export function CapabilitiesView() {
 
           {/* Destinations */}
           <div className="flex h-full min-w-0 flex-col p-5">
-            <div className="mb-3.5 flex items-center gap-2 whitespace-nowrap">
+            <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
-                Activation
+                Activation destinations
               </span>
-              <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-500">
-                {visibleDestinations.length} destinations
+              <span className="ml-auto text-[12px] font-medium italic text-slate-600">
+                Every Customer, Every Colleague
               </span>
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               {visibleDestinations.map((d) => {
                 const team = TEAMS[d.team];
                 return (
                   <div
                     key={d.name}
-                    className="flex min-h-[56px] flex-1 flex-col justify-center gap-1 overflow-hidden rounded-lg border border-slate-100 px-3 py-2"
+                    className="relative flex min-h-[38px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="truncate text-[14px] font-semibold leading-tight text-slate-900">{d.name}</span>
-                      <span className="ml-auto flex flex-none items-center gap-1.5 text-[11px] font-medium text-emerald-600">
-                        <PulseDot sizeClass="h-1.5 w-1.5" />
-                        Live
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-                        style={{ background: `${team.color}14`, color: team.color }}
-                      >
-                        {team.label}
-                      </span>
-                      <span
-                        className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-                        style={{ background: `${team.color}0a`, color: team.color }}
-                      >
-                        {d.channel}
-                      </span>
-                    </div>
+                    <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
+                    <span
+                      className="flex-none rounded px-1.5 py-px text-[11px] font-semibold leading-none"
+                      style={{ background: `${team.color}14`, color: team.color }}
+                    >
+                      {team.label}
+                    </span>
+                    <span className="truncate text-[12.5px] font-medium leading-tight text-slate-900">{d.name}</span>
+                    <span className="ml-auto flex-none rounded bg-slate-100 px-1.5 py-px font-mono text-[11px] leading-none text-slate-600">
+                      {d.channel}
+                    </span>
                   </div>
                 );
               })}
