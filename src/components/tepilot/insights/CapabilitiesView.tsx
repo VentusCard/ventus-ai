@@ -836,46 +836,11 @@ export function CapabilitiesView() {
         },
       ],
     },
-    {
-      provider: "Bank Context",
-      sublabel: "products · locations · org",
-      icon: Package,
-      description: `The bank's operational context — products, locations, organizational structure, and customer tiers — that shapes what Ventus can recommend and to whom. ${BANK_PRODUCT_TOTAL} products across the catalog.`,
-      onOpen: onOpenProducts,
-      openLabel: `Open Bank Context tab`,
-      inputs: [
-        {
-          label: "Consumer Banking Products",
-          sublabel: "Checking, savings, debit, credit cards, and digital wallets",
-          icon: Wallet,
-        },
-        {
-          label: "Consumer Lending Products",
-          sublabel: "Mortgages, auto, personal, HELOC, and student loans",
-          icon: Home,
-        },
-        {
-          label: "Wealth & Investment Products",
-          sublabel: "Brokerage, managed portfolios, trusts, and advisory tiers",
-          icon: Gem,
-        },
-        {
-          label: "Locations & Hours",
-          sublabel: "Branch network, ATM coverage, and regional operating schedules",
-          icon: MapPin,
-        },
-        {
-          label: "Departments",
-          sublabel: "RM assignment rules, advisor specializations, and escalation paths",
-          icon: Users,
-        },
-        {
-          label: "Customer Segments & Tiers",
-          sublabel: "Mass market, affluent, and private-banking thresholds",
-          icon: Crown,
-        },
-      ],
-    },
+  ];
+
+  const sourceSections: { title: string; groups: SourceGroup[] }[] = [
+    { title: "Internal signals", groups: sourceGroups.slice(0, 2) },
+    { title: "External signals", groups: sourceGroups.slice(2, 4) },
   ];
 
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
