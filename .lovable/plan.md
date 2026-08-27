@@ -1,74 +1,54 @@
-# Make the Intelligence pipeline read as one cohesive system
+# Breathing room: Intelligence Core header + personalization phone panels
 
-## What the screenshot shows today
+Two related density problems, both fixed in presentation only.
 
-The three columns of the pipeline board were each styled in a separate pass, so they don't feel like one product:
+## 1. Customer Intelligence Core — top section is cramped
 
-- **Data sources (left)** — new cards: 15px name, 12.5px sublabel, two tinted pills, "Live" dot. Names truncate ("External Intellig…"), pills wrap onto two lines on the external cards, and the section header ("Data sources / 2 groups · 33 sources") wraps into three lines in a narrow column.
-- **Intelligence Core (center)** — dark navy panel with saturated per-family cards, 24h counts, and rolling evidence tickers. Visually the loudest element by a wide margin.
-- **Activation destinations (right)** — a different card grammar again: 3px team bar, tinted team chip, then a truncated destination name and a mono channel chip. Names truncate hard ("Intellig…", "Automati…", "Personali…"), so the column mostly shows team labels, not destinations.
-- Column widths are unbalanced: left and right are too narrow for their content while the center panel takes the most space.
-- Three unrelated caption treatments coexist: mono uppercase eyebrows, an italic serif-ish caption ("Every Customer, Every Colleague"), and mono meta counts.
+Inside the dark `#141432` panel, the logo + "Customer Intelligence Core" title row sits directly on top of the "Signals · what we detect" eyebrow with no separation, and the panel padding (`p-4`) is tighter than the light columns around it (`p-5`). The result reads as a squeezed header block.
 
-## The cohesive direction
+Changes to the Core panel head:
 
-One grammar across all three columns: **eyebrow → count → uniform rows → status**. Sources are the input, the Core is the engine, destinations are the output; they should look like the same machine at three stages.
+- Panel padding `p-4` → `p-5` so it matches the sources and destinations columns.
+- Title row: add a bottom margin and a hairline divider (`border-b border-white/10`, `pb-3 mb-3.5`) so the header is clearly its own band.
+- Move the meta to the right of the title row to match the other two columns' header grammar: `5 families · 233 signals` in mono 11.5px `text-slate-400`, right-aligned. This also fills the empty right half of the row.
+- Title from 14px to 15px semibold; logo from `h-4` to `h-[18px]` so the lockup carries the header.
+- Signals eyebrow gets `mb-3` and the signal card stack `gap-2` → `gap-2.5`.
 
-### 1. Rebalance the grid
+Net effect: the header reads as a titled panel, and the signal stack starts lower with even rhythm.
 
-Change the pipeline grid from center-heavy to roughly equal thirds (e.g. `1.05fr / connector / 1.15fr / connector / 1.05fr`) so no column truncates. The connector columns stay narrow.
+## 2. Personalization tabs — phone mockups waste their column
 
-### 2. One shared column header
+All three tabs (Deals / Product / Relationship) share `CustomerMockupPanel`. Today the workspace is a 3-column grid `1fr / 1fr / 1.2fr` at `calc(100vh-140px)`, and the phone is capped at `max-w-[400px]` inside the widest column. On a 1440–1920px screen the phone floats in the middle of a much wider card with large dead margins on both sides, while the left two cards (Customer Selection, Key features) are narrower than their content wants.
 
-Every column gets the same two-line header, no wrapping:
+### Column rebalance
 
-```text
-DATA SOURCES                          4 · 33 feeds
-INTELLIGENCE CORE                     5 families
-ACTIVATION                            9 destinations
-```
+Grid becomes `0.9fr / 1.05fr / 1.35fr`:
+- Customer Selection slightly narrower (chips and pills already fit).
+- Key features / unit economics slightly wider (its metric rows currently wrap).
+- Personalized surface widest, so the phone can actually grow.
 
-- Eyebrow: mono uppercase 11.5px slate-600, single line (`whitespace-nowrap`).
-- Right-side meta: mono 11.5px slate-500 tabular-nums.
-- Remove the italic "Every Customer, Every Colleague" caption — it breaks the grammar. Move that phrase, if it should stay, into the section subtitle above the board.
+### Let the phone fill its card
 
-### 3. One shared row shape
+- Raise the phone cap from `max-w-[400px]` to `max-w-[460px]` and let it scale with height: the wrapper keeps `h-full` but the width becomes `min(100%, calc((100vh - 260px) * 0.5))` so the device keeps its aspect ratio and grows on tall screens instead of leaving a fixed 400px column.
+- Reduce the surface card body padding `p-3` → `p-2.5` and header `py-2.5` → `py-2`, returning ~14px of vertical space to the device.
+- Same treatment applies to the disabled/blurred empty state so the placeholder matches the live size.
 
-All source and destination rows use the same anatomy so the eye reads left-to-right across the board:
+### Card size audit across the three sections
 
-```text
-[28px tinted icon/bar] Primary name (14px semibold, nowrap, truncate last)
-                       Secondary line (12px slate-600)
-                       [chip] [chip]                     ● Live
-```
-
-- Sources: chips = `N feeds` + `Internal` / `External · Modeled`.
-- Destinations: chips = team name + channel (both tinted with the team color instead of only a 3px bar), name at 14px so it stops being the truncated element.
-- Status: same `PulseDot` + "Live" label on both sides, right-aligned on the top row.
-- Fixed row min-height on both sides (~72px sources, ~56px destinations) with `gap-2`, so left and right columns terminate at the same baseline as the Core panel.
-
-### 4. Tie the Core to its neighbors
-
-- Keep the `#141432` panel and the family hues, but adopt the same header grammar (eyebrow + right-aligned meta) and the same 11.5px caption size as the light columns.
-- Reduce family-card saturation one step (`/30` → `/22` surfaces) so the center reads as the focal point without overpowering the columns; keep border and accent-bar hues at full strength.
-- Align the first family card's top edge with the first source card's top edge.
-
-### 5. Typography scale (applies board-wide)
-
-| Role | Size / weight | Color |
+| Card | Issue today | Change |
 | --- | --- | --- |
-| Column eyebrow | 11.5px mono uppercase semibold | slate-600 (light) / slate-300 (dark) |
-| Column meta | 11.5px mono tabular | slate-500 / slate-400 |
-| Row primary name | 14px semibold | slate-900 / white |
-| Row secondary | 12px | slate-600 / slate-300 |
-| Chips | 11px medium | tint-700 |
+| Customer Selection | header block (icon row + search + chips) eats ~110px before signals | tighten to `py-2.5`, drop the `mb-2` under the title row to `mb-1.5` |
+| Key features | metric rows wrap at current width | gains width from the grid rebalance; no internal change |
+| Personalized surface | phone under-sized, padding heavy | wider column, larger cap, tighter padding |
 
-No text below 11px anywhere on the board.
+All three cards keep identical border, radius, and header treatment (`px-4 py-2.5`, `bg-slate-50/60`, `border-b border-slate-200`) so the row reads as one workspace.
 
 ## Technical notes
 
-Single file: `src/components/tepilot/insights/CapabilitiesView.tsx` — the pipeline grid template, `SourceGroupCard`, the destination row renderer, the two light column headers, and the Core panel header/card surfaces. Presentation only; source data, signal data, click-to-open detail behavior, and the ticker animation logic are untouched. Strict light theme outside the Core panel; no `dark:` utilities.
+- `src/components/tepilot/insights/CapabilitiesView.tsx` — Core panel padding, header row divider/meta/sizing, signals eyebrow spacing.
+- `src/components/tepilot/insights/CustomerMockupPanel.tsx` — grid template, card header paddings, phone wrapper width/cap for both the live and empty states.
+- No data, generation, signal, or click-behavior changes. Strict light theme outside the Core panel; no `dark:` utilities.
 
 ## Verification
 
-Screenshot `/bankdemo` → System at 1440px and confirm: no truncated names in any column, headers on one line, all three columns ending at the same baseline, and clicking a source/signal/destination still opens the detail panel. Build log clean.
+Playwright screenshots at 1440px and 1920px: `/bankdemo` → System (Core header breathes, columns aligned) and each of the three personalization tabs with a customer selected (phone visibly larger, no clipping, no page scroll). Build log clean.
