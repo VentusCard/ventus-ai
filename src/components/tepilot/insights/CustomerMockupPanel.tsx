@@ -172,8 +172,10 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
         <div className="flex-1 min-h-0 p-2.5 flex flex-col">
           {!hasSelection ? (
             <div className="flex-1 min-h-0 flex justify-center relative">
-              <div style={{ maxWidth: "min(100%, calc((100vh - 260px) * 0.5))" }}
-                className="w-full max-w-[460px] h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none">
+              <div
+                className="w-full h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none"
+                style={{ maxWidth: "min(100%, 520px, calc((100vh - 260px) * 0.52))" }}
+              >
                 <ExecDemoPhoneView
                   customer={EXAMPLE_CUSTOMERS[0].demo}
                   activeTab={surface === "rewards" ? "rewards" : surface === "product" ? "product" : "relationship"}
@@ -197,8 +199,8 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           ) : (
             <div className="flex-1 min-h-0 flex justify-center">
               <div
-                className="w-full max-w-[460px] h-full flex flex-col"
-                style={{ maxWidth: "min(100%, calc((100vh - 260px) * 0.5))" }}
+                className="w-full h-full flex flex-col"
+                style={{ maxWidth: "min(100%, 520px, calc((100vh - 260px) * 0.52))" }}
               >
                 <ExecDemoPhoneView
                   customer={phoneCustomer!}
