@@ -216,7 +216,8 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         className={`w-full rounded-xl font-bold text-white flex items-center justify-center gap-1 shadow-sm ${compact ? "py-2.5 text-[12px]" : "py-2.5 text-[12px]"}`}
                         style={{ background: style.accent }}
                       >
-                        Learn More <ChevronRight className={`${compact ? "w-3.5 h-3.5" : "w-3.5 h-3.5"}`} />
+                        <span className="truncate">{fitCta(card.cta, card.theme)}</span>
+                        <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                       </button>
                     </div>
                   </div>
