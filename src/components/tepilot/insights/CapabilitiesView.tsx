@@ -413,7 +413,7 @@ function SourceGroupCard({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-[15px] font-semibold leading-tight text-slate-900">
+          <span className="truncate text-[14px] font-semibold leading-tight text-slate-900">
             {group.provider}
           </span>
           <span className="ml-auto flex flex-none items-center gap-1.5 text-[11px] font-medium text-emerald-600">
@@ -421,7 +421,7 @@ function SourceGroupCard({
             Live
           </span>
         </div>
-        <div className="mt-0.5 truncate text-[12.5px] text-slate-600">{group.sublabel}</div>
+        <div className="mt-0.5 truncate text-[12px] text-slate-600">{group.sublabel}</div>
         <div className="mt-1.5 flex items-center gap-1.5">
           <span
             className={cn(
@@ -947,6 +947,9 @@ export function CapabilitiesView() {
         <h2 className="flex items-center gap-2.5 text-sm font-semibold text-slate-900">
           Intelligence pipeline
         </h2>
+        <span className="text-[12px] font-medium italic text-slate-600">
+          Every Customer, Every Colleague
+        </span>
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
