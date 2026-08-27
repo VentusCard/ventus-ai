@@ -763,7 +763,7 @@ export function CapabilitiesView() {
     },
     {
       provider: "External Intelligence 1",
-      sublabel: "national data partnerships",
+      sublabel: "national data partnership",
       icon: Gauge,
       description:
         "Credit bureau file plus household wealth, property, and demographic enrichment from national data partnerships.",
@@ -797,7 +797,7 @@ export function CapabilitiesView() {
     },
     {
       provider: "External Intelligence 2",
-      sublabel: "national data partnerships",
+      sublabel: "national data partnership",
       icon: Sparkles,
       description: "Lifestyle, vehicle, life-event, and firmographic enrichment from national data partnerships.",
       inputs: [
