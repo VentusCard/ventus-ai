@@ -403,7 +403,7 @@ function SourceGroupCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex min-h-[52px] w-full flex-1 items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
+        "flex min-h-[58px] w-full flex-1 items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
         isActive ? "border-sky-300 ring-1 ring-sky-200" : "border-slate-100 hover:border-slate-200",
       )}
     >
@@ -615,7 +615,7 @@ function SignalSection({
   const next = signal.examples[(idx + 1) % total];
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-7 items-center gap-2 text-[12.5px] leading-none text-slate-200">
+    <span ref={ref} className="flex h-8 items-center gap-2 text-[12.5px] leading-none text-slate-200">
       <span className="relative z-10 truncate font-medium text-white">{example.to}</span>
       <span className="relative z-0 flex-none text-[11px] text-slate-400">&rarr;</span>
       <span className="relative z-0 truncate text-slate-300">{example.ev}</span>
@@ -638,7 +638,7 @@ function SignalSection({
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-3 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
         style.surface,
         style.border,
         isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
@@ -661,7 +661,7 @@ function SignalSection({
         </span>
       </span>
 
-      <span className="relative mt-0.5 block h-7 overflow-hidden">
+      <span className="relative mt-0.5 block h-8 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
           {renderRow(next, nextRowRef)}
@@ -981,9 +981,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
         {/* Pipeline board */}
-        <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
+        <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
-          <div className="flex h-full min-w-0 flex-col p-4">
+          <div className="flex h-full min-w-0 flex-col p-5">
             <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
                 Data sources
@@ -1042,7 +1042,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           <Connector amber />
 
           {/* Destinations */}
-          <div className="flex h-full min-w-0 flex-col p-4">
+          <div className="flex h-full min-w-0 flex-col p-5">
             <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
                 Activation destinations
@@ -1057,7 +1057,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[34px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
+                    className="relative flex min-h-[38px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
                   >
                     <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
                     <span
