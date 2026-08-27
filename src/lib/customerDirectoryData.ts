@@ -61,6 +61,7 @@ export const SIGNAL_FAMILY_META: {
   tint: string;
   cardBorder: string;
   cardBorderHover: string;
+  cardRing: string;
   sparkline: string;
   barStrong: string;
   barLikely: string;
@@ -78,8 +79,9 @@ export const SIGNAL_FAMILY_META: {
     chip: "bg-blue-100 text-blue-800 border-blue-300",
     dot: "bg-blue-600",
     tint: "bg-blue-100/80",
-    cardBorder: "border-blue-300",
-    cardBorderHover: "group-hover:border-blue-400",
+    cardBorder: "border-blue-500",
+    cardBorderHover: "group-hover:border-blue-600",
+    cardRing: "ring-blue-400/40",
     sparkline: "#2563eb",
     barStrong: "bg-blue-600",
     barLikely: "bg-blue-500",
@@ -96,8 +98,9 @@ export const SIGNAL_FAMILY_META: {
     chip: "bg-amber-100 text-amber-800 border-amber-300",
     dot: "bg-amber-600",
     tint: "bg-amber-100/80",
-    cardBorder: "border-amber-300",
-    cardBorderHover: "group-hover:border-amber-400",
+    cardBorder: "border-amber-500",
+    cardBorderHover: "group-hover:border-amber-600",
+    cardRing: "ring-amber-400/40",
     sparkline: "#f59e0b",
     barStrong: "bg-amber-600",
     barLikely: "bg-amber-500",
@@ -114,8 +117,9 @@ export const SIGNAL_FAMILY_META: {
     chip: "bg-emerald-100 text-emerald-800 border-emerald-300",
     dot: "bg-emerald-600",
     tint: "bg-emerald-100/80",
-    cardBorder: "border-emerald-300",
-    cardBorderHover: "group-hover:border-emerald-400",
+    cardBorder: "border-emerald-500",
+    cardBorderHover: "group-hover:border-emerald-600",
+    cardRing: "ring-emerald-400/40",
     sparkline: "#10b981",
     barStrong: "bg-emerald-600",
     barLikely: "bg-emerald-500",
@@ -132,8 +136,9 @@ export const SIGNAL_FAMILY_META: {
     chip: "bg-violet-100 text-violet-800 border-violet-300",
     dot: "bg-violet-600",
     tint: "bg-violet-100/80",
-    cardBorder: "border-violet-300",
-    cardBorderHover: "group-hover:border-violet-400",
+    cardBorder: "border-violet-500",
+    cardBorderHover: "group-hover:border-violet-600",
+    cardRing: "ring-violet-400/40",
     sparkline: "#8b5cf6",
     barStrong: "bg-violet-600",
     barLikely: "bg-violet-500",
@@ -150,8 +155,9 @@ export const SIGNAL_FAMILY_META: {
     chip: "bg-rose-100 text-rose-800 border-rose-300",
     dot: "bg-rose-600",
     tint: "bg-rose-100/80",
-    cardBorder: "border-rose-300",
-    cardBorderHover: "group-hover:border-rose-400",
+    cardBorder: "border-rose-500",
+    cardBorderHover: "group-hover:border-rose-600",
+    cardRing: "ring-rose-400/40",
     sparkline: "#f43f5e",
     barStrong: "bg-rose-600",
     barLikely: "bg-rose-500",

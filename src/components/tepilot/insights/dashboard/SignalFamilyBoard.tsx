@@ -27,7 +27,7 @@ export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
             type="button"
             onClick={() => setExpanded(isActive ? null : f.key)}
             aria-expanded={isActive}
-            className={`group text-left rounded-md border p-3 hover:shadow-sm transition-all ${f.tint} ${f.cardBorder} ${f.cardBorderHover} ${isActive ? "ring-2 ring-slate-900/15 border-slate-400 shadow-sm" : ""}`}
+            className={`group text-left rounded-md border p-3 hover:shadow-sm transition-all ${f.tint} ${f.cardBorder} ${f.cardBorderHover} ${isActive ? `ring-2 ${f.cardRing} shadow-sm` : ""}`}
           >
             <div className="flex items-center justify-between gap-2">
               <span

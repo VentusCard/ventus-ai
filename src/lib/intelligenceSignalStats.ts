@@ -41,6 +41,7 @@ export interface SignalFamilyStats {
   tint: string;
   cardBorder: string;
   cardBorderHover: string;
+  cardRing: string;
   sparklineColor: string;
   barStrong: string;
   barLikely: string;
@@ -244,6 +245,7 @@ export function getSignalFamilyStats(): SignalFamilyStats[] {
       tint: meta.tint,
       cardBorder: meta.cardBorder,
       cardBorderHover: meta.cardBorderHover,
+      cardRing: meta.cardRing,
       sparklineColor: meta.sparkline,
       barStrong: meta.barStrong,
       barLikely: meta.barLikely,
