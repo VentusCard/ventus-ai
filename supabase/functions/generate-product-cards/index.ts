@@ -114,13 +114,17 @@ Required by field:
   GOOD: "$0 annual fee for the first year", "75,000 bonus points after $4K spend in 90 days", "0.25% rate discount for autopay"
   BAD:  "No annual fee", "Big signup bonus", "Autopay discount"
 - quote: MUST contain ONE personalized dollar-estimate tied to the customer's actual behavior/signal.
+  LENGTH (HARD LIMIT): ONE complete sentence, 90–140 characters, ending in a period.
+  It must read as a finished thought — NEVER trail off, never continue into a second clause you cannot finish.
+  Write it short first, then add the number; do not pad with setup phrases.
   Derive the estimate from persona rollups (totalSpend), life-event financial_projection, or the signal context.
   Format: "You could save an estimated $XXX ..." or "That's roughly $XXX/year back on ..."
-  Examples by card type:
-    - Auto loan renewal (current payment ~$485/mo): "Refinancing at today's rates could save you an estimated $1,400 over the life of the loan."
-    - Travel rewards card + tropical-getaway rollup ($4,200 travel spend): "At 3x on travel, that's roughly $215 back on your next island trip."
-    - 529 for college prep: "Starting now with $250/mo could grow to an estimated $58,000 by freshman year."
-    - HYSA: "On a $10K balance, that's about $450 more per year than the average savings account."
+  Examples by card type (all inside the character budget):
+    - Auto loan renewal (~$485/mo): "Refinancing at today's rates could save you an estimated $1,400 over the loan."
+    - Travel card + tropical rollup ($4,200 travel spend): "At 3x on travel, that's roughly $215 back on your next island trip."
+    - 529 for college prep: "Setting aside $250/mo could grow to an estimated $58,000 by freshman year."
+    - HYSA: "On a $10K balance, that's about $450 more a year than an average savings account."
+    - HELOC after a home purchase: "Your equity could unlock an estimated $45,000 for early projects."
   The estimate must be plausible and grounded in the input data — do NOT invent unrelated numbers.
 - eligibility: When possible include a numeric anchor: "Pre-qualified — rates from 2.99% APR", "FDIC insured up to $250,000", "Open with as little as $25".
 - cta_sub: May include a number when relevant: "Funded in under 5 minutes", "Rate locked for 60 days".
