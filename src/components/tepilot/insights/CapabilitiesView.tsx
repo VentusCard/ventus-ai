@@ -615,24 +615,37 @@ function SignalSection({
     </span>
   );
 
+  const style = SIGNAL_DARK_STYLE[signal.label] ?? DEFAULT_DARK_STYLE;
+  const Icon = signal.icon;
+
   return (
     <button
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
-        "border-white/[0.08] bg-white/[0.045]",
-        isActive ? "border-white/25 bg-white/[0.11]" : "hover:bg-white/[0.08]",
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-all duration-200",
+        style.surface,
+        style.border,
+        isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
       )}
     >
-      <span className={cn("absolute inset-y-0 left-0 w-[3px]", signal.color)} />
+      <span className={cn("absolute inset-y-0 left-0 w-[4px]", style.bar)} />
       <span className="mb-0.5 flex items-center gap-2">
-        <PulseDot colorClass={signal.dot} sizeClass="h-[7px] w-[7px]" delayMs={startDelay} className="ring-[3px] ring-white/10 rounded-full" />
-        <span className="text-[12.5px] font-semibold tracking-tight text-slate-100">{signal.label}</span>
+        <span className={cn("flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[5px]", style.chip)}>
+          <Icon className={cn("h-[11px] w-[11px]", style.icon)} />
+        </span>
+        <span className={cn("text-[12.5px] font-semibold tracking-tight", style.label)}>{signal.label}</span>
+        <PulseDot
+          colorClass={signal.dot}
+          sizeClass="h-[6px] w-[6px]"
+          delayMs={startDelay}
+          className="rounded-full ring-[3px] ring-white/10"
+        />
         <span className="ml-auto font-mono text-[11px] tabular-nums text-slate-400">
-          <b className="font-semibold text-slate-200">{count}</b> · 24h
+          <b className={cn("font-semibold", style.label)}>{count}</b> · 24h
         </span>
       </span>
+
       <span className="relative mt-0.5 block h-6 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
