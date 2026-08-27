@@ -579,8 +579,6 @@ function SignalSection({
         [{ transform: "translate3d(0, 0, 0)" }, { transform: "translate3d(0, -50%, 0)" }],
         timing,
       );
-      currentRowRef.current?.animate([{ opacity: 1 }, { opacity: 0.25 }], timing);
-      nextRowRef.current?.animate([{ opacity: 0.25 }, { opacity: 1 }], timing);
       roll.onfinish = () => {
         roll.cancel();
         advance();
