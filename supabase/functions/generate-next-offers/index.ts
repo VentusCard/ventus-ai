@@ -9,8 +9,12 @@ const corsHeaders = {
 const MODEL = "google/gemini-3.1-pro-preview";
 // Fast model for copy-heavy generation (behavioral + life-event deals).
 const COPY_MODEL = "google/gemini-3.5-flash";
-// Strict output ceiling for the two copy calls — they were the top token burner.
-const COPY_MAX_TOKENS = 4000;
+// Output ceilings per copy call. The behavioral call carries the richest deals
+// (valueLine + valueMath + signalReason on 5 deals) and was truncating at 4000,
+// which dropped the whole cluster, so it gets extra headroom.
+const BEHAVIORAL_MAX_TOKENS = 6000;
+const EVENT_MAX_TOKENS = 4000;
+const SIGNAL_MAX_TOKENS = 4000;
 
 // Only the top-ranked signals per family are sent to the model. Everything below
 // the cut never surfaces in the UI, so generating copy for it only adds latency.
@@ -223,26 +227,53 @@ function parseJsonLoose(raw: string): any {
 
 /**
  * Salvage a response that was cut off by max_tokens: trim back to the last
- * complete deal object and close the remaining brackets so a near-miss still
- * yields deals instead of an empty collection.
+ * complete object and close every still-open bracket (string-aware) so a
+ * near-miss still yields deals instead of an empty collection.
  */
 function repairTruncatedJson(raw: string): any {
   const start = raw.indexOf("{");
   if (start < 0) return null;
   const body = raw.slice(start);
-  // Walk back to the last "}" that closes a well-formed object, then try to
-  // close the enclosing deals array / group / envelope at each candidate.
-  for (let i = body.length - 1; i >= 0; i--) {
-    if (body[i] !== "}") continue;
-    const head = body.slice(0, i + 1);
-    for (const tail of ["", "]}", "]}]}", "}]}", "]}]}}"]) {
-      try {
-        const parsed = JSON.parse(head + tail);
-        if (parsed && typeof parsed === "object") return parsed;
-      } catch { /* try next tail */ }
+
+  // Track bracket depth outside of strings so we know exactly how to close.
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+  // depthAt[i] = snapshot of the stack right after consuming char i.
+  const closeCandidates: { end: number; tail: string }[] = [];
+
+  for (let i = 0; i < body.length; i++) {
+    const ch = body[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') { inString = true; continue; }
+    if (ch === "{" || ch === "[") { stack.push(ch === "{" ? "}" : "]"); continue; }
+    if (ch === "}" || ch === "]") {
+      stack.pop();
+      // A complete object/array boundary — record how to close from here.
+      closeCandidates.push({ end: i, tail: stack.slice().reverse().join("") });
     }
   }
+
+  for (let c = closeCandidates.length - 1; c >= 0; c--) {
+    const { end, tail } = closeCandidates[c];
+    try {
+      const parsed = JSON.parse(body.slice(0, end + 1) + tail);
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch { /* try an earlier boundary */ }
+  }
   return null;
+}
+
+/** True when the parsed payload actually carries at least one usable deal. */
+function hasDeals(parsed: any): boolean {
+  const groups = parsed?.rollupOffers;
+  if (!Array.isArray(groups)) return false;
+  return groups.some((g: any) => Array.isArray(g?.deals) && g.deals.length > 0);
 }
 
 function describeCompletion(data: any): string {
@@ -403,9 +434,9 @@ serve(async (req) => {
       : "";
 
     const tasks: Promise<Response | null>[] = [];
-    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY, COPY_MODEL, COPY_MAX_TOKENS) : Promise.resolve(null));
-    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY, COPY_MODEL, COPY_MAX_TOKENS) : Promise.resolve(null));
-    tasks.push(financialSignalUserPrompt ? callGateway(FINANCIAL_SIGNAL_SYSTEM_PROMPT, financialSignalUserPrompt, LOVABLE_API_KEY, COPY_MODEL, COPY_MAX_TOKENS) : Promise.resolve(null));
+    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY, COPY_MODEL, BEHAVIORAL_MAX_TOKENS) : Promise.resolve(null));
+    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY, COPY_MODEL, EVENT_MAX_TOKENS) : Promise.resolve(null));
+    tasks.push(financialSignalUserPrompt ? callGateway(FINANCIAL_SIGNAL_SYSTEM_PROMPT, financialSignalUserPrompt, LOVABLE_API_KEY, COPY_MODEL, SIGNAL_MAX_TOKENS) : Promise.resolve(null));
 
     const [rollupRes, lifeEventRes, financialSignalRes] = await Promise.all(tasks);
 
@@ -432,9 +463,32 @@ serve(async (req) => {
     if (rollupRes) {
       const data = await rollupRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
-      const parsed = parseJsonLoose(raw);
-      if (parsed?.rollupOffers) rollupOffers.push(...parsed.rollupOffers);
-      else console.error(`Failed to parse rollup AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
+      let parsed = parseJsonLoose(raw);
+      if (!hasDeals(parsed)) {
+        console.error(
+          `[NEXT-OFFERS] behavioral copy unusable (${describeCompletion(data)}) for clusters: ${rollups.map((r: any) => `"${r.label}"`).join(", ")} — retrying compact`,
+          raw.slice(0, 300),
+        );
+        // One bounded retry with terser copy so the JSON fits the ceiling.
+        const compactPrompt = `${rollupUserPrompt}\n\nOUTPUT BUDGET (STRICT): keep it terse so the JSON is COMPLETE. message ≤ 9 words, valueLine ≤ 12 words, valueMath ≤ 30 chars, signalReason ≤ 8 words, suppressedCategories ≤ 2 entries. Never stop mid-object — a complete JSON document matters more than long copy.`;
+        const retryRes = await callGateway(SYSTEM_PROMPT, compactPrompt, LOVABLE_API_KEY, COPY_MODEL, BEHAVIORAL_MAX_TOKENS);
+        if (retryRes?.ok) {
+          const retryData = await retryRes.json();
+          const retryRaw = retryData.choices?.[0]?.message?.content || "";
+          const retryParsed = parseJsonLoose(retryRaw);
+          if (hasDeals(retryParsed)) parsed = retryParsed;
+          else console.error(`[NEXT-OFFERS] behavioral retry also unusable (${describeCompletion(retryData)})`, retryRaw.slice(0, 300));
+        } else if (retryRes) {
+          console.error("[NEXT-OFFERS] behavioral retry gateway error:", retryRes.status);
+        }
+      }
+      if (hasDeals(parsed)) {
+        rollupOffers.push(...parsed.rollupOffers);
+        const dealCount = parsed.rollupOffers.reduce((n: number, g: any) => n + (g?.deals?.length || 0), 0);
+        console.log(`[NEXT-OFFERS] behavioral → ${parsed.rollupOffers.length} group(s), ${dealCount} deal(s)`);
+      } else {
+        console.error("[NEXT-OFFERS] behavioral produced no deals after retry — cluster dropped");
+      }
     }
 
     if (lifeEventRes && lifeEventsTagged.length > 0) {

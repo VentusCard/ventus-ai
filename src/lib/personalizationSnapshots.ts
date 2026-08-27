@@ -15,207 +15,285 @@ const SNAPSHOTS = {
   "c1": {
     "offers": [
       {
+        "rollup": "Biweekly advanced tennis",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Small upgrades to keep your court game sharp.",
+        "imageCategory": "tennis",
+        "imageQuery": "tennis racket court",
+        "suppressedCategories": [
+          "Court Fees",
+          "Lessons"
+        ],
+        "deals": [
+          {
+            "id": "tennis_deal_1",
+            "merchant": "Wilson",
+            "product": "Clash 100 V2 Tennis Racket",
+            "rewardValue": "10% Cash Back",
+            "message": "Play with ultimate control and flexibility on the court.",
+            "valueLine": "10% back saves $640 on your $6,400 annual tennis spend.",
+            "valueMath": "10% × $6,400 = $640",
+            "cta": "Upgrade Your Racket",
+            "signal": "boost",
+            "signalReason": "High annual tennis spend makes a premium racket upgrade highly rewarding.",
+            "boostCategory": "Tennis Gear"
+          },
+          {
+            "id": "tennis_deal_2",
+            "merchant": "Babolat",
+            "product": "RPM Blast Tennis Strings",
+            "rewardValue": "15% Cash Back",
+            "message": "Get maximum spin and control for your advanced game.",
+            "valueLine": "15% back saves $960 on your $6,400 annual tennis spend.",
+            "valueMath": "15% × $6,400 = $960",
+            "cta": "Spin Your Shots",
+            "signal": "boost",
+            "signalReason": "Frequent biweekly play requires regular restringing and fresh gear.",
+            "boostCategory": "Tennis Strings"
+          },
+          {
+            "id": "tennis_deal_3",
+            "merchant": "Nike",
+            "product": "Court Air Zoom Vapor Pro 2",
+            "rewardValue": "5% Cash Back",
+            "message": "Move faster across the court with lightweight, responsive shoes.",
+            "valueLine": "5% back saves $320 on your $6,400 annual tennis spend.",
+            "valueMath": "5% × $6,400 = $320",
+            "cta": "Speed Your Steps",
+            "signal": "boost",
+            "signalReason": "Biweekly matches demand durable, high-performance court shoes.",
+            "boostCategory": "Tennis Shoes"
+          },
+          {
+            "id": "tennis_deal_4",
+            "merchant": "Lululemon",
+            "product": "Pace Setter Tennis Skirt & Apparel",
+            "rewardValue": "8% Cash Back",
+            "message": "Stay comfortable and stylish during intense three-set matches.",
+            "valueLine": "8% back saves $510 on your $6,400 annual tennis spend.",
+            "valueMath": "8% × $6,400 ≈ $510",
+            "cta": "Refresh Your Style",
+            "signal": "boost",
+            "signalReason": "Advanced play requires breathable, high-performance athletic apparel.",
+            "boostCategory": "Tennis Apparel"
+          },
+          {
+            "id": "tennis_deal_5",
+            "merchant": "Theragun",
+            "product": "Theragun Mini Massager",
+            "rewardValue": "12% Off",
+            "message": "Recover faster between biweekly matches with targeted deep tissue therapy.",
+            "valueLine": "12% off recovery gear saves $770 on your $6,400 tennis budget.",
+            "valueMath": "12% × $6,400 ≈ $770",
+            "cta": "Speed Your Recovery",
+            "signal": "boost",
+            "signalReason": "Advanced biweekly play requires proper muscle recovery to prevent injury.",
+            "boostCategory": "Recovery Tech"
+          }
+        ]
+      },
+      {
         "rollup": "Buying a house above $1.5M",
         "pillar": "Life Event",
         "collectionMessage": "Small touches to make your new place yours.",
         "suppressedCategories": [
           "Home Search Tools",
-          "Real Estate Apps"
+          "Mortgage Calculators"
         ],
         "imageCategory": "home",
-        "imageQuery": "luxury home modern exterior",
+        "imageQuery": "luxury home interior design",
         "deals": [
           {
             "id": "le1_d1",
             "merchant": "Our Bank",
-            "product": "Jumbo Mortgage Closing Credit",
-            "rewardValue": "$1,500 Credit",
-            "message": "Save on your closing costs for your new luxury home.",
-            "valueLine": "$1,500 credit applied directly to closing costs on a $1.5M+ home purchase.",
-            "valueMath": "$1,500 credit flat rate",
-            "cta": "Secure Your Rate",
+            "product": "Premium Mortgage Rate Discount",
+            "rewardValue": "0.25% Rate Cut",
+            "message": "Secure your dream home with preferred jumbo mortgage rates.",
+            "valueLine": "0.25% off a $1.2M jumbo loan saves $3,000 annually.",
+            "valueMath": "0.25% * $1,200,000 = $3,000/yr",
+            "cta": "Lock Your Rate",
             "signal": "boost",
-            "signalReason": "Multiple high-value Zillow searches \u2192 ready for jumbo mortgage support",
-            "boostCategory": "Mortgage Solutions"
+            "signalReason": "Multiple visits to Zillow Premier listings → ready for jumbo mortgage solutions",
+            "boostCategory": "Mortgage Tools"
           },
           {
             "id": "le1_d2",
-            "merchant": "White Glove Movers",
-            "product": "Elite Relocation Package",
-            "rewardValue": "10% Off",
-            "message": "Let professionals handle your high-value items with absolute care.",
-            "valueLine": "10% off premium moving package saves $500 on a typical $5,000 move.",
-            "valueMath": "10% \u00d7 $5,000 move cost \u2248 $500",
-            "cta": "Move Smarter",
+            "merchant": "RH",
+            "product": "Interior Design Consultation",
+            "rewardValue": "$500 Gift Card",
+            "message": "Furnish your expansive new space with luxury pieces.",
+            "valueLine": "$500 credit on a $10,000 living room set.",
+            "valueMath": "$500 / $10,000 = 5% savings",
+            "cta": "Design Your Space",
             "signal": "boost",
-            "signalReason": "Active real estate listings viewing \u2192 premium moving services needed",
-            "boostCategory": "Moving Services"
+            "signalReason": "Recent high-end furniture browsing history → custom design match",
+            "boostCategory": "Luxury Furniture"
           },
           {
             "id": "le1_d3",
-            "merchant": "Ring",
-            "product": "Whole-Home Security Kit",
-            "rewardValue": "$150 Off",
-            "message": "Protect your new property with advanced smart security systems.",
-            "valueLine": "$150 off a premium $600 multi-camera security bundle.",
-            "valueMath": "$600 bundle - $150 discount = $450",
-            "cta": "Secure Your Home",
+            "merchant": "Our Bank",
+            "product": "High-Value Home Insurance",
+            "rewardValue": "10% Premium Discount",
+            "message": "Protect your multi-million dollar investment with specialized coverage.",
+            "valueLine": "10% off a $4,000 annual premium saves $400.",
+            "valueMath": "10% * $4,000 = $400/yr",
+            "cta": "Protect Your Home",
             "signal": "boost",
-            "signalReason": "New home purchase pending \u2192 smart security system upgrade",
-            "boostCategory": "Smart Home Tech"
+            "signalReason": "Under contract on $1.5M+ property → high-value asset protection needed",
+            "boostCategory": "Home Insurance"
           },
           {
             "id": "le1_d4",
-            "merchant": "Restoration Hardware",
-            "product": "Interior Design Consultation",
-            "rewardValue": "15% Off",
-            "message": "Furnish your spacious new rooms with beautiful timeless pieces.",
-            "valueLine": "15% off a $10,000 initial living room furniture order saves $1,500.",
-            "valueMath": "15% \u00d7 $10,000 purchase \u2248 $1,500",
-            "cta": "Style Your Space",
+            "merchant": "White Glove Movers",
+            "product": "Full-Service Luxury Relocation",
+            "rewardValue": "$300 Off",
+            "message": "Relocate effortlessly with white-glove packing and transport services.",
+            "valueLine": "$300 off a $5,000 full-service interstate move.",
+            "valueMath": "$300 / $5,000 = 6% savings",
+            "cta": "Move Smarter",
             "signal": "boost",
-            "signalReason": "High-end real estate activity \u2192 luxury interior furnishing needs",
-            "boostCategory": "Interior Design"
+            "signalReason": "Address change intent detected → premium relocation service match",
+            "boostCategory": "Moving Services"
           },
           {
             "id": "le1_d5",
-            "merchant": "Our Bank",
-            "product": "High-Value Home Insurance",
-            "rewardValue": "$250 Rebate",
-            "message": "Get comprehensive coverage tailored for your high-value property.",
-            "valueLine": "$250 rebate on your annual high-value home insurance premium.",
-            "valueMath": "$250 rebate on annual premium",
-            "cta": "Protect Your Asset",
+            "merchant": "Savant",
+            "product": "Smart Home Automation System",
+            "rewardValue": "15% Off Installation",
+            "message": "Automate your lighting, climate, and security seamlessly.",
+            "valueLine": "15% off a $15,000 custom installation saves $2,250.",
+            "valueMath": "15% * $15,000 = $2,250",
+            "cta": "Secure Your Space",
             "signal": "boost",
-            "signalReason": "Closing on a home above $1.5M \u2192 high-value property insurance required",
-            "boostCategory": "Home Insurance"
+            "signalReason": "New luxury home purchase → integrated smart automation upgrade",
+            "boostCategory": "Home Automation"
           }
         ]
       },
       {
         "rollup": "Recurring transfers to an outside brokerage",
         "pillar": "Financial Signal",
-        "collectionMessage": "Keep your investments growing under one roof.",
+        "collectionMessage": "Keep your money growing together with smart investment tools.",
         "suppressedCategories": [],
-        "imageCategory": "finance",
-        "imageQuery": "investment growth chart",
+        "imageCategory": "investment",
+        "imageQuery": "wealth growth chart",
         "deals": [
           {
             "id": "fs1_d1",
             "merchant": "Our Bank",
-            "product": "Traditional & Roth IRA",
-            "rewardValue": "No Account Fees",
-            "message": "Consolidate your external investments into a fee-free Our Bank IRA.",
-            "valueLine": "Assuming $500/mo transfers, save ~$120/yr in external brokerage account maintenance fees.",
-            "valueMath": "$10/mo fee * 12 mo = $120/yr saved",
-            "cta": "Open Your IRA",
+            "product": "Our Bank Guided Investing",
+            "rewardValue": "0.25% Fee",
+            "message": "Keep your investments in one place with low-cost automated portfolios.",
+            "valueLine": "Assuming $500/mo transfers, a 0.25% fee saves ~$150/yr compared to typical 1% traditional advisor fees.",
+            "valueMath": "(1% - 0.25%) * $20k est. balance = $150/yr",
+            "cta": "Start Investing",
             "signal": "boost",
-            "signalReason": "Recurring transfers to outside brokerage detected",
-            "boostCategory": "IRA Rollover"
+            "signalReason": "Recurring outside brokerage transfers detected",
+            "boostCategory": "Guided Investing"
           },
           {
             "id": "fs1_d2",
             "merchant": "Our Bank",
-            "product": "Guided Investing",
-            "rewardValue": "0.25% Fee",
-            "message": "Automate your investing with low-cost portfolios managed by Our Bank.",
-            "valueLine": "Assuming $6,000 annual investment, pay just $15/yr in management fees.",
-            "valueMath": "0.25% fee * $6,000 = $15/yr",
-            "cta": "Start Investing",
+            "product": "Our Bank Traditional IRA",
+            "rewardValue": "$500 Match",
+            "message": "Consolidate your outside brokerage accounts and earn a cash match.",
+            "valueLine": "Consolidate $25,000 from outside brokerages to earn an immediate $500 cash match bonus.",
+            "valueMath": "$25,000 balance * 2% match = $500",
+            "cta": "Roll It Over",
             "signal": "boost",
-            "signalReason": "Recurring transfers to outside brokerage detected",
-            "boostCategory": "Guided Investing"
+            "signalReason": "Recurring outside brokerage transfers detected",
+            "boostCategory": "IRA Rollover"
           },
           {
             "id": "fs1_d3",
             "merchant": "Our Bank",
-            "product": "Personal Wealth Consultation",
-            "rewardValue": "Free Review",
-            "message": "Get a complimentary portfolio review with an Our Bank advisor.",
-            "valueLine": "Optimize your asset allocation to potentially boost returns by 1% annually.",
-            "valueMath": "1% optimization * $6,000/yr = $60/yr",
-            "cta": "Book Free Review",
+            "product": "Our Bank High-Yield Sweep",
+            "rewardValue": "4.50% APY",
+            "message": "Earn top-tier yields on your uninvested cash transfers automatically.",
+            "valueLine": "Sweep $500/mo into our 4.50% APY account to earn ~$148 in interest in year one.",
+            "valueMath": "$500/mo * 12 * 4.5% / 2 = ~$148",
+            "cta": "Open Sweep Account",
             "signal": "boost",
-            "signalReason": "Recurring transfers to outside brokerage detected",
-            "boostCategory": "Portfolio Review"
+            "signalReason": "Recurring outside brokerage transfers detected",
+            "boostCategory": "HYSA Sweep"
           },
           {
             "id": "fs1_d4",
             "merchant": "Our Bank",
-            "product": "Automated Tax-Loss Harvesting",
-            "rewardValue": "Tax-Efficient",
-            "message": "Keep more of your gains with automatic tax-loss harvesting.",
-            "valueLine": "Assuming a $6,000 balance, offset up to $300/yr in tax liabilities.",
-            "valueMath": "5% tax savings * $6,000 = $300/yr",
-            "cta": "Enable Tax Savings",
+            "product": "Our Bank Wealth Advisory",
+            "rewardValue": "Free Tax Review",
+            "message": "Optimize your recurring investments for maximum tax efficiency and savings.",
+            "valueLine": "A complimentary tax-loss harvesting review can save up to ~$3,000 annually in taxable income.",
+            "valueMath": "$3,000 max deduction * 24% tax bracket = $720",
+            "cta": "Schedule Consultation",
             "signal": "boost",
-            "signalReason": "Recurring transfers to outside brokerage detected",
-            "boostCategory": "Tax-Loss Harvesting"
+            "signalReason": "Recurring outside brokerage transfers detected",
+            "boostCategory": "Portfolio Review"
           },
           {
             "id": "fs1_d5",
             "merchant": "Our Bank",
-            "product": "High-Yield Savings Account",
-            "rewardValue": "4.50% APY",
-            "message": "Earn high yield on uninvested cash before you trade.",
-            "valueLine": "Earn ~$270/yr in interest on a $6,000 average cash balance.",
-            "valueMath": "4.50% APY * $6,000 balance = $270/yr",
-            "cta": "Grow Your Cash",
+            "product": "Our Bank Smart Invest Match",
+            "rewardValue": "1% Match",
+            "message": "Get rewarded for investing regularly with a recurring deposit match.",
+            "valueLine": "Match your $500/mo recurring transfer with us to get an extra $60/yr bonus.",
+            "valueMath": "$500/mo * 12 * 1% match = $60/yr",
+            "cta": "Set Up Match",
             "signal": "boost",
-            "signalReason": "Recurring transfers to outside brokerage detected",
-            "boostCategory": "HYSA Sweep"
+            "signalReason": "Recurring outside brokerage transfers detected",
+            "boostCategory": "Smart Invest"
           }
         ]
       }
     ],
     "productCards": [
       {
+        "cta_sub": "Dedicated private lender assigned to you",
         "theme": "home",
+        "signal_label": "Buying a house above $1.5M",
+        "product_name": "Our Bank Preferred Mortgage",
         "type": "life_event",
         "quote": "A relationship rate could save an estimated $2,400 a year.",
-        "benefits": [
-          "Get a 0.25% relationship rate discount with existing balances",
-          "Lock in your rate for up to 90 days during house hunting",
-          "Zero origination fees for preferred tier members saving $1,500+"
-        ],
-        "cta_sub": "Get a custom rate quote in minutes",
-        "signal_label": "Buying a house above $1.5M",
+        "eligibility": "Preferred rewards tier enrollment required",
         "cta": "Put Down Roots",
-        "product_name": "Our Bank Preferred Mortgage",
-        "offer_headline": "Our Bank Preferred Mortgage from 6.375% APR",
-        "eligibility": "Preferred rewards members are pre-approved"
+        "offer_headline": "Save on premium homes with a relationship rate discount",
+        "benefits": [
+          "0.25% relationship discount on your mortgage rate",
+          "Lock in your rate for up to 90 days during house hunting",
+          "Earn up to $1,500 off closing costs on a premium loan"
+        ]
       },
       {
-        "cta": "Reward Your Routine",
-        "eligibility": "Preferred status guarantees automatic approval",
-        "quote": "On your annual court spend, that's roughly $192 back in points.",
-        "type": "behavioral",
-        "offer_headline": "Earn 3x points on wellness and fitness spending",
-        "theme": "wellness",
-        "product_name": "Our Bank Premium Rewards Card",
+        "theme": "fitness",
+        "eligibility": "Pre-approved based on current relationship",
         "benefits": [
           "Earn 3x points on wellness and fitness purchases",
-          "Get $100 annual credit towards court fees or gym memberships",
-          "No annual fee for the first 12 months"
+          "$100 annual credit towards premium club memberships",
+          "No foreign transaction fees for global adventures"
         ],
-        "cta_sub": "Decision in seconds \u00b7 Use card immediately",
-        "signal_label": "Biweekly advanced tennis"
+        "offer_headline": "Earn 3x points on wellness, sports, and active lifestyle gear",
+        "cta_sub": "Decision in seconds · Use card immediately",
+        "type": "behavioral",
+        "cta": "Reward Your Routine",
+        "signal_label": "Biweekly advanced tennis",
+        "product_name": "Our Bank Premium Rewards Card",
+        "quote": "Your court time could earn an estimated $190 back in points."
       },
       {
-        "product_name": "Our Bank Guided Investing",
-        "cta_sub": "Set up automatic contributions",
-        "signal_label": "Recurring transfers to an outside brokerage",
-        "offer_headline": "Professional portfolio management with a 0.30% advisory fee",
+        "quote": "Moving your outside funds could grow your portfolio by an estimated $1,200.",
+        "cta": "Streamline Your Investing",
         "benefits": [
-          "Build a personalized portfolio with a low 0.30% advisory fee",
-          "Automatic tax-loss harvesting to save up to $3,000 annually",
-          "Move money instantly from checking with $0 transfer fees"
+          "Choose from 100+ low-cost institutional funds",
+          "Professional portfolio management for 0.30% annual fee",
+          "Automatic tax-loss harvesting to optimize your gains"
         ],
+        "signal_label": "Recurring transfers to an outside brokerage",
+        "product_name": "Our Bank Guided Investing",
         "theme": "retirement",
-        "eligibility": "Open with as little as $5,000",
-        "cta": "Optimize Your Wealth",
-        "quote": "Consolidating your external transfers could grow to an estimated $85,000 over time.",
-        "type": "financial_signal"
+        "cta_sub": "Set up automatic transfers in minutes",
+        "offer_headline": "Consolidate your outside investments with Guided Investing",
+        "type": "financial_signal",
+        "eligibility": "Open with as little as $1,000"
       }
     ]
   },
