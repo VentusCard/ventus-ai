@@ -974,6 +974,9 @@ export function CapabilitiesView() {
                         {section.groups.length} sources
                       </span>
                     </div>
+                    <p className="text-[12px] font-medium leading-snug text-slate-600">
+                      {section.tagline}
+                    </p>
                     <div className="flex min-w-0 flex-1 flex-col gap-2">
                       {section.groups.map((g) => (
                         <SourceGroupCard
