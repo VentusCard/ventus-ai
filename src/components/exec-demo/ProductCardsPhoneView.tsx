@@ -192,6 +192,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
               const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
               const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
               const ThemeIcon = style.icon;
+              const cta = fitCta(card.cta, card.theme);
 
               return (
                 <div key={i} className="w-full shrink-0 px-1 h-full">
