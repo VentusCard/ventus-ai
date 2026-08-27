@@ -61,7 +61,7 @@ The dark panel's top block (eyebrow, title, count) is squeezed against the panel
 - Header stack: eyebrow (11.5px mono uppercase slate-300, tracking wider), then the "Customer Intelligence Core" title at `text-xl semibold` with its own line, then the meta count moved to the header's right side aligned to the title baseline instead of crowding the eyebrow row.
 - Add `mb-5` breathing room between the header block and the first signal family card; family cards keep their current internal layout (label row + 24h count + ticker) but the gap between cards goes to `space-y-3`.
 
-### 5. Typography scale (applies board-wide)
+### 6. Typography scale (applies board-wide)
 
 | Role | Size / weight | Color |
 | --- | --- | --- |
