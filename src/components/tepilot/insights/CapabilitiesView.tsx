@@ -451,6 +451,91 @@ const DETECTION_BASIS_CLASS: Record<Detection["basis"], string> = {
   Both: "bg-white/[0.08] text-slate-200",
 };
 
+/* Per-family chrome for the signal cards on the dark Intelligence Core panel.
+   Hues mirror the shared family palette (blue / amber / emerald / violet / rose). */
+type DarkFamilyStyle = {
+  surface: string;
+  hover: string;
+  border: string;
+  activeSurface: string;
+  activeBorder: string;
+  chip: string;
+  icon: string;
+  label: string;
+  bar: string;
+};
+
+const SIGNAL_DARK_STYLE: Record<string, DarkFamilyStyle> = {
+  Behavioral: {
+    surface: "bg-gradient-to-r from-blue-500/[0.22] via-blue-500/[0.09] to-transparent",
+    hover: "hover:from-blue-500/[0.32] hover:via-blue-500/[0.14]",
+    border: "border-blue-400/30",
+    activeSurface: "from-blue-500/[0.38] via-blue-500/[0.18] to-blue-500/[0.04]",
+    activeBorder: "border-blue-300/60 ring-1 ring-blue-400/30",
+    chip: "bg-blue-500/20 border border-blue-400/30",
+    icon: "text-blue-200",
+    label: "text-blue-50",
+    bar: "bg-blue-400",
+  },
+  "Life Event": {
+    surface: "bg-gradient-to-r from-amber-500/[0.22] via-amber-500/[0.09] to-transparent",
+    hover: "hover:from-amber-500/[0.32] hover:via-amber-500/[0.14]",
+    border: "border-amber-400/30",
+    activeSurface: "from-amber-500/[0.38] via-amber-500/[0.18] to-amber-500/[0.04]",
+    activeBorder: "border-amber-300/60 ring-1 ring-amber-400/30",
+    chip: "bg-amber-500/20 border border-amber-400/30",
+    icon: "text-amber-200",
+    label: "text-amber-50",
+    bar: "bg-amber-400",
+  },
+  Financial: {
+    surface: "bg-gradient-to-r from-emerald-500/[0.22] via-emerald-500/[0.09] to-transparent",
+    hover: "hover:from-emerald-500/[0.32] hover:via-emerald-500/[0.14]",
+    border: "border-emerald-400/30",
+    activeSurface: "from-emerald-500/[0.38] via-emerald-500/[0.18] to-emerald-500/[0.04]",
+    activeBorder: "border-emerald-300/60 ring-1 ring-emerald-400/30",
+    chip: "bg-emerald-500/20 border border-emerald-400/30",
+    icon: "text-emerald-200",
+    label: "text-emerald-50",
+    bar: "bg-emerald-400",
+  },
+  Demographic: {
+    surface: "bg-gradient-to-r from-violet-500/[0.22] via-violet-500/[0.09] to-transparent",
+    hover: "hover:from-violet-500/[0.32] hover:via-violet-500/[0.14]",
+    border: "border-violet-400/30",
+    activeSurface: "from-violet-500/[0.38] via-violet-500/[0.18] to-violet-500/[0.04]",
+    activeBorder: "border-violet-300/60 ring-1 ring-violet-400/30",
+    chip: "bg-violet-500/20 border border-violet-400/30",
+    icon: "text-violet-200",
+    label: "text-violet-50",
+    bar: "bg-violet-400",
+  },
+  Risk: {
+    surface: "bg-gradient-to-r from-rose-500/[0.22] via-rose-500/[0.09] to-transparent",
+    hover: "hover:from-rose-500/[0.32] hover:via-rose-500/[0.14]",
+    border: "border-rose-400/30",
+    activeSurface: "from-rose-500/[0.38] via-rose-500/[0.18] to-rose-500/[0.04]",
+    activeBorder: "border-rose-300/60 ring-1 ring-rose-400/30",
+    chip: "bg-rose-500/20 border border-rose-400/30",
+    icon: "text-rose-200",
+    label: "text-rose-50",
+    bar: "bg-rose-400",
+  },
+};
+
+const DEFAULT_DARK_STYLE: DarkFamilyStyle = {
+  surface: "bg-white/[0.045]",
+  hover: "hover:bg-white/[0.08]",
+  border: "border-white/[0.08]",
+  activeSurface: "bg-white/[0.11]",
+  activeBorder: "border-white/25",
+  chip: "bg-white/10 border border-white/15",
+  icon: "text-slate-200",
+  label: "text-slate-100",
+  bar: "bg-slate-400",
+};
+
+
 /* A single standing signal section with a rolling detection ticker. */
 function SignalSection({
   signal,
