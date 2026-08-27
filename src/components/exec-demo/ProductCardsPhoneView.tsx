@@ -100,7 +100,7 @@ export function nameSizeClass(name: string, compact: boolean): string {
  * show, trim back to the last sentence boundary that fits rather than cutting
  * mid-word. Applies to live-generated and cached snapshot copy alike.
  */
-const QUOTE_MAX_CHARS = 140;
+const QUOTE_MAX_CHARS = 90;
 
 export function fitQuote(raw: string): string {
   const text = (raw || "")
@@ -189,7 +189,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
           >
             {cards.map((card, i) => {
               const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
-              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, compact ? 2 : 3);
+              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
               const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
               const ThemeIcon = style.icon;
               const cta = fitCta(card.cta, card.theme);
@@ -211,7 +211,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         <p className={`font-bold text-slate-800 leading-tight flex-1 ${nameSizeClass(card.product_name, compact)}`}>{card.product_name}</p>
                       </div>
                       <p className="text-slate-700 leading-relaxed shrink-0 text-[12.5px]">{fitQuote(card.quote)}</p>
-                      <div className="space-y-1.5 flex-1 min-h-0 pt-2 border-t border-black/5">
+                      <div className="flex flex-col justify-evenly gap-1.5 flex-1 min-h-0 pt-2 border-t border-black/5">
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
                             <Check className="mt-0.5 shrink-0 w-3.5 h-3.5" style={{ color: style.accent }} />
