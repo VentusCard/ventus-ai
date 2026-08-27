@@ -424,7 +424,7 @@ function SourceGroupCard({
       <span
         className={cn(
           "flex-none rounded-full px-2 py-0.5 text-[11px] font-medium",
-          isExternal ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700",
+          isExternal ? "bg-zinc-100 text-zinc-700" : "bg-slate-100 text-slate-700",
         )}
       >
         {group.inputs.length} feeds
