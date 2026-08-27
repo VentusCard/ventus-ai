@@ -54,12 +54,12 @@ export const EXAMPLE_CUSTOMERS: ExampleCustomer[] = [
     lifestyleType: "Wellness Explorer",
     products: ["Premium Card", "Checking", "Cashback Card", "Mortgage"],
     spendingHabits: [
-      s("Biweekly tennis", "Recurring court and club charges on a two-week cadence", "Strong"),
-      s("Recurring pet expenditures", "Repeat pet supply, vet and grooming activity", "Strong"),
+      s("Biweekly advanced tennis", "Private coaching, league fees and premium club charges on a two-week cadence", "Strong"),
+      s("Recurring dog expenditures", "Repeat dog food, vet, grooming and walker charges", "Strong"),
       ext("Annual tropical vacation in December", "Outside travel booking history each December", "Likely"),
     ],
     lifeEvents: [
-      s("Buying a new house", "Pre-mover to new-homeowner: earnest deposit, inspection, moving and setup spend", "Strong"),
+      s("Buying a house above $1.5M", "Pre-mover to high-value homeowner: earnest deposit, inspection, moving and setup spend above $1.5M", "Strong"),
     ],
     financialSignals: [
       s("Recurring transfers to an outside brokerage", "Steady outbound transfers to a non-bank investment account", "Strong"),
@@ -69,7 +69,7 @@ export const EXAMPLE_CUSTOMERS: ExampleCustomer[] = [
       s("Small business owner", "Merchant-services deposits and business-expense pattern", "Strong"),
     ],
     riskFlags: [
-      s("Gambling", "Recurring casino and sports-betting activity", "Emerging"),
+      s("Gambling: online sports betting", "Recurring online sportsbook deposits and wagering activity", "Emerging"),
     ],
   },
   {
