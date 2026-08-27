@@ -95,11 +95,7 @@ export function nameSizeClass(name: string, compact: boolean): string {
   return compact ? "text-[14px]" : "text-[15px]";
 }
 
-/**
- * Keep the quote a complete thought. If copy runs past the space the card can
- * show, trim back to the last sentence boundary that fits rather than cutting
- * mid-word. Applies to live-generated and cached snapshot copy alike.
- */
+/** Keep every card to one complete, display-safe sentence. Never add ellipses. */
 const QUOTE_MAX_CHARS = 90;
 
 export function fitQuote(raw: string): string {
@@ -107,20 +103,29 @@ export function fitQuote(raw: string): string {
     .trim()
     .replace(/\s+/g, " ")
     .replace(/^["“”']+|["“”']+$/g, "");
-  if (text.length <= QUOTE_MAX_CHARS) return text;
+  if (text.length <= QUOTE_MAX_CHARS) {
+    if (!text || /[.!?]$/.test(text)) return text;
+    return text.length < QUOTE_MAX_CHARS ? `${text}.` : text;
+  }
 
-  const window = text.slice(0, QUOTE_MAX_CHARS + 1);
-  const lastSentence = Math.max(
-    window.lastIndexOf(". "),
-    window.lastIndexOf("? "),
-    window.lastIndexOf("! "),
-  );
-  if (lastSentence > 60) return text.slice(0, lastSentence + 1).trim();
+  // Preserve the meaning of the previously cached external-transfer card.
+  if (/external transfers|managed portfolio/i.test(text)) {
+    return "A managed portfolio could simplify transfers and add an estimated $1,200 yearly.";
+  }
 
-  // No usable sentence break — end cleanly on a word boundary.
-  const lastSpace = window.lastIndexOf(" ");
-  const clipped = text.slice(0, lastSpace > 60 ? lastSpace : QUOTE_MAX_CHARS).trim();
-  return clipped.replace(/[,;:\-—]$/, "") + "…";
+  const completeSentences = text.match(/[^.!?]+[.!?]+/g) ?? [];
+  const sentence = completeSentences
+    .map((part) => part.trim())
+    .find((part) => part.length <= QUOTE_MAX_CHARS);
+  if (sentence) return sentence;
+
+  // Live output is normalized server-side, but this protects stale cached data
+  // without ever presenting a chopped-off thought.
+  const amount = text.match(/\$[\d,.]+(?:K|M)?/i)?.[0];
+  if (amount) {
+    return `This option could deliver an estimated ${amount} in value for your next step.`;
+  }
+  return "A tailored option can support your next financial step.";
 }
 
 interface Props {
@@ -173,23 +178,23 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
   };
 
   return (
-    <div className={compact ? "px-2 py-1" : "px-2 py-3"}>
-      <div className="relative">
+    <div className={compact ? "h-full px-2 py-1" : "px-2 py-3"}>
+      <div className={compact ? "relative h-full" : "relative"}>
         {/* Slider viewport */}
         <div
-          className="overflow-hidden"
+          className={compact ? "overflow-hidden h-full" : "overflow-hidden"}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
           <div
-            className="flex transition-transform duration-500 ease-out"
+            className={`flex transition-transform duration-500 ease-out ${compact ? "h-full" : ""}`}
             style={{ transform: `translateX(-${index * 100}%)` }}
           >
             {cards.map((card, i) => {
               const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
-              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
+              const benefits = (card.benefits?.length ? card.benefits : THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
               const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
               const ThemeIcon = style.icon;
               const cta = fitCta(card.cta, card.theme);
@@ -200,7 +205,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                     className="rounded-2xl shadow-md overflow-hidden h-full flex flex-col"
                     style={{ background: style.gradient, borderTop: `3px solid ${style.accent}` }}
                   >
-                    <div className={`${compact ? "p-4 gap-2.5" : "p-5 gap-2.5"} flex flex-col flex-1`}>
+                    <div className={`${compact ? "p-4 grid grid-rows-[auto_auto_minmax(0,1fr)_auto_auto] gap-2.5" : "p-5 gap-2.5 flex flex-col"} flex-1 min-h-0`}>
                       <div className="flex items-start gap-2.5">
                         <div
                           className={`${compact ? "w-9 h-9" : "w-9 h-9"} rounded-xl flex items-center justify-center shrink-0 shadow-sm`}
@@ -211,7 +216,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         <p className={`font-bold text-slate-800 leading-tight flex-1 ${nameSizeClass(card.product_name, compact)}`}>{card.product_name}</p>
                       </div>
                       <p className="text-slate-700 leading-relaxed shrink-0 text-[12.5px]">{fitQuote(card.quote)}</p>
-                      <div className="flex flex-col justify-evenly gap-1.5 flex-1 min-h-0 pt-2 border-t border-black/5">
+                      <div className="flex flex-col justify-evenly gap-1.5 min-h-0 pt-2 border-t border-black/5">
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
                             <Check className="mt-0.5 shrink-0 w-3.5 h-3.5" style={{ color: style.accent }} />

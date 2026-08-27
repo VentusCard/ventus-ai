@@ -114,7 +114,7 @@ Required by field:
   GOOD: "$0 annual fee for the first year", "75,000 bonus points after $4K spend in 90 days", "0.25% rate discount for autopay"
   BAD:  "No annual fee", "Big signup bonus", "Autopay discount"
 - quote: MUST contain ONE personalized dollar-estimate tied to the customer's actual behavior/signal.
-  LENGTH (HARD LIMIT): ONE complete sentence, 140 characters or fewer, ending in a period.
+   LENGTH (HARD LIMIT): ONE complete sentence, 90 characters or fewer, ending in a period.
   It must read as a finished thought — NEVER trail off, never continue into a second clause you cannot finish.
   Write it short first, then add the number; do not pad with setup phrases.
   Derive the estimate from persona rollups (totalSpend), life-event financial_projection, or the signal context.
@@ -266,7 +266,7 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
                         },
                         quote: {
                           type: "string",
-                          description: "ONE complete consumer-facing sentence, 140 characters or fewer, ending in a period — must be a complete sentence and never trail off. MUST include one personalized dollar-estimate (e.g. 'estimated $215', 'roughly $1,400') tied to the customer's actual signal or spending pattern.",
+                           description: "ONE complete consumer-facing sentence, 90 characters or fewer, ending in a period — must be a complete sentence and never trail off. MUST include one personalized dollar-estimate (e.g. 'estimated $215', 'roughly $1,400') tied to the customer's actual signal or spending pattern.",
                         },
                         signal_label: {
                           type: "string",
@@ -382,6 +382,19 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
           }
         }
         if (typeof c.offer_headline === "string") c.offer_headline = scrub(c.offer_headline);
+        if (typeof c.quote === "string") {
+          const quote = c.quote.trim().replace(/\s+/g, " ").replace(/^["“”']+|["“”']+$/g, "");
+          if (quote.length <= 90 && /[.!?]$/.test(quote)) {
+            c.quote = quote;
+          } else {
+            const sentences = quote.match(/[^.!?]+[.!?]+/g) || [];
+            const complete = sentences.map((part: string) => part.trim()).find((part: string) => part.length <= 90);
+            const amount = quote.match(/\$[\d,.]+(?:K|M)?/i)?.[0];
+            c.quote = complete || (amount
+              ? `This option could deliver an estimated ${amount} in value for your next step.`
+              : "A tailored option can support your next financial step.");
+          }
+        }
       }
     }
 
