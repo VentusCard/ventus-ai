@@ -65,19 +65,19 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
       onClick={() => onOpenChat?.()}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="group w-full text-left rounded-xl border border-slate-200 bg-slate-50 shadow-sm hover:shadow-md hover:border-blue-200 hover:bg-white transition-all overflow-hidden"
+      className="group w-full text-left rounded-xl border border-blue-200/70 bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-slate-50 shadow-sm hover:shadow-md hover:border-blue-300 hover:from-blue-50 hover:to-white transition-all overflow-hidden"
     >
       <div className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 shrink-0">
-            <span className="text-sm font-black text-blue-600 leading-none">V</span>
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 border border-blue-600/30 shrink-0">
+            <span className="text-sm font-black text-white leading-none">V</span>
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="text-[13px] font-semibold text-slate-700 truncate">
                 {priorityCards.length} priorities in your book right now
               </span>
-              <span className="text-[11px] text-slate-400 truncate hidden sm:inline">
+              <span className="text-[11px] text-slate-500 truncate hidden sm:inline">
                 Delivered by Ventus AI
               </span>
             </div>
@@ -100,10 +100,10 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
                   }}
                   className="ventus-roll-in flex items-center gap-2 h-[18px] cursor-pointer group/item"
                 >
-                  <span className="text-[11.5px] font-medium text-slate-600 truncate group-hover/item:text-blue-600 group-hover/item:underline">
+                  <span className="text-[11.5px] font-medium text-slate-700 truncate group-hover/item:text-blue-600 group-hover/item:underline">
                     {activeCard.headline}
                   </span>
-                  <span className="text-[10.5px] text-slate-400 tabular-nums truncate shrink-0">
+                  <span className="text-[10.5px] text-slate-500 tabular-nums truncate shrink-0">
                     {activeCard.metric}
                   </span>
                 </span>
@@ -125,13 +125,13 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
                     }}
                     className={cn(
                       "block w-1.5 h-1.5 rounded-full transition-colors cursor-pointer",
-                      i === priorityIndex ? "bg-blue-500" : "bg-slate-300 hover:bg-slate-400",
+                      i === priorityIndex ? "bg-blue-500" : "bg-blue-200 hover:bg-blue-400",
                     )}
                   />
                 ))}
               </div>
             )}
-            <div className="flex items-center gap-1 text-slate-400 group-hover:text-blue-600 transition-colors">
+            <div className="flex items-center gap-1 text-blue-400 group-hover:text-blue-600 transition-colors">
               <Sparkles className="w-3.5 h-3.5" />
               <ArrowUpRight className="w-3.5 h-3.5" />
             </div>
