@@ -399,8 +399,12 @@ function SourceGroupCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex min-h-[76px] w-full flex-1 items-center gap-3 rounded-[10px] border bg-white px-3.5 py-3 text-left transition-colors",
-        isActive ? "border-sky-300 ring-1 ring-sky-200" : "border-slate-100 hover:border-slate-200",
+        "flex w-full items-center gap-3 rounded-lg border bg-white px-3 py-3 text-left transition-colors",
+        isActive
+          ? isExternal
+            ? "border-amber-300 ring-1 ring-amber-200"
+            : "border-sky-300 ring-1 ring-sky-200"
+          : "border-slate-100 hover:border-slate-200",
       )}
     >
       <div
@@ -412,35 +416,19 @@ function SourceGroupCard({
         <Icon className="h-[18px] w-[18px]" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-[15px] font-semibold leading-tight text-slate-900">
-            {group.provider}
-          </span>
-          <span className="ml-auto flex flex-none items-center gap-1.5 text-[11px] font-medium text-emerald-600">
-            <PulseDot sizeClass="h-1.5 w-1.5" />
-            Live
-          </span>
+        <div className="truncate text-[15px] font-semibold leading-tight text-slate-900">
+          {group.provider}
         </div>
         <div className="mt-0.5 truncate text-[12.5px] text-slate-600">{group.sublabel}</div>
-        <div className="mt-1.5 flex items-center gap-1.5">
-          <span
-            className={cn(
-              "rounded-full px-2 py-0.5 text-[11px] font-medium",
-              isExternal ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700",
-            )}
-          >
-            {group.inputs.length} source feeds
-          </span>
-          <span
-            className={cn(
-              "rounded-full px-2 py-0.5 text-[11px] font-medium",
-              isExternal ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700",
-            )}
-          >
-            {isExternal ? "External · Modeled" : "Internal"}
-          </span>
-        </div>
       </div>
+      <span
+        className={cn(
+          "flex-none rounded-full px-2 py-0.5 text-[11px] font-medium",
+          isExternal ? "bg-amber-100 text-amber-700" : "bg-sky-100 text-sky-700",
+        )}
+      >
+        {group.inputs.length} feeds
+      </span>
     </button>
   );
 }
