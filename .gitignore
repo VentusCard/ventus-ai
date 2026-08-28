@@ -29,3 +29,6 @@ backend/artifacts/
 .env.*
 !.env.example
 .vercel
+
+# Lovable-generated planning docs (regenerated per task, not source of truth)
+.lovable/plan/
