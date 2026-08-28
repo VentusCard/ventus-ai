@@ -492,6 +492,12 @@
   flex-shrink: 0;
 }
 
+.ventus-ai-live-dot-subdued {
+  width: 5px;
+  height: 5px;
+  background: hsl(142 45% 55%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ventus-ai-live-dot {
     animation: none;
