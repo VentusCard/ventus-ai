@@ -93,6 +93,162 @@ const SNAPSHOTS = {
         ]
       },
       {
+        "rollup": "Recurring dog expenditures",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Everyday upgrades for your four-legged regular.",
+        "imageCategory": "dog",
+        "imageQuery": "happy dog park",
+        "suppressedCategories": [
+          "Vet Visits",
+          "Dog Walker"
+        ],
+        "deals": [
+          {
+            "id": "dog_deal_1",
+            "merchant": "Chewy",
+            "product": "Premium Dog Food Subscription",
+            "rewardValue": "10% Cash Back",
+            "message": "Keep the bowl full with scheduled deliveries of their favorite recipes.",
+            "valueLine": "10% back saves $280 on your $2,800 annual pet spend.",
+            "valueMath": "10% × $2,800 = $280",
+            "cta": "Stock the Pantry",
+            "signal": "boost",
+            "signalReason": "Recurring food purchases make a subscription reward instantly valuable.",
+            "boostCategory": "Pet Food"
+          },
+          {
+            "id": "dog_deal_2",
+            "merchant": "Petco",
+            "product": "Grooming & Wellness Package",
+            "rewardValue": "15% Off",
+            "message": "Regular grooming sessions bundled with wellness checks.",
+            "valueLine": "15% off grooming saves $420 on your $2,800 annual pet spend.",
+            "valueMath": "15% × $2,800 = $420",
+            "cta": "Book a Spa Day",
+            "signal": "boost",
+            "signalReason": "Steady grooming cadence fits a bundled package perfectly.",
+            "boostCategory": "Pet Grooming"
+          },
+          {
+            "id": "dog_deal_3",
+            "merchant": "Rover",
+            "product": "Dog Walking Credits",
+            "rewardValue": "$50 in Credits",
+            "message": "Trusted walkers for the busy weeks between your own park runs.",
+            "valueLine": "$50 in credits offsets your regular walker bookings.",
+            "valueMath": "$50 credit on recurring walks",
+            "cta": "Credit Your Walks",
+            "signal": "boost",
+            "signalReason": "Repeat walker charges show walking support is already part of the routine.",
+            "boostCategory": "Pet Services"
+          },
+          {
+            "id": "dog_deal_4",
+            "merchant": "Ruffwear",
+            "product": "Trail Harness & Gear",
+            "rewardValue": "8% Cash Back",
+            "message": "Durable adventure gear for weekend hikes together.",
+            "valueLine": "8% back saves $225 on your $2,800 annual pet spend.",
+            "valueMath": "8% × $2,800 ≈ $225",
+            "cta": "Gear Up Together",
+            "signal": "boost",
+            "signalReason": "An active dog paired with an active owner is a natural fit for trail gear.",
+            "boostCategory": "Pet Gear"
+          },
+          {
+            "id": "dog_deal_5",
+            "merchant": "BarkBox",
+            "product": "Monthly Toy & Treat Box",
+            "rewardValue": "First Box Free",
+            "message": "A fresh rotation of toys and treats delivered every month.",
+            "valueLine": "A free first box on top of your regular pet routine.",
+            "valueMath": "Free box ≈ $35 value",
+            "cta": "Treat Your Pup",
+            "signal": "boost",
+            "signalReason": "Consistent pet spend signals a household that appreciates monthly surprises.",
+            "boostCategory": "Pet Subscription"
+          }
+        ]
+      },
+      {
+        "rollup": "Annual tropical vacation in December",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Get December-ready before the flights are booked.",
+        "imageCategory": "tropical",
+        "imageQuery": "tropical beach resort",
+        "suppressedCategories": [
+          "Flights",
+          "Hotels"
+        ],
+        "deals": [
+          {
+            "id": "travel_deal_1",
+            "merchant": "Away",
+            "product": "The Bigger Carry-On",
+            "rewardValue": "12% Cash Back",
+            "message": "A lightweight hard-shell built for week-long island escapes.",
+            "valueLine": "12% back saves $660 on your $5,500 annual travel spend.",
+            "valueMath": "12% × $5,500 = $660",
+            "cta": "Pack Smarter",
+            "signal": "boost",
+            "signalReason": "A reliable December trip pattern makes quality luggage a timely upgrade.",
+            "boostCategory": "Luggage"
+          },
+          {
+            "id": "travel_deal_2",
+            "merchant": "REI",
+            "product": "Travel & Swim Essentials",
+            "rewardValue": "10% Cash Back",
+            "message": "Quick-dry layers, snorkel gear and sun protection for warm-water weeks.",
+            "valueLine": "10% back saves $550 on your $5,500 annual travel spend.",
+            "valueMath": "10% × $5,500 = $550",
+            "cta": "Gear for the Tropics",
+            "signal": "boost",
+            "signalReason": "Annual tropical travel drives repeat purchases of warm-weather gear.",
+            "boostCategory": "Travel Gear"
+          },
+          {
+            "id": "travel_deal_3",
+            "merchant": "Tommy Bahama",
+            "product": "Resort Wear Collection",
+            "rewardValue": "15% Off",
+            "message": "Linen shirts and easy resort looks for December dinners by the water.",
+            "valueLine": "15% off resort wear saves $825 on your $5,500 travel budget.",
+            "valueMath": "15% × $5,500 ≈ $825",
+            "cta": "Dress for December",
+            "signal": "boost",
+            "signalReason": "A recurring warm-weather trip is a natural moment to refresh vacation wardrobe.",
+            "boostCategory": "Resort Wear"
+          },
+          {
+            "id": "travel_deal_4",
+            "merchant": "GoPro",
+            "product": "HERO12 Waterproof Camera",
+            "rewardValue": "8% Cash Back",
+            "message": "Capture reef dives and beach days without worrying about the water.",
+            "valueLine": "8% back saves $440 on your $5,500 annual travel spend.",
+            "valueMath": "8% × $5,500 = $440",
+            "cta": "Capture the Trip",
+            "signal": "boost",
+            "signalReason": "Annual tropical trips create a repeatable use case for waterproof capture gear.",
+            "boostCategory": "Camera Gear"
+          },
+          {
+            "id": "travel_deal_5",
+            "merchant": "Priority Pass",
+            "product": "Airport Lounge Membership",
+            "rewardValue": "20% Off First Year",
+            "message": "Start the vacation at the airport with lounge access on December departures.",
+            "valueLine": "20% off membership smooths the start of every trip.",
+            "valueMath": "20% off ≈ $99 first-year savings",
+            "cta": "Upgrade Departure Day",
+            "signal": "boost",
+            "signalReason": "A predictable annual flight makes lounge access an easy win.",
+            "boostCategory": "Travel Perks"
+          }
+        ]
+      },
+      {
         "rollup": "Buying a house above $1.5M",
         "pillar": "Life Event",
         "collectionMessage": "Small touches to make your new place yours.",
