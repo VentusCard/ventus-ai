@@ -23,7 +23,6 @@ test('model routing config defines required enrichment tasks', () => {
   }
 
   assert.equal(resolveModelRoute(config, 'enrichment_judge').shadowOnly, true);
-
   const benchmarkRoute = resolveModelRoute(config, 'benchmark_enrichment');
   assert.equal(benchmarkRoute.provider, 'openrouter');
   assert.equal(benchmarkRoute.providerType, 'openai_compatible');

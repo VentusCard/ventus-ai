@@ -4,7 +4,13 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
-/** Retained Wave A shell for evidence-store credentials and audit logs. */
+/**
+ * Retirement shell for the Evidence Store migrator.
+ *
+ * The existing runtime secret and migrator log group retain their construct and
+ * physical names for a reviewed rollback. No migration Lambda or database
+ * access policy remains, so this shell cannot mutate the evidence database.
+ */
 export class VentusEvidenceStoreStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);

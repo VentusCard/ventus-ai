@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "note": "Synthetic enriched transactions keyed by household. Fields mirror the production enrichment output (normalized_merchant, pillar, subcategory, mcc_code) so the v0 fixture provider and the v1 live-pipeline provider return the same shape.",
+  "window": { "start": "2026-03-01", "end": "2026-05-31" },
+  "transactions": {
+    "hh_okafor": [
+      { "transaction_id": "txn_okafor_01", "date": "2026-03-14", "merchant_name": "DELTA AIR LINES", "normalized_merchant": "Delta Air Lines", "amount": 842.30, "direction": "debit", "pillar": "Travel & Exploration", "subcategory": "Flights", "mcc_code": "4511" },
+      { "transaction_id": "txn_okafor_02", "date": "2026-03-15", "merchant_name": "MARRIOTT ATL", "normalized_merchant": "Marriott", "amount": 611.00, "direction": "debit", "pillar": "Travel & Exploration", "subcategory": "Hotels & Lodging", "mcc_code": "7011" },
+      { "transaction_id": "txn_okafor_03", "date": "2026-03-28", "merchant_name": "TST* UCHI AUSTIN", "normalized_merchant": "Uchi", "amount": 214.75, "direction": "debit", "pillar": "Food & Dining", "subcategory": "Dining Out", "mcc_code": "5812" },
+      { "transaction_id": "txn_okafor_04", "date": "2026-04-11", "merchant_name": "UNITED AIRLINES", "normalized_merchant": "United Airlines", "amount": 736.40, "direction": "debit", "pillar": "Travel & Exploration", "subcategory": "Flights", "mcc_code": "4511" },
+      { "transaction_id": "txn_okafor_05", "date": "2026-04-12", "merchant_name": "AIRBNB", "normalized_merchant": "Airbnb", "amount": 928.00, "direction": "debit", "pillar": "Travel & Exploration", "subcategory": "Hotels & Lodging", "mcc_code": "7011" },
+      { "transaction_id": "txn_okafor_06", "date": "2026-04-30", "merchant_name": "DIRECT DEPOSIT PAYROLL", "normalized_merchant": "Direct Deposit / Payroll", "amount": 9600.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Income & Payroll" },
+      { "transaction_id": "txn_okafor_07", "date": "2026-05-06", "merchant_name": "SBUX", "normalized_merchant": "Starbucks", "amount": 8.15, "direction": "debit", "pillar": "Food & Dining", "subcategory": "Coffee & Cafes", "mcc_code": "5814" },
+      { "transaction_id": "txn_okafor_08", "date": "2026-05-19", "merchant_name": "EXPEDIA", "normalized_merchant": "Expedia", "amount": 1204.55, "direction": "debit", "pillar": "Travel & Exploration", "subcategory": "Tours & Activities", "mcc_code": "4722" }
+    ],
+    "hh_bianchi": [
+      { "transaction_id": "txn_bianchi_01", "date": "2026-03-09", "merchant_name": "BUYBUY BABY", "normalized_merchant": "buybuy BABY", "amount": 486.20, "direction": "debit", "pillar": "Family & Community", "subcategory": "Kids Activities", "mcc_code": "5641" },
+      { "transaction_id": "txn_bianchi_02", "date": "2026-03-22", "merchant_name": "KAISER PERMANENTE OB", "normalized_merchant": "Kaiser Permanente", "amount": 320.00, "direction": "debit", "pillar": "Health & Wellness", "subcategory": "Medical & Doctor Visits", "mcc_code": "8011" },
+      { "transaction_id": "txn_bianchi_03", "date": "2026-04-02", "merchant_name": "TARGET T- DENVER", "normalized_merchant": "Target", "amount": 214.88, "direction": "debit", "pillar": "Home & Living", "subcategory": "Household Supplies", "mcc_code": "5310" },
+      { "transaction_id": "txn_bianchi_04", "date": "2026-04-15", "merchant_name": "DIRECT DEPOSIT PAYROLL", "normalized_merchant": "Direct Deposit / Payroll", "amount": 5200.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Income & Payroll" },
+      { "transaction_id": "txn_bianchi_05", "date": "2026-04-18", "merchant_name": "POTTERY BARN KIDS", "normalized_merchant": "Pottery Barn Kids", "amount": 742.10, "direction": "debit", "pillar": "Home & Living", "subcategory": "Furniture & Decor", "mcc_code": "5712" },
+      { "transaction_id": "txn_bianchi_06", "date": "2026-05-01", "merchant_name": "TRANSFER TO SAVINGS", "normalized_merchant": "Transfer to Savings", "amount": 1500.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Savings & Deposits" },
+      { "transaction_id": "txn_bianchi_07", "date": "2026-05-20", "merchant_name": "THE BABY ACADEMY", "normalized_merchant": "The Baby Academy", "amount": 129.00, "direction": "debit", "pillar": "Family & Community", "subcategory": "Childcare & Education", "mcc_code": "8299" }
+    ],
+    "hh_nakamura": [
+      { "transaction_id": "txn_nakamura_01", "date": "2026-03-05", "merchant_name": "THE HOME DEPOT", "normalized_merchant": "Home Depot", "amount": 2841.66, "direction": "debit", "pillar": "Home & Living", "subcategory": "Home Improvement", "mcc_code": "5200" },
+      { "transaction_id": "txn_nakamura_02", "date": "2026-03-19", "merchant_name": "FERGUSON PLUMBING", "normalized_merchant": "Ferguson", "amount": 4120.00, "direction": "debit", "pillar": "Home & Living", "subcategory": "Home Improvement", "mcc_code": "5074" },
+      { "transaction_id": "txn_nakamura_03", "date": "2026-04-01", "merchant_name": "DESIGN WITHIN REACH", "normalized_merchant": "Design Within Reach", "amount": 6890.00, "direction": "debit", "pillar": "Home & Living", "subcategory": "Furniture & Decor", "mcc_code": "5712" },
+      { "transaction_id": "txn_nakamura_04", "date": "2026-04-10", "merchant_name": "PACIFIC NW CONTRACTORS", "normalized_merchant": "Pacific NW Contractors", "amount": 15000.00, "direction": "debit", "pillar": "Home & Living", "subcategory": "Home Improvement", "mcc_code": "1520" },
+      { "transaction_id": "txn_nakamura_05", "date": "2026-04-28", "merchant_name": "DIVIDEND CREDIT", "normalized_merchant": "Dividend Credit", "amount": 4820.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Investments" },
+      { "transaction_id": "txn_nakamura_06", "date": "2026-05-08", "merchant_name": "WHOLEFDS MKT SEA", "normalized_merchant": "Whole Foods", "amount": 318.42, "direction": "debit", "pillar": "Food & Dining", "subcategory": "Grocery", "mcc_code": "5411" },
+      { "transaction_id": "txn_nakamura_07", "date": "2026-05-22", "merchant_name": "RESTORATION HARDWARE", "normalized_merchant": "Restoration Hardware", "amount": 9240.00, "direction": "debit", "pillar": "Home & Living", "subcategory": "Furniture & Decor", "mcc_code": "5712" }
+    ],
+    "hh_alvarez": [
+      { "transaction_id": "txn_alvarez_01", "date": "2026-03-03", "merchant_name": "OVERDRAFT FEE", "normalized_merchant": "Overdraft Fee", "amount": 35.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Banking Fees" },
+      { "transaction_id": "txn_alvarez_02", "date": "2026-03-17", "merchant_name": "GIG PLATFORM PAYOUT", "normalized_merchant": "Gig Platform Payout", "amount": 1420.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Income & Payroll" },
+      { "transaction_id": "txn_alvarez_03", "date": "2026-03-28", "merchant_name": "OVERDRAFT FEE", "normalized_merchant": "Overdraft Fee", "amount": 35.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Banking Fees" },
+      { "transaction_id": "txn_alvarez_04", "date": "2026-04-09", "merchant_name": "GIG PLATFORM PAYOUT", "normalized_merchant": "Gig Platform Payout", "amount": 610.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Income & Payroll" },
+      { "transaction_id": "txn_alvarez_05", "date": "2026-04-22", "merchant_name": "DRAFTKINGS", "normalized_merchant": "DraftKings", "amount": 250.00, "direction": "debit", "pillar": "Entertainment & Culture", "subcategory": "Gaming", "mcc_code": "7995" },
+      { "transaction_id": "txn_alvarez_06", "date": "2026-05-02", "merchant_name": "NSF RETURNED ITEM", "normalized_merchant": "NSF Returned Item", "amount": 34.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Banking Fees" },
+      { "transaction_id": "txn_alvarez_07", "date": "2026-05-18", "merchant_name": "GIG PLATFORM PAYOUT", "normalized_merchant": "Gig Platform Payout", "amount": 2010.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Income & Payroll" }
+    ],
+    "hh_petrov": [
+      { "transaction_id": "txn_petrov_01", "date": "2026-03-06", "merchant_name": "U-HAUL MOVING", "normalized_merchant": "U-Haul", "amount": 486.00, "direction": "debit", "pillar": "Home & Living", "subcategory": "Household Supplies", "mcc_code": "7513" },
+      { "transaction_id": "txn_petrov_02", "date": "2026-03-07", "merchant_name": "ZILLOW RENTALS", "normalized_merchant": "Zillow", "amount": 45.00, "direction": "debit", "pillar": "Home & Living", "subcategory": "Rent & Mortgage", "mcc_code": "6513" },
+      { "transaction_id": "txn_petrov_03", "date": "2026-03-20", "merchant_name": "DIRECT DEPOSIT PAYROLL NC", "normalized_merchant": "Direct Deposit / Payroll", "amount": 7100.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Income & Payroll" },
+      { "transaction_id": "txn_petrov_04", "date": "2026-04-03", "merchant_name": "HIGH YIELD SAVINGS TRANSFER", "normalized_merchant": "Transfer to Savings", "amount": 3000.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Savings & Deposits" },
+      { "transaction_id": "txn_petrov_05", "date": "2026-04-16", "merchant_name": "THE HOME DEPOT RALEIGH", "normalized_merchant": "Home Depot", "amount": 612.44, "direction": "debit", "pillar": "Home & Living", "subcategory": "Home Improvement", "mcc_code": "5200" },
+      { "transaction_id": "txn_petrov_06", "date": "2026-05-01", "merchant_name": "HIGH YIELD SAVINGS TRANSFER", "normalized_merchant": "Transfer to Savings", "amount": 3000.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Savings & Deposits" },
+      { "transaction_id": "txn_petrov_07", "date": "2026-05-14", "merchant_name": "REDFIN", "normalized_merchant": "Redfin", "amount": 30.00, "direction": "debit", "pillar": "Home & Living", "subcategory": "Rent & Mortgage", "mcc_code": "6513" }
+    ],
+    "hh_sharma": [
+      { "transaction_id": "txn_sharma_01", "date": "2026-03-11", "merchant_name": "ESTATE SETTLEMENT WIRE", "normalized_merchant": "Estate Settlement Wire", "amount": 480000.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Transfers" },
+      { "transaction_id": "txn_sharma_02", "date": "2026-03-25", "merchant_name": "MORTON'S STEAKHOUSE", "normalized_merchant": "Morton's The Steakhouse", "amount": 512.00, "direction": "debit", "pillar": "Food & Dining", "subcategory": "Dining Out", "mcc_code": "5812" },
+      { "transaction_id": "txn_sharma_03", "date": "2026-04-05", "merchant_name": "ESTATE ATTORNEY LLP", "normalized_merchant": "Estate Attorney LLP", "amount": 8400.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Professional Services", "mcc_code": "8111" },
+      { "transaction_id": "txn_sharma_04", "date": "2026-04-20", "merchant_name": "DIVIDEND CREDIT", "normalized_merchant": "Dividend Credit", "amount": 12600.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Investments" },
+      { "transaction_id": "txn_sharma_05", "date": "2026-05-03", "merchant_name": "UNITED AIRLINES FIRST", "normalized_merchant": "United Airlines", "amount": 3820.00, "direction": "debit", "pillar": "Travel & Exploration", "subcategory": "Flights", "mcc_code": "4511" },
+      { "transaction_id": "txn_sharma_06", "date": "2026-05-21", "merchant_name": "SOTHEBY'S", "normalized_merchant": "Sotheby's", "amount": 26500.00, "direction": "debit", "pillar": "Entertainment & Culture", "subcategory": "Hobbies & Crafts", "mcc_code": "5971" }
+    ],
+    "hh_delgado": [
+      { "transaction_id": "txn_delgado_01", "date": "2026-03-04", "merchant_name": "NELNET STUDENT LOAN", "normalized_merchant": "Nelnet", "amount": 640.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Loan Payments", "mcc_code": "8220" },
+      { "transaction_id": "txn_delgado_02", "date": "2026-03-18", "merchant_name": "DIRECT DEPOSIT PAYROLL", "normalized_merchant": "Direct Deposit / Payroll", "amount": 4300.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Income & Payroll" },
+      { "transaction_id": "txn_delgado_03", "date": "2026-04-01", "merchant_name": "NELNET STUDENT LOAN", "normalized_merchant": "Nelnet", "amount": 640.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Loan Payments", "mcc_code": "8220" },
+      { "transaction_id": "txn_delgado_04", "date": "2026-04-12", "merchant_name": "TRANSFER TO SAVINGS", "normalized_merchant": "Transfer to Savings", "amount": 500.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Savings & Deposits" },
+      { "transaction_id": "txn_delgado_05", "date": "2026-05-01", "merchant_name": "NELNET STUDENT LOAN", "normalized_merchant": "Nelnet", "amount": 640.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Loan Payments", "mcc_code": "8220" },
+      { "transaction_id": "txn_delgado_06", "date": "2026-05-09", "merchant_name": "KROGER COLUMBUS", "normalized_merchant": "Kroger", "amount": 182.30, "direction": "debit", "pillar": "Food & Dining", "subcategory": "Grocery", "mcc_code": "5411" },
+      { "transaction_id": "txn_delgado_07", "date": "2026-05-16", "merchant_name": "TRANSFER TO SAVINGS", "normalized_merchant": "Transfer to Savings", "amount": 500.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Savings & Deposits" }
+    ],
+    "hh_kim": [
+      { "transaction_id": "txn_kim_01", "date": "2026-03-08", "merchant_name": "VANGUARD BUY", "normalized_merchant": "Vanguard", "amount": 7000.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Investments", "mcc_code": "6211" },
+      { "transaction_id": "txn_kim_02", "date": "2026-03-21", "merchant_name": "DIRECT DEPOSIT PAYROLL CA", "normalized_merchant": "Direct Deposit / Payroll", "amount": 14200.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Income & Payroll" },
+      { "transaction_id": "txn_kim_03", "date": "2026-04-06", "merchant_name": "VANGUARD BUY", "normalized_merchant": "Vanguard", "amount": 7000.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Investments", "mcc_code": "6211" },
+      { "transaction_id": "txn_kim_04", "date": "2026-04-19", "merchant_name": "APPLE.COM/BILL", "normalized_merchant": "Apple", "amount": 22.99, "direction": "debit", "pillar": "Technology & Digital Life", "subcategory": "Cloud Storage", "mcc_code": "5816" },
+      { "transaction_id": "txn_kim_05", "date": "2026-05-05", "merchant_name": "VANGUARD BUY", "normalized_merchant": "Vanguard", "amount": 7000.00, "direction": "debit", "pillar": "Financial & Aspirational", "subcategory": "Investments", "mcc_code": "6211" },
+      { "transaction_id": "txn_kim_06", "date": "2026-05-12", "merchant_name": "WHOLEFDS MKT SJ", "normalized_merchant": "Whole Foods", "amount": 264.10, "direction": "debit", "pillar": "Food & Dining", "subcategory": "Grocery", "mcc_code": "5411" },
+      { "transaction_id": "txn_kim_07", "date": "2026-05-27", "merchant_name": "IDLE CASH SWEEP", "normalized_merchant": "Idle Cash Sweep", "amount": 40000.00, "direction": "credit", "pillar": "Financial & Aspirational", "subcategory": "Savings & Deposits" }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "ventus-coworker-digest",
+  "version": "1.0.0",
+  "description": "Scheduled AI Coworker digest: proactive per-advisor opportunity emails.",
+  "main": "index.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1053.0",
+    "@aws-sdk/client-sesv2": "^3.1053.0",
+    "@aws-sdk/lib-dynamodb": "^3.1053.0"
+  }
+}

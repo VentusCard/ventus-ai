@@ -40,8 +40,7 @@
     "check:imports": "node ./scripts/check-relative-imports.mjs",
     "check:model-gateway": "node ./scripts/check-model-gateway-readiness.mjs",
     "check:model-gateway-deploy": "node ./scripts/check-model-gateway-deploy-readiness.mjs",
-    "release:manifest": "node ./scripts/release-evidence-manifest.mjs",
-    "release:manifest:check": "node ./scripts/release-evidence-manifest.mjs --check",
+    "coworker:test": "node --test \"./shared/coworker/*.test.mjs\"",
     "test": "node --test \"./shared/*.test.mjs\""
   }
 }
