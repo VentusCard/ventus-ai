@@ -54,11 +54,13 @@ import {
   Zap,
   BarChart3,
   Route,
+  ArrowUpRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 import { PulseDot } from "@/components/tepilot/common/PulseDot";
+import type { TabValue } from "./AnalyticsContainer";
 
 type SourceInput = {
   label: string;
@@ -81,6 +83,8 @@ type Destination = {
   name: string;
   channel: string;
   facing: Facing;
+  tab: TabValue;
+  tabLabel: string;
 };
 
 type Detection = { ev: string; to: string; basis: "1P" | "Ext" | "Both" };
@@ -301,15 +305,15 @@ function chipClass(chip: WorkflowChip) {
 }
 
 const DESTINATIONS: Destination[] = [
-  { name: "Intelligence Database", channel: "Ventus", facing: "bank" },
-  { name: "Ventus AI Coworker", channel: "Email", facing: "bank" },
-  { name: "Personalized Relationship", channel: "Ventus", facing: "bank" },
-  { name: "Automations Campaign", channel: "CRM", facing: "bank" },
-  { name: "Custom Product Builder", channel: "CRM", facing: "bank" },
-  { name: "Personalized Product Offer", channel: "CRM", facing: "consumer" },
-  { name: "Personalized Reward Program", channel: "Digital Banking", facing: "consumer" },
-  { name: "Local Merchant Deals", channel: "Ventus", facing: "consumer" },
-  { name: "Loyalty & Retention", channel: "Digital Banking", facing: "consumer" },
+  { name: "Intelligence Database", channel: "Ventus", facing: "bank", tab: "ventus-ai-dashboard", tabLabel: "Intelligence Database" },
+  { name: "Ventus AI Coworker", channel: "Email", facing: "bank", tab: "wm-copilot", tabLabel: "AI Coworker" },
+  { name: "Personalized Relationship", channel: "Ventus", facing: "bank", tab: "personalized-relationship", tabLabel: "Personalized Relationship" },
+  { name: "Automations Campaign", channel: "CRM", facing: "bank", tab: "targeting-automated-flows", tabLabel: "Automated Flows" },
+  { name: "Custom Product Builder", channel: "CRM", facing: "bank", tab: "targeting-campaign-builder", tabLabel: "Campaign Builder" },
+  { name: "Personalized Product Offer", channel: "CRM", facing: "consumer", tab: "targeting", tabLabel: "Personalized Product" },
+  { name: "Personalized Reward Program", channel: "Digital Banking", facing: "consumer", tab: "personalized-deals", tabLabel: "Personalized Deals" },
+  { name: "Local Merchant Deals", channel: "Ventus", facing: "consumer", tab: "growth-merchant-partnerships", tabLabel: "Rewards and Perks" },
+  { name: "Loyalty & Retention", channel: "Digital Banking", facing: "consumer", tab: "growth-merchant-partnerships", tabLabel: "Rewards and Perks" },
 ];
 
 function Connector({ amber, active = true }: { amber?: boolean; active?: boolean }) {
@@ -675,7 +679,7 @@ function SignalSection({
 }
 
 
-export function CapabilitiesView() {
+export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) => void }) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   // Guided walkthrough: 0 = sources only, 1 = core live, 2 = activation live.
   const [walkStep, setWalkStep] = useState<0 | 1 | 2>(0);
@@ -1149,6 +1153,20 @@ export function CapabilitiesView() {
                       <FacingIcon className="h-3.5 w-3.5" />
                     </span>
                     <span className="truncate text-[14px] font-medium leading-tight text-slate-900">{d.name}</span>
+                    {onNavigate && (
+                      <button
+                        type="button"
+                        title={`Open ${d.tabLabel}`}
+                        aria-label={`Open ${d.tabLabel}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigate(d.tab);
+                        }}
+                        className="ml-auto flex h-7 w-7 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-blue-100 hover:text-blue-600"
+                      >
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                 );
               })}

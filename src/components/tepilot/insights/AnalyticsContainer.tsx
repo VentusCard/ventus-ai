@@ -366,7 +366,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'ventus-ai':
       case 'analytics-dashboard':
         return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
-      case 'capabilities': return <CapabilitiesView />;
+      case 'capabilities': return <CapabilitiesView onNavigate={setActiveTab} />;
       case 'products': return <BankContextView />;
       // 'ventus-chat' is rendered as a persistent mount below so the thread survives tab switches.
       case 'ventus-chat': return null;
