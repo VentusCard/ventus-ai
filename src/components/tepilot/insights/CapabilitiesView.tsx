@@ -83,6 +83,8 @@ type Destination = {
   name: string;
   channel: string;
   facing: Facing;
+  tab: TabValue;
+  tabLabel: string;
 };
 
 type Detection = { ev: string; to: string; basis: "1P" | "Ext" | "Both" };
