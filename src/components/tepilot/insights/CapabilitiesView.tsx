@@ -397,7 +397,7 @@ function SourceGroupCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition-colors",
+        "flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors",
         isActive
           ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500/30"
           : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50",
@@ -620,7 +620,7 @@ function SignalSection({
   const next = signal.examples[(idx + 1) % total];
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-11 items-center gap-2 text-[13px] leading-normal text-slate-100">
+    <span ref={ref} className="flex h-10 items-center gap-2 text-[13px] leading-normal text-slate-100">
       <span className="relative z-10 truncate pb-px text-[14px] font-medium leading-normal text-white">{example.to}</span>
       <span className="relative z-0 flex-none text-[12px] leading-normal text-slate-300">&rarr;</span>
       <span className="relative z-0 truncate pb-px text-[13px] leading-normal text-slate-200">{example.ev}</span>
@@ -643,14 +643,14 @@ function SignalSection({
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
         style.surface,
         style.border,
         isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
       )}
     >
       <span className={cn("absolute inset-y-0 left-0 w-[5px]", style.bar)} />
-      <span className="mb-0.5 flex items-center gap-2">
+      <span className="mb-0 flex items-center gap-2">
         <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px]", style.chip)}>
           <Icon className={cn("h-3.5 w-3.5", style.icon)} />
         </span>
@@ -666,7 +666,7 @@ function SignalSection({
         </span>
       </span>
 
-      <span className="relative mt-0.5 block h-11 overflow-hidden">
+      <span className="relative mt-0 block h-10 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
           {renderRow(next, nextRowRef)}
@@ -1023,7 +1023,7 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                   <div
                     key={section.title}
                     className={cn(
-                      "flex min-w-0 flex-1 flex-col gap-3 rounded-xl border p-3",
+                      "flex min-w-0 flex-1 flex-col gap-2.5 rounded-xl border p-2.5",
                       isExternal
                         ? "border-slate-200 bg-slate-50"
                         : "border-slate-200 bg-slate-50",
@@ -1076,14 +1076,14 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
             )}
           >
             <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-4">
-              <div className="mb-3 border-b border-white/10 pb-2.5">
+              <div className="mb-3 border-b border-white/10 pb-2">
                 <div className="flex min-w-0 items-center gap-2.5">
                   <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto shrink-0 brightness-0 invert opacity-95" />
                   <p className="truncate text-[14px] font-semibold tracking-tight text-white">
                     Customer Intelligence Core
                   </p>
                 </div>
-                <p className="mt-1 whitespace-nowrap font-mono text-[11px] text-slate-400">
+                <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] text-slate-400">
                   5 families · 233 signals · 24h
                 </p>
               </div>
@@ -1139,16 +1139,16 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[48px] flex-1 items-center gap-3 overflow-hidden rounded-lg border border-slate-100 pl-3.5 pr-3.5"
+                    className="relative flex min-h-[44px] flex-1 items-center gap-2.5 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-3"
                     title={facingLabel}
                   >
                     <span
                       className={cn(
-                        "flex h-9 w-9 flex-none items-center justify-center rounded-lg",
+                        "flex h-8 w-8 flex-none items-center justify-center rounded-lg",
                         d.facing === "bank" ? "bg-slate-100 text-slate-600" : "bg-blue-50 text-blue-600",
                       )}
                     >
-                      <FacingIcon className="h-[18px] w-[18px]" />
+                      <FacingIcon className="h-4 w-4" />
                     </span>
                     <span className="truncate text-[15px] font-medium leading-tight text-slate-900">{d.name}</span>
                     {onNavigate && (
