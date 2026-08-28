@@ -1,4 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cwActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
@@ -10,6 +12,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as ses from 'aws-cdk-lib/aws-ses';
 import * as sesActions from 'aws-cdk-lib/aws-ses-actions';
 import * as sns from 'aws-cdk-lib/aws-sns';
+import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 
@@ -31,12 +34,22 @@ export interface VentusCoworkerStackProps extends cdk.StackProps {
   emailDomain?: string;
   /** Mailbox local-part, e.g. "coworker" -> coworker@<domain>. */
   mailboxLocalPart?: string;
+  /**
+   * Override the outbound "From" address, decoupling it from the receive domain.
+   * Lets the coworker RECEIVE on a demo subdomain (SES MX) while REPLYING from
+   * the real root address (e.g. receive coworker@demo.ventusai.com, reply
+   * coworker@ventusai.com). Requires the From domain verified for sending in SES.
+   * Defaults to `${mailbox}@${emailDomain}`.
+   */
+  fromAddress?: string;
   /** Secrets Manager id holding model provider API keys. */
   modelProviderSecretId?: string;
   /** Provision the SES receipt rule set (requires a SES-inbound region + verified domain). */
   enableSesInbound?: boolean;
   /** Cron/rate for the proactive digest. Defaults to weekly (Mon 13:00 UTC). */
   digestSchedule?: events.Schedule;
+  /** Email address to notify when the inbound Lambda errors or the DLQ fills. */
+  alertEmail?: string;
 }
 
 export class VentusCoworkerStack extends cdk.Stack {
@@ -45,7 +58,15 @@ export class VentusCoworkerStack extends cdk.Stack {
 
     const emailDomain = props.emailDomain ?? 'ventusai.com';
     const mailbox = props.mailboxLocalPart ?? 'coworker';
-    const fromAddress = `${mailbox}@${emailDomain}`;
+    // The address SES receives on (drives the receipt rule + MX expectation).
+    const recipientAddress = `${mailbox}@${emailDomain}`;
+    // The address the coworker replies from. Defaults to the recipient, but can
+    // be overridden to reply from a verified root address while receiving on a
+    // subdomain (see `fromAddress` prop).
+    const fromAddress = props.fromAddress ?? recipientAddress;
+    // SES configuration set: all outbound goes through it so bounces/complaints
+    // are tracked and routed (required now that the account is out of the sandbox).
+    const configSetName = 'ventus-coworker';
     const modelProviderSecretId =
       props.modelProviderSecretId ??
       (this.node.tryGetContext('modelProviderSecretId') as string | undefined) ??
@@ -101,6 +122,7 @@ export class VentusCoworkerStack extends cdk.Stack {
     const commonEnv = {
       COWORKER_TABLE: table.tableName,
       COWORKER_FROM: fromAddress,
+      COWORKER_CONFIG_SET: configSetName,
       MODEL_PROVIDER_SECRET_ID: modelProviderSecretId,
     };
 
@@ -193,6 +215,114 @@ export class VentusCoworkerStack extends cdk.Stack {
     inboundFn.addToRolePolicy(sesSendPolicy);
     digestFn.addToRolePolicy(sesSendPolicy);
 
+    // ── Alerting: DLQ depth + Lambda errors ──────────────────────────────────
+    // The inbound function already retries then dead-letters to inboundDlq, but a
+    // silent DLQ is a silent outage. Alarm on any dead-lettered message and on
+    // function errors so a failing open inbox is noticed during the demo window.
+    const alertEmail =
+      props.alertEmail ?? (this.node.tryGetContext('coworkerAlertEmail') as string | undefined);
+    const alarmTopic = new sns.Topic(this, 'CoworkerAlarmTopic', {
+      topicName: 'ventus-coworker-alarms',
+      displayName: 'Ventus Coworker Alarms',
+    });
+    if (alertEmail) {
+      alarmTopic.addSubscription(new subscriptions.EmailSubscription(alertEmail));
+    }
+    const alarmAction = new cwActions.SnsAction(alarmTopic);
+
+    const dlqAlarm = new cloudwatch.Alarm(this, 'CoworkerInboundDlqAlarm', {
+      alarmName: 'ventus-coworker-inbound-dlq-not-empty',
+      alarmDescription: 'Inbound Coworker messages are dead-lettering (processing failures).',
+      metric: inboundDlq.metricApproximateNumberOfMessagesVisible({
+        period: cdk.Duration.minutes(5),
+        statistic: 'Maximum',
+      }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    dlqAlarm.addAlarmAction(alarmAction);
+
+    const errorAlarm = new cloudwatch.Alarm(this, 'CoworkerInboundErrorAlarm', {
+      alarmName: 'ventus-coworker-inbound-errors',
+      alarmDescription: 'Inbound Coworker Lambda is throwing errors.',
+      metric: inboundFn.metricErrors({
+        period: cdk.Duration.minutes(5),
+        statistic: 'Sum',
+      }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    errorAlarm.addAlarmAction(alarmAction);
+
+    // ── SES bounce / complaint handling (required out of the SES sandbox) ─────
+    // AWS expects a real process for bounces + complaints once you leave the
+    // sandbox. Route every bounce/complaint/reject to a dedicated topic (so we
+    // see the actual failing recipients), enable reputation metrics on the
+    // configuration set, and alarm before bounce/complaint rates hit the AWS
+    // enforcement thresholds. All outbound is sent through this config set.
+    const sesEventTopic = new sns.Topic(this, 'CoworkerSesEventsTopic', {
+      topicName: 'ventus-coworker-ses-events',
+      displayName: 'Ventus Coworker SES Bounces/Complaints',
+    });
+    if (alertEmail) {
+      sesEventTopic.addSubscription(new subscriptions.EmailSubscription(alertEmail));
+    }
+
+    const configSet = new ses.ConfigurationSet(this, 'CoworkerConfigSet', {
+      configurationSetName: configSetName,
+      reputationMetrics: true,
+    });
+    configSet.addEventDestination('BounceComplaint', {
+      destination: ses.EventDestination.snsTopic(sesEventTopic),
+      events: [
+        ses.EmailSendingEvent.BOUNCE,
+        ses.EmailSendingEvent.COMPLAINT,
+        ses.EmailSendingEvent.REJECT,
+        ses.EmailSendingEvent.DELIVERY_DELAY,
+      ],
+      enabled: true,
+    });
+
+    const bounceRateAlarm = new cloudwatch.Alarm(this, 'CoworkerSesBounceRateAlarm', {
+      alarmName: 'ventus-coworker-ses-bounce-rate',
+      alarmDescription: 'SES bounce rate for the coworker config set is approaching the AWS limit.',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/SES',
+        metricName: 'Reputation.BounceRate',
+        dimensionsMap: { 'ses:configuration-set': configSetName },
+        period: cdk.Duration.hours(1),
+        statistic: 'Maximum',
+      }),
+      // AWS reviews accounts at 5% and enforces at 10%; alert at 5%.
+      threshold: 0.05,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    bounceRateAlarm.addAlarmAction(alarmAction);
+
+    const complaintRateAlarm = new cloudwatch.Alarm(this, 'CoworkerSesComplaintRateAlarm', {
+      alarmName: 'ventus-coworker-ses-complaint-rate',
+      alarmDescription: 'SES complaint rate for the coworker config set is approaching the AWS limit.',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/SES',
+        metricName: 'Reputation.ComplaintRate',
+        dimensionsMap: { 'ses:configuration-set': configSetName },
+        period: cdk.Duration.hours(1),
+        statistic: 'Maximum',
+      }),
+      // AWS enforces at 0.5%; alert early at 0.1%.
+      threshold: 0.001,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    complaintRateAlarm.addAlarmAction(alarmAction);
+
     // ── Schedule the digest ──────────────────────────────────────────────────
     new events.Rule(this, 'CoworkerDigestSchedule', {
       ruleName: 'ventus-coworker-digest-schedule',
@@ -207,7 +337,7 @@ export class VentusCoworkerStack extends cdk.Stack {
         receiptRuleSetName: 'ventus-coworker-rules',
       });
       ruleSet.addRule('CoworkerReceiptRule', {
-        recipients: [fromAddress],
+        recipients: [recipientAddress],
         enabled: true,
         scanEnabled: true,
         actions: [
@@ -226,6 +356,9 @@ export class VentusCoworkerStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'CoworkerInboundTopicArn', { value: inboundTopic.topicArn });
     new cdk.CfnOutput(this, 'CoworkerFromAddress', { value: fromAddress });
     new cdk.CfnOutput(this, 'CoworkerInboundDlqUrl', { value: inboundDlq.queueUrl });
+    new cdk.CfnOutput(this, 'CoworkerAlarmTopicArn', { value: alarmTopic.topicArn });
+    new cdk.CfnOutput(this, 'CoworkerSesEventsTopicArn', { value: sesEventTopic.topicArn });
+    new cdk.CfnOutput(this, 'CoworkerConfigSetName', { value: configSetName });
   }
 }
 

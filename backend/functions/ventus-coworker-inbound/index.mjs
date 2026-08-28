@@ -23,6 +23,9 @@ const TABLE_NAME = process.env.COWORKER_TABLE || 'ventus-coworker';
 const INBOUND_BUCKET = process.env.COWORKER_INBOUND_BUCKET;
 const INBOUND_PREFIX = process.env.COWORKER_INBOUND_PREFIX || 'inbound/';
 const FROM_ADDRESS = process.env.COWORKER_FROM || 'coworker@ventusai.com';
+// SES configuration set: routes bounces/complaints and tracks reputation. Sends
+// still succeed without it, so treat an empty value as "no config set".
+const CONFIG_SET = process.env.COWORKER_CONFIG_SET || undefined;
 // When true, skip the SES send and return the rendered reply instead. Lets us
 // smoke-test the full reasoning + persistence path before any SES identity is
 // verified. Set COWORKER_DRY_RUN=true on the function to enable.
@@ -31,6 +34,12 @@ const DRY_RUN = process.env.COWORKER_DRY_RUN === 'true';
 // them as a synthetic advisor over the full demo book. Lets anyone email the
 // coworker and get mock-data replies. Keep OFF in production.
 const DEMO_OPEN = process.env.COWORKER_DEMO_OPEN === 'true';
+// Open-inbox abuse guards (tunable without a code change). Per-sender fixed
+// window rate limit + a cap on the body we feed the model. Set the limit to 0
+// to disable rate limiting.
+const RATE_LIMIT = Number.parseInt(process.env.COWORKER_RATE_LIMIT ?? '12', 10);
+const RATE_WINDOW_MS = Number.parseInt(process.env.COWORKER_RATE_WINDOW_MS ?? '3600000', 10);
+const MAX_BODY_CHARS = Number.parseInt(process.env.COWORKER_MAX_BODY_CHARS ?? '8000', 10);
 
 const MODEL_PROVIDER_SECRET_ID = resolveSecretId({ envVar: 'MODEL_PROVIDER_SECRET_ID' });
 // Read the secret from this Lambda's own region. The shared provider defaults to
@@ -82,6 +91,8 @@ export const handler = async (event) => {
         gateway: modelGateway,
         store,
         demoOpen: DEMO_OPEN,
+        rateLimit: { limit: RATE_LIMIT, windowMs: RATE_WINDOW_MS },
+        maxBodyChars: MAX_BODY_CHARS,
       });
 
       if (!turn.allowed) {
@@ -192,6 +203,7 @@ async function sendReply(reply) {
       FromEmailAddress: FROM_ADDRESS,
       Destination: { ToAddresses: [reply.to] },
       Content: { Raw: { Data: Buffer.from(rawMime, 'utf8') } },
+      ...(CONFIG_SET ? { ConfigurationSetName: CONFIG_SET } : {}),
     })
   );
 }

@@ -51,7 +51,7 @@ function routingGateway(intent) {
   };
 }
 
-function rawEmail({ from, subject, body, messageId = '<m1@mail>', references }) {
+function rawEmail({ from, subject, body, messageId = '<m1@mail>', references, headers = {} }) {
   const lines = [
     `From: ${from}`,
     `To: coworker@ventusai.com`,
@@ -59,6 +59,7 @@ function rawEmail({ from, subject, body, messageId = '<m1@mail>', references }) 
     `Message-ID: ${messageId}`,
   ];
   if (references) lines.push(`References: ${references}`);
+  for (const [k, v] of Object.entries(headers)) lines.push(`${k}: ${v}`);
   lines.push('', body);
   return lines.join('\n');
 }
@@ -133,6 +134,102 @@ test('demo mode off still rejects an unknown sender', async () => {
   });
   assert.equal(res.allowed, false);
   assert.equal(res.reason, 'sender_not_on_allowlist');
+});
+
+test('auto-responder (Precedence: bulk) is dropped before any reply, even from an allowlisted advisor', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'Automatic reply: Out of office',
+      body: 'I am away until Monday.',
+      headers: { Precedence: 'bulk' },
+    }),
+    provider,
+    gateway: intentGateway({ task_type: 'audience_build', product_id: 'travel-card', confidence: 0.9 }),
+    store,
+    clock,
+    demoOpen: true,
+  });
+  assert.equal(res.allowed, false);
+  assert.match(res.reason, /^automated_message:/);
+  assert.equal(res.reply, null);
+  // No thread work should have happened.
+  assert.equal(store.backend._dump().length, 0);
+});
+
+test('a no-reply sender is treated as automated and never gets a reply', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({ from: 'no-reply@marketing.example.com', subject: 'Deal!', body: 'buy now' }),
+    provider,
+    gateway: intentGateway({ task_type: 'other', confidence: 0.3 }),
+    store,
+    clock,
+    demoOpen: true,
+  });
+  assert.equal(res.allowed, false);
+  assert.equal(res.reason, 'automated_message:automated_sender');
+});
+
+test('a single sender is rate limited after the configured number of messages', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const send = () =>
+    runCoworkerTurn({
+      raw: rawEmail({ from: 'jamie.lee@prospect.com', subject: 'q', body: 'hello', messageId: `<${Math.random()}@m>` }),
+      provider,
+      gateway: routingGateway({ task_type: 'other', confidence: 0.3 }),
+      store,
+      // Real clock so the in-memory rate record keeps a future ttl and persists
+      // across sends (the in-memory backend enforces TTL against wall time).
+      clock: () => new Date(),
+      demoOpen: true,
+      rateLimit: { limit: 2, windowMs: 3600_000 },
+    });
+
+  const r1 = await send();
+  const r2 = await send();
+  const r3 = await send();
+  assert.equal(r1.allowed, true);
+  assert.equal(r2.allowed, true);
+  assert.equal(r3.allowed, false);
+  assert.equal(r3.reason, 'rate_limited');
+  assert.equal(r3.rate.count, 3);
+  assert.equal(r3.rate.limit, 2);
+});
+
+test('rate limiting can be disabled with limit 0', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  for (let i = 0; i < 5; i++) {
+    const r = await runCoworkerTurn({
+      raw: rawEmail({ from: 'jamie.lee@prospect.com', subject: 'q', body: 'hello', messageId: `<d${i}@m>` }),
+      provider,
+      gateway: routingGateway({ task_type: 'other', confidence: 0.3 }),
+      store,
+      clock,
+      demoOpen: true,
+      rateLimit: { limit: 0 },
+    });
+    assert.equal(r.allowed, true);
+  }
+});
+
+test('an oversized body is truncated before it is stored or sent to the model', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const huge = 'a'.repeat(20000);
+  const res = await runCoworkerTurn({
+    raw: rawEmail({ from: 'dana.okoro@ventusai.com', subject: 'long', body: huge }),
+    provider,
+    gateway: routingGateway({ task_type: 'other', confidence: 0.3 }),
+    store,
+    clock,
+    maxBodyChars: 500,
+  });
+  assert.equal(res.allowed, true);
+  const turns = await store.listTurns(res.threadId);
+  const inbound = turns.find((t) => t.direction === 'inbound');
+  assert.ok(inbound.text.length < 600);
+  assert.match(inbound.text, /\[message truncated\]$/);
 });
 
 test('audience_build turn replies with the ranked table and persists turns + task', async () => {

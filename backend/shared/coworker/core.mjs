@@ -17,6 +17,7 @@ import { createMemory } from './memory.mjs';
 import {
   buildThreadingHeaders,
   checkAllowlist,
+  isAutomatedMessage,
   parseInboundEmail,
   replySubject,
   resolveThreadId,
@@ -50,6 +51,10 @@ import {
  * @param {boolean} [opts.demoOpen]  when true, admit senders who are not on the
  *   advisor allowlist as a synthetic advisor over the full demo book. For demos
  *   only — leave OFF in production so unknown senders bounce.
+ * @param {object} [opts.rateLimit] per-sender abuse guard for an open inbox.
+ *   { limit, windowMs }. Set limit<=0 to disable. Defaults to 12 / hour.
+ * @param {number} [opts.maxBodyChars] cap on the message body fed to the model,
+ *   to bound token cost / prompt-stuffing on an open inbox. Defaults to 8000.
  * @returns {Promise<object>} turn result
  */
 export async function runCoworkerTurn({
@@ -59,6 +64,8 @@ export async function runCoworkerTurn({
   store = createCoworkerStore(createInMemoryBackend()),
   clock = () => new Date(),
   demoOpen = false,
+  rateLimit = { limit: 12, windowMs: 3600_000 },
+  maxBodyChars = 8000,
 }) {
   if (!provider) throw new Error('runCoworkerTurn requires a portfolio provider');
   if (!gateway) throw new Error('runCoworkerTurn requires a model gateway');
@@ -70,7 +77,21 @@ export async function runCoworkerTurn({
 
   const message = parseInboundEmail(raw);
 
-  // 1. Allowlist gate — before any model or data access. In demo mode, unknown
+  // 1. Loop / bounce guard — never auto-reply to auto-responders, bounces,
+  //    mailing lists, or no-reply senders. Doing so risks an infinite mail loop
+  //    and burns a turn on a non-human. Checked before allowlist so even an
+  //    allowlisted advisor's out-of-office does not trigger a reply.
+  const automated = isAutomatedMessage(message);
+  if (automated.automated) {
+    return {
+      allowed: false,
+      from: message.from,
+      reply: null,
+      reason: `automated_message:${automated.reason}`,
+    };
+  }
+
+  // 2. Allowlist gate — before any model or data access. In demo mode, unknown
   //    senders are admitted as a synthetic advisor over the full demo book so
   //    anyone can try the coworker; kept OFF in production.
   const gate = checkAllowlist(message.from, provider.getAdvisors());
@@ -89,12 +110,34 @@ export async function runCoworkerTurn({
     isDemoSender = true;
   }
 
-  // 2. Thread + turn bookkeeping.
+  // 3. Per-sender rate limit — protects the open demo inbox from a single sender
+  //    flooding it (cost + spam). Applied after the sender is known so both
+  //    admitted advisors and demo senders are covered. Bounces silently (no
+  //    reply) so we don't hand an attacker a reply amplifier.
+  if (rateLimit && rateLimit.limit > 0 && typeof store.checkAndBumpRate === 'function') {
+    const rate = await store.checkAndBumpRate({
+      sender: message.from,
+      now,
+      windowMs: rateLimit.windowMs ?? 3600_000,
+      limit: rateLimit.limit,
+    });
+    if (!rate.allowed) {
+      return {
+        allowed: false,
+        from: message.from,
+        reply: null,
+        reason: 'rate_limited',
+        rate,
+      };
+    }
+  }
+
+  // 4. Thread + turn bookkeeping.
   const threadId = resolveThreadId(message) || `t_${hash(message.from + nowIso)}`;
   const priorTurns = await store.listTurns(threadId);
   const baseSeq = priorTurns.length;
   const turnIndex = baseSeq + 1;
-  const cleanBody = stripQuotedReply(message.body);
+  const cleanBody = capText(stripQuotedReply(message.body), maxBodyChars);
 
   await store.appendTurn({
     thread_id: threadId,
@@ -595,4 +638,12 @@ function hash(str) {
   let h = 5381;
   for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0;
   return h.toString(36);
+}
+
+// Bound the message text handed to the model so a single huge email can't blow
+// up token cost or attempt prompt-stuffing on the open inbox.
+function capText(text, maxChars) {
+  const s = text || '';
+  if (!maxChars || maxChars <= 0 || s.length <= maxChars) return s;
+  return `${s.slice(0, maxChars)}\n\n[message truncated]`;
 }

@@ -186,3 +186,56 @@ export function replySubject(subject) {
   const base = (subject || '').replace(/^(\s*re:\s*)+/i, '').trim();
   return `Re: ${base}`;
 }
+
+const AUTOMATED_FROM = /(^|<)\s*(mailer-daemon|postmaster|no-?reply|donotreply|do-not-reply|bounce[s]?)@/i;
+const BULK_PRECEDENCE = /^(bulk|junk|list|auto_reply)$/i;
+
+/**
+ * Detect mail we must NOT auto-reply to: bounces, out-of-office / vacation
+ * auto-responders, mailing-list traffic, and no-reply senders. Replying to these
+ * risks a mail loop (our reply triggers their auto-responder, forever) or wastes
+ * a turn on a non-human. Returns { automated, reason }.
+ *
+ * Pure header inspection — pass the parsed message from parseInboundEmail.
+ */
+export function isAutomatedMessage(message) {
+  const headers = message?.headers || {};
+  const from = (message?.from || '').toLowerCase();
+
+  // RFC 3834: Auto-Submitted present and not "no" means an automated message.
+  const autoSubmitted = (headers['auto-submitted'] || '').trim().toLowerCase();
+  if (autoSubmitted && autoSubmitted !== 'no') {
+    return { automated: true, reason: `auto_submitted:${autoSubmitted}` };
+  }
+
+  const precedence = (headers['precedence'] || '').trim().toLowerCase();
+  if (BULK_PRECEDENCE.test(precedence)) {
+    return { automated: true, reason: `precedence:${precedence}` };
+  }
+
+  // Microsoft/others OOO + auto-response suppression hints.
+  if (headers['x-auto-response-suppress']) {
+    return { automated: true, reason: 'x_auto_response_suppress' };
+  }
+  if ((headers['x-autoreply'] || headers['x-autorespond'])) {
+    return { automated: true, reason: 'x_autoreply' };
+  }
+
+  // Mailing-list traffic.
+  if (headers['list-id'] || headers['list-unsubscribe']) {
+    return { automated: true, reason: 'mailing_list' };
+  }
+
+  // Null return-path is a bounce (DSN).
+  const returnPath = (headers['return-path'] || '').trim();
+  if (returnPath === '<>' || returnPath === '') {
+    if (returnPath === '<>') return { automated: true, reason: 'null_return_path' };
+  }
+
+  // no-reply / mailer-daemon / postmaster style senders.
+  if (AUTOMATED_FROM.test(from)) {
+    return { automated: true, reason: 'automated_sender' };
+  }
+
+  return { automated: false, reason: null };
+}

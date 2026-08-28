@@ -20,6 +20,7 @@ recover them from git history if ever needed.
 ## architecture/
 System design and control-plane architecture.
 - ✅ [current-system.md](./architecture/current-system.md) — **what's actually built** (pipeline, data model, API, coworker, infra, auth). Start here.
+- ✅ [coworker-design.md](./architecture/coworker-design.md) — AI Coworker internals (turn pipeline, intent schema, deterministic tasks, grounding, DynamoDB state)
 - 🧭 [intelligence-control-plane.md](./architecture/intelligence-control-plane.md) — target control-plane (Growth Console / decision runtime — not built)
 - 🧭 [enterprise-identity-and-permissions.md](./architecture/enterprise-identity-and-permissions.md) — planned Cognito/RBAC model (auth today is Supabase)
 

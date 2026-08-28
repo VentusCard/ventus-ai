@@ -20,6 +20,7 @@ const LAMBDA_NAME = process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-coworker-dig
 
 const TABLE_NAME = process.env.COWORKER_TABLE || 'ventus-coworker';
 const FROM_ADDRESS = process.env.COWORKER_FROM || 'coworker@ventusai.com';
+const CONFIG_SET = process.env.COWORKER_CONFIG_SET || undefined;
 const MAX_ITEMS = Number(process.env.COWORKER_DIGEST_MAX_ITEMS || 5);
 
 const ses = new SESv2Client({ region: REGION });
@@ -114,6 +115,7 @@ async function sendEmail({ to, subject, headers, html }) {
       FromEmailAddress: FROM_ADDRESS,
       Destination: { ToAddresses: [to] },
       Content: { Raw: { Data: Buffer.from(rawMime, 'utf8') } },
+      ...(CONFIG_SET ? { ConfigurationSetName: CONFIG_SET } : {}),
     })
   );
 }
