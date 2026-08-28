@@ -2,8 +2,7 @@
 
 > **✅ CURRENT (as of 2026-08).** This describes the system that actually exists in
 > the repo and is deployed. For forward-looking design, see
-> [`intelligence-control-plane.md`](./intelligence-control-plane.md) and
-> [`enterprise-product-blueprint.md`](./enterprise-product-blueprint.md) — those are
+> [`intelligence-control-plane.md`](./intelligence-control-plane.md) — that is
 > vision, not current state.
 
 ## Overview
