@@ -55,6 +55,8 @@ interface Props {
   messageNonce?: number;
   initialMessageKind?: "lifestyle" | "lifeEvent" | "risk";
   initialMessageContext?: string;
+  /** Persistent grounding sent with every message (demo mock-up mode). */
+  baseSignalContext?: string;
   onInitialMessageConsumed?: () => void;
 }
 
@@ -202,7 +204,7 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, onInitialMessageConsumed }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -315,7 +317,10 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
           body: {
             message: text,
             conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
-            context: extraContext ? { ...context, signalContext: extraContext } : context,
+            context: (() => {
+              const merged = [baseSignalContext, extraContext].filter(Boolean).join("\n\n");
+              return merged ? { ...context, signalContext: merged } : context;
+            })(),
             kind: effectiveKind,
             bankContext: getBankPromptContext(),
           },

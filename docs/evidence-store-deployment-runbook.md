@@ -12,6 +12,15 @@ opening Aurora to the public internet or changing existing application Lambdas.
 - a least-privilege Lambda execution role and policy;
 - the private, manually invoked `ventus-evidence-store-migrator` Lambda.
 
+## Current release status · 2026-08-01
+
+`VentusEvidenceStoreStack` is deployed in `us-east-2` with CloudFormation status
+`UPDATE_COMPLETE`. The generated non-bypass runtime credential and migrator are present. The
+database migration, forced-RLS isolation probe, backup/restore check, and durable application
+cutover still need a recorded non-production receipt, so the evidence store is **deployed,
+awaiting final verification**, not yet “durably verified.” The AWS MCP role is intentionally
+blocked from reading secret values.
+
 The Lambda creates the isolated `ventus_evidence` schema only after receiving the exact
 confirmation phrase. It has no API route and no schedule.
 
@@ -42,6 +51,10 @@ The first diff is template-only and does not create an empty review stack in Clo
 
 ## Read-only preflight
 
+The scoped AWS MCP role may invoke only this exact private Lambda. Ask Codex to
+run status mode after the current `infra/iam/ventus-mcp-operator-policy.json`
+has been attached to `VentusMcpOperatorRole`; no database URL is required.
+
 Invoke status mode before migration:
 
 ```bash
@@ -60,6 +73,10 @@ Expected before first migration: `mutationPerformed=false`, `exists=false`, and 
 
 This is the database mutation gate. Invoke only after the preflight and diff are reviewed:
 
+Codex can perform this invocation through AWS MCP after the user explicitly
+approves the migration. The Lambda resolves both Secrets Manager values inside
+AWS and never returns either credential.
+
 ```bash
 aws lambda invoke \
   --region us-east-2 \
@@ -70,7 +87,7 @@ aws lambda invoke \
 cat /tmp/ventus-evidence-migration.json
 ```
 
-The invocation succeeds only when all seven migrations commit and the generated runtime role:
+The invocation succeeds only when all 12 migrations commit and the generated runtime role:
 
 - is `NOSUPERUSER NOBYPASSRLS`;
 - appends a signal → decision → activation → outcome lineage;
@@ -80,7 +97,15 @@ The invocation succeeds only when all seven migrations commit and the generated 
 - registers and resolves an approved tenant-scoped Growth Play protocol;
 - sees zero tenant-A ledger, protocol, or connected-experiment exposure events while operating under tenant B.
 
-Preserve the invocation JSON and CloudWatch request ID as the deployment evidence. Never
+The response is itself an acceptance record. It includes the 12 migration SHA-256 digests,
+the deployed schema inventory, the Lambda request ID, the non-bypass runtime role, cross-tenant
+denial checks, append-only and idempotency checks, separation-of-duties checks, and the full
+verified ledger head hash. It never returns database or connector credentials.
+
+Backup restore evidence and the Console API runtime-secret cutover remain explicit operational
+gates. They are not inferred from a successful migration run.
+
+Preserve the invocation JSON as the deployment evidence. Never
 export or print either database secret.
 
 ## Failure and rollback

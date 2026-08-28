@@ -65,7 +65,7 @@ function KpiTile({ label, value, delta, positive = true }: { label: string; valu
   );
 }
 
-export function AIAssistantActivityView() {
+export function AIAssistantActivityView({ hideHeader }: { hideHeader?: boolean } = {}) {
   const customer = DEMO_CUSTOMERS[0];
   const bankCfg = getDemoBankConfig();
   const bankLabel = "Our Bank";
@@ -120,13 +120,13 @@ export function AIAssistantActivityView() {
 
   return (
     <div className="space-y-6">
-      <TabHeader
+      {!hideHeader && <TabHeader
         icon={<MessagesSquare className="w-4 h-4" />}
         title="AI Banking Assistant "
         subtitle="What customers are asking the assistant — by volume, intent, and trend"
         howItWorks="Ventus clusters every consumer conversation by intent, lifestyle pillar, and life event, and surfaces the trending themes alongside a live preview of how the assistant responds."
         whyItMatters="Gives marketing, product, and advisor teams a direct read on what customers actually want help with — informing campaigns, product roadmaps, and proactive outreach."
-      />
+      />}
 
       {/* Ventus AI key insight */}
       <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 via-white to-white px-4 py-3 flex items-start gap-3">

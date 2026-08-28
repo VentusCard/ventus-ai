@@ -70,7 +70,7 @@ export function PipelineHeader({
             <h1 className="text-2xl font-bold">Consumer Rewards Pipeline (WIP not fully working)</h1>
           </div>
           <p className="text-slate-500">
-            Manage merchant partnerships and track deal progress across all revenue opportunities
+            Manage rewards and perks and track deal progress across all revenue opportunities
           </p>
         </div>
         

@@ -10,6 +10,7 @@ import {
 } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards, type MessageCard } from "./buildMessageCards";
 import { buildSamplePayload } from "./buildSamplePayload";
+import { MessageCopilot, allGuardrailsPass } from "../ai/MessageCopilot";
 
 function formatReach(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -47,9 +48,10 @@ interface Props {
   variants?: VariantBreakdown;
   offers?: string[];
   campaignLink?: string;
+  onGuardrailChange?: (allPass: boolean) => void;
 }
 
-export function MessagePreviewsSection({ product, variants, offers = [], campaignLink = "" }: Props) {
+export function MessagePreviewsSection({ product, variants, offers = [], campaignLink = "", onGuardrailChange }: Props) {
   const productName = product?.name ?? "";
 
   const totalSlots = 5;
@@ -74,6 +76,13 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
   const cards: MessageCard[] = product && variants
     ? buildMessageCards(product, variants, offers, campaignLink, regenSeed)
     : [];
+
+  const guardrailsPass = cards.length > 0 && allGuardrailsPass(cards);
+  useEffect(() => {
+    onGuardrailChange?.(guardrailsPass);
+  }, [guardrailsPass, onGuardrailChange]);
+
+
 
   useEffect(() => {
     setRevealedCount(0);
@@ -278,6 +287,14 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
           />
         </div>
       </div>
+
+      <MessageCopilot
+        cards={cards.slice(0, shownCount)}
+        featuredIdx={safeFeaturedIdx}
+        onSelect={setFeaturedIdx}
+      />
+
+
 
       <div className="mt-3 pt-3 border-t border-slate-100 flex justify-end">
         <button

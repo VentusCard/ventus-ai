@@ -7,7 +7,8 @@ import type {
 } from '@/types/segment';
 import { CARD_PRODUCTS } from './mockBankwideData';
 
-const BASE_USERS = 75_000_000;
+import { BOOK_CUSTOMERS } from '@/lib/bookScale';
+const BASE_USERS = BOOK_CUSTOMERS;
 
 // Life event detection rates
 const LIFE_EVENT_RATES: Record<string, number> = {

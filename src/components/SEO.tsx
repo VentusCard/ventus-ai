@@ -13,7 +13,7 @@ interface SEOProps {
   jsonLd?: JsonLd | JsonLd[];
 }
 
-export const SITE_URL = "https://ventusai.dev";
+export const SITE_URL = "https://ventusai.com";
 
 export const SEO = ({
   title,

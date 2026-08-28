@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ventusai.com/schemas/release-evidence-manifest-v1.json",
+  "title": "Ventus bank-review release-evidence manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "release",
+    "frontend",
+    "api",
+    "publicConfiguration",
+    "identityAuthorization",
+    "dataPlane",
+    "integrations",
+    "productContract",
+    "acceptance",
+    "claims",
+    "exceptions",
+    "approval",
+    "status",
+    "manifestDigest"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "ventus_release_evidence_manifest/v1" },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["releaseId", "environmentClass", "createdAt", "repository", "reviewedCommit", "reviewerState"],
+      "properties": {
+        "releaseId": { "type": "string" },
+        "environmentClass": { "const": "bank_review_staging" },
+        "createdAt": { "type": "string" },
+        "repository": { "const": "VentusCard/ventus-ai" },
+        "reviewedCommit": { "type": ["string", "null"] },
+        "reviewerState": { "type": "object" }
+      }
+    },
+    "frontend": { "type": "object" },
+    "api": { "type": "object" },
+    "publicConfiguration": { "type": "object" },
+    "identityAuthorization": { "type": "object" },
+    "dataPlane": { "type": "object" },
+    "integrations": { "type": "array" },
+    "productContract": { "type": "object" },
+    "acceptance": { "type": "array", "minItems": 13 },
+    "claims": { "type": "object" },
+    "exceptions": { "type": "array" },
+    "approval": { "type": "object" },
+    "status": { "enum": ["bank_review_ready", "not_bank_review_ready"] },
+    "manifestDigest": { "pattern": "^sha256:[a-f0-9]{64}$" }
+  }
+}

@@ -42,9 +42,10 @@ interface Props {
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
   onNavigate?: (tab: TabValue) => void;
+  hideHeader?: boolean;
 }
 
-export function RelationshipIntelligenceView({ userDemographics, lifestyleSignals, onNavigate }: Props) {
+export function RelationshipIntelligenceView({ userDemographics, lifestyleSignals, onNavigate, hideHeader }: Props) {
   const [activeModule, setActiveModule] = useState<ModuleKey>('lifeevents');
   const [prepareDialogOpen, setPrepareDialogOpen] = useState(false);
   const [prepareData, setPrepareData] = useState<EventPreparationData | null>(null);
@@ -183,13 +184,13 @@ export function RelationshipIntelligenceView({ userDemographics, lifestyleSignal
 
   return (
     <div className="space-y-6">
-      <TabHeader
+      {!hideHeader && <TabHeader
         icon={<Gem className="w-4 h-4" />}
         title="Relationship Intelligence"
         subtitle="One engine, two lenses: where to grow each relationship and where to protect it — across 2.4M scanned customers"
         howItWorks="Ventus enriches every transaction, then routes the resulting signals two ways: growth signals feed cross-sell propensity and life-event triggers, while protection signals feed attrition, wallet-share leakage, and portfolio-exposure cohorts."
         whyItMatters="A portfolio view that pairs revenue upside with the risk it's sitting next to — so the bank acts before the customer leaves, defaults, or self-reports a life event."
-      />
+      />}
 
       {/* Top recommended actions */}
       <RecommendedActionsCard onNavigate={onNavigate} />

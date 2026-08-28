@@ -80,7 +80,7 @@ const CapabilityCards = () => {
       <div className="grid md:grid-cols-3 gap-6 auto-rows-fr">
       {/* 1 — Lifestyle Pillars */}
       <BurstCard index={0}>
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
+        <div className="ventus-glass rounded-xl p-6 min-h-[220px] h-full flex flex-col">
           <div className="flex items-center gap-2 mb-4">
             <Layers className="w-5 h-5 text-blue-600" />
             <h3 className="text-sm font-bold text-blue-600 uppercase tracking-wide">Multi-rail Enrichment</h3>
@@ -112,7 +112,7 @@ const CapabilityCards = () => {
 
       {/* 2 — Life Event Detection */}
       <BurstCard index={1}>
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
+        <div className="ventus-glass rounded-xl p-6 min-h-[220px] h-full flex flex-col">
           <div className="flex items-center gap-2 mb-4">
             <Heart className="w-5 h-5 text-green-600" />
             <h3 className="text-sm font-bold text-green-600 uppercase tracking-wide">Life Event Detection</h3>
@@ -140,7 +140,7 @@ const CapabilityCards = () => {
 
       {/* 3 — Purchase Cycle Intel */}
       <BurstCard index={2}>
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
+        <div className="ventus-glass rounded-xl p-6 min-h-[220px] h-full flex flex-col">
           <div className="flex items-center gap-2 mb-4">
             <Search className="w-5 h-5 text-orange-500" />
             <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wide">Purchase Cycle Intel</h3>
@@ -196,7 +196,7 @@ const CapabilityCards = () => {
       {/* 4 — Travel Detection */}
       <div className="md:col-span-5 md:col-start-2">
       <BurstCard index={3}>
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
+        <div className="ventus-glass rounded-xl p-6 min-h-[220px] h-full flex flex-col">
           <div className="flex items-center gap-2 mb-4">
             <Plane className="w-5 h-5 text-purple-600" />
             <h3 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Travel Detection</h3>
@@ -229,7 +229,7 @@ const CapabilityCards = () => {
       {/* 5 — Risk & Financial Vulnerability */}
       <div className="md:col-span-5">
       <BurstCard index={4}>
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
+        <div className="ventus-glass rounded-xl p-6 min-h-[220px] h-full flex flex-col">
           <div className="flex items-center gap-2 mb-4">
             <ShieldAlert className="w-5 h-5 text-red-600" />
             <h3 className="text-sm font-bold text-red-600 uppercase tracking-wide">Risk & Financial Vulnerability</h3>

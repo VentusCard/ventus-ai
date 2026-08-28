@@ -1,15 +1,16 @@
-import { Sparkles, Zap, Pause, FilePlus2, TrendingUp, ShieldOff, Radar } from "lucide-react";
+import { Sparkles, Mail, BellRing, LayoutTemplate, MessageSquare, TrendingUp, PauseCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AUTONOMOUS_ACTIVITY, type ActivityAction } from "./data/autonomousActivity";
 
 const ACTION_META: Record<ActivityAction, { icon: React.ElementType; tone: string }> = {
-  Enrolled: { icon: Zap, tone: "bg-blue-50 text-blue-700 border-blue-200" },
-  Paused: { icon: Pause, tone: "bg-amber-50 text-amber-700 border-amber-200" },
-  Drafted: { icon: FilePlus2, tone: "bg-violet-50 text-violet-700 border-violet-200" },
+  "Email sent": { icon: Mail, tone: "bg-blue-50 text-blue-700 border-blue-200" },
+  "App push": { icon: BellRing, tone: "bg-sky-50 text-sky-700 border-sky-200" },
+  "In-app": { icon: LayoutTemplate, tone: "bg-violet-50 text-violet-700 border-violet-200" },
+  SMS: { icon: MessageSquare, tone: "bg-teal-50 text-teal-700 border-teal-200" },
   Optimized: { icon: TrendingUp, tone: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  Suppressed: { icon: ShieldOff, tone: "bg-slate-50 text-slate-600 border-slate-200" },
-  Detected: { icon: Radar, tone: "bg-sky-50 text-sky-700 border-sky-200" },
+  Held: { icon: PauseCircle, tone: "bg-amber-50 text-amber-700 border-amber-200" },
 };
+
 
 const ROW_HEIGHT = 36; // px per row (py-2 + text line ~ 36px)
 const VISIBLE_ROWS = 3;

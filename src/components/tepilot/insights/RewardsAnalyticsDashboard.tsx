@@ -8,7 +8,11 @@ import { Flame, Puzzle, Calendar, Sparkles } from "lucide-react";
 import type { BankwideFilters } from "@/types/bankwide";
 import { TabHeader } from "./TabHeader";
 
-export function RewardsAnalyticsDashboard() {
+interface RewardsAnalyticsDashboardProps {
+  hideHeader?: boolean;
+}
+
+export function RewardsAnalyticsDashboard({ hideHeader = false }: RewardsAnalyticsDashboardProps) {
   const [filters, setFilters] = useState<BankwideFilters>({
     cardProducts: [],
     regions: [],
@@ -17,13 +21,15 @@ export function RewardsAnalyticsDashboard() {
 
   return (
     <div className="space-y-6">
-      <TabHeader
-        icon={<Sparkles className="w-4 h-4" />}
-        title="Next-Deal Intelligence"
-        subtitle="Seasonal spend curves, category gaps, and persona affinity scoring"
-        howItWorks="Ventus analyzes seasonal spend curves, category gaps, and persona affinity to recommend which deals to pursue and when to deploy them."
-        whyItMatters="Maximizes deal ROI by timing merchant partnerships to peak customer demand windows."
-      />
+      {!hideHeader && (
+        <TabHeader
+          icon={<Sparkles className="w-4 h-4" />}
+          title="Next-Deal Intelligence"
+          subtitle="Seasonal spend curves, category gaps, and persona affinity scoring"
+          howItWorks="Ventus analyzes seasonal spend curves, category gaps, and persona affinity to recommend which deals to pursue and when to deploy them."
+          whyItMatters="Maximizes deal ROI by timing rewards and perks to peak customer demand windows."
+        />
+      )}
 
       {/* Shared Filters */}
       <BankwideFiltersComponent filters={filters} onChange={setFilters} />

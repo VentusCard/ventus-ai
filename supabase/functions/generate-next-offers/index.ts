@@ -7,6 +7,22 @@ const corsHeaders = {
 };
 
 const MODEL = "google/gemini-3.1-pro-preview";
+// Fast model for copy-heavy generation (behavioral + life-event deals).
+const COPY_MODEL = "google/gemini-3.5-flash";
+// Output ceilings per copy call. The behavioral call carries the richest deals
+// (valueLine + valueMath + signalReason on 5 deals) and was truncating at 4000,
+// which dropped the whole cluster, so it gets extra headroom.
+const BEHAVIORAL_MAX_TOKENS = 9000;
+const EVENT_MAX_TOKENS = 4000;
+const SIGNAL_MAX_TOKENS = 4000;
+
+// Only the top-ranked signals per family are sent to the model. Everything below
+// the cut never surfaces in the UI, so generating copy for it only adds latency.
+// One group per copy family keeps each response inside COPY_MAX_TOKENS — two
+// clusters × 5 grounded deals overflowed and truncated the JSON mid-object.
+const MAX_BEHAVIORAL_ROLLUPS = 3;
+const MAX_LIFE_EVENTS = 1;
+const MAX_FINANCIAL_SIGNALS = 1;
 
 const SYSTEM_PROMPT = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
 
@@ -68,6 +84,8 @@ NUMERIC VALUE LINE — REQUIRED on every deal:
 - Good: "5% back at coffee shops ≈ $9/mo on your ~$180/mo Blue Bottle + Sightglass spend." (math: "5% × $180 ≈ $9/mo")
 - Good: "3x points on travel ≈ $186 back on your ~$6,200 Hawaii spend this year." (math: "3% × $6,200 ≈ $186")
 - Bad (fabricated): "Save $500 vs the market average." (no market number in input)
+
+BANK NAMING RULE (STRICT): any deal for a bank/deposit/credit/investing product (savings, high-yield/APY, auto-save, round-up, checking, CD, loan, refinance, HELOC, mortgage, credit card, IRA, brokerage) MUST use the bank name given in the user prompt VERBATIM as its "merchant". NEVER invent a lender, issuer, or fintech brand (e.g. "STAR Financial", "Summit Lending", "Apex Capital") and NEVER name a real institution (Chase, Wells Fargo, Bank of America, Citi, SoFi, Marcus, Ally). Third-party retail merchants are allowed ONLY for non-bank products.
 
 OUTPUT: Valid JSON only, no markdown. Exact shape:
 {"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","imageCategory":"ski","imageQuery":"snowy ski slope","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","valueLine":"5% back ≈ $9/mo on your ~$180/mo coffee spend.","valueMath":"5% × $180 ≈ $9/mo","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
@@ -168,7 +186,31 @@ NUMERIC VALUE LINE — REQUIRED, this is the whole point:
 - Never invent balances or rates not present in the signal. If a field is missing, ground the calc in what IS present (monthly_payment × 12, or renewal_window urgency) and label the assumption.
 
 Output valid JSON only, no markdown:
-{"rollupOffers":[{"signalId":"FS_1","rollup":"Exact Signal Label","pillar":"Financial Signal","collectionMessage":"8-10 word tagline","imageCategory":"auto","imageQuery":"car keys handover","suppressedCategories":[],"deals":[{"id":"fs1_d1","merchant":"Your Bank","product":"Auto Loan Refinance","rewardValue":"−1.5% APR","message":"Lower your monthly payment without extending your term.","valueLine":"Refi at 5.99% ≈ ~$50/mo saved on your ~$685/mo VW Credit payment.","valueMath":"1.5% APR × $685/mo ≈ $50/mo","cta":"Refi in Minutes","signal":"boost","signalReason":"VW Credit auto loan renewal in ~2mo","boostCategory":"Auto Refi"},...]},...]}`;
+{"rollupOffers":[{"signalId":"FS_1","rollup":"Exact Signal Label","pillar":"Financial Signal","collectionMessage":"8-10 word tagline","imageCategory":"auto","imageQuery":"car keys handover","suppressedCategories":[],"deals":[{"id":"fs1_d1","merchant":"Our Bank","product":"Auto Loan Refinance","rewardValue":"−1.5% APR","message":"Lower your monthly payment without extending your term.","valueLine":"Refi at 5.99% ≈ ~$50/mo saved on your ~$685/mo VW Credit payment.","valueMath":"1.5% APR × $685/mo ≈ $50/mo","cta":"Refi in Minutes","signal":"boost","signalReason":"VW Credit auto loan renewal in ~2mo","boostCategory":"Auto Refi"},...]},...]}`;
+
+/** Bank-product detection: these deals must always be branded as the bank itself. */
+const BANK_PRODUCT_RE = /\b(loan|refi|refinance|heloc|home equity|mortgage|line of credit|credit card|debit card|savings|checking|cd\b|certificate of deposit|ira|401k|roth|brokerage|investing|investment account|wealth|advisory|overdraft|apr|apy|yield|high[- ]yield|money market|auto[- ]?save|round[- ]?up|deposit account)\b/i;
+/** Names that look like a bank/lender brand — used to catch invented issuers. */
+const BANKISH_MERCHANT_RE = /\b(bank|banc|bancorp|financial|finance|fintech|credit union|federal credit|lending|lenders?|capital|trust co|savings|mutual|fcu|federal savings)\b/i;
+
+function resolveMerchant(merchant: string, product: string, bankLabel: string): string {
+  const m = (merchant || "").trim();
+  const p = (product || "").trim();
+  if (!m) return bankLabel;
+  if (m.toLowerCase() === bankLabel.toLowerCase()) return bankLabel;
+  if (BANK_PRODUCT_RE.test(p) || BANKISH_MERCHANT_RE.test(m)) return bankLabel;
+  return m;
+}
+
+/** Final safety net: every deal on every path gets its merchant sanitized. */
+function sanitizeOfferMerchants(groups: any[], bankLabel: string): void {
+  for (const g of groups || []) {
+    for (const d of g?.deals || []) {
+      d.merchant = resolveMerchant(d.merchant || d.brand || "", d.product || d.product_name || "", bankLabel);
+    }
+  }
+}
+
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -180,21 +222,80 @@ function parseJsonLoose(raw: string): any {
   for (const c of candidates) {
     try { return JSON.parse(c); } catch { /* try next */ }
   }
+  return repairTruncatedJson(raw);
+}
+
+/**
+ * Salvage a response that was cut off by max_tokens: trim back to the last
+ * complete object and close every still-open bracket (string-aware) so a
+ * near-miss still yields deals instead of an empty collection.
+ */
+function repairTruncatedJson(raw: string): any {
+  const start = raw.indexOf("{");
+  if (start < 0) return null;
+  const body = raw.slice(start);
+
+  // Track bracket depth outside of strings so we know exactly how to close.
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+  // depthAt[i] = snapshot of the stack right after consuming char i.
+  const closeCandidates: { end: number; tail: string }[] = [];
+
+  for (let i = 0; i < body.length; i++) {
+    const ch = body[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') { inString = true; continue; }
+    if (ch === "{" || ch === "[") { stack.push(ch === "{" ? "}" : "]"); continue; }
+    if (ch === "}" || ch === "]") {
+      stack.pop();
+      // A complete object/array boundary — record how to close from here.
+      closeCandidates.push({ end: i, tail: stack.slice().reverse().join("") });
+    }
+  }
+
+  for (let c = closeCandidates.length - 1; c >= 0; c--) {
+    const { end, tail } = closeCandidates[c];
+    try {
+      const parsed = JSON.parse(body.slice(0, end + 1) + tail);
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch { /* try an earlier boundary */ }
+  }
   return null;
 }
 
-async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string) {
+/** True when the parsed payload actually carries at least one usable deal. */
+function hasDeals(parsed: any): boolean {
+  const groups = parsed?.rollupOffers;
+  if (!Array.isArray(groups)) return false;
+  return groups.some((g: any) => Array.isArray(g?.deals) && g.deals.length > 0);
+}
+
+function describeCompletion(data: any): string {
+  const finish = data?.choices?.[0]?.finish_reason ?? "unknown";
+  const out = data?.usage?.completion_tokens ?? "?";
+  return `finish_reason=${finish} completion_tokens=${out}`;
+}
+
+async function callGateway(systemPrompt: string, userPrompt: string, apiKey: string, model: string = MODEL, maxTokens = 8192) {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: MODEL,
+      model,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
       temperature: 0.55,
-      max_tokens: 8192,
+      max_tokens: maxTokens,
+      // Structured output — without it the model sometimes returns reasoning prose.
+      response_format: { type: "json_object" },
     }),
   });
   return response;
@@ -235,17 +336,23 @@ serve(async (req) => {
     const { persona, pillars, lifeEvents, bankContext, financial_signals, months_of_data } = body;
     const _bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
     if (_bankName) console.log(`[NEXT-OFFERS] customized for bank: ${_bankName}`);
-    const bankLabel = _bankName || "Your Bank";
+    const bankLabel = _bankName || "Our Bank";
     const months = Math.max(1, Math.min(24, Number(months_of_data) || 12));
     const annualize = (spend: number) => Math.round((spend / months) * 12);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const rollups = persona?.pillarRollups || [];
+    const allRollups = persona?.pillarRollups || [];
+
+    // Cap: only the top behavioral clusters by observed spend are sent to the model.
+    const rollups = allRollups
+      .filter((r: any) => (r.totalCount ?? 0) > 0)
+      .slice()
+      .sort((a: any, b: any) => (b.totalSpend ?? 0) - (a.totalSpend ?? 0))
+      .slice(0, MAX_BEHAVIORAL_ROLLUPS);
 
     const rollupList = rollups
-      .filter((r: any) => (r.totalCount ?? 0) > 0)
       .map((r: any, i: number) => {
         const cats = (r.categories || []).join(", ");
         const merchants = (r.topMerchants || []).slice(0, 6).join(", ");
@@ -267,13 +374,18 @@ serve(async (req) => {
       )
       .join("\n");
 
-    // Tag each life event with a stable id for deterministic mapping
-    const lifeEventsTagged = (lifeEvents || []).map((e: any, i: number) => ({
-      id: `LE_${i + 1}`,
-      event_name: e.event_name,
-      confidence: e.confidence,
-      evidence_merchants: e.evidence_merchants,
-    }));
+    // Cap: only the highest-confidence life events. Tag AFTER slicing so ids stay
+    // aligned with what the model actually receives.
+    const lifeEventsTagged = ((lifeEvents || []) as any[])
+      .slice()
+      .sort((a: any, b: any) => (b?.confidence ?? 0) - (a?.confidence ?? 0))
+      .slice(0, MAX_LIFE_EVENTS)
+      .map((e: any, i: number) => ({
+        id: `LE_${i + 1}`,
+        event_name: e.event_name,
+        confidence: e.confidence,
+        evidence_merchants: e.evidence_merchants,
+      }));
 
     const lifeEventList = lifeEventsTagged
       .map((e: any) => {
@@ -282,8 +394,8 @@ serve(async (req) => {
       })
       .join("\n");
 
-    // Tag each financial signal with a stable id
-    const financialSignalsTagged = (Array.isArray(financial_signals) ? financial_signals : []).map((s: any, i: number) => ({
+    // Cap: hero financial signal only.
+    const financialSignalsTagged = (Array.isArray(financial_signals) ? financial_signals : []).slice(0, MAX_FINANCIAL_SIGNALS).map((s: any, i: number) => ({
       id: `FS_${i + 1}`,
       label: s.label,
       product_family: s.product_family,
@@ -311,20 +423,20 @@ serve(async (req) => {
     let rollupUserPrompt = "";
     if (rollupList) rollupUserPrompt += `BEHAVIORAL CLUSTERS (with spend totals + annualized figures — use these for valueLine math):\n${rollupList}\n\n`;
     if (pillarContext) rollupUserPrompt += `SPENDING CONTEXT (annualized $):\n${pillarContext}\n\n`;
-    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. Every deal MUST include a valueLine + valueMath grounded in the numbers above. The "rollup" field MUST be the exact label string in quotes (verbatim). Return valid JSON only.`;
+    rollupUserPrompt += `BANK NAMING RULE: for any bank/financial product deal, the "merchant" MUST be "${bankLabel}" verbatim — never invent a lender or issuer brand and never name a real bank.\n\nGenerate exactly 5 boost deals for EACH cluster above. Every deal MUST include a valueLine + valueMath grounded in the numbers above. The "rollup" field MUST be the exact label string in quotes (verbatim). Return valid JSON only.`;
 
     const lifeEventUserPrompt = lifeEventList
-      ? `LIFE EVENTS (generate one rollup group per event, 5 deals each):\n${lifeEventList}\n\nFor EACH event above, produce exactly one rollup group whose "eventId" matches the id (LE_1, LE_2, ...) and whose "rollup" is the exact event_name. Every deal MUST include valueLine + valueMath (life-event product cost benchmarks are OK if you name them). Return valid JSON only.`
+      ? `LIFE EVENTS (generate one rollup group per event, 5 deals each):\n${lifeEventList}\n\nFor EACH event above, produce exactly one rollup group whose "eventId" matches the id (LE_1, LE_2, ...) and whose "rollup" is the exact event_name. Every deal MUST include valueLine + valueMath (life-event product cost benchmarks are OK if you name them). BANK NAMING RULE: for any bank/financial product deal, the "merchant" MUST be "${bankLabel}" verbatim — never invent a lender or issuer brand and never name a real bank. Return valid JSON only.`
       : "";
 
     const financialSignalUserPrompt = financialSignalList
-      ? `BANK: ${bankLabel}\n\nFINANCIAL SIGNALS (generate one rollup group per signal, 5 deals each — this is the hero of hyper-personalization):\n${financialSignalList}\n\nFor EACH signal above, produce exactly one rollup group whose "signalId" matches the id (FS_1, FS_2, ...) and whose "rollup" is the exact label. Every deal MUST include valueLine + valueMath computed from THAT signal's own numbers (monthly_payment, balance, rate). Return valid JSON only.`
+      ? `BANK: ${bankLabel}\n\nFINANCIAL SIGNALS (generate one rollup group per signal, 5 deals each — this is the hero of hyper-personalization):\n${financialSignalList}\n\nBANK NAMING RULE (STRICT): every deal for a bank product (loan, refinance, HELOC, mortgage, credit card, savings, IRA, investing, line of credit) MUST use "${bankLabel}" VERBATIM as the "merchant". NEVER invent a lender or issuer brand (e.g. "Star Financial", "Summit Lending") and NEVER name a real institution (Chase, Wells Fargo, Bank of America, Citi, SoFi, LightStream, Merrill). Third-party retail merchants are allowed ONLY for non-bank products.\n\nFor EACH signal above, produce exactly one rollup group whose "signalId" matches the id (FS_1, FS_2, ...) and whose "rollup" is the exact label. Every deal MUST include valueLine + valueMath computed from THAT signal's own numbers (monthly_payment, balance, rate). Return valid JSON only.`
       : "";
 
     const tasks: Promise<Response | null>[] = [];
-    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
-    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
-    tasks.push(financialSignalUserPrompt ? callGateway(FINANCIAL_SIGNAL_SYSTEM_PROMPT, financialSignalUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
+    tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY, COPY_MODEL, BEHAVIORAL_MAX_TOKENS) : Promise.resolve(null));
+    tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY, COPY_MODEL, EVENT_MAX_TOKENS) : Promise.resolve(null));
+    tasks.push(financialSignalUserPrompt ? callGateway(FINANCIAL_SIGNAL_SYSTEM_PROMPT, financialSignalUserPrompt, LOVABLE_API_KEY, COPY_MODEL, SIGNAL_MAX_TOKENS) : Promise.resolve(null));
 
     const [rollupRes, lifeEventRes, financialSignalRes] = await Promise.all(tasks);
 
@@ -351,15 +463,39 @@ serve(async (req) => {
     if (rollupRes) {
       const data = await rollupRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
-      const parsed = parseJsonLoose(raw);
-      if (parsed?.rollupOffers) rollupOffers.push(...parsed.rollupOffers);
-      else console.error("Failed to parse rollup AI response:", raw.slice(0, 500));
+      let parsed = parseJsonLoose(raw);
+      if (!hasDeals(parsed)) {
+        console.error(
+          `[NEXT-OFFERS] behavioral copy unusable (${describeCompletion(data)}) for clusters: ${rollups.map((r: any) => `"${r.label}"`).join(", ")} — retrying compact`,
+          raw.slice(0, 300),
+        );
+        // One bounded retry with terser copy so the JSON fits the ceiling.
+        const compactPrompt = `${rollupUserPrompt}\n\nOUTPUT BUDGET (STRICT): keep it terse so the JSON is COMPLETE. message ≤ 9 words, valueLine ≤ 12 words, valueMath ≤ 30 chars, signalReason ≤ 8 words, suppressedCategories ≤ 2 entries. Never stop mid-object — a complete JSON document matters more than long copy.`;
+        const retryRes = await callGateway(SYSTEM_PROMPT, compactPrompt, LOVABLE_API_KEY, COPY_MODEL, BEHAVIORAL_MAX_TOKENS);
+        if (retryRes?.ok) {
+          const retryData = await retryRes.json();
+          const retryRaw = retryData.choices?.[0]?.message?.content || "";
+          const retryParsed = parseJsonLoose(retryRaw);
+          if (hasDeals(retryParsed)) parsed = retryParsed;
+          else console.error(`[NEXT-OFFERS] behavioral retry also unusable (${describeCompletion(retryData)})`, retryRaw.slice(0, 300));
+        } else if (retryRes) {
+          console.error("[NEXT-OFFERS] behavioral retry gateway error:", retryRes.status);
+        }
+      }
+      if (hasDeals(parsed)) {
+        rollupOffers.push(...parsed.rollupOffers);
+        const dealCount = parsed.rollupOffers.reduce((n: number, g: any) => n + (g?.deals?.length || 0), 0);
+        console.log(`[NEXT-OFFERS] behavioral → ${parsed.rollupOffers.length} group(s), ${dealCount} deal(s)`);
+      } else {
+        console.error("[NEXT-OFFERS] behavioral produced no deals after retry — cluster dropped");
+      }
     }
 
     if (lifeEventRes && lifeEventsTagged.length > 0) {
       const data = await lifeEventRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
       const parsed = parseJsonLoose(raw);
+      if (!parsed) console.error(`Failed to parse life-event AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
 
       let lifeEventGroups: any[] = [];
       if (parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)) {
@@ -374,7 +510,7 @@ serve(async (req) => {
       const normalizedGroups = lifeEventGroups.map((g: any) => {
         const normalizedDeals = (g.deals || []).map((d: any, idx: number) => ({
           id: d.id || `le_${idx}`,
-          merchant: d.merchant || d.brand || "Recommended Partner",
+          merchant: resolveMerchant(d.merchant || d.brand || "", d.product || d.product_name || "", bankLabel) || "Recommended Partner",
           product: d.product || d.product_name || "",
           rewardValue: d.rewardValue || d.reward || "",
           message: d.message || "",
@@ -443,6 +579,7 @@ serve(async (req) => {
       const data = await financialSignalRes.json();
       const raw = data.choices?.[0]?.message?.content || "";
       const parsed = parseJsonLoose(raw);
+      if (!parsed) console.error(`Failed to parse financial-signal AI response (${describeCompletion(data)}):`, raw.slice(0, 500));
       let fsGroups: any[] = [];
       if (parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)) fsGroups = parsed.rollupOffers;
       else if (Array.isArray(parsed)) fsGroups = parsed;
@@ -456,7 +593,7 @@ serve(async (req) => {
         imageQuery: g.imageQuery || g.image_query,
         deals: (g.deals || []).map((d: any, idx: number) => ({
           id: d.id || `fs_${idx}`,
-          merchant: d.merchant || bankLabel,
+          merchant: resolveMerchant(d.merchant, d.product || d.product_name || "", bankLabel),
           product: d.product || d.product_name || "",
           rewardValue: d.rewardValue || d.reward || "",
           message: d.message || "",
@@ -497,6 +634,9 @@ serve(async (req) => {
         }
       }
     }
+
+    // Safety net across every generation path (rollup pass isn't sanitized inline).
+    sanitizeOfferMerchants(rollupOffers, bankLabel);
 
     console.log(`[NEXT-OFFERS] ◀ returning ${rollupOffers.length} groups`);
     return new Response(JSON.stringify({ rollupOffers }), {

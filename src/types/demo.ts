@@ -9,10 +9,12 @@ export const MODULE_ROW_MAP: Record<string, ModuleKey> = {
 };
 
 export const MODULE_NAV_GROUP_MAP: Record<ModuleKey, string[]> = {
-  Analytics: ["Analytics"],
+  Analytics: ["Customer Intelligence"],
   "AI & UX": [],
-  Rewards: ["Deals & Rewards"],
-  Relationship: ["WEALTH & RELATIONSHIP"],
+
+  Rewards: ["Personalization Orchestration"],
+  Relationship: ["Personalization Orchestration"],
 };
 
-// Health nav group follows Analytics (always on)
+// Customer Intelligence / Personalization Orchestration follow Analytics (always on)
+

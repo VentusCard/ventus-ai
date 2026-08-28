@@ -218,3 +218,67 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
 }
+
+/* Shared status-dot halo (see src/components/tepilot/common/PulseDot.tsx) */
+@keyframes ventus-pulse-halo {
+  0% { transform: scale(1); opacity: 0.55; }
+  70% { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+.ventus-pulse-halo {
+  animation: ventus-pulse-halo 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ventus-pulse-halo {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Rolling priority ticker (Ventus sliver) */
+@keyframes ventus-roll-in {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.ventus-roll-in {
+  animation: ventus-roll-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ventus-roll-in {
+    animation: fade-in 0.3s ease-out;
+  }
+}
+
+/* Continuous subtle hue pulses for activation destination rows */
+@keyframes pulse-hue-bank {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes pulse-hue-consumer {
+  0%, 100% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+}
+
+.animate-pulse-hue-bank {
+  background: linear-gradient(90deg, #f1f5f9 0%, #eef2ff 50%, #f1f5f9 100%);
+  background-size: 200% 100%;
+  animation: pulse-hue-bank 4s ease-in-out infinite;
+}
+
+.animate-pulse-hue-consumer {
+  background: linear-gradient(90deg, #eff6ff 0%, #e0f2fe 50%, #eff6ff 100%);
+  background-size: 200% 100%;
+  animation: pulse-hue-consumer 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-hue-bank,
+  .animate-pulse-hue-consumer {
+    animation: none;
+  }
+}

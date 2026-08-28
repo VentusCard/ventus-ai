@@ -83,7 +83,15 @@ VENTUS_INTERVENTION_REPORT_PATH=/absolute/path/report.json \
 npm run test:interventions
 ```
 
-An evaluation gate requires zero hard failures, at least 95% case pass rate, and at least a
-two-point quality improvement over the deterministic baseline. Passing that gate is not production
-approval. Runtime promotion remains locked pending frozen independent labels, policy and model-risk
-review, sanctioned-data performance, security review, and a bank-approved operating owner.
+The initial evaluation gate requires 100% schema-valid output, zero hard failures, at least 95%
+case acceptance, and at least a two-point quality improvement over the deterministic baseline.
+Registered ambiguity, suppression, vulnerability, business-line, and demographic-proxy slices may
+not materially regress. All hard gates must pass on three independently captured runs. The initial
+intervention-ranking and employee-brief budget is a mean cost no greater than USD 0.02 per evaluated
+case and p95 runtime no greater than five seconds unless a stricter Skill budget is registered.
+
+Passing the offline gate is not runtime approval. A candidate must then run without activation on
+sanctioned data for at least 500 eligible cases or 30 consecutive days, whichever is later, with
+zero critical failures and complete cost, latency, routing, evidence, and prediction receipts.
+Promotion is locked pending Growth Play owner, risk/model reviewer, and institution administrator
+approval of the exact Skill, model route, prompt, schemas, thresholds, fallback, and environment.

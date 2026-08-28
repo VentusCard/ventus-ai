@@ -62,8 +62,8 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
   const advisor = getAdvisor(customer.id);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5">
+    <div className="flex flex-col h-full min-h-0">
+      <div className="flex-1 min-h-0 px-3 py-2.5 flex flex-col gap-2">
         {/* Header */}
         <div>
           <p className="text-[13px] font-semibold text-slate-800">Welcome, {firstName}</p>
@@ -76,8 +76,8 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
         </div>
 
         {/* Your Financial Snapshot */}
-        <div className="rounded-xl bg-slate-50 border border-slate-100 p-3">
-          <div className="flex items-center gap-1.5 mb-2.5">
+        <div className="shrink-0 rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">
+          <div className="flex items-center gap-1.5 mb-1.5">
             <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
               <BarChart3 className="w-2.5 h-2.5 text-blue-600" />
             </div>
@@ -88,8 +88,10 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
               const HIcon = h.icon;
               return (
                 <div key={h.key} className="flex flex-col items-center gap-1 rounded-lg bg-white border border-slate-100 py-2 px-1">
-                  <HIcon className="w-3.5 h-3.5" style={{ color: h.color }} />
-                  <span className="text-[7px] text-slate-400 font-medium">{h.label}</span>
+                  <div className="flex items-center gap-1">
+                    <HIcon className="w-3 h-3" style={{ color: h.color }} />
+                    <span className="text-[7px] text-slate-500 font-medium">{h.label}</span>
+                  </div>
                   <span className="text-[10px] font-bold text-slate-800">{formatCompact(h.value)}</span>
                 </div>
               );
@@ -98,13 +100,15 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
         </div>
 
         {/* Recommended for You — product slider */}
-        <div>
+        <div className="flex-1 min-h-[330px] flex flex-col">
           <div className="flex items-center gap-1.5 mb-1.5 px-1">
             <Sparkles className="w-3 h-3 text-indigo-500" />
             <span className="text-[10px] font-bold text-slate-700">Recommended for You</span>
           </div>
           {productCards && productCards.length > 0 ? (
-            <ProductCardsPhoneView cards={productCards} compact />
+            <div className="flex-1 min-h-0">
+              <ProductCardsPhoneView cards={productCards} compact />
+            </div>
           ) : (
             <div className="px-2 py-4 text-center">
               <span className="text-[10px] text-slate-300">Personalized offers loading…</span>

@@ -30,3 +30,6 @@ backend/artifacts/
 !.env.example
 .cursor/mcp.json
 .vercel
+
+# Lovable-generated planning docs (regenerated per task, not source of truth)
+.lovable/plan/

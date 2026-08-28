@@ -15,6 +15,8 @@ const getSecrets = secretId
       salesforceLoginUrl: process.env.SF_LOGIN_URL,
       salesforceClientId: process.env.SF_CLIENT_ID,
       salesforceClientSecret: process.env.SF_CLIENT_SECRET,
+      salesforceDemoAccountId: process.env.SF_DEMO_ACCOUNT_ID,
+      salesforceReferralRecordTypeId: process.env.SF_REFERRAL_RECORD_TYPE_ID,
     });
 
 const service = createDemoConnectorService({ getSecrets });
@@ -41,8 +43,17 @@ export function createHandler({ connectorService = service } = {}) {
         if (process.env.VENTUS_ENABLE_DEMO_CONNECTOR_SESSION !== 'true') {
           return response(404, { error: 'live connector session is disabled' }, responseHeaders);
         }
+        const claims = event.requestContext?.authorizer?.claims || {};
+        const groups = String(claims['cognito:groups'] || '').split(',').map((group) => group.trim());
+        const expectedTenantId = process.env.VENTUS_DEMO_TENANT_ID || 'demo_bank';
+        const claimedTenantId = claims.tenant_id || claims['custom:tenant_id'];
+        if (!claims.sub || claimedTenantId !== expectedTenantId) {
+          return response(403, { error: 'connector tenant access is not authorized' }, responseHeaders);
+        }
         const result = await connectorService.issueSession({
-          tenantId: process.env.VENTUS_DEMO_TENANT_ID || 'demo_bank',
+          tenantId: expectedTenantId,
+          subject: claims.sub,
+          role: groups.some((group) => /admin/i.test(group)) ? 'admin' : 'operator',
         });
         return response(200, result, responseHeaders);
       }
@@ -60,6 +71,41 @@ export function createHandler({ connectorService = service } = {}) {
         const result = await connectorService.createSalesforceTask({
           authorization: header(event, 'authorization'),
           body: parseBody(event.body),
+        });
+        return response(200, result, responseHeaders);
+      }
+
+      if (path.endsWith('/v1/demo/salesforce-onboarding')) {
+        const body = parseBody(event.body);
+        if (body.action === 'discover') {
+          const result = await connectorService.discoverSalesforce({
+            authorization: header(event, 'authorization'),
+          });
+          return response(200, result, responseHeaders);
+        }
+        if (body.action === 'verify-account') {
+          const result = await connectorService.verifySalesforceAccount({
+            authorization: header(event, 'authorization'),
+            accountId: body.accountId,
+          });
+          return response(200, result, responseHeaders);
+        }
+        return response(400, { error: 'unsupported onboarding action' }, responseHeaders);
+      }
+
+      if (path.endsWith('/v1/demo/salesforce-deliver')) {
+        const result = await connectorService.deliverSalesforce({
+          authorization: header(event, 'authorization'),
+          body: parseBody(event.body),
+        });
+        return response(200, result, responseHeaders);
+      }
+
+      if (path.endsWith('/v1/demo/salesforce-outcomes')) {
+        const body = parseBody(event.body);
+        const result = await connectorService.readSalesforceOutcome({
+          authorization: header(event, 'authorization'),
+          decisionRecordId: body.decisionRecordId,
         });
         return response(200, result, responseHeaders);
       }

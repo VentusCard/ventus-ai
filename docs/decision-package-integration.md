@@ -45,12 +45,15 @@ The custom object is optional. If it has not been deployed, Referral and Task
 delivery still complete and the connector returns a warning. The Ventus ledger
 remains canonical either way.
 
-The outcome-return adapter reads one linked `Ventus_Decision__c` record by ID
-and maps its structured response and outcome fields back into the Decision
-Package. The read session is separately scoped from Salesforce delivery. One
-observed event closes the workflow loop but does not unlock a business or
-causal claim; the experiment service still requires treatment and holdout
-coverage.
+The FSC return adapter reads one linked `Ventus_Decision__c` record by ID and
+maps its structured response, completion, timing, reason, and reconciliation
+fields into treatment workflow evidence. The read session is separately scoped
+from Salesforce delivery. Holdout creates no FSC treatment record. A workflow
+observation closes the operating loop but never satisfies the primary P&L
+metric or unlocks a business or causal claim. A bank-owned ledger,
+books-and-records system, or certified outcome view must return the registered
+economic observation for both treatment and holdout before the experiment
+service can measure the result.
 
 ## Adding another institution or destination
 

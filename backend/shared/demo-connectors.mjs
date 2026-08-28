@@ -1,6 +1,13 @@
 import crypto from 'node:crypto';
 
 import { offbankRegex } from './offbank-patterns.mjs';
+import {
+  createSalesforceFscService,
+  SalesforceFscError,
+} from './salesforce-fsc.mjs';
+import { buildSalesforceTaskRecord } from './salesforce-task-record.mjs';
+
+export { buildSalesforceTaskRecord } from './salesforce-task-record.mjs';
 
 const SESSION_ISSUER = 'ventus-ai';
 const SESSION_AUDIENCE = 'ventus-demo-connectors';
@@ -60,6 +67,10 @@ export function createDemoConnectorService({
   if (typeof getSecrets !== 'function') throw new Error('getSecrets is required');
   if (plaidEnvironment !== 'sandbox') throw new Error('demo connectors require Plaid sandbox');
   const plaidHost = 'https://sandbox.plaid.com';
+  const salesforceFsc = createSalesforceFscService({
+    fetchImpl,
+    buildTaskRecord: buildSalesforceTaskRecord,
+  });
 
   async function secrets() {
     return normalizeSecrets(await getSecrets());
@@ -77,19 +88,32 @@ export function createDemoConnectorService({
     };
   }
 
-  async function issueSession({ tenantId = 'demo_bank' } = {}) {
+  async function issueSession({
+    tenantId = 'demo_bank',
+    subject = 'demo_operator',
+    role = 'operator',
+  } = {}) {
     const configured = await secrets();
     validateSigningSecret(configured.sessionSigningSecret);
     const issuedAt = Math.floor(now() / 1000);
     const sessionId = `demo_${crypto.randomUUID().replaceAll('-', '').slice(0, 24)}`;
+    const normalizedTenantId = safeOpaqueId(tenantId, 'demo_bank');
+    const normalizedSubject = safeOpaqueId(subject, 'demo_operator');
+    const normalizedRole = role === 'admin' ? 'admin' : 'operator';
     const token = signSession({
       secret: configured.sessionSigningSecret,
       claims: {
         iss: SESSION_ISSUER,
         aud: SESSION_AUDIENCE,
-        sub: 'demo_operator',
-        tenant_id: safeOpaqueId(tenantId, 'demo_bank'),
-        scopes: ['plaid_read', 'salesforce_write'],
+        sub: normalizedSubject,
+        tenant_id: normalizedTenantId,
+        role: normalizedRole,
+        scopes: [
+          'plaid_read',
+          'salesforce_write',
+          'salesforce_outcome_read',
+          ...(normalizedRole === 'admin' ? ['salesforce_schema_read'] : []),
+        ],
         destinations: ['plaid', 'salesforce'],
         jti: sessionId,
         iat: issuedAt,
@@ -102,6 +126,9 @@ export function createDemoConnectorService({
       sessionId,
       expiresAt: issuedAt + SESSION_SECONDS,
       connectors: await status(),
+      tenantId: normalizedTenantId,
+      subject: normalizedSubject,
+      role: normalizedRole,
     };
   }
 
@@ -134,6 +161,14 @@ export function createDemoConnectorService({
 
   async function pullPlaidTransactions({ authorization, scenario = 'deposit-retention' }) {
     const principal = await authorize(authorization, { scope: 'plaid_read', destination: 'plaid' });
+    const result = await pullPlaidScenario({ scenario });
+    return { ...result, authorization: principalSummary(principal) };
+  }
+
+  // This is intentionally not exposed by the connector HTTP surface. It lets
+  // another server-side Ventus service obtain the same sandbox evidence without
+  // sending transactions, access tokens, or assignment inputs through a browser.
+  async function pullPlaidScenario({ scenario = 'deposit-retention', cohortMemberId = null } = {}) {
     const configured = await secrets();
     if (!configured.plaidClientId || !configured.plaidSecret) {
       throw new DemoConnectorError('Plaid sandbox is not configured', 503);
@@ -142,12 +177,13 @@ export function createDemoConnectorService({
     const customUser = selectedScenario === 'wealth-growth'
       ? WEALTH_GROWTH_CUSTOM_USER
       : DEPOSIT_PRIMACY_CUSTOM_USER;
+    const cohortUser = cohortMemberId ? sandboxVariant(customUser, cohortMemberId) : customUser;
     const auth = { client_id: configured.plaidClientId, secret: configured.plaidSecret };
     const publicToken = await plaid('/sandbox/public_token/create', {
       ...auth,
       institution_id: PLAID_INSTITUTION_ID,
       initial_products: ['transactions'],
-      options: { override_username: 'user_custom', override_password: JSON.stringify(customUser) },
+      options: { override_username: 'user_custom', override_password: JSON.stringify(cohortUser) },
     });
     if (!publicToken.public_token) throw new DemoConnectorError('Plaid did not return a public token', 502);
     const exchanged = await plaid('/item/public_token/exchange', {
@@ -180,51 +216,131 @@ export function createDemoConnectorService({
       ready: demoScenarioReady(selectedScenario, best),
       transactions: best,
       count: best.length,
-      authorization: principalSummary(principal),
     };
   }
 
-  async function createSalesforceTask({ authorization, body }) {
+  async function salesforceContext(authorization, scope) {
+    const principal = await authorize(authorization, { scope, destination: 'salesforce' });
+    const configured = await secrets();
+    if (!configured.salesforceLoginUrl || !configured.salesforceClientId || !configured.salesforceClientSecret) {
+      throw new DemoConnectorError('Salesforce sandbox is not configured', 503);
+    }
+    return { principal, configured };
+  }
+
+  async function discoverSalesforce({ authorization }) {
+    const { principal, configured } = await salesforceContext(
+      authorization,
+      'salesforce_schema_read',
+    );
+    try {
+      return {
+        ...await salesforceFsc.discover({ config: configured }),
+        authorization: principalSummary(principal),
+      };
+    } catch (error) {
+      throw translateSalesforceError(error);
+    }
+  }
+
+  async function verifySalesforceAccount({ authorization, accountId }) {
+    const { principal, configured } = await salesforceContext(
+      authorization,
+      'salesforce_schema_read',
+    );
+    try {
+      return {
+        ...await salesforceFsc.verifyAccount({ config: configured, accountId }),
+        authorization: principalSummary(principal),
+      };
+    } catch (error) {
+      throw translateSalesforceError(error);
+    }
+  }
+
+  async function deliverSalesforce({ authorization, body }) {
     const principal = await authorize(authorization, { scope: 'salesforce_write', destination: 'salesforce' });
     const configured = await secrets();
     if (!configured.salesforceLoginUrl || !configured.salesforceClientId || !configured.salesforceClientSecret) {
       throw new DemoConnectorError('Salesforce sandbox is not configured', 503);
     }
-    const { task, activation } = buildSalesforceTaskRecord(body, new Date(now()));
-    if (!task.Subject) throw new DemoConnectorError('subject is required', 400);
-    const tokenBody = new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: configured.salesforceClientId,
-      client_secret: configured.salesforceClientSecret,
-    });
-    const tokenResponse = await fetchImpl(`${configured.salesforceLoginUrl}/services/oauth2/token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: tokenBody.toString(),
-    });
-    if (!tokenResponse.ok) throw new DemoConnectorError(`Salesforce authentication failed (${tokenResponse.status})`, 502);
-    const oauth = await tokenResponse.json();
-    if (!oauth.access_token || !oauth.instance_url) throw new DemoConnectorError('Salesforce token response is incomplete', 502);
-    const instanceUrl = String(oauth.instance_url).replace(/\/$/, '');
-    const createResponse = await fetchImpl(`${instanceUrl}/services/data/${API_VERSION}/sobjects/Task`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${oauth.access_token}` },
-      body: JSON.stringify(task),
-    });
-    if (!createResponse.ok) throw new DemoConnectorError(`Salesforce Task creation failed (${createResponse.status})`, 502);
-    const created = await createResponse.json();
-    if (!created.id) throw new DemoConnectorError('Salesforce did not return a Task id', 502);
-    return {
-      system: 'Salesforce',
-      object: 'Task',
-      id: created.id,
-      url: `${instanceUrl}/lightning/r/Task/${created.id}/view`,
-      activation,
-      authorization: principalSummary(principal),
-    };
+    try {
+      return {
+        ...await salesforceFsc.deliver({
+          config: configured,
+          body,
+          tenantId: principal.tenantId,
+          now: new Date(now()),
+        }),
+        authorization: principalSummary(principal),
+      };
+    } catch (error) {
+      throw translateSalesforceError(error);
+    }
   }
 
-  return { status, issueSession, pullPlaidTransactions, createSalesforceTask };
+  async function readSalesforceOutcome({ authorization, decisionRecordId }) {
+    const { principal, configured } = await salesforceContext(
+      authorization,
+      'salesforce_outcome_read',
+    );
+    try {
+      return {
+        ...await salesforceFsc.readOutcome({
+          config: configured,
+          decisionRecordId,
+          tenantId: principal.tenantId,
+        }),
+        authorization: principalSummary(principal),
+      };
+    } catch (error) {
+      throw translateSalesforceError(error);
+    }
+  }
+
+  async function createSalesforceTask({ authorization, body }) {
+    return deliverSalesforce({
+      authorization,
+      body: {
+        ...body,
+        fsc: {
+          ...(body?.fsc && typeof body.fsc === 'object' ? body.fsc : {}),
+          createReferral: false,
+        },
+      },
+    });
+  }
+
+  return {
+    status,
+    issueSession,
+    pullPlaidTransactions,
+    pullPlaidScenario,
+    discoverSalesforce,
+    verifySalesforceAccount,
+    deliverSalesforce,
+    readSalesforceOutcome,
+    createSalesforceTask,
+  };
+}
+
+function sandboxVariant(template, cohortMemberId) {
+  const variant = Number.parseInt(crypto.createHash('sha256').update(cohortMemberId).digest('hex').slice(0, 4), 16) % 4;
+  const account = template.override_accounts?.[0];
+  if (!account) return template;
+  const transactions = account.transactions.map((transaction, index) => ({
+    ...transaction,
+    // The shape remains approved and scenario-valid while avoiding a single
+    // repeated customer record in the controlled sandbox validation cohort.
+    amount: index === 0 ? transaction.amount - (variant * 25) : transaction.amount,
+  }));
+  return {
+    override_accounts: [{
+      ...account,
+      starting_balance: account.starting_balance + (variant * 100),
+      transactions,
+    }],
+  };
 }
 
 export function demoScenarioReady(scenario, transactions) {
@@ -242,74 +358,6 @@ export function demoScenarioReady(scenario, transactions) {
   return hasPayroll && hasOffbank;
 }
 
-export function buildSalesforceTaskRecord(body = {}, now = new Date()) {
-  const insight = body.insight && typeof body.insight === 'object' ? body.insight : {};
-  const confidence = Number.isFinite(insight.confidence)
-    ? Math.max(0, Math.min(100, Math.round(insight.confidence)))
-    : null;
-  const evidence = Array.isArray(insight.evidence)
-    ? insight.evidence.slice(0, 4).map((item) => ({
-        label: cleanText(item?.label, 140),
-        confidence: Number.isFinite(item?.confidence) ? Math.round(item.confidence) : null,
-      })).filter((item) => item.label)
-    : [];
-  const controls = Array.isArray(insight.controls)
-    ? insight.controls.map((item) => cleanText(item, 100)).filter(Boolean).slice(0, 6)
-    : [];
-  const section = (heading, lines) => lines.length ? `${heading}\n${lines.join('\n')}` : '';
-  const subject = cleanText(body.subject, 255);
-  const description = [
-    section('WHY THIS NEEDS ATTENTION', [cleanText(insight.whyNow || insight.moment, 700)].filter(Boolean)),
-    section('RECOMMENDED NEXT STEP', [cleanText(insight.recommendedAction, 700)].filter(Boolean)),
-    section('BUSINESS OUTCOME', [cleanText(insight.expectedOutcome, 220)].filter(Boolean)),
-    section('SUPPORTING SIGNALS', evidence.map((item) => `- ${item.label}${item.confidence === null ? '' : ` (${item.confidence}% confidence)`}`)),
-    section('POLICY CONTROLS', controls.length ? [`Attached for review: ${controls.join(', ')}`] : []),
-    section('ROUTING', [cleanText(insight.destination, 160)].filter(Boolean)),
-    section('AUDIT', [
-      cleanText(insight.growthPlay, 120) ? `Growth Play: ${cleanText(insight.growthPlay, 120)}` : '',
-      cleanText(insight.customerRef, 120) ? `Customer reference: ${cleanText(insight.customerRef, 120)}` : '',
-      cleanText(insight.decisionRef, 160) ? `Decision reference: ${cleanText(insight.decisionRef, 160)}` : '',
-      cleanText(insight.sourceName, 160) ? `Evidence source: ${cleanText(insight.sourceName, 160)}` : '',
-      confidence === null ? '' : `Decision confidence: ${confidence}%`,
-    ].filter(Boolean)),
-  ].filter(Boolean).join('\n\n');
-  const dueInDays = Number.isFinite(body.dueInDays)
-    ? Math.max(1, Math.min(30, Math.round(body.dueInDays)))
-    : 3;
-  const dueDate = new Date(now.getTime() + dueInDays * 864e5).toISOString().slice(0, 10);
-  const connectorSource = cleanText(body.source, 100) || 'aws-demo-connector';
-  const whoId = cleanSalesforceId(body.whoId);
-  const whatId = cleanSalesforceId(body.whatId);
-  return {
-    task: {
-      Subject: subject,
-      Description: `${description}${description ? '\n\n' : ''}Connector: Ventus | ${connectorSource} | ${now.toISOString()}`.slice(0, 8000),
-      Priority: body.priority === 'Normal' || body.priority === 'High'
-        ? body.priority
-        : confidence !== null && confidence >= 85 ? 'High' : 'Normal',
-      Status: 'Not Started',
-      ActivityDate: dueDate,
-      ...(whoId ? { WhoId: whoId } : {}),
-      ...(whatId ? { WhatId: whatId } : {}),
-    },
-    activation: {
-      subject,
-      businessLine: cleanText(insight.businessLine, 100),
-      growthPlay: cleanText(insight.growthPlay, 120),
-      moment: cleanText(insight.moment, 180),
-      recommendedAction: cleanText(insight.recommendedAction, 700),
-      expectedOutcome: cleanText(insight.expectedOutcome, 220),
-      destination: cleanText(insight.destination, 160),
-      confidence,
-    },
-  };
-}
-
-function cleanSalesforceId(value) {
-  const id = cleanText(value, 18);
-  return /^[a-zA-Z0-9]{15}(?:[a-zA-Z0-9]{3})?$/.test(id) ? id : '';
-}
-
 function normalizeSecrets(value) {
   const source = value && typeof value === 'object' ? value : {};
   return {
@@ -319,6 +367,8 @@ function normalizeSecrets(value) {
     salesforceLoginUrl: cleanConfiguredValue(source.salesforceLoginUrl).replace(/\/$/, ''),
     salesforceClientId: cleanConfiguredValue(source.salesforceClientId),
     salesforceClientSecret: cleanConfiguredValue(source.salesforceClientSecret),
+    salesforceDemoAccountId: cleanConfiguredValue(source.salesforceDemoAccountId),
+    salesforceReferralRecordTypeId: cleanConfiguredValue(source.salesforceReferralRecordTypeId),
   };
 }
 
@@ -355,6 +405,8 @@ function verifySession(token, secret, currentTime) {
     if (safeOpaqueId(claims.jti, '') !== claims.jti) return null;
     return {
       tenantId: claims.tenant_id,
+      subject: safeOpaqueId(claims.sub, 'demo_operator'),
+      role: claims.role === 'admin' ? 'admin' : 'operator',
       sessionId: claims.jti,
       scopes: claims.scopes,
       destinations: claims.destinations,
@@ -371,7 +423,20 @@ function validateSigningSecret(secret) {
 }
 
 function principalSummary(principal) {
-  return { tenantId: principal.tenantId, sessionId: principal.sessionId, mode: 'session' };
+  return {
+    tenantId: principal.tenantId,
+    subject: principal.subject,
+    role: principal.role,
+    sessionId: principal.sessionId,
+    mode: 'session',
+  };
+}
+
+function translateSalesforceError(error) {
+  if (error instanceof SalesforceFscError) {
+    return new DemoConnectorError(error.message, error.status);
+  }
+  return error;
 }
 
 function safeOpaqueId(value, fallback) {

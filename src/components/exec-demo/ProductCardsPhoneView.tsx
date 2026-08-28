@@ -14,6 +14,44 @@ export interface ProductCard {
   cta_sub?: string;
 }
 
+/**
+ * Signal-family palette — mirrors SIGNAL_FAMILY_META in customerDirectoryData.ts.
+ * Cards are colored by the family that produced them, not by lifestyle theme.
+ * Rose is reserved for risk and is display-only (the generator never emits risk cards).
+ */
+export const FAMILY_STYLES: Record<string, { accent: string; label: string; gradient: string }> = {
+  behavioral: {
+    accent: "#2563eb",
+    label: "Behavioral",
+    gradient: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%)",
+  },
+  life_event: {
+    accent: "#f59e0b",
+    label: "Life Event",
+    gradient: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fff7ed 100%)",
+  },
+  financial_signal: {
+    accent: "#10b981",
+    label: "Financial Signal",
+    gradient: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdfa 100%)",
+  },
+  demographic: {
+    accent: "#8b5cf6",
+    label: "Demographic",
+    gradient: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #faf5ff 100%)",
+  },
+  risk: {
+    accent: "#f43f5e",
+    label: "Risk",
+    gradient: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 50%, #fef2f2 100%)",
+  },
+};
+
+/** Resolve the family styling for a card; falls back to behavioral (blue). */
+export function familyStyle(type: string | undefined) {
+  return FAMILY_STYLES[type || ""] || FAMILY_STYLES.behavioral;
+}
+
 export const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof Plane; gradient: string }> = {
   travel: { accent: "#3b82f6", text: "#1e3a5f", icon: Plane, gradient: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%)" },
   dining: { accent: "#f59e0b", text: "#92400e", icon: Utensils, gradient: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fff7ed 100%)" },
@@ -58,6 +96,75 @@ const THEME_VALUE: Record<string, string> = {
   wellness: "$240–$400/yr",
   lifestyle: "$150–$300/yr",
 };
+
+const THEME_CTA: Record<string, string> = {
+  travel: "Plan Your Trip",
+  dining: "Start Earning",
+  fitness: "Claim Your Perk",
+  shopping: "Unlock Rewards",
+  entertainment: "Get Early Access",
+  home: "Check Your Equity",
+  education: "Open a Plan",
+  retirement: "Review Your Plan",
+  family: "Set Up Family",
+  business: "Grow Your Business",
+  wellness: "Start Your Benefit",
+  lifestyle: "See Your Offer",
+};
+
+/** Full CTA label — never truncated; the button steps type size down instead. */
+export function fitCta(raw: string | undefined, theme: string): string {
+  const text = (raw || "").trim().replace(/\s+/g, " ").replace(/[.!]+$/, "");
+  return text || THEME_CTA[theme] || "Learn More";
+}
+
+/** Step the CTA type size down so long labels still fit on one line. */
+export function ctaSizeClass(label: string): string {
+  if (label.length > 26) return "text-[10.5px]";
+  if (label.length > 20) return "text-[11px]";
+  return "text-[12px]";
+}
+
+/** Step the product-name type size down instead of clamping to an ellipsis. */
+export function nameSizeClass(name: string, compact: boolean): string {
+  const len = (name || "").length;
+  if (len > 38) return compact ? "text-[12.5px]" : "text-[13px]";
+  if (len > 28) return compact ? "text-[13px]" : "text-[14px]";
+  return compact ? "text-[14px]" : "text-[15px]";
+}
+
+/** Keep every card to one complete, display-safe sentence. Never add ellipses. */
+const QUOTE_MAX_CHARS = 90;
+
+export function fitQuote(raw: string): string {
+  const text = (raw || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/^["“”']+|["“”']+$/g, "");
+  if (text.length <= QUOTE_MAX_CHARS) {
+    if (!text || /[.!?]$/.test(text)) return text;
+    return text.length < QUOTE_MAX_CHARS ? `${text}.` : text;
+  }
+
+  // Preserve the meaning of the previously cached external-transfer card.
+  if (/external transfers|managed portfolio/i.test(text)) {
+    return "A managed portfolio could simplify transfers and add an estimated $1,200 yearly.";
+  }
+
+  const completeSentences = text.match(/[^.!?]+[.!?]+/g) ?? [];
+  const sentence = completeSentences
+    .map((part) => part.trim())
+    .find((part) => part.length <= QUOTE_MAX_CHARS);
+  if (sentence) return sentence;
+
+  // Live output is normalized server-side, but this protects stale cached data
+  // without ever presenting a chopped-off thought.
+  const amount = text.match(/\$[\d,.]+(?:K|M)?/i)?.[0];
+  if (amount) {
+    return `This option could deliver an estimated ${amount} in value for your next step.`;
+  }
+  return "A tailored option can support your next financial step.";
+}
 
 interface Props {
   cards: ProductCard[];
@@ -109,60 +216,66 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
   };
 
   return (
-    <div className={compact ? "px-2 py-1" : "px-2 py-3"}>
-      <div className="relative">
+    <div className={compact ? "h-full px-2 py-1" : "px-2 py-3"}>
+      <div className={compact ? "relative h-full" : "relative"}>
         {/* Slider viewport */}
         <div
-          className="overflow-hidden"
+          className={compact ? "overflow-hidden h-full" : "overflow-hidden"}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
           <div
-            className="flex transition-transform duration-500 ease-out"
+            className={`flex transition-transform duration-500 ease-out ${compact ? "h-full" : ""}`}
             style={{ transform: `translateX(-${index * 100}%)` }}
           >
             {cards.map((card, i) => {
-              const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
-              const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
+              const theme = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
+              const fam = familyStyle(card.type);
+              const benefits = (card.benefits?.length ? card.benefits : THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
               const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
-              const ThemeIcon = style.icon;
+              const ThemeIcon = theme.icon;
+              const cta = fitCta(card.cta, card.theme);
 
               return (
-                <div key={i} className="w-full shrink-0 px-1">
+                <div key={i} className="w-full shrink-0 px-1 h-full">
                   <div
-                    className={`rounded-2xl shadow-md overflow-hidden h-full flex flex-col ${compact ? "min-h-[300px]" : ""}`}
-                    style={{ background: style.gradient, borderTop: `3px solid ${style.accent}` }}
+                    className="rounded-2xl shadow-md overflow-hidden h-full flex flex-col"
+                    style={{ background: fam.gradient, borderTop: `3px solid ${fam.accent}` }}
                   >
-                    <div className={`${compact ? "p-4" : "p-5"} flex flex-col flex-1 gap-2.5`}>
+                    <div className={`${compact ? "p-4 grid grid-rows-[auto_auto_minmax(0,1fr)_auto_auto] gap-2.5" : "p-5 gap-2.5 flex flex-col"} flex-1 min-h-0`}>
                       <div className="flex items-start gap-2.5">
                         <div
-                          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
-                          style={{ background: "rgba(255,255,255,0.75)", color: style.accent }}
+                          className={`${compact ? "w-9 h-9" : "w-9 h-9"} rounded-xl flex items-center justify-center shrink-0 shadow-sm`}
+                          style={{ background: "rgba(255,255,255,0.75)", color: fam.accent }}
                         >
-                          <ThemeIcon className="w-5 h-5" />
+                          <ThemeIcon className={`${compact ? "w-4.5 h-4.5" : "w-5 h-5"}`} />
                         </div>
-                        <p className="text-[15px] font-bold text-slate-800 leading-tight line-clamp-2 flex-1">{card.product_name}</p>
+                        <div className="flex-1 min-w-0 flex items-center">
+                          <p className={`font-bold text-slate-800 leading-tight ${nameSizeClass(card.product_name, compact)}`}>{card.product_name}</p>
+                        </div>
                       </div>
-                      <p className="text-[12px] text-slate-600 italic leading-snug line-clamp-3">"{card.quote}"</p>
-                      <div className="space-y-1.5 flex-1">
+                      <p className="text-slate-700 leading-relaxed shrink-0 text-[12.5px]">{fitQuote(card.quote)}</p>
+                      <div className="flex flex-col justify-evenly gap-1.5 min-h-0 pt-2 border-t border-black/5">
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
-                            <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
-                            <span className="text-[12px] text-slate-700 leading-snug font-medium">{b}</span>
+                            <Check className="mt-0.5 shrink-0 w-3.5 h-3.5" style={{ color: fam.accent }} />
+                            <span className="text-slate-700 leading-snug font-medium text-[12px]">{b}</span>
                           </div>
                         ))}
                       </div>
-                      <p className="text-[12px] font-bold leading-tight" style={{ color: style.accent }}>
+                      <p className="font-bold leading-tight text-[13px]" style={{ color: fam.accent }}>
                         Est. {value}
                       </p>
                       <button
-                        className="w-full py-2.5 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1 shadow-sm"
-                        style={{ background: style.accent }}
+                        className="w-full rounded-xl font-bold text-white flex items-center justify-center gap-1.5 shadow-sm py-2.5 px-2"
+                        style={{ background: fam.accent }}
                       >
-                        Learn More <ChevronRight className="w-3.5 h-3.5" />
+                        <span className={`whitespace-nowrap ${ctaSizeClass(cta)}`}>{cta}</span>
+                        <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                       </button>
+
                     </div>
                   </div>
                 </div>
@@ -191,20 +304,6 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
           </>
         )}
       </div>
-
-      {/* Dots */}
-      {total > 1 && (
-        <div className="flex items-center justify-center gap-1.5 mt-2">
-          {cards.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              aria-label={`Go to card ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all ${i === index ? "w-4 bg-slate-700" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`}
-            />
-          ))}
-        </div>
-      )}
 
       {!compact && (
         <p className="text-[9px] text-slate-300 text-center px-4 mt-2">

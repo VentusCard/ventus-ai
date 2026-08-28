@@ -177,6 +177,7 @@ exports.handler = async (event) => {
       ['growth-play-owner', 'Business owners who configure and approve Growth Plays', 30],
       ['bank-operator', 'Bank employees who review and act on qualified moments', 40],
       ['risk-reviewer', 'Risk, compliance, and model-governance reviewers', 50],
+      ['executive-viewer', 'Executives who monitor aggregate value and operating risk', 60],
     ] as const;
     for (const [groupName, description, precedence] of groups) {
       new cognito.CfnUserPoolGroup(this, `Group${groupName.replaceAll('-', '')}`, {

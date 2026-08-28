@@ -57,6 +57,43 @@ const REPORTS_ON_SCREEN = {
   ],
 };
 
+const PERSONALIZED_DEALS_CONTEXT: TabContext = {
+  label: "Personalized Deals",
+  summary:
+    "Unified surface for deal intelligence, merchant activation, location perks, and gamified engagement programs.",
+  keyData: [
+    "Seasonal spend heatmaps highlight over-indexed lifestyle pillars",
+    "Merchant partnership pipeline with active deals and location perks",
+    "Achievement and badge engine for financial wellness engagement",
+  ],
+  suggestedNav: ["Automated Flows", "Campaign Builder", "Next Product"],
+  quickActions: [
+    "Seasonal deal opportunities",
+    "Top performing deals",
+    "Most popular badges",
+    "Engagement lift from gamification",
+  ],
+};
+
+const PERSONALIZED_RELATIONSHIP_CONTEXT: TabContext = {
+  label: "Personalized Relationship",
+  summary:
+    "Unified relationship surface: predictive life-event and relationship intelligence, customer-facing AI Banking Assistant activity, and the email-based WM Coworker for advisors and leadership.",
+  keyData: [
+    "Life events carry 3-5 transaction evidence items each",
+    "Money-transfer merchants (Zelle, Wire) excluded from life-event evidence unless described",
+    "Assistant activity shows live topics, rising intents, and unresolved questions",
+    "Coworker digests are capped and resolve to a specific product recommendation",
+  ],
+  suggestedNav: ["Next Product", "Campaign Builder", "Personalized Deals"],
+  quickActions: [
+    "Upcoming home purchase signals",
+    "Retirement planning candidates",
+    "Top assistant topics today",
+    "High-value client risks",
+  ],
+};
+
 export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
   // ---------- Home ----------
   capabilities: {
@@ -91,20 +128,22 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
     onScreenItems: PRODUCTS_ON_SCREEN,
   },
-  "exec-demo": {
-    label: "Live Demo — Semantic Enrichment",
+  governance: {
+    label: "Governance — Personalization Controls",
     summary:
-      "Interactive demo: raw transactions + external signals in, enriched pillars + persona + next-product + next-offer + rewards out. Shows the end-to-end Ventus pipeline on a sample household.",
+      "Where bank leaders set the personalization level, enable signal families, upload compliance and brand documents, and configure operating guardrails.",
     keyData: [
-      "Two life-event product cards + one behavioral product card per persona",
-      "External intelligence signals (e.g. car loan renewal) inject into the enrichment table",
-      "Personalized offers include concrete rates and estimated savings",
+      "Four personalization stages: Conservative, Balanced, Personalized, Segment of One",
+      "Signal families: Spending Habits, Life Events, Financial, Demographic, Risk",
+      "Policy documents constrain generated copy and targeting",
+      "Guardrails: frequency cap, quiet hours, cooling-off, product eligibility, autonomy",
     ],
-    suggestedNav: ["Bank Context", "Next Product", "Next-Deal Intelligence"],
+    suggestedNav: ["Demo", "Bank Context", "Settings"],
     quickActions: [
-      "Explain the current persona",
-      "Why was this product recommended?",
-      "How was the estimated savings calculated?",
+      "What changes if we move to Segment of One?",
+      "Which signal families are off right now?",
+      "What do the uploaded policies control?",
+      "Explain the autonomy threshold",
     ],
   },
 
@@ -165,6 +204,25 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
     onScreenItems: REPORTS_ON_SCREEN,
   },
+  api: {
+    label: "API Access & Usage",
+    summary:
+      "Sub-tab of the Intelligence Dashboard covering Ventus API consumption: call volume, success rate, p95 latency, error rate, quota, endpoint breakdown, rate limits, recent requests, webhook delivery, and a quickstart. Key creation and assignment live in Settings → API Keys.",
+    keyData: [
+      "22.5M calls in the last 30 days at 99.71% success and 214ms p95",
+      "Enterprise tier: 6,000 rpm, 30M monthly call quota",
+      "Endpoints span enrichment, customer signals, life events, recommendations, and portfolio rollups",
+      "Credential management is not on this view — it deep-links to Settings → API Keys",
+    ],
+    suggestedNav: ["Settings", "Reports", "Query"],
+    quickActions: [
+      "Which endpoint drives the most calls?",
+      "Are we close to the monthly quota?",
+      "Where is latency worst?",
+      "Any webhook delivery failures?",
+    ],
+  },
+
 
   // ---------- Report deep-links ----------
   "report-lifestyle-pillars": {
@@ -301,97 +359,21 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
   },
 
-  // ---------- Deals & Rewards ----------
-  "rewards-intelligence": {
-    label: "Next-Deal Intelligence",
-    summary:
-      "Analytics for deal-generation: seasonal opportunities, category gaps, top merchant partnerships, timing.",
-    keyData: [
-      "Heatmaps highlight over-indexed lifestyle pillars",
-      "Excludes competitor payment rails from partnership scoring",
-    ],
-    suggestedNav: ["Deals & Perks", "Locational Perks"],
-    quickActions: [
-      "Seasonal deal opportunities",
-      "Top merchant partnership candidates",
-      "Category gaps to fill",
-    ],
-  },
-  "deal-management": {
-    label: "Deals & Perks",
-    summary: "Merchant partnership pipeline, active deals, and deal performance.",
-    quickActions: ["Deals expiring this month", "Top performing deals", "Pipeline status"],
-  },
-  "location-experience": {
-    label: "Locational Perks",
-    summary:
-      "City-based perks management with wealth-tier segmentation. Aggregates location experiences per market.",
-    quickActions: [
-      "Top perks by city",
-      "Underserved regions",
-      "New location opportunities",
-    ],
-  },
-  gamification: {
-    label: "Gamification",
-    summary: "Achievement and badge engine for financial wellness engagement.",
-    quickActions: ["Most popular badges", "Engagement lift from gamification", "New achievement ideas"],
-  },
+  // ---------- Personalized Deals ----------
+  "personalized-deals": PERSONALIZED_DEALS_CONTEXT,
+  "rewards-intelligence": PERSONALIZED_DEALS_CONTEXT,
+  "deal-management": PERSONALIZED_DEALS_CONTEXT,
+  "location-experience": PERSONALIZED_DEALS_CONTEXT,
+  gamification: PERSONALIZED_DEALS_CONTEXT,
 
-  // ---------- Wealth & Relationship ----------
-  "life-events": {
-    label: "Relationship Intelligence",
-    summary:
-      "Predictive life-event detection (home purchase, new child, relocation, retirement, tuition, etc.) with 3–5 transaction evidence items per event.",
-    keyData: [
-      "Money-transfer merchants (Zelle, Wire) excluded from life-event evidence unless described",
-      "Big-box general merchandise routes into Home & Living",
-    ],
-    suggestedNav: ["WM Coworker", "Next Product", "Campaign Builder"],
-    quickActions: [
-      "Upcoming home purchase signals",
-      "Retirement planning candidates",
-      "Product recommendations by event",
-    ],
-  },
-  "ai-assistant-activity": {
-    label: "AI Banking Assistant Activity",
-    summary:
-      "Live topics, rising intents, and unresolved questions from the customer-facing AI Banking Assistant.",
-    quickActions: [
-      "Top topics today",
-      "Rising intents",
-      "Unresolved questions",
-      "Life-event signals from chat",
-    ],
-  },
-  "wm-copilot": {
-    label: "WM Coworker",
-    summary:
-      "Wealth management AI coworker (wmcoworker@ventusai.com). Runs daily digest of client signals, drafts advisor prep, and generates cohort lists for campaigns (e.g. premium travel card candidates).",
-    keyData: [
-      "Digest capped at 3/3/2 rows per section",
-      "Every recommendation resolves to a specific product (529, jumbo mortgage, premium travel card, etc.)",
-      "Confidence levels are calibrated (not inflated)",
-    ],
-    suggestedNav: ["Relationship Intelligence", "Bank Context"],
-    quickActions: [
-      "High-value client risks",
-      "Prep for a jumbo mortgage conversation",
-      "Premium travel card candidates",
-    ],
-  },
+  // ---------- Personalized Relationship ----------
+  "personalized-relationship": PERSONALIZED_RELATIONSHIP_CONTEXT,
+  "life-events": PERSONALIZED_RELATIONSHIP_CONTEXT,
+  "ai-assistant-activity": PERSONALIZED_RELATIONSHIP_CONTEXT,
+  "wm-copilot": PERSONALIZED_RELATIONSHIP_CONTEXT,
+  "customer-insights": PERSONALIZED_RELATIONSHIP_CONTEXT,
 
   // ---------- Risk ----------
-  "customer-insights": {
-    label: "Customer Insights (Wellness)",
-    summary: "Behavioral stress and wellness alerts across the book with intervention recommendations.",
-    quickActions: [
-      "At-risk customers",
-      "Behavioral stress signals",
-      "Intervention recommendations",
-    ],
-  },
   "fvi-dashboard": {
     label: "Financial Vulnerability",
     summary:
@@ -402,13 +384,18 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
       "Sensitivity drivers",
     ],
   },
-  "fraud-aml": {
-    label: "Fraud / AML (Coming Soon)",
-    summary: "Transaction anomaly and AML pattern detection. Currently placeholder.",
-    quickActions: ["What will this cover?", "Timeline for launch"],
+  "growth-merchant-partnerships": {
+    label: "Merchant Partnerships",
+    summary:
+      "Behaviorally adjacent product extensions with addressable audience, estimated revenue, confidence, and merchant partners per opportunity.",
+    quickActions: [
+      "Highest revenue partnership",
+      "Best deployment windows",
+      "Which pillars extend furthest?",
+    ],
   },
   "wallet-share": {
-    label: "Outflow Analysis",
+    label: "Wallet Share & Win-Back",
     summary:
       "$4.2B annual deposit flight to neobanks with severity classification, exposure, and retention ROI.",
     quickActions: [

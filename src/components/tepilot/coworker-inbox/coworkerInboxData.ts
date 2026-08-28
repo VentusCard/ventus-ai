@@ -246,6 +246,121 @@ export const WEEKLY_STATS: WeeklyStats = {
   lastActivityAgo: "4 sec ago",
 };
 
+export type TeamChannel = "Email";
+
+export interface TeamDestination {
+  id: string;
+  name: string;
+  channel: TeamChannel;
+  accent: "indigo" | "emerald" | "amber" | "rose" | "violet" | "sky";
+  weeklyCount: number;
+  weeklyPrev: number;
+  stat1: { label: string; value: string };
+  stat2: { label: string; value: string };
+  insights: string[];
+  lastDeliveryAgo: string;
+  emailType: "Weekly pulse" | "Alert" | "Daily brief" | "Campaign brief" | "Signal brief";
+}
+
+export const TEAM_DESTINATIONS: TeamDestination[] = [
+  {
+    id: "leadership",
+    name: "Coworker for Bank Leadership",
+    channel: "Email",
+    accent: "indigo",
+    weeklyCount: 340,
+    weeklyPrev: 312,
+    stat1: { label: "Weekly pulses", value: "1" },
+    stat2: { label: "Pending approvals", value: "4" },
+    insights: [
+      "Weekly pulse summarizing major trends, key takeaways and strategic opportunities across the bank.",
+      "Surfaces leadership-level themes like life-event momentum, advisor engagement, and at-risk AUM.",
+    ],
+    lastDeliveryAgo: "6 min ago",
+    emailType: "Weekly pulse",
+  },
+  {
+    id: "product-growth",
+    name: "Coworker for Product & Growth",
+    channel: "Email",
+    accent: "emerald",
+    weeklyCount: 2840,
+    weeklyPrev: 2510,
+    stat1: { label: "Product-gap alerts", value: "142" },
+    stat2: { label: "Est. 90-day AUM uplift", value: "$12.4M" },
+    insights: [
+      "Daily brief on product-fit gaps and cross-sell opportunities surfaced from behavioral signals.",
+      "Highlights rollover playbooks, refinance moments, and next-product candidates by segment.",
+    ],
+    lastDeliveryAgo: "9 min ago",
+    emailType: "Daily brief",
+  },
+  {
+    id: "risk",
+    name: "Coworker for Risk & Compliance",
+    channel: "Email",
+    accent: "rose",
+    weeklyCount: 1860,
+    weeklyPrev: 1920,
+    stat1: { label: "Vulnerability flags", value: "63" },
+    stat2: { label: "Escalations routed", value: "12" },
+    insights: [
+      "Alert stream for outbound-transfer clusters, vulnerability indicators, and advisor-inactivity flags.",
+      "Surfaces risk cohorts and escalation candidates before they become attrition events.",
+    ],
+    lastDeliveryAgo: "14 min ago",
+    emailType: "Alert",
+  },
+  {
+    id: "rewards",
+    name: "Coworker for Rewards & Deals",
+    channel: "Email",
+    accent: "amber",
+    weeklyCount: 4210,
+    weeklyPrev: 3890,
+    stat1: { label: "Offer refreshes", value: "28" },
+    stat2: { label: "Rewards and Perks", value: "6" },
+    insights: [
+      "Daily brief on merchant partnership opportunities and reward-redemption intent by segment.",
+      "Flags premium card offers, lifestyle perks, and redemption-lift opportunities.",
+    ],
+    lastDeliveryAgo: "3 min ago",
+    emailType: "Daily brief",
+  },
+  {
+    id: "advisors",
+    name: "Coworker for Relationship Managers",
+    channel: "Email",
+    accent: "violet",
+    weeklyCount: 19860,
+    weeklyPrev: 16840,
+    stat1: { label: "Active advisor threads", value: "9,640" },
+    stat2: { label: "Reply rate", value: "61%" },
+    insights: [
+      "Signal brief highlighting client life events, liquidity moments, and recommended next outreach.",
+      "Prioritizes the highest-propensity households and drafts talking points for each advisor.",
+    ],
+    lastDeliveryAgo: "1 min ago",
+    emailType: "Signal brief",
+  },
+  {
+    id: "marketing",
+    name: "Coworker for Marketing / Campaign Ops",
+    channel: "Email",
+    accent: "sky",
+    weeklyCount: 1340,
+    weeklyPrev: 1210,
+    stat1: { label: "Segment-of-one briefs", value: "86" },
+    stat2: { label: "Drafts in review", value: "11" },
+    insights: [
+      "Campaign brief with segment-of-one audiences and pre-drafted personalization copy.",
+      "Routes ready-to-launch campaigns to advisors and tracks draft approvals through launch.",
+    ],
+    lastDeliveryAgo: "22 min ago",
+    emailType: "Campaign brief",
+  },
+];
+
 export type ActivityKind = "advisor" | "leadership" | "signal" | "reply";
 
 export interface ActivityEntry {
