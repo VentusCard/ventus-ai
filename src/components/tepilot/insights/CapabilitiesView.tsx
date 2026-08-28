@@ -620,10 +620,10 @@ function SignalSection({
   const next = signal.examples[(idx + 1) % total];
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-10 items-center gap-2 text-[13px] leading-none text-slate-100">
-      <span className="relative z-10 truncate text-[14px] font-medium text-white">{example.to}</span>
-      <span className="relative z-0 flex-none text-[12px] text-slate-300">&rarr;</span>
-      <span className="relative z-0 truncate text-[13px] text-slate-200">{example.ev}</span>
+    <span ref={ref} className="flex h-11 items-center gap-2 text-[13px] leading-normal text-slate-100">
+      <span className="relative z-10 truncate pb-px text-[14px] font-medium leading-normal text-white">{example.to}</span>
+      <span className="relative z-0 flex-none text-[12px] leading-normal text-slate-300">&rarr;</span>
+      <span className="relative z-0 truncate pb-px text-[13px] leading-normal text-slate-200">{example.ev}</span>
       <span
         className={cn(
           "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[12px] tracking-wide",
@@ -666,7 +666,7 @@ function SignalSection({
         </span>
       </span>
 
-      <span className="relative mt-0.5 block h-10 overflow-hidden">
+      <span className="relative mt-0.5 block h-11 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
           {renderRow(next, nextRowRef)}
