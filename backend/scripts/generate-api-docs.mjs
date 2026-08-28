@@ -1,8 +1,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-const sourcePath = resolve('../docs/openapi-draft.yaml');
-const outputPath = resolve('../docs/api-reference.html');
+const sourcePath = resolve('../docs/api/openapi-draft.yaml');
+const outputPath = resolve('../docs/api/api-reference.html');
 const yaml = readFileSync(sourcePath, 'utf8');
 
 function escapeHtml(value) {
@@ -71,11 +71,11 @@ const html = `<!doctype html>
     <main>
       <h1>Ventus AI API Reference</h1>
       <p>
-        Generated from <code>docs/openapi-draft.yaml</code>. This is an offline artifact for pilot review
+        Generated from <code>docs/api/openapi-draft.yaml</code>. This is an offline artifact for pilot review
         and should be replaced by the live <code>/docs</code> route once backend docs hosting is wired.
       </p>
       <p>
-        Postman import artifact: <code>docs/ventus-api.postman_collection.json</code>.
+        Postman import artifact: <code>docs/api/ventus-api.postman_collection.json</code>.
       </p>
       <h2>Endpoints</h2>
       <section class="paths">

@@ -26,15 +26,41 @@ function intentGateway(intent) {
   };
 }
 
-function rawEmail({ from, subject, body, messageId = '<m1@mail>' }) {
-  return [
+// Routes by task: returns the classifier tool-call for intent, and forces the
+// deterministic fallback (ok:false) for narration tasks (prep/summary/outreach)
+// so core tests stay offline and deterministic.
+function routingGateway(intent) {
+  return {
+    async chatCompletion({ task }) {
+      if (task === 'coworker_intent_classification') {
+        return {
+          response: {
+            ok: true,
+            async json() {
+              return {
+                choices: [
+                  { message: { tool_calls: [{ function: { arguments: JSON.stringify(intent) } }] } },
+                ],
+              };
+            },
+          },
+        };
+      }
+      return { response: { ok: false, async json() { return {}; } } };
+    },
+  };
+}
+
+function rawEmail({ from, subject, body, messageId = '<m1@mail>', references }) {
+  const lines = [
     `From: ${from}`,
     `To: coworker@ventusai.com`,
     `Subject: ${subject}`,
     `Message-ID: ${messageId}`,
-    '',
-    body,
-  ].join('\n');
+  ];
+  if (references) lines.push(`References: ${references}`);
+  lines.push('', body);
+  return lines.join('\n');
 }
 
 test('unknown sender is rejected before any work', async () => {
@@ -50,6 +76,63 @@ test('unknown sender is rejected before any work', async () => {
   assert.equal(res.reason, 'sender_not_on_allowlist');
   assert.equal(res.reply, null);
   assert.equal((await store.listTurns('anything')).length, 0);
+});
+
+test('demo mode admits an unknown sender as a synthetic advisor over the full book', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'jamie.lee@prospect.com',
+      subject: 'Who should I pitch the travel card to?',
+      body: 'Build me an audience for the travel card.',
+    }),
+    provider,
+    gateway: intentGateway({ task_type: 'audience_build', product_id: 'travel-card', confidence: 0.9 }),
+    store,
+    clock,
+    demoOpen: true,
+  });
+
+  assert.equal(res.allowed, true);
+  assert.equal(res.demo, true);
+  assert.match(res.reply.html, /Hi Jamie,/);
+  assert.match(res.reply.html, /Target audience/);
+  assert.equal(res.task.task_type, 'audience_build');
+});
+
+test('demo advisor can resolve any household in the full book (roster = household_ids)', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  // Synthetic demo advisor spans the whole book, but those households are "owned"
+  // by other advisors. Resolution must still find Okafor by name.
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'jamie.lee@prospect.com',
+      subject: 'read',
+      body: 'what do we know about Okafor',
+    }),
+    provider,
+    gateway: routingGateway({ task_type: 'evidence', household_id: 'Okafor', confidence: 0.8 }),
+    store,
+    clock,
+    demoOpen: true,
+  });
+  assert.equal(res.demo, true);
+  assert.equal(res.task.task_type, 'evidence');
+  assert.match(res.reply.html, /Okafor Household/);
+});
+
+test('demo mode off still rejects an unknown sender', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({ from: 'stranger@example.com', subject: 'hi', body: 'hello' }),
+    provider,
+    gateway: intentGateway({ task_type: 'summary', confidence: 0.9 }),
+    store,
+    clock,
+    demoOpen: false,
+  });
+  assert.equal(res.allowed, false);
+  assert.equal(res.reason, 'sender_not_on_allowlist');
 });
 
 test('audience_build turn replies with the ranked table and persists turns + task', async () => {
@@ -119,4 +202,221 @@ test('evidence turn returns modeled signals for a household', async () => {
   assert.equal(res.task.task_type, 'evidence');
   assert.match(res.reply.html, /Bianchi Household/);
   assert.match(res.reply.html, /third-party modeled|Signals \(modeled\)/);
+});
+
+test('evidence resolves a free-text household name to the right household', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'read',
+      body: 'what do we know about Nakamura',
+    }),
+    provider,
+    // Model returns a bare family name, not the exact id — core must resolve it.
+    gateway: routingGateway({ task_type: 'evidence', household_id: 'Nakamura', confidence: 0.8 }),
+    store,
+    clock,
+  });
+  assert.equal(res.task.task_type, 'evidence');
+  assert.match(res.reply.html, /Nakamura Household/);
+});
+
+test('compose_outreach with an explicit product drafts grounded notes', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'outreach',
+      body: 'draft outreach for high-yield-savings',
+    }),
+    provider,
+    gateway: routingGateway({ task_type: 'compose_outreach', product_id: 'high-yield-savings', confidence: 0.9 }),
+    store,
+    clock,
+  });
+  assert.equal(res.task.task_type, 'compose_outreach');
+  assert.equal(res.task.status, 'completed');
+  assert.match(res.reply.html, /Draft —/);
+});
+
+test('compose_outreach follow-up uses the prior audience via thread slot memory', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  // Turn 1: build an audience so a result is persisted on the thread.
+  const t1 = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'Who fits HYSA?',
+      body: 'build me an audience for high-yield-savings',
+      messageId: '<a1@mail>',
+    }),
+    provider,
+    gateway: routingGateway({ task_type: 'audience_build', product_id: 'high-yield-savings', confidence: 0.9 }),
+    store,
+    clock,
+  });
+  assert.equal(t1.task.task_type, 'audience_build');
+
+  // Turn 2: "draft outreach for the top 3" with no product — must resolve to the
+  // prior audience. Reference the turn-1 outbound Message-ID to stay in-thread.
+  const t2 = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'Re: Who fits HYSA?',
+      body: 'draft outreach for the top 3',
+      messageId: '<b1@mail>',
+      references: t1.reply.headers['Message-ID'],
+    }),
+    provider,
+    gateway: routingGateway({ task_type: 'compose_outreach', product_id: null, household_ids: null, confidence: 0.9 }),
+    store,
+    clock,
+  });
+  assert.equal(t2.threadId, t1.threadId);
+  assert.equal(t2.task.task_type, 'compose_outreach');
+  assert.equal(t2.task.status, 'completed');
+  assert.match(t2.reply.html, /Draft —/);
+});
+
+test('compose_outreach targets a named household even when the classifier misses it', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const t1 = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'aud',
+      body: 'build me an audience for high-yield-savings',
+      messageId: '<a2@mail>',
+    }),
+    provider,
+    gateway: routingGateway({ task_type: 'audience_build', product_id: 'high-yield-savings', confidence: 0.9 }),
+    store,
+    clock,
+  });
+  // Classifier returns NO household refs — resolution must come from the text scan.
+  const t2 = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'Re: aud',
+      body: 'Draft for Okafor',
+      messageId: '<b2@mail>',
+      references: t1.reply.headers['Message-ID'],
+    }),
+    provider,
+    gateway: routingGateway({ task_type: 'compose_outreach', product_id: null, household_ids: null, confidence: 0.9 }),
+    store,
+    clock,
+  });
+  assert.equal(t2.task.task_type, 'compose_outreach');
+  assert.match(t2.reply.html, /Draft — Okafor Household/);
+  assert.doesNotMatch(t2.reply.html, /Draft — Bianchi/);
+});
+
+test('compose_outreach asks instead of drafting the wrong people when the named household is not qualifying', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const t1 = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'aud',
+      body: 'build me an audience for high-yield-savings',
+      messageId: '<a3@mail>',
+    }),
+    provider,
+    gateway: routingGateway({ task_type: 'audience_build', product_id: 'high-yield-savings', confidence: 0.9 }),
+    store,
+    clock,
+  });
+  // Alvarez is suppressed for HYSA (low_liquidity_buffer) -> not a qualifying candidate.
+  const t2 = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'Re: aud',
+      body: 'Draft for Alvarez',
+      messageId: '<b3@mail>',
+      references: t1.reply.headers['Message-ID'],
+    }),
+    provider,
+    gateway: routingGateway({ task_type: 'compose_outreach', product_id: null, household_ids: null, confidence: 0.9 }),
+    store,
+    clock,
+  });
+  assert.equal(t2.task.status, 'needs_input');
+  assert.match(t2.reply.html, /Alvarez/);
+  assert.doesNotMatch(t2.reply.html, /Draft — /);
+});
+
+test('free-form question is answered by the grounded QA path, not a canned menu', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  // Intent classifier -> tool_calls; the QA task -> content answer that cites the
+  // household context we assembled (proves grounding data is passed through).
+  const gateway = {
+    async chatCompletion({ task }) {
+      if (task === 'coworker_intent_classification') {
+        return {
+          response: {
+            ok: true,
+            async json() {
+              return {
+                choices: [
+                  { message: { tool_calls: [{ function: { arguments: JSON.stringify({ task_type: 'other', confidence: 0.3 }) } }] } },
+                ],
+              };
+            },
+          },
+        };
+      }
+      // coworker_qa
+      return {
+        response: {
+          ok: true,
+          async json() {
+            return {
+              choices: [
+                { message: { content: 'Okafor skews heavily toward travel and dining — modeled as travel-heavy.' } },
+              ],
+            };
+          },
+        },
+      };
+    },
+  };
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'question',
+      body: 'what types of things does Okafor like to spend on?',
+    }),
+    provider,
+    gateway,
+    store,
+    clock,
+  });
+  assert.equal(res.task.task_type, 'other');
+  assert.equal(res.task.status, 'completed');
+  assert.match(res.reply.html, /travel/i);
+  assert.doesNotMatch(res.reply.html, /What would you like\?/); // not the canned menu
+});
+
+test('free-form falls back to a capability menu when the model is unavailable', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({ from: 'dana.okoro@ventusai.com', subject: 'q', body: 'tell me something interesting' }),
+    provider,
+    gateway: routingGateway({ task_type: 'other', confidence: 0.3 }), // QA task returns ok:false
+    store,
+    clock,
+  });
+  assert.ok(res.reply.html.replace(/<[^>]+>/g, '').trim().length > 0);
+  assert.match(res.reply.html, /answer questions about any household/i);
+});
+
+test('reply body is never blank', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({ from: 'dana.okoro@ventusai.com', subject: 'hi', body: 'hey there' }),
+    provider,
+    gateway: routingGateway({ task_type: 'other', confidence: 0.3 }),
+    store,
+    clock,
+  });
+  assert.ok(res.reply.html.replace(/<[^>]+>/g, '').trim().length > 0);
 });

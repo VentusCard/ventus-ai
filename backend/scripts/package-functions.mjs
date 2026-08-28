@@ -11,6 +11,7 @@ import {
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { collectSharedModules } from './lib/collect-shared-modules.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const backendRoot = resolve(scriptDir, '..');
@@ -70,11 +71,23 @@ for (const functionName of functions) {
       cpSync(sourceFile, join(buildDir, fileName));
     }
   }
+  // Bundle only the shared subfolders this function transitively imports, so
+  // production Lambdas stop shipping unrelated pilot/demo/coworker code. Whole
+  // subfolders are copied (minus tests) so runtime assets travel with the code.
   if (existsSync(sharedRoot)) {
-    cpSync(sharedRoot, join(buildDir, 'shared'), {
-      recursive: true,
-      filter: (src) => !src.endsWith('.test.mjs'),
-    });
+    const entryFiles = readdirSync(sourceDir)
+      .filter((name) => name.endsWith('.mjs') && !name.endsWith('.test.mjs'))
+      .map((name) => join(sourceDir, name));
+    const { subdirs, rootFiles } = collectSharedModules(entryFiles, sharedRoot);
+    for (const subdir of subdirs) {
+      cpSync(join(sharedRoot, subdir), join(buildDir, 'shared', subdir), {
+        recursive: true,
+        filter: (src) => !src.endsWith('.test.mjs'),
+      });
+    }
+    for (const rel of rootFiles) {
+      cpSync(join(sharedRoot, rel), join(buildDir, 'shared', rel));
+    }
   }
   const configRoot = join(backendRoot, 'config');
   if (existsSync(configRoot)) {

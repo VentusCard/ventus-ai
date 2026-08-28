@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { preparePlaidGovernedReview } from "./_plaidGovernedReview.ts";
-import { compileGrowthPlayContract } from "../backend/shared/growth-play-contract.mjs";
+import { compileGrowthPlayContract } from "../backend/shared/pilot/growth-play-contract.mjs";
 import type { ConnectorPrincipal } from "./_connectorAuth.ts";
 import type { PlaidTransaction } from "../src/lib/plaid.ts";
 

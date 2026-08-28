@@ -7,8 +7,8 @@
 // The live pull itself is exercised by `npm run pilot:e2e` with PLAID_* set.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compileGrowthPlayContract } from '../shared/growth-play-contract.mjs';
-import { buildPlaidSourceReceipt, contentDetector, depositPrimacyDetector, mapPlaidToLoopRecords } from '../shared/plaid-source.mjs';
+import { compileGrowthPlayContract } from '../shared/pilot/growth-play-contract.mjs';
+import { buildPlaidSourceReceipt, contentDetector, depositPrimacyDetector, mapPlaidToLoopRecords } from '../shared/pilot/plaid-source.mjs';
 
 // A realistic Plaid /transactions/get response for the injected custom user.
 const plaidResponse = [

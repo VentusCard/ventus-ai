@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-const sourcePath = resolve('../docs/openapi-draft.yaml');
-const outputPath = resolve('../docs/ventus-api.postman_collection.json');
+const sourcePath = resolve('../docs/api/openapi-draft.yaml');
+const outputPath = resolve('../docs/api/ventus-api.postman_collection.json');
 const yaml = readFileSync(sourcePath, 'utf8');
 const lines = yaml.split('\n');
 
@@ -215,7 +215,7 @@ function buildCollection(operations) {
     info: {
       name: 'Ventus AI API',
       description:
-        'Generated from docs/openapi-draft.yaml. Use this for pilot onboarding, API smoke checks, and partner webhook integration testing.',
+        'Generated from docs/api/openapi-draft.yaml. Use this for pilot onboarding, API smoke checks, and partner webhook integration testing.',
       schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
     },
     auth: {

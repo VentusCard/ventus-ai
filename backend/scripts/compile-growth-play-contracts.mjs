@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compileGrowthPlayContract } from '../shared/growth-play-contract.mjs';
+import { compileGrowthPlayContract } from '../shared/pilot/growth-play-contract.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const inputPath = resolve(

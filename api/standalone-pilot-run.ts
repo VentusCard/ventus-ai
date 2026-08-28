@@ -175,13 +175,13 @@ export async function configuredRuntime() {
   if (!connectionString || !assignmentSalt) return null;
 
   const [dbModule, ledgerModule, measurementModule, deliveryModule, registryModule, loopModule, detectorModule] = await Promise.all([
-    import("../backend/shared/db-url.mjs"),
-    import("../backend/shared/decision-ledger.mjs"),
-    import("../backend/shared/experiment-measurement.mjs"),
-    import("../backend/shared/connector-delivery.mjs"),
-    import("../backend/shared/growth-play-registry.mjs"),
-    import("../backend/shared/pilot-operating-loop.mjs"),
-    import("../backend/shared/standalone-growth-play-detectors.mjs"),
+    import("../backend/shared/platform/db-url.mjs"),
+    import("../backend/shared/pilot/decision-ledger.mjs"),
+    import("../backend/shared/pilot/experiment-measurement.mjs"),
+    import("../backend/shared/pilot/connector-delivery.mjs"),
+    import("../backend/shared/pilot/growth-play-registry.mjs"),
+    import("../backend/shared/pilot/pilot-operating-loop.mjs"),
+    import("../backend/shared/pilot/standalone-growth-play-detectors.mjs"),
   ]);
   const getDB = dbModule.createUrlDbFactory({ connectionString });
   runtimeRoleVerification ??= dbModule.assertNonBypassRole(getDB);

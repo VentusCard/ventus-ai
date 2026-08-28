@@ -9,12 +9,12 @@ const connectedMeasurementSql = read('../backend/sql/connected-expansion-measure
 const verificationSql = read('../backend/sql/verify-tenant-isolation.sql');
 const deliverySql = read('../backend/sql/connector-delivery.sql');
 const registrySql = read('../backend/sql/growth-play-registry.sql');
-const tenantContextSource = read('../backend/shared/tenant-context.mjs');
-const ledgerSource = read('../backend/shared/decision-ledger.mjs');
-const measurementSource = read('../backend/shared/experiment-measurement.mjs');
-const deliverySource = read('../backend/shared/connector-delivery.mjs');
-const registrySource = read('../backend/shared/growth-play-registry.mjs');
-const runbook = read('../docs/tenant-isolated-persistence-runbook.md');
+const tenantContextSource = read('../backend/shared/platform/tenant-context.mjs');
+const ledgerSource = read('../backend/shared/pilot/decision-ledger.mjs');
+const measurementSource = read('../backend/shared/pilot/experiment-measurement.mjs');
+const deliverySource = read('../backend/shared/pilot/connector-delivery.mjs');
+const registrySource = read('../backend/shared/pilot/growth-play-registry.mjs');
+const runbook = read('../docs/runbooks/tenant-isolated-persistence-runbook.md');
 
 assert.match(tenantSql, /current_setting\('app\.current_tenant_id', true\)/, 'RLS should read transaction tenant context');
 assert.match(

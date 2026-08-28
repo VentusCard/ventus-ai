@@ -8,8 +8,8 @@
 // uses, and the script asserts it cannot bypass RLS before writing anything. Unset
 // DATABASE_URL prints the setup path and exits 0 (honest no-op, like the connector tests).
 import assert from 'node:assert/strict';
-import { createDecisionLedgerRepository } from '../shared/decision-ledger.mjs';
-import { createUrlDbFactory, databaseUrl, assertNonBypassRole } from '../shared/db-url.mjs';
+import { createDecisionLedgerRepository } from '../shared/pilot/decision-ledger.mjs';
+import { createUrlDbFactory, databaseUrl, assertNonBypassRole } from '../shared/platform/db-url.mjs';
 
 const TENANT = `evalt_${Date.now().toString(36)}`;
 const PLAY = 'deposit-primacy-defense';

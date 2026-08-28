@@ -8,7 +8,7 @@ import {
 } from "./_controlPlaneAuth.ts";
 import { POST as issueSession } from "./control-plane-session.ts";
 import { createGrowthPlayProtocolHandler } from "./growth-play-protocols.ts";
-import { createInMemoryGrowthPlayRegistry } from "../backend/shared/growth-play-registry.mjs";
+import { createInMemoryGrowthPlayRegistry } from "../backend/shared/pilot/growth-play-registry.mjs";
 
 const SECRET = "control-plane-session-test-secret-32-characters";
 const NOW_SECONDS = Math.floor(Date.now() / 1000);

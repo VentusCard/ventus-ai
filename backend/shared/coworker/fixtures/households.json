@@ -36,6 +36,38 @@
         "hh_delgado",
         "hh_kim"
       ]
+    },
+    {
+      "id": "adv_marco",
+      "name": "Marco",
+      "email": "marco@ventuscard.com",
+      "title": "Advisor",
+      "household_ids": [
+        "hh_okafor",
+        "hh_bianchi",
+        "hh_nakamura",
+        "hh_alvarez",
+        "hh_petrov",
+        "hh_sharma",
+        "hh_delgado",
+        "hh_kim"
+      ]
+    },
+    {
+      "id": "adv_yusheng",
+      "name": "Yusheng",
+      "email": "yusheng@ventuscard.com",
+      "title": "Advisor",
+      "household_ids": [
+        "hh_okafor",
+        "hh_bianchi",
+        "hh_nakamura",
+        "hh_alvarez",
+        "hh_petrov",
+        "hh_sharma",
+        "hh_delgado",
+        "hh_kim"
+      ]
     }
   ],
   "households": [

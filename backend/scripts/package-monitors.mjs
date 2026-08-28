@@ -2,6 +2,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statS
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { collectSharedModules } from './lib/collect-shared-modules.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const backendRoot = resolve(scriptDir, '..');
@@ -11,13 +12,25 @@ const sqlRoot = join(backendRoot, 'sql');
 const distRoot = join(backendRoot, 'dist', 'monitors');
 const buildRoot = join(backendRoot, 'dist', 'monitor-build');
 
-/** Same rule as package-functions.mjs: bundle all shared modules (not *.test.mjs). */
-function copySharedIntoBuild(buildDir) {
+/**
+ * Same rule as package-functions.mjs: bundle only the shared subfolders this
+ * monitor transitively imports (whole subfolders minus *.test.mjs).
+ */
+function copySharedIntoBuild(buildDir, sourceDir) {
   if (!existsSync(sharedRoot)) return;
-  cpSync(sharedRoot, join(buildDir, 'shared'), {
-    recursive: true,
-    filter: (src) => !src.endsWith('.test.mjs'),
-  });
+  const entryFiles = readdirSync(sourceDir)
+    .filter((name) => name.endsWith('.mjs') && !name.endsWith('.test.mjs'))
+    .map((name) => join(sourceDir, name));
+  const { subdirs, rootFiles } = collectSharedModules(entryFiles, sharedRoot);
+  for (const subdir of subdirs) {
+    cpSync(join(sharedRoot, subdir), join(buildDir, 'shared', subdir), {
+      recursive: true,
+      filter: (src) => !src.endsWith('.test.mjs'),
+    });
+  }
+  for (const rel of rootFiles) {
+    cpSync(join(sharedRoot, rel), join(buildDir, 'shared', rel));
+  }
 }
 
 function run(command, args, cwd) {
@@ -67,7 +80,7 @@ for (const monitorName of monitors) {
   if (packageDefinition.ventus?.includeEvidenceSql === true) {
     cpSync(sqlRoot, join(buildDir, 'sql'), { recursive: true });
   }
-  copySharedIntoBuild(buildDir);
+  copySharedIntoBuild(buildDir, sourceDir);
 
   if (existsSync(join(sourceDir, 'package-lock.json'))) {
     cpSync(join(sourceDir, 'package-lock.json'), join(buildDir, 'package-lock.json'));

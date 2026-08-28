@@ -4,8 +4,8 @@ import test, { afterEach } from "node:test";
 import { issueConnectorSession } from "./_connectorAuth.ts";
 import { createStandalonePilotActivationHandler } from "./standalone-pilot-activate.ts";
 import { createPilotWebhookDelivery, createStandalonePilotHandler } from "./standalone-pilot-run.ts";
-import { compileGrowthPlayContract } from "../backend/shared/growth-play-contract.mjs";
-import { createInMemoryGrowthPlayRegistry } from "../backend/shared/growth-play-registry.mjs";
+import { compileGrowthPlayContract } from "../backend/shared/pilot/growth-play-contract.mjs";
+import { createInMemoryGrowthPlayRegistry } from "../backend/shared/pilot/growth-play-registry.mjs";
 
 const SECRET = "connector-session-test-secret-32-characters-minimum";
 const NOW = new Date();

@@ -19,10 +19,11 @@
 
 export const COWORKER_TASK_TYPES = [
   'audience_build', // "who should I pitch product X to"
+  'compose_outreach', // "draft outreach for these households / the top N"
   'prep', // "prep me for my meeting with household Y"
   'evidence', // "what do we know about household Y"
   'summary', // "summarize this thread / recap"
-  'other', // anything else -> polite clarification
+  'other', // anything else -> grounded conversational answer
 ];
 
 export const INTENT_TOOL = [
@@ -46,7 +47,14 @@ export const INTENT_TOOL = [
           },
           household_id: {
             type: ['string', 'null'],
-            description: 'Household id if the advisor named a specific household, else null.',
+            description:
+              'Household id if the advisor named a single specific household, else null. Use the exact id from the provided roster.',
+          },
+          household_ids: {
+            type: ['array', 'null'],
+            items: { type: 'string' },
+            description:
+              'For compose_outreach or multi-household asks: the exact household ids named (from the roster). Null if none named (e.g. "the top 3" refers to the prior audience).',
           },
           confidence: {
             type: 'number',
@@ -60,13 +68,14 @@ export const INTENT_TOOL = [
 ];
 
 export const INTENT_PROMPT = `You are the routing brain for a wealth-management AI coworker that advisors email.
-Read the advisor's message and pick exactly one task_type:
+Read the advisor's latest message (prior conversation may be provided for context) and pick exactly one task_type:
 - audience_build: they want a list/audience of households to target for a product.
+- compose_outreach: they want you to draft outreach emails/messages to specific households or to "the top N" from a list you already produced.
 - prep: they want to be prepared for a meeting/call with a specific household.
 - evidence: they want to know what we already know about a household.
 - summary: they want a recap of the conversation or prior work.
-- other: greetings, unclear asks, or anything that needs clarification.
-Extract product_id and household_id only if clearly identifiable. Never guess ids you were not given hints for; use null instead. Always call classify_intent.`;
+- other: greetings, general questions, or anything not covered above.
+Extract product_id, household_id, and household_ids only from the provided rosters. Never invent ids. If the advisor refers to "the top 3", "those households", or "them" without naming ids, set household_ids to null (the caller resolves it from the prior audience). Always call classify_intent.`;
 
 /**
  * Classify an inbound message into a task. Model-backed but tolerant: on any
@@ -76,11 +85,27 @@ Extract product_id and household_id only if clearly identifiable. Never guess id
  *   catalog (optional) lets us feed the known product ids into the prompt so the
  *   model returns an exact id rather than a free-text name.
  */
-export async function classifyIntent(gateway, { subject = '', body = '', catalog = [] }) {
+export async function classifyIntent(
+  gateway,
+  { subject = '', body = '', catalog = [], households = [], priorTurns = [] }
+) {
   const productLine = (catalog || []).length
     ? `\n\nKnown catalog products (set product_id to the exact id on the left, not the display name): ${catalog
         .map((p) => `${p.id} (${p.name})`)
         .join(', ')}.`
+    : '';
+  const householdLine = (households || []).length
+    ? `\n\nKnown households in this advisor's book (set household_id / household_ids to the exact id on the left): ${households
+        .map((h) => `${h.id} (${h.name || h.primary_contact || ''})`)
+        .join(', ')}.`
+    : '';
+  // A compact transcript of recent turns lets follow-ups ("draft outreach for
+  // the top 3", "Sharma") route correctly instead of falling back to "other".
+  const contextLine = (priorTurns || []).length
+    ? `\n\nRecent conversation (oldest first), for context only:\n${priorTurns
+        .map((t) => `[${t.direction || '?'}] ${t.summary || t.text || ''}`)
+        .filter((l) => l.trim().length > 4)
+        .join('\n')}`
     : '';
   try {
     const { response } = await gateway.chatCompletion({
@@ -88,7 +113,7 @@ export async function classifyIntent(gateway, { subject = '', body = '', catalog
       label: 'COWORKER intent',
       maxRetries: 1,
       messages: [
-        { role: 'system', content: `${INTENT_PROMPT}${productLine}` },
+        { role: 'system', content: `${INTENT_PROMPT}${productLine}${householdLine}${contextLine}` },
         { role: 'user', content: `Subject: ${subject}\n\n${body}` },
       ],
       tools: INTENT_TOOL,
@@ -103,6 +128,7 @@ export async function classifyIntent(gateway, { subject = '', body = '', catalog
       task_type: COWORKER_TASK_TYPES.includes(args.task_type) ? args.task_type : 'other',
       product_id: args.product_id ?? null,
       household_id: args.household_id ?? null,
+      household_ids: Array.isArray(args.household_ids) ? args.household_ids : null,
       confidence: typeof args.confidence === 'number' ? args.confidence : 0.4,
     };
   } catch {
@@ -111,7 +137,79 @@ export async function classifyIntent(gateway, { subject = '', body = '', catalog
 }
 
 function fallbackIntent() {
-  return { task_type: 'other', product_id: null, household_id: null, confidence: 0.2 };
+  return {
+    task_type: 'other',
+    product_id: null,
+    household_id: null,
+    household_ids: null,
+    confidence: 0.2,
+  };
+}
+
+/**
+ * Resolve a free-text household mention to a household record, tolerant to the
+ * many ways an advisor names one: exact id, "Nakamura", "Nakamura Household",
+ * or the primary contact's name ("Kenji Nakamura"). Ambiguous matches (more
+ * than one) return null so the caller asks rather than guesses.
+ * @param {object[]} households  provider.getHouseholds(...) records
+ * @param {string} mention
+ */
+export function resolveHousehold(households = [], mention) {
+  if (!mention) return null;
+  const q = normalizeProductMention(mention); // reuse: lowercase, alnum, single-spaced
+  if (!q) return null;
+  // 1. Exact id.
+  const byId = households.find((h) => h.id === mention || normalizeProductMention(h.id) === q);
+  if (byId) return byId;
+  // 2. Exact normalized name or primary contact.
+  const byName = households.find(
+    (h) =>
+      normalizeProductMention(h.name) === q || normalizeProductMention(h.primary_contact) === q
+  );
+  if (byName) return byName;
+  // 3. Containment on the family surname / contact; only when unambiguous.
+  const contains = households.filter((h) => {
+    const name = normalizeProductMention(h.name);
+    const contact = normalizeProductMention(h.primary_contact);
+    const id = normalizeProductMention(h.id);
+    return (
+      name.includes(q) ||
+      q.includes(name) ||
+      contact.includes(q) ||
+      q.includes(contact) ||
+      id.includes(q)
+    );
+  });
+  return contains.length === 1 ? contains[0] : null;
+}
+
+/**
+ * Deterministically scan free text for every household the roster knows about,
+ * by surname, primary-contact name, or id. Whole-word matching (padded) avoids
+ * false positives. This runs independently of the model so an explicit ask like
+ * "Draft for Okafor" always targets Okafor, even when the small intent classifier
+ * forgets to populate household_ids.
+ * @param {string} text
+ * @param {object[]} households
+ * @returns {string[]} matched household ids (deduped, in roster order)
+ */
+export function scanHouseholdMentions(text, households = []) {
+  const q = ` ${normalizeProductMention(text)} `;
+  if (q.trim().length < 3) return [];
+  const ids = [];
+  for (const h of households) {
+    const name = normalizeProductMention(h.name);
+    const surname = name.replace(/ household$/, '').trim();
+    const contact = normalizeProductMention(h.primary_contact);
+    const id = normalizeProductMention(h.id); // e.g. "hh okafor"
+    const needles = [surname, contact, id, id.replace(/^hh /, '')].filter(
+      (t) => t && t.length >= 3
+    );
+    if (needles.some((t) => q.includes(` ${t} `)) && !ids.includes(h.id)) {
+      ids.push(h.id);
+    }
+  }
+  return ids;
 }
 
 // ---------------------------------------------------------------------------
@@ -437,6 +535,160 @@ export async function generatePrep({ gateway, provider, householdId }) {
     text: `Here's what we know going in:\n- ${evidence.bullets.join('\n- ')}`,
     evidence,
   };
+}
+
+/**
+ * Draft short outreach copy for a set of already-qualified households. This is
+ * model-backed narration, but it is *grounded* on the deterministic audience
+ * result: names, fit rationale, and modeled benefit bands are passed in and must
+ * be used as given. The model is explicitly told not to invent figures. On any
+ * failure it returns a deterministic per-household fallback so a draft always
+ * goes out.
+ *
+ * @param {object} opts
+ * @param {object} opts.gateway
+ * @param {object} opts.product   { id, name, category }
+ * @param {object[]} opts.candidates  audience candidates (subset already selected)
+ * @returns {Promise<{drafts: {household_id, household_name, text}[]}>}
+ */
+export async function generateOutreach({ gateway, product, candidates = [] }) {
+  const selected = candidates.slice(0, 3);
+  if (!selected.length) return { drafts: [] };
+
+  const context = {
+    product,
+    households: selected.map((c) => ({
+      household_id: c.household_id,
+      household_name: c.household_name,
+      rationale: c.rationale,
+      modeled_annual_benefit_usd: c.modeled_annual_benefit_usd,
+      benefit_assumption: c.benefit_assumption,
+    })),
+  };
+
+  try {
+    const { response } = await gateway.chatCompletion({
+      task: 'coworker_outreach',
+      label: 'COWORKER outreach',
+      maxRetries: 1,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You draft short, warm, compliant client-outreach emails for a wealth advisor. ' +
+            'For each household in the provided JSON, write a 3-5 sentence draft the advisor could send. ' +
+            'Use ONLY the facts provided; never invent dollar figures, rates, or claims. ' +
+            'When referencing a modeled benefit, describe it as an estimate to review, not a promise, and do not state a precise number. ' +
+            'Return a JSON object: {"drafts":[{"household_id":"...","text":"..."}]} and nothing else.',
+        },
+        { role: 'user', content: JSON.stringify(context) },
+      ],
+      response_format: { type: 'json_object' },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      const raw = data.choices?.[0]?.message?.content?.trim();
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const byId = new Map(selected.map((c) => [c.household_id, c]));
+        const drafts = (parsed.drafts || [])
+          .filter((d) => d && d.text && byId.has(d.household_id))
+          .map((d) => ({
+            household_id: d.household_id,
+            household_name: byId.get(d.household_id).household_name,
+            text: String(d.text).trim(),
+          }));
+        if (drafts.length) return { drafts };
+      }
+    }
+  } catch {
+    /* fall through to deterministic fallback */
+  }
+
+  return {
+    drafts: selected.map((c) => ({
+      household_id: c.household_id,
+      household_name: c.household_name,
+      text:
+        `Hi ${firstNameFromHousehold(c.household_name)}, I was reviewing your accounts and think ${product.name} could be a good fit given ${lowerFirst(c.rationale)} ` +
+        `There may be a meaningful annual benefit worth reviewing together. Would you be open to a quick call this week to walk through it? No obligation — just want to make sure you're not leaving value on the table.`,
+    })),
+  };
+}
+
+function firstNameFromHousehold(householdName) {
+  // "Okafor Household" -> "Okafor"; fall back to the whole string.
+  return String(householdName || '').replace(/\s+household$/i, '').trim() || 'there';
+}
+
+function lowerFirst(s) {
+  const str = String(s || '').trim();
+  return str ? str.charAt(0).toLowerCase() + str.slice(1) : '';
+}
+
+/**
+ * Summarize a household's observed spend into top pillars and merchants (debits
+ * only) over the fixture window. Deterministic; used to ground free-form answers
+ * like "what does this household like to spend on?".
+ */
+export function summarizeSpend(transactions = []) {
+  const debits = transactions.filter((t) => t.direction === 'debit');
+  const byPillar = {};
+  const byMerchant = {};
+  for (const t of debits) {
+    const amt = Number(t.amount) || 0;
+    const pillar = t.pillar || 'Other';
+    const merchant = t.normalized_merchant || t.merchant_name || 'Unknown';
+    byPillar[pillar] = (byPillar[pillar] || 0) + amt;
+    byMerchant[merchant] = (byMerchant[merchant] || 0) + amt;
+  }
+  const top = (obj, n) =>
+    Object.entries(obj)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n)
+      .map(([name, amount]) => ({ name, observed_usd: Math.round(amount) }));
+  return { top_pillars: top(byPillar, 4), top_merchants: top(byMerchant, 5) };
+}
+
+export const QA_SYSTEM =
+  'You are Ventus Coworker, an AI teammate for a wealth advisor, replying by email in a warm, concise, peer tone. ' +
+  'Answer the advisor\'s question using ONLY the JSON context provided (household signals, observed spend, catalog, book, and recent conversation). ' +
+  'Rules you must follow: ' +
+  '(1) Never invent facts, dollar figures, rates, names, or attributes that are not in the context. ' +
+  '(2) Behavioral/life-event/risk signals are third-party MODELED inferences — say "modeled" or "looks like" when you cite them, not as verified fact. ' +
+  '(3) Observed spend figures are real transaction sums over roughly a 3-month window; you may cite them, noting the window. ' +
+  '(4) If the answer is not in the context (e.g. account numbers, live market data, anything you were not given), say plainly you do not have that, and offer what you CAN do (build an audience, prep a household, pull evidence, draft outreach, or recap). ' +
+  '(5) Keep it to a few sentences and end with a light, relevant next step. Do not use headers or markdown.';
+
+/**
+ * Answer a free-form advisor question, grounded strictly on assembled context.
+ * Returns { text } (empty string when the model is unavailable so the caller can
+ * fall back to a capability menu). No governance figures are fabricated because
+ * the model is constrained to the provided context.
+ */
+export async function answerQuestion({ gateway, question, context }) {
+  try {
+    const { response } = await gateway.chatCompletion({
+      task: 'coworker_qa',
+      label: 'COWORKER qa',
+      maxRetries: 1,
+      messages: [
+        { role: 'system', content: QA_SYSTEM },
+        {
+          role: 'user',
+          content: `Question: ${question}\n\nContext (JSON — the only facts you may use):\n${JSON.stringify(context)}`,
+        },
+      ],
+    });
+    if (response.ok) {
+      const data = await response.json();
+      const text = data.choices?.[0]?.message?.content?.trim();
+      if (text) return { text };
+    }
+  } catch {
+    /* fall through to empty -> caller uses capability menu */
+  }
+  return { text: '' };
 }
 
 /** Summarize a thread from its stored turns. Model-backed with a safe fallback. */

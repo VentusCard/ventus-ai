@@ -6,8 +6,8 @@ import {
   controlPrincipalAllowed,
   type ControlPlanePrincipal,
 } from "./_controlPlaneAuth.js";
-import { compileGrowthPlayContract } from "../backend/shared/growth-play-contract.mjs";
-import { createGrowthPlayRegistry } from "../backend/shared/growth-play-registry.mjs";
+import { compileGrowthPlayContract } from "../backend/shared/pilot/growth-play-contract.mjs";
+import { createGrowthPlayRegistry } from "../backend/shared/pilot/growth-play-registry.mjs";
 
 export const maxDuration = 15;
 type Registry = ReturnType<typeof createGrowthPlayRegistry>;
@@ -129,7 +129,7 @@ function requiredId(value: unknown, label: string): string {
 async function configuredRegistry(): Promise<Registry | null> {
   const connectionString = process.env.VENTUS_PROTOCOL_ADMIN_DATABASE_URL?.trim();
   if (!connectionString) return null;
-  const { createUrlDbFactory } = await import("../backend/shared/db-url.mjs");
+  const { createUrlDbFactory } = await import("../backend/shared/platform/db-url.mjs");
   return createGrowthPlayRegistry({ getDB: createUrlDbFactory({ connectionString }) });
 }
 

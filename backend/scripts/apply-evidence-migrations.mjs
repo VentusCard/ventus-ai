@@ -15,7 +15,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { Client } from 'pg';
-import { databaseUrl } from '../shared/db-url.mjs';
+import { databaseUrl } from '../shared/platform/db-url.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const sql = (name) => readFileSync(resolve(here, '../sql', name), 'utf8');

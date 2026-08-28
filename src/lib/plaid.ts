@@ -7,7 +7,7 @@
 // derived from the input. Pure and dependency-free so it runs in the browser, the API,
 // and the test harness identically.
 
-import { OFFBANK_ALL } from "../../backend/shared/offbank-patterns.mjs";
+import { OFFBANK_ALL } from "../../backend/shared/platform/offbank-patterns.mjs";
 
 // ── Real Plaid transaction schema (the subset the pipeline uses) ──
 // Mirrors https://plaid.com/docs/api/products/transactions/#transactionsget

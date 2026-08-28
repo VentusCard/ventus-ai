@@ -8,22 +8,22 @@
 //   · PLAID_*                 → live Deposit Primacy custom-user pull mapped into the operating loop
 //
 // This makes "we did three infrastructure steps" into one reproducible evidence readout.
-import { createPilotOperatingLoop } from '../shared/pilot-operating-loop.mjs';
-import { buildDeliveryReservation, createConnectorDeliveryRepository } from '../shared/connector-delivery.mjs';
-import { assignExperiment, createMeasurementRepository, validateOutcomeEvent } from '../shared/experiment-measurement.mjs';
-import { compileGrowthPlayContract } from '../shared/growth-play-contract.mjs';
-import { createGrowthPlayRegistry, createInMemoryGrowthPlayRegistry } from '../shared/growth-play-registry.mjs';
-import { createDecisionLedgerRepository, verifyLedgerChain } from '../shared/decision-ledger.mjs';
-import { assertNonBypassRole, createUrlDbFactory, databaseUrl } from '../shared/db-url.mjs';
+import { createPilotOperatingLoop } from '../shared/pilot/pilot-operating-loop.mjs';
+import { buildDeliveryReservation, createConnectorDeliveryRepository } from '../shared/pilot/connector-delivery.mjs';
+import { assignExperiment, createMeasurementRepository, validateOutcomeEvent } from '../shared/pilot/experiment-measurement.mjs';
+import { compileGrowthPlayContract } from '../shared/pilot/growth-play-contract.mjs';
+import { createGrowthPlayRegistry, createInMemoryGrowthPlayRegistry } from '../shared/pilot/growth-play-registry.mjs';
+import { createDecisionLedgerRepository, verifyLedgerChain } from '../shared/pilot/decision-ledger.mjs';
+import { assertNonBypassRole, createUrlDbFactory, databaseUrl } from '../shared/platform/db-url.mjs';
 import { mintSessionDirect } from '../../api/connector-session.ts';
 import {
   DEPOSIT_PRIMACY_CUSTOM_USER,
   buildPlaidSourceReceipt,
   mapPlaidToLoopRecords,
   pullPlaidTransactions,
-} from '../shared/plaid-source.mjs';
-import { standaloneGrowthPlayDetector } from '../shared/standalone-growth-play-detectors.mjs';
-import { buildDepositRetentionSalesforceBody } from '../shared/salesforce-activation.mjs';
+} from '../shared/pilot/plaid-source.mjs';
+import { standaloneGrowthPlayDetector } from '../shared/pilot/standalone-growth-play-detectors.mjs';
+import { buildDepositRetentionSalesforceBody } from '../shared/pilot/salesforce-activation.mjs';
 import { readFileSync } from 'node:fs';
 
 const SALT = 'pilot-e2e-assignment-salt';

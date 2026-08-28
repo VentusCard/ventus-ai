@@ -3,8 +3,8 @@ import { readFileSync } from "node:fs";
 import test, { afterEach } from "node:test";
 import { issueConnectorSession } from "./_connectorAuth.ts";
 import { createPilotOutcomeHandler } from "./pilot-outcomes.ts";
-import { compileGrowthPlayContract } from "../backend/shared/growth-play-contract.mjs";
-import { createInMemoryGrowthPlayRegistry } from "../backend/shared/growth-play-registry.mjs";
+import { compileGrowthPlayContract } from "../backend/shared/pilot/growth-play-contract.mjs";
+import { createInMemoryGrowthPlayRegistry } from "../backend/shared/pilot/growth-play-registry.mjs";
 
 const SECRET = "connector-session-test-secret-32-characters-minimum";
 const ASSIGNED_AT = "2026-07-12T12:00:00.000Z";

@@ -1,7 +1,7 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import pg from 'pg';
-import { createConsoleApiHandler } from '../../shared/console-api.mjs';
-import { createSecretsProvider } from '../../shared/secrets.mjs';
+import { createConsoleApiHandler } from '../../shared/platform/console-api.mjs';
+import { createSecretsProvider } from '../../shared/platform/secrets.mjs';
 
 const { Client } = pg;
 const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9:_-]{1,255}$/;

@@ -4,13 +4,13 @@ import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Client } from 'pg';
-import { createDecisionLedgerRepository, verifyLedgerChain } from './shared/decision-ledger.mjs';
+import { createDecisionLedgerRepository, verifyLedgerChain } from './shared/pilot/decision-ledger.mjs';
 import {
   assignConnectedExpansionExperiment,
   createMeasurementRepository,
-} from './shared/experiment-measurement.mjs';
-import { createGrowthPlayRegistry } from './shared/growth-play-registry.mjs';
-import { compileGrowthPlayContract } from './shared/growth-play-contract.mjs';
+} from './shared/pilot/experiment-measurement.mjs';
+import { createGrowthPlayRegistry } from './shared/pilot/growth-play-registry.mjs';
+import { compileGrowthPlayContract } from './shared/pilot/growth-play-contract.mjs';
 import {
   APPLY_EVIDENCE_SCHEMA_CONFIRMATION,
   EVIDENCE_STORE_MIGRATIONS,
