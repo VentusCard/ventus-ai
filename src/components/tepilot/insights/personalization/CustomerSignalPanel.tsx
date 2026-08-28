@@ -95,7 +95,7 @@ export function CustomerSignalPanel({
                               : "No collection generated for this signal yet"
                           }
                           className={cn(
-                            "inline-flex items-center gap-2 text-[13px] px-3.5 py-2 font-semibold rounded-full border transition-all duration-200",
+                            "inline-flex items-center gap-2 text-[13px] px-3.5 py-2.5 font-semibold rounded-full border transition-all duration-200",
                             m.chip,
                             !hasCollection && "opacity-55",
                             isFocused
