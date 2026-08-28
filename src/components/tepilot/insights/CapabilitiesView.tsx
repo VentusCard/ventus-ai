@@ -1132,25 +1132,25 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                 Every Customer, Every Colleague
               </span>
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <div className="flex min-w-0 flex-1 flex-col gap-3">
               {visibleDestinations.map((d) => {
                 const FacingIcon = d.facing === "bank" ? Landmark : Smartphone;
                 const facingLabel = d.facing === "bank" ? "Bank-facing" : "Consumer-facing";
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[44px] flex-1 items-center gap-2.5 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-3"
+                    className="relative flex min-h-[54px] flex-1 items-center gap-3 overflow-hidden rounded-lg border border-slate-100 pl-3.5 pr-3.5"
                     title={facingLabel}
                   >
                     <span
                       className={cn(
-                        "flex h-7 w-7 flex-none items-center justify-center rounded-md",
+                        "flex h-9 w-9 flex-none items-center justify-center rounded-lg",
                         d.facing === "bank" ? "bg-slate-100 text-slate-600" : "bg-blue-50 text-blue-600",
                       )}
                     >
-                      <FacingIcon className="h-3.5 w-3.5" />
+                      <FacingIcon className="h-[18px] w-[18px]" />
                     </span>
-                    <span className="truncate text-[14px] font-medium leading-tight text-slate-900">{d.name}</span>
+                    <span className="truncate text-[15px] font-medium leading-tight text-slate-900">{d.name}</span>
                     {onNavigate && (
                       <button
                         type="button"
@@ -1160,9 +1160,9 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                           e.stopPropagation();
                           onNavigate(d.tab);
                         }}
-                        className="ml-auto flex h-7 w-7 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-blue-100 hover:text-blue-600"
+                        className="ml-auto flex h-8 w-8 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-blue-100 hover:text-blue-600"
                       >
-                        <ArrowUpRight className="h-3.5 w-3.5" />
+                        <ArrowUpRight className="h-4 w-4" />
                       </button>
                     )}
                   </div>
