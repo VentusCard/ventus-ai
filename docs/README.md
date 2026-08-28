@@ -19,7 +19,8 @@ recover them from git history if ever needed.
 
 ## architecture/
 System design and control-plane architecture.
-- ✅ [intelligence-control-plane.md](./architecture/intelligence-control-plane.md) — AI/decision governance architecture (enrichment pipeline is real; some control-plane pieces are forward-looking)
+- ✅ [current-system.md](./architecture/current-system.md) — **what's actually built** (pipeline, data model, API, coworker, infra, auth). Start here.
+- 🧭 [intelligence-control-plane.md](./architecture/intelligence-control-plane.md) — target control-plane (Growth Console / decision runtime — not built)
 - 🧭 [enterprise-product-blueprint.md](./architecture/enterprise-product-blueprint.md) — target-state enterprise blueprint
 - 🧭 [enterprise-identity-and-permissions.md](./architecture/enterprise-identity-and-permissions.md) — planned Cognito/RBAC model (auth today is Supabase)
 
