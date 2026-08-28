@@ -951,7 +951,7 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
           }}
         >
           <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
-            Walk the flow
+            VENTUS AI WORKFLOW
           </span>
           <div className="flex items-center gap-1.5">
             {(
