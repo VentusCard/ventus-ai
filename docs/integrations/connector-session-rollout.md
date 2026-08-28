@@ -1,5 +1,7 @@
 # Connector session rollout
 
+> **⚠️ STALE (as of 2026-08).** The enterprise session model described here (`issueConnectorSession`, `connector_delivery_receipts` table, `npm run test:connector-sessions`) is not implemented. The current demo uses the simpler session flow in `backend/shared/demo/demo-connectors.mjs`. Historical reference only.
+
 ## Current and target state
 
 Ventus connector routes remain disabled unless `ENABLE_LIVE_CONNECTORS=true`. When no connector

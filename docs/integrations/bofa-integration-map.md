@@ -1,5 +1,7 @@
 # Ventus × Bank of America — pilot architecture and evidence map
 
+> **⚠️ STALE (as of 2026-08).** References removed frontend modules (`src/lib/capabilities.ts`, `pipeline.ts`, `skills.ts`, `ledger.ts`), a Vercel `api/deliver.ts` path, and an `/internal/capabilities` route that no longer exist. The architecture described here does not match the current codebase. Historical reference only.
+
 This page separates what leadership sees in the founding-partner demo from what Ventus
 must evaluate internally before any capability advances into a bank pilot.
 

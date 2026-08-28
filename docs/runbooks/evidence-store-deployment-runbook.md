@@ -1,5 +1,7 @@
 # Evidence store deployment runbook
 
+> **⚠️ RETIRED (as of 2026-08).** The `ventus-evidence-store-migrator` Lambda described here no longer exists; `VentusEvidenceStoreStack` is now a retirement shell with no migrator or DB access. This runbook is kept for historical reference only.
+
 This runbook deploys and verifies the durable Ventus decision/outcome evidence store without
 opening Aurora to the public internet or changing existing application Lambdas.
 

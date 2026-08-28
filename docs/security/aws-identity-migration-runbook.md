@@ -1,5 +1,7 @@
 # AWS Identity Migration Runbook
 
+> **🧭 PLANNED / NOT YET BUILT (as of 2026-08).** Cognito cutover runbook. Cognito CDK is optional (`enableIdentityFoundation`) and the frontend auth is still Supabase (`VITE_AUTH_PROVIDER=supabase`). Treat as a forward plan, not an executed migration.
+
 ## Objective
 
 Move Ventus authentication and application authorization from Supabase to an

@@ -1,5 +1,7 @@
 # Ventus AI product goal
 
+> **🧭 VISION / TARGET STATE (as of 2026-08).** This is the product north-star, not a description of shipped functionality. Many capabilities described here are planned, not built.
+
 Design Ventus AI as an enterprise decision and activation platform that helps each
 financial-services business turn its available transaction, customer, product, behavioral,
 and external data into timely, governed, measurable growth actions.

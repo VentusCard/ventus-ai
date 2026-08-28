@@ -1,5 +1,7 @@
 # Ventus product-goal evidence matrix
 
+> **⚠️ STALE (as of 2026-08).** This matrix claims Console API, Cognito auth, decision ledger/RLS, growth-play registry, and intervention planner as implemented evidence — all of which have been removed from the codebase. Do not treat as a current acceptance record. Historical reference only.
+
 This matrix is the requirement-level acceptance record for the Ventus product goal. A demo,
 test, or design artifact counts only for the scope it actually proves.
 

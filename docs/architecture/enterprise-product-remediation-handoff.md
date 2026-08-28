@@ -1,5 +1,7 @@
 # Enterprise Product Remediation Handoff
 
+> **📜 HISTORICAL (as of 2026-08).** A point-in-time handoff for Decision Package v1.2 / Console API / FSC delivery. The code slices referenced (`console-api.mjs`, `ventus-console-api`) have been removed. Read as history, not current state.
+
 Status: Sol architecture pass and the Terra durable-journey and product
 Salesforce-delivery slices are complete. Luna verification remains.
 

@@ -1,5 +1,7 @@
 # Product Salesforce/FSC Delivery Runbook
 
+> **⚠️ STALE (as of 2026-08).** The authenticated Growth Console / `ventus-console-api` delivery path described here was removed. The only current Salesforce FSC integration is the demo adapter in `backend/shared/demo/salesforce-fsc.mjs` (via `ventus-demo-connectors`). Historical reference only.
+
 Purpose: configure the authenticated Growth Console to create a governed
 Salesforce/FSC workflow record from an approved Ventus Moment.
 

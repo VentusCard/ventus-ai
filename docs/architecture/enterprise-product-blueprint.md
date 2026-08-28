@@ -1,5 +1,7 @@
 # Ventus AI Enterprise Product Blueprint
 
+> **🧭 PLANNED / TARGET STATE (as of 2026-08).** A large target-state blueprint. It mixes the real enrichment backend with subsystems that were never built or since removed (Growth Play control plane, `growth-play-contract.mjs`, `growth-play-registry.sql`). Treat as a design proposal, not a description of what exists.
+
 Status: implementation authority
 
 Audience: product, engineering, design, security, pilot operations

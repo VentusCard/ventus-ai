@@ -1,5 +1,7 @@
 # Sol Post-Acceptance Decision Record
 
+> **📜 HISTORICAL DECISION RECORD (as of 2026-08).** Captures a point-in-time architecture decision. Parts reference subsystems (Console API, decision ledger, release-evidence manifest) that were later removed. Read as history, not current state.
+
 Status: final architecture decision for the next implementation cycle
 
 Date: 2026-08-01

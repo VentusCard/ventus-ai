@@ -1,5 +1,7 @@
 # Tenant-isolated evidence persistence
 
+> **⚠️ PARTIALLY STALE (as of 2026-08).** Tenant isolation is still the intended direction, but the specific SQL files referenced here (`decision-ledger.sql`, `growth-play-registry.sql`, etc.) no longer exist. Current DB schema lives in `backend/sql/`: `core-product-schema.sql`, `model-evaluation-runs.sql`, `webhook-delivery-attempts.sql`, `webhook-payload-v2-migration.sql`, `stuck-pipeline-runs.sql`. Verify against those before relying on this doc.
+
 ## Scope
 
 This runbook deploys the decision ledger, experiment assignments, connected-data exposure receipts,
