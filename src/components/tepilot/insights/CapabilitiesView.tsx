@@ -620,18 +620,8 @@ function SignalSection({
   const next = signal.examples[(idx + 1) % total];
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-8 items-center gap-2 text-[12.5px] leading-none text-slate-100">
+    <span ref={ref} className="flex h-10 items-center text-[13.5px] leading-tight text-slate-100">
       <span className="relative z-10 truncate font-medium text-white">{example.to}</span>
-      <span className="relative z-0 flex-none text-[11px] text-slate-300">&rarr;</span>
-      <span className="relative z-0 truncate text-slate-200">{example.ev}</span>
-      <span
-        className={cn(
-          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[11px] tracking-wide",
-          DETECTION_BASIS_CLASS[example.basis],
-        )}
-      >
-        {example.basis}
-      </span>
     </span>
   );
 
@@ -643,14 +633,14 @@ function SignalSection({
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-3 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-4 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
         style.surface,
         style.border,
         isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
       )}
     >
       <span className={cn("absolute inset-y-0 left-0 w-[5px]", style.bar)} />
-      <span className="mb-0.5 flex items-center gap-2">
+      <span className="mb-1 flex items-center gap-2">
         <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px]", style.chip)}>
           <Icon className={cn("h-3.5 w-3.5", style.icon)} />
         </span>
@@ -666,7 +656,7 @@ function SignalSection({
         </span>
       </span>
 
-      <span className="relative mt-0.5 block h-8 overflow-hidden">
+      <span className="relative mt-0.5 block h-10 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
           {renderRow(next, nextRowRef)}
