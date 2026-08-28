@@ -1141,7 +1141,12 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[44px] flex-1 items-center gap-2.5 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-3"
+                    className={cn(
+                      "relative flex min-h-[44px] flex-1 items-center gap-2.5 overflow-hidden rounded-lg border pl-3 pr-3 transition-colors",
+                      d.facing === "bank"
+                        ? "animate-pulse-hue-bank border-slate-200/60"
+                        : "animate-pulse-hue-consumer border-blue-100/60",
+                    )}
                     title={facingLabel}
                   >
                     <span
