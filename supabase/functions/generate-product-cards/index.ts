@@ -70,7 +70,11 @@ CARD 2 — LIFE EVENT:
 - Based on a detected life event (education, home, retirement, etc.)
 - Frame as a general financial wellness tip, not "we detected X"
 - Never say "we noticed", "based on your transactions", "our data shows"
-- Product should be a concrete financial instrument (529, HYSA, HELOC, etc.)
+- Product should be a concrete financial instrument (529, HYSA, Mortgage, HELOC, etc.)
+- HOME EVENTS — MATCH THE STAGE (STRICT):
+  - Shopping for / buying / moving into a new home, pre-approval, house hunting, closing → PURCHASE FINANCING: "${bankLabel} Preferred Mortgage" (or Mortgage Pre-Approval / Rate Lock). NEVER a HELOC — the customer has no equity yet.
+  - Only recommend a HELOC when the customer is an ESTABLISHED homeowner (existing mortgage in financial_signals, renovation/home-improvement behavior, or a home owned for years) and the need is drawing on built-up equity.
+  - Refinance only when an existing mortgage signal is present.
 - Quote: 1-2 sentences, empathetic, forward-looking
 - CRITICAL: The quote must NEVER name the life event directly. Use indirect, euphemistic language instead:
   - "new baby" → "a major family milestone"
@@ -114,13 +118,17 @@ Required by field:
   GOOD: "$0 annual fee for the first year", "75,000 bonus points after $4K spend in 90 days", "0.25% rate discount for autopay"
   BAD:  "No annual fee", "Big signup bonus", "Autopay discount"
 - quote: MUST contain ONE personalized dollar-estimate tied to the customer's actual behavior/signal.
+   LENGTH (HARD LIMIT): ONE complete sentence, 90 characters or fewer, ending in a period.
+  It must read as a finished thought — NEVER trail off, never continue into a second clause you cannot finish.
+  Write it short first, then add the number; do not pad with setup phrases.
   Derive the estimate from persona rollups (totalSpend), life-event financial_projection, or the signal context.
   Format: "You could save an estimated $XXX ..." or "That's roughly $XXX/year back on ..."
-  Examples by card type:
-    - Auto loan renewal (current payment ~$485/mo): "Refinancing at today's rates could save you an estimated $1,400 over the life of the loan."
-    - Travel rewards card + tropical-getaway rollup ($4,200 travel spend): "At 3x on travel, that's roughly $215 back on your next island trip."
-    - 529 for college prep: "Starting now with $250/mo could grow to an estimated $58,000 by freshman year."
-    - HYSA: "On a $10K balance, that's about $450 more per year than the average savings account."
+  Examples by card type (all inside the character budget):
+    - Auto loan renewal (~$485/mo): "Refinancing could save you an estimated $1,400 over the loan."
+    - Travel card + tropical rollup ($4,200 travel spend): "At 3x on travel, that's roughly $215 back on your next trip."
+    - 529 for college prep: "Saving $250/mo could grow to an estimated $58,000 by college."
+    - HYSA: "On a $10K balance, that's about $450 more a year than average."
+    - Mortgage for a home purchase: "A relationship rate could save an estimated $2,400 a year."
   The estimate must be plausible and grounded in the input data — do NOT invent unrelated numbers.
 - eligibility: When possible include a numeric anchor: "Pre-qualified — rates from 2.99% APR", "FDIC insured up to $250,000", "Open with as little as $25".
 - cta_sub: May include a number when relevant: "Funded in under 5 minutes", "Rate locked for 60 days".
@@ -182,7 +190,7 @@ DEMOGRAPHICS:
 ${JSON.stringify(demographics || {}, null, 2)}
 
 BEHAVIORAL PERSONA ROLLUPS:
-${JSON.stringify((persona_rollups || []).map((r: any) => ({
+${JSON.stringify((persona_rollups || []).slice(0, 2).map((r: any) => ({
   pillar: r.pillar,
   label: r.label,
   categories: r.categories,
@@ -191,16 +199,16 @@ ${JSON.stringify((persona_rollups || []).map((r: any) => ({
 })), null, 2)}
 
 SPENDING PILLARS (top categories):
-${JSON.stringify((pillars || []).slice(0, 8).map((p: any) => ({
+${JSON.stringify((pillars || []).slice(0, 3).map((p: any) => ({
   pillar: p.pillar,
   label: p.label,
   count: p.count,
   totalSpend: p.totalSpend,
-  subcategories: p.subcategories?.slice(0, 5),
+  subcategories: p.subcategories?.slice(0, 3),
 })), null, 2)}
 
 DETECTED LIFE EVENTS:
-${JSON.stringify((life_events || []).map((e: any) => ({
+${JSON.stringify((life_events || []).slice(0, 2).map((e: any) => ({
   event_name: e.event_name,
   confidence: e.confidence,
   project_type: e.financial_projection?.project_type,
@@ -209,13 +217,13 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
 })), null, 2)}
 
 FINANCIAL SIGNALS (existing loans, mortgages, brokerage relationships — HIGHEST PRIORITY for slot 3):
-${JSON.stringify((financial_signals || []).map((f: any) => ({
+${JSON.stringify((financial_signals || []).slice(0, 2).map((f: any) => ({
   label: f.label,
   product_family: f.product_family,
   servicer: f.servicer,
   monthly_amount_band: f.monthly_amount_band,
   cadence: f.cadence,
-  talking_points: (f.talking_points || []).slice(0, 3),
+  talking_points: (f.talking_points || []).slice(0, 2),
 })), null, 2)}
 
 Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, financial-signal monthly_amount_band, demographics income). Do not invent unrelated figures.
@@ -230,7 +238,7 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3.1-pro-preview",
+        model: "google/gemini-3.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -262,7 +270,7 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
                         },
                         quote: {
                           type: "string",
-                          description: "1-2 sentence consumer-facing copy following the Ventus thesis tone. MUST include one personalized dollar-estimate (e.g. 'estimated $215', 'roughly $1,400') tied to the customer's actual signal or spending pattern.",
+                           description: "ONE complete consumer-facing sentence, 90 characters or fewer, ending in a period — must be a complete sentence and never trail off. MUST include one personalized dollar-estimate (e.g. 'estimated $215', 'roughly $1,400') tied to the customer's actual signal or spending pattern.",
                         },
                         signal_label: {
                           type: "string",
@@ -321,10 +329,25 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      if (response.status === 402 || response.status === 403) {
+        return new Response(
+          JSON.stringify({
+            error:
+              response.status === 402
+                ? "AI credits exhausted. Add credits in Settings → Workspace → Usage to resume generation."
+                : "AI access is blocked by workspace policy.",
+          }),
+          {
+            status: response.status,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
       return new Response(JSON.stringify({ error: "AI gateway error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+
     }
 
     const data = await response.json();
@@ -338,6 +361,47 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
     }
 
     const cards = JSON.parse(toolCall.function.arguments);
+
+    // Safety net: strip invented / real issuer brands out of product naming.
+    const BANKISH_RE = /\b(bank|banc|bancorp|financial|finance|fintech|credit union|federal credit|lending|lenders?|capital|mutual|fcu)\b/gi;
+    const label = bankLabel;
+    const scrub = (v: unknown): string => {
+      if (typeof v !== "string" || !v) return v as string;
+      // Preserve the configured label; rewrite any other bank-ish brand phrase.
+      const parts = v.split(new RegExp(`(${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"));
+      return parts
+        .map((part) =>
+          part.toLowerCase() === label.toLowerCase()
+            ? part
+            : part.replace(/\b([A-Z][\w&'-]*\s+)*[A-Z][\w&'-]*\s+(Financial|Bank|Bancorp|Lending|Capital|Credit Union|FCU)\b/g, label),
+        )
+        .join("");
+    };
+    if (Array.isArray(cards?.cards)) {
+      for (const c of cards.cards) {
+        if (typeof c.product_name === "string") {
+          c.product_name = scrub(c.product_name);
+          if (!c.product_name.toLowerCase().includes(label.toLowerCase()) && BANKISH_RE.test(c.product_name)) {
+            c.product_name = `${label} ${c.product_name}`.trim();
+          }
+        }
+        if (typeof c.offer_headline === "string") c.offer_headline = scrub(c.offer_headline);
+        if (typeof c.quote === "string") {
+          const quote = c.quote.trim().replace(/\s+/g, " ").replace(/^["“”']+|["“”']+$/g, "");
+          if (quote.length <= 90 && /[.!?]$/.test(quote)) {
+            c.quote = quote;
+          } else {
+            const sentences = quote.match(/[^.!?]+[.!?]+/g) || [];
+            const complete = sentences.map((part: string) => part.trim()).find((part: string) => part.length <= 90);
+            const amount = quote.match(/\$[\d,.]+(?:K|M)?/i)?.[0];
+            c.quote = complete || (amount
+              ? `This option could deliver an estimated ${amount} in value for your next step.`
+              : "A tailored option can support your next financial step.");
+          }
+        }
+      }
+    }
+
     return new Response(JSON.stringify(cards), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

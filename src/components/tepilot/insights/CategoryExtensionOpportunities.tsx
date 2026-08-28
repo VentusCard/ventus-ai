@@ -5,8 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { CATEGORY_EXTENSION_OPPORTUNITIES, getCategoryExtensionSummary } from "@/lib/categoryExtensionData";
 import { formatCurrency, formatNumber } from "@/lib/formatHelper";
 import {
-  ArrowRight, Users, DollarSign, TrendingUp, Calendar, Target, ChevronDown, ExternalLink
+  ArrowRight, Users, DollarSign, TrendingUp, Calendar, Target, ChevronDown, ExternalLink, Megaphone
 } from "lucide-react";
+
 import type { CategoryExtensionOpportunity } from "@/types/bankwide";
 
 type SortKey = 'estimatedRevenue' | 'confidenceScore' | 'priority';
@@ -27,12 +28,17 @@ const PILLAR_FILTERS = [
 
 const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
-export function CategoryExtensionOpportunities() {
+interface CategoryExtensionOpportunitiesProps {
+  onLaunchCampaign?: (productName: string, offers: string[]) => void;
+}
+
+export function CategoryExtensionOpportunities({ onLaunchCampaign }: CategoryExtensionOpportunitiesProps = {}) {
   const [sortBy, setSortBy] = useState<SortKey>('estimatedRevenue');
   const [pillarFilter, setPillarFilter] = useState('All');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const summary = useMemo(() => getCategoryExtensionSummary(), []);
+
 
   const filtered = useMemo(() => {
     let items = [...CATEGORY_EXTENSION_OPPORTUNITIES];
@@ -52,7 +58,7 @@ export function CategoryExtensionOpportunities() {
       <div className="grid grid-cols-4 gap-3">
         {[
           { label: 'Opportunities', value: formatNumber(summary.totalOpportunities), icon: Target },
-          { label: 'Est. Revenue', value: formatCurrency(summary.totalEstimatedRevenue), icon: DollarSign },
+          { label: 'Est. GMV', value: formatCurrency(summary.totalEstimatedRevenue), icon: DollarSign },
           { label: 'Addressable Users', value: `${(summary.totalAddressableUsers / 1_000_000).toFixed(1)}M`, icon: Users },
           { label: 'Avg Confidence', value: `${summary.avgConfidenceScore}%`, icon: TrendingUp },
         ].map(s => (
@@ -110,7 +116,9 @@ export function CategoryExtensionOpportunities() {
             opportunity={opp}
             isExpanded={expandedId === opp.id}
             onToggle={() => setExpandedId(expandedId === opp.id ? null : opp.id)}
+            onLaunchCampaign={onLaunchCampaign}
           />
+
         ))}
       </div>
 
@@ -127,11 +135,14 @@ function OpportunityCard({
   opportunity: o,
   isExpanded,
   onToggle,
+  onLaunchCampaign,
 }: {
   opportunity: CategoryExtensionOpportunity;
   isExpanded: boolean;
   onToggle: () => void;
+  onLaunchCampaign?: (productName: string, offers: string[]) => void;
 }) {
+
   const priorityStyles = {
     high: 'bg-red-50 text-red-700 border-red-200',
     medium: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -273,6 +284,26 @@ function OpportunityCard({
               ))}
             </div>
           </div>
+
+          {onLaunchCampaign && (
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLaunchCampaign(o.extensionProduct, [
+                    `${o.extensionMerchant} — ${o.extensionProduct}`,
+                    o.whyItFits,
+                  ]);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700 transition-colors"
+              >
+                <Megaphone className="w-3.5 h-3.5" />
+                Launch campaign
+              </button>
+            </div>
+          )}
+
         </div>
       )}
     </Card>

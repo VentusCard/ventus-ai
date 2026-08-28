@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { useSaveSequence, CONTENT_STAGES } from "@/hooks/useSaveSequence";
+import { SaveSequence } from "@/components/tepilot/common/SaveSequence";
 
 const integrations = [
   { name: "Core Banking System", desc: "FIS Profile · Real-time transaction sync", connected: true },
@@ -41,6 +43,7 @@ function ToggleRow({ label, desc, defaultChecked }: { label: string; desc: strin
 }
 
 export function SettingsView() {
+  const save = useSaveSequence({ stages: CONTENT_STAGES, doneLabel: "Settings saved" });
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -142,9 +145,10 @@ export function SettingsView() {
         </SectionCard>
       </div>
 
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end items-center gap-3">
+        <SaveSequence status={save.status} label={save.stageLabel} />
         <Button variant="outline">Cancel</Button>
-        <Button>Save Changes</Button>
+        <Button onClick={() => save.run()} disabled={save.isBusy}>Save Changes</Button>
       </div>
     </div>
   );

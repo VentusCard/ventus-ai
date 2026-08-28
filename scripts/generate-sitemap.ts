@@ -3,7 +3,7 @@
 import { writeFileSync } from "fs";
 import { resolve } from "path";
 
-const BASE_URL = "https://ventusai.dev";
+const BASE_URL = "https://ventusai.com";
 
 interface SitemapEntry {
   path: string;

@@ -18,6 +18,8 @@ import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
 import { AutomatedFlowsSection } from "./AutomatedFlowsSection";
 import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
 import { toast } from "sonner";
+import { useSaveSequence, SIGNAL_STAGES } from "@/hooks/useSaveSequence";
+import { SaveSequence } from "@/components/tepilot/common/SaveSequence";
 import { DimensionChipCloud } from "./DimensionChipCloud";
 import { ProductDimensionGroup } from "./ProductDimensionGroup";
 import { GeoDimensionSelector } from "./GeoDimensionSelector";
@@ -215,9 +217,13 @@ export function CampaignStudio() {
     }
   };
 
+  const campaignSave = useSaveSequence({ stages: SIGNAL_STAGES, doneLabel: "Campaign synced" });
+
   const handleSave = () => {
-    toast.success("Campaign saved!", {
-      description: `${(estimatedSize / 1_000_000).toFixed(1)}M estimated contacts`
+    campaignSave.run(() => {
+      toast.success("Campaign saved!", {
+        description: `${(estimatedSize / 1_000_000).toFixed(1)}M estimated contacts`,
+      });
     });
   };
 
@@ -496,6 +502,9 @@ export function CampaignStudio() {
                     estimatedSize={estimatedSize}
                     hasSelections={hasSelections}
                     onSave={handleSave} />
+                  <div className="mt-2 flex justify-end">
+                    <SaveSequence status={campaignSave.status} label={campaignSave.stageLabel} />
+                  </div>
                   
 
             </div>

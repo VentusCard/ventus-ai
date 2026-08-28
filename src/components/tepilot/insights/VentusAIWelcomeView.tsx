@@ -3,13 +3,13 @@ import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import ReactMarkdown from "react-markdown";
 import {
   Sparkles, TrendingUp, TrendingDown, AlertTriangle, DollarSign, Users,
-  BarChart3, Wallet, Heart, Gamepad2, Package, MapPin, CalendarHeart,
+  BarChart3, Wallet, Heart, CalendarHeart,
   Route, Briefcase, Send, Loader2, ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
+type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'personalized-relationship';
 
 interface VentusAIWelcomeViewProps {
   onNavigate: (tab: TabValue) => void;
@@ -72,17 +72,12 @@ const SUGGESTED_PROMPTS = [
 
 type NavGroup = "featured" | "grow" | "protect" | "operate";
 const NAV_CARDS: { tab: TabValue; label: string; description: string; icon: React.ElementType; group: NavGroup }[] = [
-  { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "featured" },
-  { tab: "life-events", label: "Life Events", description: "Predictive life-event detection", icon: CalendarHeart, group: "grow" },
+  { tab: "personalized-relationship", label: "Personalized Relationship", description: "Customer insights, life events, assistant activity, and WM Coworker", icon: Briefcase, group: "featured" },
   { tab: "targeting", label: "Next-Best Product", description: "Segment-level product recommendations", icon: Route, group: "grow" },
-  { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "grow" },
-  { tab: "rewards-intelligence", label: "Reward & Trip Detection", description: "Travel patterns & reward optimization", icon: Sparkles, group: "grow" },
+  { tab: "personalized-relationship", label: "Personalized Relationship", description: "Customer insights, life events, assistant activity, and WM Coworker", icon: CalendarHeart, group: "grow" },
+  { tab: "personalized-deals", label: "Personalized Deals", description: "Deals, perks, and engagement programs", icon: Sparkles, group: "grow" },
   { tab: "wallet-share", label: "Outflow Detection", description: "Competitor deposit-flight tracking", icon: Wallet, group: "protect" },
-  { tab: "customer-insights", label: "Customer Insights", description: "Wellness alerts & behavioral signals", icon: Heart, group: "protect" },
   { tab: "dashboard", label: "Category Consolidation", description: "Pillar-level spend analysis", icon: BarChart3, group: "operate" },
-  { tab: "deal-management", label: "Deal Management", description: "Merchant partnership pipeline", icon: Package, group: "operate" },
-  { tab: "location-experience", label: "Locational Perks", description: "Geo-targeted experiences", icon: MapPin, group: "operate" },
-  { tab: "gamification", label: "Gamification", description: "Engagement & achievement engine", icon: Gamepad2, group: "operate" },
 ];
 
 const NAV_GROUPS: { key: NavGroup; label: string }[] = [
@@ -114,10 +109,7 @@ const PLATFORM_CONTEXT = {
     categoryConsolidation: "Analyzes spending across 12 lifestyle pillars (Food & Dining, Travel, Style & Beauty, etc.) with budgeting insights, pillar distribution by card product, and age/region heatmaps.",
     competitorOutflow: "Tracks deposit flight to neobanks, fintechs, and brokerages. Identifies $4.2B annual outflow with win-back recommendations.",
     customerInsights: "Wellness alerts dashboard showing behavioral stress signals, optimization opportunities, and sentiment analysis across the customer base.",
-    rewardTripDetection: "Detects travel patterns, reward optimization opportunities, and seasonal spending timing intelligence across the card portfolio.",
-    dealManagement: "Merchant partnership pipeline with deal activation, category extension opportunities, and revenue capture projections.",
-    locationalPerks: "Geo-targeted perk aggregation connecting customers with location-based experiences and merchant offers.",
-    gamification: "Achievement engine managing financial wellness badges, engagement lift metrics, and reward configurations.",
+    personalizedDeals: "Unified deals, perks, and gamification surface: seasonal deal intelligence, merchant partnership activation, location-based perks, and achievement-driven engagement programs.",
     lifeEvents: "Predictive life event detection (home purchase, new baby, retirement, etc.) with proactive product recommendations.",
     nextBestProduct: "Segment builder with demographic, lifestyle, and product targeting for next-best-offer campaigns.",
     wmCopilot: "Wealth management AI assistant for advisor-level client analysis and portfolio intelligence.",

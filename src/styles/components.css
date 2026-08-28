@@ -492,8 +492,136 @@
   flex-shrink: 0;
 }
 
+.ventus-ai-live-dot-subdued {
+  width: 5px;
+  height: 5px;
+  background: hsl(142 45% 55%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ventus-ai-live-dot {
     animation: none;
   }
+}
+
+/* Light scrollbars everywhere inside light-themed app shells (/bankdemo) */
+html.light-app,
+html.light-app * {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(220 10% 78%) transparent;
+}
+
+html.light-app ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html.light-app ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.light-app ::-webkit-scrollbar-thumb {
+  background-color: hsl(220 10% 82%);
+  border-radius: 999px;
+}
+
+html.light-app ::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(220 10% 68%);
+}
+
+/* ─────────────────────────────────────────────
+   Glassmorphic surface system (light theme only)
+   Used by the marketing home page.
+   ───────────────────────────────────────────── */
+:root {
+  --glass-bg: 255 255 255;
+  --glass-bg-opacity: 0.62;
+  --glass-border: 255 255 255;
+  --glass-hairline: 226 232 240;
+  --glass-blur: 16px;
+  --glass-shadow: 0 18px 50px -24px rgba(15, 23, 42, 0.28), 0 2px 8px -2px rgba(15, 23, 42, 0.06);
+}
+
+.ventus-glass {
+  position: relative;
+  background: rgba(var(--glass-bg) / var(--glass-bg-opacity));
+  border: 1px solid rgb(var(--glass-hairline) / 0.75);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px;
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .ventus-glass {
+    background: rgba(var(--glass-bg) / 0.55);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  }
+}
+
+/* subtle top inner highlight, like light catching a glass edge */
+.ventus-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 42%);
+  opacity: 0.9;
+}
+
+.ventus-glass > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Softer variant for large panels sitting over hue washes */
+.ventus-glass-soft {
+  --glass-bg-opacity: 0.5;
+  --glass-blur: 12px;
+}
+
+/* Nav bar glass */
+.ventus-glass-nav {
+  background: rgba(255, 255, 255, 0.68);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .ventus-glass-nav {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+  }
+}
+
+/* Ambient hue field — low-opacity radial washes behind glass surfaces */
+.ventus-hue-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.ventus-hue-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.55;
+}
+
+.ventus-hue-sky {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.28) 0%, rgba(56, 189, 248, 0) 70%);
+}
+
+.ventus-hue-indigo {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.24) 0%, rgba(99, 102, 241, 0) 70%);
+}
+
+.ventus-hue-violet {
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.22) 0%, rgba(167, 139, 250, 0) 70%);
+}
+
+.ventus-hue-warm {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.16) 0%, rgba(251, 191, 36, 0) 70%);
 }

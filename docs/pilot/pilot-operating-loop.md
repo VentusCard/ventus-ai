@@ -42,13 +42,14 @@ eligibility or standalone decisions and records immutable data-scope exposure re
 
 ## Evidence boundaries
 
-Every source receipt is immutable-classified as `synthetic`, `sandbox`, or `sanctioned`, and the
-classification follows the experiment assignment and outcome ledger.
+Every new source receipt is immutable-classified as `fixture`, `partner_sandbox`, or
+`sanctioned_pilot`; legacy storage aliases (`synthetic`, `sandbox`, and `sanctioned`) are
+normalized at the boundary. Classification follows the experiment assignment and outcome ledger.
 
-- Synthetic records may run only in shadow mode and cannot activate a connector.
-- Sandbox records may wait in a review-required state or reach an approved sandbox workflow, but
+- Fixture records may run only in shadow mode and cannot activate a connector.
+- Partner-sandbox records may wait in a review-required state or reach an approved sandbox workflow, but
   all outcomes remain simulated evidence.
-- Production-assisted activation requires sanctioned evidence and a production destination.
+- Production-assisted activation requires sanctioned-pilot evidence and a production destination.
 - Every returned result keeps `businessClaimAllowed: false`; independent review and the release
   gates still determine whether a bank may rely on the result.
 

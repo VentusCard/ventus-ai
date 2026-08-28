@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   FileBarChart,
@@ -18,16 +18,18 @@ import {
   GitBranch,
   Plane,
   MessageSquare,
+  Terminal,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { INTERACTIVE_REPORTS, type InteractiveReportId } from "./interactiveReportsRegistry";
 
-interface ReportsLibraryProps {
-  onOpenQuery: (sql: string) => void;
+interface ReportsAndQueryViewProps {
   onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
+  onRunInConsole?: (query: string) => void;
 }
 
+type SubTab = "briefings" | "templates";
 type Category = "Lifestyle" | "Outflow" | "Retention" | "Risk" | "Opportunities";
 
 interface ReportTemplate {
@@ -345,11 +347,28 @@ const CATEGORY_TONE: Record<Category, string> = {
 
 const CATEGORIES: ("All" | Category)[] = ["All", "Lifestyle", "Outflow", "Retention", "Risk", "Opportunities"];
 
-export function ReportsLibrary({ onOpenQuery, onOpenInteractiveReport }: ReportsLibraryProps) {
+const SUBTITLE: Record<SubTab, string> = {
+  briefings: "Read end-to-end — narrative, numbers, graphs, and recommended next steps",
+  templates: "Prebuilt SQL templates analysts can run, schedule, and export",
+};
+
+export function ReportsAndQueryView({ onOpenInteractiveReport, onRunInConsole }: ReportsAndQueryViewProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"All" | Category>("All");
+  const [subTab, setSubTab] = useState<SubTab>(() => {
+    try {
+      const saved = sessionStorage.getItem("bankdemo-reports-subtab");
+      if (saved === "briefings" || saved === "templates") return saved;
+    } catch { /* ignore */ }
+    return "templates";
+  });
   const hasInteractive = !!onOpenInteractiveReport && INTERACTIVE_REPORTS.length > 0;
-  const [subTab, setSubTab] = useState<"reports" | "templates">("templates");
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("bankdemo-reports-subtab", subTab);
+    } catch { /* ignore */ }
+  }, [subTab]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -364,6 +383,10 @@ export function ReportsLibrary({ onOpenQuery, onOpenInteractiveReport }: Reports
     });
   }, [query, category]);
 
+  const openTemplate = (sql: string) => {
+    onRunInConsole?.(sql);
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -372,11 +395,7 @@ export function ReportsLibrary({ onOpenQuery, onOpenInteractiveReport }: Reports
           <div className="flex items-center gap-2">
             <FileBarChart className="w-4 h-4 text-slate-500" />
             <h2 className="text-[15px] font-semibold text-slate-900">Reports</h2>
-            <span className="text-[11px] text-slate-400">
-              {subTab === "reports"
-                ? "Read end-to-end — narrative, numbers, graphs, and recommended next steps"
-                : "Prebuilt SQL templates analysts can run, schedule, and export"}
-            </span>
+            <span className="text-[11px] text-slate-400">{SUBTITLE[subTab]}</span>
           </div>
         </div>
         {subTab === "templates" && (
@@ -398,148 +417,157 @@ export function ReportsLibrary({ onOpenQuery, onOpenInteractiveReport }: Reports
       <div className="flex items-center gap-1 border-b border-slate-200">
         {hasInteractive && (
           <button
-            onClick={() => setSubTab("reports")}
+            onClick={() => setSubTab("briefings")}
             className={cn(
-              "px-3 h-8 text-[12px] font-medium border-b-2 -mb-px transition",
-              subTab === "reports"
+              "px-3 h-8 text-[12px] font-medium border-b-2 -mb-px transition inline-flex items-center gap-1.5",
+              subTab === "briefings"
                 ? "border-blue-600 text-slate-900"
                 : "border-transparent text-slate-500 hover:text-slate-700",
             )}
           >
-            Reports
-            <span className="ml-1.5 text-[10px] opacity-60">{INTERACTIVE_REPORTS.length}</span>
+            <FileBarChart className="w-3.5 h-3.5" />
+            Briefings
+            <span className="text-[10px] opacity-60">{INTERACTIVE_REPORTS.length}</span>
           </button>
         )}
         <button
           onClick={() => setSubTab("templates")}
           className={cn(
-            "px-3 h-8 text-[12px] font-medium border-b-2 -mb-px transition",
+            "px-3 h-8 text-[12px] font-medium border-b-2 -mb-px transition inline-flex items-center gap-1.5",
             subTab === "templates"
               ? "border-blue-600 text-slate-900"
               : "border-transparent text-slate-500 hover:text-slate-700",
           )}
         >
+          <Layers className="w-3.5 h-3.5" />
           Templates
-          <span className="ml-1.5 text-[10px] opacity-60">{TEMPLATES.length}</span>
+          <span className="text-[10px] opacity-60">{TEMPLATES.length}</span>
         </button>
       </div>
 
-      {subTab === "reports" && hasInteractive && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {INTERACTIVE_REPORTS.map((r) => {
-            const Icon = r.icon;
+      {/* Briefings */}
+      <div className={cn(subTab === "briefings" ? "block" : "hidden")}>
+        {hasInteractive ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {INTERACTIVE_REPORTS.map((r) => {
+              const Icon = r.icon;
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => onOpenInteractiveReport!(r.id)}
+                  className="text-left rounded-md border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 hover:border-blue-300 hover:shadow-sm transition group"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="w-8 h-8 rounded border border-blue-200 bg-blue-50 flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border bg-violet-50 text-violet-700 border-violet-100">
+                      {r.category}
+                    </span>
+                  </div>
+                  <div className="mt-3 text-[10px] uppercase tracking-wider font-medium text-slate-400">
+                    {r.eyebrow}
+                  </div>
+                  <div className="mt-0.5 text-[13px] font-semibold text-slate-900 leading-tight">
+                    {r.title}
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1 leading-snug">
+                    {r.description}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
+                    <span className="text-[10px] text-slate-400">Interactive</span>
+                    <span className="text-[11px] text-blue-600 inline-flex items-center gap-0.5 group-hover:gap-1 transition-all">
+                      Open report <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-md border border-dashed border-slate-200 bg-white p-10 text-center text-[12px] text-slate-400">
+            No interactive briefings available
+          </div>
+        )}
+      </div>
+
+      {/* Templates */}
+      <div className={cn(subTab === "templates" ? "block" : "hidden")}>
+        {/* Category chips */}
+        <div className="flex items-center gap-1.5 flex-wrap mb-3">
+          {CATEGORIES.map((c) => {
+            const active = category === c;
             return (
               <button
-                key={r.id}
-                onClick={() => onOpenInteractiveReport!(r.id)}
-                className="text-left rounded-md border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 hover:border-blue-300 hover:shadow-sm transition group"
+                key={c}
+                onClick={() => setCategory(c)}
+                className={cn(
+                  "h-7 px-3 rounded-full text-[12px] border transition",
+                  active
+                    ? "bg-slate-900 text-white border-slate-900"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50",
+                )}
+              >
+                {c}
+                {c !== "All" && (
+                  <span className="ml-1.5 text-[10px] opacity-60">
+                    {TEMPLATES.filter((t) => t.category === c).length}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {filtered.map((t) => {
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.id}
+                onClick={() => openTemplate(t.query)}
+                className="text-left rounded-md border border-slate-200 bg-white p-4 hover:border-slate-300 hover:shadow-sm transition group"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div className="w-8 h-8 rounded border border-blue-200 bg-blue-50 flex items-center justify-center shrink-0">
-                    <Icon className="w-4 h-4 text-blue-600" />
+                  <div className="w-8 h-8 rounded border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
+                    <Icon className="w-4 h-4 text-slate-600" />
                   </div>
-                  <span className="text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border bg-violet-50 text-violet-700 border-violet-100">
-                    {r.category}
-                  </span>
+                  <div className="flex items-center gap-1 flex-wrap justify-end">
+                    <span
+                      className={cn(
+                        "text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border",
+                        CATEGORY_TONE[t.category],
+                      )}
+                    >
+                      {t.category}
+                    </span>
+                  </div>
                 </div>
-                <div className="mt-3 text-[10px] uppercase tracking-wider font-medium text-slate-400">
-                  {r.eyebrow}
-                </div>
-                <div className="mt-0.5 text-[13px] font-semibold text-slate-900 leading-tight">
-                  {r.title}
+                <div className="mt-3 text-[13px] font-semibold text-slate-900 leading-tight">
+                  {t.title}
                 </div>
                 <div className="text-[11px] text-slate-500 mt-1 leading-snug">
-                  {r.description}
+                  {t.description}
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
-                  <span className="text-[10px] text-slate-400">Interactive</span>
+                  <span className="text-[10px] text-slate-400">Last run: {t.lastRun}</span>
                   <span className="text-[11px] text-blue-600 inline-flex items-center gap-0.5 group-hover:gap-1 transition-all">
-                    Open report <ArrowRight className="w-3 h-3" />
+                    Open in SQL Console <ArrowRight className="w-3 h-3" />
                   </span>
                 </div>
               </button>
             );
           })}
         </div>
-      )}
 
-      {subTab === "templates" && (
-        <>
-          {/* Category chips */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {CATEGORIES.map((c) => {
-              const active = category === c;
-              return (
-                <button
-                  key={c}
-                  onClick={() => setCategory(c)}
-                  className={cn(
-                    "h-7 px-3 rounded-full text-[12px] border transition",
-                    active
-                      ? "bg-slate-900 text-white border-slate-900"
-                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50",
-                  )}
-                >
-                  {c}
-                  {c !== "All" && (
-                    <span className="ml-1.5 text-[10px] opacity-60">
-                      {TEMPLATES.filter((t) => t.category === c).length}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+        {filtered.length === 0 && (
+          <div className="rounded-md border border-dashed border-slate-200 bg-white p-10 text-center text-[12px] text-slate-400">
+            No templates match &ldquo;{query}&rdquo;
           </div>
+        )}
+      </div>
 
-          {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-            {filtered.map((t) => {
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => onOpenQuery(t.query)}
-                  className="text-left rounded-md border border-slate-200 bg-white p-4 hover:border-slate-300 hover:shadow-sm transition group"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="w-8 h-8 rounded border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
-                      <Icon className="w-4 h-4 text-slate-600" />
-                    </div>
-                    <div className="flex items-center gap-1 flex-wrap justify-end">
-                      <span
-                        className={cn(
-                          "text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border",
-                          CATEGORY_TONE[t.category],
-                        )}
-                      >
-                        {t.category}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-3 text-[13px] font-semibold text-slate-900 leading-tight">
-                    {t.title}
-                  </div>
-                  <div className="text-[11px] text-slate-500 mt-1 leading-snug">
-                    {t.description}
-                  </div>
-                  <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
-                    <span className="text-[10px] text-slate-400">Last run: {t.lastRun}</span>
-                    <span className="text-[11px] text-blue-600 inline-flex items-center gap-0.5 group-hover:gap-1 transition-all">
-                      Open in Query <ArrowRight className="w-3 h-3" />
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {filtered.length === 0 && (
-            <div className="rounded-md border border-dashed border-slate-200 bg-white p-10 text-center text-[12px] text-slate-400">
-              No templates match "{query}"
-            </div>
-          )}
-        </>
-      )}
     </div>
   );
 }

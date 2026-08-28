@@ -1,4 +1,5 @@
 import ScrollReveal from "@/components/ScrollReveal";
+import HueField from "@/components/HueField";
 import { Star } from "lucide-react";
 import fisLogo from "@/assets/fis-logo.svg";
 import fiservLogo from "@/assets/fiserv-logo.png";
@@ -63,12 +64,8 @@ const iconAccentClass = "text-blue-600";
 
 const TileBox = ({ tile }: { tile: Tile }) => (
   <div
-    className="flex items-center justify-center rounded-xl bg-white relative z-10 w-full"
-    style={{
-      border: "1px solid #E5E7EB",
-      boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-      height: 72,
-    }}
+    className="ventus-glass flex items-center justify-center rounded-xl relative z-10 w-full"
+    style={{ height: 72 }}
   >
     {tile.src ? (
       <img
@@ -100,10 +97,16 @@ const IntegrationSection = () => {
   return (
     <section
       id="integration"
-      className="bg-white scroll-mt-20"
+      className="bg-white scroll-mt-20 relative overflow-hidden"
       style={{ paddingTop: 80, paddingBottom: 80 }}
     >
-      <div className="mx-auto max-w-7xl px-6 md:px-8">
+      <HueField
+        blobs={[
+          { hue: "sky", size: 700, top: "-20%", left: "50%" },
+          { hue: "violet", size: 520, bottom: "-14%", left: "-6%", opacity: 0.45 },
+        ]}
+      />
+      <div className="mx-auto max-w-7xl px-6 md:px-8 relative z-10">
         <ScrollReveal>
           <div className="text-center max-w-3xl mx-auto">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
@@ -125,8 +128,7 @@ const IntegrationSection = () => {
 
         <ScrollReveal delay={0.12}>
           <div
-            className="mt-14 rounded-2xl p-6 md:p-8 min-w-0"
-            style={{ background: "#F8FAFC", border: "1px solid #E5E7EB" }}
+            className="ventus-glass ventus-glass-soft mt-14 rounded-2xl p-6 md:p-8 min-w-0"
           >
             <div className="hidden lg:grid grid-cols-[1fr_auto_1fr] gap-12 mb-3">
               <div className="px-1">

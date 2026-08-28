@@ -1,4 +1,5 @@
 import ScrollReveal from "@/components/ScrollReveal";
+import HueField from "@/components/HueField";
 
 const columns = [
   {
@@ -23,8 +24,14 @@ const columns = [
 
 const ProblemStatementSection = () => {
   return (
-    <section className="bg-white w-full scroll-mt-20 pt-24 md:pt-28 pb-14 md:pb-20 relative z-10">
-      <div className="mx-auto mb-8 md:mb-10 max-w-7xl px-6 md:px-8">
+    <section id="problem" className="bg-white w-full scroll-mt-20 pt-24 md:pt-28 pb-14 md:pb-20 relative z-10 overflow-hidden">
+      <HueField
+        blobs={[
+          { hue: "sky", size: 720, top: "-25%", right: "-12%" },
+          { hue: "indigo", size: 520, bottom: "-18%", left: "-8%", opacity: 0.4 },
+        ]}
+      />
+      <div className="mx-auto mb-8 md:mb-10 max-w-7xl px-6 md:px-8 relative z-10">
         <ScrollReveal>
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
             The Gap
@@ -38,7 +45,7 @@ const ProblemStatementSection = () => {
         </ScrollReveal>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 md:px-8">
+      <div className="mx-auto max-w-7xl px-6 md:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3">
           {columns.map((c, i) => (
             <div

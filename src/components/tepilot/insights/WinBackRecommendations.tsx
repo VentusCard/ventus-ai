@@ -1,11 +1,13 @@
 import { Badge } from "@/components/ui/badge";
-import { RotateCcw, Users, Lightbulb, Target, TrendingUp, TrendingDown, Minus, DollarSign, Clock, CheckCircle2, User } from "lucide-react";
+import { RotateCcw, Users, Lightbulb, Target, TrendingUp, TrendingDown, Minus, DollarSign, Clock, CheckCircle2, User, Megaphone } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/formatHelper";
 import type { WinBackRecommendation } from "@/types/bankwide";
 
 interface Props {
   data: WinBackRecommendation[];
+  onLaunchCampaign?: (productName: string, offers: string[]) => void;
 }
+
 
 function TrendIcon({ trend }: { trend: 'growing' | 'stable' | 'declining' }) {
   if (trend === 'growing') return <TrendingUp className="w-3.5 h-3.5 text-red-400" />;
@@ -19,7 +21,7 @@ function TrendLabel({ trend }: { trend: 'growing' | 'stable' | 'declining' }) {
   return <span className={`text-[10px] font-medium ${colors[trend]}`}>{labels[trend]}</span>;
 }
 
-export function WinBackRecommendations({ data }: Props) {
+export function WinBackRecommendations({ data, onLaunchCampaign }: Props) {
   return (
     <div className="space-y-4">
       <div>
@@ -123,7 +125,23 @@ export function WinBackRecommendations({ data }: Props) {
               </div>
               <span className="text-sm font-semibold text-emerald-400">{formatCurrency(rec.estimatedRecapture)}</span>
             </div>
+
+            {onLaunchCampaign && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() =>
+                    onLaunchCampaign(rec.outflowPattern, [rec.recommendedAction, rec.behavioralContext])
+                  }
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700 transition-colors"
+                >
+                  <Megaphone className="w-3.5 h-3.5" />
+                  Build win-back campaign
+                </button>
+              </div>
+            )}
           </div>
+
         ))}
       </div>
     </div>

@@ -4,6 +4,7 @@ import ScrollDrivenHero from "@/components/ScrollDrivenHero";
 import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
+import HueField from "@/components/HueField";
 import CapabilityCards from "@/components/CapabilityCards";
 import ProblemStatementSection from "@/components/ProblemStatementSection";
 import SolutionSections from "@/components/SolutionSections";
@@ -22,7 +23,7 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
     <div>
       <SEO
         title="Ventus AI — Behavioral Intelligence & Personalization for Banks"
-        description="Behavioral intelligence and personalization engine for banks — spending, financial, and life-event signals from multi-rail data and national partnerships."
+        description="Customer intelligence and personalization system for banks — spending, financial, and life-event signals from multi-rail data and national partnerships."
         path={noindex ? "/classic" : "/"}
         noindex={noindex}
         keywords="behavioral intelligence, personalization engine for financial institutions, behavioral enrichment, multi-rail transaction data, life event detection banking, personalized rewards for banks, next best offer banking, card linked offer redemption, interchange growth"
@@ -33,8 +34,14 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         <ProblemStatementSection />
 
         {/* Capabilities — Four Signal Layers */}
-        <section style={{ paddingTop: 80, paddingBottom: 80 }} className="bg-white relative z-10">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <section style={{ paddingTop: 80, paddingBottom: 80 }} className="bg-white relative z-10 overflow-hidden">
+          <HueField
+            blobs={[
+              { hue: "indigo", size: 720, top: "-22%", left: "-10%" },
+              { hue: "sky", size: 600, bottom: "-20%", right: "-8%", opacity: 0.5 },
+            ]}
+          />
+          <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
@@ -49,8 +56,14 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         <IntegrationSection />
 
         {/* FAQ — Two Column */}
-        <section id="faq" style={{ paddingTop: 80, paddingBottom: 80 }} className="bg-white scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <section id="faq" style={{ paddingTop: 80, paddingBottom: 80 }} className="bg-white scroll-mt-20 relative overflow-hidden">
+          <HueField
+            blobs={[
+              { hue: "warm", size: 560, top: "-15%", left: "-6%", opacity: 0.5 },
+              { hue: "sky", size: 640, bottom: "-25%", right: "-10%", opacity: 0.45 },
+            ]}
+          />
+          <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
               <div className="lg:col-span-2">
                 <ScrollReveal>
@@ -65,9 +78,9 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
               </div>
               <div className="lg:col-span-3">
                 <ScrollReveal delay={0.1}>
-                  <Accordion type="single" collapsible className="w-full">
+                  <Accordion type="single" collapsible className="ventus-glass w-full rounded-2xl px-6 py-2">
                     {COMPANY_FAQS.map((faq, i) => (
-                      <AccordionItem key={i} value={`faq-${i}`} className="border-b border-gray-200">
+                      <AccordionItem key={i} value={`faq-${i}`} className="border-b border-slate-200/70 last:border-b-0">
                         <AccordionTrigger className="text-left text-base text-gray-900 py-5">{faq.q}</AccordionTrigger>
                         <AccordionContent className="text-gray-500 text-sm pb-5">{faq.a}</AccordionContent>
                       </AccordionItem>

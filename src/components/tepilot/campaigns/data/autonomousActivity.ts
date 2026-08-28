@@ -1,10 +1,10 @@
 export type ActivityAction =
-  | "Enrolled"
-  | "Paused"
-  | "Drafted"
+  | "Email sent"
+  | "App push"
+  | "In-app"
+  | "SMS"
   | "Optimized"
-  | "Suppressed"
-  | "Detected";
+  | "Held";
 
 export interface AutonomousActivity {
   id: string;
@@ -17,58 +17,86 @@ export interface AutonomousActivity {
 export const AUTONOMOUS_ACTIVITY: AutonomousActivity[] = [
   {
     id: "a1",
-    action: "Enrolled",
-    description: "Enrolled customers into HELOC equity-tap flow after home-value uptick signals",
-    timeAgo: "12m ago",
-    affected: "1,240 customers",
+    action: "App push",
+    description: "Travel Card upgrade nudge to frequent-flyer spenders",
+    timeAgo: "8m ago",
+    affected: "4,180 delivered",
   },
   {
     id: "a2",
-    action: "Optimized",
-    description: "Shifted Term Life flow from email to in-app push — engagement lift detected",
-    timeAgo: "1h ago",
-    affected: "2.3× lift",
+    action: "Email sent",
+    description: "HELOC equity-tap wave 2 — home-value uptick segment",
+    timeAgo: "26m ago",
+    affected: "12,400 sent",
   },
   {
     id: "a3",
-    action: "Drafted",
-    description: "Drafted 3 new flows from emerging signals — awaiting RM review",
-    timeAgo: "2h ago",
-    affected: "3 flows",
+    action: "In-app",
+    description: "529 savings tile placed on dashboard for confirmed new parents",
+    timeAgo: "1h ago",
+    affected: "2,310 sessions",
   },
   {
     id: "a4",
-    action: "Paused",
-    description: "Paused Auto-Refi campaign — saturation detected in 18–34 segment",
-    timeAgo: "4h ago",
-    affected: "Auto-Refi",
+    action: "Optimized",
+    description: "Auto-Refi email moved to Tue 9am send window",
+    timeAgo: "2h ago",
+    affected: "+18% opens",
   },
   {
     id: "a5",
-    action: "Detected",
-    description: "Detected new cohort: Empty-Nesters relocating coastal — Wealth-led signals",
-    timeAgo: "6h ago",
-    affected: "~380 customers",
+    action: "SMS",
+    description: "Overdraft-cushion line offer to repeat-fee customers",
+    timeAgo: "3h ago",
+    affected: "890 delivered",
   },
   {
     id: "a6",
-    action: "Suppressed",
-    description: "Suppressed outreach — frequency cap reached on recent contacts",
-    timeAgo: "8h ago",
-    affected: "412 customers",
+    action: "Held",
+    description: "Small-business LOC email paused — frequency cap hit",
+    timeAgo: "5h ago",
+    affected: "412 held",
   },
   {
     id: "a7",
-    action: "Enrolled",
-    description: "Enrolled new parents into 529 college savings flow on confirmed life-event",
-    timeAgo: "11h ago",
-    affected: "~210 customers",
+    action: "Email sent",
+    description: "Term Life cross-sell to new-mortgage cohort",
+    timeAgo: "7h ago",
+    affected: "6,750 sent",
   },
   {
     id: "a8",
+    action: "In-app",
+    description: "Card hub carousel swapped to dining rewards for lapsed diners",
+    timeAgo: "9h ago",
+    affected: "5,140 sessions",
+  },
+  {
+    id: "a9",
     action: "Optimized",
-    description: "Rebalanced Travel Card flow toward weekend send windows — open-rate lift",
+    description: "CD ladder campaign shifted from email to in-app placement",
+    timeAgo: "11h ago",
+    affected: "2.3× lift",
+  },
+  {
+    id: "a10",
+    action: "App push",
+    description: "Rewards boost reminder for lapsed dining spenders",
     timeAgo: "Yesterday",
-    affected: "+18% opens",
+    affected: "3,020 delivered",
+  },
+  {
+    id: "a11",
+    action: "Email sent",
+    description: "Business checking upgrade wave — merchant-deposit signals",
+    timeAgo: "Yesterday",
+    affected: "8,930 sent",
+  },
+  {
+    id: "a12",
+    action: "Held",
+    description: "Auto loan renewal push withheld — governance review pending",
+    timeAgo: "Yesterday",
+    affected: "1,120 held",
   },
 ];

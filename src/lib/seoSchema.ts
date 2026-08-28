@@ -3,7 +3,7 @@
  * answer-engine (GEO) extraction on ChatGPT / Perplexity / AI Overviews.
  */
 
-export const SITE_URL = "https://ventusai.dev";
+export const SITE_URL = "https://ventusai.com";
 export const ORG_NAME = "Ventus AI";
 
 export const organizationSchema = {

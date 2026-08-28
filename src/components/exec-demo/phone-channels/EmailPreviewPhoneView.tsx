@@ -1,5 +1,5 @@
 import { Inbox, Star, ArrowLeft, Reply, Forward, MoreVertical, Check } from "lucide-react";
-import { THEME_STYLES, type ProductCard } from "../ProductCardsPhoneView";
+import { familyStyle, type ProductCard } from "../ProductCardsPhoneView";
 
 interface Props {
   cards: ProductCard[];
@@ -16,7 +16,7 @@ export default function EmailPreviewPhoneView({ cards, customerName, bankLabel =
     );
   }
   const card = cards[0];
-  const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
+  const style = familyStyle(card.type);
   const firstName = (customerName ?? "there").split(" ")[0];
   const benefits = (card.benefits && card.benefits.length > 0
     ? card.benefits

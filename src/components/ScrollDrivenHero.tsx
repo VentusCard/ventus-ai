@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import HueField from "@/components/HueField";
 
 const rawTransactions = [
   "PAYPL *POTTRY BRN KDS 4829 $234.50",
@@ -261,6 +262,15 @@ const ScrollDrivenHero = () => {
 
   return (
     <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-screen overflow-hidden" aria-hidden>
+        <HueField
+          blobs={[
+            { hue: "violet", size: 720, top: "4%", left: "-10%", opacity: 0.4 },
+            { hue: "sky", size: 640, top: "28%", left: "34%", opacity: 0.35 },
+          ]}
+        />
+      </div>
+
       <div className="sticky top-0 xl:h-screen min-h-screen flex items-start justify-center overflow-visible pt-24 md:pt-28 xl:pt-16 pb-10">
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
@@ -288,18 +298,28 @@ const ScrollDrivenHero = () => {
               Ventus AI orchestrates a hyper-personalized banking experience for every customer with your existing stack
             </p>
 
-            <Button
-              className="order-4 xl:order-none mt-6 xl:mt-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-700 ease-out h-12 px-10 text-base gap-2"
-              onClick={() => navigate("/contact")}
+            <div className="order-4 xl:order-none mt-6 xl:mt-7 flex flex-col sm:flex-row items-center gap-3 transition-all duration-700 ease-out"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(20px)",
                 transitionDelay: "300ms",
               }}
             >
-              Schedule a Demo
-              <ArrowRight className="w-4 h-4" />
-            </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-10 text-base gap-2"
+                onClick={() => navigate("/contact")}
+              >
+                Schedule Demo
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                className="h-12 px-10 text-base border-slate-300 text-gray-700 hover:bg-slate-50 hover:text-gray-900"
+                onClick={() => document.getElementById("problem")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                Learn More
+              </Button>
+            </div>
 
           </div>
 
@@ -357,15 +377,13 @@ const ScrollDrivenHero = () => {
                     return (
                       <div
                         key={oi}
-                        className="bg-white"
+                        className="ventus-glass"
                         style={{
-                          borderRadius: 8,
+                          borderRadius: 10,
                           minHeight: 100,
                           opacity: cardProgress,
                           transform: `translateY(${(1 - cardProgress) * -10}px) scale(${0.92 + cardProgress * 0.08})`,
                           transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-                          border: "1px solid #E5E7EB",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                         }}
                       >
                         <div className="px-3 py-3">

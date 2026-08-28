@@ -1,0 +1,125 @@
+{
+  "recordedAt": "2026-08-01T19:37:35Z",
+  "environment": "staging",
+  "account": "373633008995",
+  "region": "us-east-2",
+  "sourceCommit": "2bb214403af1a9d051879d79af5b8637b031fa0d",
+  "pullRequest": 259,
+  "deploymentRuns": {
+    "evidenceStore": {
+      "runId": "30714509567",
+      "stack": "VentusEvidenceStoreStack",
+      "status": "success"
+    },
+    "consoleApi": {
+      "runId": "30714682448",
+      "stack": "VentusConsoleApiStack",
+      "status": "success",
+      "baseUrl": "https://6iaouncicd.execute-api.us-east-2.amazonaws.com/staging/v1/console"
+    }
+  },
+  "migration": {
+    "requestId": "b981313a-3907-4e85-8dbe-b841c7eff3c2",
+    "schema": "ventus_evidence",
+    "migrationCount": 12,
+    "migrations": [
+      {
+        "file": "decision-ledger.sql",
+        "sha256": "0694489c5e40fcc8d4f7120744b152554e146c2c54454aaa77ced3f104be204c"
+      },
+      {
+        "file": "experiment-measurement.sql",
+        "sha256": "69594dce9e17952c5b34ca052bf42302ec8f77d59013d772f98209519d1f0f54"
+      },
+      {
+        "file": "connected-expansion-measurement.sql",
+        "sha256": "de6edd75ead8398c72255e298ff8790defe127c36adb43cd1ec7c4b939997c98"
+      },
+      {
+        "file": "growth-play-registry.sql",
+        "sha256": "8ac40cc000911a3b1f75317e79463aeaa7cab03e0ba7aafeeb04ac5848dc5e04"
+      },
+      {
+        "file": "tenant-isolation.sql",
+        "sha256": "a8d3479930e7b474c637801a92f252d8e22ca5402eebc26108e0388a669b99c4"
+      },
+      {
+        "file": "institution-access.sql",
+        "sha256": "b85e8018b7cb3ff2f5e804902dfc9ecc333a1b84adf0bcb705e5fc046f11a800"
+      },
+      {
+        "file": "enterprise-access-phase0.sql",
+        "sha256": "55af23accbe19113e7e0dd932fe37b43fb3ad0cca35b6aa1598180c35354e2c6"
+      },
+      {
+        "file": "connector-delivery.sql",
+        "sha256": "e5abcf88d9a1e03e77109dcfcfd31c815d59fa629bf772f296ca26ce6718bab7"
+      },
+      {
+        "file": "enterprise-console-journey.sql",
+        "sha256": "d4b5c02c8de090ccfafff3339f2f995718754afea2243dbd2f02b261d03afb93"
+      },
+      {
+        "file": "enterprise-product-control-plane.sql",
+        "sha256": "9e2a8e944faefd0f740da97501cc8f9fee632329537976ab63f2d9fcb4c40b9"
+      },
+      {
+        "file": "enterprise-skill-governance.sql",
+        "sha256": "ab86a299feb79f8cd318d123825f4ff3d2139ca26bb716aa79fd2c41bc49416f"
+      },
+      {
+        "file": "enterprise-protocol-writer.sql",
+        "sha256": "37cc984b592d777ca58dfed1fb8958085073bfceb65b92a96b4946ba48021401"
+      }
+    ],
+    "schemaInventory": [
+      "connected_exposure_events",
+      "connector_delivery_receipts",
+      "connector_mapping_test_receipts",
+      "connector_mapping_versions",
+      "decision_ledger_events",
+      "experiment_assignments",
+      "growth_play_drafts",
+      "growth_play_protocol_approval_events",
+      "growth_play_protocols",
+      "institution_identity_providers",
+      "institution_memberships",
+      "institutions",
+      "outcome_events",
+      "outcome_observation_receipts",
+      "skill_shadow_approval_receipts",
+      "skill_shadow_registry",
+      "skill_shadow_transition_receipts"
+    ],
+    "mutationPerformed": true,
+    "verification": {
+      "runtimeRole": "ventus_evidence_app_v1",
+      "runtimeRoleNonBypass": true,
+      "eventCount": 4,
+      "hashChainVerified": true,
+      "headHash": "ebf1b6cb073fcf43afa71afabc69f9b7397d5f530c60df30772c5c4929811394",
+      "crossTenantVisibleEvents": 0,
+      "crossTenantVisibleExposures": 0,
+      "crossTenantVisibleProtocols": 0,
+      "crossTenantVisibleMemberships": 0,
+      "runtimeProtocolWriteDenied": true,
+      "runtimeMembershipWriteDenied": true,
+      "ledgerUpdateDenied": true,
+      "ledgerDeleteDenied": true,
+      "ledgerReplayRejected": true,
+      "assignmentIdempotent": true,
+      "exposureIdempotent": true,
+      "connectedExposureCount": 1,
+      "connectedExposureReplayInserted": false,
+      "authorizationScopeId": "runtime_verification_scope",
+      "decisionProtocolId": "dcp_cc96785c4131fedd9c7a9601",
+      "approvalEventId": "gpa_c9ce89bc104af0c61b16b72c"
+    }
+  },
+  "claimBoundary": {
+    "evidenceClass": "partner_sandbox",
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false,
+    "note": "The staging runtime and partner-sandbox receipts prove the governed mechanism, not bank performance."
+  }
+}

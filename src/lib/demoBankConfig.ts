@@ -58,7 +58,14 @@ export function setDemoBankConfig(cfg: DemoBankConfig): void {
   } catch {
     // ignore
   }
+  // Cached AI surfaces are branded with the old bank name — let them regenerate.
+  try {
+    window.dispatchEvent(new Event("demo-bank-config-changed"));
+  } catch {
+    // ignore
+  }
 }
+
 
 /** Returns context to spread into edge function bodies, or null for generic. */
 export function getBankPromptContext(): BankPromptContext {

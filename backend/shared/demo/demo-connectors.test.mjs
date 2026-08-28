@@ -40,6 +40,9 @@ test('demo session is short-lived, scoped, and reports configured connectors', a
   const session = await service.issueSession({ tenantId: 'bank_demo' });
   assert.equal(session.connectors.plaid, true);
   assert.equal(session.connectors.salesforce, true);
+  assert.equal(session.tenantId, 'bank_demo');
+  assert.equal(session.subject, 'demo_operator');
+  assert.equal(session.role, 'operator');
   assert.equal(session.expiresAt - Math.floor(Date.UTC(2026, 6, 13) / 1000), 900);
   await assert.rejects(
     service.pullPlaidTransactions({ authorization: 'Bearer invalid', scenario: 'deposit-retention' }),
@@ -64,6 +67,18 @@ test('demo session rejects expired and future-issued tokens', async () => {
   const futureToken = signTestSession({ iat: issuedAt, exp: issuedAt + 900 });
   await assert.rejects(
     service.pullPlaidTransactions({ authorization: `Bearer ${futureToken}` }),
+    (error) => error instanceof DemoConnectorError && error.status === 403,
+  );
+});
+
+test('operator connector sessions cannot inspect institution mappings', async () => {
+  const service = createDemoConnectorService({
+    getSecrets: async () => configuredSecrets,
+    now: () => Date.UTC(2026, 6, 13),
+  });
+  const session = await service.issueSession({ role: 'operator' });
+  await assert.rejects(
+    service.discoverSalesforce({ authorization: `Bearer ${session.token}` }),
     (error) => error instanceof DemoConnectorError && error.status === 403,
   );
 });
@@ -148,6 +163,10 @@ test('AWS handler is default-off, origin-bound, and routes without an API key', 
     issueSession: async () => ({ token: 'scoped-token', expiresAt: 1, connectors: { plaid: true, salesforce: true } }),
     pullPlaidTransactions: async () => ({ source: 'plaid', transactions: [] }),
     createSalesforceTask: async () => ({ id: '00Tdemo' }),
+    discoverSalesforce: async () => ({ system: 'Salesforce FSC' }),
+    verifySalesforceAccount: async () => ({ account: { verified: true } }),
+    deliverSalesforce: async () => ({ id: 'a01decision' }),
+    readSalesforceOutcome: async () => ({ outcome: { status: 'measuring' } }),
   };
   const handler = createHandler({ connectorService: fakeService });
   const event = requestEvent('/v1/demo/session');
@@ -161,6 +180,31 @@ test('AWS handler is default-off, origin-bound, and routes without an API key', 
   assert.equal(response.statusCode, 200);
   assert.equal(response.headers['Access-Control-Allow-Origin'], 'https://demo.ventusai.com');
   assert.equal(JSON.parse(response.body).token, 'scoped-token');
+
+  assert.equal(
+    (await handler(requestEvent(
+      '/v1/demo/salesforce-onboarding',
+      'https://demo.ventusai.com',
+      { action: 'discover' },
+    ))).statusCode,
+    200,
+  );
+  assert.equal(
+    (await handler(requestEvent(
+      '/v1/demo/salesforce-deliver',
+      'https://demo.ventusai.com',
+      { subject: 'Review moment' },
+    ))).statusCode,
+    200,
+  );
+  assert.equal(
+    (await handler(requestEvent(
+      '/v1/demo/salesforce-outcomes',
+      'https://demo.ventusai.com',
+      { decisionRecordId: 'a01000000000001' },
+    ))).statusCode,
+    200,
+  );
 });
 
 test('scenario readiness requires the complete signal pattern', () => {
@@ -184,13 +228,16 @@ function json(body, status = 200) {
   });
 }
 
-function requestEvent(path, origin = 'https://demo.ventusai.com') {
+function requestEvent(path, origin = 'https://demo.ventusai.com', body = {}) {
   return {
     httpMethod: 'POST',
     path,
     headers: { Origin: origin },
-    body: '{}',
-    requestContext: { requestId: 'request-demo' },
+    body: JSON.stringify(body),
+    requestContext: {
+      requestId: 'request-demo',
+      authorizer: { claims: { sub: 'cognito-sub-001', tenant_id: 'demo_bank' } },
+    },
   };
 }
 

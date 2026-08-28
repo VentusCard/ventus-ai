@@ -38,6 +38,8 @@ Once the role is active, Codex can:
 - verify Lambda, API Gateway, CloudWatch alarms, and logs;
 - check that the demo secret exists and has a current version without reading it;
 - inspect deployment jobs or restart an existing Amplify branch deployment without reading its environment variables;
+- invoke the private evidence-store migrator in read-only status mode or with its
+  exact confirmation-gated migration payload;
 - run the Plaid-to-Salesforce smoke test and report evidence;
 - monitor AWS spend and anomalies.
 

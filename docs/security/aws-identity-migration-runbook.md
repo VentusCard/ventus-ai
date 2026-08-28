@@ -129,7 +129,22 @@ dual run. Do not expose a public provider toggle.
    role.
 4. Create one institution, its Cognito provider binding, and one active pilot
    membership as the database owner.
-5. Invite the pilot user with the immutable Cognito `tenant_id` attribute.
+5. Invite the pilot user with the immutable Cognito `tenant_id` attribute. The
+   attribute must be present when the user is created; it cannot be added later.
+   For a Cognito-native pilot invite, use `AdminCreateUser` with both the work
+   email and `custom:tenant_id` in `UserAttributes`, for example:
+
+   ```bash
+   aws cognito-idp admin-create-user \
+     --region us-east-2 \
+     --user-pool-id <user-pool-id> \
+     --username operator@example-bank.com \
+     --user-attributes \
+       Name=email,Value=operator@example-bank.com \
+       Name=email_verified,Value=true \
+       Name=custom:tenant_id,Value=example-bank \
+     --desired-delivery-mediums EMAIL
+   ```
 6. Configure the AWS Console API with the server variables above.
 7. Configure the Amplify `dev` branch with the frontend variables above and
    redeploy it.

@@ -49,6 +49,8 @@ interface Props {
   productDeliveryChannel?: ProductDeliveryChannel;
   aiTabTrigger?: number;
   pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null;
+  /** Persistent grounding context appended to every consumer-chat request (demo mock-up mode). */
+  chatSignalContext?: string;
   /** When true, the right phone panel renders the WM CoPilot view instead of the customer mockup. */
   wmCopilotMode?: boolean;
   /** Currently selected signal driving the WM CoPilot brief. */
@@ -60,9 +62,12 @@ interface Props {
   wmCopilotPersonaSummary?: string;
   /** Called when the user closes the WM CoPilot view from inside the phone. */
   onCloseWMCopilot?: () => void;
+  /** Device frame chrome: "default" (chunky demo bezel) or "compact" (thin bezel for embedded workspaces). */
+  frame?: "default" | "compact";
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile" }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default" }: Props) {
+  const isCompactFrame = frame === "compact";
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -143,6 +148,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             messageNonce={pendingAIPrompt?.nonce}
             initialMessageKind={pendingAIPrompt?.kind}
             initialMessageContext={pendingAIPrompt?.signalContext}
+            baseSignalContext={chatSignalContext}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );
@@ -153,13 +159,17 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   };
 
   return (
-    <div className="relative flex items-center justify-center h-full p-3">
+    <div className={`relative flex items-center justify-center h-full ${isCompactFrame ? "p-0" : "p-3"}`}>
       {/* iPad frame */}
       <div
-        className="phone-mockup-frame relative rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col w-full h-full"
+        className={`phone-mockup-frame relative bg-white shadow-2xl overflow-hidden flex flex-col w-full h-full ${
+          isCompactFrame
+            ? "rounded-[16px] border-[6px] border-slate-300"
+            : "rounded-[20px] border-[12px] border-slate-300"
+        }`}
       >
         {/* Camera dot */}
-        <div className="flex justify-center pt-1.5 pb-0.5 bg-white shrink-0">
+        <div className={`flex justify-center bg-white shrink-0 ${isCompactFrame ? "pt-1 pb-0.5" : "pt-1.5 pb-0.5"}`}>
           <div className="w-2 h-2 rounded-full bg-slate-300" />
         </div>
 
