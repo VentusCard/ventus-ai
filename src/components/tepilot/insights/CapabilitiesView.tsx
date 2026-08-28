@@ -318,27 +318,29 @@ const DESTINATIONS: Destination[] = [
   { name: "Loyalty & Retention", channel: "Digital Banking", team: "rewards" },
 ];
 
-function Connector({ amber }: { amber?: boolean }) {
-  const stroke = amber ? "#D9A441" : "#94A3B8";
+function Connector({ amber, active = true }: { amber?: boolean; active?: boolean }) {
+  const stroke = active && amber ? "#D9A441" : "#94A3B8";
   return (
-    <div className="flex items-center justify-center py-3 lg:py-0" aria-hidden>
-      <svg width="52" height="20" viewBox="0 0 52 20" fill="none" className="opacity-70 max-lg:rotate-90">
+    <div className={cn("flex items-center justify-center py-3 lg:py-0", !active && "opacity-40 grayscale")} aria-hidden>
+      <svg width="52" height="20" viewBox="0 0 52 20" fill="none" className={cn("max-lg:rotate-90", active && "opacity-70")}>
         <path
           d="M2 10H43"
           stroke={stroke}
           strokeWidth="1.3"
           strokeLinecap="round"
           strokeDasharray="3 3"
-          className="animate-flow-dash motion-reduce:animate-none"
+          className={cn(active && "animate-flow-dash motion-reduce:animate-none")}
         />
-        <circle
-          cx="3"
-          cy="10"
-          r="1.9"
-          fill={stroke}
-          className="animate-flow-pulse motion-reduce:hidden"
-          style={{ animationDelay: amber ? "0.5s" : "0s" }}
-        />
+        {active && (
+          <circle
+            cx="3"
+            cy="10"
+            r="1.9"
+            fill={stroke}
+            className="animate-flow-pulse motion-reduce:hidden"
+            style={{ animationDelay: amber ? "0.5s" : "0s" }}
+          />
+        )}
         <path
           d="M40 5.5L46.5 10L40 14.5"
           stroke={stroke}
@@ -681,6 +683,14 @@ function SignalSection({
 
 export function CapabilitiesView() {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
+  // Guided walkthrough: 0 = sources only, 1 = core live, 2 = activation live.
+  const [walkStep, setWalkStep] = useState<0 | 1 | 2>(0);
+  const coreLive = walkStep >= 1;
+  const activationLive = walkStep >= 2;
+  const goWalkStep = (next: 0 | 1 | 2) => {
+    setWalkStep(next);
+    if (next < 1) setActiveSignalLabel(null);
+  };
   const sourceGroups: SourceGroup[] = [
     {
       provider: "Banking Core",
@@ -932,6 +942,72 @@ export function CapabilitiesView() {
 
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
+        {/* Walkthrough control */}
+        <div
+          className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-slate-100"
+          role="group"
+          aria-label="Flow walkthrough steps"
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight") goWalkStep(Math.min(2, walkStep + 1) as 0 | 1 | 2);
+            if (e.key === "ArrowLeft") goWalkStep(Math.max(0, walkStep - 1) as 0 | 1 | 2);
+          }}
+        >
+          <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
+            Walk the flow
+          </span>
+          <div className="flex items-center gap-1.5">
+            {(
+              [
+                { step: 0, label: "1 · Data sources" },
+                { step: 1, label: "2 · Core" },
+                { step: 2, label: "3 · Activation" },
+              ] as const
+            ).map(({ step, label }) => (
+              <button
+                key={step}
+                type="button"
+                onClick={() => goWalkStep(step)}
+                aria-pressed={walkStep >= step}
+                className={cn(
+                  "rounded-full border px-3 py-1 text-[11.5px] font-semibold transition-colors",
+                  walkStep >= step
+                    ? "border-blue-600 bg-blue-600 text-white"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="ml-auto flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-label="Previous step"
+              onClick={() => goWalkStep(Math.max(0, walkStep - 1) as 0 | 1 | 2)}
+              disabled={walkStep === 0}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+            >
+              <ChevronDown className="h-3.5 w-3.5 rotate-90" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next step"
+              onClick={() => goWalkStep(Math.min(2, walkStep + 1) as 0 | 1 | 2)}
+              disabled={walkStep === 2}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+            >
+              <ChevronDown className="h-3.5 w-3.5 -rotate-90" />
+            </button>
+            <button
+              type="button"
+              onClick={() => goWalkStep(0)}
+              className="rounded-md border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+
         {/* Pipeline board */}
         <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
@@ -992,10 +1068,15 @@ export function CapabilitiesView() {
             </div>
           </div>
 
-          <Connector />
+          <Connector active={coreLive} />
 
           {/* Core */}
-          <div className="min-w-0 p-1.5">
+          <div
+            className={cn(
+              "min-w-0 p-1.5 transition-opacity duration-300",
+              !coreLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
+            )}
+          >
             <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-5">
               <div className="mb-3.5 border-b border-white/10 pb-3">
                 <div className="flex min-w-0 items-center gap-2.5">
@@ -1036,10 +1117,15 @@ export function CapabilitiesView() {
             </div>
           </div>
 
-          <Connector amber />
+          <Connector amber active={activationLive} />
 
           {/* Destinations */}
-          <div className="flex h-full min-w-0 flex-col p-5">
+          <div
+            className={cn(
+              "flex h-full min-w-0 flex-col p-5 transition-opacity duration-300",
+              !activationLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
+            )}
+          >
             <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
                 Activation destinations
