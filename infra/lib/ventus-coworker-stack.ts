@@ -76,7 +76,9 @@ export class VentusCoworkerStack extends cdk.Stack {
 
     // ── Inbound MIME storage + notification fan-out ──────────────────────────
     const inboundBucket = new s3.Bucket(this, 'CoworkerInboundBucket', {
-      bucketName: `ventus-coworker-inbound-${this.account}`,
+      // Region-scoped so the same account can host the stack in more than one
+      // region (S3 bucket names are globally unique). Inbound lives in us-east-1.
+      bucketName: `ventus-coworker-inbound-${this.account}-${this.region}`,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
       enforceSSL: true,
@@ -119,6 +121,10 @@ export class VentusCoworkerStack extends cdk.Stack {
         // on until a SES sending identity is verified; disable with
         // -c coworkerDryRun=false.
         COWORKER_DRY_RUN: String(booleanContext(this, 'coworkerDryRun', true)),
+        // Demo mode: reply to any sender (not just allowlisted advisors) as a
+        // synthetic advisor over the full demo book. Off by default; enable for a
+        // public-facing demo with -c coworkerDemoOpen=true.
+        COWORKER_DEMO_OPEN: String(booleanContext(this, 'coworkerDemoOpen', false)),
       },
       deadLetterQueue: inboundDlq,
       retryAttempts: 2,

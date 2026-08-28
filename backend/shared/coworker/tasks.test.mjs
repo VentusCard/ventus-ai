@@ -5,10 +5,15 @@ import {
   buildAdvisorDigest,
   buildAudience,
   classifyIntent,
+  generateOutreach,
   householdTokens,
   modeledBenefit,
+  answerQuestion,
+  resolveHousehold,
   resolveProduct,
   retrieveEvidence,
+  scanHouseholdMentions,
+  summarizeSpend,
 } from './tasks.mjs';
 
 const provider = createFixturePortfolioProvider();
@@ -75,6 +80,115 @@ test('resolveProduct maps free-text model mentions to catalog ids', () => {
   assert.equal(resolveProduct(catalog, 'nope'), null);
   assert.equal(resolveProduct(catalog, ''), null);
   assert.equal(resolveProduct(catalog, null), null);
+});
+
+// --- household resolution (tolerant of free-text model output) ---------------
+
+test('resolveHousehold maps ids, family names, and contacts to a household', () => {
+  const households = provider.getHouseholds();
+  assert.equal(resolveHousehold(households, 'hh_nakamura')?.id, 'hh_nakamura');
+  assert.equal(resolveHousehold(households, 'Nakamura')?.id, 'hh_nakamura');
+  assert.equal(resolveHousehold(households, 'Nakamura Household')?.id, 'hh_nakamura');
+  assert.equal(resolveHousehold(households, 'Kenji Nakamura')?.id, 'hh_nakamura');
+  // Nonsense / empty -> null so the caller can ask.
+  assert.equal(resolveHousehold(households, 'nobody'), null);
+  assert.equal(resolveHousehold(households, ''), null);
+  assert.equal(resolveHousehold(households, null), null);
+});
+
+test('scanHouseholdMentions finds households by surname in free text', () => {
+  const households = provider.getHouseholds();
+  assert.deepEqual(scanHouseholdMentions('Draft for Okafor', households), ['hh_okafor']);
+  assert.deepEqual(scanHouseholdMentions('what about the Nakamura household?', households), [
+    'hh_nakamura',
+  ]);
+  // "the top 3" names nobody -> empty, so the caller falls back to slot memory.
+  assert.deepEqual(scanHouseholdMentions('draft outreach for the top 3', households), []);
+  assert.deepEqual(scanHouseholdMentions('', households), []);
+});
+
+// --- grounded free-form Q&A ---------------------------------------------------
+
+test('summarizeSpend ranks Okafor spend with Travel & Exploration on top', () => {
+  const spend = summarizeSpend(provider.getTransactions('hh_okafor'));
+  assert.equal(spend.top_pillars[0].name, 'Travel & Exploration');
+  assert.ok(spend.top_pillars[0].observed_usd > 0);
+  assert.ok(spend.top_merchants.length > 0);
+  // Payroll is a credit and must be excluded from spend.
+  assert.ok(!spend.top_merchants.some((m) => /payroll/i.test(m.name)));
+});
+
+test('answerQuestion returns model text, and empty string when the model is down', async () => {
+  const okGw = {
+    async chatCompletion() {
+      return {
+        response: {
+          ok: true,
+          async json() {
+            return { choices: [{ message: { content: 'Okafor skews toward travel spend.' } }] };
+          },
+        },
+      };
+    },
+  };
+  const ans = await answerQuestion({ gateway: okGw, question: 'what does okafor spend on', context: {} });
+  assert.match(ans.text, /travel/i);
+
+  const downGw = { async chatCompletion() { return { response: { ok: false, async json() { return {}; } } }; } };
+  const none = await answerQuestion({ gateway: downGw, question: 'x', context: {} });
+  assert.equal(none.text, '');
+});
+
+// --- outreach drafting (grounded; deterministic fallback on model failure) ---
+
+test('generateOutreach returns a grounded fallback draft when the model is unavailable', async () => {
+  const audience = buildAudience({ provider, advisorId: 'adv_okoro', productId: 'high-yield-savings' });
+  const gw = { async chatCompletion() { return { response: { ok: false, async json() { return {}; } } }; } };
+  const { drafts } = await generateOutreach({
+    gateway: gw,
+    product: audience.product,
+    candidates: audience.candidates,
+  });
+  assert.ok(drafts.length >= 1 && drafts.length <= 3);
+  for (const d of drafts) {
+    assert.ok(d.text.length > 0);
+    assert.ok(d.household_name.length > 0);
+    // Fallback must not fabricate a precise dollar figure.
+    assert.doesNotMatch(d.text, /\$\d/);
+  }
+});
+
+test('generateOutreach parses model JSON drafts and keeps only known households', async () => {
+  const audience = buildAudience({ provider, advisorId: 'adv_okoro', productId: 'high-yield-savings' });
+  const top = audience.candidates[0];
+  const gw = {
+    async chatCompletion() {
+      return {
+        response: {
+          ok: true,
+          async json() {
+            return {
+              choices: [
+                {
+                  message: {
+                    content: JSON.stringify({
+                      drafts: [
+                        { household_id: top.household_id, text: 'Hi there, quick idea to review together.' },
+                        { household_id: 'hh_not_in_audience', text: 'should be dropped' },
+                      ],
+                    }),
+                  },
+                },
+              ],
+            };
+          },
+        },
+      };
+    },
+  };
+  const { drafts } = await generateOutreach({ gateway: gw, product: audience.product, candidates: audience.candidates });
+  assert.equal(drafts.length, 1);
+  assert.equal(drafts[0].household_id, top.household_id);
 });
 
 test('buildAudience accepts a free-text product mention', () => {
