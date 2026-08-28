@@ -23,7 +23,7 @@ import {
   Bot,
   Megaphone,
   Briefcase,
-  SatelliteDish,
+  RadioTower,
 
   Home,
   PiggyBank,
@@ -1136,7 +1136,7 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-2">
               {visibleDestinations.map((d) => {
-                const FacingIcon = d.facing === "bank" ? SatelliteDish : Smartphone;
+                const FacingIcon = d.facing === "bank" ? RadioTower : Smartphone;
                 const facingLabel = d.facing === "bank" ? "Bank-facing" : "Consumer-facing";
                 return (
                   <div
