@@ -75,12 +75,12 @@ type SourceGroup = {
   inputs: SourceInput[];
 };
 
-type TeamKey = "leadership" | "growth" | "rewards";
+type Facing = "bank" | "consumer";
 
 type Destination = {
   name: string;
   channel: string;
-  team: TeamKey;
+  facing: Facing;
 };
 
 type Detection = { ev: string; to: string; basis: "1P" | "Ext" | "Both" };
@@ -300,22 +300,16 @@ function chipClass(chip: WorkflowChip) {
   return CHIP_KIND_TINTS[chip.kind];
 }
 
-const TEAMS: Record<TeamKey, { label: string; color: string }> = {
-  leadership: { label: "Bank Leadership", color: "#2563EB" },
-  growth: { label: "Product & Growth", color: "#37B389" },
-  rewards: { label: "Rewards & Deals", color: "#B4722A" },
-};
-
 const DESTINATIONS: Destination[] = [
-  { name: "Intelligence Database", channel: "Ventus", team: "leadership" },
-  { name: "Ventus AI Coworker", channel: "Email", team: "leadership" },
-  { name: "Personalized Relationship", channel: "Ventus", team: "growth" },
-  { name: "Automations Campaign", channel: "CRM", team: "growth" },
-  { name: "Custom Product Builder", channel: "CRM", team: "growth" },
-  { name: "Personalized Product Offer", channel: "CRM", team: "growth" },
-  { name: "Personalized Reward Program", channel: "Digital Banking", team: "rewards" },
-  { name: "Local Merchant Deals", channel: "Ventus", team: "rewards" },
-  { name: "Loyalty & Retention", channel: "Digital Banking", team: "rewards" },
+  { name: "Intelligence Database", channel: "Ventus", facing: "bank" },
+  { name: "Ventus AI Coworker", channel: "Email", facing: "bank" },
+  { name: "Personalized Relationship", channel: "Ventus", facing: "bank" },
+  { name: "Automations Campaign", channel: "CRM", facing: "bank" },
+  { name: "Custom Product Builder", channel: "CRM", facing: "bank" },
+  { name: "Personalized Product Offer", channel: "CRM", facing: "consumer" },
+  { name: "Personalized Reward Program", channel: "Digital Banking", facing: "consumer" },
+  { name: "Local Merchant Deals", channel: "Ventus", facing: "consumer" },
+  { name: "Loyalty & Retention", channel: "Digital Banking", facing: "consumer" },
 ];
 
 function Connector({ amber, active = true }: { amber?: boolean; active?: boolean }) {
@@ -1138,18 +1132,21 @@ export function CapabilitiesView() {
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               {visibleDestinations.map((d) => {
-                const team = TEAMS[d.team];
+                const FacingIcon = d.facing === "bank" ? Landmark : Smartphone;
+                const facingLabel = d.facing === "bank" ? "Bank-facing" : "Consumer-facing";
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[44px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-3"
+                    className="relative flex min-h-[44px] flex-1 items-center gap-2.5 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-3"
+                    title={facingLabel}
                   >
-                    <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
                     <span
-                      className="flex-none rounded px-2 py-1 text-[13px] font-semibold leading-none"
-                      style={{ background: `${team.color}14`, color: team.color }}
+                      className={cn(
+                        "flex h-7 w-7 flex-none items-center justify-center rounded-md",
+                        d.facing === "bank" ? "bg-slate-100 text-slate-600" : "bg-blue-50 text-blue-600",
+                      )}
                     >
-                      {team.label}
+                      <FacingIcon className="h-3.5 w-3.5" />
                     </span>
                     <span className="truncate text-[14px] font-medium leading-tight text-slate-900">{d.name}</span>
                   </div>
