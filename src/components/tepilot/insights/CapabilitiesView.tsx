@@ -1068,10 +1068,15 @@ export function CapabilitiesView() {
             </div>
           </div>
 
-          <Connector />
+          <Connector active={coreLive} />
 
           {/* Core */}
-          <div className="min-w-0 p-1.5">
+          <div
+            className={cn(
+              "min-w-0 p-1.5 transition-opacity duration-300",
+              !coreLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
+            )}
+          >
             <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-5">
               <div className="mb-3.5 border-b border-white/10 pb-3">
                 <div className="flex min-w-0 items-center gap-2.5">
