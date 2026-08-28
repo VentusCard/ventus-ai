@@ -620,13 +620,13 @@ function SignalSection({
   const next = signal.examples[(idx + 1) % total];
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-8 items-center gap-2 text-[12.5px] leading-none text-slate-100">
-      <span className="relative z-10 truncate font-medium text-white">{example.to}</span>
-      <span className="relative z-0 flex-none text-[11px] text-slate-300">&rarr;</span>
-      <span className="relative z-0 truncate text-slate-200">{example.ev}</span>
+    <span ref={ref} className="flex h-10 items-center gap-2 text-[13px] leading-none text-slate-100">
+      <span className="relative z-10 truncate text-[14px] font-medium text-white">{example.to}</span>
+      <span className="relative z-0 flex-none text-[12px] text-slate-300">&rarr;</span>
+      <span className="relative z-0 truncate text-[13px] text-slate-200">{example.ev}</span>
       <span
         className={cn(
-          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[11px] tracking-wide",
+          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[12px] tracking-wide",
           DETECTION_BASIS_CLASS[example.basis],
         )}
       >
