@@ -643,7 +643,7 @@ function SignalSection({
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-3.5 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
         style.surface,
         style.border,
         isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
@@ -1005,10 +1005,10 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
         </div>
 
         {/* Pipeline board */}
-        <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
+        <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
-          <div className="flex h-full min-w-0 flex-col rounded-xl bg-white p-5 shadow-sm">
-            <div className="mb-3.5 flex items-center gap-2">
+          <div className="flex h-full min-w-0 flex-col rounded-xl bg-white p-4 shadow-sm">
+            <div className="mb-3 flex items-center gap-2">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-blue-700">
                 Data sources
               </span>
@@ -1016,7 +1016,7 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                 2 groups · {totalSourceInputs} sources
               </span>
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-3">
+            <div className="flex min-w-0 flex-1 flex-col gap-2.5">
               {sourceSections.map((section) => {
                 const isExternal = /external/i.test(section.title);
                 return (
@@ -1044,13 +1044,13 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                     </div>
                     <p
                       className={cn(
-                        "py-2 text-[14px] font-bold leading-snug text-slate-800",
+                        "py-1 text-[14px] font-bold leading-snug text-slate-800",
                         isExternal ? "" : "",
                       )}
                     >
                       {section.tagline}
                     </p>
-                    <div className="flex min-w-0 flex-1 flex-col gap-2">
+                    <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                       {section.groups.map((g) => (
                         <SourceGroupCard
                           key={g.provider}
@@ -1075,8 +1075,8 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
               !coreLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
             )}
           >
-            <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-5">
-              <div className="mb-3.5 border-b border-white/10 pb-3">
+            <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-4">
+              <div className="mb-3 border-b border-white/10 pb-2.5">
                 <div className="flex min-w-0 items-center gap-2.5">
                   <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto shrink-0 brightness-0 invert opacity-95" />
                   <p className="truncate text-[14px] font-semibold tracking-tight text-white">
@@ -1091,10 +1091,10 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
 
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
-                <div className="mb-3 whitespace-nowrap font-mono text-[11px] uppercase tracking-wider text-slate-300">
+                <div className="mb-2 whitespace-nowrap font-mono text-[11px] uppercase tracking-wider text-slate-300">
                   Signals · what we detect
                 </div>
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-2">
 
                   {SIGNALS.map((s, i) => {
                     const row = signalRows.find((r) => r.label === s.label);
@@ -1120,11 +1120,11 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
           {/* Destinations */}
           <div
             className={cn(
-              "flex h-full min-w-0 flex-col p-5 transition-opacity duration-300",
+              "flex h-full min-w-0 flex-col p-4 transition-opacity duration-300",
               !activationLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
             )}
           >
-            <div className="mb-3.5 flex items-center gap-2">
+            <div className="mb-3 flex items-center gap-2">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
                 Activation destinations
               </span>
@@ -1132,14 +1132,14 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                 Every Customer, Every Colleague
               </span>
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-3">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
               {visibleDestinations.map((d) => {
                 const FacingIcon = d.facing === "bank" ? Landmark : Smartphone;
                 const facingLabel = d.facing === "bank" ? "Bank-facing" : "Consumer-facing";
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[54px] flex-1 items-center gap-3 overflow-hidden rounded-lg border border-slate-100 pl-3.5 pr-3.5"
+                    className="relative flex min-h-[48px] flex-1 items-center gap-3 overflow-hidden rounded-lg border border-slate-100 pl-3.5 pr-3.5"
                     title={facingLabel}
                   >
                     <span
