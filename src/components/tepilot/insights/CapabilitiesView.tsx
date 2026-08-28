@@ -1132,18 +1132,21 @@ export function CapabilitiesView() {
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               {visibleDestinations.map((d) => {
-                const team = TEAMS[d.team];
+                const FacingIcon = d.facing === "bank" ? Landmark : Smartphone;
+                const facingLabel = d.facing === "bank" ? "Bank-facing" : "Consumer-facing";
                 return (
                   <div
                     key={d.name}
-                    className="relative flex min-h-[44px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-3"
+                    className="relative flex min-h-[44px] flex-1 items-center gap-2.5 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-3"
+                    title={facingLabel}
                   >
-                    <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: team.color }} />
                     <span
-                      className="flex-none rounded px-2 py-1 text-[13px] font-semibold leading-none"
-                      style={{ background: `${team.color}14`, color: team.color }}
+                      className={cn(
+                        "flex h-7 w-7 flex-none items-center justify-center rounded-md",
+                        d.facing === "bank" ? "bg-slate-100 text-slate-600" : "bg-blue-50 text-blue-600",
+                      )}
                     >
-                      {team.label}
+                      <FacingIcon className="h-3.5 w-3.5" />
                     </span>
                     <span className="truncate text-[14px] font-medium leading-tight text-slate-900">{d.name}</span>
                   </div>
