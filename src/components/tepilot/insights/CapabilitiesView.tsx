@@ -318,27 +318,29 @@ const DESTINATIONS: Destination[] = [
   { name: "Loyalty & Retention", channel: "Digital Banking", team: "rewards" },
 ];
 
-function Connector({ amber }: { amber?: boolean }) {
-  const stroke = amber ? "#D9A441" : "#94A3B8";
+function Connector({ amber, active = true }: { amber?: boolean; active?: boolean }) {
+  const stroke = active && amber ? "#D9A441" : "#94A3B8";
   return (
-    <div className="flex items-center justify-center py-3 lg:py-0" aria-hidden>
-      <svg width="52" height="20" viewBox="0 0 52 20" fill="none" className="opacity-70 max-lg:rotate-90">
+    <div className={cn("flex items-center justify-center py-3 lg:py-0", !active && "opacity-40 grayscale")} aria-hidden>
+      <svg width="52" height="20" viewBox="0 0 52 20" fill="none" className={cn("max-lg:rotate-90", active && "opacity-70")}>
         <path
           d="M2 10H43"
           stroke={stroke}
           strokeWidth="1.3"
           strokeLinecap="round"
           strokeDasharray="3 3"
-          className="animate-flow-dash motion-reduce:animate-none"
+          className={cn(active && "animate-flow-dash motion-reduce:animate-none")}
         />
-        <circle
-          cx="3"
-          cy="10"
-          r="1.9"
-          fill={stroke}
-          className="animate-flow-pulse motion-reduce:hidden"
-          style={{ animationDelay: amber ? "0.5s" : "0s" }}
-        />
+        {active && (
+          <circle
+            cx="3"
+            cy="10"
+            r="1.9"
+            fill={stroke}
+            className="animate-flow-pulse motion-reduce:hidden"
+            style={{ animationDelay: amber ? "0.5s" : "0s" }}
+          />
+        )}
         <path
           d="M40 5.5L46.5 10L40 14.5"
           stroke={stroke}
