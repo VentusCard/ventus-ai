@@ -1011,12 +1011,12 @@ export function CapabilitiesView() {
         {/* Pipeline board */}
         <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
-          <div className="flex h-full min-w-0 flex-col rounded-xl border border-indigo-900/60 bg-[#141432] p-5">
+          <div className="flex h-full min-w-0 flex-col rounded-xl border-2 border-blue-600 bg-white p-5 shadow-sm">
             <div className="mb-3.5 flex items-center gap-2">
-              <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-indigo-100/90">
+              <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-blue-700">
                 Data sources
               </span>
-              <span className="ml-auto font-mono text-[11.5px] text-indigo-200/70">
+              <span className="ml-auto font-mono text-[11.5px] text-slate-500">
                 2 groups · {totalSourceInputs} sources
               </span>
             </div>
