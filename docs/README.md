@@ -10,8 +10,10 @@ evidence-store migrator removed):
 
 - ✅ **Current** — matches the code/infra on `main`.
 - 🧭 **Planned** — target/future state, not yet built (banner at top of file).
-- ⚠️ **Historical/stale** — describes a retired subsystem; kept for reference,
-  banner at top of file.
+
+Docs describing retired subsystems (Growth Play, Console API, decision ledger,
+pilot runtime, evidence-store migrator) were removed in the 2026-08 cleanup —
+recover them from git history if ever needed.
 
 ---
 
@@ -20,8 +22,6 @@ System design and control-plane architecture.
 - ✅ [intelligence-control-plane.md](./architecture/intelligence-control-plane.md) — AI/decision governance architecture (enrichment pipeline is real; some control-plane pieces are forward-looking)
 - 🧭 [enterprise-product-blueprint.md](./architecture/enterprise-product-blueprint.md) — target-state enterprise blueprint
 - 🧭 [enterprise-identity-and-permissions.md](./architecture/enterprise-identity-and-permissions.md) — planned Cognito/RBAC model (auth today is Supabase)
-- ⚠️ [enterprise-product-remediation-handoff.md](./architecture/enterprise-product-remediation-handoff.md) — historical handoff (Console API/Decision Package)
-- ⚠️ [sol-post-acceptance-decision-record.md](./architecture/sol-post-acceptance-decision-record.md) — historical decision record
 
 ## security/
 Security, compliance, and identity/secrets operations.
@@ -39,9 +39,6 @@ Operational deployment, promotion, and observability runbooks.
 - ✅ [cdk-deployment-review-checklist.md](./runbooks/cdk-deployment-review-checklist.md) — CDK deploy review
 - ✅ [environment-promotion.md](./runbooks/environment-promotion.md) — Amplify/branch promotion (Cognito/release-manifest sections are forward-looking)
 - ✅ [observability-readiness.md](./runbooks/observability-readiness.md) — monitors + pipeline SLAs
-- ⚠️ [tenant-isolated-persistence-runbook.md](./runbooks/tenant-isolated-persistence-runbook.md) — SQL inventory outdated; direction still valid
-- ⚠️ [evidence-store-deployment-runbook.md](./runbooks/evidence-store-deployment-runbook.md) — retired (migrator removed)
-- ⚠️ [product-salesforce-fsc-delivery.md](./runbooks/product-salesforce-fsc-delivery.md) — retired Console path; demo FSC only
 
 ## api/
 API specs and generated references (machine-referenced — stable paths).
@@ -54,8 +51,6 @@ External systems, connectors, and partner onboarding.
 - ✅ [webhook-partner-integration-guide.md](./integrations/webhook-partner-integration-guide.md) — webhook events/payloads (matches `ventus-api`)
 - ✅ [live-demo-connectors.md](./integrations/live-demo-connectors.md) — demo connectors stack (frontend session flow is forward-looking)
 - ✅ [fsc-enterprise-onboarding.md](./integrations/fsc-enterprise-onboarding.md) — Salesforce FSC demo adapter (product framing is aspirational)
-- ⚠️ [bofa-integration-map.md](./integrations/bofa-integration-map.md) — references removed frontend modules
-- ⚠️ [connector-session-rollout.md](./integrations/connector-session-rollout.md) — enterprise session model not implemented
 
 ## engineering/
 Development workflow, QA, testing, and model tooling. (All current.)
@@ -78,7 +73,6 @@ Product goals and taxonomy.
 - ✅ [lifestyle-taxonomy-v3.md](./product/lifestyle-taxonomy-v3.md) — current classifier taxonomy
 - ✅ [lifestyle-category-v2.md](./product/lifestyle-category-v2.md) — superseded by v3, but useful context
 - 🧭 [product-goal.md](./product/product-goal.md) — product north-star / vision
-- ⚠️ [product-goal-evidence-matrix.md](./product/product-goal-evidence-matrix.md) — claims retired subsystems as evidence
 
 ## internal/
 Internal engineering context and planning.
