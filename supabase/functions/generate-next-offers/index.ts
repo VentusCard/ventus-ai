@@ -12,7 +12,7 @@ const COPY_MODEL = "google/gemini-3.5-flash";
 // Output ceilings per copy call. The behavioral call carries the richest deals
 // (valueLine + valueMath + signalReason on 5 deals) and was truncating at 4000,
 // which dropped the whole cluster, so it gets extra headroom.
-const BEHAVIORAL_MAX_TOKENS = 6000;
+const BEHAVIORAL_MAX_TOKENS = 9000;
 const EVENT_MAX_TOKENS = 4000;
 const SIGNAL_MAX_TOKENS = 4000;
 
@@ -20,7 +20,7 @@ const SIGNAL_MAX_TOKENS = 4000;
 // the cut never surfaces in the UI, so generating copy for it only adds latency.
 // One group per copy family keeps each response inside COPY_MAX_TOKENS — two
 // clusters × 5 grounded deals overflowed and truncated the JSON mid-object.
-const MAX_BEHAVIORAL_ROLLUPS = 1;
+const MAX_BEHAVIORAL_ROLLUPS = 3;
 const MAX_LIFE_EVENTS = 1;
 const MAX_FINANCIAL_SIGNALS = 1;
 
