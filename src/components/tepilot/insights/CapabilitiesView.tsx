@@ -75,12 +75,12 @@ type SourceGroup = {
   inputs: SourceInput[];
 };
 
-type TeamKey = "leadership" | "growth" | "rewards";
+type Facing = "bank" | "consumer";
 
 type Destination = {
   name: string;
   channel: string;
-  team: TeamKey;
+  facing: Facing;
 };
 
 type Detection = { ev: string; to: string; basis: "1P" | "Ext" | "Both" };
