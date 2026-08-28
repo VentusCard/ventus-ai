@@ -1,8 +1,9 @@
 # Ventus Backend
 
-This directory contains the recovered source shape of the AWS backend currently serving `api.ventusai.com`. It was reconstructed from deployed Lambda packages for auditability and pilot-readiness work.
-
-No live infrastructure is changed by this directory. Treat it as the backend source baseline to review, refactor, test, and eventually connect to CI/CD and IaC.
+The AWS backend that serves `api.ventusai.com` and runs the transaction-enrichment
+pipeline. Source is version-controlled here; deploys happen via `scripts/deploy.sh`
+(pipeline + monitors) and CDK / the `infra-staging` workflow (coworker, demo,
+supporting stacks).
 
 ## Functions
 
@@ -18,24 +19,23 @@ Production data pipeline (deployed via `scripts/deploy.sh pipeline`):
 | `ventus-risk-detection` | Risk-factor worker. |
 | `ventus-travel-detection` | Trip/travel detection worker. |
 
-Console / demo / coworker functions (deployed via CDK / `infra-staging` workflow, not `deploy.sh`):
+Demo / coworker functions (deployed via CDK / the `infra-staging` workflow, not `deploy.sh`):
 
 | Function | Purpose |
 | --- | --- |
-| `ventus-console-api` | Growth Console operator API. Cognito-authenticated; resolves institution membership/entitlements. |
-| `ventus-demo-connectors` | Sandbox Plaid/Salesforce connector service for the live demo (synthetic data). |
+| `ventus-demo-connectors` | Sandbox Plaid/Salesforce FSC connector service for the live demo (synthetic data). |
 | `ventus-coworker-inbound` | AI Coworker inbound-email agent turn (parse -> intent -> task -> render -> persist). |
 | `ventus-coworker-digest` | AI Coworker scheduled advisor digest builder. |
 
 ## Monitors
 
-Scheduled Lambdas in `monitors/` (packaged by `scripts/package-monitors.mjs`):
+Scheduled Lambdas in `monitors/` (packaged by `scripts/package-monitors.mjs`,
+deployed via `deploy.sh monitors`):
 
-| Monitor | Purpose | Deployed by |
-| --- | --- | --- |
-| `ventus-stuck-job-monitor` | Detects stuck pipeline batches and emits `batch_stuck` webhooks. | `deploy.sh monitors` |
-| `ventus-webhook-delivery-monitor` | Tracks webhook delivery health and publishes CloudWatch metrics. | `deploy.sh monitors` |
-| `evidence-store-migrator` | Applies evidence/access schema migrations for the pilot control plane. | CDK (`infra-staging`) |
+| Monitor | Purpose |
+| --- | --- |
+| `stuck-job-monitor` | Detects stuck pipeline batches and emits `batch_stuck` webhooks. |
+| `webhook-delivery-monitor` | Tracks webhook delivery health and publishes CloudWatch metrics. |
 
 ## Directory Layout
 
@@ -44,25 +44,26 @@ backend/
 ├── functions/   # One folder per Lambda (index.mjs + package.json)
 ├── monitors/    # Scheduled Lambdas
 ├── shared/      # Libraries imported by functions/monitors, grouped by concern:
-│   ├── platform/  # db, secrets, tenant-context, webhooks, batch-*, model gateway/provider, gemini, console-api, offbank-patterns
+│   ├── platform/  # db, secrets, webhooks, batch-outcome/stuck, model gateway/provider/evaluations, gemini, offbank-patterns
 │   ├── pipeline/  # production enrichment: classify-core, plaid/ingest normalizers
-│   ├── pilot/     # governed pilot / control-plane (ledger, experiments, growth-play, interventions)
-│   ├── demo/      # demo connector service (synthetic data)
+│   ├── demo/      # demo connector service + Salesforce FSC (synthetic data)
 │   └── coworker/  # AI Coworker subsystem (+ fixtures)
-├── scripts/     # CI / deploy / ops only: check:*, package-*, deploy.sh, qa contract checks, migrations, smoke
-│   └── lib/       # shared helpers for scripts (qa-validators, growth-play-cohorts)
+├── scripts/     # CI / deploy / ops only: check:*, package-*, deploy.sh, qa contract checks, smoke
+│   └── lib/       # shared helpers for scripts (qa-validators, collect-shared-modules)
 ├── eval/        # offline evaluation & benchmarking lab (not deployed):
 │   ├── model-eval/  # multi-model task evaluation runner
 │   ├── lib/         # eval helpers (merchant-normalization, model-output-contract)
-│   └── *.mjs        # Plaid benchmark + intervention-review scripts
+│   └── *.mjs        # Plaid benchmark generation/scoring scripts
 ├── sql/  fixtures/  config/
 ```
 
-Packaging bundles only the `shared/` subfolders each function transitively imports, so production pipeline Lambdas no longer ship `pilot/`, `demo/`, or `coworker/` code (see `scripts/lib/collect-shared-modules.mjs`).
+Packaging bundles only the `shared/` subfolders each function transitively imports,
+so production pipeline Lambdas do not ship `demo/` or `coworker/` code
+(see `scripts/lib/collect-shared-modules.mjs`).
 
 ## Current Runtime Dependencies
 
-The deployed backend currently depends on:
+The deployed backend depends on:
 
 - AWS Lambda
 - API Gateway
@@ -73,13 +74,14 @@ The deployed backend currently depends on:
 - CloudWatch Logs
 - Gemini API credentials stored in Secrets Manager
 
-## Important Caveats
+## Data model
 
-- The code has been recovered from deployed packages, not from an original backend repo.
-- The source still has duplicated DB/secrets/webhook helper logic across functions.
-- Secret values are not committed, but secret identifiers are present because the deployed functions use them.
-- This directory is not yet wired to production deployment.
-- Do not deploy from this directory until CI, packaging, environment config, and IaC have been reviewed.
+The core product tables (`transactions_raw`, `transactions_enriched`,
+`customer_pillar_profiles`, `customer_life_events`, `life_event_evidence`,
+`customer_risk_factors`, `customer_trips`, `pipeline_runs`, `merchant_cache`,
+`api_keys`, `webhook_registrations`) plus operational tables are defined under
+`sql/`. `sql/core-product-schema.sql` is a code-derived baseline — verify it
+against Aurora with `pg_dump` before treating it as canonical.
 
 ## Local Packaging
 
@@ -89,25 +91,23 @@ To build Lambda zip packages locally:
 cd backend
 npm run qa:enrichment
 npm run qa:live
-npm run check:pipeline-readiness
 npm run package:functions
 npm run package:monitors
 ```
 
-`qa:live` runs health checks by default. Authenticated read checks require `VENTUS_API_KEY`. Enrichment job submission is disabled unless `VENTUS_LIVE_QA_ENABLE_WRITE=true`.
+`qa:live` runs health checks by default. Authenticated read checks require
+`VENTUS_API_KEY`. Enrichment job submission is disabled unless
+`VENTUS_LIVE_QA_ENABLE_WRITE=true`.
 
-Packages are written to `backend/dist/lambda`. The script installs each function's production dependencies in a temporary build folder before zipping, and copies only the `shared/` subfolders that function actually imports.
+Packages are written to `backend/dist/lambda`. The script installs each function's
+production dependencies in a temporary build folder before zipping, and copies only
+the `shared/` subfolders that function actually imports.
 
-## Recommended Next Refactor
+## Caveats
 
-Keep behavior stable first. Do not change enrichment taxonomy, prompts, or output direction as part of source recovery.
-
-Recommended backend-only cleanup order:
-
-1. Extract shared DB, secrets, SQS, and webhook helpers.
-2. Add unit tests around API request validation and job status shaping.
-3. Add a golden end-to-end smoke test against a staging database.
-4. Add OpenAPI docs to the API Lambda or a docs hosting path.
-5. Add webhook list/delete/test endpoints.
-6. Add observable job-stage latency and stuck-job detection.
-7. Move infrastructure into Terraform or CDK.
+- The source was originally recovered from deployed Lambda packages; some functions
+  still duplicate DB/secrets/webhook helper logic.
+- Secret values are not committed, but secret identifiers are present because the
+  deployed functions reference them.
+- Infrastructure is not yet fully in IaC — pipeline functions/monitors deploy via
+  `scripts/deploy.sh`; migrating them to CDK/Terraform is tracked as future work.

@@ -1,5 +1,7 @@
 # Repo organization north star
 
+> **🧭 TARGET STATE (as of 2026-08).** Describes a future two-repo split (`ventus-ai-backend` / `ventus-ai-frontend`) and folder layout. The repo is currently a monorepo and some paths here (e.g. `backend/shared/pilot/`) no longer exist. Aspirational direction, not current layout.
+
 Target state for **ventus-ai-backend** and **ventus-ai-frontend** before STAR pilot. This doc is internal engineering context; partners use `docs/integrations/webhook-partner-integration-guide.md` and `docs/openapi.yaml`.
 
 ## Two repositories

@@ -1,5 +1,7 @@
 # Briefing delivery foundation
 
+> **🧭 PLANNED / NOT YET BUILT (as of 2026-08).** Describes Growth Console briefings and Outlook/Slack delivery over "governed Growth Play decisions." Growth Play was removed and briefing delivery is not implemented. Treat as a design proposal.
+
 Ventus Briefings are a delivery view over existing governed Growth Play decisions.
 They do not enrich transactions, select actions, or create a second decision engine.
 

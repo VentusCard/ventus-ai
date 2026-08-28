@@ -9,35 +9,13 @@ are related, but they are not the same thing.
 | Stage | Git source | Frontend | Backend and data | Purpose |
 | --- | --- | --- | --- | --- |
 | Pull request | Feature branch | Amplify PR preview when available | Fixtures or explicitly isolated sandbox services | Review one proposed change |
-| Development | `dev` | `https://dev.d1gaewa028qzng.amplifyapp.com` until `dev.ventusai.com` is approved | Development Cognito, Aurora, APIs, Plaid sandbox, and Salesforce FSC sandbox | Shared integration and product testing |
+| Development | `dev` | `https://dev.d1gaewa028qzng.amplifyapp.com` until `dev.ventusai.com` is approved | Development Aurora, APIs, Plaid sandbox, and Salesforce FSC sandbox | Shared integration and product testing |
 | Staging | `staging` | `https://staging.d1gaewa028qzng.amplifyapp.com` | Protected staging stacks and sanctioned non-production data only | Release-candidate validation |
 | Production | `main` | `https://ventusai.com` | Production services and customer data | Customer-facing release |
 
 `main` is the Amplify production branch today. Do not use a PR preview as the
 shared development environment, and do not treat the existing `staging`
 frontend as current until it has been deliberately promoted from `dev`.
-
-## Bank-review release contract
-
-The canonical bank-inspectable environment is the logical **bank-review
-staging release**. It comprises the staging frontend, protected staging API and
-data stacks, staging identity, and explicitly non-production connectors as one
-manifest-bound release. A branch, URL, stack, or successful deployment by
-itself is not the release.
-
-The currently verified development frontend is intentionally wired to the
-staging Console API. Treat that topology as one non-production integration
-system with incomplete release traceability, not as disconnected frontends and
-backends. Its evidence remains valid for the component and time recorded, but
-it is not the canonical bank-review release until the exact frontend job and
-commit, API deployment, public configuration digest, database migration state,
-connector mappings, role evidence, claims boundary, and independent review are
-bound in one secret-free release-evidence manifest.
-
-The manifest contract and failure rules are authoritative in
-`docs/architecture/sol-post-acceptance-decision-record.md`. A missing or
-inconsistent component is declared and yields `not_bank_review_ready`; it is
-never silently inferred.
 
 ## Promotion flow
 
@@ -90,9 +68,8 @@ Development is usable only when:
 - the audit ledger is durable and tenant-isolated;
 - no production credentials or customer data are present.
 
-Staging additionally requires a reviewed CDK diff, smoke-test evidence, the
-same application commit intended for production, and a passing bank-review
-release-evidence manifest with release-owner and independent-review receipts.
+Staging additionally requires a reviewed CDK diff, smoke-test evidence, and the
+same application commit intended for production.
 
 ## Current state
 

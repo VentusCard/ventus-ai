@@ -1,5 +1,7 @@
 # Enterprise Identity And Permissions
 
+> **🧭 PLANNED / NOT YET BUILT (as of 2026-08).** Describes a Cognito + Aurora + Growth Play RBAC model. The frontend still uses Supabase auth and there is no Growth Play code in the repo. Treat as a design proposal, not current behavior.
+
 Ventus keeps three controls separate:
 
 1. **Amazon Cognito authenticates the person.** It owns credentials, password
