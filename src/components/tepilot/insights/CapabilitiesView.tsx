@@ -403,30 +403,30 @@ function SourceGroupCard({
       className={cn(
         "flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition-colors",
         isActive
-          ? "border-indigo-400/60 bg-indigo-950/30 ring-1 ring-indigo-400/30"
-          : "border-indigo-400/20 bg-indigo-950/20 hover:border-indigo-400/40 hover:bg-indigo-950/30",
+          ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500/30"
+          : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50",
       )}
     >
       <div
         className={cn(
           "flex h-[34px] w-[34px] flex-none items-center justify-center rounded-lg",
           isExternal
-            ? "bg-indigo-400/15 text-indigo-200"
-            : "bg-indigo-400/15 text-indigo-200",
+            ? "bg-blue-100 text-blue-700"
+            : "bg-blue-100 text-blue-700",
         )}
       >
         <Icon className="h-[18px] w-[18px]" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[15px] font-semibold leading-tight text-white">
+        <div className="truncate text-[15px] font-semibold leading-tight text-slate-900">
           {group.provider}
         </div>
-        <div className="mt-0.5 truncate text-[12.5px] text-indigo-200/70">{group.sublabel}</div>
+        <div className="mt-0.5 truncate text-[12.5px] text-slate-500">{group.sublabel}</div>
       </div>
       <span
         className={cn(
           "flex-none rounded-full px-2 py-0.5 text-[11px] font-medium",
-          isExternal ? "bg-indigo-400/15 text-indigo-100" : "bg-indigo-400/15 text-indigo-100",
+          isExternal ? "bg-blue-100 text-blue-700" : "bg-blue-100 text-blue-700",
         )}
       >
         {group.inputs.length} feeds
