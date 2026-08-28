@@ -252,3 +252,33 @@
     animation: fade-in 0.3s ease-out;
   }
 }
+
+/* Continuous subtle hue pulses for activation destination rows */
+@keyframes pulse-hue-bank {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes pulse-hue-consumer {
+  0%, 100% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+}
+
+.animate-pulse-hue-bank {
+  background: linear-gradient(90deg, #f1f5f9 0%, #eef2ff 50%, #f1f5f9 100%);
+  background-size: 200% 100%;
+  animation: pulse-hue-bank 4s ease-in-out infinite;
+}
+
+.animate-pulse-hue-consumer {
+  background: linear-gradient(90deg, #eff6ff 0%, #e0f2fe 50%, #eff6ff 100%);
+  background-size: 200% 100%;
+  animation: pulse-hue-consumer 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-hue-bank,
+  .animate-pulse-hue-consumer {
+    animation: none;
+  }
+}
