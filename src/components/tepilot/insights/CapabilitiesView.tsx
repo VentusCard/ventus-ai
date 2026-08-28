@@ -683,6 +683,14 @@ function SignalSection({
 
 export function CapabilitiesView() {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
+  // Guided walkthrough: 0 = sources only, 1 = core live, 2 = activation live.
+  const [walkStep, setWalkStep] = useState<0 | 1 | 2>(0);
+  const coreLive = walkStep >= 1;
+  const activationLive = walkStep >= 2;
+  const goWalkStep = (next: 0 | 1 | 2) => {
+    setWalkStep(next);
+    if (next < 1) setActiveSignalLabel(null);
+  };
   const sourceGroups: SourceGroup[] = [
     {
       provider: "Banking Core",
