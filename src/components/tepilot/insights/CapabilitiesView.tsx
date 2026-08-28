@@ -305,13 +305,13 @@ function chipClass(chip: WorkflowChip) {
 }
 
 const DESTINATIONS: Destination[] = [
+  { name: "Personalized Deals", channel: "Digital Banking", facing: "consumer", tab: "personalized-deals", tabLabel: "Personalized Deals" },
+  { name: "Personalized Product", channel: "CRM", facing: "consumer", tab: "targeting", tabLabel: "Personalized Product" },
+  { name: "Personalized Relationship", channel: "Ventus", facing: "consumer", tab: "personalized-relationship", tabLabel: "Personalized Relationship" },
   { name: "Intelligence Database", channel: "Ventus", facing: "bank", tab: "ventus-ai-dashboard", tabLabel: "Intelligence Database" },
   { name: "AI Coworker", channel: "Email", facing: "bank", tab: "wm-copilot", tabLabel: "AI Coworker" },
-  { name: "Personalized Relationship", channel: "Ventus", facing: "bank", tab: "personalized-relationship", tabLabel: "Personalized Relationship" },
   { name: "Automated Flows", channel: "CRM", facing: "bank", tab: "targeting-automated-flows", tabLabel: "Automated Flows" },
   { name: "Campaign Builder", channel: "CRM", facing: "bank", tab: "targeting-campaign-builder", tabLabel: "Campaign Builder" },
-  { name: "Personalized Product", channel: "CRM", facing: "consumer", tab: "targeting", tabLabel: "Personalized Product" },
-  { name: "Personalized Deals", channel: "Digital Banking", facing: "consumer", tab: "personalized-deals", tabLabel: "Personalized Deals" },
 ];
 
 function Connector({ amber, active = true }: { amber?: boolean; active?: boolean }) {
