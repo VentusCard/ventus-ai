@@ -401,32 +401,32 @@ function SourceGroupCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex w-full items-center gap-3 rounded-lg border bg-white px-3 py-3 text-left transition-colors",
+        "flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition-colors",
         isActive
-          ? isExternal
-            ? "border-zinc-300 ring-1 ring-zinc-200"
-            : "border-slate-300 ring-1 ring-slate-200"
-          : "border-slate-100 hover:border-slate-200",
+          ? "border-indigo-400/60 bg-indigo-950/30 ring-1 ring-indigo-400/30"
+          : "border-indigo-400/20 bg-indigo-950/20 hover:border-indigo-400/40 hover:bg-indigo-950/30",
       )}
     >
       <div
         className={cn(
           "flex h-[34px] w-[34px] flex-none items-center justify-center rounded-lg",
-          isExternal ? "bg-zinc-100 text-zinc-600" : "bg-slate-100 text-slate-600",
+          isExternal
+            ? "bg-indigo-400/15 text-indigo-200"
+            : "bg-indigo-400/15 text-indigo-200",
         )}
       >
         <Icon className="h-[18px] w-[18px]" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[15px] font-semibold leading-tight text-slate-900">
+        <div className="truncate text-[15px] font-semibold leading-tight text-white">
           {group.provider}
         </div>
-        <div className="mt-0.5 truncate text-[12.5px] text-slate-600">{group.sublabel}</div>
+        <div className="mt-0.5 truncate text-[12.5px] text-indigo-200/70">{group.sublabel}</div>
       </div>
       <span
         className={cn(
           "flex-none rounded-full px-2 py-0.5 text-[11px] font-medium",
-          isExternal ? "bg-zinc-100 text-zinc-700" : "bg-slate-100 text-slate-700",
+          isExternal ? "bg-indigo-400/15 text-indigo-100" : "bg-indigo-400/15 text-indigo-100",
         )}
       >
         {group.inputs.length} feeds
