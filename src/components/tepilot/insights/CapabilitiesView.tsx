@@ -930,12 +930,6 @@ export function CapabilitiesView() {
         </div>
       </div>
 
-      {/* Section head */}
-      <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2.5 text-sm font-semibold text-slate-900">
-          Intelligence pipeline
-        </h2>
-      </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
         {/* Pipeline board */}
