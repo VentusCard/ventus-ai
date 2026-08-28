@@ -534,6 +534,160 @@ const SNAPSHOTS = {
         ]
       },
       {
+        "rollup": "Dining out regular",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Fresh reasons to book the next table.",
+        "imageCategory": "dining",
+        "imageQuery": "restaurant dinner table",
+        "suppressedCategories": [
+          "Weeknight Delivery"
+        ],
+        "deals": [
+          {
+            "id": "dining_deal_1",
+            "merchant": "OpenTable",
+            "product": "Dining Rewards Program",
+            "rewardValue": "1,000 Bonus Points",
+            "message": "Turn your regular reservations into points toward future meals.",
+            "valueLine": "Bonus points on top of your usual booking routine.",
+            "valueMath": "1,000 pts ≈ $20 in dining rewards",
+            "cta": "Book Your Next Table",
+            "signal": "boost",
+            "signalReason": "Frequent restaurant visits make a reservation rewards program immediately useful.",
+            "boostCategory": "Dining Rewards"
+          },
+          {
+            "id": "dining_deal_2",
+            "merchant": "Williams Sonoma",
+            "product": "Home Chef Cookware Set",
+            "rewardValue": "15% Off",
+            "message": "Bring restaurant-quality results to the nights you cook at home.",
+            "valueLine": "15% off cookware saves $720 on your $4,800 annual dining spend.",
+            "valueMath": "15% × $4,800 = $720",
+            "cta": "Upgrade Your Kitchen",
+            "signal": "boost",
+            "signalReason": "A strong dining-out habit pairs naturally with elevated home cooking gear.",
+            "boostCategory": "Cookware"
+          },
+          {
+            "id": "dining_deal_3",
+            "merchant": "DoorDash",
+            "product": "DashPass Membership",
+            "rewardValue": "3 Months Free",
+            "message": "Zero delivery fees on the weeknight orders you already make.",
+            "valueLine": "Three free months on your regular delivery routine.",
+            "valueMath": "≈ $30 in delivery fees saved",
+            "cta": "Skip the Fees",
+            "signal": "boost",
+            "signalReason": "Recurring delivery charges show a membership pays for itself fast.",
+            "boostCategory": "Delivery Pass"
+          },
+          {
+            "id": "dining_deal_4",
+            "merchant": "Total Wine",
+            "product": "Curated Wine Selection",
+            "rewardValue": "10% Cash Back",
+            "message": "Bottles chosen to match the cuisines you order most.",
+            "valueLine": "10% back saves $480 on your $4,800 annual dining spend.",
+            "valueMath": "10% × $4,800 = $480",
+            "cta": "Pair It Perfectly",
+            "signal": "boost",
+            "signalReason": "Regular dining occasions create natural pairing opportunities at home.",
+            "boostCategory": "Wine & Spirits"
+          },
+          {
+            "id": "dining_deal_5",
+            "merchant": "Resy",
+            "product": "Priority Table Access",
+            "rewardValue": "Exclusive Access",
+            "message": "Hard-to-get Friday tables at the spots opening near you.",
+            "valueLine": "Priority access for a diner who books often.",
+            "valueMath": "Members-only seatings",
+            "cta": "Get Priority Seating",
+            "signal": "boost",
+            "signalReason": "High reservation frequency makes priority access a genuinely valued perk.",
+            "boostCategory": "Dining Access"
+          }
+        ]
+      },
+      {
+        "rollup": "Gym member",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Gear that keeps pace with your training week.",
+        "imageCategory": "fitness",
+        "imageQuery": "gym workout equipment",
+        "suppressedCategories": [
+          "Gym Dues"
+        ],
+        "deals": [
+          {
+            "id": "gym_deal_1",
+            "merchant": "Nike",
+            "product": "Metcon Training Shoes",
+            "rewardValue": "10% Cash Back",
+            "message": "Stable base for lifting days, flexible enough for circuits.",
+            "valueLine": "10% back saves $150 on your $1,500 annual fitness spend.",
+            "valueMath": "10% × $1,500 = $150",
+            "cta": "Step Up Training",
+            "signal": "boost",
+            "signalReason": "Consistent gym attendance wears through trainers on a predictable cycle.",
+            "boostCategory": "Training Shoes"
+          },
+          {
+            "id": "gym_deal_2",
+            "merchant": "Lululemon",
+            "product": "Training Apparel Essentials",
+            "rewardValue": "8% Cash Back",
+            "message": "Breathable kits that survive a full week of workouts.",
+            "valueLine": "8% back saves $120 on your $1,500 annual fitness spend.",
+            "valueMath": "8% × $1,500 = $120",
+            "cta": "Refresh Your Kit",
+            "signal": "boost",
+            "signalReason": "A steady workout routine justifies a regular apparel refresh.",
+            "boostCategory": "Athletic Apparel"
+          },
+          {
+            "id": "gym_deal_3",
+            "merchant": "Whoop",
+            "product": "Recovery & Strain Tracker",
+            "rewardValue": "2 Months Free",
+            "message": "See how your training weeks stack up and when to push or rest.",
+            "valueLine": "Two free months of recovery insights on your routine.",
+            "valueMath": "≈ $60 membership value",
+            "cta": "Track Your Recovery",
+            "signal": "boost",
+            "signalReason": "Regular training creates the baseline data a recovery tracker needs to be useful.",
+            "boostCategory": "Fitness Tech"
+          },
+          {
+            "id": "gym_deal_4",
+            "merchant": "Hydro Flask",
+            "product": "32oz Trail Series Bottle",
+            "rewardValue": "15% Off",
+            "message": "Cold water through every session, from warm-up to cooldown.",
+            "valueLine": "15% off hydration gear on your $1,500 fitness budget.",
+            "valueMath": "15% × $1,500 ≈ $225",
+            "cta": "Hydrate Smarter",
+            "signal": "boost",
+            "signalReason": "Daily gym visits make durable hydration gear an everyday essential.",
+            "boostCategory": "Hydration"
+          },
+          {
+            "id": "gym_deal_5",
+            "merchant": "Therabody",
+            "product": "Theragun Relief",
+            "rewardValue": "12% Off",
+            "message": "Loosen tight muscles between sessions so you never miss a day.",
+            "valueLine": "12% off recovery tools saves $180 on your $1,500 fitness spend.",
+            "valueMath": "12% × $1,500 = $180",
+            "cta": "Recover Faster",
+            "signal": "boost",
+            "signalReason": "Frequent training sessions make recovery tools a high-usage purchase.",
+            "boostCategory": "Recovery Tech"
+          }
+        ]
+      },
+      {
         "rollup": "First home purchase underway",
         "pillar": "Life Event",
         "collectionMessage": "Small touches to make your new place yours.",
@@ -815,6 +969,161 @@ const SNAPSHOTS = {
             "signal": "boost",
             "signalReason": "Connects your home improvement spending with family safety needs.",
             "boostCategory": "Home Security"
+          }
+        ]
+      },
+      {
+        "rollup": "Education spender",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Smart support for the school year ahead.",
+        "imageCategory": "education",
+        "imageQuery": "kids learning tablet",
+        "suppressedCategories": [
+          "Tuition",
+          "Tutoring"
+        ],
+        "deals": [
+          {
+            "id": "edu_deal_1",
+            "merchant": "Kumon",
+            "product": "Math & Reading Enrichment",
+            "rewardValue": "Free Assessment",
+            "message": "Structured enrichment that complements the tutoring you already invest in.",
+            "valueLine": "A free assessment on top of your $3,600 annual education spend.",
+            "valueMath": "Assessment ≈ $50 value",
+            "cta": "Book the Assessment",
+            "signal": "boost",
+            "signalReason": "Existing tutoring spend signals a household that values structured learning support.",
+            "boostCategory": "Tutoring"
+          },
+          {
+            "id": "edu_deal_2",
+            "merchant": "Apple",
+            "product": "iPad for Learning",
+            "rewardValue": "5% Cash Back",
+            "message": "A dedicated device for homework, reading apps and school projects.",
+            "valueLine": "5% back saves $180 on your $3,600 annual education spend.",
+            "valueMath": "5% × $3,600 = $180",
+            "cta": "Equip Their Studies",
+            "signal": "boost",
+            "signalReason": "Steady education investment makes learning hardware a logical next step.",
+            "boostCategory": "Learning Tech"
+          },
+          {
+            "id": "edu_deal_3",
+            "merchant": "KiwiCo",
+            "product": "STEM Project Crates",
+            "rewardValue": "First Crate Free",
+            "message": "Hands-on science and engineering projects delivered monthly.",
+            "valueLine": "A free first crate to extend learning beyond tutoring hours.",
+            "valueMath": "Free crate ≈ $30 value",
+            "cta": "Start Building",
+            "signal": "boost",
+            "signalReason": "Enrichment-focused spending fits hands-on monthly learning subscriptions.",
+            "boostCategory": "STEM Subscription"
+          },
+          {
+            "id": "edu_deal_4",
+            "merchant": "Barnes & Noble",
+            "product": "Young Readers Collection",
+            "rewardValue": "10% Cash Back",
+            "message": "Keep the reading momentum going between school terms.",
+            "valueLine": "10% back saves $360 on your $3,600 annual education spend.",
+            "valueMath": "10% × $3,600 = $360",
+            "cta": "Stock the Bookshelf",
+            "signal": "boost",
+            "signalReason": "Education-first households reliably convert on reading material offers.",
+            "boostCategory": "Books"
+          },
+          {
+            "id": "edu_deal_5",
+            "merchant": "Outschool",
+            "product": "Live Online Classes",
+            "rewardValue": "$40 Credit",
+            "message": "Small-group classes in everything from coding to creative writing.",
+            "valueLine": "$40 toward classes that fit your enrichment routine.",
+            "valueMath": "$40 credit on class bookings",
+            "cta": "Explore Classes",
+            "signal": "boost",
+            "signalReason": "Term-based enrichment payments show appetite for supplemental classes.",
+            "boostCategory": "Online Classes"
+          }
+        ]
+      },
+      {
+        "rollup": "Home improvement projects",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Everything for the next project on the list.",
+        "imageCategory": "home improvement",
+        "imageQuery": "home renovation tools",
+        "suppressedCategories": [
+          "Contractor Fees"
+        ],
+        "deals": [
+          {
+            "id": "home_deal_1",
+            "merchant": "Home Depot",
+            "product": "Power Tool Combo Kit",
+            "rewardValue": "10% Cash Back",
+            "message": "Pro-grade tools for the weekend projects already on your calendar.",
+            "valueLine": "10% back saves $420 on your $4,200 annual project spend.",
+            "valueMath": "10% × $4,200 = $420",
+            "cta": "Tool Up",
+            "signal": "boost",
+            "signalReason": "Bursts of project spend indicate an active DIY household ready for better tools.",
+            "boostCategory": "Power Tools"
+          },
+          {
+            "id": "home_deal_2",
+            "merchant": "Wayfair",
+            "product": "Living Room Refresh",
+            "rewardValue": "12% Off",
+            "message": "Furnish the spaces between the big renovation wins.",
+            "valueLine": "12% off furnishings saves $500 on your $4,200 project budget.",
+            "valueMath": "12% × $4,200 ≈ $500",
+            "cta": "Refresh a Room",
+            "signal": "boost",
+            "signalReason": "Furnishing purchases in bursts align with room-by-room refresh offers.",
+            "boostCategory": "Furniture"
+          },
+          {
+            "id": "home_deal_3",
+            "merchant": "Sherwin-Williams",
+            "product": "Premium Paint & Supplies",
+            "rewardValue": "15% Off",
+            "message": "The fastest transformation for any room on your list.",
+            "valueLine": "15% off paint for your next $4,200 project year.",
+            "valueMath": "15% × $4,200 ≈ $630",
+            "cta": "Pick Your Palette",
+            "signal": "boost",
+            "signalReason": "Active project households repaint frequently — a timely, practical offer.",
+            "boostCategory": "Paint"
+          },
+          {
+            "id": "home_deal_4",
+            "merchant": "Lowe's",
+            "product": "Smart Home Starter Kit",
+            "rewardValue": "8% Cash Back",
+            "message": "Smart locks, thermostats and lighting for the upgraded home.",
+            "valueLine": "8% back saves $335 on your $4,200 annual project spend.",
+            "valueMath": "8% × $4,200 ≈ $335",
+            "cta": "Make It Smart",
+            "signal": "boost",
+            "signalReason": "Renovation activity is the natural moment to add connected-home upgrades.",
+            "boostCategory": "Smart Home"
+          },
+          {
+            "id": "home_deal_5",
+            "merchant": "Container Store",
+            "product": "Custom Closet Systems",
+            "rewardValue": "Free Design Session",
+            "message": "Finish the renovation with storage that actually fits your life.",
+            "valueLine": "A free design session to cap off your project list.",
+            "valueMath": "Session ≈ $100 value",
+            "cta": "Design Your Closet",
+            "signal": "boost",
+            "signalReason": "Post-renovation organization is a proven next purchase for project-driven households.",
+            "boostCategory": "Organization"
           }
         ]
       },
@@ -1103,6 +1412,161 @@ const SNAPSHOTS = {
         ]
       },
       {
+        "rollup": "Fine dining and wine",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Pours and plates worthy of your table.",
+        "imageCategory": "wine",
+        "imageQuery": "fine dining wine",
+        "suppressedCategories": [
+          "Restaurant Weeknights"
+        ],
+        "deals": [
+          {
+            "id": "wine_deal_1",
+            "merchant": "Wine.com",
+            "product": "Curated Case Delivery",
+            "rewardValue": "15% Off First Case",
+            "message": "Sommelier-selected cases matched to the regions you already enjoy.",
+            "valueLine": "15% off your first case on a $7,200 annual palate.",
+            "valueMath": "15% × $7,200 ≈ $1,080",
+            "cta": "Build Your Case",
+            "signal": "boost",
+            "signalReason": "Regular wine merchant activity makes curated delivery a natural extension.",
+            "boostCategory": "Wine Delivery"
+          },
+          {
+            "id": "wine_deal_2",
+            "merchant": "Riedel",
+            "product": "Sommeliers Glassware Set",
+            "rewardValue": "10% Cash Back",
+            "message": "Glassware engineered to open up every bottle you bring home.",
+            "valueLine": "10% back saves $720 on your $7,200 annual dining spend.",
+            "valueMath": "10% × $7,200 = $720",
+            "cta": "Elevate Every Pour",
+            "signal": "boost",
+            "signalReason": "A serious wine habit justifies serious stemware.",
+            "boostCategory": "Glassware"
+          },
+          {
+            "id": "wine_deal_3",
+            "merchant": "Michelin Guide",
+            "product": "Tasting Menu Experiences",
+            "rewardValue": "Priority Reservations",
+            "message": "Seats at the tasting menus that book out months ahead.",
+            "valueLine": "Priority access for a diner who appreciates the craft.",
+            "valueMath": "Members-only seatings",
+            "cta": "Reserve the Experience",
+            "signal": "boost",
+            "signalReason": "Upscale restaurant frequency signals strong conversion on exclusive dining access.",
+            "boostCategory": "Fine Dining"
+          },
+          {
+            "id": "wine_deal_4",
+            "merchant": "Coravin",
+            "product": "Wine Preservation System",
+            "rewardValue": "12% Off",
+            "message": "Pour a single glass from any bottle without pulling the cork.",
+            "valueLine": "12% off preservation tech on your $7,200 wine budget.",
+            "valueMath": "12% × $7,200 ≈ $865",
+            "cta": "Savor by the Glass",
+            "signal": "boost",
+            "signalReason": "Frequent premium bottle purchases make preservation genuinely valuable.",
+            "boostCategory": "Wine Tech"
+          },
+          {
+            "id": "wine_deal_5",
+            "merchant": "Sur La Table",
+            "product": "Chef-Led Cooking Classes",
+            "rewardValue": "2-for-1 Classes",
+            "message": "Learn the techniques behind the dishes you order most.",
+            "valueLine": "Bring a guest free to your next class.",
+            "valueMath": "2-for-1 ≈ $95 value",
+            "cta": "Cook Like a Chef",
+            "signal": "boost",
+            "signalReason": "Fine-dining enthusiasts consistently engage with hands-on culinary experiences.",
+            "boostCategory": "Culinary Classes"
+          }
+        ]
+      },
+      {
+        "rollup": "Premium travel",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Upgrades for the way you already fly.",
+        "imageCategory": "travel",
+        "imageQuery": "luxury airport lounge",
+        "suppressedCategories": [
+          "Business-Class Fares",
+          "Hotel Stays"
+        ],
+        "deals": [
+          {
+            "id": "travel_deal_1",
+            "merchant": "TUMI",
+            "product": "Alpha 3 International Carry-On",
+            "rewardValue": "12% Cash Back",
+            "message": "Luggage built for a lifetime of business-class overhead bins.",
+            "valueLine": "12% back saves $1,175 on your $9,800 annual travel spend.",
+            "valueMath": "12% × $9,800 ≈ $1,175",
+            "cta": "Travel in Style",
+            "signal": "boost",
+            "signalReason": "Frequent premium travel makes durable luxury luggage a high-use purchase.",
+            "boostCategory": "Luggage"
+          },
+          {
+            "id": "travel_deal_2",
+            "merchant": "Bose",
+            "product": "QuietComfort Ultra Headphones",
+            "rewardValue": "10% Cash Back",
+            "message": "Silence the cabin on every long-haul segment.",
+            "valueLine": "10% back saves $980 on your $9,800 annual travel spend.",
+            "valueMath": "10% × $9,800 = $980",
+            "cta": "Fly in Quiet",
+            "signal": "boost",
+            "signalReason": "Regular long-haul flights make premium noise cancellation a top-converting accessory.",
+            "boostCategory": "Travel Audio"
+          },
+          {
+            "id": "travel_deal_3",
+            "merchant": "Priority Pass",
+            "product": "Prestige Lounge Membership",
+            "rewardValue": "20% Off First Year",
+            "message": "Lounge access in every hub your routes pass through.",
+            "valueLine": "20% off membership for a traveler who flies often.",
+            "valueMath": "20% off ≈ $120 first-year savings",
+            "cta": "Unlock the Lounges",
+            "signal": "boost",
+            "signalReason": "Frequent premium itineraries make lounge membership an obvious fit.",
+            "boostCategory": "Travel Perks"
+          },
+          {
+            "id": "travel_deal_4",
+            "merchant": "Monos",
+            "product": "Check-In Large & Weekender Set",
+            "rewardValue": "15% Off",
+            "message": "A matched set for trips that run from boardroom to beach.",
+            "valueLine": "15% off luggage sets on your $9,800 travel budget.",
+            "valueMath": "15% × $9,800 ≈ $1,470",
+            "cta": "Complete the Set",
+            "signal": "boost",
+            "signalReason": "Luxury hotel stays and premium fares correlate strongly with luggage upgrades.",
+            "boostCategory": "Luggage"
+          },
+          {
+            "id": "travel_deal_5",
+            "merchant": "Clear",
+            "product": "Expedited Airport Security",
+            "rewardValue": "3 Months Free",
+            "message": "Skip the line on every departure, domestic or international.",
+            "valueLine": "Three free months of faster departures.",
+            "valueMath": "≈ $60 membership value",
+            "cta": "Skip the Line",
+            "signal": "boost",
+            "signalReason": "High flight frequency makes time-saving airport services immediately valuable.",
+            "boostCategory": "Airport Services"
+          }
+        ]
+      },
+      {
         "rollup": "Retirement in sight",
         "pillar": "Life Event",
         "collectionMessage": "Smarter picks for your next chapter.",
@@ -1383,6 +1847,161 @@ const SNAPSHOTS = {
             "signal": "boost",
             "signalReason": "Bridges the gap between your retail and wellness routine spending.",
             "boostCategory": "Activewear"
+          }
+        ]
+      },
+      {
+        "rollup": "Wellness and spa routine",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Recovery rituals to match your routine.",
+        "imageCategory": "wellness",
+        "imageQuery": "spa wellness candles",
+        "suppressedCategories": [
+          "Studio Sessions",
+          "Spa Appointments"
+        ],
+        "deals": [
+          {
+            "id": "wellness_deal_1",
+            "merchant": "Alo Yoga",
+            "product": "Studio-to-Street Collection",
+            "rewardValue": "12% Cash Back",
+            "message": "Pieces that move from morning practice to afternoon meetings.",
+            "valueLine": "12% back saves $290 on your $2,400 annual wellness spend.",
+            "valueMath": "12% × $2,400 ≈ $290",
+            "cta": "Move in Style",
+            "signal": "boost",
+            "signalReason": "Recurring studio visits make premium activewear a high-frequency purchase.",
+            "boostCategory": "Activewear"
+          },
+          {
+            "id": "wellness_deal_2",
+            "merchant": "Therabody",
+            "product": "Theragun Pro Recovery",
+            "rewardValue": "10% Off",
+            "message": "Deep recovery between sessions, right at home.",
+            "valueLine": "10% off recovery tech on your $2,400 wellness budget.",
+            "valueMath": "10% × $2,400 = $240",
+            "cta": "Recover at Home",
+            "signal": "boost",
+            "signalReason": "A consistent wellness routine extends naturally into at-home recovery tools.",
+            "boostCategory": "Recovery Tech"
+          },
+          {
+            "id": "wellness_deal_3",
+            "merchant": "Vitruvi",
+            "product": "Stone Diffuser & Oil Set",
+            "rewardValue": "15% Off",
+            "message": "Bring the calm of the studio into your own space.",
+            "valueLine": "15% off home wellness on your $2,400 annual spend.",
+            "valueMath": "15% × $2,400 = $360",
+            "cta": "Create Your Calm",
+            "signal": "boost",
+            "signalReason": "Regular spa appointments signal strong affinity for at-home wellness rituals.",
+            "boostCategory": "Home Wellness"
+          },
+          {
+            "id": "wellness_deal_4",
+            "merchant": "ClassPass",
+            "product": "Premium Studio Credits",
+            "rewardValue": "20 Bonus Credits",
+            "message": "Try new studios across the city without changing your routine.",
+            "valueLine": "Bonus credits on top of the studios you already visit.",
+            "valueMath": "20 credits ≈ $60 value",
+            "cta": "Explore New Studios",
+            "signal": "boost",
+            "signalReason": "Existing studio spend makes flexible class credits instantly usable.",
+            "boostCategory": "Studio Credits"
+          },
+          {
+            "id": "wellness_deal_5",
+            "merchant": "Brooklinen",
+            "product": "Super-Plush Bath Collection",
+            "rewardValue": "10% Cash Back",
+            "message": "Spa-grade towels and robes for the post-session wind-down.",
+            "valueLine": "10% back saves $240 on your $2,400 annual wellness spend.",
+            "valueMath": "10% × $2,400 = $240",
+            "cta": "Wrap Up in Softness",
+            "signal": "boost",
+            "signalReason": "Wellness-focused households convert strongly on premium home comfort goods.",
+            "boostCategory": "Bath & Home"
+          }
+        ]
+      },
+      {
+        "rollup": "Rideshare commuter",
+        "pillar": "Lifestyle",
+        "collectionMessage": "Smoother miles for every daily ride.",
+        "imageCategory": "commute",
+        "imageQuery": "city rideshare street",
+        "suppressedCategories": [
+          "Daily Rides"
+        ],
+        "deals": [
+          {
+            "id": "ride_deal_1",
+            "merchant": "Uber",
+            "product": "Uber One Membership",
+            "rewardValue": "3 Months Free",
+            "message": "Save on the rides you already take every single day.",
+            "valueLine": "Three free months on your $3,000 annual rideshare routine.",
+            "valueMath": "≈ $30 in fees saved monthly",
+            "cta": "Ride for Less",
+            "signal": "boost",
+            "signalReason": "Daily rideshare usage makes a membership pay for itself immediately.",
+            "boostCategory": "Ride Membership"
+          },
+          {
+            "id": "ride_deal_2",
+            "merchant": "Apple",
+            "product": "AirPods Pro",
+            "rewardValue": "8% Cash Back",
+            "message": "Noise cancellation that turns commute time into your time.",
+            "valueLine": "8% back saves $240 on your $3,000 annual commute spend.",
+            "valueMath": "8% × $3,000 = $240",
+            "cta": "Own Your Commute",
+            "signal": "boost",
+            "signalReason": "Daily ride time is prime listening time — audio upgrades convert strongly.",
+            "boostCategory": "Audio"
+          },
+          {
+            "id": "ride_deal_3",
+            "merchant": "Lyft",
+            "product": "Lyft Pink Membership",
+            "rewardValue": "15% Off Rides",
+            "message": "A standing discount on every trip to the office and back.",
+            "valueLine": "15% off rides saves $450 on your $3,000 annual routine.",
+            "valueMath": "15% × $3,000 = $450",
+            "cta": "Pink Your Rides",
+            "signal": "boost",
+            "signalReason": "A car-free commute pattern makes ride discounts the highest-value perk available.",
+            "boostCategory": "Ride Membership"
+          },
+          {
+            "id": "ride_deal_4",
+            "merchant": "Anker",
+            "product": "MagSafe Power Bank",
+            "rewardValue": "12% Off",
+            "message": "A full charge for the phone that books every ride.",
+            "valueLine": "12% off charging gear for your daily routine.",
+            "valueMath": "12% × $3,000 ≈ $360",
+            "cta": "Stay Charged",
+            "signal": "boost",
+            "signalReason": "Heavy daily phone use on the go makes portable power a practical need.",
+            "boostCategory": "Phone Accessories"
+          },
+          {
+            "id": "ride_deal_5",
+            "merchant": "Spotify",
+            "product": "Premium Subscription",
+            "rewardValue": "2 Months Free",
+            "message": "Ad-free soundtracks for every mile between A and B.",
+            "valueLine": "Two free months for your daily ride time.",
+            "valueMath": "≈ $24 subscription value",
+            "cta": "Soundtrack Your Ride",
+            "signal": "boost",
+            "signalReason": "Daily commute windows are the strongest predictor of streaming upgrades.",
+            "boostCategory": "Streaming"
           }
         ]
       },
