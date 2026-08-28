@@ -643,7 +643,7 @@ function SignalSection({
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-3 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-3.5 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
         style.surface,
         style.border,
         isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
