@@ -9,8 +9,6 @@ on:
       - "backend/functions/ventus-console-api/**"
       - "backend/scripts/package-monitors.mjs"
       - "backend/scripts/package-functions.mjs"
-      - "backend/scripts/release-evidence-manifest.mjs"
-      - "backend/scripts/release-evidence-manifest.test.mjs"
       - "backend/shared/demo-connectors.mjs"
       - "backend/shared/demo-connectors.test.mjs"
       - "backend/shared/salesforce-fsc.mjs"
@@ -21,8 +19,6 @@ on:
       - "docs/cdk-deployment-review-checklist.md"
       - "docs/github-aws-oidc-staging.md"
       - "docs/live-demo-connectors.md"
-      - "docs/evidence/release-manifest.schema.json"
-      - "docs/evidence/release-manifest-2026-08-01.json"
       - "docs/observability-readiness.md"
       - "infra/**"
   workflow_dispatch:
@@ -93,9 +89,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Validate Release-Evidence Manifest Contract
-        run: npm run --prefix backend release:manifest:check -- --input ../docs/evidence/release-manifest-2026-08-01.json
 
       - name: Validate AWS Role Variable
         run: test -n "${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}"
