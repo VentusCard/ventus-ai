@@ -23,6 +23,8 @@ import {
   Bot,
   Megaphone,
   Briefcase,
+  Brain,
+
   Home,
   PiggyBank,
   ChevronDown,
