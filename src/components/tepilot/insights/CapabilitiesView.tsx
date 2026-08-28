@@ -1029,27 +1029,27 @@ export function CapabilitiesView() {
                     className={cn(
                       "flex min-w-0 flex-1 flex-col gap-3 rounded-xl border p-3",
                       isExternal
-                        ? "border-indigo-400/25 bg-indigo-950/30"
-                        : "border-indigo-400/25 bg-indigo-950/30",
+                        ? "border-slate-200 bg-slate-50"
+                        : "border-slate-200 bg-slate-50",
                     )}
                   >
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
                           "rounded-md px-2 py-1 text-[11.5px] font-semibold uppercase tracking-wider",
-                          isExternal ? "bg-indigo-400/20 text-indigo-100" : "bg-indigo-400/20 text-indigo-100",
+                          isExternal ? "bg-blue-100 text-blue-700" : "bg-blue-100 text-blue-700",
                         )}
                       >
                         {section.title}
                       </span>
-                      <span className="ml-auto font-mono text-[11px] text-indigo-200/60">
+                      <span className="ml-auto font-mono text-[11px] text-slate-500">
                         {section.groups.length} sources
                       </span>
                     </div>
                     <p
                       className={cn(
-                        "py-2 text-[14px] font-bold leading-snug",
-                        isExternal ? "text-indigo-100/90" : "text-indigo-100/90",
+                        "py-2 text-[14px] font-bold leading-snug text-slate-800",
+                        isExternal ? "" : "",
                       )}
                     >
                       {section.tagline}
