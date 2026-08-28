@@ -679,7 +679,7 @@ function SignalSection({
 }
 
 
-export function CapabilitiesView() {
+export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) => void }) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   // Guided walkthrough: 0 = sources only, 1 = core live, 2 = activation live.
   const [walkStep, setWalkStep] = useState<0 | 1 | 2>(0);
