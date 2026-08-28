@@ -403,30 +403,30 @@ function SourceGroupCard({
       className={cn(
         "flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition-colors",
         isActive
-          ? "border-indigo-400/60 bg-indigo-950/30 ring-1 ring-indigo-400/30"
-          : "border-indigo-400/20 bg-indigo-950/20 hover:border-indigo-400/40 hover:bg-indigo-950/30",
+          ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500/30"
+          : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50",
       )}
     >
       <div
         className={cn(
           "flex h-[34px] w-[34px] flex-none items-center justify-center rounded-lg",
           isExternal
-            ? "bg-indigo-400/15 text-indigo-200"
-            : "bg-indigo-400/15 text-indigo-200",
+            ? "bg-blue-100 text-blue-700"
+            : "bg-blue-100 text-blue-700",
         )}
       >
         <Icon className="h-[18px] w-[18px]" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[15px] font-semibold leading-tight text-white">
+        <div className="truncate text-[15px] font-semibold leading-tight text-slate-900">
           {group.provider}
         </div>
-        <div className="mt-0.5 truncate text-[12.5px] text-indigo-200/70">{group.sublabel}</div>
+        <div className="mt-0.5 truncate text-[12.5px] text-slate-500">{group.sublabel}</div>
       </div>
       <span
         className={cn(
           "flex-none rounded-full px-2 py-0.5 text-[11px] font-medium",
-          isExternal ? "bg-indigo-400/15 text-indigo-100" : "bg-indigo-400/15 text-indigo-100",
+          isExternal ? "bg-blue-100 text-blue-700" : "bg-blue-100 text-blue-700",
         )}
       >
         {group.inputs.length} feeds
@@ -1011,12 +1011,12 @@ export function CapabilitiesView() {
         {/* Pipeline board */}
         <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
-          <div className="flex h-full min-w-0 flex-col rounded-xl border border-indigo-900/60 bg-[#141432] p-5">
+          <div className="flex h-full min-w-0 flex-col rounded-xl border-2 border-blue-600 bg-white p-5 shadow-sm">
             <div className="mb-3.5 flex items-center gap-2">
-              <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-indigo-100/90">
+              <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-blue-700">
                 Data sources
               </span>
-              <span className="ml-auto font-mono text-[11.5px] text-indigo-200/70">
+              <span className="ml-auto font-mono text-[11.5px] text-slate-500">
                 2 groups · {totalSourceInputs} sources
               </span>
             </div>
@@ -1029,27 +1029,27 @@ export function CapabilitiesView() {
                     className={cn(
                       "flex min-w-0 flex-1 flex-col gap-3 rounded-xl border p-3",
                       isExternal
-                        ? "border-indigo-400/25 bg-indigo-950/30"
-                        : "border-indigo-400/25 bg-indigo-950/30",
+                        ? "border-slate-200 bg-slate-50"
+                        : "border-slate-200 bg-slate-50",
                     )}
                   >
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
                           "rounded-md px-2 py-1 text-[11.5px] font-semibold uppercase tracking-wider",
-                          isExternal ? "bg-indigo-400/20 text-indigo-100" : "bg-indigo-400/20 text-indigo-100",
+                          isExternal ? "bg-blue-100 text-blue-700" : "bg-blue-100 text-blue-700",
                         )}
                       >
                         {section.title}
                       </span>
-                      <span className="ml-auto font-mono text-[11px] text-indigo-200/60">
+                      <span className="ml-auto font-mono text-[11px] text-slate-500">
                         {section.groups.length} sources
                       </span>
                     </div>
                     <p
                       className={cn(
-                        "py-2 text-[14px] font-bold leading-snug",
-                        isExternal ? "text-indigo-100/90" : "text-indigo-100/90",
+                        "py-2 text-[14px] font-bold leading-snug text-slate-800",
+                        isExternal ? "" : "",
                       )}
                     >
                       {section.tagline}
