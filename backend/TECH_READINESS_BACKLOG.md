@@ -10,14 +10,14 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 
 ## P0 - API Documentation
 
-- Host `docs/openapi-draft.yaml` through `/docs` or a bank-facing docs site.
-- Generate a Postman collection from the OpenAPI spec. Initial generator and checked-in collection live at `backend/scripts/generate-postman-collection.mjs` and `docs/ventus-api.postman_collection.json`.
-- Add a partner-facing webhook integration guide. Initial guide lives in `docs/webhook-partner-integration-guide.md` with registration, test delivery, delivery history, replay, signature verification, monitoring, and Postman import steps.
+- Host `docs/api/openapi-draft.yaml` through `/docs` or a bank-facing docs site.
+- Generate a Postman collection from the OpenAPI spec. Initial generator and checked-in collection live at `backend/scripts/generate-postman-collection.mjs` and `docs/api/ventus-api.postman_collection.json`.
+- Add a partner-facing webhook integration guide. Initial guide lives in `docs/integrations/webhook-partner-integration-guide.md` with registration, test delivery, delivery history, replay, signature verification, monitoring, and Postman import steps.
 - Add concrete request/response examples for:
   - `POST /v1/enrich`
   - `GET /v1/jobs/{job_id}`
   - `GET /v1/customers/{customer_id}/transactions`
-  - `POST /v1/webhooks` - initial partner-facing examples added in `docs/webhook-partner-integration-guide.md`
+  - `POST /v1/webhooks` - initial partner-facing examples added in `docs/integrations/webhook-partner-integration-guide.md`
 
 ## P0 - Monitoring
 
@@ -40,7 +40,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
   - `GET /v1/webhooks` - initial implementation added
   - `DELETE /v1/webhooks/{webhook_id}` - initial implementation added as a soft-disable
   - `POST /v1/webhooks/{webhook_id}/test` - initial implementation added for signed test delivery
-- Add partner-facing support docs for webhook onboarding and incident response. Initial guide lives in `docs/webhook-partner-integration-guide.md`, and the backend runbook now points support triage there.
+- Add partner-facing support docs for webhook onboarding and incident response. Initial guide lives in `docs/integrations/webhook-partner-integration-guide.md`, and the backend runbook now points support triage there.
 
 ## P1 - Security Hardening
 
@@ -56,8 +56,8 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 
 - Add backend-only smoke tests against a staging API and staging database.
 - Add schema contract tests for API responses. Initial CI-safe checks live in `backend/scripts/qa-enrichment-contract.mjs`.
-- Add golden enrichment expectations for mock FIS, Fiserv, Jack Henry, and provider-agnostic multi-rail transactions. Initial CI-safe checks live in `backend/scripts/qa-golden-enrichment.mjs`.
-- Add multi-LLM evaluation routing before sandbox data arrives. Initial task routing and gateway readiness checks live in `backend/config/model-routing.json`, `backend/shared/model-gateway.mjs`, and `backend/scripts/check-model-gateway-readiness.mjs`; the judge route starts shadow-only and must not alter production enrichment output until measured against golden expectations.
+- Add golden enrichment expectations for mock FIS, Fiserv, Jack Henry, and provider-agnostic multi-rail transactions. Initial CI-safe checks live in `backend/eval/qa-golden-enrichment.mjs`.
+- Add multi-LLM evaluation routing before sandbox data arrives. Initial task routing and gateway readiness checks live in `backend/config/model-routing.json`, `backend/shared/platform/model-gateway.mjs`, and `backend/scripts/check-model-gateway-readiness.mjs`; the judge route starts shadow-only and must not alter production enrichment output until measured against golden expectations.
 - Add latency checks for each pipeline stage.
 - Add regression tests for webhook signing and delivery payload shape.
 - Add regression tests for webhook delivery persistence. Initial shared dispatcher tests cover delivered and failed attempts.

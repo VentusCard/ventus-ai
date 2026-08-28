@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ventus AI API Reference</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #172033;
+        background: #f7f9fc;
+      }
+      main {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 40px 24px;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+      }
+      p {
+        line-height: 1.55;
+      }
+      .paths {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 10px;
+        margin: 24px 0;
+      }
+      .path {
+        border: 1px solid #dde5f2;
+        background: white;
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+      }
+      pre {
+        overflow: auto;
+        background: #101828;
+        color: #e5edf7;
+        border-radius: 6px;
+        padding: 16px;
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Ventus AI API Reference</h1>
+      <p>
+        Generated from <code>docs/api/openapi-draft.yaml</code>. This is an offline artifact for pilot review
+        and should be replaced by the live <code>/docs</code> route once backend docs hosting is wired.
+      </p>
+      <p>
+        Postman import artifact: <code>docs/api/ventus-api.postman_collection.json</code>.
+      </p>
+      <h2>Endpoints</h2>
+      <section class="paths">
+        <div class="path">/health</div>
+        <div class="path">/v1/enrich</div>
+        <div class="path">/v1/jobs</div>
+        <div class="path">/v1/jobs/{job_id}</div>
+        <div class="path">/v1/customers/{customer_id}/transactions</div>
+        <div class="path">/v1/customers/{customer_id}/profile</div>
+        <div class="path">/v1/customers/{customer_id}/life-events</div>
+        <div class="path">/v1/customers/{customer_id}/life-events/{life_event_id}</div>
+        <div class="path">/v1/customers/{customer_id}/behavioral-signals/{behavioral_signal_id}</div>
+        <div class="path">/v1/customers/{customer_id}/purchase-signals</div>
+        <div class="path">/v1/customers/{customer_id}/trips</div>
+        <div class="path">/v1/customers/{customer_id}/trips/{trip_id}</div>
+        <div class="path">/v1/customers/{customer_id}/risk-factors</div>
+        <div class="path">/v1/customers/{customer_id}/risk-factors/{risk_factor_id}</div>
+        <div class="path">/v1/analytics/bank</div>
+        <div class="path">/v1/webhooks</div>
+        <div class="path">/v1/webhook-deliveries</div>
+        <div class="path">/v1/webhook-deliveries/{delivery_id}/replay</div>
+        <div class="path">/v1/webhooks/{webhook_id}</div>
+        <div class="path">/v1/webhooks/{webhook_id}/test</div>
+      </section>
+      <h2>OpenAPI Source</h2>
+      <pre>openapi: 3.0.3
+info:
+  title: Ventus AI API
+  version: 1.0.0-draft
+  description: |
+    Draft OpenAPI contract reconstructed from the deployed AWS Lambda API on 2026-05-17.
+    Treat this as a starting point for `/docs`, Postman collection generation, and client onboarding.
+servers:
+  - url: https://api.ventusai.com
+security:
+  - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        timestamp:
+          type: string
+          format: date-time
+    EnrichTransactionInput:
+      type: object
+      required:
+        - transaction_id
+        - customer_id
+        - merchant_name
+        - amount
+        - date
+      properties:
+        transaction_id:
+          type: string
+        customer_id:
+          type: string
+        merchant_name:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+          format: date
+        mcc_code:
+          type: string
+          nullable: true
+        zip_code:
+          type: string
+          nullable: true
+        home_zip:
+          type: string
+          nullable: true
+    EnrichRequest:
+      type: object
+      required:
+        - transactions
+      properties:
+        transactions:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EnrichTransactionInput'
+    EnrichResponse:
+      type: object
+      properties:
+        batch_id:
+          type: string
+        status:
+          type: string
+          example: ingested
+        transaction_count:
+          type: integer
+        customers:
+          type: integer
+        message:
+          type: string
+    BatchSummary:
+      type: object
+      properties:
+        batch_id:
+          type: string
+        source_file:
+          type: string
+        status:
+          type: string
+          enum: [complete, partial, failed, processing]
+        batch_outcome_event:
+          type: string
+          nullable: true
+        ingested_at:
+          type: string
+          format: date-time
+        customer_count:
+          type: integer
+        transaction_count:
+          type: integer
+        customers_complete:
+          type: integer
+        customers_failed:
+          type: integer
+        customers_in_progress:
+          type: integer
+    JobListResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
+        batches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchSummary'
+    Job:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+          enum:
+            - ingested
+            - classified
+            - pillar_analyzed
+            - travel_detected
+            - lifestyle_analyzed
+            - risk_analyzed
+            - complete
+            - failed
+        bank_id:
+          type: string
+        transaction_count:
+          type: integer
+        source_file:
+          type: string
+        customers:
+          type: array
+          items:
+            type: object
+            properties:
+              customer_id:
+                type: string
+              status:
+                type: string
+              error_message:
+                type: string
+                nullable: true
+              timestamps:
+                type: object
+                properties:
+                  ingested_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  classified_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  pillar_analyzed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  travel_detected_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  lifestyle_analyzed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  risk_analyzed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  completed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+    EnrichedTransaction:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+        clean_merchant_name:
+          type: string
+        lifestyle_category:
+          type: string
+        merchant_category:
+          type: string
+        amount:
+          type: string
+        pre_tax_amount:
+          type: string
+          nullable: true
+        tax_amount:
+          type: string
+          nullable: true
+        tax_rate:
+          type: string
+          nullable: true
+        tax_state:
+          type: string
+          nullable: true
+        transaction_date:
+          type: string
+          format: date-time
+        confidence_score:
+          type: number
+        inferred_purchase:
+          type: string
+          nullable: true
+        trip_id:
+          type: string
+          nullable: true
+        zip_code:
+          type: string
+          nullable: true
+    WebhookRegistrationRequest:
+      type: object
+      required:
+        - url
+        - events
+      properties:
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - batch_started
+              - batch_complete
+              - batch_partial
+              - batch_failed
+              - batch_stuck
+              - life_event_detected
+              - trip_detected
+              - risk_detected
+              - behavioral_signal_detected
+        secret:
+          type: string
+          nullable: true
+    WebhookRegistrationResponse:
+      type: object
+      properties:
+        webhook_id:
+          type: string
+        bank_id:
+          type: string
+        url:
+          type: string
+        events:
+          type: array
+          items:
+            type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        message:
+          type: string
+    WebhookListResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        webhooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookRegistrationResponse'
+    WebhookTestResponse:
+      type: object
+      properties:
+        webhook_id:
+          type: string
+        event:
+          type: string
+          example: webhook_test
+        delivery_id:
+          type: string
+        status_code:
+          type: integer
+        delivered:
+          type: boolean
+    WebhookDelivery:
+      type: object
+      properties:
+        delivery_id:
+          type: string
+          format: uuid
+        webhook_id:
+          type: string
+          nullable: true
+        bank_id:
+          type: string
+        event_type:
+          type: string
+        target_url:
+          type: string
+        attempt_count:
+          type: integer
+        status:
+          type: string
+          enum:
+            - delivered
+            - failed
+        status_code:
+          type: integer
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        last_attempted_at:
+          type: string
+          format: date-time
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+        replay_of_delivery_id:
+          type: string
+          format: uuid
+          nullable: true
+    WebhookDeliveryListResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookDelivery'
+    WebhookReplayResponse:
+      type: object
+      properties:
+        webhook_id:
+          type: string
+        event:
+          type: string
+        delivery_id:
+          type: string
+          format: uuid
+        replay_of_delivery_id:
+          type: string
+          format: uuid
+        status_code:
+          type: integer
+          nullable: true
+        delivered:
+          type: boolean
+    CustomerProfile:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        bank_id:
+          type: string
+        total_spend:
+          type: number
+        pillars:
+          type: array
+          items:
+            type: object
+            properties:
+              pillar:
+                type: string
+              total_spend:
+                type: number
+              transaction_count:
+                type: integer
+              avg_transaction:
+                type: number
+              pct_of_total_spend:
+                type: number
+              last_purchase_date:
+                type: string
+                format: date-time
+                nullable: true
+              analyzed_at:
+                type: string
+                format: date-time
+                nullable: true
+    EvidenceTransaction:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+        merchant:
+          type: string
+        amount:
+          type: string
+        date:
+          type: string
+          format: date-time
+          nullable: true
+        relevance:
+          type: string
+          nullable: true
+    LifeEventsResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
+        life_events:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                oneOf:
+                  - type: integer
+                  - type: string
+              event_name:
+                type: string
+              event_type:
+                type: string
+              confidence:
+                type: number
+                minimum: 0
+                maximum: 1
+              urgency_timeline:
+                type: string
+              status:
+                type: string
+              talking_points:
+                type: array
+                items:
+                  type: string
+              next_steps:
+                type: array
+                items:
+                  type: string
+              insight:
+                type: string
+                nullable: true
+              recommended_products:
+                type: array
+                items:
+                  type: string
+              financial_projection:
+                type: object
+                nullable: true
+              first_detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              last_confirmed_at:
+                type: string
+                format: date-time
+                nullable: true
+              detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              evidence:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvidenceTransaction'
+        behavioral_signals:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                oneOf:
+                  - type: integer
+                  - type: string
+              signal_category:
+                type: string
+              signal_name:
+                type: string
+              confidence:
+                type: number
+                minimum: 0
+                maximum: 1
+              status:
+                type: string
+              talking_points:
+                type: array
+                items:
+                  type: string
+              first_detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              last_confirmed_at:
+                type: string
+                format: date-time
+                nullable: true
+              detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              evidence:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvidenceTransaction'
+    PurchaseSignalsResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+        days_elapsed_this_month:
+          type: integer
+        purchase_signals:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            properties:
+              pillar:
+                type: string
+              monthly_breakdown:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    month:
+                      type: string
+                    spend:
+                      type: number
+                    transaction_count:
+                      type: integer
+    TripsResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
+        trips:
+          type: array
+          items:
+            type: object
+            properties:
+              trip_id:
+                type: string
+              destination:
+                type: string
+              trip_start:
+                type: string
+                format: date-time
+              trip_end:
+                type: string
+                format: date-time
+              trip_duration_days:
+                type: string
+              total_trip_spend:
+                type: string
+              transaction_count:
+                type: string
+              transport_spend:
+                type: string
+              lodging_spend:
+                type: string
+              dining_spend:
+                type: string
+              activities_spend:
+                type: string
+              other_spend:
+                type: string
+              detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              is_upcoming:
+                type: boolean
+    RiskFactorsResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
+        risk_factors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                oneOf:
+                  - type: integer
+                  - type: string
+              transaction_id:
+                type: string
+              category_group:
+                type: string
+              category_label:
+                type: string
+              severity:
+                type: string
+                enum:
+                  - high
+                  - medium
+                  - low
+              merchant:
+                type: string
+              amount:
+                type: string
+              transaction_date:
+                type: string
+                format: date-time
+              reason:
+                type: string
+              detected_at:
+                type: string
+                format: date-time
+        summary:
+          type: object
+          properties:
+            total:
+              type: integer
+            high:
+              type: integer
+            medium:
+              type: integer
+            low:
+              type: integer
+    LifeEventDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        life_event:
+          type: object
+          additionalProperties: true
+    BehavioralSignalDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        behavioral_signal:
+          type: object
+          additionalProperties: true
+    TripDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        trip:
+          type: object
+          additionalProperties: true
+    RiskFactorDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        risk_factor:
+          type: object
+          additionalProperties: true
+    AnalyticsResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+        overview:
+          type: object
+          properties:
+            total_customers:
+              type: integer
+            total_transactions:
+              type: integer
+            total_spend:
+              type: number
+            avg_transaction:
+              type: number
+            avg_confidence:
+              type: number
+        pillar_distribution:
+          type: array
+          items:
+            type: object
+        life_event_summary:
+          type: array
+          items:
+            type: object
+        behavioral_signal_summary:
+          type: array
+          items:
+            type: object
+        risk_summary:
+          type: array
+          items:
+            type: object
+        top_merchants:
+          type: array
+          items:
+            type: object
+        segments:
+          type: array
+          items:
+            type: object
+paths:
+  /health:
+    get:
+      security: []
+      summary: Health check
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /v1/enrich:
+    post:
+      summary: Submit transactions for enrichment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichRequest'
+      responses:
+        '202':
+          description: Batch accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs:
+    get:
+      summary: List recent batches or look up by S3 key
+      description: |
+        Without `s3_key`: returns a paginated list of batches for the authenticated bank,
+        aggregated from pipeline runs, ordered by submission time descending.
+        With `s3_key`: legacy lookup — returns the full per-customer detail for that source file.
+      parameters:
+        - in: query
+          name: s3_key
+          required: false
+          schema:
+            type: string
+          description: If provided, returns the per-customer job detail for this source file (legacy mode).
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            enum: [complete, partial, failed, processing]
+          description: Filter batches by aggregate status.
+      responses:
+        '200':
+          description: Batch list or legacy job detail
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/JobListResponse'
+                  - $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid status filter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Job not found (s3_key mode only)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/{job_id}:
+    get:
+      summary: Get enrichment job status
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/customers/{customer_id}/transactions:
+    get:
+      summary: Get enriched transactions for a customer
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: pillar
+          schema:
+            type: string
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: confidence_min
+          schema:
+            type: number
+            minimum: 0
+            maximum: 1
+      responses:
+        '200':
+          description: Enriched transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer_id:
+                    type: string
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EnrichedTransaction'
+  /v1/customers/{customer_id}/profile:
+    get:
+      summary: Get customer lifestyle profile
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Customer profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfile'
+  /v1/customers/{customer_id}/life-events:
+    get:
+      summary: Get active customer life events
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          description: Maximum number of combined life-event and behavioral-signal rows to return.
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          description: Number of combined life-event and behavioral-signal rows to skip.
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Life events with evidence and recommendations. Pagination is applied before splitting the combined result into life_events and behavioral_signals.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LifeEventsResponse'
+  /v1/customers/{customer_id}/life-events/{life_event_id}:
+    get:
+      summary: Get one active life event by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: life_event_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Life event with evidence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LifeEventDetailResponse'
+        '404':
+          description: Life event not found
+  /v1/customers/{customer_id}/behavioral-signals/{behavioral_signal_id}:
+    get:
+      summary: Get one active behavioral signal by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: behavioral_signal_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Behavioral signal with evidence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BehavioralSignalDetailResponse'
+        '404':
+          description: Behavioral signal not found
+  /v1/customers/{customer_id}/purchase-signals:
+    get:
+      summary: Get purchase cycle signals for a customer
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Purchase signals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseSignalsResponse'
+  /v1/customers/{customer_id}/trips:
+    get:
+      summary: Get detected customer trips
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Trips
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripsResponse'
+  /v1/customers/{customer_id}/trips/{trip_id}:
+    get:
+      summary: Get one customer trip by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: trip_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trip detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripDetailResponse'
+        '404':
+          description: Trip not found
+  /v1/customers/{customer_id}/risk-factors:
+    get:
+      summary: Get customer risk factors
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 500
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Risk factors and page-level severity summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskFactorsResponse'
+  /v1/customers/{customer_id}/risk-factors/{risk_factor_id}:
+    get:
+      summary: Get one customer risk factor by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: risk_factor_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Risk factor detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskFactorDetailResponse'
+        '404':
+          description: Risk factor not found
+  /v1/analytics/bank:
+    get:
+      summary: Get portfolio-level bank analytics
+      responses:
+        '200':
+          description: Bank analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsResponse'
+  /v1/webhooks:
+    get:
+      summary: List webhook registrations
+      responses:
+        '200':
+          description: Webhook registrations for the authenticated bank
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookListResponse'
+    post:
+      summary: Register or update a webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRegistrationRequest'
+      responses:
+        '201':
+          description: Webhook registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookRegistrationResponse'
+        '400':
+          description: Invalid webhook registration request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/webhook-deliveries:
+    get:
+      summary: List recent webhook delivery attempts
+      parameters:
+        - name: webhook_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - delivered
+              - failed
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Recent webhook delivery attempts for the authenticated bank
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDeliveryListResponse'
+        '400':
+          description: Invalid delivery filter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/webhook-deliveries/{delivery_id}/replay:
+    post:
+      summary: Replay a failed webhook delivery
+      parameters:
+        - name: delivery_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Replay delivery completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookReplayResponse'
+        '404':
+          description: Webhook delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Webhook delivery is not replayable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: Replay delivery reached the endpoint but was not accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookReplayResponse'
+  /v1/webhooks/{webhook_id}:
+    put:
+      summary: Update a webhook registration
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: New HTTPS endpoint URL
+                events:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+                  description: Replacement event subscription list
+                secret:
+                  type: string
+                  nullable: true
+                  description: New signing secret (null to remove)
+      responses:
+        '200':
+          description: Updated webhook registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookRegistration'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Webhook not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Disable a webhook registration
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Webhook disabled
+        '404':
+          description: Webhook not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/webhooks/{webhook_id}/test:
+    post:
+      summary: Send a test webhook delivery
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test delivery completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookTestResponse'
+        '404':
+          description: Active webhook not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: Test delivery reached the endpoint but was not accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookTestResponse'
+</pre>
+    </main>
+  </body>
+</html>

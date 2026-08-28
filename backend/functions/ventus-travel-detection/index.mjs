@@ -4,14 +4,14 @@
 // → detects trips via model gateway → writes to customer_trips
 // → updates transactions_enriched with trip_id
 
-import { createDbFactory } from '../../shared/db.mjs';
-import { createModelGateway } from '../../shared/model-gateway.mjs';
+import { createDbFactory } from '../../shared/platform/db.mjs';
+import { createModelGateway } from '../../shared/platform/model-gateway.mjs';
 import {
   createSecretsProvider,
   resolveSecretId,
-} from '../../shared/secrets.mjs';
-import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
-import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
+} from '../../shared/platform/secrets.mjs';
+import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/platform/batch-outcome.mjs';
+import { createWebhookDispatcher } from '../../shared/platform/webhooks.mjs';
 
 const LAMBDA_NAME =
   process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-travel-detection';

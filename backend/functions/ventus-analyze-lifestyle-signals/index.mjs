@@ -4,11 +4,11 @@
 // Reads from transactions_enriched + customer_pillar_profiles
 // → writes to customer_life_events + life_event_evidence
 
-import { createDbFactory } from '../../shared/db.mjs';
-import { createModelGateway } from '../../shared/model-gateway.mjs';
-import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
-import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
-import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
+import { createDbFactory } from '../../shared/platform/db.mjs';
+import { createModelGateway } from '../../shared/platform/model-gateway.mjs';
+import { createSecretsProvider, resolveSecretId } from '../../shared/platform/secrets.mjs';
+import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/platform/batch-outcome.mjs';
+import { createWebhookDispatcher } from '../../shared/platform/webhooks.mjs';
 
 const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
 const MODEL_PROVIDER_SECRET_ID = resolveSecretId({

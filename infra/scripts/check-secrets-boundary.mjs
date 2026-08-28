@@ -10,7 +10,7 @@ const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
 const legacySecretId = baseline.legacy_combined_secret_id;
 
 const allowedLegacyReferences = new Set([
-  'backend/shared/secrets.mjs',
+  'backend/shared/platform/secrets.mjs',
   'infra/lib/ventus-existing-infra-stack.ts',
   'infra/security/db-secret-rotation-preflight.json',
   'infra/security/secrets-boundary-baseline.json',

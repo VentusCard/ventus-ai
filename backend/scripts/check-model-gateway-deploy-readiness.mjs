@@ -3,11 +3,11 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const checklist = readFileSync(
-  resolve('../docs/model-gateway-deployment-checklist.md'),
+  resolve('../docs/runbooks/model-gateway-deployment-checklist.md'),
   'utf8'
 );
 const packageJson = JSON.parse(readFileSync(resolve('../backend/package.json'), 'utf8'));
-const gatewaySource = readFileSync(resolve('../backend/shared/model-gateway.mjs'), 'utf8');
+const gatewaySource = readFileSync(resolve('../backend/shared/platform/model-gateway.mjs'), 'utf8');
 const evaluationSql = readFileSync(
   resolve('../backend/sql/model-evaluation-runs.sql'),
   'utf8'

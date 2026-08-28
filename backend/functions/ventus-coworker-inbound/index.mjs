@@ -10,8 +10,8 @@
 
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
-import { createModelGateway } from '../../shared/model-gateway.mjs';
-import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
+import { createModelGateway } from '../../shared/platform/model-gateway.mjs';
+import { createSecretsProvider, resolveSecretId } from '../../shared/platform/secrets.mjs';
 import { createFixturePortfolioProvider } from '../../shared/coworker/portfolio-provider.mjs';
 import { createCoworkerStore, createDynamoBackend } from '../../shared/coworker/store.mjs';
 import { runCoworkerTurn } from '../../shared/coworker/core.mjs';

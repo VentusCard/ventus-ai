@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const openApiPath = resolve('../docs/openapi-draft.yaml');
+const openApiPath = resolve('../docs/api/openapi-draft.yaml');
 const text = readFileSync(openApiPath, 'utf8');
 
 const requiredPatterns = [

@@ -33,7 +33,7 @@ Current posture:
 
 Do not run `cdk deploy` against production until the synthesized change set has been reviewed by engineering leadership.
 
-Use `docs/cdk-deployment-review-checklist.md` before any deployment.
+Use `docs/runbooks/cdk-deployment-review-checklist.md` before any deployment.
 
 ## Current Skeleton
 
@@ -54,7 +54,7 @@ The current CDK stack records known production resource names and defines readin
 
 The current RDS network exposure baseline is captured in `infra/security/rds-network-exposure-baseline.json` and checked by CI. It documents the existing temporary public `/32` Postgres ingress exceptions and the target posture of private-only database access.
 
-The current secrets boundary baseline is captured in `infra/security/secrets-boundary-baseline.json` and checked by CI. The live Lambda env/IAM cutover to `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` was completed on 2026-05-20, the recovered backend package that reads the separated model-provider secret was deployed to the seven backend Lambdas the same day, and the duplicated `GEMINI_API_KEY` was removed from the DB credential secret. Use `docs/aws-secrets-cutover-runbook.md` plus `npm run --prefix infra audit:secrets-cutover` to verify live Lambda environment variables, secret contents, and secret metadata.
+The current secrets boundary baseline is captured in `infra/security/secrets-boundary-baseline.json` and checked by CI. The live Lambda env/IAM cutover to `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` was completed on 2026-05-20, the recovered backend package that reads the separated model-provider secret was deployed to the seven backend Lambdas the same day, and the duplicated `GEMINI_API_KEY` was removed from the DB credential secret. Use `docs/security/aws-secrets-cutover-runbook.md` plus `npm run --prefix infra audit:secrets-cutover` to verify live Lambda environment variables, secret contents, and secret metadata.
 
 The rotation/KMS target posture is captured in `infra/security/secrets-rotation-kms-baseline.json` and checked by CI. Use `npm run --prefix infra audit:secrets-rotation-kms` to inspect live rotation metadata, rotation enablement, and customer-managed KMS status without reading secret values. Customer-managed KMS and rotation metadata tags are enabled for the DB and model-provider credential secrets; Secrets Manager rotation remains pending.
 
@@ -98,7 +98,7 @@ exposure receipt, and confirms another tenant sees zero ledger or exposure event
 connect application traffic until this invocation succeeds and its CloudWatch receipt is
 reviewed.
 
-Use `docs/evidence-store-deployment-runbook.md` for the protected workflow inputs, read-only
+Use `docs/runbooks/evidence-store-deployment-runbook.md` for the protected workflow inputs, read-only
 preflight, confirmation-gated migration invocation, evidence capture, and rollback posture.
 
 Deploy only the isolated stack after review; do not deploy `VentusExistingInfraStack` as part
@@ -164,7 +164,7 @@ npm run --prefix infra diff
 
 Pull request CI runs synth only. Deploys require the protected staging workflow.
 
-The staging GitHub workflow lives at `.github/workflows/infra-staging.yml`. Configure the OIDC role and protected environment with `docs/github-aws-oidc-staging.md` before enabling it for deploys.
+The staging GitHub workflow lives at `.github/workflows/infra-staging.yml`. Configure the OIDC role and protected environment with `docs/security/github-aws-oidc-staging.md` before enabling it for deploys.
 
 Optional email subscription:
 

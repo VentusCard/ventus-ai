@@ -4,10 +4,10 @@ import express from 'express';
 import serverless from 'serverless-http';
 import crypto from 'crypto';
 import { SQSClient, SendMessageCommand, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
-import { createDbFactory } from '../../shared/db.mjs';
-import { resolveSecretId } from '../../shared/secrets.mjs';
-import { buildWebhookBody, recordWebhookDelivery } from '../../shared/webhooks.mjs';
-import { normalizeIngest, isSupportedIngestFormat } from '../../shared/ingest-normalizers.mjs';
+import { createDbFactory } from '../../shared/platform/db.mjs';
+import { resolveSecretId } from '../../shared/platform/secrets.mjs';
+import { buildWebhookBody, recordWebhookDelivery } from '../../shared/platform/webhooks.mjs';
+import { normalizeIngest, isSupportedIngestFormat } from '../../shared/pipeline/ingest-normalizers.mjs';
 
 const sqs = new SQSClient({ region: 'us-east-2' });
 const app = express();
