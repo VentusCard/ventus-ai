@@ -54,11 +54,13 @@ import {
   Zap,
   BarChart3,
   Route,
+  ArrowUpRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 import { PulseDot } from "@/components/tepilot/common/PulseDot";
+import type { TabValue } from "./AnalyticsContainer";
 
 type SourceInput = {
   label: string;
