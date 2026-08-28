@@ -1117,10 +1117,15 @@ export function CapabilitiesView() {
             </div>
           </div>
 
-          <Connector amber />
+          <Connector amber active={activationLive} />
 
           {/* Destinations */}
-          <div className="flex h-full min-w-0 flex-col p-5">
+          <div
+            className={cn(
+              "flex h-full min-w-0 flex-col p-5 transition-opacity duration-300",
+              !activationLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
+            )}
+          >
             <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
                 Activation destinations
