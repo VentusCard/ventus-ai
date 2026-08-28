@@ -1153,6 +1153,20 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                       <FacingIcon className="h-3.5 w-3.5" />
                     </span>
                     <span className="truncate text-[14px] font-medium leading-tight text-slate-900">{d.name}</span>
+                    {onNavigate && (
+                      <button
+                        type="button"
+                        title={`Open ${d.tabLabel}`}
+                        aria-label={`Open ${d.tabLabel}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigate(d.tab);
+                        }}
+                        className="ml-auto flex h-7 w-7 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-blue-100 hover:text-blue-600"
+                      >
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                 );
               })}
