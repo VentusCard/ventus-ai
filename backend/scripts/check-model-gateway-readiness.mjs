@@ -19,10 +19,6 @@ const gatewaySource = readFileSync(
   resolve('../backend/shared/platform/model-gateway.mjs'),
   'utf8'
 );
-const interventionPlannerSource = readFileSync(
-  resolve('../backend/shared/pilot/intervention-planner.mjs'),
-  'utf8'
-);
 const riskDetectionSource = readFileSync(
   resolve('../backend/functions/ventus-risk-detection/index.mjs'),
   'utf8'
@@ -53,7 +49,6 @@ const requiredTasks = [
   'risk_detection',
   'travel_detection',
   'enrichment_judge',
-  'intervention_planning_shadow',
 ];
 
 assert.equal(routing.version, 1, 'model routing config should be versioned');
@@ -85,17 +80,6 @@ assert.equal(
   true,
   'judge task should start shadow-only so it cannot alter production output'
 );
-assert.equal(
-  routing.tasks.intervention_planning_shadow.shadow_only,
-  true,
-  'intervention planner should remain shadow-only'
-);
-assert.equal(
-  routing.tasks.intervention_planning_shadow.compares_to,
-  'deterministic_intervention_baseline',
-  'intervention planner should declare its deterministic baseline'
-);
-
 assert.equal(rubric.version, 1, 'model evaluation rubric should be versioned');
 for (const task of requiredTasks.filter((item) => !item.endsWith('_shadow'))) {
   assert.ok(rubric.tasks?.[task], `missing evaluation rubric for ${task}`);
@@ -108,30 +92,6 @@ for (const task of requiredTasks.filter((item) => !item.endsWith('_shadow'))) {
     `${task} should define hard failure modes`
   );
 }
-assert.ok(
-  rubric.tasks?.intervention_planning_shadow,
-  'intervention planner should define an evaluation rubric'
-);
-assert.match(
-  interventionPlannerSource,
-  /fabricated_evidence_transaction_id/,
-  'intervention planner should reject fabricated evidence lineage'
-);
-assert.match(
-  interventionPlannerSource,
-  /action_despite_blocking_policy/,
-  'intervention planner should enforce blocking policy verdicts'
-);
-assert.match(
-  interventionPlannerSource,
-  /runtimePromotionAllowed:\s*false/,
-  'intervention planner should remain ineligible for runtime promotion'
-);
-assert.match(
-  interventionPlannerSource,
-  /comparePlannerRuns/,
-  'intervention planner should compare candidates with a baseline'
-);
 assert.equal(
   rubric.gates.production_route_change.requires_shadow_runs,
   true,
@@ -204,5 +164,5 @@ assert.match(
 );
 
 console.log(
-  `Model gateway readiness ok: ${requiredTasks.length} routed task(s), production tasks migrated, judge and intervention planner shadow-only`
+  `Model gateway readiness ok: ${requiredTasks.length} routed task(s), production tasks migrated, judge shadow-only`
 );

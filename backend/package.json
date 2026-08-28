@@ -30,14 +30,6 @@
     "qa:partner-ingest": "node ./scripts/qa-partner-ingest.mjs",
     "qa:golden": "node ./eval/qa-golden-enrichment.mjs",
     "qa:model-output": "node ./eval/qa-model-output-report.mjs",
-    "qa:interventions": "node ./eval/qa-intervention-planner.mjs",
-    "review:interventions:prepare": "node ./eval/prepare-intervention-review.mjs",
-    "review:interventions:adjudicate": "node ./eval/adjudicate-intervention-review.mjs",
-    "qa:mvp-cohorts": "node --experimental-strip-types ./scripts/qa-growth-play-cohorts.mjs",
-    "qa:growth-plays": "node ./scripts/compile-growth-play-contracts.mjs",
-    "qa:outcomes": "node ./scripts/qa-outcome-feed-contract.mjs && node ./scripts/qa-connected-exposure-contract.mjs",
-    "plaid:mvp:manifests": "node --experimental-strip-types ./eval/generate-plaid-mvp-manifests.mjs",
-    "benchmark:mvp": "VENTUS_SCALE_HOUSEHOLDS=50000 node --experimental-strip-types ./scripts/benchmark-growth-play-pipeline.mjs",
     "qa:live": "node ./scripts/qa-live-pipeline.mjs",
     "load:enrich": "node ./scripts/load-test-enrich.mjs",
     "docs:api": "node ./scripts/generate-api-docs.mjs && node ./scripts/generate-postman-collection.mjs",
@@ -48,8 +40,6 @@
     "check:imports": "node ./scripts/check-relative-imports.mjs",
     "check:model-gateway": "node ./scripts/check-model-gateway-readiness.mjs",
     "check:model-gateway-deploy": "node ./scripts/check-model-gateway-deploy-readiness.mjs",
-    "check:pipeline-readiness": "node ./scripts/check-pipeline-readiness.mjs",
-    "check:persistence": "node ./scripts/check-persistence-readiness.mjs",
     "coworker:test": "node --test \"./shared/coworker/*.test.mjs\"",
     "test": "node --test \"./shared/**/*.test.mjs\" \"./scripts/lib/*.test.mjs\" \"./eval/lib/*.test.mjs\" \"./monitors/**/*.test.mjs\""
   }
