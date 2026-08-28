@@ -1011,12 +1011,12 @@ export function CapabilitiesView() {
         {/* Pipeline board */}
         <div className="grid grid-cols-1 min-h-[410px] items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
-          <div className="flex h-full min-w-0 flex-col p-5">
+          <div className="flex h-full min-w-0 flex-col rounded-xl border border-indigo-900/60 bg-[#141432] p-5">
             <div className="mb-3.5 flex items-center gap-2">
-              <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-slate-600">
+              <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-indigo-100/90">
                 Data sources
               </span>
-              <span className="ml-auto font-mono text-[11.5px] text-slate-600">
+              <span className="ml-auto font-mono text-[11.5px] text-indigo-200/70">
                 2 groups · {totalSourceInputs} sources
               </span>
             </div>
@@ -1028,26 +1028,28 @@ export function CapabilitiesView() {
                     key={section.title}
                     className={cn(
                       "flex min-w-0 flex-1 flex-col gap-3 rounded-xl border p-3",
-                      isExternal ? "border-zinc-200 bg-zinc-50/60" : "border-slate-200 bg-slate-50/50",
+                      isExternal
+                        ? "border-indigo-400/25 bg-indigo-950/30"
+                        : "border-indigo-400/25 bg-indigo-950/30",
                     )}
                   >
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
                           "rounded-md px-2 py-1 text-[11.5px] font-semibold uppercase tracking-wider",
-                          isExternal ? "bg-zinc-200 text-zinc-700" : "bg-slate-200 text-slate-700",
+                          isExternal ? "bg-indigo-400/20 text-indigo-100" : "bg-indigo-400/20 text-indigo-100",
                         )}
                       >
                         {section.title}
                       </span>
-                      <span className="ml-auto font-mono text-[11px] text-slate-500">
+                      <span className="ml-auto font-mono text-[11px] text-indigo-200/60">
                         {section.groups.length} sources
                       </span>
                     </div>
                     <p
                       className={cn(
                         "py-2 text-[14px] font-bold leading-snug",
-                        isExternal ? "text-zinc-800" : "text-slate-800",
+                        isExternal ? "text-indigo-100/90" : "text-indigo-100/90",
                       )}
                     >
                       {section.tagline}
