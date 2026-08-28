@@ -666,7 +666,7 @@ function SignalSection({
         </span>
       </span>
 
-      <span className="relative mt-0.5 block h-8 overflow-hidden">
+      <span className="relative mt-0.5 block h-10 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0" style={{ willChange: "transform" }}>
           {renderRow(current, currentRowRef)}
           {renderRow(next, nextRowRef)}
