@@ -300,22 +300,16 @@ function chipClass(chip: WorkflowChip) {
   return CHIP_KIND_TINTS[chip.kind];
 }
 
-const TEAMS: Record<TeamKey, { label: string; color: string }> = {
-  leadership: { label: "Bank Leadership", color: "#2563EB" },
-  growth: { label: "Product & Growth", color: "#37B389" },
-  rewards: { label: "Rewards & Deals", color: "#B4722A" },
-};
-
 const DESTINATIONS: Destination[] = [
-  { name: "Intelligence Database", channel: "Ventus", team: "leadership" },
-  { name: "Ventus AI Coworker", channel: "Email", team: "leadership" },
-  { name: "Personalized Relationship", channel: "Ventus", team: "growth" },
-  { name: "Automations Campaign", channel: "CRM", team: "growth" },
-  { name: "Custom Product Builder", channel: "CRM", team: "growth" },
-  { name: "Personalized Product Offer", channel: "CRM", team: "growth" },
-  { name: "Personalized Reward Program", channel: "Digital Banking", team: "rewards" },
-  { name: "Local Merchant Deals", channel: "Ventus", team: "rewards" },
-  { name: "Loyalty & Retention", channel: "Digital Banking", team: "rewards" },
+  { name: "Intelligence Database", channel: "Ventus", facing: "bank" },
+  { name: "Ventus AI Coworker", channel: "Email", facing: "bank" },
+  { name: "Personalized Relationship", channel: "Ventus", facing: "bank" },
+  { name: "Automations Campaign", channel: "CRM", facing: "bank" },
+  { name: "Custom Product Builder", channel: "CRM", facing: "bank" },
+  { name: "Personalized Product Offer", channel: "CRM", facing: "consumer" },
+  { name: "Personalized Reward Program", channel: "Digital Banking", facing: "consumer" },
+  { name: "Local Merchant Deals", channel: "Ventus", facing: "consumer" },
+  { name: "Loyalty & Retention", channel: "Digital Banking", facing: "consumer" },
 ];
 
 function Connector({ amber, active = true }: { amber?: boolean; active?: boolean }) {
