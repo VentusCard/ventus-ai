@@ -1205,6 +1205,103 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
           </div>
         </div>
 
+        {/* Guided tour overlay — dimmed board with spotlight on the active column */}
+        {tourActive && spotRect && (
+          <div className="absolute inset-0 z-10 rounded-2xl overflow-hidden" aria-hidden="true">
+            <div className="absolute inset-x-0 top-0 bg-slate-900/55 backdrop-blur-[2px]" style={{ height: Math.max(0, spotRect.top) }} />
+            <div
+              className="absolute inset-x-0 bg-slate-900/55 backdrop-blur-[2px]"
+              style={{ top: spotRect.top + spotRect.height, bottom: 0 }}
+            />
+            <div
+              className="absolute bg-slate-900/55 backdrop-blur-[2px]"
+              style={{ top: spotRect.top, left: 0, width: Math.max(0, spotRect.left), height: spotRect.height }}
+            />
+            <div
+              className="absolute bg-slate-900/55 backdrop-blur-[2px]"
+              style={{
+                top: spotRect.top,
+                left: spotRect.left + spotRect.width,
+                right: 0,
+                height: spotRect.height,
+              }}
+            />
+          </div>
+        )}
+
+        {/* Guided tour tooltip card */}
+        {tourActive && spotRect && (
+          <div
+            role="dialog"
+            aria-label={`Tour step ${walkStep + 1} of 3`}
+            className="absolute z-30 w-[340px] max-w-[calc(100%-24px)] rounded-xl border border-slate-200 bg-white p-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            style={{
+              top: Math.max(12, spotRect.top + 8),
+              left:
+                walkStep === 2
+                  ? Math.max(12, spotRect.left - 356)
+                  : Math.min(spotRect.left + spotRect.width + 16, (boardRef.current?.clientWidth ?? 1200) - 356),
+            }}
+          >
+            <div className="text-[11.5px] font-medium text-slate-500">{walkStep + 1} of 3</div>
+            <h3 className="mt-1.5 text-[17px] font-bold leading-snug text-slate-900">
+              {TOUR_STEPS[walkStep].title}
+            </h3>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-slate-600">{TOUR_STEPS[walkStep].body}</p>
+
+            {/* Progress dots */}
+            <div className="mt-4 flex items-center gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all",
+                    i === walkStep ? "w-5 bg-amber-400" : "w-1.5 bg-slate-200",
+                  )}
+                />
+              ))}
+            </div>
+
+            <div className="mt-4 flex items-center">
+              <button
+                type="button"
+                onClick={() => endTour()}
+                className="text-[13px] font-semibold text-slate-600 hover:text-slate-900"
+              >
+                Skip tour
+              </button>
+              <div className="ml-auto flex items-center gap-2">
+                {walkStep > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => goWalkStep((walkStep - 1) as 0 | 1 | 2)}
+                    className="rounded-lg border border-slate-200 px-4 py-1.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Back
+                  </button>
+                )}
+                {walkStep < 2 ? (
+                  <button
+                    type="button"
+                    onClick={() => goWalkStep((walkStep + 1) as 0 | 1 | 2)}
+                    className="rounded-lg bg-[#141432] px-5 py-1.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1e1e45]"
+                  >
+                    Next
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => endTour(2)}
+                    className="rounded-lg bg-[#141432] px-5 py-1.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1e1e45]"
+                  >
+                    Done
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Shared detail panel — signal or application */}
         {activeDetail && ActiveIcon && (
           <div
