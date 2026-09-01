@@ -1025,7 +1025,13 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
         {/* Pipeline board */}
         <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
-          <div className="flex h-full min-w-0 flex-col rounded-xl bg-white p-4 shadow-sm">
+          <div
+            ref={sourcesColRef}
+            className={cn(
+              "flex h-full min-w-0 flex-col rounded-xl bg-white p-4 shadow-sm",
+              tourActive && walkStep === 0 && "relative z-20 ring-2 ring-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.35)]",
+            )}
+          >
             <div className="mb-3 flex items-center gap-2">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-blue-700">
                 Data sources
@@ -1088,9 +1094,11 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
 
           {/* Core */}
           <div
+            ref={coreColRef}
             className={cn(
               "min-w-0 p-1.5 transition-opacity duration-300",
               !coreLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
+              tourActive && walkStep === 1 && "relative z-20 rounded-xl ring-2 ring-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.35)]",
             )}
           >
             <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-4">
@@ -1137,9 +1145,11 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
 
           {/* Destinations */}
           <div
+            ref={destColRef}
             className={cn(
-              "flex h-full min-w-0 flex-col p-4 transition-opacity duration-300",
+              "flex h-full min-w-0 flex-col rounded-xl p-4 transition-opacity duration-300",
               !activationLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
+              tourActive && walkStep === 2 && "relative z-20 bg-white ring-2 ring-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.35)]",
             )}
           >
             <div className="mb-3 flex items-center gap-2">
