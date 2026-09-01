@@ -5,10 +5,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import { RouteFonts } from "./landing/RouteFonts";
 
+const Navbar = lazy(() => import("./components/Navbar"));
+const Footer = lazy(() => import("./components/Footer"));
 const Index = lazy(() => import("./pages/Index"));
+const LandingPage = lazy(() => import("./landing/LandingPage"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
 const TePilot = lazy(() => import("./pages/TePilot"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -51,12 +53,13 @@ const AppLayout = () => {
     || location.pathname === "/demo";
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
-  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics;
+  const isLanding = location.pathname === "/";
+  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isLanding;
 
   const routes = (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-        <Route path="/" element={<Index />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/classic" element={<Index noindex />} />
         <Route path="/platform" element={<Platform />} />
         <Route path="/transaction-enrichment" element={<TransactionEnrichmentPillar />} />
@@ -121,6 +124,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <RouteFonts />
         <ScrollToTop />
         <AppLayout />
       </BrowserRouter>

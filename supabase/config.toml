@@ -36,6 +36,9 @@ verify_jwt = false
 [functions.send-follow-up-email]
 verify_jwt = false
 
+[functions.request-access]
+verify_jwt = false
+
 [functions.bankwide-chat]
 verify_jwt = false
 

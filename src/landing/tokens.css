@@ -1,0 +1,56 @@
+.ventus-landing {
+  --night: #06111d;
+  --ink: #071a2b;
+  --raised: #0a1e2e;
+  --panel: #0c2539;
+  --text: #edf5f8;
+  --muted: #9aaeb9;
+  --signal: #8be7ff;
+  --signal-strong: #3ecaef;
+  --approved: #5fd0a5;
+  --mineral: #edf3f4;
+  --teal-deep: #0a5563;
+  --muted-light: #4a5d68;
+  --approved-light: #186a4f;
+  --ambient-violet: rgba(96, 88, 255, 0.1);
+
+  --glass-header: rgba(7, 17, 29, 0.52);
+  --glass-plane: rgba(12, 37, 57, 0.58);
+  --glass-modal: rgba(10, 30, 46, 0.74);
+  --glass-border: rgba(216, 242, 255, 0.16);
+  --rail: rgba(139, 231, 255, 0.24);
+  --border-light: rgba(7, 26, 43, 0.12);
+  --highlight: inset 0 1px 0 rgba(216, 242, 255, 0.1);
+  --shadow-plane: 0 24px 64px rgba(2, 8, 16, 0.45);
+  --shadow-header: 0 12px 40px rgba(2, 8, 16, 0.35);
+  --shadow-light: 0 8px 24px rgba(7, 26, 43, 0.08);
+
+  --blur-header: 32px;
+  --blur-plane: 24px;
+  --blur-modal: 34px;
+  --r-header: 16px;
+  --r-plane: 20px;
+  --r-button: 10px;
+  --r-input: 8px;
+  --r-chip: 6px;
+  --r-pill: 999px;
+
+  --font-sans: "Inter Tight", "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --h1: clamp(52px, 7vw, 100px);
+  --h2: clamp(44px, 5.2vw, 68px);
+  --h3: clamp(26px, 2.2vw, 32px);
+  --body-l: 19px;
+  --body: 17px;
+  --mono-label: 12.5px;
+  --mono-data: 13.5px;
+
+  --shell: min(calc(100% - 48px), 1240px);
+  --section-pad: clamp(112px, 12vw, 168px);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --t-enter: 280ms;
+  --t-stage: 220ms;
+  --t-header: 200ms;
+  --t-hover: 160ms;
+}
+
