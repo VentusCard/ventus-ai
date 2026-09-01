@@ -4,17 +4,18 @@ Date: 2026-08-31
 Branch: `feat/finnovate-landing`  
 Baseline: `origin/dev@1595b9a80fa43da45916e4d8c2ff33b7688861a8`  
 Local preview: `http://127.0.0.1:8081/`
+Amplify preview: `https://feat-finnovate-landing.d1gaewa028qzng.amplifyapp.com/`
 
 ## Build and static checks
 
 | Check | Result | Evidence |
 | --- | --- | --- |
 | Production build | Pass | `npm run build`; Vite completed successfully. Existing large legacy chunk warnings remain. |
-| Landing-scoped lint | Pass, zero output | `eslint src/landing src/App.tsx supabase/functions/request-access/index.ts` |
-| Landing source QA | Pass | `npm run qa:landing`; 22 landing files checked. |
+| Landing-scoped lint | Pass, zero output | `eslint src/main.tsx src/landing src/App.tsx supabase/functions/request-access/index.ts` |
+| Landing source QA | Pass | `npm run qa:landing`; 24 landing files checked. |
 | Repo-wide lint baseline | Known failure outside scope | 353 errors and 89 warnings; recorded before landing integration. |
 | Dirty draft preserved | Pass | Original `ventus-ai-dev-wave-b-audit-9a2b` worktree remains unchanged. |
-| Landing bundle isolation | Pass | `LandingPage-*.js` contains no legacy FAQ, Solutions, Schedule Demo, or Learn More strings; legacy `Index-*.js` is a separate lazy chunk. |
+| Landing bundle isolation | Pass | Direct `/` entry loads landing CSS only and does not load the legacy global stylesheet, legacy app shell, FAQ/Solutions copy, or legacy editor script. Legacy routes retain their own entry path. |
 
 ## Structure and content
 
@@ -44,6 +45,7 @@ The browser viewport override was set to each requested size. The browser backen
 
 Additional evidence:
 
+- [Amplify preview](./landing-qa/screenshots/amplify-preview-1440x900.png): optimized build rendered from the DEVELOPMENT branch.
 - [Mobile menu](./landing-qa/screenshots/mobile-menu-375x812.png): 48 px anchor rows, 44 px menu control, body scroll lock, Escape close.
 - [Intelligence](./landing-qa/screenshots/intelligence-1440x900.png): integrated chapter head and single sticky FlowPlane.
 - [Decide state](./landing-qa/screenshots/intelligence-decide-1440x900.png): active stage and plane state change together.
@@ -75,15 +77,15 @@ Additional evidence:
 - [x] Client validates Name, Work email, Institution, and Role; decision is optional.
 - [x] Client invokes the dedicated Supabase `request-access` Edge Function rather than `mailto:`.
 - [x] Edge Function validates and escapes payloads, honors a honeypot, restricts CORS, and sends through Resend to `info@ventusai.com` with reply-to set to the requester.
-- [ ] Edge Function deployed to the approved Supabase project.
-- [ ] `RESEND_API_KEY` and sender domain verified in the deployed environment.
-- [ ] Live success and failure paths exercised against the deployed endpoint.
+- [ ] Edge Function deployed to the approved Supabase project. The authenticated CLI account received project-level HTTP 403 for both secret-name inspection and function deployment.
+- [ ] `RESEND_API_KEY` and sender domain verified in the deployed environment. Blocked by the same project permission boundary; no secret value was requested or exposed.
+- [ ] Live success and failure paths exercised against the deployed endpoint. Client-side validation and local failure handling pass; live success awaits function deployment.
 
 ## Deployment and performance gates
 
-- [ ] Feature branch pushed and an Amplify dev/PR preview URL recorded.
-- [ ] Preview routes and Request Access smoke-tested on Amplify.
-- [ ] Lighthouse run against the preview with throttled 4G; LCP under 2.5 s confirmed.
+- [x] Feature branch pushed and Amplify DEVELOPMENT preview recorded: `https://feat-finnovate-landing.d1gaewa028qzng.amplifyapp.com/`.
+- [x] Preview root, `/classic`, `/bankdemo`, `/contact`, and `/platform` return HTTP 200; root structure, CTA count, anchors, overflow, font isolation, and glass regions pass in the live browser.
+- [ ] Request Access live submission on Amplify awaits Supabase function deployment; the modal, required-field validation, focus behavior, and failure state pass locally.
+- [x] Lighthouse mobile simulated-4G run against the optimized preview: Performance 98, LCP 2.2 s, FCP 1.4 s, TBT 0 ms, CLS 0.011.
 - [ ] Human UI/copy approval recorded before any merge.
-- [ ] Zoheb remains the production merge/deployment owner; no production deployment performed.
-
+- [x] Zoheb remains the production merge/deployment owner; no production deployment performed.
