@@ -27,7 +27,7 @@ import {
 
   Home,
   PiggyBank,
-  ChevronDown,
+  Play,
   Tag,
   Sparkles,
   MessageSquare,
@@ -679,16 +679,70 @@ function SignalSection({
 }
 
 
+const TOUR_STEPS = [
+  {
+    title: "Every signal starts from evidence",
+    body: "Ventus ingests the bank's internal rails — core banking, cards, payments — alongside national data partnership feeds. Raw transactions become verified, classified evidence before any intelligence is built on top.",
+  },
+  {
+    title: "The core reads the whole customer",
+    body: "The Customer Intelligence Core continuously resolves that evidence into 233 behavioral signals across five signal families. It runs 24/7 — every new transaction re-scores the customer in near real time.",
+  },
+  {
+    title: "Intelligence lands where bankers work",
+    body: "Signals flow straight into the surfaces teams already use — personalized deals, product offers, advisor briefings, and campaigns. Every destination stays live, so outreach always reflects the customer's latest behavior.",
+  },
+] as const;
+
+type SpotRect = { top: number; left: number; width: number; height: number };
+
 export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) => void }) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   // Guided walkthrough: 0 = sources only, 1 = core live, 2 = activation live.
   const [walkStep, setWalkStep] = useState<0 | 1 | 2>(0);
+  const [tourActive, setTourActive] = useState(false);
+  const [spotRect, setSpotRect] = useState<SpotRect | null>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const sourcesColRef = useRef<HTMLDivElement>(null);
+  const coreColRef = useRef<HTMLDivElement>(null);
+  const destColRef = useRef<HTMLDivElement>(null);
   const coreLive = walkStep >= 1;
   const activationLive = walkStep >= 2;
   const goWalkStep = (next: 0 | 1 | 2) => {
     setWalkStep(next);
     if (next < 1) setActiveSignalLabel(null);
   };
+  const startTour = () => {
+    setTourActive(true);
+    goWalkStep(0);
+  };
+  const endTour = (finalStep: 0 | 1 | 2 = 2) => {
+    setTourActive(false);
+    setSpotRect(null);
+    goWalkStep(finalStep);
+  };
+
+  // Measure the active column's bounding box for the spotlight cutout.
+  useEffect(() => {
+    if (!tourActive) return;
+    const measure = () => {
+      const board = boardRef.current;
+      const col = [sourcesColRef, coreColRef, destColRef][walkStep].current;
+      if (!board || !col) return;
+      const b = board.getBoundingClientRect();
+      const c = col.getBoundingClientRect();
+      const pad = 6;
+      setSpotRect({
+        top: c.top - b.top - pad,
+        left: c.left - b.left - pad,
+        width: c.width + pad * 2,
+        height: c.height + pad * 2,
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [tourActive, walkStep]);
   const sourceGroups: SourceGroup[] = [
     {
       provider: "Banking Core",
