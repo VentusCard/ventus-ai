@@ -27,7 +27,7 @@ import {
 
   Home,
   PiggyBank,
-  ChevronDown,
+  Play,
   Tag,
   Sparkles,
   MessageSquare,
@@ -679,16 +679,70 @@ function SignalSection({
 }
 
 
+const TOUR_STEPS = [
+  {
+    title: "Every signal starts from evidence",
+    body: "Ventus ingests the bank's internal rails — core banking, cards, payments — alongside national data partnership feeds. Raw transactions become verified, classified evidence before any intelligence is built on top.",
+  },
+  {
+    title: "The core reads the whole customer",
+    body: "The Customer Intelligence Core continuously resolves that evidence into 233 behavioral signals across five signal families. It runs 24/7 — every new transaction re-scores the customer in near real time.",
+  },
+  {
+    title: "Intelligence lands where bankers work",
+    body: "Signals flow straight into the surfaces teams already use — personalized deals, product offers, advisor briefings, and campaigns. Every destination stays live, so outreach always reflects the customer's latest behavior.",
+  },
+] as const;
+
+type SpotRect = { top: number; left: number; width: number; height: number };
+
 export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) => void }) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   // Guided walkthrough: 0 = sources only, 1 = core live, 2 = activation live.
   const [walkStep, setWalkStep] = useState<0 | 1 | 2>(0);
+  const [tourActive, setTourActive] = useState(false);
+  const [spotRect, setSpotRect] = useState<SpotRect | null>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const sourcesColRef = useRef<HTMLDivElement>(null);
+  const coreColRef = useRef<HTMLDivElement>(null);
+  const destColRef = useRef<HTMLDivElement>(null);
   const coreLive = walkStep >= 1;
   const activationLive = walkStep >= 2;
   const goWalkStep = (next: 0 | 1 | 2) => {
     setWalkStep(next);
     if (next < 1) setActiveSignalLabel(null);
   };
+  const startTour = () => {
+    setTourActive(true);
+    goWalkStep(0);
+  };
+  const endTour = (finalStep: 0 | 1 | 2 = 2) => {
+    setTourActive(false);
+    setSpotRect(null);
+    goWalkStep(finalStep);
+  };
+
+  // Measure the active column's bounding box for the spotlight cutout.
+  useEffect(() => {
+    if (!tourActive) return;
+    const measure = () => {
+      const board = boardRef.current;
+      const col = [sourcesColRef, coreColRef, destColRef][walkStep].current;
+      if (!board || !col) return;
+      const b = board.getBoundingClientRect();
+      const c = col.getBoundingClientRect();
+      const pad = 6;
+      setSpotRect({
+        top: c.top - b.top - pad,
+        left: c.left - b.left - pad,
+        width: c.width + pad * 2,
+        height: c.height + pad * 2,
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [tourActive, walkStep]);
   const sourceGroups: SourceGroup[] = [
     {
       provider: "Banking Core",
@@ -939,77 +993,45 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
       </div>
 
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
-        {/* Walkthrough control */}
+      <div ref={boardRef} className="relative bg-white border border-slate-200 rounded-2xl p-1.5">
+        {/* Guided tour trigger */}
         <div
           className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-slate-100"
           role="group"
-          aria-label="Flow walkthrough steps"
+          aria-label="Ventus AI workflow guided tour"
           onKeyDown={(e) => {
+            if (!tourActive) return;
             if (e.key === "ArrowRight") goWalkStep(Math.min(2, walkStep + 1) as 0 | 1 | 2);
             if (e.key === "ArrowLeft") goWalkStep(Math.max(0, walkStep - 1) as 0 | 1 | 2);
+            if (e.key === "Escape") endTour();
           }}
         >
           <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
             VENTUS AI WORKFLOW
           </span>
-          <div className="flex items-center gap-1.5">
-            {(
-              [
-                { step: 0, label: "1 · Data sources" },
-                { step: 1, label: "2 · Core" },
-                { step: 2, label: "3 · Activation" },
-              ] as const
-            ).map(({ step, label }) => (
-              <button
-                key={step}
-                type="button"
-                onClick={() => goWalkStep(step)}
-                aria-pressed={walkStep >= step}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-[11.5px] font-semibold transition-colors",
-                  walkStep >= step
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700",
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className="ml-auto flex items-center gap-1.5">
-            <button
-              type="button"
-              aria-label="Previous step"
-              onClick={() => goWalkStep(Math.max(0, walkStep - 1) as 0 | 1 | 2)}
-              disabled={walkStep === 0}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40"
-            >
-              <ChevronDown className="h-3.5 w-3.5 rotate-90" />
-            </button>
-            <button
-              type="button"
-              aria-label="Next step"
-              onClick={() => goWalkStep(Math.min(2, walkStep + 1) as 0 | 1 | 2)}
-              disabled={walkStep === 2}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40"
-            >
-              <ChevronDown className="h-3.5 w-3.5 -rotate-90" />
-            </button>
-            <button
-              type="button"
-              onClick={() => goWalkStep(0)}
-              className="rounded-md border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
-            >
-              Reset
-            </button>
-          </div>
+          <span className="hidden sm:inline text-[12px] text-slate-500">
+            Sources → Core → Activation, narrated step by step
+          </span>
+          <button
+            type="button"
+            onClick={startTour}
+            className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-[#141432] px-3.5 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-[#1e1e45]"
+          >
+            <Play className="h-3.5 w-3.5" />
+            Start guided tour
+          </button>
         </div>
 
         {/* Pipeline board */}
         <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
-          <div className="flex h-full min-w-0 flex-col rounded-xl bg-white p-4 shadow-sm">
+          <div
+            ref={sourcesColRef}
+            className={cn(
+              "flex h-full min-w-0 flex-col rounded-xl bg-white p-4 shadow-sm",
+              tourActive && walkStep === 0 && "relative z-20 ring-2 ring-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.35)]",
+            )}
+          >
             <div className="mb-3 flex items-center gap-2">
               <span className="font-mono text-[11.5px] font-semibold uppercase tracking-wider text-blue-700">
                 Data sources
@@ -1072,9 +1094,11 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
 
           {/* Core */}
           <div
+            ref={coreColRef}
             className={cn(
               "min-w-0 p-1.5 transition-opacity duration-300",
               !coreLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
+              tourActive && walkStep === 1 && "relative z-20 rounded-xl ring-2 ring-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.35)]",
             )}
           >
             <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-4">
@@ -1121,9 +1145,11 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
 
           {/* Destinations */}
           <div
+            ref={destColRef}
             className={cn(
-              "flex h-full min-w-0 flex-col p-4 transition-opacity duration-300",
+              "flex h-full min-w-0 flex-col rounded-xl p-4 transition-opacity duration-300",
               !activationLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
+              tourActive && walkStep === 2 && "relative z-20 bg-white ring-2 ring-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.35)]",
             )}
           >
             <div className="mb-3 flex items-center gap-2">
@@ -1178,6 +1204,103 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
             </div>
           </div>
         </div>
+
+        {/* Guided tour overlay — dimmed board with spotlight on the active column */}
+        {tourActive && spotRect && (
+          <div className="absolute inset-0 z-10 rounded-2xl overflow-hidden" aria-hidden="true">
+            <div className="absolute inset-x-0 top-0 bg-slate-900/55 backdrop-blur-[2px]" style={{ height: Math.max(0, spotRect.top) }} />
+            <div
+              className="absolute inset-x-0 bg-slate-900/55 backdrop-blur-[2px]"
+              style={{ top: spotRect.top + spotRect.height, bottom: 0 }}
+            />
+            <div
+              className="absolute bg-slate-900/55 backdrop-blur-[2px]"
+              style={{ top: spotRect.top, left: 0, width: Math.max(0, spotRect.left), height: spotRect.height }}
+            />
+            <div
+              className="absolute bg-slate-900/55 backdrop-blur-[2px]"
+              style={{
+                top: spotRect.top,
+                left: spotRect.left + spotRect.width,
+                right: 0,
+                height: spotRect.height,
+              }}
+            />
+          </div>
+        )}
+
+        {/* Guided tour tooltip card */}
+        {tourActive && spotRect && (
+          <div
+            role="dialog"
+            aria-label={`Tour step ${walkStep + 1} of 3`}
+            className="absolute z-30 w-[340px] max-w-[calc(100%-24px)] rounded-xl border border-slate-200 bg-white p-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            style={{
+              top: Math.max(12, spotRect.top + 8),
+              left:
+                walkStep === 2
+                  ? Math.max(12, spotRect.left - 356)
+                  : Math.min(spotRect.left + spotRect.width + 16, (boardRef.current?.clientWidth ?? 1200) - 356),
+            }}
+          >
+            <div className="text-[11.5px] font-medium text-slate-500">{walkStep + 1} of 3</div>
+            <h3 className="mt-1.5 text-[17px] font-bold leading-snug text-slate-900">
+              {TOUR_STEPS[walkStep].title}
+            </h3>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-slate-600">{TOUR_STEPS[walkStep].body}</p>
+
+            {/* Progress dots */}
+            <div className="mt-4 flex items-center gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all",
+                    i === walkStep ? "w-5 bg-amber-400" : "w-1.5 bg-slate-200",
+                  )}
+                />
+              ))}
+            </div>
+
+            <div className="mt-4 flex items-center">
+              <button
+                type="button"
+                onClick={() => endTour()}
+                className="text-[13px] font-semibold text-slate-600 hover:text-slate-900"
+              >
+                Skip tour
+              </button>
+              <div className="ml-auto flex items-center gap-2">
+                {walkStep > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => goWalkStep((walkStep - 1) as 0 | 1 | 2)}
+                    className="rounded-lg border border-slate-200 px-4 py-1.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Back
+                  </button>
+                )}
+                {walkStep < 2 ? (
+                  <button
+                    type="button"
+                    onClick={() => goWalkStep((walkStep + 1) as 0 | 1 | 2)}
+                    className="rounded-lg bg-[#141432] px-5 py-1.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1e1e45]"
+                  >
+                    Next
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => endTour(2)}
+                    className="rounded-lg bg-[#141432] px-5 py-1.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1e1e45]"
+                  >
+                    Done
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Shared detail panel — signal or application */}
         {activeDetail && ActiveIcon && (
