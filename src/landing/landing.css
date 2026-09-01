@@ -35,6 +35,11 @@
 }
 
 .landing-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  appearance: none;
   min-height: 44px;
   border: 1px solid rgba(139, 231, 255, 0.78) !important;
   border-radius: var(--r-button) !important;
@@ -42,6 +47,8 @@
   padding-inline: 20px !important;
   color: var(--night) !important;
   font-weight: 500 !important;
+  line-height: 1;
+  white-space: nowrap;
   box-shadow: none !important;
   transition: background-color var(--t-hover) var(--ease), transform var(--t-hover) var(--ease) !important;
 }
@@ -954,6 +961,13 @@
 }
 
 /* Glass region 6: request modal, rendered in a portal. */
+.request-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(2, 8, 16, 0.78);
+}
+
 .request-modal {
   --signal: #8be7ff;
   --signal-strong: #3ecaef;
@@ -962,6 +976,11 @@
   --night: #06111d;
   --font-sans: "Inter Tight", "Inter", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 71;
+  display: grid;
   width: min(calc(100% - 24px), 540px) !important;
   max-height: 92svh;
   overflow-y: auto;
@@ -975,10 +994,36 @@
   backdrop-filter: blur(34px);
   -webkit-backdrop-filter: blur(34px);
   color-scheme: dark;
+  transform: translate(-50%, -50%);
 }
 
-.request-modal > button {
-  color: var(--muted) !important;
+.request-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.request-modal__close:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+.request-modal__close:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.request-modal__close svg {
+  width: 18px;
+  height: 18px;
 }
 
 .request-modal h2 {
@@ -1023,11 +1068,23 @@
 
 .request-modal input,
 .request-modal textarea {
+  display: block;
+  width: 100%;
+  min-height: 44px;
   border-color: rgba(216, 242, 255, 0.16) !important;
+  border-style: solid;
+  border-width: 1px;
   border-radius: 8px !important;
   background: rgba(255, 255, 255, 0.04) !important;
+  padding: 10px 12px;
   color: var(--text) !important;
   box-shadow: none !important;
+  box-sizing: border-box;
+}
+
+.request-modal textarea {
+  min-height: 104px;
+  resize: vertical;
 }
 
 .request-modal input:focus-visible,

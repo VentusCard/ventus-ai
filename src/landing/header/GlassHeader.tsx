@@ -1,6 +1,5 @@
 import { MouseEvent, useEffect, useState } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import ventusWordmark from "@/assets/ventus-logo-transparent.png";
 import { useReducedMotion } from "@/landing/useReducedMotion";
 import { landingCopy } from "@/landing/copy";
@@ -97,7 +96,7 @@ export function GlassHeader({ onRequestAccess }: GlassHeaderProps) {
         </nav>
 
         <div className="landing-header__actions">
-          <Button className="landing-button landing-button--header" onClick={(event) => onRequestAccess(event.currentTarget)}>{landingCopy.navigation.cta}</Button>
+          <button type="button" className="landing-button landing-button--header" onClick={(event) => onRequestAccess(event.currentTarget)}>{landingCopy.navigation.cta}</button>
           <button
             type="button"
             className="landing-header__menu-toggle"

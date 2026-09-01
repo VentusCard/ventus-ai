@@ -1,5 +1,4 @@
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { landingCopy } from "@/landing/copy";
 
 interface ClosingBandProps {
@@ -12,10 +11,10 @@ export function ClosingBand({ onRequestAccess }: ClosingBandProps) {
       <h2>{landingCopy.activation.closingTitle}</h2>
       <div>
         <p>{landingCopy.activation.closingBody}</p>
-        <Button className="landing-button" onClick={(event) => onRequestAccess(event.currentTarget)}>
+        <button type="button" className="landing-button" onClick={(event) => onRequestAccess(event.currentTarget)}>
           {landingCopy.activation.cta}
           <ArrowRight aria-hidden="true" />
-        </Button>
+        </button>
       </div>
     </div>
   );

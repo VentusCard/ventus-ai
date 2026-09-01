@@ -20,6 +20,7 @@ export const landingCopy = {
     intelligenceStages: "Intelligence stages",
     governancePath: "Governance path",
     activationNetwork: "Governed decision routes to existing bank workflows",
+    closeRequestModal: "Close request access",
   },
   hero: {
     eyebrow: "Decision intelligence for personalized banking",

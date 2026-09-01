@@ -1,5 +1,4 @@
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { landingCopy } from "@/landing/copy";
 import { DecisionPlane } from "@/landing/hero/DecisionPlane";
 
@@ -16,10 +15,10 @@ export function Hero({ onRequestAccess }: HeroProps) {
           <h1 id="landing-hero-title">{landingCopy.hero.title}</h1>
           <p className="landing-hero__body">{landingCopy.hero.body}</p>
           <div className="landing-hero__actions">
-            <Button className="landing-button" onClick={(event) => onRequestAccess(event.currentTarget)}>
+            <button type="button" className="landing-button" onClick={(event) => onRequestAccess(event.currentTarget)}>
               {landingCopy.hero.cta}
               <ArrowRight aria-hidden="true" />
-            </Button>
+            </button>
             <p>{landingCopy.hero.audience}</p>
           </div>
         </div>
