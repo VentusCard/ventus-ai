@@ -993,71 +993,33 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
       </div>
 
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
-        {/* Walkthrough control */}
+      <div ref={boardRef} className="relative bg-white border border-slate-200 rounded-2xl p-1.5">
+        {/* Guided tour trigger */}
         <div
           className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-slate-100"
           role="group"
-          aria-label="Flow walkthrough steps"
+          aria-label="Ventus AI workflow guided tour"
           onKeyDown={(e) => {
+            if (!tourActive) return;
             if (e.key === "ArrowRight") goWalkStep(Math.min(2, walkStep + 1) as 0 | 1 | 2);
             if (e.key === "ArrowLeft") goWalkStep(Math.max(0, walkStep - 1) as 0 | 1 | 2);
+            if (e.key === "Escape") endTour();
           }}
         >
           <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-500">
             VENTUS AI WORKFLOW
           </span>
-          <div className="flex items-center gap-1.5">
-            {(
-              [
-                { step: 0, label: "1 · Data sources" },
-                { step: 1, label: "2 · Core" },
-                { step: 2, label: "3 · Activation" },
-              ] as const
-            ).map(({ step, label }) => (
-              <button
-                key={step}
-                type="button"
-                onClick={() => goWalkStep(step)}
-                aria-pressed={walkStep >= step}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-[11.5px] font-semibold transition-colors",
-                  walkStep >= step
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700",
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className="ml-auto flex items-center gap-1.5">
-            <button
-              type="button"
-              aria-label="Previous step"
-              onClick={() => goWalkStep(Math.max(0, walkStep - 1) as 0 | 1 | 2)}
-              disabled={walkStep === 0}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40"
-            >
-              <ChevronDown className="h-3.5 w-3.5 rotate-90" />
-            </button>
-            <button
-              type="button"
-              aria-label="Next step"
-              onClick={() => goWalkStep(Math.min(2, walkStep + 1) as 0 | 1 | 2)}
-              disabled={walkStep === 2}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40"
-            >
-              <ChevronDown className="h-3.5 w-3.5 -rotate-90" />
-            </button>
-            <button
-              type="button"
-              onClick={() => goWalkStep(0)}
-              className="rounded-md border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
-            >
-              Reset
-            </button>
-          </div>
+          <span className="hidden sm:inline text-[12px] text-slate-500">
+            Sources → Core → Activation, narrated step by step
+          </span>
+          <button
+            type="button"
+            onClick={startTour}
+            className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-[#141432] px-3.5 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-[#1e1e45]"
+          >
+            <Play className="h-3.5 w-3.5" />
+            Start guided tour
+          </button>
         </div>
 
         {/* Pipeline board */}
