@@ -1,0 +1,538 @@
+/*
+  Hero. Normal document flow — no pinning. Two equal columns on desktop
+  (copy / DecisionRecord), stacked on mobile. Four things on the left, one
+  instrument on the right.
+*/
+
+.landing-hero {
+  padding-top: 140px; /* the floating header bar plus one line of air */
+  padding-bottom: calc(var(--section-pad) * 0.5);
+  position: relative;
+  overflow: clip;
+}
+
+/* The site's own signature: a soft blue radial from the top-right corner,
+   fading to white before it reaches the copy. Blue only. */
+.landing-hero__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(75% 85% at 100% 0%, var(--tint-deep) 0%, var(--tint-strong) 28%, var(--tint) 50%, var(--paper) 70%);
+  opacity: 0.9;
+  transform: translate3d(0, var(--hero-glow-shift, 0px), 0);
+}
+
+.landing-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 4.5vw, 64px);
+  /* Copy and record share a top line: the eyebrow sits level with the
+     record's title bar, so the two columns read as one composition. */
+  align-items: start;
+  position: relative;
+}
+
+@media (max-width: 899px) {
+  .landing-hero {
+    padding-top: 112px;
+  }
+  .landing-hero__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+  .landing-hero__copy {
+    padding-top: 0;
+  }
+}
+
+.landing-hero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+  padding-top: 12px;
+  /* The headline is sized against this column (cqw) so the longest word
+     always fits it, whatever the viewport. */
+  container-type: inline-size;
+  /* One entrance on load, from a legible state, no observer involved. */
+  animation: hero-copy-in var(--t-enter) var(--ease) both;
+}
+
+@keyframes hero-copy-in {
+  from { opacity: 0.55; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.landing-hero__headline {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  /* "Personalization" measures 6.05em in Newsreader 500 at display optical
+     size (6.9em in Georgia, the fallback); 14cqw leaves 15% of the column
+     to spare with the real face. The clamp is the ceiling. */
+  font-size: min(var(--h1), 14cqw);
+  line-height: 0.96;
+  letter-spacing: -0.022em;
+  color: var(--ink);
+  text-wrap: balance;
+  max-width: 14ch;
+}
+
+.landing-hero__body {
+  font-size: var(--body-l);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 36ch;
+}
+
+.landing-hero__cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  margin-top: 6px;
+}
+
+.landing-hero__visual {
+  min-width: 0;
+  /* Scroll-linked drift set by Hero.tsx; 0 at rest and under reduced motion. */
+  transform: translate3d(0, var(--hero-shift, 0px), 0);
+}
+
+/* ---------------------------------------------------------------------- */
+/* DecisionRecord — the hero visual. A navy instrument with one            */
+/* choreographed cycle (--t-cycle) running as a CSS timeline.              */
+/* ---------------------------------------------------------------------- */
+
+.decision-record {
+  --t-cycle: 9s;
+  padding: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Top bar: title, four status items, badge. */
+.decision-record__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--hair-dark);
+  background: var(--panel);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.decision-record__title {
+  color: var(--text-dark);
+}
+
+.decision-record__status {
+  display: flex;
+  gap: 14px;
+  color: var(--muted-dark);
+  font-size: 10.5px;
+}
+
+.decision-record__status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.decision-record__status-item i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--approved-dark);
+}
+
+.decision-record__status-item.is-hollow i {
+  background: transparent;
+  border: 1px solid var(--muted-dark);
+}
+
+.decision-record__badge {
+  color: var(--signal);
+}
+
+@media (max-width: 1099px) {
+  .decision-record__status {
+    display: none;
+  }
+}
+
+/* The stage: a label row, then three bodies — sources, rails, workflow —
+   on a dot grid, over two ambient glows the glass cards refract. */
+.decision-record__stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 152px minmax(0, 1fr) 184px;
+  grid-template-rows: auto 174px;
+  gap: 10px 14px;
+  padding: 18px 18px 22px;
+  border-bottom: 1px solid var(--hair-dark);
+  overflow: hidden;
+}
+
+.decision-record__glow {
+  background: var(--glow-signal);
+}
+
+.decision-record__glow--node {
+  width: 260px;
+  height: 260px;
+  left: 44%;
+  top: 34%;
+  opacity: 0.55;
+}
+
+.decision-record__glow--card {
+  width: 220px;
+  height: 220px;
+  right: -40px;
+  top: 30%;
+  opacity: 0.35;
+}
+
+.decision-record__stage-label {
+  position: relative;
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-dark);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.decision-record__sources {
+  position: relative;
+  display: grid;
+  grid-template-rows: repeat(4, 36px);
+  gap: 10px;
+}
+
+.decision-record__source {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 7px;
+  color: var(--text-dark);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.decision-record__source svg {
+  color: var(--signal);
+  flex: none;
+}
+
+.decision-record__rails {
+  position: relative;
+  height: 174px;
+}
+
+.decision-record__rails-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.decision-record__rail {
+  fill: none;
+  stroke: var(--rail-dark);
+  stroke-width: 1;
+}
+
+.decision-record__rail--lit {
+  stroke: var(--signal-strong);
+  stroke-width: 1.25;
+}
+
+/* Comets: a short dash that travels the full path once per cycle. pathLength
+   is normalised to 100 in the markup, so the dash maths is geometry-free. */
+.decision-record__comet {
+  fill: none;
+  stroke: var(--signal-strong);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 14 100;
+  stroke-dashoffset: 114;
+  opacity: 0;
+}
+
+.decision-record__comet--lit {
+  stroke: #ffffff;
+}
+
+.decision-record__node {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.decision-record__node i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.decision-record__node-disc {
+  width: 10px;
+  height: 10px;
+  background: var(--signal);
+  box-shadow: 0 0 0 2px var(--night), 0 0 18px rgba(96, 165, 250, 0.9);
+}
+
+.decision-record__node-ring {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(96, 165, 250, 0.6);
+  background: rgba(96, 165, 250, 0.14);
+}
+
+.decision-record__node-ring--outer {
+  width: 40px;
+  height: 40px;
+  border-color: rgba(96, 165, 250, 0.22);
+  background: transparent;
+}
+
+.decision-record__node-ripple {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(147, 197, 253, 0.9);
+  opacity: 0;
+}
+
+.decision-record__stage-label--decision {
+  position: absolute;
+  bottom: -14px;
+  transform: translateX(-50%);
+  margin: 0;
+}
+
+.decision-record__workflow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 174px;
+}
+
+/* The workflow slot is a glass mini card: a queue with one item, filed. */
+.decision-record__card {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.decision-record__card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hair-dark);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.decision-record__card-head svg {
+  color: var(--signal);
+}
+
+.decision-record__card-item {
+  display: grid;
+  gap: 7px;
+  padding: 10px 12px;
+  background: rgba(96, 165, 250, 0.1);
+  border-left: 2px solid var(--signal);
+}
+
+.decision-record__card-item-text {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.decision-record__card-bar {
+  width: 64%;
+}
+
+.decision-record__card-foot {
+  padding: 9px 12px 10px;
+}
+
+.decision-record__card-stamp {
+  display: inline-block;
+  transform-origin: left center;
+}
+
+/* The record's field rows — real text, not aria-hidden. */
+.decision-record__rows {
+  padding: 4px 18px 6px;
+}
+
+.decision-record__row {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) auto;
+  column-gap: 16px;
+  align-items: center;
+  padding-block: 11px;
+  border-bottom: 1px solid var(--hair-dark);
+}
+
+.decision-record__row:last-child {
+  border-bottom: none;
+}
+
+.decision-record__key {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-dark);
+}
+
+.decision-record__value {
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text-dark);
+}
+
+.decision-record__stamp {
+  justify-self: end;
+}
+
+/* ---- the cycle ------------------------------------------------------- */
+/* One CSS timeline, --t-cycle long, every element keyed to a percentage of
+   it. Sources light (0–8%), their comets run (4–22%), the node ripples
+   (20–30%), the lit comet runs (26–36%), the card item and the stamp land
+   (34–42%), then everything holds until the loop. The static class pins the
+   final state for reduced motion or no JS. */
+
+.decision-record.is-playing .decision-record__source {
+  animation: dr-source var(--t-cycle) infinite;
+  animation-delay: calc(var(--i) * 0.35s);
+}
+
+@keyframes dr-source {
+  0%, 2% { border-color: var(--glass-dark-border); box-shadow: var(--glass-dark-highlight), 0 12px 32px rgba(4, 10, 24, 0.35); }
+  6%, 92% { border-color: rgba(147, 197, 253, 0.7); box-shadow: var(--glass-dark-highlight), 0 0 0 1px rgba(96, 165, 250, 0.35), 0 12px 32px rgba(4, 10, 24, 0.35); }
+  100% { border-color: var(--glass-dark-border); box-shadow: var(--glass-dark-highlight), 0 12px 32px rgba(4, 10, 24, 0.35); }
+}
+
+.decision-record.is-playing .decision-record__comet {
+  animation: dr-comet var(--t-cycle) infinite;
+  animation-delay: calc(var(--i) * 0.35s);
+}
+
+@keyframes dr-comet {
+  0%, 4% { stroke-dashoffset: 114; opacity: 0; }
+  6% { opacity: 1; }
+  20% { stroke-dashoffset: 0; opacity: 1; }
+  22%, 100% { stroke-dashoffset: -14; opacity: 0; }
+}
+
+.decision-record.is-playing .decision-record__node-ripple {
+  animation: dr-ripple var(--t-cycle) infinite;
+}
+
+@keyframes dr-ripple {
+  0%, 22% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+  24% { opacity: 0.9; }
+  34%, 100% { transform: translate(-50%, -50%) scale(3.4); opacity: 0; }
+}
+
+.decision-record.is-playing .decision-record__comet--lit {
+  animation: dr-comet-lit var(--t-cycle) infinite;
+}
+
+@keyframes dr-comet-lit {
+  0%, 27% { stroke-dashoffset: 114; opacity: 0; }
+  28% { opacity: 1; }
+  36% { stroke-dashoffset: 0; opacity: 1; }
+  38%, 100% { stroke-dashoffset: -14; opacity: 0; }
+}
+
+.decision-record.is-playing .decision-record__card-item {
+  animation: dr-item var(--t-cycle) infinite;
+}
+
+@keyframes dr-item {
+  0%, 34% { background: rgba(96, 165, 250, 0); border-left-color: transparent; }
+  38%, 94% { background: rgba(96, 165, 250, 0.14); border-left-color: var(--signal); }
+  100% { background: rgba(96, 165, 250, 0); border-left-color: transparent; }
+}
+
+.decision-record.is-playing .decision-record__card-stamp {
+  animation: dr-stamp var(--t-cycle) infinite;
+}
+
+@keyframes dr-stamp {
+  0%, 36% { transform: scale(0.85); opacity: 0; }
+  40% { transform: scale(1.06); opacity: 1; }
+  43%, 95% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0; }
+}
+
+.decision-record.is-playing .decision-record__row .landing-stamp {
+  animation: dr-row-stamp var(--t-cycle) infinite;
+  animation-delay: calc(var(--i) * 0.18s);
+}
+
+@keyframes dr-row-stamp {
+  0%, 38% { opacity: 0.35; transform: scale(0.96); }
+  44%, 100% { opacity: 1; transform: scale(1); }
+}
+
+/* At rest (reduced motion, or before the timeline is armed) everything is
+   in its filed state. */
+.decision-record.is-static .decision-record__source {
+  border-color: rgba(147, 197, 253, 0.7);
+}
+
+@media (max-width: 899px) {
+  .decision-record__stage {
+    display: none;
+  }
+
+  .decision-record__row {
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+  }
+
+  .decision-record__row[data-mobile="false"] {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .decision-record__row {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+
+  .decision-record__stamp {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 6px;
+  }
+}

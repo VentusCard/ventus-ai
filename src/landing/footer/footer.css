@@ -1,0 +1,44 @@
+/*
+  Closing strip on the paper ground (Workstream W1'): wordmark, copyright,
+  contact email, privacy link. Nothing else — no nav, no social, no signup.
+*/
+.landing-footer {
+  background: var(--paper);
+  color: var(--muted);
+  border-top: 1px solid var(--hair);
+  min-height: 96px;
+}
+
+.landing-footer-row {
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  padding-block: 24px;
+}
+
+.landing-footer-logo {
+  display: block;
+  height: 16px;
+  width: auto;
+}
+
+.landing-footer-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+
+.landing-footer-meta a {
+  color: var(--muted);
+  transition: color var(--t-hover) var(--ease);
+}
+
+.landing-footer-meta a:hover {
+  color: var(--ink);
+}

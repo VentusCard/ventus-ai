@@ -1,0 +1,135 @@
+/*
+  Ventus landing design tokens (Direction C — "the decision record"),
+  re-based on the palette ventusai.com already uses so the new page reads as
+  the same company: white ground, gray-900 headings, gray-500/700 copy, the
+  blue-600 brand accent with its blue-50…200 tints, the navy (#0A1628) the
+  footer and dark cards already wear, slate-400 for text on that navy, and
+  the green the status pills already use.
+
+  Two surfaces, fixed roles:
+    paper       the bank's world — the page ground, every chapter but one
+    instrument  Ventus's layer — the record, the planes, the connector, the
+                Governance chapter; solid navy, never glass
+  Glass exists only for the navigation that floats over both.
+  Scoped to .landing so nothing here leaks onto legacy routes.
+*/
+.landing {
+  /* ---- paper (brand light set) ---- */
+  --paper: #ffffff; /* page ground — the site's white */
+  --sheet: #f9fafb; /* gray-50: recessed rows, modal, slots */
+  --stone: #f3f4f6; /* gray-100: skeleton bars, deeper recess */
+  --tint: #eff6ff; /* blue-50: highlighted paper (lit slot, focus row) */
+  --tint-strong: #dbeafe; /* blue-100 */
+  --tint-deep: #bfdbfe; /* blue-200: hero radial start (the site's own) */
+  --ink: #111827; /* gray-900: thesis, headings · 17.7:1 */
+  --ink-soft: #374151; /* gray-700: body · 10.3:1 */
+  --muted: #4b5563; /* gray-600: metadata · 7.6:1 white, 6.9:1 gray-100 */
+  --muted-light: #6b7280; /* gray-500: the site's body grey · 4.8:1 on white only */
+  --brand: #2563eb; /* blue-600: accent, CTA, links · 5.2:1 on white */
+  --brand-strong: #1d4ed8; /* blue-700: hover */
+  --teal: var(--brand); /* accent alias kept for components written against it */
+  --approved: #15803d; /* green-700: stamps on paper · 5.0:1 */
+  --hair: #e5e7eb; /* gray-200 */
+  --hair-strong: #d1d5db; /* gray-300 */
+  --rail: #cbd5e1; /* slate-300: rails on paper */
+  --text: var(--ink);
+
+  /* ---- instrument (brand dark set) ---- */
+  --night: #0a1628; /* the footer navy */
+  --panel: #10203a; /* one step up */
+  --raised: #14264a; /* two steps up: cards inside the instrument */
+  --text-dark: #f8fafc; /* slate-50 · 17.3:1 on navy */
+  --muted-dark: #94a3b8; /* slate-400 · 7.1:1 navy, 6.4:1 panel */
+  --signal: #60a5fa; /* blue-400 · 7.1:1 on navy; never text on paper */
+  --signal-strong: #93c5fd; /* blue-300 · 10.1:1 */
+  --seam: #3b82f6; /* blue-500: 1px at every dark/paper boundary */
+  --approved-dark: #4ade80; /* green-400 · 10.4:1 on navy */
+  --rail-dark: rgba(96, 165, 250, 0.28);
+  --hair-dark: rgba(148, 163, 184, 0.18); /* the dark card's own border tint */
+  --grid-dark: rgba(96, 165, 250, 0.16); /* dot grid inside instruments */
+  --grid-paper: rgba(148, 163, 184, 0.28); /* dot grid on paper diagrams */
+  --instrument-shadow: 0 24px 60px rgba(10, 22, 40, 0.22);
+  --instrument-highlight: inset 0 1px 0 rgba(148, 163, 184, 0.12);
+
+  /* ---- glass and glow ---- */
+  --glass-header: rgba(255, 255, 255, 0.72);
+  --glass-header-scrolled: rgba(255, 255, 255, 0.86);
+  --glass-header-dark: rgba(10, 22, 40, 0.72);
+  --blur-header: 20px;
+  --blur-header-dark: 24px;
+  --glass-dark: rgba(20, 38, 74, 0.55); /* cards inside instruments, over a glow */
+  --glass-dark-border: rgba(148, 163, 184, 0.22);
+  --glass-dark-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-light: rgba(255, 255, 255, 0.62); /* cards on the paper diagram panel */
+  --glass-light-border: rgba(255, 255, 255, 0.9);
+  --blur-card: 14px;
+  --glow-brand: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.42), rgba(59, 130, 246, 0) 62%);
+  --glow-signal: radial-gradient(circle at 50% 50%, rgba(96, 165, 250, 0.55), rgba(96, 165, 250, 0) 60%);
+  --glow-paper: radial-gradient(circle at 50% 50%, rgba(191, 219, 254, 0.75), rgba(191, 219, 254, 0) 62%);
+  --header-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --sheet-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
+
+  /* ---- type ---- */
+  /* Two families: Newsreader speaks the thesis; Manrope — the face the
+     site's headings and wordmark already use — carries everything else,
+     including the small tracked labels that used to be mono. --font-mono is
+     kept as a name so every label rule keeps working; it resolves to
+     Manrope's uppercase-with-tracking voice, not to a monospace. */
+  --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-sans: "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --h1: clamp(44px, 5.5vw, 84px); /* Newsreader 500 · lh .96 · -0.022em */
+  --h2: clamp(38px, 4.4vw, 60px); /* Newsreader 500 · lh 1.02 · -0.014em */
+  --h3: clamp(24px, 2vw, 28px); /* Newsreader 500 · lh 1.1 */
+  --body-l: 19px;
+  --body: 17px;
+  --control: 15px;
+  --label: 12.5px;
+  --field: 11.5px;
+
+  /* ---- rhythm ---- */
+  --shell: min(100% - 48px, 1240px);
+  --section-pad: clamp(64px, 6vw, 88px); /* the live site's ~80px cadence */
+  --gap-s: 16px;
+  --gap-m: 24px;
+  --gap-l: 40px;
+
+  /* ---- radius ---- */
+  --r-header: 8px;
+  --r-button: 8px;
+  --r-sheet: 6px;
+  --r-card: 8px;
+  --r-stamp: 4px;
+  --r-input: 6px;
+
+  /* ---- motion ---- */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --t-enter: 280ms;
+  --t-stage: 240ms;
+  --t-header: 200ms;
+  --t-hover: 160ms;
+  --t-stamp: 160ms;
+  --t-flow: 7s; /* one pulse travelling the rails; 0 under reduced motion */
+  --t-move: 520ms; /* elements moving between plane states */
+  --t-comet: 1.4s; /* one decision travelling the activation rails */
+  --t-arrive: 400ms; /* an action appearing inside a destination surface */
+  --t-arrive-delay: 900ms; /* ...after the comet has reached it */
+  --motion-ok: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing {
+    --motion-ok: 0;
+    --t-enter: 0ms;
+    --t-stage: 0ms;
+    --t-header: 0ms;
+    --t-hover: 0ms;
+    --t-stamp: 0ms;
+    --t-flow: 0s;
+    --t-move: 0ms;
+    --t-comet: 0s;
+    --t-arrive: 0ms;
+    --t-arrive-delay: 0ms;
+  }
+}

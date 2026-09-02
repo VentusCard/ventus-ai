@@ -1,0 +1,545 @@
+/*
+  Intelligence chapter. Chapter head, then the plane spanning the shell,
+  then the three steps in a row directly under it — the plane's caption.
+  On a wide, tall viewport with motion allowed the whole composition pins
+  while the reader scrolls through --intel-dwell, and scroll progress is the
+  stage (Intelligence.tsx). The block is measured so the scroller is exactly
+  block + dwell: the composition fills the viewport, so holding it still
+  never shows empty paper. Elsewhere nothing pins and the plane cycles.
+*/
+
+.intelligence-scroller {
+  position: relative;
+  height: calc(var(--intel-block-h, 720px) + var(--intel-dwell, 120vh));
+}
+
+.intelligence-pinned {
+  position: sticky;
+  top: var(--intel-pin-top, 96px);
+}
+
+.intelligence-layout {
+  display: grid;
+  gap: 20px;
+  margin-top: clamp(32px, 4vw, 48px);
+}
+
+/* The plane gives up height on shorter screens so the pinned composition
+   fits under the header with air on both sides. */
+#intelligence[data-mode="pinned"] .flow-plane__body {
+  height: clamp(300px, calc(100vh - 580px), 380px);
+}
+
+/* ---------- Stepper: three steps in a row under the plane ---------- */
+
+.intelligence-stepper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 40px);
+}
+
+.intelligence-step {
+  display: grid;
+  min-width: 0;
+}
+
+.intelligence-step__button {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 6px;
+  align-items: baseline;
+  width: 100%;
+  padding: 18px 0 4px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* The hairline along the top of each step is the track; the active step's
+   progress line fills it over one stage of the cycle. */
+.intelligence-step__line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--hair);
+  overflow: hidden;
+  border-radius: 1px;
+}
+
+.intelligence-step[data-done="true"] .intelligence-step__line {
+  background: var(--tint-deep);
+}
+
+.intelligence-step__progress {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: var(--brand);
+}
+
+.intelligence-layout[data-cycling="true"] .intelligence-step__progress {
+  animation: intelligence-progress 5s linear forwards;
+}
+
+.intelligence-layout[data-cycling="false"] .intelligence-step__progress {
+  transform: scaleX(1);
+}
+
+/* Pinned: the line is the scroll itself — it fills as the reader moves
+   through the stage's third, so every pixel of scrolling answers. */
+.intelligence-layout[data-mode="pinned"] .intelligence-step__progress {
+  animation: none;
+  transform: scaleX(var(--stage-progress, 0));
+  transition: transform 90ms linear;
+}
+
+@keyframes intelligence-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.intelligence-step__index {
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  transition: color var(--t-stage) var(--ease);
+}
+
+.intelligence-step[data-active="true"] .intelligence-step__index,
+.intelligence-step[data-done="true"] .intelligence-step__index {
+  color: var(--brand);
+}
+
+.intelligence-step__title {
+  grid-column: 2;
+  grid-row: 1;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: var(--h3);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--muted);
+  transition: color var(--t-stage) var(--ease);
+}
+
+.intelligence-step[data-active="true"] .intelligence-step__title {
+  color: var(--ink);
+}
+
+.intelligence-step__body {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 34ch;
+  transition: color var(--t-stage) var(--ease);
+}
+
+.intelligence-step[data-active="true"] .intelligence-step__body {
+  color: var(--ink-soft);
+}
+
+.intelligence-step__button:hover .intelligence-step__title {
+  color: var(--ink);
+}
+
+@media (max-width: 899px) {
+  .intelligence-stepper {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .intelligence-step__button {
+    padding: 14px 0 8px;
+  }
+}
+
+/* ---------- FlowPlane ---------- */
+
+.flow-plane {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.flow-plane__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--hair-dark);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.flow-plane__head-label {
+  color: var(--muted-dark);
+}
+
+.flow-plane__head-stage {
+  color: var(--signal);
+}
+
+.flow-plane__head-steps {
+  display: flex;
+  gap: 14px;
+  font-size: 10.5px;
+  color: var(--muted-dark);
+}
+
+.flow-plane__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color var(--t-stage) var(--ease);
+}
+
+.flow-plane__step i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid var(--muted-dark);
+  transition: background var(--t-stage) var(--ease), border-color var(--t-stage) var(--ease);
+}
+
+.flow-plane__step.is-done i {
+  background: var(--muted-dark);
+}
+
+.flow-plane__step.is-current {
+  color: var(--text-dark);
+}
+
+.flow-plane__step.is-current i {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+/* The head names the current stage once: through the three-dot indicator
+   when there is room for it, through the plain label when there is not. */
+.flow-plane__head-stage {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .flow-plane__head-steps {
+    display: none;
+  }
+
+  .flow-plane__head-stage {
+    display: inline;
+  }
+}
+
+.flow-plane__body {
+  position: relative;
+  height: 380px;
+  overflow: hidden;
+}
+
+.flow-glow {
+  background: var(--glow-signal);
+  transition: left var(--t-move) var(--ease), top var(--t-move) var(--ease), opacity var(--t-move) var(--ease);
+}
+
+.flow-glow--a {
+  width: 340px;
+  height: 340px;
+  left: 44%;
+  top: 30%;
+  opacity: 0.5;
+}
+
+.flow-glow--b {
+  width: 260px;
+  height: 260px;
+  left: 2%;
+  top: 36%;
+  opacity: 0.3;
+}
+
+.flow-plane[data-state="decide"] .flow-glow--a { left: 42%; top: 32%; opacity: 0.55; }
+.flow-plane[data-state="decide"] .flow-glow--b { left: 4%; opacity: 0.25; }
+.flow-plane[data-state="activate"] .flow-glow--a { left: 74%; top: 30%; opacity: 0.6; }
+.flow-plane[data-state="activate"] .flow-glow--b { opacity: 0.12; }
+
+.flow-rails {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.flow-rails--narrow {
+  display: none;
+}
+
+.flow-rails__group {
+  opacity: 0;
+  transition: opacity var(--t-stage) var(--ease);
+}
+
+/* Rails accumulate: the path stays drawn behind the current step. */
+.flow-plane[data-state="understand"] .flow-rails__group--understand,
+.flow-plane[data-state="decide"] .flow-rails__group--decide,
+.flow-plane[data-state="activate"] .flow-rails__group--activate {
+  opacity: 1;
+}
+
+.flow-plane:not([data-state="understand"]) .flow-rails__group--folded {
+  opacity: 0.6;
+}
+
+.flow-plane[data-state="activate"] .flow-rails__group--decide {
+  opacity: 0.5;
+}
+
+.flow-rail {
+  fill: none;
+  stroke: var(--rail-dark);
+  stroke-width: 1;
+}
+
+.flow-rail--lit {
+  stroke: var(--signal-strong);
+  stroke-width: 1.25;
+}
+
+.flow-comet {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 14 100;
+  stroke-dashoffset: 114;
+  opacity: 0;
+}
+
+.flow-plane[data-state="activate"] .flow-comet {
+  animation: flow-comet var(--t-flow) infinite;
+  animation-delay: 0.3s;
+}
+
+@keyframes flow-comet {
+  0% { stroke-dashoffset: 114; opacity: 0; }
+  2% { opacity: 1; }
+  14% { stroke-dashoffset: 0; opacity: 1; }
+  16%, 100% { stroke-dashoffset: -14; opacity: 0; }
+}
+
+/* Source chips: scattered on the left in Understand, folded into the
+   relationship view for the other two states. */
+.flow-source {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 7px;
+  color: var(--text-dark);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transform: translate(0, -50%);
+  transition: left var(--t-move) var(--ease), top var(--t-move) var(--ease), opacity var(--t-move) var(--ease), transform var(--t-move) var(--ease);
+}
+
+.flow-source svg {
+  color: var(--signal);
+}
+
+.flow-plane[data-state="understand"] .flow-source--1 { left: 5%; top: 18%; }
+.flow-plane[data-state="understand"] .flow-source--2 { left: 8%; top: 39%; }
+.flow-plane[data-state="understand"] .flow-source--3 { left: 4%; top: 61%; }
+.flow-plane[data-state="understand"] .flow-source--4 { left: 9%; top: 82%; }
+
+/* Once understood, the sources fold into a quiet stack at the left edge
+   and stay there — the first station of the path. */
+.flow-plane:not([data-state="understand"]) .flow-source {
+  left: 4%;
+  opacity: 0.45;
+  transform: translate(0, -50%) scale(0.86);
+  transform-origin: left center;
+  box-shadow: none;
+}
+
+.flow-plane:not([data-state="understand"]) .flow-source--1 { top: 38%; }
+.flow-plane:not([data-state="understand"]) .flow-source--2 { top: 46%; }
+.flow-plane:not([data-state="understand"]) .flow-source--3 { top: 54%; }
+.flow-plane:not([data-state="understand"]) .flow-source--4 { top: 62%; }
+
+/* Mini cards inside the plane. */
+.flow-card {
+  position: absolute;
+  top: 50%;
+  border-radius: 8px;
+  overflow: hidden;
+  transform: translateY(-50%);
+  transition: left var(--t-move) var(--ease), top var(--t-move) var(--ease), width var(--t-move) var(--ease), opacity var(--t-move) var(--ease), transform var(--t-move) var(--ease), border-color var(--t-move) var(--ease), border-style 0s;
+}
+
+.flow-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hair-dark);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.flow-card__head svg {
+  color: var(--signal);
+}
+
+.flow-card__rows {
+  display: grid;
+  gap: 2px;
+  padding: 6px 0;
+}
+
+.flow-card__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  min-height: 30px;
+}
+
+.flow-card__row.is-faded {
+  opacity: 0.6;
+}
+
+.flow-card__row-label {
+  flex: none;
+  width: 84px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-dark);
+}
+
+.flow-card__row .landing-bar {
+  flex: 0 1 auto;
+}
+
+.flow-card__row--raised {
+  background: rgba(96, 165, 250, 0.12);
+  box-shadow: inset 2px 0 0 var(--signal);
+  justify-content: space-between;
+  flex-wrap: wrap; /* the tag drops under the text when a card is narrow */
+  row-gap: 6px;
+}
+
+.flow-card__row-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flow-card__tag {
+  flex: none;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--signal);
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  border-radius: 4px;
+  padding: 3px 6px 2px;
+}
+
+.flow-card__foot {
+  padding: 8px 12px 10px;
+  border-top: 1px solid var(--hair-dark);
+}
+
+/* Station placements (percent of the body; the wide rails use the same
+   coordinates). Four stations left to right — sources, relationship view,
+   next action, workflow — all present in every state: the current one lit,
+   the ones already passed stepped back, the ones ahead as faint dashed
+   outlines. */
+.flow-card--relationship { left: 32%; width: 19%; }
+.flow-plane[data-state="understand"] .flow-card--relationship { opacity: 0.78; border-style: dashed; box-shadow: none; }
+.flow-plane[data-state="activate"] .flow-card--relationship { opacity: 0.5; box-shadow: none; }
+
+.flow-card--candidates { left: 57%; width: 19%; }
+.flow-plane[data-state="understand"] .flow-card--candidates { opacity: 0.22; border-style: dashed; box-shadow: none; }
+.flow-plane[data-state="activate"] .flow-card--candidates { opacity: 0.5; box-shadow: none; }
+
+.flow-card--workflow { left: 82%; width: 16%; }
+.flow-plane:not([data-state="activate"]) .flow-card--workflow { opacity: 0.22; border-style: dashed; box-shadow: none; }
+
+/* ---------- Narrow plane (<900px): two columns inside a phone-width body ---------- */
+
+@media (max-width: 899px) {
+  .flow-plane__body {
+    height: 320px;
+  }
+
+  .flow-rails--wide { display: none; }
+  .flow-rails--narrow { display: block; }
+
+  .flow-glow--a { width: 240px; height: 240px; left: 30%; }
+  .flow-glow--b { display: none; }
+  .flow-plane[data-state="decide"] .flow-glow--a { left: 30%; }
+  .flow-plane[data-state="activate"] .flow-glow--a { left: 40%; }
+
+  .flow-source { height: 30px; padding: 0 10px; font-size: 12px; }
+  .flow-plane[data-state="understand"] .flow-source--1 { left: 4%; top: 14%; }
+  .flow-plane[data-state="understand"] .flow-source--2 { left: 6%; top: 38%; }
+  .flow-plane[data-state="understand"] .flow-source--3 { left: 3%; top: 62%; }
+  .flow-plane[data-state="understand"] .flow-source--4 { left: 7%; top: 86%; }
+
+  .flow-card__row-label { width: 68px; }
+  .flow-card__row-text { white-space: normal; overflow: visible; line-height: 1.3; }
+
+  /* No room for the whole path on a phone: two stations at a time, the
+     sources leaving once understood and each card moving left as the
+     next one arrives. */
+  .flow-plane:not([data-state="understand"]) .flow-source { opacity: 0; }
+
+  .flow-card--relationship { left: 52%; width: 44%; }
+  .flow-plane[data-state="decide"] .flow-card--relationship { left: 3%; }
+  .flow-plane[data-state="activate"] .flow-card--relationship { left: -50%; opacity: 0; }
+
+  .flow-card--candidates { left: 52%; width: 45%; }
+  .flow-plane[data-state="understand"] .flow-card--candidates { opacity: 0; transform: translate(4%, -50%); }
+  .flow-plane[data-state="activate"] .flow-card--candidates { left: 3%; width: 44%; top: 43%; }
+
+  .flow-card--workflow { left: 52%; width: 45%; }
+  .flow-plane:not([data-state="activate"]) .flow-card--workflow { opacity: 0; transform: translate(4%, -50%); }
+}

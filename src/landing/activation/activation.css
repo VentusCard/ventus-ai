@@ -1,0 +1,651 @@
+/* Activation chapter — paper ground. The network is a diagram panel on a dot
+   grid: a navy connector carrying the current action, a trunk and bus in
+   rails, and five destination surfaces drawn as the screens those teams
+   already use — glass over a soft blue glow that follows the lit
+   destination. The closing band below it is the page's second dark
+   instrument. */
+
+/* ---------------------------------------------------------------------- */
+/* Network panel                                                            */
+/* ---------------------------------------------------------------------- */
+
+.activation-network {
+  position: relative;
+  margin-top: clamp(32px, 4vw, 48px);
+  padding: 20px 20px 20px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-card);
+  background-color: var(--sheet);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.activation-diagram {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 52px auto;
+  justify-items: stretch;
+}
+
+/* The glow sits under the bus and slides to the lit column. */
+.activation-glow {
+  width: 420px;
+  height: 300px;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  background: var(--glow-paper);
+  opacity: 0.9;
+  transition: left 900ms var(--ease);
+}
+
+/* ---- decision bar: one navy strip across the panel ---- */
+
+.activation-connector {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-height: 48px;
+  padding: 0 18px;
+  overflow: hidden;
+}
+
+.activation-connector-title {
+  flex: none;
+  padding-right: 22px;
+  margin-right: 22px;
+  border-right: 1px solid var(--hair-dark);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal);
+  white-space: nowrap;
+}
+
+.activation-connector-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  padding-right: 28px;
+}
+
+.activation-connector-row--destination {
+  margin-left: auto;
+  padding-right: 0;
+}
+
+.activation-connector-key {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-dark);
+  white-space: nowrap;
+}
+
+.activation-connector-value {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: activation-value-in var(--t-stage) var(--ease);
+}
+
+@keyframes activation-value-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- rails ---- */
+
+.activation-rails {
+  position: relative;
+  height: 52px;
+}
+
+.activation-rails-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.activation-rail {
+  fill: none;
+  stroke: var(--rail);
+  stroke-width: 1;
+}
+
+.activation-rail--lit {
+  stroke: var(--brand);
+  stroke-width: 1.5;
+  transition: d 0s;
+}
+
+/* The comet is remounted for every lit destination (keyed in the markup),
+   so the animation restarts from the connector each time. */
+.activation-comet {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 12 100;
+  stroke-dashoffset: 112;
+  opacity: 0;
+  animation: activation-comet var(--t-comet) var(--ease) 1 forwards;
+}
+
+@keyframes activation-comet {
+  0% { stroke-dashoffset: 112; opacity: 0; }
+  6% { opacity: 1; }
+  85% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: -12; opacity: 0; }
+}
+
+.activation-junction {
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--rail);
+  transform: translate(-50%, -50%);
+  transition: background var(--t-stage) var(--ease), border-color var(--t-stage) var(--ease), box-shadow var(--t-stage) var(--ease);
+}
+
+.activation-junction.is-lit {
+  border-color: var(--brand);
+  background: var(--brand);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+}
+
+/* ---- surfaces ---- */
+
+.activation-surfaces {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.activation-surface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: var(--r-card);
+  overflow: hidden;
+  transition: transform var(--t-hover) var(--ease), border-color 600ms var(--ease), box-shadow 600ms var(--ease), opacity var(--t-enter) var(--ease);
+}
+
+.activation-surface:hover {
+  transform: translateY(-2px);
+}
+
+.activation-surface.is-lit {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14), 0 18px 40px rgba(37, 99, 235, 0.18);
+}
+
+/* .landing-reveal supplies the legible-at-rest entrance; the hover lift
+   shares the transform, so the reveal's translate is applied here to keep
+   both in one declaration. */
+.activation-surface.landing-reveal {
+  transform: translateY(10px);
+}
+
+.activation-surface.landing-reveal.is-visible {
+  transform: translateY(0);
+}
+
+.activation-surface.landing-reveal.is-visible:hover {
+  transform: translateY(-2px);
+}
+
+.activation-surface-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hair);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activation-surface-head svg {
+  color: var(--muted);
+  flex: none;
+  transition: color 600ms var(--ease);
+}
+
+.activation-surface.is-lit .activation-surface-head svg {
+  color: var(--brand);
+}
+
+.activation-surface-foot {
+  position: relative;
+  margin-top: auto;
+  padding: 9px 12px 10px;
+  border-top: 1px solid var(--hair);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.activation-surface-kind {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: opacity 300ms var(--ease);
+}
+
+.activation-surface-stamp {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%) scale(0.85);
+  opacity: 0;
+  transform-origin: left center;
+  transition: transform 300ms var(--ease), opacity 300ms var(--ease);
+}
+
+.activation-surface.is-lit .activation-surface-kind {
+  opacity: 0;
+}
+
+.activation-surface-stamp.is-lit {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+  transition-delay: 900ms;
+}
+
+/* ---- surface bodies (structure; the lit one shows the action) ---- */
+
+.activation-body {
+  padding: 12px;
+  min-height: 104px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.activation-item {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: activation-value-in var(--t-arrive) var(--ease) var(--t-arrive-delay) both;
+}
+
+.activation-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  min-height: 30px;
+  transition: background 400ms var(--ease) 900ms, box-shadow 400ms var(--ease) 900ms;
+}
+
+.activation-row.is-lit {
+  background: var(--tint);
+  box-shadow: inset 2px 0 0 var(--brand);
+}
+
+.activation-row .landing-bar {
+  flex: 1 1 auto;
+}
+
+.activation-check {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--hair-strong);
+  border-radius: 2px;
+  background: var(--paper);
+  transition: background 300ms var(--ease) 900ms, border-color 300ms var(--ease) 900ms;
+}
+
+.activation-row.is-lit .activation-check {
+  border-color: var(--brand);
+  background: var(--brand);
+}
+
+.activation-avatar {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--stone);
+  border: 1px solid var(--hair-strong);
+  transition: background 300ms var(--ease) 900ms, border-color 300ms var(--ease) 900ms;
+}
+
+.activation-row.is-lit .activation-avatar {
+  background: var(--tint-strong);
+  border-color: var(--brand);
+}
+
+.activation-lines {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.activation-body--send {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.activation-send {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--hair-strong);
+  border-radius: 6px;
+  color: var(--muted);
+  background: var(--paper);
+  transition: color 300ms var(--ease) 900ms, border-color 300ms var(--ease) 900ms, background 300ms var(--ease) 900ms;
+}
+
+.activation-send.is-lit {
+  color: #ffffff;
+  border-color: var(--brand);
+  background: var(--brand);
+}
+
+.activation-phone {
+  width: 100%;
+  max-width: 124px;
+  margin: 0 auto;
+  padding: 10px 7px 8px;
+  border: 1px solid var(--hair-strong);
+  border-radius: 10px;
+  background: var(--paper);
+  display: grid;
+  gap: 6px;
+  position: relative;
+}
+
+.activation-phone-notch {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 18px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--hair-strong);
+  transform: translateX(-50%);
+}
+
+.activation-phone-tile {
+  display: grid;
+  align-items: center;
+  padding: 0 6px;
+  min-height: 30px;
+  margin-top: 4px;
+  border-radius: 5px;
+  background: var(--stone);
+  border: 1px solid var(--hair);
+  font-size: 10.5px;
+  transition: background 300ms var(--ease) 900ms, border-color 300ms var(--ease) 900ms;
+}
+
+.activation-phone-tile .activation-item {
+  font-size: 10.5px;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.activation-phone-tile.is-lit {
+  background: var(--tint);
+  border-color: var(--brand);
+}
+
+.activation-offer {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid var(--hair-strong);
+  border-radius: 7px;
+  background: var(--paper);
+  transition: border-color 300ms var(--ease) 900ms, background 300ms var(--ease) 900ms;
+}
+
+.activation-offer.is-lit {
+  border-color: var(--brand);
+  background: var(--tint);
+}
+
+.activation-offer-badge {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--stone);
+  color: var(--muted);
+}
+
+.activation-offer.is-lit .activation-offer-badge {
+  background: var(--brand);
+  color: #ffffff;
+}
+
+/* ---- delivered: the network has moved on, the action stays ---- */
+
+/* Once the decision has reached a surface it stays on that screen, in the
+   quiet voice of something already in the system: the item in muted ink,
+   the row or tile back to paper with a hairline, the stamp kept but
+   faded. No transition delays — nothing is arriving any more. */
+.activation-item.is-delivered {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.activation-row.is-delivered {
+  background: var(--sheet);
+  box-shadow: inset 2px 0 0 var(--hair-strong);
+  transition-delay: 0ms;
+}
+
+.activation-row.is-delivered .activation-check {
+  border-color: var(--rail);
+  background: var(--tint-strong);
+  transition-delay: 0ms;
+}
+
+.activation-row.is-delivered .activation-avatar {
+  background: var(--tint-strong);
+  border-color: var(--rail);
+  transition-delay: 0ms;
+}
+
+.activation-send.is-delivered {
+  color: var(--brand);
+  border-color: var(--rail);
+  background: var(--paper);
+  transition-delay: 0ms;
+}
+
+.activation-phone-tile.is-delivered,
+.activation-offer.is-delivered {
+  background: var(--sheet);
+  border-color: var(--rail);
+  transition-delay: 0ms;
+}
+
+.activation-offer.is-delivered .activation-offer-badge {
+  background: var(--tint-strong);
+  color: var(--brand);
+}
+
+.activation-surface.is-delivered .activation-surface-kind {
+  opacity: 0;
+}
+
+.activation-surface-stamp.is-delivered {
+  opacity: 0.6;
+  transform: translateY(-50%) scale(1);
+}
+
+@media (max-width: 1099px) {
+  .activation-surfaces {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 859px) {
+  .activation-network {
+    padding: 18px 16px;
+  }
+
+  .activation-diagram {
+    grid-template-rows: auto auto;
+    gap: 18px;
+  }
+
+  .activation-rails,
+  .activation-glow {
+    display: none;
+  }
+
+  /* The decision bar wraps into a two-line strip on phones. */
+  .activation-connector {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    row-gap: 6px;
+  }
+
+  .activation-connector-title {
+    flex-basis: 100%;
+    border-right: 0;
+    margin-right: 0;
+    padding-right: 0;
+  }
+
+  .activation-connector-row {
+    padding-right: 18px;
+  }
+
+  .activation-connector-row--destination {
+    margin-left: 0;
+  }
+
+  .activation-surfaces {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Five surfaces in two columns: the last one takes the full row rather
+     than sitting alone beside empty grid. */
+  .activation-surface:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  /* Narrow surfaces: the action wraps instead of clipping at the edge. */
+  .activation-item {
+    white-space: normal;
+    line-height: 1.3;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* ClosingBand — a solid dark instrument on the paper surface; carries the  */
+/* page's second and last body CTA.                                        */
+/* ---------------------------------------------------------------------- */
+
+.activation-closing {
+  position: relative;
+  margin-top: clamp(40px, 5vw, 56px);
+  padding: 34px 36px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  overflow: hidden;
+}
+
+.activation-closing::before {
+  content: "";
+  position: absolute;
+  right: -120px;
+  top: -140px;
+  width: 460px;
+  height: 460px;
+  border-radius: 50%;
+  background: var(--glow-brand);
+  pointer-events: none;
+}
+
+.activation-closing > * {
+  position: relative;
+}
+
+.activation-closing-copy {
+  display: grid;
+  gap: 12px;
+  max-width: 42rem;
+}
+
+.activation-closing-headline {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(24px, 2.6vw, 32px);
+  line-height: 1.1;
+  letter-spacing: -0.014em;
+  color: var(--text-dark);
+}
+
+.activation-closing-body {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted-dark);
+}
+
+@media (max-width: 859px) {
+  .activation-closing {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 26px 22px;
+  }
+
+  .activation-closing > .landing-cta {
+    justify-self: start;
+  }
+}
+
+/* Under reduced motion the network does not cycle (see ActivationNetwork),
+   so it rests on one lit destination. The comet's travel and the arrival
+   delays are token-driven and collapse to zero; the lit-state transitions
+   are the one thing left, and they are switched off here so the rest state
+   simply is, rather than settles. Specificity outranks every lit-state rule
+   above. */
+@media (prefers-reduced-motion: reduce) {
+  .landing .activation-network .activation-diagram *,
+  .landing .activation-network .activation-diagram *::before,
+  .landing .activation-network .activation-diagram *::after {
+    transition-duration: 0ms;
+    transition-delay: 0ms;
+  }
+}

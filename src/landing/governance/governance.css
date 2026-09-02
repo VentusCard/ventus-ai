@@ -1,0 +1,175 @@
+/* Governance chapter — the page's one dark chapter (.landing-chapter--dark
+   in landing.css supplies the night fill, both seams, and the swapped text
+   tokens). The Decision Control panel is a raised control surface set
+   inside that chapter, not an instrument standing on paper — it uses
+   --panel with a hairline border, not landing-instrument's seam+shadow
+   treatment (that pattern is reserved for dark objects sitting on paper). */
+
+.governance-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(40px, 5vw, 64px);
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .governance-layout {
+    /* Mirrors intelligence.css's 5/7 split: a short text column beside the
+       content-heavy panel. */
+    grid-template-columns: 5fr 7fr;
+  }
+}
+
+.governance-glow {
+  width: 760px;
+  height: 760px;
+  left: 62%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--glow-brand);
+  opacity: 0.85;
+}
+
+.governance-layout {
+  position: relative;
+}
+
+.governance-control {
+  border-radius: var(--r-card);
+  padding: 16px 22px 8px;
+}
+
+.governance-control-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--hair-dark);
+}
+
+.governance-control-label,
+.governance-control-status {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.governance-control-label {
+  color: var(--muted-dark);
+}
+
+.governance-control-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--approved-dark);
+}
+
+.governance-control-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--approved-dark);
+  flex-shrink: 0;
+}
+
+.governance-rows {
+  position: relative;
+  padding-left: 28px;
+}
+
+.governance-rail {
+  position: absolute !important;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+}
+
+.governance-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 14px;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--hair-dark);
+}
+
+.governance-row:last-child {
+  border-bottom: none;
+}
+
+.governance-row-index {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--signal);
+}
+
+.governance-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.governance-row-text strong {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-dark);
+}
+
+.governance-row-text span {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--muted-dark);
+}
+
+/* Row entrance is a stamp, not a rise: opacity plus a small scale-up from
+   the left edge, over --t-stamp (160ms) rather than the page's usual
+   --t-enter rise that .landing-reveal ships with. This selector is
+   deliberately more specific than plain .landing-reveal so the scale wins
+   over the shared translateY — which means the reduced-motion override just
+   below has to restate landing.css's "revealed, at rest" guarantee at this
+   same, stronger specificity; otherwise a reduced-motion visitor could get
+   the un-guarded transform (scale(.97), never resolving to scale(1) until
+   .is-visible lands) instead of the "present at rest" landing.css promises
+   for every .landing-reveal element. */
+.governance-row.landing-reveal {
+  transform: scale(0.97);
+  transform-origin: left center;
+  transition: opacity var(--t-stamp) var(--ease), transform var(--t-stamp) var(--ease);
+}
+
+.governance-row.landing-reveal.is-visible {
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .governance-row.landing-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Below roughly the width where a row's own content drops under ~360px,
+   let the stamp fall to its own line under the title rather than squeeze
+   into the row's auto-sized third column alongside a wrapping title. */
+@media (max-width: 460px) {
+  .governance-row {
+    grid-template-columns: 28px minmax(0, 1fr);
+    row-gap: 8px;
+  }
+
+  .governance-row .landing-stamp {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
