@@ -1,9 +1,15 @@
 // backend/functions/ventus-coworker-digest/index.mjs
 //
-// Scheduled Coworker digest. Triggered by EventBridge. For each advisor, scan
-// their book for the best modeled opportunity per household and send a proactive
-// digest email (a fresh thread). Advisors can reply and the inbound Lambda picks
-// the conversation back up.
+// Scheduled Coworker digest, triggered daily by EventBridge. For each advisor,
+// screen their book for the best opportunity per household and send a proactive
+// digest email on a fresh thread. Advisors can reply and the inbound Lambda
+// picks the conversation back up.
+//
+// Daily rather than weekly on purpose: the digest carries an outreach window,
+// and a window that shifts by a week between sends is not a window. Daily also
+// means a habit, and an advisor who opens it every morning is the whole point.
+// The row-quality rules in buildAdvisorDigest are what make a daily send
+// tolerable, since they let it say nothing on a day with nothing to say.
 //
 // Thin adapter: opportunity logic lives in shared/coworker/tasks.mjs; rendering
 // in shared/coworker/render.mjs.
@@ -11,9 +17,10 @@
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import { createFixturePortfolioProvider } from '../../shared/coworker/portfolio-provider.mjs';
 import { createCoworkerStore, createDynamoBackend } from '../../shared/coworker/store.mjs';
-import { buildAdvisorDigest } from '../../shared/coworker/tasks.mjs';
+import { buildAdvisorDigest, digestSubject } from '../../shared/coworker/tasks.mjs';
 import { renderDigestTable, renderShell } from '../../shared/coworker/render.mjs';
 import { buildThreadingHeaders } from '../../shared/coworker/mail.mjs';
+import { pluralize, verbFor } from '../../shared/coworker/labels.mjs';
 
 const REGION = process.env.AWS_REGION || 'us-east-2';
 const LAMBDA_NAME = process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-coworker-digest';
@@ -52,14 +59,14 @@ export const handler = async () => {
 
     const threadId = `digest_${advisor.id}_${nowIso.slice(0, 10)}`;
     const headers = buildThreadingHeaders({ threadId, turn: 1, domain });
-    const subject = `Your book: ${digest.items.length} opportunities this cycle`;
+    const subject = digestSubject(digest);
     const html = renderShell({
       greeting: `Hi ${firstName(advisor.name)},`,
       paragraphs: [
-        `I scanned your book against the product catalog and surfaced the top ${digest.items.length} opportunities, one per household, ranked by modeled annual benefit.`,
+        `I went through all ${pluralize(digest.considered, 'household')} in your book against the product catalog this morning. ${pluralize(digest.items.length, 'household')} ${verbFor(digest.items.length)} worth your time today, one row each, strongest first.`,
       ],
-      sections: [{ heading: 'Opportunities', html: renderDigestTable(digest.items) }],
-      forwardMove: 'Reply "build audience for <product>" and I\'ll assemble the full outreach list.',
+      sections: [{ heading: 'Today', html: renderDigestTable(digest.items) }],
+      forwardMove: 'Reply with a product name and I will screen the whole book against it.',
     });
 
     try {

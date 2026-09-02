@@ -27,6 +27,8 @@ const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), 'fixtures');
  * @property {(householdId:string) => object[]} getTransactions
  * @property {(householdId:string) => object} getSignals
  * @property {() => object[]} getCatalog
+ * @property {() => object} getCatalogDocument
+ * @property {() => ({start:string,end:string,months:number}|null)} getTransactionWindow
  * @property {string} source  identifier for logging/audit ("fixtures" | "live")
  */
 
@@ -93,6 +95,17 @@ export function createFixturePortfolioProvider(opts = {}) {
 
     getCatalog() {
       return catalog.products || [];
+    },
+
+    // The whole catalog document, not just the product list. The benefit
+    // calculator needs the spend-category map and the incumbent rate cards to
+    // state a figure net of what a household already earns.
+    getCatalogDocument() {
+      return catalog;
+    },
+
+    getTransactionWindow() {
+      return transactions.window || null;
     },
   };
 }

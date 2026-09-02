@@ -27,6 +27,7 @@ export const keys = {
   memoryPrefix: (advisorId, scope) => ({ PK: `ADVISOR#${advisorId}`, SKPrefix: `MEM#${scope}#` }),
   prefs: (advisorId) => ({ PK: `ADVISOR#${advisorId}`, SK: 'PREFS' }),
   rate: (sender) => ({ PK: `RATE#${sender}`, SK: 'WINDOW' }),
+  processed: (messageId) => ({ PK: `MSG#${messageId}`, SK: 'PROCESSED' }),
 };
 
 const nowEpoch = () => Math.floor(Date.now() / 1000);
@@ -190,6 +191,40 @@ export function createCoworkerStore(backend) {
         limit,
         resetAt: new Date(resetMs).toISOString(),
       };
+    },
+
+    /**
+     * Claim an inbound message id for processing, exactly once.
+     *
+     * SES and Lambda both guarantee at-least-once delivery, so the same email
+     * can arrive twice. Without a claim the advisor gets two replies to one
+     * message, which reads as a malfunctioning teammate. Returns firstTime
+     * false on a redelivery so the caller can drop it silently.
+     *
+     * @returns {Promise<{firstTime:boolean, claimedAt:string}>}
+     */
+    async claimMessage({ messageId, now = new Date(), ttlDays = 7 }) {
+      const id = String(messageId || '').trim();
+      if (!id) return { firstTime: true, claimedAt: now.toISOString() };
+      const key = keys.processed(id);
+      const existing = await backend.get(key.PK, key.SK);
+      if (existing) {
+        return { firstTime: false, claimedAt: existing.claimed_at };
+      }
+      const claimedAt = now.toISOString();
+      await backend.put({
+        PK: key.PK,
+        SK: key.SK,
+        entity: 'processed_message',
+        message_id: id,
+        claimed_at: claimedAt,
+        // Expiry is wall-clock, not the injected clock. The clock is there to
+        // make rendered timestamps deterministic in tests; deriving retention
+        // from it would make a claim written under a backdated clock expire the
+        // instant it was created.
+        ttl: Math.floor(Date.now() / 1000) + ttlDays * 86400,
+      });
+      return { firstTime: true, claimedAt };
     },
 
     async putMemory({ advisorId, scope, key, value, ttlEpoch }) {

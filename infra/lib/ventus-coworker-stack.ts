@@ -46,7 +46,7 @@ export interface VentusCoworkerStackProps extends cdk.StackProps {
   modelProviderSecretId?: string;
   /** Provision the SES receipt rule set (requires a SES-inbound region + verified domain). */
   enableSesInbound?: boolean;
-  /** Cron/rate for the proactive digest. Defaults to weekly (Mon 13:00 UTC). */
+  /** Cron/rate for the proactive digest. Defaults to daily at 12:00 UTC. */
   digestSchedule?: events.Schedule;
   /** Email address to notify when the inbound Lambda errors or the DLQ fills. */
   alertEmail?: string;
@@ -73,9 +73,14 @@ export class VentusCoworkerStack extends cdk.Stack {
       'ventus/model-providers/gemini';
     const enableSesInbound =
       props.enableSesInbound ?? booleanContext(this, 'enableCoworkerSesInbound', true);
+    // Daily, not weekly. The digest carries an outreach window ("next 14
+    // days"), and a window recalculated once a week is stale for six of them.
+    // 12:00 UTC lands early morning across US business hours, which is when an
+    // advisor plans their day. The row-quality rules in buildAdvisorDigest are
+    // what make a daily cadence survivable: on a day with nothing worth saying
+    // it sends nothing rather than padding the table.
     const digestSchedule =
-      props.digestSchedule ??
-      events.Schedule.cron({ weekDay: 'MON', hour: '13', minute: '0' });
+      props.digestSchedule ?? events.Schedule.cron({ hour: '12', minute: '0' });
 
     // ── State: single DynamoDB table ─────────────────────────────────────────
     const table = new dynamodb.Table(this, 'CoworkerTable', {
@@ -326,7 +331,7 @@ export class VentusCoworkerStack extends cdk.Stack {
     // ── Schedule the digest ──────────────────────────────────────────────────
     new events.Rule(this, 'CoworkerDigestSchedule', {
       ruleName: 'ventus-coworker-digest-schedule',
-      description: 'Triggers the AI Coworker proactive digest.',
+      description: 'Triggers the AI Coworker proactive digest, daily at 12:00 UTC.',
       schedule: digestSchedule,
       targets: [new targets.LambdaFunction(digestFn)],
     });
