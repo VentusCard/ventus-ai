@@ -180,6 +180,22 @@ export function checkAllowlist(fromAddress, advisors) {
 }
 
 /**
+ * Whether we may send unsolicited mail to an advisor.
+ *
+ * Some advisors in the demo book are personas: they own households so the book
+ * has owners, and their address stays on the allowlist so an inbound reply from
+ * a demo operator is recognized, but no mailbox exists behind the address.
+ * Proactive mail to them hard-bounces every run, which on a daily schedule is a
+ * standing charge against sending reputation for no delivered mail. Replying to
+ * a message someone actually sent is always fine; this gate is only about mail
+ * we originate.
+ */
+export function canReceiveProactiveMail(advisor) {
+  if (!advisor?.email) return false;
+  return advisor.mailbox !== 'fictional';
+}
+
+/**
  * Normalize a reply subject: ensure a single "Re:" prefix.
  */
 export function replySubject(subject) {

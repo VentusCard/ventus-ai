@@ -19,6 +19,7 @@
       "name": "Dana Okoro",
       "email": "dana.okoro@ventusai.com",
       "title": "Senior Wealth Advisor",
+      "mailbox": "fictional",
       "household_ids": ["hh_okafor", "hh_bianchi", "hh_nakamura", "hh_alvarez"]
     },
     {
@@ -26,6 +27,7 @@
       "name": "Marcus Reyes",
       "email": "marcus.reyes@ventusai.com",
       "title": "Wealth Advisor",
+      "mailbox": "fictional",
       "household_ids": [
         "hh_petrov",
         "hh_sharma",

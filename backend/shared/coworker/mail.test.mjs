@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isAutomatedMessage, parseInboundEmail } from './mail.mjs';
+import { canReceiveProactiveMail, checkAllowlist, isAutomatedMessage, parseInboundEmail } from './mail.mjs';
+import { createFixturePortfolioProvider } from './portfolio-provider.mjs';
 
 function msg(headers, { from = 'dana.okoro@ventusai.com', body = 'hello' } = {}) {
   const lines = [`From: ${from}`, 'To: coworker@ventusai.com', 'Subject: hi'];
@@ -45,4 +46,39 @@ test('no-reply / mailer-daemon senders are automated', () => {
 
 test('reason is populated for logging', () => {
   assert.match(isAutomatedMessage(msg({ Precedence: 'bulk' })).reason, /precedence/);
+});
+
+// --- proactive mail gate -----------------------------------------------------
+
+test('a persona with no mailbox behind the address is never mailed proactively', () => {
+  assert.equal(canReceiveProactiveMail({ email: 'a@b.com', mailbox: 'fictional' }), false);
+  assert.equal(canReceiveProactiveMail({ email: 'a@b.com' }), true);
+  assert.equal(canReceiveProactiveMail({}), false);
+  assert.equal(canReceiveProactiveMail(null), false);
+});
+
+test('a persona stays on the allowlist even though we do not mail them', () => {
+  // The two gates are independent on purpose. Replying to a message someone
+  // actually sent is always fine; the mailbox flag only governs mail we
+  // originate. Conflating them would break inbound demo replies.
+  const provider = createFixturePortfolioProvider();
+  const advisors = provider.getAdvisors();
+  const persona = advisors.find((a) => a.mailbox === 'fictional');
+  assert.ok(persona, 'the demo book should contain at least one persona advisor');
+
+  const { allowed, advisor } = checkAllowlist(persona.email, advisors);
+  assert.equal(allowed, true);
+  assert.equal(advisor.id, persona.id);
+  assert.equal(canReceiveProactiveMail(persona), false);
+});
+
+test('the demo book mails only addresses with a mailbox behind them', () => {
+  // These two addresses hard-bounced on 2026-08-31 and sit on the SES
+  // account suppression list. On a daily digest that is a standing charge
+  // against sending reputation, so the fixture must keep them flagged.
+  const provider = createFixturePortfolioProvider();
+  const mailed = provider.getAdvisors().filter(canReceiveProactiveMail).map((a) => a.email);
+  assert.ok(!mailed.includes('dana.okoro@ventusai.com'));
+  assert.ok(!mailed.includes('marcus.reyes@ventusai.com'));
+  assert.ok(mailed.length >= 1, 'someone real has to receive the digest');
 });

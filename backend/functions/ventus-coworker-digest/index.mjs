@@ -19,7 +19,7 @@ import { createFixturePortfolioProvider } from '../../shared/coworker/portfolio-
 import { createCoworkerStore, createDynamoBackend } from '../../shared/coworker/store.mjs';
 import { buildAdvisorDigest, digestSubject } from '../../shared/coworker/tasks.mjs';
 import { renderDigestTable, renderShell } from '../../shared/coworker/render.mjs';
-import { buildThreadingHeaders } from '../../shared/coworker/mail.mjs';
+import { buildThreadingHeaders, canReceiveProactiveMail } from '../../shared/coworker/mail.mjs';
 import { pluralize, verbFor } from '../../shared/coworker/labels.mjs';
 
 const REGION = process.env.AWS_REGION || 'us-east-2';
@@ -51,6 +51,11 @@ export const handler = async () => {
 
   const sent = [];
   for (const advisor of provider.getAdvisors()) {
+    if (!canReceiveProactiveMail(advisor)) {
+      console.log(`[${LAMBDA_NAME}] ${advisor.id} has no real mailbox; not mailing.`);
+      continue;
+    }
+
     const digest = buildAdvisorDigest({ provider, advisorId: advisor.id, maxItems: MAX_ITEMS });
     if (!digest.items.length) {
       console.log(`[${LAMBDA_NAME}] No opportunities for ${advisor.id}; skipping.`);
