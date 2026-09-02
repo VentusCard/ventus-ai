@@ -76,7 +76,8 @@ turn per inbound email: parse (SES/S3) → classify intent → route to a task
 (audience build, compose outreach, prep, evidence, summary, or grounded Q&A) →
 render a governed reply → persist thread/turn state in DynamoDB.
 `ventus-coworker-digest` builds scheduled digests. Provisioned by
-`infra/lib/ventus-coworker-stack.ts`. Runbook:
+`infra/lib/ventus-coworker-stack.ts`. Internals:
+[`coworker-design.md`](./coworker-design.md). Runbook:
 [`../runbooks/coworker-email-demo.md`](../runbooks/coworker-email-demo.md).
 
 ## Model gateway

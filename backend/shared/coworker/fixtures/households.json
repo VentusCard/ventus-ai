@@ -1,10 +1,17 @@
 {
-  "version": 1,
-  "note": "Synthetic wealth-management portfolio for the AI Coworker v0. Deterministic, anonymized. No real customer data. Every household is built around a clear product-opportunity narrative so audience-building and prep tasks have material to reason over.",
+  "version": 2,
+  "note": "Synthetic wealth-management portfolio for the AI Coworker. Deterministic, anonymized. No real customer data. Every household is built around a clear product-opportunity narrative so audience-building and prep tasks have material to reason over. As of v2 the book is 12 households so a single-product screen returns a real audience (the demoed card fits 7, excludes 2, and finds no signal on 3), and each household carries an advisor-entered communication_tone that drives outreach voice.",
   "institution": {
     "id": "inst_demo_growth_desk",
     "name": "Growth Desk (Demo)",
     "domain": "ventusai.com"
+  },
+  "tone_options": {
+    "note": "Closed set. Advisor-entered on the household record, never inferred from transactions, so an advisor can always answer why a draft sounds the way it does.",
+    "warm_personal": "First names, conversational, a line of genuine personal interest before the substance.",
+    "direct_professional": "Brief and businesslike. No preamble, no filler, gets to the point in the first sentence.",
+    "formal_reserved": "Address by surname, measured phrasing, no exclamation points or casual idiom.",
+    "analytical": "Leads with the numbers and the mechanism. Minimal relationship language."
   },
   "advisors": [
     {
@@ -12,6 +19,7 @@
       "name": "Dana Okoro",
       "email": "dana.okoro@ventusai.com",
       "title": "Senior Wealth Advisor",
+      "mailbox": "fictional",
       "household_ids": ["hh_okafor", "hh_bianchi", "hh_nakamura", "hh_alvarez"]
     },
     {
@@ -19,7 +27,17 @@
       "name": "Marcus Reyes",
       "email": "marcus.reyes@ventusai.com",
       "title": "Wealth Advisor",
-      "household_ids": ["hh_petrov", "hh_sharma", "hh_delgado", "hh_kim"]
+      "mailbox": "fictional",
+      "household_ids": [
+        "hh_petrov",
+        "hh_sharma",
+        "hh_delgado",
+        "hh_kim",
+        "hh_whitfield",
+        "hh_castellanos",
+        "hh_oyelaran",
+        "hh_lindqvist"
+      ]
     },
     {
       "id": "adv_zoheb",
@@ -34,7 +52,11 @@
         "hh_petrov",
         "hh_sharma",
         "hh_delgado",
-        "hh_kim"
+        "hh_kim",
+        "hh_whitfield",
+        "hh_castellanos",
+        "hh_oyelaran",
+        "hh_lindqvist"
       ]
     },
     {
@@ -50,7 +72,11 @@
         "hh_petrov",
         "hh_sharma",
         "hh_delgado",
-        "hh_kim"
+        "hh_kim",
+        "hh_whitfield",
+        "hh_castellanos",
+        "hh_oyelaran",
+        "hh_lindqvist"
       ]
     },
     {
@@ -66,7 +92,11 @@
         "hh_petrov",
         "hh_sharma",
         "hh_delgado",
-        "hh_kim"
+        "hh_kim",
+        "hh_whitfield",
+        "hh_castellanos",
+        "hh_oyelaran",
+        "hh_lindqvist"
       ]
     }
   ],
@@ -78,6 +108,8 @@
       "primary_contact": "Ada Okafor",
       "segment": "affluent",
       "age_band": "38-45",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
       "region": { "city": "Austin", "state": "TX", "zip": "78704", "cost_of_living": "high" },
       "relationship": {
         "tenure_years": 6,
@@ -98,6 +130,8 @@
       "primary_contact": "Luca Bianchi",
       "segment": "mass_affluent",
       "age_band": "31-37",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
       "region": { "city": "Denver", "state": "CO", "zip": "80206", "cost_of_living": "average" },
       "relationship": {
         "tenure_years": 3,
@@ -118,6 +152,8 @@
       "primary_contact": "Kenji Nakamura",
       "segment": "hnw",
       "age_band": "52-60",
+      "communication_tone": "formal_reserved",
+      "communication_tone_source": "advisor",
       "region": { "city": "Seattle", "state": "WA", "zip": "98112", "cost_of_living": "high" },
       "relationship": {
         "tenure_years": 12,
@@ -139,12 +175,14 @@
       "primary_contact": "Sofia Alvarez",
       "segment": "mass_affluent",
       "age_band": "27-33",
+      "communication_tone": "direct_professional",
+      "communication_tone_source": "advisor",
       "region": { "city": "Miami", "state": "FL", "zip": "33137", "cost_of_living": "high" },
       "relationship": {
         "tenure_years": 2,
         "products_held": ["everyday-checking"],
         "aum_usd": 21000,
-        "wallet_share": 0.30
+        "wallet_share": 0.3
       },
       "accounts": [
         { "type": "checking", "balance_usd": 1850 },
@@ -159,12 +197,14 @@
       "primary_contact": "Irina Petrov",
       "segment": "affluent",
       "age_band": "34-40",
+      "communication_tone": "direct_professional",
+      "communication_tone_source": "advisor",
       "region": { "city": "Raleigh", "state": "NC", "zip": "27607", "cost_of_living": "average" },
       "relationship": {
         "tenure_years": 4,
         "products_held": ["everyday-checking", "high-yield-savings", "flat-cashback-card"],
         "aum_usd": 156000,
-        "wallet_share": 0.60
+        "wallet_share": 0.6
       },
       "accounts": [
         { "type": "checking", "balance_usd": 22100 },
@@ -179,10 +219,12 @@
       "primary_contact": "Ravi Sharma",
       "segment": "hnw",
       "age_band": "58-65",
+      "communication_tone": "formal_reserved",
+      "communication_tone_source": "advisor",
       "region": { "city": "Chicago", "state": "IL", "zip": "60614", "cost_of_living": "high" },
       "relationship": {
         "tenure_years": 15,
-        "products_held": ["relationship-checking", "managed-portfolio"],
+        "products_held": ["relationship-checking", "managed-portfolio", "flat-cashback-card"],
         "aum_usd": 3200000,
         "wallet_share": 0.64
       },
@@ -199,6 +241,8 @@
       "primary_contact": "Mateo Delgado",
       "segment": "mass_affluent",
       "age_band": "29-35",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
       "region": { "city": "Columbus", "state": "OH", "zip": "43215", "cost_of_living": "low" },
       "relationship": {
         "tenure_years": 3,
@@ -220,10 +264,12 @@
       "primary_contact": "Grace Kim",
       "segment": "affluent",
       "age_band": "46-52",
+      "communication_tone": "analytical",
+      "communication_tone_source": "advisor",
       "region": { "city": "San Jose", "state": "CA", "zip": "95125", "cost_of_living": "high" },
       "relationship": {
         "tenure_years": 9,
-        "products_held": ["everyday-checking", "high-yield-savings", "brokerage"],
+        "products_held": ["everyday-checking", "high-yield-savings", "brokerage", "flat-cashback-card"],
         "aum_usd": 640000,
         "wallet_share": 0.58
       },
@@ -233,6 +279,95 @@
         { "type": "brokerage", "balance_usd": 519000 }
       ],
       "goals": ["Maximize retirement runway", "Automate long-horizon investing"]
+    },
+    {
+      "id": "hh_whitfield",
+      "advisor_id": "adv_reyes",
+      "name": "Whitfield Household",
+      "primary_contact": "Eleanor Whitfield",
+      "segment": "hnw",
+      "age_band": "46-52",
+      "communication_tone": "formal_reserved",
+      "communication_tone_source": "advisor",
+      "region": { "city": "Boston", "state": "MA", "zip": "02116", "cost_of_living": "high" },
+      "relationship": {
+        "tenure_years": 11,
+        "products_held": ["relationship-checking", "brokerage", "flat-cashback-card"],
+        "aum_usd": 1240000,
+        "wallet_share": 0.49
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 84000 },
+        { "type": "brokerage", "balance_usd": 1156000 }
+      ],
+      "goals": ["Travel extensively before retiring", "Consolidate accounts held elsewhere"]
+    },
+    {
+      "id": "hh_castellanos",
+      "advisor_id": "adv_reyes",
+      "name": "Castellanos Household",
+      "primary_contact": "Diego Castellanos",
+      "segment": "affluent",
+      "age_band": "34-40",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
+      "region": { "city": "Los Angeles", "state": "CA", "zip": "90026", "cost_of_living": "high" },
+      "relationship": {
+        "tenure_years": 5,
+        "products_held": ["everyday-checking", "flat-cashback-card"],
+        "aum_usd": 268000,
+        "wallet_share": 0.44
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 39500 },
+        { "type": "brokerage", "balance_usd": 228500 }
+      ],
+      "goals": ["Keep dining and travel rewards working harder", "Buy a first investment property"]
+    },
+    {
+      "id": "hh_oyelaran",
+      "advisor_id": "adv_reyes",
+      "name": "Oyelaran Household",
+      "primary_contact": "Tunde Oyelaran",
+      "segment": "mass_affluent",
+      "age_band": "27-33",
+      "communication_tone": "direct_professional",
+      "communication_tone_source": "advisor",
+      "region": { "city": "Atlanta", "state": "GA", "zip": "30308", "cost_of_living": "average" },
+      "relationship": {
+        "tenure_years": 1,
+        "products_held": ["everyday-checking"],
+        "aum_usd": 34000,
+        "wallet_share": 0.28
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 8400 },
+        { "type": "savings", "balance_usd": 25600 }
+      ],
+      "goals": ["Build a credit history", "Start investing consistently"]
+    },
+    {
+      "id": "hh_lindqvist",
+      "advisor_id": "adv_reyes",
+      "name": "Lindqvist Household",
+      "primary_contact": "Annika Lindqvist",
+      "segment": "affluent",
+      "age_band": "41-47",
+      "communication_tone": "analytical",
+      "communication_tone_source": "advisor",
+      "region": { "city": "Minneapolis", "state": "MN", "zip": "55408", "cost_of_living": "average" },
+      "relationship": {
+        "tenure_years": 7,
+        "products_held": ["everyday-checking", "core-savings"],
+        "aum_usd": 315000,
+        "wallet_share": 0.53
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 27300 },
+        { "type": "savings", "balance_usd": 61700 },
+        { "type": "brokerage", "balance_usd": 226000 }
+      ],
+      "goals": ["Consolidate travel spend onto one card", "Keep fees predictable"]
     }
   ]
 }

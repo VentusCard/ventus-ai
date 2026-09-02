@@ -26,6 +26,8 @@ export const keys = {
   memory: (advisorId, scope, key) => ({ PK: `ADVISOR#${advisorId}`, SK: `MEM#${scope}#${key}` }),
   memoryPrefix: (advisorId, scope) => ({ PK: `ADVISOR#${advisorId}`, SKPrefix: `MEM#${scope}#` }),
   prefs: (advisorId) => ({ PK: `ADVISOR#${advisorId}`, SK: 'PREFS' }),
+  rate: (sender) => ({ PK: `RATE#${sender}`, SK: 'WINDOW' }),
+  processed: (messageId) => ({ PK: `MSG#${messageId}`, SK: 'PROCESSED' }),
 };
 
 const nowEpoch = () => Math.floor(Date.now() / 1000);
@@ -145,6 +147,84 @@ export function createCoworkerStore(backend) {
     },
     async listTasks(threadId) {
       return backend.query(keys.taskPrefix(threadId));
+    },
+
+    /**
+     * Fixed-window rate limiter keyed by sender address. Counts inbound messages
+     * per sender within a rolling window and reports whether this one is allowed.
+     * The window record carries a DynamoDB ttl so it self-cleans.
+     *
+     * Note: get-then-put is not atomic, so a simultaneous burst can slightly
+     * undercount. That is acceptable for an abuse guard on an open demo inbox —
+     * it never over-blocks a legitimate sender.
+     *
+     * @returns {Promise<{allowed:boolean,count:number,limit:number,resetAt:string}>}
+     */
+    async checkAndBumpRate({ sender, now = new Date(), windowMs = 3600_000, limit = 12 }) {
+      const key = keys.rate(String(sender || '').toLowerCase());
+      const nowMs = now.getTime();
+      const existing = await backend.get(key.PK, key.SK);
+
+      let windowStartMs = nowMs;
+      let count = 0;
+      if (existing && Number.isFinite(existing.window_start_ms) && nowMs - existing.window_start_ms < windowMs) {
+        windowStartMs = existing.window_start_ms;
+        count = existing.count || 0;
+      }
+      count += 1;
+
+      const resetMs = windowStartMs + windowMs;
+      await backend.put({
+        PK: key.PK,
+        SK: key.SK,
+        entity: 'rate',
+        window_start_ms: windowStartMs,
+        count,
+        updated_at: new Date(nowMs).toISOString(),
+        // TTL a little past the window so DynamoDB reaps stale counters.
+        ttl: Math.floor(resetMs / 1000) + 60,
+      });
+
+      return {
+        allowed: count <= limit,
+        count,
+        limit,
+        resetAt: new Date(resetMs).toISOString(),
+      };
+    },
+
+    /**
+     * Claim an inbound message id for processing, exactly once.
+     *
+     * SES and Lambda both guarantee at-least-once delivery, so the same email
+     * can arrive twice. Without a claim the advisor gets two replies to one
+     * message, which reads as a malfunctioning teammate. Returns firstTime
+     * false on a redelivery so the caller can drop it silently.
+     *
+     * @returns {Promise<{firstTime:boolean, claimedAt:string}>}
+     */
+    async claimMessage({ messageId, now = new Date(), ttlDays = 7 }) {
+      const id = String(messageId || '').trim();
+      if (!id) return { firstTime: true, claimedAt: now.toISOString() };
+      const key = keys.processed(id);
+      const existing = await backend.get(key.PK, key.SK);
+      if (existing) {
+        return { firstTime: false, claimedAt: existing.claimed_at };
+      }
+      const claimedAt = now.toISOString();
+      await backend.put({
+        PK: key.PK,
+        SK: key.SK,
+        entity: 'processed_message',
+        message_id: id,
+        claimed_at: claimedAt,
+        // Expiry is wall-clock, not the injected clock. The clock is there to
+        // make rendered timestamps deterministic in tests; deriving retention
+        // from it would make a claim written under a backdated clock expire the
+        // instant it was created.
+        ttl: Math.floor(Date.now() / 1000) + ttlDays * 86400,
+      });
+      return { firstTime: true, claimedAt };
     },
 
     async putMemory({ advisorId, scope, key, value, ttlEpoch }) {

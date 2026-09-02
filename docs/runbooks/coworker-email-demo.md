@@ -36,6 +36,43 @@ Both are CDK context flags surfaced as Lambda env vars:
   (widest fixture advisor) and greeted by the name derived from their email
   address. Leave this **OFF** in production — unknown senders should bounce.
 
+## Open-inbox abuse guards
+
+Because `coworkerDemoOpen=true` lets **anyone** email the coworker, the turn
+pipeline enforces a few guards before spending a model call or sending a reply:
+
+- **Loop / bounce guard** — auto-responders (Out-of-office), bounces (`Return-Path: <>`),
+  mailing-list traffic, and `no-reply@` / `mailer-daemon@` senders are dropped with
+  no reply (`reason=automated_message:*`). This is checked *before* the allowlist,
+  so even an allowlisted advisor's OOO can't start a mail loop.
+- **Per-sender rate limit** — a fixed window counter in DynamoDB
+  (`RATE#<sender>` / TTL'd). Over the limit → dropped silently (`reason=rate_limited`),
+  so we never hand a flooder a reply amplifier.
+- **Body cap** — the message body handed to the model is truncated so one huge
+  email can't blow up token cost or attempt prompt-stuffing.
+
+Tunable via inbound-Lambda env vars (defaults are sensible for a demo):
+
+| Env var | Default | Meaning |
+| --- | --- | --- |
+| `COWORKER_RATE_LIMIT` | `12` | Max messages per sender per window. `0` disables. |
+| `COWORKER_RATE_WINDOW_MS` | `3600000` | Rate-limit window (ms). |
+| `COWORKER_MAX_BODY_CHARS` | `8000` | Max body chars fed to the model. |
+
+Failures are surfaced, not silent: the inbound Lambda already retries then
+dead-letters to `ventus-coworker-inbound-dlq`, and the stack now alarms on both
+**any dead-lettered message** and **any Lambda error** to the
+`ventus-coworker-alarms` SNS topic. Subscribe an address so a failing inbox is
+noticed during the demo window:
+
+```bash
+npm run deploy -- VentusCoworkerStack \
+  -c coworkerRegion=us-east-1 \
+  -c coworkerAlertEmail=you@ventusai.com
+```
+
+(Confirm the SNS subscription email AWS sends after the first deploy.)
+
 > Region note: SES **inbound** is not available in `us-east-2`. Deploy this stack
 > to a SES-inbound region (e.g. `us-east-1`) with `-c coworkerRegion=us-east-1`.
 > The Coworker is an isolated subsystem (own DynamoDB, own Lambdas, no VPC/Aurora
@@ -50,9 +87,10 @@ Both are CDK context flags surfaced as Lambda env vars:
    - the 3 DKIM `CNAME` records SES provides;
    - an `MX` record pointing mail to SES inbound:
      `10 inbound-smtp.us-east-1.amazonaws.com`.
-3. **Exit the SES sandbox** (Account dashboard → request production access) so the
-   coworker can send replies to arbitrary external demo recipients. In the
-   sandbox, replies only go to verified addresses.
+3. **Exit the SES sandbox** — ✅ **done (2026-08-28).** Production access is granted
+   in `us-east-1` (quota 50k/day, 14 msg/s). Replies can now go to any recipient.
+   Because the account is out of the sandbox, bounce/complaint handling is now
+   mandatory — see "Production sending: bounces & complaints" below.
 4. **Replicate the model-provider secret into the demo region.** The inbound
    Lambda reads `ventus/model-providers/gemini` from its **own** region
    (`us-east-1`), and the stack only grants Secrets Manager / KMS access in that
@@ -69,6 +107,91 @@ Both are CDK context flags surfaced as Lambda env vars:
    The us-east-1 replica re-encrypts under that region's
    `alias/ventus/model-provider-secrets` KMS key, matching the Lambda's
    `kms:ViaService` grant. Rotations propagate to the replica automatically.
+
+## Production sending: bounces & complaints
+
+Now that the account is out of the SES sandbox, all outbound goes through the SES
+**configuration set** `ventus-coworker` (provisioned by the stack; both Lambdas
+send with `ConfigurationSetName`). That gives us:
+
+- **Bounce/complaint routing** — bounces, complaints, rejects, and delivery
+  delays publish to the `ventus-coworker-ses-events` SNS topic. Subscribe an
+  address (`-c coworkerAlertEmail=...`) to see the actual failing recipients.
+- **Reputation alarms** — CloudWatch alarms on the config set's
+  `Reputation.BounceRate` (≥5%) and `Reputation.ComplaintRate` (≥0.1%) fire to
+  `ventus-coworker-alarms`. AWS reviews accounts at 5% bounce / enforces at 10%,
+  and enforces complaints at 0.5%, so these alert with margin.
+- **Loop protection** — the inbound loop/bounce guard (above) already refuses to
+  auto-reply to bounces and auto-responders, which is the main way a bot inflates
+  its own bounce/complaint rate.
+
+Both alarm topics use email subscriptions, so after the first deploy **confirm
+the two SNS subscription emails** AWS sends (`ventus-coworker-alarms` and
+`ventus-coworker-ses-events`) or notifications won't arrive.
+
+## Production cutover to `coworker@ventusai.com`
+
+The demo runs on `coworker@demo.ventusai.com`. Moving to the real
+`coworker@ventusai.com` is constrained by existing mail:
+
+- **DNS** is authoritative at **NS1** (`*.nsone.net`) — add records there (same
+  place the `demo.ventusai.com` records live).
+- **Root MX** points to **Proofpoint** (`*.ppe-hosted.com`) → real company mail
+  flows Proofpoint → Microsoft 365. **Do not repoint the root `ventusai.com` MX
+  to SES** — it would break real mail. So SES cannot *receive* on the root domain.
+
+Split the problem into sending and receiving.
+
+### 1. Send *from* `coworker@ventusai.com` (DKIM only, no MX/SPF change)
+
+The `ventusai.com` SES domain identity is already created (Easy DKIM, us-east-1).
+Add these **3 CNAME** records at NS1 to verify it for signed, DMARC-aligned
+sending. This does **not** affect existing mail (no MX/SPF change):
+
+| Type | Name | Value |
+| --- | --- | --- |
+| CNAME | `4fazip2h5txv5q2wdpplu5enrhvtjraw._domainkey.ventusai.com` | `4fazip2h5txv5q2wdpplu5enrhvtjraw.dkim.amazonses.com` |
+| CNAME | `3j3zp5z45u2s6e6aexso3fgswz6c6bsz._domainkey.ventusai.com` | `3j3zp5z45u2s6e6aexso3fgswz6c6bsz.dkim.amazonses.com` |
+| CNAME | `zy5a4xe4rmvkzikbquyoucsystmx77sv._domainkey.ventusai.com` | `zy5a4xe4rmvkzikbquyoucsystmx77sv.dkim.amazonses.com` |
+
+Verify status once DNS propagates:
+
+```bash
+aws sesv2 get-email-identity --email-identity ventusai.com --region us-east-1 \
+  --query 'DkimAttributes.Status'   # -> "SUCCESS"
+```
+
+Then deploy so the coworker **replies from** the root address while still
+**receiving** on the demo subdomain (the stack now decouples these):
+
+```bash
+npm run deploy -- VentusCoworkerStack \
+  -c coworkerRegion=us-east-1 \
+  -c coworkerEmailDomain=demo.ventusai.com \
+  -c coworkerFrom=coworker@ventusai.com \
+  -c coworkerDryRun=false -c coworkerDemoOpen=true \
+  -c coworkerAlertEmail=zoheb@ventuscard.com
+```
+
+### 2. Receive *at* `coworker@ventusai.com`
+
+Pick one (root MX stays on Proofpoint either way):
+
+- **Option A — M365 forward (fast, good for the demo).** In Microsoft 365, create
+  `coworker@ventusai.com` (shared mailbox or mail-enabled contact) and
+  forward/redirect it to `coworker@demo.ventusai.com` (which SES already
+  receives). The inbound Lambda processes the forwarded message and replies from
+  `coworker@ventusai.com` (per step 1). If M365/Proofpoint blocks external
+  auto-forwarding, use a **transport (mail flow) rule** to redirect instead.
+- **Option B — Microsoft Graph subscription (clean, SOC2-friendly, long-term).**
+  Register an Entra app with `Mail.Read` on the `coworker@ventusai.com` mailbox,
+  create a change-notification subscription to a webhook, and hand new messages to
+  the coworker turn. No forwarding, no MX changes, full auditability. Preferred
+  once past the demo.
+
+> Why not just point the root MX at SES? Because Proofpoint → M365 carries real
+> `ventusai.com` mail. Forwarding (A) or Graph (B) adds the coworker without
+> touching that flow.
 
 ## Deploy
 

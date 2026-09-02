@@ -4,14 +4,34 @@
 //
 //  1. Deterministic, model-free logic (intent tool schema, evidence retrieval,
 //     audience build). These are the auditable core: given the same portfolio,
-//     they always produce the same ranked candidates, benefit bands, and
-//     suppression decisions. Fully offline-testable.
+//     they always produce the same ranked candidates, the same benefit figures,
+//     and the same exclusions. Fully offline-testable.
 //
 //  2. Model-backed narration (prep, summary, reply prose). These wrap the model
 //     gateway and are injected so tests can stub them.
 //
-// All external/inferred attributes are returned tagged so render.mjs can badge
-// them; benefit figures are modeled estimates carrying an explicit assumption.
+// Benefit figures come from benefit.mjs, which distinguishes a computed figure
+// (this household's transactions against the published rate card, net of what
+// they earn today and net of the fee) from an estimate that rests on an
+// assumption. Callers must carry that distinction through to the reader.
+//
+// Internal signal keys never leave this module in raw form: labels.mjs converts
+// them to phrases an advisor can read aloud.
+
+import {
+  NON_CONSUMPTION_SUBCATEGORIES,
+  benefitFor,
+  benefitRank,
+  headlineBenefit,
+} from './benefit.mjs';
+import {
+  exclusionLabel,
+  isBalanceDerived,
+  lifeEventLabel,
+  outreachWindow,
+  pluralize,
+  signalLabel,
+} from './labels.mjs';
 
 // ---------------------------------------------------------------------------
 // Intent classification
@@ -216,10 +236,25 @@ export function scanHouseholdMentions(text, households = []) {
 // Evidence retrieval (deterministic)
 // ---------------------------------------------------------------------------
 
+/** Strength words for a behavioral signal level, so "MED" never reaches a reader. */
+function levelWord(level) {
+  switch (String(level || '').toUpperCase()) {
+    case 'HIGH':
+      return 'strong';
+    case 'MED':
+    case 'MEDIUM':
+      return 'moderate';
+    case 'LOW':
+      return 'light';
+    default:
+      return 'observed';
+  }
+}
+
 /**
- * Gather the modeled evidence we hold on a household: signals + a compact
- * transaction rollup. Returns plain strings ready to bullet in a reply; each is
- * a modeled attribute (the caller badges them).
+ * Gather the evidence we hold on a household: signals plus a compact
+ * transaction rollup. Returns plain sentences ready to bullet in a reply, with
+ * every internal key already converted to a readable phrase.
  */
 export function retrieveEvidence({ provider, householdId }) {
   const household = provider.getHousehold(householdId);
@@ -229,18 +264,21 @@ export function retrieveEvidence({ provider, householdId }) {
   const bullets = [];
 
   for (const ev of signals.life_events || []) {
-    bullets.push(`Life event: ${ev.type} (${ev.confidence_band} confidence) - ${ev.evidence}`);
+    bullets.push(`${lifeEventLabel(ev.type)}, ${ev.confidence_band} confidence. ${ev.evidence}`);
   }
   for (const b of signals.behavioral || []) {
-    bullets.push(`${b.name} [${b.level}] - ${b.evidence}`);
+    bullets.push(`${b.name}, ${levelWord(b.level)}. ${b.evidence}`);
   }
   for (const r of signals.risk || []) {
-    bullets.push(`Risk: ${r.type} [${r.band}] - ${r.evidence}`);
+    const label = exclusionLabel(r.type);
+    bullets.push(
+      `${label.charAt(0).toUpperCase()}${label.slice(1)}, which the institution treats as an exclusion for some products. ${r.evidence}`
+    );
   }
   const fin = signals.financial || {};
   if (fin.idle_cash_usd != null) {
     bullets.push(
-      `Financial posture: ${fin.posture}; idle cash ~$${Number(fin.idle_cash_usd).toLocaleString('en-US')}, monthly surplus ~$${Number(fin.monthly_surplus_usd).toLocaleString('en-US')}.`
+      `Posture is ${fin.posture}, with about $${Number(fin.idle_cash_usd).toLocaleString('en-US')} sitting uninvested and roughly $${Number(fin.monthly_surplus_usd).toLocaleString('en-US')} of monthly surplus.`
     );
   }
 
@@ -248,7 +286,7 @@ export function retrieveEvidence({ provider, householdId }) {
 }
 
 // ---------------------------------------------------------------------------
-// Audience build (deterministic back-test) -- the auditable centerpiece
+// Audience build (deterministic screen) -- the auditable centerpiece
 // ---------------------------------------------------------------------------
 
 const IDLE_CASH_TOKEN_THRESHOLD = 25000;
@@ -323,75 +361,83 @@ function fitScore(product, tokens) {
 }
 
 /**
- * Modeled annual benefit for a household/product pair. Transparent, category-
- * driven heuristics; every branch returns an explicit assumption string. This
- * is a modeled estimate, never a promise.
+ * Annual benefit for a household/product pair. Delegates to benefit.mjs, which
+ * computes card benefit from the household's own ledger and falls back to a
+ * clearly-labeled estimate where the value depends on facts we do not hold.
  */
-export function modeledBenefit({ product, household, signals, provider }) {
-  const fin = signals.financial || {};
-  const idle = Number(fin.idle_cash_usd) || 0;
-  switch (product.category) {
-    case 'Deposits': {
-      if (product.id === 'high-yield-savings') {
-        const delta = 0.0425 - 0.005; // HYSA APY vs typical checking yield
-        return {
-          usd: idle * delta,
-          assumption: `Idle cash (~$${idle.toLocaleString('en-US')}) at 4.25% APY vs ~0.5% today.`,
-        };
-      }
-      return { usd: 0, assumption: 'No direct dollar benefit modeled for this deposit product.' };
-    }
-    case 'Cards': {
-      const spend = annualTravelDiningSpend({ provider, householdId: household.id });
-      return {
-        usd: spend * 0.02, // ~2% net reward uplift on category spend
-        assumption: `~2% net rewards uplift on ~$${Math.round(spend).toLocaleString('en-US')}/yr travel & dining spend.`,
-      };
-    }
-    case 'Wealth': {
-      // Value of putting idle cash to work under advice vs sitting in cash.
-      const delta = 0.04;
-      return {
-        usd: idle * delta,
-        assumption: `~4% modeled annual return delta on ~$${idle.toLocaleString('en-US')} currently idle.`,
-      };
-    }
-    case 'Lending': {
-      if (product.id === 'student-loan-refi' && fin.student_loan_balance_usd) {
-        const rate = Number(fin.student_loan_rate_pct) || 8.9;
-        const refi = 6.5;
-        const bal = Number(fin.student_loan_balance_usd);
-        return {
-          usd: (bal * (rate - refi)) / 100,
-          assumption: `Refi ~$${bal.toLocaleString('en-US')} from ${rate}% to ~${refi}%.`,
-        };
-      }
-      return { usd: 0, assumption: 'Benefit depends on draw amount/underwriting; not estimable here.' };
-    }
-    default:
-      return { usd: 0, assumption: 'No dollar benefit modeled; value is planning/protection.' };
-  }
+export function annualBenefit({ product, household, signals, provider }) {
+  return benefitFor({
+    product,
+    household,
+    signals,
+    transactions: provider.getTransactions(household.id),
+    catalog: provider.getCatalogDocument?.() || {},
+  });
 }
 
-function annualTravelDiningSpend({ provider, householdId }) {
-  const txns = provider.getTransactions(householdId) || [];
-  const windowDays = 90; // fixtures cover ~one quarter
-  const inScope = txns.filter(
-    (t) =>
-      t.direction === 'debit' &&
-      (/(travel|dining|restaurant|food)/i.test(t.pillar || '') ||
-        /(dining|restaurant|flight|lodging|hotel)/i.test(t.subcategory || ''))
-  );
-  const sum = inScope.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
-  return (sum / windowDays) * 365;
+/**
+ * The signal that leads a household's story for this product. Drives both the
+ * digest's signal column and its outreach window.
+ *
+ * Preference order matters. A signal that actually drove the match comes first,
+ * because the column has to explain why the row is there: showing "approaching
+ * retirement" next to a travel card invites the obvious question of what one
+ * has to do with the other. Only when no matched signal is a life event or a
+ * behavioral pattern do we fall back to an unmatched life event, which is at
+ * least real context, and to a balance last.
+ */
+export function leadSignal({ signals, matched = [] }) {
+  const events = signals.life_events || [];
+  const behavioral = signals.behavioral || [];
+
+  const matchedEvent = events.find((e) => matched.includes(e.type));
+  if (matchedEvent) {
+    return {
+      type: matchedEvent.type,
+      label: lifeEventLabel(matchedEvent.type),
+      evidence: matchedEvent.evidence,
+    };
+  }
+  const matchedBehavioral = behavioral.find((b) => matched.includes(b.name));
+  if (matchedBehavioral) {
+    return {
+      type: matchedBehavioral.name,
+      label: matchedBehavioral.name,
+      evidence: matchedBehavioral.evidence,
+    };
+  }
+  if (events[0]) {
+    return { type: events[0].type, label: lifeEventLabel(events[0].type), evidence: events[0].evidence };
+  }
+  if (behavioral[0]) {
+    return { type: behavioral[0].name, label: behavioral[0].name, evidence: behavioral[0].evidence };
+  }
+  const first = matched[0];
+  return first ? { type: first, label: signalLabel(first), evidence: null } : null;
+}
+
+/**
+ * Signals that actually support pitching this product to this household: the
+ * matched targeting signals plus any life event on file. Used by the digest to
+ * refuse rows that rest on a single data point.
+ */
+function supportingSignals({ signals, matched = [] }) {
+  const out = new Set(matched);
+  for (const ev of signals.life_events || []) out.add(ev.type);
+  return [...out];
 }
 
 /**
  * Build a ranked target audience for a product across an advisor's book.
- * Deterministic: fit score, then modeled benefit, breaking ties by household id.
- * Households hitting a hard disqualifier are suppressed with the reason.
  *
- * @returns {{ product, candidates, suppressed, considered }}
+ * Every household in the book comes back in exactly one bucket: a fit, an
+ * exclusion the institution applies, or no signal. An advisor asked to trust a
+ * shortlist needs to see the whole denominator reconciled, otherwise the list
+ * is an assertion rather than a screen.
+ *
+ * Deterministic: fit score, then benefit, breaking ties by household id.
+ *
+ * @returns {{ product, candidates, excluded, no_signal, considered, reconciliation }}
  */
 export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
   const product = resolveProduct(provider.getCatalog() || [], productId);
@@ -401,7 +447,8 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
   if (!advisor) throw new Error(`Unknown advisor: ${advisorId}`);
 
   const candidates = [];
-  const suppressed = [];
+  const excluded = [];
+  const noSignal = [];
 
   for (const householdId of advisor.household_ids) {
     const household = provider.getHousehold(householdId);
@@ -411,51 +458,120 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
 
     const dq = findDisqualifier(product, tokens, signals);
     if (dq) {
-      suppressed.push({ household_id: householdId, household_name: household.name, reason: dq });
+      excluded.push({
+        household_id: householdId,
+        household_name: household.name,
+        reason: dq,
+        reason_label: exclusionLabel(dq),
+      });
       continue;
     }
 
     const { score, matched } = fitScore(product, tokens);
-    if (score < minFit) continue;
+    if (score < minFit) {
+      noSignal.push({ household_id: householdId, household_name: household.name });
+      continue;
+    }
 
-    const benefit = modeledBenefit({ product, household, signals, provider });
+    const benefit = annualBenefit({ product, household, signals, provider });
+    const headline = headlineBenefit(benefit);
+
+    // A fee-bearing product whose computed benefit does not clear the fee is not
+    // an opportunity, it is a worse deal than what they hold. Say nothing rather
+    // than dress up a negative number.
+    if (benefit.mode === 'computed' && benefit.baseline === 'known' && benefit.net_usd <= 0) {
+      noSignal.push({
+        household_id: householdId,
+        household_name: household.name,
+        reason_label: 'the card does not out-earn what they already hold once the fee is counted',
+      });
+      continue;
+    }
+
+    const support = supportingSignals({ signals, matched });
+    const lead = leadSignal({ signals, matched });
     candidates.push({
       household_id: householdId,
       household_name: household.name,
+      primary_contact: household.primary_contact || null,
+      // Advisor-entered, never inferred. Drives the voice of any draft we write
+      // for this household, so an advisor can always answer why it sounds the
+      // way it does.
+      tone: household.communication_tone || 'warm_personal',
       fit_score: score,
       matched_signals: matched,
-      modeled_annual_benefit_usd: Math.round(benefit.usd),
-      benefit_assumption: benefit.assumption,
+      matched_signal_labels: matched.map(signalLabel),
+      supporting_signals: support,
+      supporting_signal_count: support.length,
+      lead_signal: lead,
+      outreach_window: outreachWindow(lead?.type),
+      benefit,
+      annual_benefit_usd: headline ? Math.round(headline.usd) : 0,
+      benefit_precision: headline?.precision || 'none',
+      benefit_qualifier: headline?.qualifier || null,
+      benefit_outcome: headline?.outcome || null,
+      benefit_basis: benefit.basis || benefit.assumption || '',
       rationale: matched.length
-        ? `Matches ${matched.join(', ')}.`
-        : 'Qualifies on product targeting.',
+        ? `Matches ${matched.map(signalLabel).join(', ')}.`
+        : 'Fits the product targeting.',
     });
   }
 
+  // Strongest first, and "strongest" means most defensible before it means
+  // largest. A stated net is actionable; a gross needs a discovery conversation
+  // first, so rows where we can see the household's current card lead, and
+  // comparing a gross against a net as if they were the same number would
+  // flatter the wrong rows. Only within one class does the dollar figure
+  // decide, then fit as the tiebreak. Leading with fit instead would scramble
+  // the money column, and an advisor reading top to bottom would rightly ask
+  // what the list is ranked by.
   candidates.sort(
     (a, b) =>
+      benefitRank(a.benefit_qualifier) - benefitRank(b.benefit_qualifier) ||
+      b.annual_benefit_usd - a.annual_benefit_usd ||
       b.fit_score - a.fit_score ||
-      b.modeled_annual_benefit_usd - a.modeled_annual_benefit_usd ||
       (a.household_id < b.household_id ? -1 : 1)
   );
 
+  const considered = advisor.household_ids.length;
   return {
     product: { id: product.id, name: product.name, category: product.category },
     candidates,
-    suppressed,
-    considered: advisor.household_ids.length,
+    excluded,
+    no_signal: noSignal,
+    considered,
+    reconciliation: {
+      considered,
+      fits: candidates.length,
+      excluded: excluded.length,
+      no_signal: noSignal.length,
+    },
   };
 }
 
 /**
  * Build a proactive digest for an advisor: scan the whole catalog against their
- * book and, per household, keep the single best (highest modeled benefit)
- * non-suppressed opportunity. Deterministic; used by the scheduled digest sender.
+ * book and keep the single best opportunity per household.
  *
- * @returns {{ advisorId, items, scannedProducts }}
+ * A digest that lists everything it found is a report, and an advisor stops
+ * opening a report. Three rules decide what earns a row:
+ *
+ *   1. At least two supporting signals. One data point is a coincidence.
+ *   2. Not every supporting signal may be a restatement of a balance the
+ *      advisor can already see on the account screen.
+ *   3. No single product may occupy more than half the rows, so the digest
+ *      cannot collapse into a campaign for whatever product happens to have
+ *      the most generous arithmetic.
+ *
+ * Ordering leads with rows whose figure is computed rather than estimated:
+ * those are the ones that survive being questioned.
+ *
+ * @returns {{ advisorId, items, considered, withOpportunity, scannedProducts, dropped }}
  */
 export function buildAdvisorDigest({ provider, advisorId, maxItems = 5 }) {
   const catalog = provider.getCatalog() || [];
+  const advisor = provider.getAdvisors().find((a) => a.id === advisorId);
+  const considered = advisor?.household_ids?.length || 0;
   const bestByHousehold = new Map();
 
   for (const product of catalog) {
@@ -471,25 +587,94 @@ export function buildAdvisorDigest({ provider, advisorId, maxItems = 5 }) {
         household_name: c.household_name,
         product: audience.product,
         fit_score: c.fit_score,
-        modeled_annual_benefit_usd: c.modeled_annual_benefit_usd,
+        annual_benefit_usd: c.annual_benefit_usd,
+        benefit_precision: c.benefit_precision,
+        benefit_qualifier: c.benefit_qualifier,
+        benefit_basis: c.benefit_basis,
+        benefit_mode: c.benefit.mode,
+        benefit_outcome: c.benefit_outcome,
+        lead_signal: c.lead_signal,
+        outreach_window: c.outreach_window,
+        supporting_signals: c.supporting_signals,
+        supporting_signal_count: c.supporting_signal_count,
         rationale: c.rationale,
-        benefit_assumption: c.benefit_assumption,
       };
       const existing = bestByHousehold.get(c.household_id);
-      if (!existing || item.modeled_annual_benefit_usd > existing.modeled_annual_benefit_usd) {
+      if (!existing || beatsForDigest(item, existing)) {
         bestByHousehold.set(c.household_id, item);
       }
     }
   }
 
-  const items = [...bestByHousehold.values()].sort(
+  const withOpportunity = bestByHousehold.size;
+  const dropped = { thin_signal: 0, balance_only: 0, product_concentration: 0 };
+
+  const qualityPassed = [...bestByHousehold.values()].filter((item) => {
+    if (item.supporting_signal_count < 2) {
+      dropped.thin_signal++;
+      return false;
+    }
+    if (item.supporting_signals.every((s) => isBalanceDerived(s))) {
+      dropped.balance_only++;
+      return false;
+    }
+    return true;
+  });
+
+  qualityPassed.sort(
     (a, b) =>
-      b.modeled_annual_benefit_usd - a.modeled_annual_benefit_usd ||
+      benefitRank(a.benefit_qualifier) - benefitRank(b.benefit_qualifier) ||
+      b.annual_benefit_usd - a.annual_benefit_usd ||
       b.fit_score - a.fit_score ||
       (a.household_id < b.household_id ? -1 : 1)
   );
 
-  return { advisorId, items: items.slice(0, maxItems), scannedProducts: catalog.length };
+  const perProductCap = Math.max(1, Math.floor(maxItems / 2));
+  const perProduct = new Map();
+  const items = [];
+  for (const item of qualityPassed) {
+    if (items.length >= maxItems) break;
+    const used = perProduct.get(item.product.id) || 0;
+    if (used >= perProductCap) {
+      dropped.product_concentration++;
+      continue;
+    }
+    perProduct.set(item.product.id, used + 1);
+    items.push(item);
+  }
+
+  return {
+    advisorId,
+    items,
+    considered,
+    withOpportunity,
+    scannedProducts: catalog.length,
+    dropped,
+  };
+}
+
+/**
+ * Which of two opportunities for the same household earns the digest row.
+ *
+ * Not simply the larger number. A computed figure that survives being
+ * questioned beats a larger one resting on an assumed market return, because
+ * the moment an advisor cannot defend a figure in front of a client the whole
+ * digest loses its credibility. Size only decides within the same tier.
+ */
+function beatsForDigest(candidate, incumbent) {
+  const delta = benefitRank(candidate.benefit_qualifier) - benefitRank(incumbent.benefit_qualifier);
+  if (delta !== 0) return delta < 0;
+  return candidate.annual_benefit_usd > incumbent.annual_benefit_usd;
+}
+
+/**
+ * Subject line for the scheduled digest. States the numerator and the
+ * denominator, because "5 opportunities" out of an unstated book size is a
+ * number an advisor cannot calibrate against.
+ */
+export function digestSubject({ items = [], considered = 0 }) {
+  if (!items.length) return 'Daily digest: nothing new worth your time today';
+  return `Daily digest: ${items.length} of ${pluralize(considered, 'household')} worth a look`;
 }
 
 // ---------------------------------------------------------------------------
@@ -537,34 +722,183 @@ export async function generatePrep({ gateway, provider, householdId }) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Outreach drafting
+// ---------------------------------------------------------------------------
+
 /**
- * Draft short outreach copy for a set of already-qualified households. This is
- * model-backed narration, but it is *grounded* on the deterministic audience
- * result: names, fit rationale, and modeled benefit bands are passed in and must
- * be used as given. The model is explicitly told not to invent figures. On any
- * failure it returns a deterministic per-household fallback so a draft always
- * goes out.
+ * Voice instructions per advisor-entered tone. The tone comes from the
+ * household record, not from an inference about the client, so an advisor asked
+ * why a draft sounds a certain way has a concrete answer.
+ */
+const TONE_GUIDANCE = {
+  warm_personal:
+    'Use their first name. One warm opening line, then the substance. Conversational; contractions are fine.',
+  direct_professional:
+    'No preamble. The first sentence states why you are writing. Short sentences, no pleasantries beyond the greeting.',
+  formal_reserved:
+    'Address them by full name. Measured phrasing, complete sentences, no contractions, no exclamation points.',
+  analytical:
+    'Lead with the mechanism in plain terms. Minimal relationship language. Explain what changes and why.',
+};
+
+/**
+ * Subject lines, deterministic per tone and product category, all under 40
+ * characters so they survive a phone lock screen. Generated rather than
+ * model-written because subject length and consistency are exactly the things
+ * a model will not hold, and a subject is the only part of a draft an advisor
+ * is likely to send unedited.
+ */
+const TONE_SUBJECTS = {
+  warm_personal: {
+    Cards: 'A thought on how you travel',
+    Deposits: 'An idea for your savings',
+    Wealth: 'Something worth a conversation',
+    Lending: 'An option on your loan',
+    Insurance: 'A quick coverage question',
+  },
+  direct_professional: {
+    Cards: 'Your card spend, one change',
+    Deposits: 'Your cash is under-earning',
+    Wealth: 'Your cash balance, next step',
+    Lending: 'A lower rate is available',
+    Insurance: 'Coverage gap to close',
+  },
+  formal_reserved: {
+    Cards: 'Regarding your card arrangement',
+    Deposits: 'Regarding your deposit accounts',
+    Wealth: 'Regarding your portfolio',
+    Lending: 'Regarding your loan terms',
+    Insurance: 'Regarding your coverage',
+  },
+  analytical: {
+    Cards: 'The math on your card spend',
+    Deposits: 'The yield on your cash',
+    Wealth: 'What your idle cash costs',
+    Lending: 'Your rate versus the market',
+    Insurance: 'Sizing your coverage need',
+  },
+};
+
+/** Subject line for a household's tone and the product category. */
+export function outreachSubject({ tone, category }) {
+  const byTone = TONE_SUBJECTS[tone] || TONE_SUBJECTS.warm_personal;
+  return byTone[category] || 'Something worth a conversation';
+}
+
+/**
+ * Terms that must never reach a client. Modeled signal names, internal keys,
+ * and any dollar figure: the client half of a draft is not the place to
+ * disclose that we inferred a life event from their spending, and an advisor
+ * must not send a financial figure that nobody approved.
+ */
+function forbiddenClientTerms(candidate) {
+  const terms = new Set(['modeled', 'signal', 'audience', 'fit score', 'idle cash', 'wallet share']);
+  for (const s of candidate.supporting_signals || []) terms.add(String(s).toLowerCase());
+  for (const s of candidate.matched_signals || []) terms.add(String(s).toLowerCase());
+  return [...terms];
+}
+
+/**
+ * Check a client-facing draft for anything that must not go to a client.
+ * Returns the violations so the caller can fall back rather than send.
  *
- * @param {object} opts
- * @param {object} opts.gateway
- * @param {object} opts.product   { id, name, category }
- * @param {object[]} opts.candidates  audience candidates (subset already selected)
- * @returns {Promise<{drafts: {household_id, household_name, text}[]}>}
+ * @returns {string[]} empty when the draft is clean
+ */
+export function validateClientDraft(text, candidate = {}) {
+  const body = String(text || '');
+  const lower = body.toLowerCase();
+  const violations = [];
+
+  // No dollar figures in the client half, full stop. Whether the number is
+  // computed or estimated, it has not been approved for client disclosure.
+  if (/\$\s?\d/.test(body)) violations.push('dollar_figure');
+  if (/\b\d+(\.\d+)?\s?%/.test(body)) violations.push('percentage');
+
+  for (const term of forbiddenClientTerms(candidate)) {
+    if (term.length > 3 && lower.includes(term)) violations.push(`internal_term:${term}`);
+  }
+  if (/[a-z0-9]+_[a-z0-9]+/.test(body)) violations.push('internal_key');
+  return violations;
+}
+
+/**
+ * The advisor's own briefing for a draft. Fully deterministic: it inherits the
+ * exact basis string the benefit calculator produced rather than asking a model
+ * to restate a number, because a restated figure is a figure that can drift.
+ */
+function advisorRationale(candidate) {
+  const parts = [];
+  if (candidate.lead_signal?.evidence) {
+    parts.push(candidate.lead_signal.evidence);
+  } else if (candidate.lead_signal?.label) {
+    parts.push(`${candidate.lead_signal.label}.`);
+  }
+  if (candidate.benefit_basis) parts.push(candidate.benefit_basis);
+  if (candidate.outreach_window?.basis) parts.push(candidate.outreach_window.basis);
+  return parts.join(' ');
+}
+
+/** Deterministic client body, used as the fallback and when validation fails. */
+function fallbackClientBody({ candidate, product }) {
+  const name = clientFirstName(candidate);
+  const outcome = candidate.benefit_qualifier === 'outcome';
+  const opening =
+    candidate.tone === 'formal_reserved'
+      ? `Dear ${candidate.primary_contact || name},`
+      : `Hi ${name},`;
+  const middle = outcome
+    ? `I was going through your accounts this week and there is a conversation worth having about ${product.name.toLowerCase()}.`
+    : `I was going through your accounts this week, and based on how you have actually been spending, ${product.name} looks like it would work better for you than what you have now.`;
+  return `${opening}
+
+${middle} I have run the numbers and would rather walk you through them than put them in an email.
+
+Do you have twenty minutes this week or next?`;
+}
+
+function clientFirstName(candidate) {
+  const contact = String(candidate.primary_contact || '').trim();
+  if (contact) return contact.split(/\s+/)[0];
+  return String(candidate.household_name || '').replace(/\s+household$/i, '').trim() || 'there';
+}
+
+/**
+ * Draft outreach for already-screened households, as two separate halves.
+ *
+ * The client half is model-written for voice, but it is constrained hard: the
+ * model never sees a dollar figure or a signal name, and anything it returns is
+ * validated before use. The advisor half is not model-written at all, so the
+ * arithmetic in the briefing is the same arithmetic the calculator produced.
+ *
+ * The advisor is the subject of every sentence that involves noticing
+ * something. "I was going through your accounts" is a thing an advisor did.
+ * "Our analysis identified you" is a thing that happened to a client, and it is
+ * the sentence that makes a client feel surveilled.
+ *
+ * @returns {Promise<{drafts: {household_id, household_name, subject, client_body, rationale, tone, window, validation}[]}>}
  */
 export async function generateOutreach({ gateway, product, candidates = [] }) {
   const selected = candidates.slice(0, 3);
   if (!selected.length) return { drafts: [] };
 
+  // Deliberately narrow: no figures, no signal names, nothing inferred. The
+  // model gets the relationship facts it needs to write in the right voice and
+  // nothing it could leak.
   const context = {
-    product,
+    product: { name: product.name, category: product.category, what_it_does: product.tagline },
     households: selected.map((c) => ({
       household_id: c.household_id,
-      household_name: c.household_name,
-      rationale: c.rationale,
-      modeled_annual_benefit_usd: c.modeled_annual_benefit_usd,
-      benefit_assumption: c.benefit_assumption,
+      client_first_name: clientFirstName(c),
+      client_full_name: c.primary_contact || c.household_name,
+      tone: c.tone,
+      tone_guidance: TONE_GUIDANCE[c.tone] || TONE_GUIDANCE.warm_personal,
+      reason_to_reach_out: c.benefit_qualifier === 'outcome' ? 'a planning conversation' : 'their recent spending pattern',
     })),
   };
+
+  const byId = new Map(selected.map((c) => [c.household_id, c]));
+  let modelDrafts = new Map();
 
   try {
     const { response } = await gateway.chatCompletion({
@@ -575,11 +909,14 @@ export async function generateOutreach({ gateway, product, candidates = [] }) {
         {
           role: 'system',
           content:
-            'You draft short, warm, compliant client-outreach emails for a wealth advisor. ' +
-            'For each household in the provided JSON, write a 3-5 sentence draft the advisor could send. ' +
-            'Use ONLY the facts provided; never invent dollar figures, rates, or claims. ' +
-            'When referencing a modeled benefit, describe it as an estimate to review, not a promise, and do not state a precise number. ' +
-            'Return a JSON object: {"drafts":[{"household_id":"...","text":"..."}]} and nothing else.',
+            'You write the client-facing half of an outreach email that a wealth advisor will review and send under their own name. ' +
+            'Write in the advisor\'s first person: the advisor is the one who reviewed the accounts and noticed something. ' +
+            'Never write as a system, a model, or an analysis. Never say the client was identified, flagged, selected, or matched. ' +
+            'Follow each household\'s tone_guidance exactly. Three to five sentences. End with a request for a short conversation. ' +
+            'Hard rules you must not break: include no dollar amounts, no percentages, and no numbers of any kind. ' +
+            'Do not describe how the advisor knows what they know beyond having looked at the account. ' +
+            'Do not mention data, signals, patterns being detected, or any internal terminology. ' +
+            'Return a JSON object: {"drafts":[{"household_id":"...","body":"..."}]} and nothing else.',
         },
         { role: 'user', content: JSON.stringify(context) },
       ],
@@ -590,49 +927,50 @@ export async function generateOutreach({ gateway, product, candidates = [] }) {
       const raw = data.choices?.[0]?.message?.content?.trim();
       if (raw) {
         const parsed = JSON.parse(raw);
-        const byId = new Map(selected.map((c) => [c.household_id, c]));
-        const drafts = (parsed.drafts || [])
-          .filter((d) => d && d.text && byId.has(d.household_id))
-          .map((d) => ({
-            household_id: d.household_id,
-            household_name: byId.get(d.household_id).household_name,
-            text: String(d.text).trim(),
-          }));
-        if (drafts.length) return { drafts };
+        for (const d of parsed.drafts || []) {
+          if (d && d.body && byId.has(d.household_id)) {
+            modelDrafts.set(d.household_id, String(d.body).trim());
+          }
+        }
       }
     }
   } catch {
-    /* fall through to deterministic fallback */
+    /* fall through: every household still gets a deterministic draft */
   }
 
-  return {
-    drafts: selected.map((c) => ({
+  const drafts = selected.map((c) => {
+    const proposed = modelDrafts.get(c.household_id);
+    const violations = proposed ? validateClientDraft(proposed, c) : ['no_model_output'];
+    const clientBody = violations.length ? fallbackClientBody({ candidate: c, product }) : proposed;
+    return {
       household_id: c.household_id,
       household_name: c.household_name,
-      text:
-        `Hi ${firstNameFromHousehold(c.household_name)}, I was reviewing your accounts and think ${product.name} could be a good fit given ${lowerFirst(c.rationale)} ` +
-        `There may be a meaningful annual benefit worth reviewing together. Would you be open to a quick call this week to walk through it? No obligation — just want to make sure you're not leaving value on the table.`,
-    })),
-  };
-}
+      subject: outreachSubject({ tone: c.tone, category: product.category }),
+      client_body: clientBody,
+      rationale: advisorRationale(c),
+      tone: c.tone,
+      window: c.outreach_window?.label || null,
+      validation: { violations, used_fallback: violations.length > 0 },
+    };
+  });
 
-function firstNameFromHousehold(householdName) {
-  // "Okafor Household" -> "Okafor"; fall back to the whole string.
-  return String(householdName || '').replace(/\s+household$/i, '').trim() || 'there';
-}
-
-function lowerFirst(s) {
-  const str = String(s || '').trim();
-  return str ? str.charAt(0).toLowerCase() + str.slice(1) : '';
+  return { drafts };
 }
 
 /**
- * Summarize a household's observed spend into top pillars and merchants (debits
- * only) over the fixture window. Deterministic; used to ground free-form answers
- * like "what does this household like to spend on?".
+ * Summarize a household's observed spend into top pillars and merchants over
+ * the ledger window. Deterministic; used to ground free-form answers like
+ * "what does this household like to spend on?".
+ *
+ * Money moved rather than consumed is excluded. A household running $4,000 a
+ * month into savings would otherwise show up as spending most of its money on
+ * "Financial & Aspirational", which is both true and useless.
  */
-export function summarizeSpend(transactions = []) {
-  const debits = transactions.filter((t) => t.direction === 'debit');
+export function summarizeSpend(transactions = [], { exclude = NON_CONSUMPTION_SUBCATEGORIES } = {}) {
+  const excluded = new Set(exclude);
+  const debits = transactions.filter(
+    (t) => t.direction === 'debit' && !excluded.has(t.subcategory)
+  );
   const byPillar = {};
   const byMerchant = {};
   for (const t of debits) {
@@ -652,13 +990,16 @@ export function summarizeSpend(transactions = []) {
 
 export const QA_SYSTEM =
   'You are Ventus Coworker, an AI teammate for a wealth advisor, replying by email in a warm, concise, peer tone. ' +
-  'Answer the advisor\'s question using ONLY the JSON context provided (household signals, observed spend, catalog, book, and recent conversation). ' +
+  "Answer the advisor's question using ONLY the JSON context provided (household signals, observed spend, catalog, book, and recent conversation). " +
   'Rules you must follow: ' +
   '(1) Never invent facts, dollar figures, rates, names, or attributes that are not in the context. ' +
-  '(2) Behavioral/life-event/risk signals are third-party MODELED inferences — say "modeled" or "looks like" when you cite them, not as verified fact. ' +
-  '(3) Observed spend figures are real transaction sums over roughly a 3-month window; you may cite them, noting the window. ' +
-  '(4) If the answer is not in the context (e.g. account numbers, live market data, anything you were not given), say plainly you do not have that, and offer what you CAN do (build an audience, prep a household, pull evidence, draft outreach, or recap). ' +
-  '(5) Keep it to a few sentences and end with a light, relevant next step. Do not use headers or markdown.';
+  '(2) Life events and behavioral patterns are inferred from spending, not verified facts. Say "looks like" or "appears to be" when you cite one. ' +
+  '(3) Observed spend figures are real transaction sums over the window named in the context. You may cite them, and you should name the window when you do. ' +
+  '(4) If the answer is not in the context, such as account numbers or live market data, say plainly that you do not have it, then offer what you can do: screen the book for a product, prep a household, pull what we hold on one, draft outreach, or recap the thread. ' +
+  '(5) Never describe your own internal workings. Do not mention tools, tasks, classifiers, confidence scores, fixtures, or what you did or did not manage to run. ' +
+  '(6) Never refer to content as if you had already sent it when you have not. ' +
+  '(7) Keep it to a few sentences and end with exactly one next step. Do not offer two. Do not use headers or markdown. ' +
+  '(8) Do not use em dashes.';
 
 /**
  * Answer a free-form advisor question, grounded strictly on assembled context.
@@ -676,7 +1017,7 @@ export async function answerQuestion({ gateway, question, context }) {
         { role: 'system', content: QA_SYSTEM },
         {
           role: 'user',
-          content: `Question: ${question}\n\nContext (JSON — the only facts you may use):\n${JSON.stringify(context)}`,
+          content: `Question: ${question}\n\nContext (JSON, the only facts you may use):\n${JSON.stringify(context)}`,
         },
       ],
     });
