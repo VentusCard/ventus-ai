@@ -1,9 +1,11 @@
+import { useState } from "react";
 import {
   Boxes,
   Radar,
   Megaphone,
   UserCheck,
   ChevronRight,
+  ChevronDown,
   Smartphone,
   Mail,
   MessageSquare,
@@ -215,50 +217,79 @@ function ChannelTile() {
 }
 
 export function FlowGovernanceCard() {
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <TooltipProvider>
       <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
-        <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-200">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="relative flex items-center justify-center w-5 h-5">
-              <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-60 animate-ping" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+        >
+          <div className="relative flex items-center justify-center w-5 h-5 shrink-0">
+            <span className="absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-60 animate-ping" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          </div>
+
+          <span className="text-[14px] font-semibold text-slate-900 shrink-0">
+            Flow governance
+          </span>
+
+          <span className="text-[12px] text-slate-500 truncate hidden md:inline flex-1">
+            how automated flows reach customers
+          </span>
+
+          <div className="flex items-center gap-3 shrink-0 min-w-0">
+            <div className="hidden sm:flex items-center gap-2 min-w-0">
+              <span className="text-[12px] font-semibold text-slate-900 tabular-nums whitespace-nowrap">
+                {G.readySignals} of {G.signals.total} signals ready
+              </span>
+              <span className="text-[11px] text-slate-500 tabular-nums whitespace-nowrap">
+                {G.progressPct}%
+              </span>
             </div>
-            <span className="text-[14px] font-semibold text-slate-900">
-              Flow governance
-            </span>
-            <span className="text-[12px] text-slate-500 truncate hidden md:inline">
-              how automated flows reach customers
-            </span>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[12px] font-semibold text-slate-900 tabular-nums">
-              {G.readySignals} of {G.signals.total} signals ready
-            </span>
-            <span className="text-[11px] text-slate-500">
-              {G.progressPct}%
-            </span>
-          </div>
-        </div>
 
-        <div className="flex items-stretch divide-x divide-slate-100">
-          {STAGES.map((s, i) => (
-            <StageTile key={s.key} stage={s} index={i} />
-          ))}
-          <ChannelTile />
-        </div>
+            <div className="hidden sm:block w-24">
+              <div className="h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-blue-500 transition-all"
+                  style={{ width: `${G.progressPct}%` }}
+                />
+              </div>
+            </div>
 
-        <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex items-center gap-3">
-          <div className="h-2 flex-1 rounded-full bg-slate-200 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-blue-500 transition-all"
-              style={{ width: `${G.progressPct}%` }}
+            <ChevronDown
+              className={cn(
+                "w-4 h-4 text-slate-400 shrink-0 transition-transform",
+                expanded && "rotate-180"
+              )}
             />
           </div>
-          <span className="text-[11px] text-slate-500 tabular-nums shrink-0">
-            {G.progressPct}% of mapped signals have cleared both approval gates
-          </span>
-        </div>
+        </button>
+
+        {expanded && (
+          <>
+            <div className="flex items-stretch divide-x divide-slate-100 border-t border-slate-200">
+              {STAGES.map((s, i) => (
+                <StageTile key={s.key} stage={s} index={i} />
+              ))}
+              <ChannelTile />
+            </div>
+
+            <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex items-center gap-3">
+              <div className="h-2 flex-1 rounded-full bg-slate-200 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-blue-500 transition-all"
+                  style={{ width: `${G.progressPct}%` }}
+                />
+              </div>
+              <span className="text-[11px] text-slate-500 tabular-nums shrink-0">
+                {G.progressPct}% of mapped signals have cleared both approval gates
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </TooltipProvider>
   );
