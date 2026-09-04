@@ -326,52 +326,76 @@ const DEMOGRAPHIC: Record<string, SeedSignal> = {
 
 // Risk items are exclusion filters, not triggers. Each label names WHO GETS
 // REMOVED; the weight is the share of the triggered audience that still clears.
+// Pass rates are calibrated for an audience that is ALREADY signal-qualified,
+// so a healthy pre-screen clears 70-98% on any single check.
 const RISK: Record<string, SeedSignal> = {
   noOverdraft: {
     label: "Recent overdrafts",
     evidence: "Removes anyone who overdrew or bounced a payment in the last three months.",
-    weight: 0.78,
+    weight: 0.91,
   },
   healthyDti: {
     label: "Payments already stretched",
     evidence: "Removes anyone whose existing loan and card payments take up too much of what comes in each month.",
-    weight: 0.48,
+    weight: 0.82,
   },
   cleanFraud: {
-    label: "Fraud or dispute history",
-    evidence: "Removes accounts with a fraud claim or a disputed charge in the past year.",
-    weight: 0.93,
+    label: "Unresolved fraud or identity flag",
+    evidence: "Removes accounts carrying an open fraud claim or an unresolved identity check.",
+    weight: 0.97,
+  },
+  accountStanding: {
+    label: "Prior charge-off or account closed for cause",
+    evidence: "Removes anyone with a written-off balance or an account the bank previously closed for cause.",
+    weight: 0.96,
   },
   noRecentDeclines: {
     label: "Recent declined payments",
     evidence: "Removes anyone whose card or bank payments were turned down in the last two months.",
-    weight: 0.71,
+    weight: 0.94,
   },
   collateralClean: {
     label: "Missed secured-loan payments",
     evidence: "Removes anyone who has fallen behind on a mortgage or car loan.",
-    weight: 0.44,
+    weight: 0.94,
+  },
+  seriousDelinquency: {
+    label: "Serious delinquency in the last 24 months",
+    evidence: "Removes anyone 60+ days past due on any credit obligation in the past two years.",
+    weight: 0.93,
   },
   cardPaysInFull: {
     label: "Carries a revolving balance",
     evidence: "Removes anyone rolling a balance month to month or paying the card late.",
-    weight: 0.38,
+    weight: 0.86,
   },
   bizCashBuffer: {
     label: "Thin payroll cushion",
     evidence: "Removes businesses that end the month with less than one payroll run in the account.",
-    weight: 0.05,
+    weight: 0.88,
+  },
+  premiumAffordability: {
+    label: "Premium not affordable",
+    evidence: "Removes households whose monthly surplus will not carry the premium for this cover.",
+    weight: 0.85,
   },
   suitability: {
-    label: "Outside the suitability range",
-    evidence: "Removes households whose savings or steady income fall outside what this product is built for.",
-    weight: 0.29,
+    label: "Suitability profile flag",
+    evidence: "Removes households whose recorded risk profile or time horizon does not fit this product.",
+    weight: 0.9,
+  },
+  noInvestableSurplus: {
+    label: "No investable surplus",
+    evidence: "Removes households with nothing left over each month once obligations and reserves are covered.",
+    weight: 0.74,
   },
   coverageGap: {
     label: "Coverage already adequate",
     evidence: "Removes households whose insurance already tracks their income and assets.",
-    weight: 0.31,
+    weight: 0.8,
   },
+
+
 };
 
 
@@ -520,18 +544,38 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome, 1);
   }
 
-  // --- Risk / eligibility: only where the bank takes on exposure ---
-  if (underwritten) {
+  // --- Risk / eligibility ---
+  // Credit exposure, insurance underwriting, advisory suitability and plain
+  // account-standing checks are different jobs and get different filters.
+  const lendingProduct =
+    isCard ||
+    t.has("credit") ||
+    ((t.has("home") || t.has("auto") || t.has("business")) &&
+      /loan|mortgage|heloc|line of credit|financing|refi|card|lease/i.test(name));
+  const businessCredit = t.has("business") && lendingProduct;
+
+  if (t.has("insurance")) {
+    add("risk", RISK.coverageGap, 3);
+    add("risk", RISK.premiumAffordability, 3);
+    add("risk", RISK.accountStanding, 1);
+  } else if (lendingProduct) {
     add("risk", RISK.healthyDti, 3);
     if (secured) add("risk", RISK.collateralClean, 3);
-    if (isCard) add("risk", RISK.cardPaysInFull, 3);
-    if (t.has("insurance")) add("risk", RISK.coverageGap, 3);
-    if (t.has("business")) add("risk", RISK.bizCashBuffer, 3);
+    if (isCard) add("risk", RISK.seriousDelinquency, 3);
+    if (businessCredit) add("risk", RISK.bizCashBuffer, 3);
+    if (!isCard && !secured) add("risk", RISK.noRecentDeclines, 2);
     add("risk", RISK.noOverdraft, 2);
   } else if (t.has("invest") || t.has("retirement") || parentEducation) {
-    // Advisory / plan products: suitability, not credit risk.
+    // Advisory / plan products: suitability and funding capacity, not credit risk.
+    add("risk", RISK.noInvestableSurplus, 3);
     add("risk", RISK.suitability, 3);
+    add("risk", RISK.accountStanding, 1);
+  } else {
+    // Deposits, services and everything else: compliance and account standing only.
+    add("risk", RISK.accountStanding, 3);
+    add("risk", RISK.cleanFraud, 3);
   }
+
 
   // --- Extra behavioral / life-event depth ---
   if (parentEducation) {
@@ -931,6 +975,13 @@ export interface EligibilityFilter {
   passRate: number;
 }
 
+/** Guardrails so a single check — or a stack of them — can never gut an audience. */
+export const FILTER_PASS_MIN = 0.7;
+export const FILTER_PASS_MAX = 0.98;
+export const COMBINED_PASS_MIN = 0.45;
+
+
+
 
 function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: EligibilityFilter[] } {
   const authoredCopy = FLOW_MICROSEGMENTS[flow.id] ?? [];
@@ -985,7 +1036,7 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
       id: `${flow.id}--filter--${slug(s.label)}`,
       label: s.label,
       evidence: s.evidence,
-      passRate: Math.min(0.98, Math.max(0.2, s.weight ?? 0.5)),
+      passRate: Math.min(FILTER_PASS_MAX, Math.max(FILTER_PASS_MIN, s.weight ?? 0.9)),
     }));
 
   const signals = [...authored, ...triggering].sort(
@@ -1016,10 +1067,12 @@ export function expandFlowFilters(flow: ProductFlow): EligibilityFilter[] {
 
 /** Combined pass rate of the enabled eligibility filters. */
 export function filterPassRate(filters: EligibilityFilter[], enabled: Set<string>): number {
-  return filters
+  const raw = filters
     .filter((f) => enabled.has(f.id))
     .reduce((rate, f) => rate * f.passRate, 1);
+  return Math.max(COMBINED_PASS_MIN, raw);
 }
+
 
 export function groupByFamily(signals: ExpandedSignal[]): Array<[SignalFamily, ExpandedSignal[]]> {
   return SIGNAL_FAMILY_ORDER.map(
