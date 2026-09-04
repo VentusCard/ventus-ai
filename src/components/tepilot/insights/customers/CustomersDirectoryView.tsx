@@ -289,27 +289,69 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
       />
 
       {segment && (
-        <div className="flex items-center gap-2.5 rounded-lg border border-blue-200 bg-blue-50/60 px-3 py-2">
-          <Radar className="w-4 h-4 text-blue-600 shrink-0" />
-          <div className="min-w-0 flex-1">
-            <div className="text-[12px] font-semibold text-slate-900 truncate">
-              Segment exported from signal: {segment.label}
-            </div>
-            <div className="text-[11px] text-slate-600">
-              Filtered to customers carrying this signal · {fmtCount(population)} customers
-              in the book · {filtered.length} shown as a representative sample
-            </div>
+        <div className="rounded-lg border border-blue-200 bg-blue-50/60 px-3 py-2.5">
+          <div className="flex items-start gap-2.5">
+            <Radar className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[12.5px] font-semibold text-slate-900 truncate">
+                  {segment.scope === "family"
+                    ? `Segment: all ${segmentFamilyLabel} customers`
+                    : `Segment exported from signal: ${segment.label}`}
+                </span>
+                {segmentFamilyMeta && (
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10.5px] font-medium ${segmentFamilyMeta.chip}`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${segmentFamilyMeta.dot}`} />
+                    {segmentFamilyMeta.label}
+                  </span>
+                )}
+                <span
+                  className={`text-[10.5px] font-medium tabular-nums ${segment.delta >= 0 ? "text-emerald-600" : "text-rose-600"}`}
+                >
+                  {segment.delta >= 0 ? "+" : ""}
+                  {segment.delta.toFixed(1)}% · 24h
+                </span>
+              </div>
 
+              {segment.evidence && (
+                <div className="text-[11px] text-slate-600 mt-1 truncate">{segment.evidence}</div>
+              )}
+
+              <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                <span className="text-[11px] text-slate-700">
+                  <span className="font-semibold tabular-nums">{fmtCount(population)}</span> customers in the book
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  {filtered.length} profile{filtered.length === 1 ? "" : "s"} shown to illustrate the cohort — the
+                  count above is the full book-level population
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 mt-2">
+                <div className="h-1 flex-1 max-w-[220px] rounded-full overflow-hidden bg-white flex">
+                  <div className="bg-blue-600" style={{ width: `${segment.confidence.strong}%` }} />
+                  <div className="bg-blue-400" style={{ width: `${segment.confidence.likely}%` }} />
+                  <div className="bg-blue-200" style={{ width: `${segment.confidence.emerging}%` }} />
+                </div>
+                <span className="text-[10.5px] text-slate-500 tabular-nums">
+                  {segment.confidence.strong}% strong · {segment.confidence.likely}% likely ·{" "}
+                  {segment.confidence.emerging}% emerging
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={clearAll}
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 border border-slate-200 bg-white rounded-md px-2 py-1 transition-colors shrink-0"
+            >
+              <X className="w-3 h-3" />
+              Clear segment
+            </button>
           </div>
-          <button
-            onClick={clearAll}
-            className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 border border-slate-200 bg-white rounded-md px-2 py-1 transition-colors shrink-0"
-          >
-            <X className="w-3 h-3" />
-            Clear segment
-          </button>
         </div>
       )}
+
 
       <CustomerPortfolioStats />
 
