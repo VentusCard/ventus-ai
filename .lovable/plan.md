@@ -8,9 +8,10 @@ Edit the `heloc` entry in `src/lib/productAutomatedFlows.ts` (lines ~273–287).
 
 Life Event:
 - **Major home renovation underway** — large card charges at building-material retailers plus bank payments to contractors within a 90-day window.
-- **Expected medical bills** — recurring or large payments to hospitals, surgical centers, orthodontists, or out-of-network specialists signaling a financing need.
-- **College tuition payments starting** — new recurring tuition payments to academic institutions alongside a home-equity-rich profile.
+- **Large medical bills expected** — recurring or large payments to hospitals, surgical centers, orthodontists, or out-of-network specialists signaling a financing need.
+- **Large tuition payments starting** — new recurring tuition payments to academic institutions alongside a home-equity-rich profile.
 - **Recent home purchase or sale with equity left behind** — sale proceeds or a new mortgage plus moving/renovation spend.
+
 
 Behavioral:
 - **Long-time homeowner with strong equity** — 5+ years of mortgage, property tax, and utility payments (equity-eligibility proxy).
@@ -26,7 +27,8 @@ In `src/lib/flowSignalFamilies.ts`:
 - Add new `FINANCIAL` seeds:
   - **Built meaningful home equity** — mortgage paid down over several years, property value appreciation inferred from tax/insurance bands.
   - **Carrying high-interest consumer debt** — recurring interest charges and revolving balances that a HELOC could consolidate.
-  - **Large planned outflow ahead** — tuition, medical, or renovation deposits already leaving the account.
+  - **Large planned outflow ahead** — large tuition deposits, large medical payments, or renovation deposits already leaving the account.
+
 
 - Add new `DEMOGRAPHIC` seeds:
   - **Long-tenure homeowner** — same property payments for 7+ years, strong equity position.
