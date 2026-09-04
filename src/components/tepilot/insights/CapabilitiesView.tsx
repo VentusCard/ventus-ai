@@ -573,7 +573,7 @@ function SignalSection({
     >
       <span className={cn("absolute inset-y-0 left-0 w-[5px]", barColor)} />
       <span className="mb-0 flex items-center gap-2">
-        <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px] border", chipBase)}>
+        <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px] border text-white", chipBase)}>
           <Icon className="h-3.5 w-3.5" />
         </span>
         <span className={cn("text-[13px] font-semibold tracking-tight", labelColor)}>{signal.label}</span>
@@ -583,8 +583,8 @@ function SignalSection({
           delayMs={startDelay}
           className="rounded-full ring-[3px] ring-white/60"
         />
-        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-500">
-          <b className="font-semibold text-slate-900">{count}</b> · 24h
+        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-white/80">
+          <b className="font-semibold text-white">{count}</b> · 24h
         </span>
       </span>
 
