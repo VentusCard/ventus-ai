@@ -1,6 +1,9 @@
 import type { CatalogProduct, StrategyChip, CampaignGoal, MetroArea, ProductCategory } from '@/types/campaign-studio';
+import { BOOK_CUSTOMERS } from '@/lib/bookScale';
 
+/** Same customer book the Segment Builder estimates against. */
 export const BASE_USERS = BOOK_CUSTOMERS;
+
 
 // ─── Full Banking Product Catalog (44 products) ───
 
