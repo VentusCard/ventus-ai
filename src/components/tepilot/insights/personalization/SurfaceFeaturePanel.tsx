@@ -65,7 +65,7 @@ export function SurfaceFeaturePanel({
         </div>
         <div
           className={cn(
-            "flex-1 min-h-0 overflow-y-auto px-3 py-2.5 space-y-2",
+            "flex-1 min-h-0 overflow-y-auto px-3 py-2.5 flex flex-col gap-2",
             !hasSelection && "opacity-60 grayscale pointer-events-none select-none",
           )}
         >
@@ -73,13 +73,13 @@ export function SurfaceFeaturePanel({
             <div
               key={item.label}
               className={cn(
-                "border border-slate-200 rounded-md bg-slate-50/50 px-2.5 py-2 transition-all duration-300",
+                "flex-1 min-h-[64px] border border-slate-200 rounded-md bg-slate-50/50 px-2.5 py-2 transition-all duration-300",
                 !hasSelection || revealed > i
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-1",
               )}
             >
-              <div className="flex items-start gap-1.5">
+              <div className="flex items-start gap-1.5 h-full">
                 <Check
                   className={cn(
                     "w-3.5 h-3.5 mt-[1px] shrink-0",
