@@ -3,7 +3,7 @@ import { Users, Gem, CalendarHeart, ShieldAlert, Search, Radar, X } from "lucide
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fmtCount, scaleSample, shareOf } from "@/lib/bookScale";
-import { getSignalFamilyStats } from "@/lib/intelligenceSignalStats";
+import { getSignalFamilyStats, type SignalSegmentSeed } from "@/lib/intelligenceSignalStats";
 
 
 function parseValueK(value: string) {
@@ -51,10 +51,7 @@ function haystack(c: DirectoryCustomer) {
     .toLowerCase();
 }
 
-export interface CustomerSegmentSeed {
-  family: SignalFamily;
-  label: string;
-}
+export type CustomerSegmentSeed = SignalSegmentSeed;
 
 interface CustomersDirectoryViewProps {
   segment?: CustomerSegmentSeed | null;
@@ -98,7 +95,7 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     // Signal-level segment: narrow to customers whose signals in that family
     // share meaningful words with the exported signal. Falls back to the whole
     // family when nothing matches, so the segment is never empty.
-    if (segment) {
+    if (segment && segment.scope !== "family") {
       const meta = SIGNAL_FAMILY_META.find((m) => m.key === segment.family);
       const words = segment.label
         .toLowerCase()
@@ -129,6 +126,7 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
   // the real cohort behind the signal; ad-hoc filters scale the sampled slice.
   const population = useMemo(() => {
     if (segment) {
+      if (segment.customers > 0) return segment.customers;
       const fam = getSignalFamilyStats().find((f) => f.key === segment.family);
       if (fam) {
         const key = segment.label.toLowerCase();
