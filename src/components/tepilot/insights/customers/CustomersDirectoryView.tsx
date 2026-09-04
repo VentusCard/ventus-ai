@@ -164,6 +164,11 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
   }, [filtered, population]);
 
 
+  const segmentFamilyMeta = segment
+    ? SIGNAL_FAMILY_META.find((m) => m.key === segment.family) ?? null
+    : null;
+  const segmentFamilyLabel = segmentFamilyMeta?.label.toLowerCase() ?? "signal";
+
   const segmentSlug = (segment?.label ?? "customer-segment")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
