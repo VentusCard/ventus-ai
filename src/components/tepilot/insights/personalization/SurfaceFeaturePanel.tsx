@@ -55,7 +55,7 @@ export function SurfaceFeaturePanel({
   }, [customerKey, surface, hasSelection, config.items.length]);
 
   return (
-    <div className="lg:col-span-1 min-h-0 flex flex-col gap-4">
+    <div className="lg:col-span-1 min-h-0 flex flex-col">
       {/* Key features */}
       <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
         <div className="shrink-0 px-3.5 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center gap-2">
