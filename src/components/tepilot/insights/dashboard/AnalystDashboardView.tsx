@@ -32,7 +32,7 @@ interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
   onOpenOpportunity?: (opportunityId: string) => void;
   onOpenSection?: (section: "customers" | "risk") => void;
-  onOpenSignalSegment?: (family: SignalFamily, label: string) => void;
+  onOpenSignalSegment?: (seed: SignalSegmentSeed) => void;
   renderVentusSliver?: () => React.ReactNode;
 }
 
@@ -265,10 +265,8 @@ export function AnalystDashboardView({
           <SignalCoverageCaption />
         </div>
         <SignalFamilyBoard
-          onOpenSignal={(family, label) =>
-            onOpenSignalSegment
-              ? onOpenSignalSegment(family, label)
-              : onOpenSection?.(family === "risk" ? "risk" : "customers")
+          onOpenSignal={(seed) =>
+            onOpenSignalSegment ? onOpenSignalSegment(seed) : onOpenSection?.("customers")
           }
         />
       </div>

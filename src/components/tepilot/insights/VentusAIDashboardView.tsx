@@ -151,13 +151,8 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
           onNavigate={onNavigate}
           onOpenOpportunity={onOpenOpportunity}
           onOpenSection={(s) => setSection(s)}
-          onOpenSignalSegment={(family, label) => {
-            if (family === "risk") {
-              setSignalSegment(null);
-              setSection("risk");
-              return;
-            }
-            setSignalSegment({ family, label });
+          onOpenSignalSegment={(seed) => {
+            setSignalSegment(seed);
             setSection("customers");
           }}
           renderVentusSliver={onOpenChat ? renderSliver : undefined}
