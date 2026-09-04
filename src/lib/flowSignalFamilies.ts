@@ -973,6 +973,13 @@ export interface EligibilityFilter {
   passRate: number;
 }
 
+/** Guardrails so a single check — or a stack of them — can never gut an audience. */
+export const FILTER_PASS_MIN = 0.7;
+export const FILTER_PASS_MAX = 0.98;
+export const COMBINED_PASS_MIN = 0.45;
+
+
+
 
 function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: EligibilityFilter[] } {
   const authoredCopy = FLOW_MICROSEGMENTS[flow.id] ?? [];
