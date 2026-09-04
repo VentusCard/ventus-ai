@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Sparkles, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UnitEconomicsCard } from "./UnitEconomicsCard";
 
 export type Surface = "rewards" | "product" | "relationship";
 
@@ -56,7 +55,7 @@ export function SurfaceFeaturePanel({
   }, [customerKey, surface, hasSelection, config.items.length]);
 
   return (
-    <div className="lg:col-span-1 min-h-0 flex flex-col gap-4">
+    <div className="lg:col-span-1 min-h-0 flex flex-col">
       {/* Key features */}
       <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
         <div className="shrink-0 px-3.5 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center gap-2">
@@ -102,8 +101,6 @@ export function SurfaceFeaturePanel({
           ))}
         </div>
       </div>
-
-      <UnitEconomicsCard surface={surface} />
     </div>
   );
 }
