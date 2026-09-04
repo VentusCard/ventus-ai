@@ -1021,6 +1021,29 @@ export function filterPassRate(filters: EligibilityFilter[], enabled: Set<string
     .reduce((rate, f) => rate * f.passRate, 1);
 }
 
+export function groupByFamily(signals: ExpandedSignal[]): Array<[SignalFamily, ExpandedSignal[]]> {
+  return SIGNAL_FAMILY_ORDER.map(
+    (family) => [family, signals.filter((s) => s.family === family)] as [SignalFamily, ExpandedSignal[]],
+  ).filter(([, list]) => list.length > 0);
+}
+
+/** Triggered audience narrowed by the enabled eligibility filters. */
+export function qualifiedAudience(
+  flow: ProductFlow,
+  signals: ExpandedSignal[],
+  enabledSignals: Set<string>,
+  filters: EligibilityFilter[],
+  enabledFilters: Set<string>,
+): number {
+  const triggered = enabledAudience(flow, signals, enabledSignals);
+  let removed = 0;
+  filterCascade(triggered, filters, enabledFilters).forEach((v) => {
+    removed += v;
+  });
+  return triggered - removed;
+}
+
+
 /**
  * Split the flow audience across every signal with a largest-remainder
  * allocation, so the parts sum EXACTLY to `flow.estimatedAudience`.
