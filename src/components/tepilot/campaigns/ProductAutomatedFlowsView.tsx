@@ -369,6 +369,11 @@ function FlowRow({
   const enabledCount = signals.filter((s) => enabledSignals.has(s.id)).length;
   const filterCount = filters.filter((f) => enabledFilters.has(f.id)).length;
   const triggered = enabledAudience(flow, signals, enabledSignals);
+  const signalAlloc = useMemo(() => allocateSignalAudiences(flow, signals), [flow, signals]);
+  const cascade = useMemo(
+    () => filterCascade(triggered, filters, enabledFilters),
+    [triggered, filters, enabledFilters],
+  );
   const liveAudience = qualifiedAudience(flow, signals, enabledSignals, filters, enabledFilters);
   const passRate = filterPassRate(filters, enabledFilters);
   const totalRemoved = Math.max(0, triggered - liveAudience);
@@ -525,7 +530,7 @@ function FlowRow({
                 <SignalRow
                   key={sig.id}
                   signal={sig}
-                  audience={signalAudience(flow, signals, enabledSignals, sig)}
+                  audience={signalAlloc.get(sig.id) ?? 0}
                   enabled={enabledSignals.has(sig.id)}
                   open={openRow === sig.id}
                   edited={editedSignalIds.has(sig.id)}
@@ -592,7 +597,7 @@ function FlowRow({
                   <FilterRow
                     key={f.id}
                     filter={f}
-                    removed={Math.round(triggered * (1 - f.passRate))}
+                    removed={cascade.get(f.id) ?? 0}
                     enabled={enabledFilters.has(f.id)}
                     open={openRow === f.id}
                     edited={editedFilterIds.has(f.id)}
