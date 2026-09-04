@@ -242,7 +242,6 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
       {/* ---------- Key features + unit economics ---------- */}
       <SurfaceFeaturePanel surface={surface} customerKey={hasSelection ? selectedId ?? displayName : null} />
     </div>
-    </div>
   );
 }
 
