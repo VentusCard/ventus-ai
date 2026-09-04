@@ -8,7 +8,7 @@ import {
 } from "@/lib/mockBankwideData";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import type { TabValue } from "../AnalyticsContainer";
-import type { SignalFamily } from "@/lib/customerDirectoryData";
+import type { SignalSegmentSeed } from "@/lib/intelligenceSignalStats";
 import { ChartCard } from "./ChartCard";
 import { IntelligenceKpiStrip } from "./IntelligenceKpiStrip";
 import { DashboardToolbar } from "./DashboardToolbar";
