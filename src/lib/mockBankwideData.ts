@@ -181,76 +181,76 @@ export const GEOGRAPHIC_REGIONS: GeographicRegion[] = [
   {
     name: 'Northeast',
     type: 'region',
-    userCount: 8_000_000,
-    accountCount: 12_500_000,
+    userCount: 12_124_444,
+    accountCount: 18_944_445,
     avgAccountsPerUser: 1.56,
-    totalSpend: 32_000_000_000,
+    totalSpend: 48_497_777_778,
     children: [
-      { name: 'New York', type: 'state', userCount: 2_500_000, accountCount: 4_000_000, avgAccountsPerUser: 1.60, totalSpend: 10_500_000_000 },
-      { name: 'Pennsylvania', type: 'state', userCount: 1_800_000, accountCount: 2_800_000, avgAccountsPerUser: 1.56, totalSpend: 7_200_000_000 },
-      { name: 'Massachusetts', type: 'state', userCount: 1_200_000, accountCount: 1_900_000, avgAccountsPerUser: 1.58, totalSpend: 5_000_000_000 },
-      { name: 'New Jersey', type: 'state', userCount: 1_100_000, accountCount: 1_700_000, avgAccountsPerUser: 1.55, totalSpend: 4_400_000_000 },
-      { name: 'Other Northeast', type: 'state', userCount: 1_400_000, accountCount: 2_100_000, avgAccountsPerUser: 1.50, totalSpend: 4_900_000_000 }
+      { name: 'New York', type: 'state', userCount: 3_788_889, accountCount: 6_062_222, avgAccountsPerUser: 1.60, totalSpend: 15_913_333_333 },
+      { name: 'Pennsylvania', type: 'state', userCount: 2_728_000, accountCount: 4_243_556, avgAccountsPerUser: 1.56, totalSpend: 10_912_000_000 },
+      { name: 'Massachusetts', type: 'state', userCount: 1_818_666, accountCount: 2_879_556, avgAccountsPerUser: 1.58, totalSpend: 7_577_777_778 },
+      { name: 'New Jersey', type: 'state', userCount: 1_667_111, accountCount: 2_576_444, avgAccountsPerUser: 1.55, totalSpend: 6_668_444_445 },
+      { name: 'Other Northeast', type: 'state', userCount: 2_121_778, accountCount: 3_182_667, avgAccountsPerUser: 1.50, totalSpend: 7_426_222_222 }
     ]
   },
   {
     name: 'Southeast',
     type: 'region',
-    userCount: 10_000_000,
-    accountCount: 15_000_000,
+    userCount: 15_155_556,
+    accountCount: 22_733_333,
     avgAccountsPerUser: 1.50,
-    totalSpend: 38_000_000_000,
+    totalSpend: 57_591_111_111,
     children: [
-      { name: 'Florida', type: 'state', userCount: 2_800_000, accountCount: 4_200_000, avgAccountsPerUser: 1.50, totalSpend: 11_000_000_000 },
-      { name: 'Georgia', type: 'state', userCount: 1_500_000, accountCount: 2_250_000, avgAccountsPerUser: 1.50, totalSpend: 5_700_000_000 },
-      { name: 'North Carolina', type: 'state', userCount: 1_400_000, accountCount: 2_100_000, avgAccountsPerUser: 1.50, totalSpend: 5_300_000_000 },
-      { name: 'Virginia', type: 'state', userCount: 1_200_000, accountCount: 1_800_000, avgAccountsPerUser: 1.50, totalSpend: 4_600_000_000 },
-      { name: 'Other Southeast', type: 'state', userCount: 3_100_000, accountCount: 4_650_000, avgAccountsPerUser: 1.50, totalSpend: 11_400_000_000 }
+      { name: 'Florida', type: 'state', userCount: 4_243_556, accountCount: 6_365_333, avgAccountsPerUser: 1.50, totalSpend: 16_671_111_111 },
+      { name: 'Georgia', type: 'state', userCount: 2_273_333, accountCount: 3_410_000, avgAccountsPerUser: 1.50, totalSpend: 8_638_666_667 },
+      { name: 'North Carolina', type: 'state', userCount: 2_121_778, accountCount: 3_182_667, avgAccountsPerUser: 1.50, totalSpend: 8_032_444_444 },
+      { name: 'Virginia', type: 'state', userCount: 1_818_667, accountCount: 2_728_000, avgAccountsPerUser: 1.50, totalSpend: 6_971_555_556 },
+      { name: 'Other Southeast', type: 'state', userCount: 4_698_222, accountCount: 7_047_333, avgAccountsPerUser: 1.50, totalSpend: 17_277_333_333 }
     ]
   },
   {
     name: 'Midwest',
     type: 'region',
-    userCount: 9_000_000,
-    accountCount: 14_000_000,
+    userCount: 13_640_000,
+    accountCount: 21_217_778,
     avgAccountsPerUser: 1.56,
-    totalSpend: 35_000_000_000,
+    totalSpend: 53_044_444_445,
     children: [
-      { name: 'Illinois', type: 'state', userCount: 2_000_000, accountCount: 3_100_000, avgAccountsPerUser: 1.55, totalSpend: 7_800_000_000 },
-      { name: 'Ohio', type: 'state', userCount: 1_600_000, accountCount: 2_500_000, avgAccountsPerUser: 1.56, totalSpend: 6_200_000_000 },
-      { name: 'Michigan', type: 'state', userCount: 1_400_000, accountCount: 2_200_000, avgAccountsPerUser: 1.57, totalSpend: 5_500_000_000 },
-      { name: 'Wisconsin', type: 'state', userCount: 900_000, accountCount: 1_400_000, avgAccountsPerUser: 1.56, totalSpend: 3_500_000_000 },
-      { name: 'Other Midwest', type: 'state', userCount: 3_100_000, accountCount: 4_800_000, avgAccountsPerUser: 1.55, totalSpend: 12_000_000_000 }
+      { name: 'Illinois', type: 'state', userCount: 3_031_111, accountCount: 4_698_222, avgAccountsPerUser: 1.55, totalSpend: 11_821_333_333 },
+      { name: 'Ohio', type: 'state', userCount: 2_424_889, accountCount: 3_788_889, avgAccountsPerUser: 1.56, totalSpend: 9_396_444_445 },
+      { name: 'Michigan', type: 'state', userCount: 2_121_778, accountCount: 3_334_222, avgAccountsPerUser: 1.57, totalSpend: 8_335_555_556 },
+      { name: 'Wisconsin', type: 'state', userCount: 1_364_000, accountCount: 2_121_778, avgAccountsPerUser: 1.56, totalSpend: 5_304_444_444 },
+      { name: 'Other Midwest', type: 'state', userCount: 4_698_222, accountCount: 7_274_667, avgAccountsPerUser: 1.55, totalSpend: 18_186_666_667 }
     ]
   },
   {
     name: 'Southwest',
     type: 'region',
-    userCount: 8_000_000,
-    accountCount: 13_000_000,
+    userCount: 12_124_444,
+    accountCount: 19_702_222,
     avgAccountsPerUser: 1.63,
-    totalSpend: 33_000_000_000,
+    totalSpend: 50_013_333_333,
     children: [
-      { name: 'Texas', type: 'state', userCount: 3_500_000, accountCount: 5_700_000, avgAccountsPerUser: 1.63, totalSpend: 14_500_000_000 },
-      { name: 'Arizona', type: 'state', userCount: 1_200_000, accountCount: 1_950_000, avgAccountsPerUser: 1.63, totalSpend: 4_900_000_000 },
-      { name: 'Oklahoma', type: 'state', userCount: 800_000, accountCount: 1_300_000, avgAccountsPerUser: 1.63, totalSpend: 3_300_000_000 },
-      { name: 'New Mexico', type: 'state', userCount: 600_000, accountCount: 980_000, avgAccountsPerUser: 1.63, totalSpend: 2_500_000_000 },
-      { name: 'Other Southwest', type: 'state', userCount: 1_900_000, accountCount: 3_070_000, avgAccountsPerUser: 1.62, totalSpend: 7_800_000_000 }
+      { name: 'Texas', type: 'state', userCount: 5_304_444, accountCount: 8_638_667, avgAccountsPerUser: 1.63, totalSpend: 21_975_555_556 },
+      { name: 'Arizona', type: 'state', userCount: 1_818_667, accountCount: 2_955_333, avgAccountsPerUser: 1.62, totalSpend: 7_426_222_222 },
+      { name: 'Oklahoma', type: 'state', userCount: 1_212_444, accountCount: 1_970_222, avgAccountsPerUser: 1.63, totalSpend: 5_001_333_333 },
+      { name: 'New Mexico', type: 'state', userCount: 909_333, accountCount: 1_485_244, avgAccountsPerUser: 1.63, totalSpend: 3_788_888_889 },
+      { name: 'Other Southwest', type: 'state', userCount: 2_879_556, accountCount: 4_652_756, avgAccountsPerUser: 1.62, totalSpend: 11_821_333_333 }
     ]
   },
   {
     name: 'West',
     type: 'region',
-    userCount: 10_000_000,
-    accountCount: 16_000_000,
+    userCount: 15_155_556,
+    accountCount: 24_248_889,
     avgAccountsPerUser: 1.60,
-    totalSpend: 42_000_000_000,
+    totalSpend: 63_653_333_333,
     children: [
-      { name: 'California', type: 'state', userCount: 5_000_000, accountCount: 8_000_000, avgAccountsPerUser: 1.60, totalSpend: 21_000_000_000 },
-      { name: 'Washington', type: 'state', userCount: 1_200_000, accountCount: 1_920_000, avgAccountsPerUser: 1.60, totalSpend: 5_000_000_000 },
-      { name: 'Oregon', type: 'state', userCount: 800_000, accountCount: 1_280_000, avgAccountsPerUser: 1.60, totalSpend: 3_300_000_000 },
-      { name: 'Nevada', type: 'state', userCount: 600_000, accountCount: 960_000, avgAccountsPerUser: 1.60, totalSpend: 2_500_000_000 },
-      { name: 'Other West', type: 'state', userCount: 2_400_000, accountCount: 3_840_000, avgAccountsPerUser: 1.60, totalSpend: 10_200_000_000 }
+      { name: 'California', type: 'state', userCount: 7_577_778, accountCount: 12_124_445, avgAccountsPerUser: 1.60, totalSpend: 31_826_666_666 },
+      { name: 'Washington', type: 'state', userCount: 1_818_667, accountCount: 2_909_867, avgAccountsPerUser: 1.60, totalSpend: 7_577_777_778 },
+      { name: 'Oregon', type: 'state', userCount: 1_212_445, accountCount: 1_939_911, avgAccountsPerUser: 1.60, totalSpend: 5_001_333_333 },
+      { name: 'Nevada', type: 'state', userCount: 909_333, accountCount: 1_454_933, avgAccountsPerUser: 1.60, totalSpend: 3_788_888_889 },
+      { name: 'Other West', type: 'state', userCount: 3_637_333, accountCount: 5_819_733, avgAccountsPerUser: 1.60, totalSpend: 15_458_666_667 }
     ]
   }
 ];
@@ -260,8 +260,8 @@ export const AGE_RANGES: AgeRange[] = [
   {
     range: '18-24',
     label: 'Gen Z',
-    userCount: 5_000_000,
-    accountCount: 6_000_000,
+    userCount: 7_577_778,
+    accountCount: 9_093_333,
     avgSpendPerAccount: 1_800,
     pillarSpending: {
       'Style & Beauty': 32,
@@ -275,8 +275,8 @@ export const AGE_RANGES: AgeRange[] = [
   {
     range: '25-34',
     label: 'Millennials',
-    userCount: 12_000_000,
-    accountCount: 18_000_000,
+    userCount: 18_186_667,
+    accountCount: 27_280_000,
     avgSpendPerAccount: 2_600,
     pillarSpending: {
       'Style & Beauty': 28,
@@ -291,8 +291,8 @@ export const AGE_RANGES: AgeRange[] = [
   {
     range: '35-44',
     label: 'Gen X (Younger)',
-    userCount: 10_000_000,
-    accountCount: 16_000_000,
+    userCount: 15_155_555,
+    accountCount: 24_248_889,
     avgSpendPerAccount: 3_200,
     pillarSpending: {
       'Style & Beauty': 26,
@@ -307,8 +307,8 @@ export const AGE_RANGES: AgeRange[] = [
   {
     range: '45-54',
     label: 'Gen X (Older)',
-    userCount: 9_000_000,
-    accountCount: 15_000_000,
+    userCount: 13_640_000,
+    accountCount: 22_733_333,
     avgSpendPerAccount: 3_400,
     pillarSpending: {
       'Travel & Exploration': 28,
@@ -323,8 +323,8 @@ export const AGE_RANGES: AgeRange[] = [
   {
     range: '55-64',
     label: 'Boomers (Younger)',
-    userCount: 6_000_000,
-    accountCount: 10_000_000,
+    userCount: 9_093_333,
+    accountCount: 15_155_556,
     avgSpendPerAccount: 2_900,
     pillarSpending: {
       'Travel & Exploration': 32,
@@ -338,8 +338,8 @@ export const AGE_RANGES: AgeRange[] = [
   {
     range: '65+',
     label: 'Seniors',
-    userCount: 3_000_000,
-    accountCount: 5_000_000,
+    userCount: 4_546_667,
+    accountCount: 7_577_778,
     avgSpendPerAccount: 2_200,
     pillarSpending: {
       'Style & Beauty': 28,
