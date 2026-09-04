@@ -212,6 +212,26 @@ const FINANCIAL: Record<string, SeedSignal> = {
     evidence: "Large tuition deposits, large medical payments, or renovation deposits already leaving the account.",
     weight: 0.22,
   },
+  outsideMortgageServicer: {
+    label: "Mortgage payment to an outside servicer",
+    evidence: "Proves ownership, dates the origination, and reveals a lender the institution does not hold. Seasoning past three years plus continuing property tax and insurance establishes meaningful equity accumulation, and an escrow step-up usually means assessed value rose.",
+    weight: 0.32,
+  },
+  existingHelocElsewhere: {
+    label: "Existing HELOC at another lender",
+    evidence: "A recurring payment to a second lien servicer. Payment size implies the outstanding balance, and anything above roughly $25K drawn is worth pursuing. The refinance target, and the highest-converting audience in the set.",
+    weight: 0.36,
+  },
+  higherCostDebt: {
+    label: "Carrying higher-cost debt",
+    evidence: "Revolving balances with recurring interest charges, or payments to a personal loan servicer, home improvement financing company, or retail project card. Fires above $15K aggregate, where the rate difference produces savings large enough to move someone. All of it consolidates into a line at a fraction of the rate.",
+    weight: 0.34,
+  },
+  reachingLiquidity: {
+    label: "Reaching for liquidity",
+    evidence: "Savings drawn down toward zero, transfer direction reversing from checking-to-savings into savings-to-checking, or an investment account liquidating into deposits. The purpose does not have to be legible. What matters is that a household with equity is converting assets to cash rather than borrowing against the house.",
+    weight: 0.30,
+  },
 };
 
 
@@ -433,10 +453,14 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("financial", FINANCIAL.bizTaxes, 3);
   }
   if (t.has("home")) {
-    add("financial", FINANCIAL.mortgagePayer, 3);
-    add("financial", FINANCIAL.homeEquityBuilt, 3);
-    add("financial", FINANCIAL.highInterestConsumerDebt, 3);
-    add("financial", FINANCIAL.largePlannedOutflow, 3);
+    add("financial", FINANCIAL.outsideMortgageServicer, 3);
+    add("financial", FINANCIAL.existingHelocElsewhere, 3);
+    add("financial", FINANCIAL.higherCostDebt, 3);
+    add("financial", FINANCIAL.reachingLiquidity, 3);
+    add("financial", FINANCIAL.mortgagePayer, 2);
+    add("financial", FINANCIAL.homeEquityBuilt, 2);
+    add("financial", FINANCIAL.highInterestConsumerDebt, 2);
+    add("financial", FINANCIAL.largePlannedOutflow, 2);
     add("financial", FINANCIAL.surplus, 2);
   }
 
@@ -452,7 +476,7 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
   if (t.has("deposit")) add("financial", FINANCIAL.depositGrowth, 3);
   if (savingsProduct) add("financial", FINANCIAL.interestSeeking, 3);
-  if (isCard || t.has("credit")) add("financial", FINANCIAL.lowUtil, 3);
+  if ((isCard || t.has("credit")) && flow.id !== "heloc") add("financial", FINANCIAL.lowUtil, 3);
   if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend, 3);
   if (t.has("travel")) add("financial", FINANCIAL.travelSpend, 3);
   // Income stability matters where repayment, funding or premiums are involved.
@@ -517,10 +541,10 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
       add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
     }
     add("behavioral", EXTRA_BEHAVIORAL.educationOutbound, 3);
-  } else {
+  } else if (flow.id !== "heloc") {
     add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
   }
-  if (underwritten) add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
+  if (underwritten && flow.id !== "heloc") add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
   if ((t.has("card") || checkingProduct) && !parentEducation) {
     add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged, 1);
   }
@@ -659,6 +683,27 @@ const ARCHETYPE_ANGLE: Record<string, Angle> = {
     title: "Big Expense Ahead",
     subject: "The money is already leaving — make it cheaper",
     open: (n) => `Large tuition, medical, or renovation payments are on their way out. ${n[0].toUpperCase()}${n.slice(1)} covers the same spending at a fraction of the interest cost.`,
+  },
+  outsideMortgageServicer: {
+    title: "Mortgage Held Elsewhere",
+    subject: "Your equity is already growing with someone else",
+    open: (n) => `A mortgage payment goes out every month to another lender, which means your equity is building even though the loan isn't here. ${n[0].toUpperCase()}${n.slice(1)} lets you tap that equity without moving the mortgage.`,
+  },
+  existingHelocElsewhere: {
+    title: "HELOC Refinance Candidate",
+    subject: "Move that balance to a better line",
+    open: (n) => `You're already using a home equity line at another lender. Bringing the balance to ${n} usually means a lower rate, fewer logins, and one place to manage it.`,
+    cta: "Compare and move",
+  },
+  higherCostDebt: {
+    title: "Higher-Rate Debt Consolidation",
+    subject: "Replace expensive balances with a single line",
+    open: (n) => `Revolving balances and personal-loan payments are racking up interest. Moving that debt into ${n} can cut the rate and the number of payments you track each month.`,
+  },
+  reachingLiquidity: {
+    title: "Liquidity Squeeze",
+    subject: "Access cash without selling assets",
+    open: (n) => `Savings are being drawn down and investments are moving into checking. ${n[0].toUpperCase()}${n.slice(1)} lets you borrow against equity instead of cashing out positions.`,
   },
 
   // --- Demographic ---
