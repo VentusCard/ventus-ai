@@ -434,8 +434,12 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
   if (t.has("home")) {
     add("financial", FINANCIAL.mortgagePayer, 3);
+    add("financial", FINANCIAL.homeEquityBuilt, 3);
+    add("financial", FINANCIAL.highInterestConsumerDebt, 3);
+    add("financial", FINANCIAL.largePlannedOutflow, 3);
     add("financial", FINANCIAL.surplus, 2);
   }
+
   if (t.has("auto")) add("financial", FINANCIAL.autoPayer, 3);
   if (parentEducation) {
     add("financial", FINANCIAL.tuitionOutflow, 3);
