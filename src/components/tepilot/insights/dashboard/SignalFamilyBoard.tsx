@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { getSignalFamilyStats, fmtCount } from "@/lib/intelligenceSignalStats";
+import { getSignalFamilyStats, fmtCount, type SignalSegmentSeed } from "@/lib/intelligenceSignalStats";
 import type { SignalFamily } from "@/lib/customerDirectoryData";
 import { Sparkline } from "./Sparkline";
 import { SignalFamilyPanel } from "./SignalFamilyPanel";
 
 interface SignalFamilyBoardProps {
-  onOpenSignal?: (family: SignalFamily, label: string) => void;
+  onOpenSignal?: (seed: SignalSegmentSeed) => void;
 }
 
 export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
@@ -44,7 +44,39 @@ export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
             <div className="mt-2.5 flex items-end justify-between gap-2">
               <div className="min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-[22px] font-semibold text-slate-900 tabular-nums leading-none">
+                  <span
+                    role="link"
+                    tabIndex={0}
+                    title={`Open all ${fmtCount(f.customers)} ${f.label} customers in Segments`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenSignal?.({
+                        family: f.key,
+                        label: `${f.label} signals`,
+                        scope: "family",
+                        customers: f.customers,
+                        delta: f.delta,
+                        evidence: `Customers carrying at least one ${f.label.toLowerCase()} signal`,
+                        confidence: f.confidence,
+                      });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onOpenSignal?.({
+                          family: f.key,
+                          label: `${f.label} signals`,
+                          scope: "family",
+                          customers: f.customers,
+                          delta: f.delta,
+                          evidence: `Customers carrying at least one ${f.label.toLowerCase()} signal`,
+                          confidence: f.confidence,
+                        });
+                      }
+                    }}
+                    className="text-[22px] font-semibold text-slate-900 tabular-nums leading-none cursor-pointer decoration-slate-400 underline-offset-4 hover:underline"
+                  >
                     {fmtCount(f.customers)}
                   </span>
                   <span
@@ -91,7 +123,7 @@ export function SignalFamilyBoard({ onOpenSignal }: SignalFamilyBoardProps) {
         key={active.key}
         family={active}
         onClose={() => setExpanded(null)}
-        onOpenSignal={(f, label) => onOpenSignal?.(f, label)}
+        onOpenSignal={(seed) => onOpenSignal?.(seed)}
       />
     )}
     </div>
