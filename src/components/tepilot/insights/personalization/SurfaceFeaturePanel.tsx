@@ -51,7 +51,7 @@ const FEATURES: Record<Surface, { title: string; items: FeatureItem[] }> = {
     items: [
       { label: "Signal-triggered recommendations", detail: "Every card names the behavior or life event behind it.", icon: Zap },
       { label: "Offer construction", detail: "Headline, benefits, eligibility and value range generated per customer.", icon: Wrench },
-      { label: "Lifestyle theming", detail: "Visual treatment and CTA adapt to the customer's dominant pillar.", icon: Palette },
+      { label: "Bank-brand customization", detail: "Visual treatment, tone, and CTA adapt to the bank's brand aesthetic while staying relevant to each customer.", icon: Palette },
       { label: "Channel-ready delivery", detail: "The same card renders in-app, as email, or as SMS.", icon: Smartphone },
       { label: "Eligibility pre-screening", detail: "Cards only surface when the customer's profile actually qualifies.", icon: ShieldCheck },
       { label: "Rate and term transparency", detail: "Estimated ranges shown up front, tuned to the customer's financial band.", icon: BadgePercent },
