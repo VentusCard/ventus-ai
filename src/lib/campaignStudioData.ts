@@ -1,6 +1,6 @@
 import type { CatalogProduct, StrategyChip, CampaignGoal, MetroArea, ProductCategory } from '@/types/campaign-studio';
 
-export const BASE_USERS = 75_000_000;
+export const BASE_USERS = BOOK_CUSTOMERS;
 
 // ─── Full Banking Product Catalog (44 products) ───
 
