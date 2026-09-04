@@ -326,50 +326,73 @@ const DEMOGRAPHIC: Record<string, SeedSignal> = {
 
 // Risk items are exclusion filters, not triggers. Each label names WHO GETS
 // REMOVED; the weight is the share of the triggered audience that still clears.
+// Pass rates are calibrated for an audience that is ALREADY signal-qualified,
+// so a healthy pre-screen clears 70-98% on any single check.
 const RISK: Record<string, SeedSignal> = {
   noOverdraft: {
     label: "Recent overdrafts",
     evidence: "Removes anyone who overdrew or bounced a payment in the last three months.",
-    weight: 0.78,
+    weight: 0.91,
   },
   healthyDti: {
     label: "Payments already stretched",
     evidence: "Removes anyone whose existing loan and card payments take up too much of what comes in each month.",
-    weight: 0.48,
+    weight: 0.82,
   },
   cleanFraud: {
-    label: "Fraud or dispute history",
-    evidence: "Removes accounts with a fraud claim or a disputed charge in the past year.",
-    weight: 0.93,
+    label: "Unresolved fraud or identity flag",
+    evidence: "Removes accounts carrying an open fraud claim or an unresolved identity check.",
+    weight: 0.97,
+  },
+  accountStanding: {
+    label: "Prior charge-off or account closed for cause",
+    evidence: "Removes anyone with a written-off balance or an account the bank previously closed for cause.",
+    weight: 0.96,
   },
   noRecentDeclines: {
     label: "Recent declined payments",
     evidence: "Removes anyone whose card or bank payments were turned down in the last two months.",
-    weight: 0.71,
+    weight: 0.94,
   },
   collateralClean: {
     label: "Missed secured-loan payments",
     evidence: "Removes anyone who has fallen behind on a mortgage or car loan.",
-    weight: 0.44,
+    weight: 0.94,
+  },
+  seriousDelinquency: {
+    label: "Serious delinquency in the last 24 months",
+    evidence: "Removes anyone 60+ days past due on any credit obligation in the past two years.",
+    weight: 0.93,
   },
   cardPaysInFull: {
     label: "Carries a revolving balance",
     evidence: "Removes anyone rolling a balance month to month or paying the card late.",
-    weight: 0.38,
+    weight: 0.86,
   },
   bizCashBuffer: {
     label: "Thin payroll cushion",
     evidence: "Removes businesses that end the month with less than one payroll run in the account.",
-    weight: 0.05,
+    weight: 0.88,
+  },
+  premiumAffordability: {
+    label: "Premium not affordable",
+    evidence: "Removes households whose monthly surplus will not carry the premium for this cover.",
+    weight: 0.85,
   },
   suitability: {
-    label: "Outside the suitability range",
-    evidence: "Removes households whose savings or steady income fall outside what this product is built for.",
-    weight: 0.29,
+    label: "Suitability profile flag",
+    evidence: "Removes households whose recorded risk profile or time horizon does not fit this product.",
+    weight: 0.9,
+  },
+  noInvestableSurplus: {
+    label: "No investable surplus",
+    evidence: "Removes households with nothing left over each month once obligations and reserves are covered.",
+    weight: 0.74,
   },
   coverageGap: {
     label: "Coverage already adequate",
     evidence: "Removes households whose insurance already tracks their income and assets.",
+
     weight: 0.31,
   },
 };
