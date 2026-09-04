@@ -1,38 +1,73 @@
-import { useEffect, useState } from "react";
-import { Sparkles, Check } from "lucide-react";
+import { useEffect, useState, type ComponentType } from "react";
+import {
+  Sparkles,
+  Layers,
+  MessageSquareText,
+  Search,
+  Clock,
+  MapPin,
+  Combine,
+  CreditCard,
+  Zap,
+  Wrench,
+  Palette,
+  Smartphone,
+  ShieldCheck,
+  BadgePercent,
+  ArrowRightLeft,
+  Bot,
+  Bell,
+  UserPlus,
+  Shield,
+  MessagesSquare,
+  Target,
+  Lock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type Surface = "rewards" | "product" | "relationship";
 
-const FEATURES: Record<Surface, { title: string; items: { label: string; detail: string }[] }> = {
+type FeatureItem = {
+  label: string;
+  detail: string;
+  icon: ComponentType<{ className?: string }>;
+};
+
+const FEATURES: Record<Surface, { title: string; items: FeatureItem[] }> = {
   rewards: {
     title: "Key features",
     items: [
-      { label: "Context-specific curation", detail: "Collections built per signal group, each with its own reason line." },
-      { label: "Hyper-personalized messaging", detail: "Copy written to the customer's behavior, never generic offer text." },
-      { label: "Semantic deal search", detail: "Natural-language queries matched across the full catalog." },
-      { label: "Timing intelligence", detail: "Expiring and in-season offers pushed ahead of the next spend window." },
-      { label: "Local Deals and Perks", detail: "Geo-targeted merchant discounts and place-based benefits surfaced by location." },
-      { label: "Multiple Deal Aggregators", detail: "Owned, partner, and network offer sources combined into one coherent feed." },
-      { label: "Surface Financial Products", detail: "Relevant banking products woven into the rewards experience at the right moment." },
+      { label: "Context-specific curation", detail: "Collections built per signal group, each with its own reason line.", icon: Layers },
+      { label: "Hyper-personalized messaging", detail: "Copy written to the customer's behavior, never generic offer text.", icon: MessageSquareText },
+      { label: "Semantic deal search", detail: "Natural-language queries matched across the full catalog.", icon: Search },
+      { label: "Timing intelligence", detail: "Expiring and in-season offers pushed ahead of the next spend window.", icon: Clock },
+      { label: "Local Deals and Perks", detail: "Geo-targeted merchant discounts and place-based benefits surfaced by location.", icon: MapPin },
+      { label: "Multiple Deal Aggregators", detail: "Owned, partner, and network offer sources combined into one coherent feed.", icon: Combine },
+      { label: "Surface Financial Products", detail: "Relevant banking products woven into the rewards experience at the right moment.", icon: CreditCard },
     ],
   },
   product: {
     title: "Key features",
     items: [
-      { label: "Signal-triggered recommendations", detail: "Every card names the behavior or life event behind it." },
-      { label: "Offer construction", detail: "Headline, benefits, eligibility and value range generated per customer." },
-      { label: "Lifestyle theming", detail: "Visual treatment and CTA adapt to the customer's dominant pillar." },
-      { label: "Channel-ready delivery", detail: "The same card renders in-app, as email, or as SMS." },
+      { label: "Signal-triggered recommendations", detail: "Every card names the behavior or life event behind it.", icon: Zap },
+      { label: "Offer construction", detail: "Headline, benefits, eligibility and value range generated per customer.", icon: Wrench },
+      { label: "Lifestyle theming", detail: "Visual treatment and CTA adapt to the customer's dominant pillar.", icon: Palette },
+      { label: "Channel-ready delivery", detail: "The same card renders in-app, as email, or as SMS.", icon: Smartphone },
+      { label: "Eligibility pre-screening", detail: "Cards only surface when the customer's profile actually qualifies.", icon: ShieldCheck },
+      { label: "Rate and term transparency", detail: "Estimated ranges shown up front, tuned to the customer's financial band.", icon: BadgePercent },
+      { label: "Cross-sell sequencing", detail: "Products ordered so the next offer follows naturally from the last.", icon: ArrowRightLeft },
     ],
   },
   relationship: {
     title: "Key features",
     items: [
-      { label: "Grounded assistant", detail: "Answers from this customer's signals, deals and detected events." },
-      { label: "Proactive nudges", detail: "Life-event and financial changes trigger the right check-in." },
-      { label: "Banker escalation", detail: "Hands off with full signal context attached." },
-      { label: "Protection cues", detail: "Wellness and habit-shift indicators surface early." },
+      { label: "Grounded assistant", detail: "Answers from this customer's signals, deals and detected events.", icon: Bot },
+      { label: "Proactive nudges", detail: "Life-event and financial changes trigger the right check-in.", icon: Bell },
+      { label: "Banker escalation", detail: "Hands off with full signal context attached.", icon: UserPlus },
+      { label: "Protection cues", detail: "Wellness and habit-shift indicators surface early.", icon: Shield },
+      { label: "Conversation memory", detail: "Follow-ups pick up where the last exchange left off, across sessions.", icon: MessagesSquare },
+      { label: "Goal tracking", detail: "Stated goals stay attached to the thread and shape future guidance.", icon: Target },
+      { label: "Privacy-first grounding", detail: "Answers drawn only from this customer's own consented data.", icon: Lock },
     ],
   },
 };
@@ -71,37 +106,46 @@ export function SurfaceFeaturePanel({
             !hasSelection && "opacity-60 grayscale pointer-events-none select-none",
           )}
         >
-          {config.items.map((item, i) => (
-            <div
-              key={item.label}
-              className={cn(
-                "flex-1 min-h-[64px] border border-slate-200 rounded-md bg-slate-50/50 px-2.5 py-2 transition-all duration-300",
-                !hasSelection || revealed > i
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-1",
-              )}
-            >
-              <div className="flex items-start gap-1.5 h-full">
-                <Check
-                  className={cn(
-                    "w-3.5 h-3.5 mt-[1px] shrink-0",
-                    hasSelection ? "text-blue-500" : "text-slate-400",
-                  )}
-                />
-                <div className="min-w-0">
-                  <p
+          {config.items.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.label}
+                className={cn(
+                  "flex-1 min-h-[64px] border border-slate-200 rounded-md bg-slate-50/50 px-3 py-2 transition-all duration-300",
+                  !hasSelection || revealed > i
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-1",
+                )}
+              >
+                <div className="flex items-center gap-2.5 h-full">
+                  <span
                     className={cn(
-                      "text-[12px] font-semibold leading-snug",
-                      hasSelection ? "text-slate-900" : "text-slate-500",
+                      "w-7 h-7 rounded-md flex items-center justify-center shrink-0",
+                      hasSelection
+                        ? "bg-blue-50 text-blue-500"
+                        : "bg-slate-100 text-slate-400",
                     )}
                   >
-                    {item.label}
-                  </p>
-                  <p className="text-[11px] text-slate-400 leading-relaxed mt-0.5">{item.detail}</p>
+                    <Icon className="w-4 h-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p
+                      className={cn(
+                        "text-[12.5px] font-semibold leading-snug",
+                        hasSelection ? "text-slate-900" : "text-slate-500",
+                      )}
+                    >
+                      {item.label}
+                    </p>
+                    <p className="text-[11.5px] text-slate-400 leading-relaxed mt-0.5">
+                      {item.detail}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
