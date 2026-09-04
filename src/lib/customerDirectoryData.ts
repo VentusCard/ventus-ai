@@ -61,6 +61,12 @@ export const SIGNAL_FAMILY_META: {
   dot: string;
   /** Soft card/panel tint classes for the Intelligence Dashboard. */
   tint: string;
+  /** Full saturated background for prominent cards (e.g. Systems tab Core). */
+  fullBg: string;
+  /** Light text classes for use on fullBg backgrounds. */
+  fullText: string;
+  /** Subtle white/translucent accent for use on fullBg backgrounds. */
+  fullAccent: string;
   cardBorder: string;
   cardBorderHover: string;
   cardRing: string;
