@@ -1058,10 +1058,12 @@ export function expandFlowFilters(flow: ProductFlow): EligibilityFilter[] {
 
 /** Combined pass rate of the enabled eligibility filters. */
 export function filterPassRate(filters: EligibilityFilter[], enabled: Set<string>): number {
-  return filters
+  const raw = filters
     .filter((f) => enabled.has(f.id))
     .reduce((rate, f) => rate * f.passRate, 1);
+  return Math.max(COMBINED_PASS_MIN, raw);
 }
+
 
 export function groupByFamily(signals: ExpandedSignal[]): Array<[SignalFamily, ExpandedSignal[]]> {
   return SIGNAL_FAMILY_ORDER.map(
