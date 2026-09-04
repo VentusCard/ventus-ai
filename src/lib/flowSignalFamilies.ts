@@ -732,8 +732,24 @@ const ARCHETYPE_ANGLE: Record<string, Angle> = {
     subject: "The budget just changed shape",
     open: (n) => `Family spending has eased while travel and dining have picked up. ${n[0].toUpperCase()}${n.slice(1)} fits the version of the budget you're living in now.`,
   },
+  longTenureHomeowner: {
+    title: "Long-Tenure Homeowner",
+    subject: "You've owned long enough for this to matter",
+    open: (n) => `Seven or more years of payments have built real equity in your home. ${n[0].toUpperCase()}${n.slice(1)} is the cleanest way to access it when a large expense comes up.`,
+  },
+  dualIncomeHomeowner: {
+    title: "Dual-Income Homeowner",
+    subject: "Two incomes, one house, more options",
+    open: (n) => `Two paychecks land in this household and the mortgage is well in hand. ${n[0].toUpperCase()}${n.slice(1)} is easier to qualify for and manage with that income foundation.`,
+  },
+  preRetireeHomeowner: {
+    title: "Pre-Retiree Homeowner",
+    subject: "The right window for a low-rate backstop",
+    open: (n) => `You're in the years when a paid-down mortgage and upcoming life changes overlap. ${n[0].toUpperCase()}${n.slice(1)} gives you flexible access to equity before you need it.`,
+  },
 
   // --- Behavioral ---
+
   competitorProduct: {
     title: "Held at Another Provider",
     subject: "You already have this — just not with us",
