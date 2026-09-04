@@ -644,8 +644,24 @@ const ARCHETYPE_ANGLE: Record<string, Angle> = {
     subject: "You travel enough for this to pay off",
     open: (n) => `Flights, hotels and rides show up across several trips this year. That's the spend level where ${n} stops being a nice-to-have and starts paying for itself.`,
   },
+  homeEquityBuilt: {
+    title: "Equity Built Up",
+    subject: "Your home has been quietly building value",
+    open: (n) => `Years of mortgage payments have turned your home into a real asset. ${n[0].toUpperCase()}${n.slice(1)} lets you put that equity to work without refinancing the loan you already have.`,
+  },
+  highInterestConsumerDebt: {
+    title: "High-Interest Debt",
+    subject: "A lower-rate option is sitting right here",
+    open: (n) => `Revolving balances are racking up interest every month. Moving that debt into ${n} usually means one lower rate and a faster path to zero.`,
+  },
+  largePlannedOutflow: {
+    title: "Big Expense Ahead",
+    subject: "The money is already leaving — make it cheaper",
+    open: (n) => `Large tuition, medical, or renovation payments are on their way out. ${n[0].toUpperCase()}${n.slice(1)} covers the same spending at a fraction of the interest cost.`,
+  },
 
   // --- Demographic ---
+
   dualIncome: {
     title: "Dual-Income Household",
     subject: "Two incomes, one plan",
