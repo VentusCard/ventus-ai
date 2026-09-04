@@ -303,9 +303,10 @@ function FilterRow({
           <div className="text-right shrink-0 w-28">
             <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Removes</p>
             <p className="text-[13px] font-bold text-rose-600 mt-0.5">
-              −{dropPct}% · −{formatAudience(removed)}
+              {enabled ? `−${dropPct}% · −${formatAudience(removed)}` : <span className="text-slate-400">—</span>}
             </p>
           </div>
+
           <ChevronRight className={cn("w-5 h-5 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
         <RowActions onEdit={onEdit} onDelete={onDelete} tone="rose" />
