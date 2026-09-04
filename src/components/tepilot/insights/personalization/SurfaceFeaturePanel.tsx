@@ -12,6 +12,9 @@ const FEATURES: Record<Surface, { title: string; items: { label: string; detail:
       { label: "Hyper-personalized messaging", detail: "Copy written to the customer's behavior, never generic offer text." },
       { label: "Semantic deal search", detail: "Natural-language queries matched across the full catalog." },
       { label: "Timing intelligence", detail: "Expiring and in-season offers pushed ahead of the next spend window." },
+      { label: "Local Deals and Perks", detail: "Geo-targeted merchant discounts and place-based benefits surfaced by location." },
+      { label: "Multiple Deal Aggregators", detail: "Owned, partner, and network offer sources combined into one coherent feed." },
+      { label: "Surface Financial Products", detail: "Relevant banking products woven into the rewards experience at the right moment." },
     ],
   },
   product: {
