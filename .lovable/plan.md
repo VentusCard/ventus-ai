@@ -27,7 +27,8 @@ In `src/lib/flowSignalFamilies.ts`:
 - Add new `FINANCIAL` seeds:
   - **Built meaningful home equity** — mortgage paid down over several years, property value appreciation inferred from tax/insurance bands.
   - **Carrying high-interest consumer debt** — recurring interest charges and revolving balances that a HELOC could consolidate.
-  - **Large planned outflow ahead** — tuition, medical, or renovation deposits already leaving the account.
+  - **Large planned outflow ahead** — large tuition deposits, large medical payments, or renovation deposits already leaving the account.
+
 
 - Add new `DEMOGRAPHIC` seeds:
   - **Long-tenure homeowner** — same property payments for 7+ years, strong equity position.
