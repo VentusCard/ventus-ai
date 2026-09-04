@@ -197,7 +197,23 @@ const FINANCIAL: Record<string, SeedSignal> = {
     evidence: "Airline, hotel and ride spending across several trips this past year.",
     weight: 0.17,
   },
+  homeEquityBuilt: {
+    label: "Built meaningful home equity",
+    evidence: "Mortgage principal paid down over several years alongside property tax and homeowners insurance outflows.",
+    weight: 0.35,
+  },
+  highInterestConsumerDebt: {
+    label: "Carrying high-interest consumer debt",
+    evidence: "Recurring interest charges and revolving balances that a lower-rate home equity line could consolidate.",
+    weight: 0.31,
+  },
+  largePlannedOutflow: {
+    label: "Large planned outflow ahead",
+    evidence: "Large tuition deposits, large medical payments, or renovation deposits already leaving the account.",
+    weight: 0.22,
+  },
 };
+
 
 const DEMOGRAPHIC: Record<string, SeedSignal> = {
   dualIncome: {
