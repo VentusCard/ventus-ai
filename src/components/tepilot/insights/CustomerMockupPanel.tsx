@@ -104,6 +104,15 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
 
   const workspaceRef = useScrollIntoWorkspace(hasSelection, `${surface}:${selectedId ?? ""}`);
 
+  const ltvResult = useMemo(
+    () =>
+      computeLtvLift(surface, example, {
+        offers: useSession ? session.generatedOffers : generated.offers,
+        productCards: useSession ? session.productCards : generated.productCards,
+      }),
+    [surface, example, useSession, session.generatedOffers, session.productCards, generated.offers, generated.productCards],
+  );
+
   return (
     <div
       ref={workspaceRef}
