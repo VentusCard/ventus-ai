@@ -1,4 +1,5 @@
-import { ArrowRight, X } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, ChevronDown, X } from "lucide-react";
 import { fmtCount, type SignalFamilyStats } from "@/lib/intelligenceSignalStats";
 import type { SignalFamily } from "@/lib/customerDirectoryData";
 import { Sparkline } from "./Sparkline";
@@ -43,6 +44,9 @@ const STRONG_PILL: Record<SignalFamily, [string, string, string, string]> = {
   ],
 };
 
+/** Signals shown before the drawer needs an explicit expand. */
+const VISIBLE_LIMIT = 9;
+
 /** 0 = faint, 3 = deepest. */
 function pillStep(strongPct: number): 0 | 1 | 2 | 3 {
   if (strongPct >= 70) return 3;
@@ -57,6 +61,11 @@ export function SignalFamilyPanel({
   onClose,
   onOpenSignal,
 }: SignalFamilyPanelProps) {
+  const [showAll, setShowAll] = useState(false);
+  const ordered = [...family.topSignals].sort((a, b) => b.customers - a.customers);
+  const visible = showAll ? ordered : ordered.slice(0, VISIBLE_LIMIT);
+  const hidden = ordered.length - visible.length;
+
   return (
     <div className={`col-span-full rounded-lg border ${family.cardBorder} bg-white shadow-sm animate-in fade-in slide-in-from-top-1 duration-200`}>
       {/* Slim bar */}
@@ -78,7 +87,7 @@ export function SignalFamilyPanel({
 
       {/* Signals */}
       <div className="p-3 grid grid-cols-2 lg:grid-cols-3 gap-2">
-        {family.topSignals.map((s) => (
+        {visible.map((s) => (
           <button
             key={s.label}
             type="button"
@@ -130,6 +139,19 @@ export function SignalFamilyPanel({
           </button>
         ))}
       </div>
+
+      {ordered.length > VISIBLE_LIMIT && (
+        <div className="px-3 pb-3 -mt-1">
+          <button
+            type="button"
+            onClick={() => setShowAll((v) => !v)}
+            className={`w-full flex items-center justify-center gap-1.5 rounded-md border border-dashed border-slate-300 bg-slate-50/60 py-2 text-[11.5px] font-medium text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900`}
+          >
+            {showAll ? "Show top 9 signals" : `Show all ${ordered.length} signals`}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAll ? "rotate-180" : ""}`} />
+          </button>
+        </div>
+      )}
 
     </div>
   );
