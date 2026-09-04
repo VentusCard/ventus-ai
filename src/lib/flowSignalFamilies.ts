@@ -391,8 +391,10 @@ const RISK: Record<string, SeedSignal> = {
   },
   coverageGap: {
     label: "Coverage already adequate",
+    evidence: "Removes households whose insurance already tracks their income and assets.",
     weight: 0.8,
   },
+
 
 };
 
