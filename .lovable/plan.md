@@ -15,7 +15,7 @@ In /bankdemo's three Banking Personalization tabs (Personalized Deals, Personali
 
 ```text
 [ Customer Selection | Phone Mockup | Key Features + Unit Economics ]
-        0.9fr              1.0fr               1.1fr
+          1fr                1fr                   1fr
 ```
 
 ## Changes
