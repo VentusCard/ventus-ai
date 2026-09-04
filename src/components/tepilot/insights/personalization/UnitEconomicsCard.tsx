@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Calculator, ChevronDown, RotateCcw } from "lucide-react";
 import { EXAMPLE_CUSTOMERS } from "@/lib/personalizationExamples";
 import { usePersonalizationCustomer } from "@/lib/personalizationCustomerStore";
@@ -6,7 +6,6 @@ import { usePersonalizationResult } from "@/lib/personalizationResultStore";
 import {
   computeSurfaceEconomics,
   formatMoney,
-  recordContribution,
   resetAssumptions,
   setAssumption,
   SURFACE_LABEL,
@@ -14,8 +13,6 @@ import {
   type EconomicsAssumptions,
   type EconomicsSurface,
 } from "@/lib/personalizationUnitEconomics";
-
-const ALL_SURFACES: EconomicsSurface[] = ["rewards", "product", "relationship"];
 
 const ASSUMPTION_FIELDS: {
   key: keyof EconomicsAssumptions;
@@ -37,14 +34,14 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
   const selectedId = usePersonalizationCustomer();
   const customer = EXAMPLE_CUSTOMERS.find((c) => c.id === selectedId) ?? null;
   const entry = usePersonalizationResult(customer?.id ?? "");
-  const { assumptions, contributions } = useEconomicsState();
+  const { assumptions } = useEconomicsState();
   const [showAssumptions, setShowAssumptions] = useState(false);
   const [revealed, setRevealed] = useState(0);
 
   useEffect(() => {
     setRevealed(0);
     if (!customer) return;
-    const timers = [0, 1, 2].map((i) =>
+    const timers = [0, 1].map((i) =>
       window.setTimeout(() => setRevealed(i + 1), 120 * (i + 1)),
     );
     return () => timers.forEach(window.clearTimeout);
@@ -53,29 +50,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
   const revealCls = (i: number) =>
     `transition-all duration-300 ${revealed > i ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"}`;
 
-  const computed = useMemo(
-    () =>
-      ALL_SURFACES.map((s) => computeSurfaceEconomics(s, customer, entry, assumptions)),
-    [customer, entry, assumptions],
-  );
-
-  useEffect(() => {
-    if (!customer) return;
-    computed.forEach((c) => {
-      if (c.ready) recordContribution(customer.id, c.surface, c.value);
-    });
-  }, [customer?.id, computed]);
-
-  const stored = customer ? contributions[customer.id] ?? {} : {};
-  const rows = ALL_SURFACES.map((s) => {
-    const live = computed.find((c) => c.surface === s)!;
-    const value = live.ready ? live.value : stored[s];
-    return { surface: s, value: value ?? null, live };
-  });
-
-  const total = rows.reduce((sum, r) => sum + (r.value ?? 0), 0);
-  const partial = rows.some((r) => r.value == null);
-  const current = computed.find((c) => c.surface === surface)!;
+  const current = computeSurfaceEconomics(surface, customer, entry, assumptions);
 
   if (!customer) {
     return (
@@ -91,23 +66,6 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
                 <div key={line.label} className="flex items-center justify-between gap-2">
                   <span className="text-[11.5px] text-slate-500">{line.label}</span>
                   <span className="text-[13px] font-bold text-slate-400 tabular-nums shrink-0">—</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="border border-slate-200 rounded-md bg-slate-50/50 px-3 py-3">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11.5px] font-semibold text-slate-500">
-                Total / customer / yr
-              </span>
-              <span className="text-[15px] font-bold text-slate-400 tabular-nums">—</span>
-            </div>
-            <div className="mt-2 pt-2 border-t border-slate-200 space-y-1">
-              {ALL_SURFACES.map((s) => (
-                <div key={s} className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-slate-500">{SURFACE_LABEL[s]}</span>
-                  <span className="text-[10.5px] text-slate-400">not generated</span>
                 </div>
               ))}
             </div>
@@ -130,7 +88,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
 
   return (
     <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
-      <Header value={total} partial={partial} />
+      <Header value={current.ready ? current.value : undefined} />
 
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-3">
         {/* Current surface metrics */}
@@ -150,34 +108,8 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
           </div>
         </div>
 
-        {/* Running total */}
-        <div className={`border border-slate-200 rounded-md bg-slate-50/50 px-3 py-3 ${revealCls(1)}`}>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[11.5px] font-semibold text-slate-900">
-              {partial ? "Total so far / customer / yr" : "Total / customer / yr"}
-            </span>
-            <span className="text-[15px] font-bold text-blue-700 tabular-nums">
-              {formatMoney(total)}
-            </span>
-          </div>
-          <div className="mt-2 pt-2 border-t border-slate-200 space-y-1">
-            {rows.map((row) => (
-              <div key={row.surface} className="flex items-center justify-between gap-2">
-                <span className="text-[11px] text-slate-600">{SURFACE_LABEL[row.surface]}</span>
-                {row.value == null ? (
-                  <span className="text-[10.5px] text-slate-400">not generated</span>
-                ) : (
-                  <span className="text-[11.5px] font-semibold text-slate-800 tabular-nums">
-                    {formatMoney(row.value)}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Assumptions */}
-        <div className={`border border-slate-200 rounded-md bg-white ${revealCls(2)}`}>
+        <div className={`border border-slate-200 rounded-md bg-white ${revealCls(1)}`}>
           <button
             type="button"
             onClick={() => setShowAssumptions((v) => !v)}
@@ -229,7 +161,7 @@ export function UnitEconomicsCard({ surface }: { surface: EconomicsSurface }) {
   );
 }
 
-function Header({ value, partial }: { value?: number; partial?: boolean }) {
+function Header({ value }: { value?: number }) {
   return (
     <div className="shrink-0 px-3.5 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center justify-between gap-2">
       <div className="flex items-center gap-2 min-w-0">
@@ -238,7 +170,7 @@ function Header({ value, partial }: { value?: number; partial?: boolean }) {
       </div>
       {value != null && (
         <span className="text-[11px] font-semibold text-blue-700 tabular-nums shrink-0">
-          {formatMoney(value)}{partial ? " so far" : ""} / customer / yr
+          {formatMoney(value)} / customer / yr
         </span>
       )}
     </div>
