@@ -24,6 +24,8 @@ import {
   Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LtvLiftSliver } from "./LtvLiftSliver";
+import type { LtvLiftResult } from "@/lib/personalizationLtvLift";
 
 export type Surface = "rewards" | "product" | "relationship";
 
