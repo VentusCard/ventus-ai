@@ -197,7 +197,23 @@ const FINANCIAL: Record<string, SeedSignal> = {
     evidence: "Airline, hotel and ride spending across several trips this past year.",
     weight: 0.17,
   },
+  homeEquityBuilt: {
+    label: "Built meaningful home equity",
+    evidence: "Mortgage principal paid down over several years alongside property tax and homeowners insurance outflows.",
+    weight: 0.35,
+  },
+  highInterestConsumerDebt: {
+    label: "Carrying high-interest consumer debt",
+    evidence: "Recurring interest charges and revolving balances that a lower-rate home equity line could consolidate.",
+    weight: 0.31,
+  },
+  largePlannedOutflow: {
+    label: "Large planned outflow ahead",
+    evidence: "Large tuition deposits, large medical payments, or renovation deposits already leaving the account.",
+    weight: 0.22,
+  },
 };
+
 
 const DEMOGRAPHIC: Record<string, SeedSignal> = {
   dualIncome: {
@@ -270,7 +286,23 @@ const DEMOGRAPHIC: Record<string, SeedSignal> = {
     evidence: "Family spending dropped off while travel and dining picked up.",
     weight: 0.14,
   },
+  longTenureHomeowner: {
+    label: "Long-tenure homeowner",
+    evidence: "Same property payments for 7+ years, indicating a paid-down mortgage and strong equity position.",
+    weight: 0.28,
+  },
+  dualIncomeHomeowner: {
+    label: "Dual-income homeowner",
+    evidence: "Two payroll streams land in the household alongside mortgage and property tax outflows.",
+    weight: 0.26,
+  },
+  preRetireeHomeowner: {
+    label: "Pre-retiree homeowner",
+    evidence: "Age band 50–62 with a paid-down mortgage and rising discretionary home-improvement spend.",
+    weight: 0.18,
+  },
 };
+
 
 // Risk items are exclusion filters, not triggers. Each label names WHO GETS
 // REMOVED; the weight is the share of the triggered audience that still clears.
@@ -402,8 +434,12 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
   if (t.has("home")) {
     add("financial", FINANCIAL.mortgagePayer, 3);
+    add("financial", FINANCIAL.homeEquityBuilt, 3);
+    add("financial", FINANCIAL.highInterestConsumerDebt, 3);
+    add("financial", FINANCIAL.largePlannedOutflow, 3);
     add("financial", FINANCIAL.surplus, 2);
   }
+
   if (t.has("auto")) add("financial", FINANCIAL.autoPayer, 3);
   if (parentEducation) {
     add("financial", FINANCIAL.tuitionOutflow, 3);
@@ -436,7 +472,13 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
     add("demographic", DEMOGRAPHIC.dualIncome, 2);
   }
-  if (t.has("home")) add("demographic", DEMOGRAPHIC.homeowner, 3);
+  if (t.has("home")) {
+    add("demographic", DEMOGRAPHIC.homeowner, 3);
+    add("demographic", DEMOGRAPHIC.longTenureHomeowner, 3);
+    add("demographic", DEMOGRAPHIC.dualIncomeHomeowner, 3);
+    add("demographic", DEMOGRAPHIC.preRetireeHomeowner, 2);
+  }
+
   // Only vehicle products get a vehicle-count signal — not life or pet cover.
   if (autoInsurance) add("demographic", DEMOGRAPHIC.multiVehicle, 3);
   if (t.has("retirement")) add("demographic", DEMOGRAPHIC.preRetiree, 3);
@@ -495,10 +537,11 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
 const FAMILY_CAP: Record<SignalFamily, number> = {
   "life-event": 3,
   behavioral: 3,
-  financial: 3,
-  demographic: 2,
+  financial: 4,
+  demographic: 3,
   risk: 3,
 };
+
 
 
 /* ------------------------------- *
@@ -602,8 +645,24 @@ const ARCHETYPE_ANGLE: Record<string, Angle> = {
     subject: "You travel enough for this to pay off",
     open: (n) => `Flights, hotels and rides show up across several trips this year. That's the spend level where ${n} stops being a nice-to-have and starts paying for itself.`,
   },
+  homeEquityBuilt: {
+    title: "Equity Built Up",
+    subject: "Your home has been quietly building value",
+    open: (n) => `Years of mortgage payments have turned your home into a real asset. ${n[0].toUpperCase()}${n.slice(1)} lets you put that equity to work without refinancing the loan you already have.`,
+  },
+  highInterestConsumerDebt: {
+    title: "High-Interest Debt",
+    subject: "A lower-rate option is sitting right here",
+    open: (n) => `Revolving balances are racking up interest every month. Moving that debt into ${n} usually means one lower rate and a faster path to zero.`,
+  },
+  largePlannedOutflow: {
+    title: "Big Expense Ahead",
+    subject: "The money is already leaving — make it cheaper",
+    open: (n) => `Large tuition, medical, or renovation payments are on their way out. ${n[0].toUpperCase()}${n.slice(1)} covers the same spending at a fraction of the interest cost.`,
+  },
 
   // --- Demographic ---
+
   dualIncome: {
     title: "Dual-Income Household",
     subject: "Two incomes, one plan",
@@ -674,8 +733,24 @@ const ARCHETYPE_ANGLE: Record<string, Angle> = {
     subject: "The budget just changed shape",
     open: (n) => `Family spending has eased while travel and dining have picked up. ${n[0].toUpperCase()}${n.slice(1)} fits the version of the budget you're living in now.`,
   },
+  longTenureHomeowner: {
+    title: "Long-Tenure Homeowner",
+    subject: "You've owned long enough for this to matter",
+    open: (n) => `Seven or more years of payments have built real equity in your home. ${n[0].toUpperCase()}${n.slice(1)} is the cleanest way to access it when a large expense comes up.`,
+  },
+  dualIncomeHomeowner: {
+    title: "Dual-Income Homeowner",
+    subject: "Two incomes, one house, more options",
+    open: (n) => `Two paychecks land in this household and the mortgage is well in hand. ${n[0].toUpperCase()}${n.slice(1)} is easier to qualify for and manage with that income foundation.`,
+  },
+  preRetireeHomeowner: {
+    title: "Pre-Retiree Homeowner",
+    subject: "The right window for a low-rate backstop",
+    open: (n) => `You're in the years when a paid-down mortgage and upcoming life changes overlap. ${n[0].toUpperCase()}${n.slice(1)} gives you flexible access to equity before you need it.`,
+  },
 
   // --- Behavioral ---
+
   competitorProduct: {
     title: "Held at Another Provider",
     subject: "You already have this — just not with us",
