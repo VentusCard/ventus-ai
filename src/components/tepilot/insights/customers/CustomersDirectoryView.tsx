@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fmtCount, scaleSample, shareOf } from "@/lib/bookScale";
 import { getSignalFamilyStats, type SignalSegmentSeed } from "@/lib/intelligenceSignalStats";
+import { synthesizeSegmentSample } from "@/lib/segmentSampleSynthesis";
 
 
 function parseValueK(value: string) {
@@ -117,7 +118,26 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     return sortCustomers(list, quickStart === "value" ? "value" : sortKey, quickStart === "value" ? "desc" : sortDir);
   }, [query, families, tiers, quickStart, sortKey, sortDir, segment]);
 
-  const selected = selectedId ? CUSTOMER_DIRECTORY.find((c) => c.id === selectedId) ?? null : null;
+  // Illustrative profiles standing in for the full book-level cohort behind an
+  // exported segment. Deterministic per segment; excluded from metrics/exports.
+  const synthetic = useMemo(
+    () => (segment ? synthesizeSegmentSample(segment, 24) : []),
+    [segment],
+  );
+
+  const displayed = useMemo(() => {
+    if (!segment) return filtered;
+    const q = query.trim().toLowerCase();
+    const extras = synthetic.filter((c) => {
+      if (q && !haystack(c).includes(q)) return false;
+      if (tiers.size > 0 && !tiers.has(c.tier)) return false;
+      return true;
+    });
+    return sortCustomers([...filtered, ...extras], sortKey, sortDir);
+  }, [segment, filtered, synthetic, query, tiers, sortKey, sortDir]);
+
+  const pool = useMemo(() => [...CUSTOMER_DIRECTORY, ...synthetic], [synthetic]);
+  const selected = selectedId ? pool.find((c) => c.id === selectedId) ?? null : null;
   const recentlyViewed = recentIds
     .map((id) => CUSTOMER_DIRECTORY.find((c) => c.id === id))
     .filter(Boolean) as DirectoryCustomer[];
@@ -197,7 +217,10 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     a.download = `${segmentSlug}-${filtered.length}-customers.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`Exported ${filtered.length} customers to CSV`);
+    toast.success(
+      `Exported ${filtered.length} customers to CSV` +
+        (segment ? " — real profiles only; sample rows are illustrative" : ""),
+    );
   };
 
   const handleCopyJson = () => {
@@ -213,7 +236,10 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
         2,
       ),
     );
-    toast.success(`Copied ${filtered.length} customer records as JSON`);
+    toast.success(
+      `Copied ${filtered.length} customer records as JSON` +
+        (segment ? " — real profiles only; sample rows are illustrative" : ""),
+    );
   };
 
   const handleCopyList = () => {
@@ -329,8 +355,23 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
                   <span className="font-semibold tabular-nums">{fmtCount(population)}</span> customers in the book
                 </span>
                 <span className="text-[11px] text-slate-500">
-                  {filtered.length} profile{filtered.length === 1 ? "" : "s"} shown to illustrate the cohort — the
-                  count above is the full book-level population
+                  {displayed.length} representative profiles shown to illustrate the cohort
+                </span>
+              </div>
+
+              {/* Scale bar: the visible sliver vs the full cohort conveys magnitude. */}
+              <div className="flex items-center gap-2 mt-1.5">
+                <div className="h-1 flex-1 max-w-[200px] rounded-full overflow-hidden bg-white">
+                  <div
+                    className={segmentFamilyMeta?.barStrong ?? "bg-blue-600"}
+                    style={{
+                      width: `${Math.max(1.5, Math.min(100, (displayed.length / Math.max(population, 1)) * 100))}%`,
+                    }}
+                  />
+                </div>
+                <span className="text-[10.5px] text-slate-500 tabular-nums">
+                  {displayed.length} shown of {fmtCount(population)} · every profile represents ~
+                  {fmtCount(Math.round(population / Math.max(displayed.length, 1)))} customers
                 </span>
               </div>
 
@@ -415,14 +456,24 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
         >
           <div className="space-y-2 min-w-0">
 
-            {hasFilters && filtered.length > 0 && (
+            {hasFilters && displayed.length > 0 && (
               <div className="text-[10px] text-slate-400 mb-1.5">
-                Showing a representative sample of {filtered.length} profiles from{" "}
-                {fmtCount(population)} matching customers.
+                {segment ? (
+                  <>
+                    Showing {displayed.length} representative profiles — the full cohort is{" "}
+                    <span className="font-semibold text-slate-600">{fmtCount(population)} customers</span>{" "}
+                    (1 profile ≈ {fmtCount(Math.round(population / Math.max(displayed.length, 1)))} customers).
+                  </>
+                ) : (
+                  <>
+                    Showing a representative sample of {filtered.length} profiles from{" "}
+                    {fmtCount(population)} matching customers.
+                  </>
+                )}
               </div>
             )}
             <CustomerResultsTable
-              customers={filtered}
+              customers={displayed}
               sortKey={sortKey}
               sortDir={sortDir}
               onSort={handleSort}

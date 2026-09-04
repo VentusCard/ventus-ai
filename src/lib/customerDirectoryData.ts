@@ -44,6 +44,8 @@ export interface DirectoryCustomer {
   demographicSignals: DirectorySignal[];
   riskFlags: DirectorySignal[];
   nextActions: string[];
+  /** True for illustrative profiles synthesized to represent a large cohort. */
+  synthetic?: boolean;
 }
 
 export const SIGNAL_FAMILY_META: {

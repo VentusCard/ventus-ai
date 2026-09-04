@@ -99,7 +99,14 @@ export function CustomerResultsTable({ customers, sortKey, sortDir, onSort, onSe
                     selectedId === c.id ? "border-blue-500" : "border-transparent",
                   )}
                 >
-                  <div className="text-[12.5px] font-semibold text-slate-900">{c.name}</div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[12.5px] font-semibold text-slate-900">{c.name}</span>
+                    {c.synthetic && (
+                      <span className="rounded border border-slate-200 bg-slate-50 px-1 py-px text-[8.5px] font-medium uppercase tracking-wide text-slate-400">
+                        illustrative
+                      </span>
+                    )}
+                  </div>
                   <div className="text-[10px] text-slate-400">{c.email}</div>
                 </td>
                 <td className="px-3 py-2.5 text-[11.5px] text-slate-600 whitespace-nowrap">{c.segment}</td>
