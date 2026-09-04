@@ -60,9 +60,22 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
+import { SIGNAL_FAMILY_META } from "@/lib/customerDirectoryData";
 
 import { PulseDot } from "@/components/tepilot/common/PulseDot";
 import type { TabValue } from "./AnalyticsContainer";
+
+const FAMILY_META_BY_LABEL = Object.fromEntries(
+  SIGNAL_FAMILY_META.map((m) => [m.label, m]),
+) as Record<string, (typeof SIGNAL_FAMILY_META)[number]>;
+
+const LABEL_TO_KEY: Record<string, string> = {
+  Behavioral: "spending_habit",
+  "Life Event": "life_event",
+  Financial: "financial",
+  Demographic: "demographic",
+  Risk: "risk",
+};
 
 type SourceInput = {
   label: string;
