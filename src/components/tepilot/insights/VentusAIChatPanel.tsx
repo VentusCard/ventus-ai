@@ -11,8 +11,8 @@ const PLATFORM_CONTEXT = {
   platformDescription:
     "You are the AI co-pilot for a bank-wide customer intelligence and personalization platform. You have access to insights across all modules.",
   bankwideMetrics: {
-    totalAccounts: "120M",
-    totalUsers: "75M",
+    totalAccounts: "109M",
+    totalUsers: "68.2M",
     totalAnnualSpend: "$385B",
     avgAccountsPerUser: 1.6,
     activeAccountRate: "87.3%",
