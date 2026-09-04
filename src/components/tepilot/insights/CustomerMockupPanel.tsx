@@ -14,6 +14,7 @@ import {
   usePersonalizationResult,
 } from "@/lib/personalizationResultStore";
 import { buildChatSignalContext, pillarFor } from "@/lib/personalizationGeneration";
+import { computeLtvLift } from "@/lib/personalizationLtvLift";
 import { findGroupForLabel } from "@/components/exec-demo/GeneratedOffersPhoneView";
 import { SIGNAL_FAMILY_META, type DirectorySignal } from "@/lib/customerDirectoryData";
 import { ExampleCustomerBar } from "./personalization/ExampleCustomerBar";
