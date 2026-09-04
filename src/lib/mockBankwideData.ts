@@ -24,7 +24,7 @@ const PILLARS = LIFESTYLE_PILLARS;
 
 // Base data: accounts per user held at 1.6, sized off the canonical book.
 const TOTAL_USERS = BOOK_CUSTOMERS;
-const TOTAL_ACCOUNTS = Math.round(BOOK_CUSTOMERS * 1.6);
+export const TOTAL_ACCOUNTS = Math.round(BOOK_CUSTOMERS * 1.6);
 
 const TOTAL_ANNUAL_SPEND = 385_000_000_000; // $385B
 
