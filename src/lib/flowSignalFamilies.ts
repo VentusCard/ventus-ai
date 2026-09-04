@@ -1027,7 +1027,7 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
       id: `${flow.id}--filter--${slug(s.label)}`,
       label: s.label,
       evidence: s.evidence,
-      passRate: Math.min(0.98, Math.max(0.2, s.weight ?? 0.5)),
+      passRate: Math.min(FILTER_PASS_MAX, Math.max(FILTER_PASS_MIN, s.weight ?? 0.9)),
     }));
 
   const signals = [...authored, ...triggering].sort(
