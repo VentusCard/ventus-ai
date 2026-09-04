@@ -106,7 +106,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   return (
     <div
       ref={workspaceRef}
-      className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr_1.0fr] gap-4 h-[calc(100vh-140px)] min-h-[720px]"
+      className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-140px)] min-h-[720px]"
     >
       {/* ---------- Customer Selection ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
@@ -144,8 +144,6 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
         </div>
       </div>
 
-      {/* ---------- Key features + unit economics ---------- */}
-      <SurfaceFeaturePanel surface={surface} customerKey={hasSelection ? selectedId ?? displayName : null} />
 
       {/* ---------- Personalized surface ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
@@ -240,6 +238,9 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           )}
         </div>
       </div>
+
+      {/* ---------- Key features + unit economics ---------- */}
+      <SurfaceFeaturePanel surface={surface} customerKey={hasSelection ? selectedId ?? displayName : null} />
     </div>
   );
 }
