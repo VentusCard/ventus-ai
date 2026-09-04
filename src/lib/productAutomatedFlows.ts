@@ -276,7 +276,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     icon: Home,
     positioning: "Flexible credit secured by home equity for renovations, large medical bills, tuition, or consolidation.",
     signals: [
-      { label: "Major home renovation underway", evidence: "Accumulation of large-ticket card charges at building-material retailers and bank payments to general contractors within a 90-day window.", type: "life-event" },
+      { label: "Starting major home renovation ", evidence: "Accumulation of large-ticket card charges at building-material retailers and bank payments to general contractors within a 90-day window.", type: "life-event" },
       { label: "Large medical bills expected", evidence: "Recurring or large payments to hospitals, surgical centers, orthodontists, or out-of-network specialists signaling a financing need.", type: "life-event" },
       { label: "Large tuition payments starting", evidence: "New recurring tuition payments to academic institutions, test-prep services, or enrichment programs alongside a home-equity-rich profile.", type: "life-event" },
       { label: "Recent home purchase or sale with equity left behind", evidence: "Sale proceeds landing in deposit accounts, or a new mortgage plus moving and renovation spend indicating unlocked equity.", type: "life-event" },
