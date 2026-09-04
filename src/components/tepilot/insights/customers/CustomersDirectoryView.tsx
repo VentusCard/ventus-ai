@@ -167,7 +167,7 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
   const segmentFamilyMeta = segment
     ? SIGNAL_FAMILY_META.find((m) => m.key === segment.family) ?? null
     : null;
-  const segmentFamilyLabel = segmentFamilyMeta?.label.toLowerCase() ?? "signal";
+  const segmentFamilyLabel = segmentFamilyMeta?.label ?? "signal";
 
   const segmentSlug = (segment?.label ?? "customer-segment")
     .toLowerCase()
@@ -336,9 +336,9 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
 
               <div className="flex items-center gap-2 mt-2">
                 <div className="h-1 flex-1 max-w-[220px] rounded-full overflow-hidden bg-white flex">
-                  <div className="bg-blue-600" style={{ width: `${segment.confidence.strong}%` }} />
-                  <div className="bg-blue-400" style={{ width: `${segment.confidence.likely}%` }} />
-                  <div className="bg-blue-200" style={{ width: `${segment.confidence.emerging}%` }} />
+                  <div className={segmentFamilyMeta?.barStrong ?? "bg-blue-600"} style={{ width: `${segment.confidence.strong}%` }} />
+                  <div className={segmentFamilyMeta?.barLikely ?? "bg-blue-400"} style={{ width: `${segment.confidence.likely}%` }} />
+                  <div className={segmentFamilyMeta?.barEmerging ?? "bg-blue-200"} style={{ width: `${segment.confidence.emerging}%` }} />
                 </div>
                 <span className="text-[10.5px] text-slate-500 tabular-nums">
                   {segment.confidence.strong}% strong · {segment.confidence.likely}% likely ·{" "}
