@@ -1093,15 +1093,15 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
               !coreLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
             )}
           >
-            <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-4">
-              <div className="mb-3 border-b border-white/10 pb-2">
+            <div className="h-full overflow-hidden rounded-xl bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 p-4">
+              <div className="mb-3 border-b border-blue-200/40 pb-2">
                 <div className="flex min-w-0 items-center gap-2.5">
-                  <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto shrink-0 brightness-0 invert opacity-95" />
-                  <p className="truncate text-[14px] font-semibold tracking-tight text-white">
+                  <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto shrink-0 opacity-95" />
+                  <p className="truncate text-[14px] font-semibold tracking-tight text-slate-900">
                     Customer Intelligence Core
                   </p>
                 </div>
-                <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] text-slate-400">
+                <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] text-slate-500">
                   5 families · {TOTAL_SIGNAL_TYPES} signals · 24h
                 </p>
               </div>
@@ -1109,7 +1109,7 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
 
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
-                <div className="mb-2 whitespace-nowrap font-mono text-[11px] uppercase tracking-wider text-slate-300">
+                <div className="mb-2 whitespace-nowrap font-mono text-[11px] uppercase tracking-wider text-slate-500">
                   Signals · what we detect
                 </div>
                 <div className="flex flex-col gap-2">
