@@ -12,6 +12,21 @@ import {
 
 export type SignalConfidence = "strong" | "likely" | "emerging";
 
+/**
+ * What a click on a family card or a signal tile hands to the Segments view.
+ * `scope: "family"` means the whole family cohort, no single signal.
+ */
+export interface SignalSegmentSeed {
+  family: import("@/lib/customerDirectoryData").SignalFamily;
+  label: string;
+  scope: "family" | "signal";
+  /** Book-level population behind this cohort. */
+  customers: number;
+  delta: number;
+  evidence: string;
+  confidence: { strong: number; likely: number; emerging: number };
+}
+
 /** Distribution of evidence strength across the customers carrying a signal. */
 export interface ConfidenceMix {
   strong: number;

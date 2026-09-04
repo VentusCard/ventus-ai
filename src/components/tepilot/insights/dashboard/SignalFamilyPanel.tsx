@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { ArrowRight, ChevronDown, X } from "lucide-react";
-import { fmtCount, type SignalFamilyStats } from "@/lib/intelligenceSignalStats";
+import { fmtCount, type SignalFamilyStats, type SignalSegmentSeed } from "@/lib/intelligenceSignalStats";
 import type { SignalFamily } from "@/lib/customerDirectoryData";
 import { Sparkline } from "./Sparkline";
 
 interface SignalFamilyPanelProps {
   family: SignalFamilyStats;
   onClose: () => void;
-  onOpenSignal: (family: SignalFamily, label: string) => void;
+  onOpenSignal: (seed: SignalSegmentSeed) => void;
 }
 
 /** Static Tailwind classes: family color × strong-share intensity step. */
@@ -91,7 +91,17 @@ export function SignalFamilyPanel({
           <button
             key={s.label}
             type="button"
-            onClick={() => onOpenSignal(family.key, s.label)}
+            onClick={() =>
+              onOpenSignal({
+                family: family.key,
+                label: s.label,
+                scope: "signal",
+                customers: s.customers,
+                delta: s.delta,
+                evidence: s.evidence,
+                confidence: s.confidence,
+              })
+            }
             className={`group text-left rounded-md border border-slate-200 bg-white px-3 py-2.5 transition-colors ${family.rowHoverBorder} ${family.rowHover}`}
           >
             <div className="flex items-center gap-2">

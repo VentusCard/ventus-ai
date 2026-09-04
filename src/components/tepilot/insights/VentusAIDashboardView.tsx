@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import type { SignalFamily } from "@/lib/customerDirectoryData";
+import type { SignalSegmentSeed } from "@/lib/intelligenceSignalStats";
 import { cn } from "@/lib/utils";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
@@ -38,7 +38,7 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
 
   const [section, setSection] = useState<string>(initialSection);
   const [consoleQuery, setConsoleQuery] = useState<string | undefined>(undefined);
-  const [signalSegment, setSignalSegment] = useState<{ family: SignalFamily; label: string } | null>(null);
+  const [signalSegment, setSignalSegment] = useState<SignalSegmentSeed | null>(null);
   useEffect(() => { setSection(initialSection); }, [initialSection]);
 
   const priorityCards = useMemo(
@@ -151,13 +151,8 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
           onNavigate={onNavigate}
           onOpenOpportunity={onOpenOpportunity}
           onOpenSection={(s) => setSection(s)}
-          onOpenSignalSegment={(family, label) => {
-            if (family === "risk") {
-              setSignalSegment(null);
-              setSection("risk");
-              return;
-            }
-            setSignalSegment({ family, label });
+          onOpenSignalSegment={(seed) => {
+            setSignalSegment(seed);
             setSection("customers");
           }}
           renderVentusSliver={onOpenChat ? renderSliver : undefined}
