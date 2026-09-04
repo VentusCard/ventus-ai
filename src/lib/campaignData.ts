@@ -3,74 +3,8 @@ import type {
   CampaignTemplate, 
   AudienceSegment,
   CampaignMetrics,
-  LifeEventCriteria,
-  LifestyleCriteria,
-  ProductCriteria,
 } from '@/types/campaign';
-import { CARD_PRODUCTS } from './mockBankwideData';
 
-const BASE_USERS = 75_000_000;
-
-// Life event detection rates
-const LIFE_EVENT_RATES: Record<string, number> = {
-  retirement: 0.042,
-  education: 0.038,
-  family: 0.055,
-  home: 0.032,
-  elder_care: 0.028,
-  business: 0.018,
-  wealth_transfer: 0.022,
-};
-
-// Lifestyle threshold multipliers
-const THRESHOLD_MULTIPLIERS: Record<string, number> = {
-  top_10: 0.10,
-  top_20: 0.20,
-  top_30: 0.30,
-  above_average: 0.50,
-};
-
-// Estimate audience size based on criteria
-export function estimateAudienceSize(
-  lifeEventCriteria?: LifeEventCriteria,
-  lifestyleCriteria?: LifestyleCriteria,
-  productCriteria?: ProductCriteria
-): number {
-  let multiplier = 1.0;
-
-  // Life event detection rate (~2-8% per event type)
-  if (lifeEventCriteria && lifeEventCriteria.eventTypes.length > 0) {
-    const eventMultiplier = lifeEventCriteria.eventTypes.reduce((sum, event) => {
-      return sum + (LIFE_EVENT_RATES[event] || 0.03);
-    }, 0);
-    multiplier *= eventMultiplier;
-  }
-
-  // Lifestyle threshold
-  if (lifestyleCriteria && lifestyleCriteria.pillars.length > 0) {
-    const threshold = THRESHOLD_MULTIPLIERS[lifestyleCriteria.spendingThreshold] || 0.20;
-    // More pillars selected = smaller intersection
-    const pillarFactor = Math.pow(threshold, lifestyleCriteria.pillars.length * 0.3);
-    multiplier *= pillarFactor;
-  }
-
-  // Product filtering
-  if (productCriteria && productCriteria.hasProducts.length > 0) {
-    const productPenetration = productCriteria.hasProducts.reduce((sum, productName) => {
-      const product = CARD_PRODUCTS.find(cp => cp.name === productName);
-      return sum + ((product?.penetrationRate || 10) / 100);
-    }, 0);
-    multiplier *= productPenetration / productCriteria.hasProducts.length;
-
-    // Lacks products reduces further
-    if (productCriteria.lacksProducts.length > 0) {
-      multiplier *= 0.7; // Assume 70% don't have the excluded product
-    }
-  }
-
-  // Ensure reasonable bounds
-  const estimated = Math.floor(BASE_USERS * multiplier);
-  return Math.max(10_000, Math.min(estimated, BASE_USERS));
 }
 
 // Campaign templates derived from revenue opportunities
