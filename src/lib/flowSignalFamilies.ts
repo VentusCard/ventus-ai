@@ -453,10 +453,14 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("financial", FINANCIAL.bizTaxes, 3);
   }
   if (t.has("home")) {
-    add("financial", FINANCIAL.mortgagePayer, 3);
-    add("financial", FINANCIAL.homeEquityBuilt, 3);
-    add("financial", FINANCIAL.highInterestConsumerDebt, 3);
-    add("financial", FINANCIAL.largePlannedOutflow, 3);
+    add("financial", FINANCIAL.outsideMortgageServicer, 3);
+    add("financial", FINANCIAL.existingHelocElsewhere, 3);
+    add("financial", FINANCIAL.higherCostDebt, 3);
+    add("financial", FINANCIAL.reachingLiquidity, 3);
+    add("financial", FINANCIAL.mortgagePayer, 2);
+    add("financial", FINANCIAL.homeEquityBuilt, 2);
+    add("financial", FINANCIAL.highInterestConsumerDebt, 2);
+    add("financial", FINANCIAL.largePlannedOutflow, 2);
     add("financial", FINANCIAL.surplus, 2);
   }
 
