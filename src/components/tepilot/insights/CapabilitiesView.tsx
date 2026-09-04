@@ -1116,10 +1116,12 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
 
                   {SIGNALS.map((s, i) => {
                     const row = signalRows.find((r) => r.label === s.label);
+                    const meta = FAMILY_META_BY_LABEL[s.label];
                     return (
                       <SignalSection
                         key={s.label}
                         signal={s}
+                        meta={meta}
                         count={row ? row.detected.toLocaleString() : "—"}
                         isActive={s.label === activeSignalLabel}
                         startDelay={i * 900}
