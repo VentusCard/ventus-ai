@@ -684,6 +684,27 @@ const ARCHETYPE_ANGLE: Record<string, Angle> = {
     subject: "The money is already leaving — make it cheaper",
     open: (n) => `Large tuition, medical, or renovation payments are on their way out. ${n[0].toUpperCase()}${n.slice(1)} covers the same spending at a fraction of the interest cost.`,
   },
+  outsideMortgageServicer: {
+    title: "Mortgage Held Elsewhere",
+    subject: "Your equity is already growing with someone else",
+    open: (n) => `A mortgage payment goes out every month to another lender, which means your equity is building even though the loan isn't here. ${n[0].toUpperCase()}${n.slice(1)} lets you tap that equity without moving the mortgage.`,
+  },
+  existingHelocElsewhere: {
+    title: "HELOC Refinance Candidate",
+    subject: "Move that balance to a better line",
+    open: (n) => `You're already using a home equity line at another lender. Bringing the balance to ${n} usually means a lower rate, fewer logins, and one place to manage it.`,
+    cta: "Compare and move",
+  },
+  higherCostDebt: {
+    title: "Higher-Rate Debt Consolidation",
+    subject: "Replace expensive balances with a single line",
+    open: (n) => `Revolving balances and personal-loan payments are racking up interest. Moving that debt into ${n} can cut the rate and the number of payments you track each month.`,
+  },
+  reachingLiquidity: {
+    title: "Liquidity Squeeze",
+    subject: "Access cash without selling assets",
+    open: (n) => `Savings are being drawn down and investments are moving into checking. ${n[0].toUpperCase()}${n.slice(1)} lets you borrow against equity instead of cashing out positions.`,
+  },
 
   // --- Demographic ---
 
