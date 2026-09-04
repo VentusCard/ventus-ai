@@ -6,6 +6,7 @@ I audited every tab against the canonical book in `src/lib/bookScale.ts` (68.2M 
 
 **1. Intelligence Database KPI strip is off by ~155x**
 The four tiles at the top are hardcoded and disconnected from the book:
+
 - "Customers profile enriched" shows **418,204** — the rest of the same page shows **64.9M** enriched (68.2M x 95.2%).
 - "Enrichment coverage" shows **99%** — the coverage strip a few hundred pixels below shows **95.2%**.
 - "External signals ingested (24h)" shows a **low-thousands** number borrowed from the System tab's taxonomy counter, while the External Intelligence card on the same screen shows **~1.04M** for the identically-labelled metric.
@@ -28,7 +29,7 @@ The opportunity list on the Intelligence Database shows per-opportunity "users" 
 
 ## Fix plan
 
-1. **KPI strip** — rewire all four tiles to `bookScale.ts`: enriched = `fmtCount(ENRICHED_PROFILES)` (64.9M), coverage = `ENRICHMENT_RATE` (95.2%), external signals = `getSignalCoverage().externalSignals24h` (the same source the card below uses), activations = a derived share of that flow rather than a literal.
+1. **KPI strip** — rewire all four tiles to `bookScale.ts`: enriched = `fmtCount(ENRICHED_PROFILES)` (64.9M), coverage = `ENRICHMENT_RATE` (99.9%), external signals = `getSignalCoverage().externalSignals24h` (the same source the card below uses), activations = a derived share of that flow rather than a literal.
 2. **Campaign Studio** — point `campaignStudioData.ts` `BASE_USERS` at `BOOK_CUSTOMERS`; delete the dead duplicate estimator in `campaignData.ts` so only one definition of the book survives.
 3. **System tab banner** — replace the static "233 signals" with the live count of signal types in the `SIGNALS` array on that page (56), so the caption matches the cards beneath it.
 4. **Geography** — rescale every region and state `userCount` / `accountCount` in `mockBankwideData.ts` by 68.2M / 111.6M so region rows sum exactly to the book, with a largest-remainder pass so the parts hit the total exactly; scale state rows to their parent region the same way. Spend figures scale by the same factor to keep spend-per-customer stable.
