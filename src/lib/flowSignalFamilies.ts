@@ -286,7 +286,23 @@ const DEMOGRAPHIC: Record<string, SeedSignal> = {
     evidence: "Family spending dropped off while travel and dining picked up.",
     weight: 0.14,
   },
+  longTenureHomeowner: {
+    label: "Long-tenure homeowner",
+    evidence: "Same property payments for 7+ years, indicating a paid-down mortgage and strong equity position.",
+    weight: 0.28,
+  },
+  dualIncomeHomeowner: {
+    label: "Dual-income homeowner",
+    evidence: "Two payroll streams land in the household alongside mortgage and property tax outflows.",
+    weight: 0.26,
+  },
+  preRetireeHomeowner: {
+    label: "Pre-retiree homeowner",
+    evidence: "Age band 50–62 with a paid-down mortgage and rising discretionary home-improvement spend.",
+    weight: 0.18,
+  },
 };
+
 
 // Risk items are exclusion filters, not triggers. Each label names WHO GETS
 // REMOVED; the weight is the share of the triggered audience that still clears.
