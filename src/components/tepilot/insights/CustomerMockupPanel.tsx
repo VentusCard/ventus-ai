@@ -14,6 +14,7 @@ import {
   usePersonalizationResult,
 } from "@/lib/personalizationResultStore";
 import { buildChatSignalContext, pillarFor } from "@/lib/personalizationGeneration";
+import { computeLtvLift } from "@/lib/personalizationLtvLift";
 import { findGroupForLabel } from "@/components/exec-demo/GeneratedOffersPhoneView";
 import { SIGNAL_FAMILY_META, type DirectorySignal } from "@/lib/customerDirectoryData";
 import { ExampleCustomerBar } from "./personalization/ExampleCustomerBar";
@@ -102,6 +103,15 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
   const isGenerating = !useSession && !!example && generated.status === "running";
 
   const workspaceRef = useScrollIntoWorkspace(hasSelection, `${surface}:${selectedId ?? ""}`);
+
+  const ltvResult = useMemo(
+    () =>
+      computeLtvLift(surface, example, {
+        offers: useSession ? session.generatedOffers : generated.offers,
+        productCards: useSession ? session.productCards : generated.productCards,
+      }),
+    [surface, example, useSession, session.generatedOffers, session.productCards, generated.offers, generated.productCards],
+  );
 
   return (
     <div
@@ -239,8 +249,12 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
         </div>
       </div>
 
-      {/* ---------- Key features + unit economics ---------- */}
-      <SurfaceFeaturePanel surface={surface} customerKey={hasSelection ? selectedId ?? displayName : null} />
+      {/* ---------- LTV lift + Key features ---------- */}
+      <SurfaceFeaturePanel
+        surface={surface}
+        customerKey={hasSelection ? selectedId ?? displayName : null}
+        ltvResult={ltvResult}
+      />
     </div>
   );
 }

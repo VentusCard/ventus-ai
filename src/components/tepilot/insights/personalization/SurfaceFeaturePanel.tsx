@@ -24,6 +24,8 @@ import {
   Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LtvLiftSliver } from "./LtvLiftSliver";
+import type { LtvLiftResult } from "@/lib/personalizationLtvLift";
 
 export type Surface = "rewards" | "product" | "relationship";
 
@@ -75,9 +77,11 @@ const FEATURES: Record<Surface, { title: string; items: FeatureItem[] }> = {
 export function SurfaceFeaturePanel({
   surface,
   customerKey,
+  ltvResult,
 }: {
   surface: Surface;
   customerKey?: string | null;
+  ltvResult?: LtvLiftResult | null;
 }) {
   const config = FEATURES[surface];
   const hasSelection = Boolean(customerKey);
@@ -93,7 +97,10 @@ export function SurfaceFeaturePanel({
   }, [customerKey, surface, hasSelection, config.items.length]);
 
   return (
-    <div className="lg:col-span-1 min-h-0 flex flex-col">
+    <div className="lg:col-span-1 min-h-0 flex flex-col gap-4">
+      {/* Anticipated LTV Lift sliver */}
+      {ltvResult && <LtvLiftSliver result={ltvResult} hasSelection={hasSelection} />}
+
       {/* Key features */}
       <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
         <div className="shrink-0 px-3.5 py-2.5 border-b border-slate-200 bg-slate-50/60 flex items-center gap-2">
