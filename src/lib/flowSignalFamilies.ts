@@ -476,7 +476,7 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
   if (t.has("deposit")) add("financial", FINANCIAL.depositGrowth, 3);
   if (savingsProduct) add("financial", FINANCIAL.interestSeeking, 3);
-  if (isCard || t.has("credit")) add("financial", FINANCIAL.lowUtil, 3);
+  if ((isCard || t.has("credit")) && flow.id !== "heloc") add("financial", FINANCIAL.lowUtil, 3);
   if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend, 3);
   if (t.has("travel")) add("financial", FINANCIAL.travelSpend, 3);
   // Income stability matters where repayment, funding or premiums are involved.
