@@ -5,7 +5,7 @@ import type {
   CampaignMetrics,
 } from '@/types/campaign';
 
-}
+
 
 // Campaign templates derived from revenue opportunities
 export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
