@@ -496,7 +496,7 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
     add("demographic", DEMOGRAPHIC.dualIncome, 2);
   }
-  if (t.has("home")) {
+  if (t.has("home") && flow.id !== "heloc") {
     add("demographic", DEMOGRAPHIC.homeowner, 3);
     add("demographic", DEMOGRAPHIC.longTenureHomeowner, 3);
     add("demographic", DEMOGRAPHIC.dualIncomeHomeowner, 3);
