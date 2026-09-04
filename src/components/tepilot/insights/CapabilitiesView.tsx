@@ -560,9 +560,16 @@ const DEFAULT_DARK_STYLE: DarkFamilyStyle = {
 };
 
 
+const DETECTION_BASIS_CLASS_LIGHT: Record<Detection["basis"], string> = {
+  "1P": "bg-sky-100 text-sky-700",
+  Ext: "bg-amber-100 text-amber-700",
+  Both: "bg-slate-100 text-slate-700",
+};
+
 /* A single standing signal section with a rolling detection ticker. */
 function SignalSection({
   signal,
+  meta,
   count,
   isActive,
   startDelay,
@@ -570,6 +577,7 @@ function SignalSection({
   onSelect,
 }: {
   signal: SignalDetail;
+  meta?: (typeof SIGNAL_FAMILY_META)[number];
   count: string;
   isActive: boolean;
   startDelay: number;
@@ -638,14 +646,14 @@ function SignalSection({
   const next = signal.examples[(idx + 1) % total];
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-10 items-center gap-2 text-[13px] leading-normal text-slate-100">
-      <span className="relative z-10 truncate pb-px text-[14px] font-medium leading-normal text-white">{example.to}</span>
-      <span className="relative z-0 flex-none text-[12px] leading-normal text-slate-300">&rarr;</span>
-      <span className="relative z-0 truncate pb-px text-[13px] leading-normal text-slate-200">{example.ev}</span>
+    <span ref={ref} className="flex h-10 items-center gap-2 text-[13px] leading-normal text-slate-600">
+      <span className="relative z-10 truncate pb-px text-[14px] font-medium leading-normal text-slate-900">{example.to}</span>
+      <span className="relative z-0 flex-none text-[12px] leading-normal text-slate-400">&rarr;</span>
+      <span className="relative z-0 truncate pb-px text-[13px] leading-normal text-slate-600">{example.ev}</span>
       <span
         className={cn(
           "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[12px] tracking-wide",
-          DETECTION_BASIS_CLASS[example.basis],
+          DETECTION_BASIS_CLASS_LIGHT[example.basis],
         )}
       >
         {example.basis}
@@ -653,34 +661,44 @@ function SignalSection({
     </span>
   );
 
-  const style = SIGNAL_DARK_STYLE[signal.label] ?? DEFAULT_DARK_STYLE;
   const Icon = signal.icon;
+  const familyKey = LABEL_TO_KEY[signal.label] ?? signal.label.toLowerCase().replace(/\s+/g, "_");
+  const familyMeta = meta ?? SIGNAL_FAMILY_META.find((m) => m.key === familyKey);
+
+  const cardBase = familyMeta
+    ? cn(familyMeta.tint, familyMeta.cardBorder, familyMeta.cardBorderHover)
+    : cn("bg-white border-slate-200 hover:border-slate-300");
+  const activeRing = familyMeta ? `ring-2 ${familyMeta.cardRing}` : "ring-2 ring-slate-300";
+  const chipBase = familyMeta?.chip ?? "bg-slate-100 text-slate-700 border-slate-200";
+  const barColor = familyMeta?.dot ?? "bg-slate-400";
+  const labelColor = familyMeta
+    ? familyMeta.chip.split(" ").find((c) => c.startsWith("text-")) ?? "text-slate-900"
+    : "text-slate-900";
 
   return (
     <button
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
-        style.surface,
-        style.border,
-        isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2 pl-3 pr-3 text-left transition-all duration-200 shadow-sm",
+        cardBase,
+        isActive ? activeRing : "",
       )}
     >
-      <span className={cn("absolute inset-y-0 left-0 w-[5px]", style.bar)} />
+      <span className={cn("absolute inset-y-0 left-0 w-[5px]", barColor)} />
       <span className="mb-0 flex items-center gap-2">
-        <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px]", style.chip)}>
-          <Icon className={cn("h-3.5 w-3.5", style.icon)} />
+        <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px] border", chipBase)}>
+          <Icon className="h-3.5 w-3.5" />
         </span>
-        <span className={cn("text-[13px] font-semibold tracking-tight drop-shadow-sm", style.label)}>{signal.label}</span>
+        <span className={cn("text-[13px] font-semibold tracking-tight", labelColor)}>{signal.label}</span>
         <PulseDot
           colorClass={signal.dot}
           sizeClass="h-[6px] w-[6px]"
           delayMs={startDelay}
-          className="rounded-full ring-[3px] ring-white/10"
+          className="rounded-full ring-[3px] ring-white/60"
         />
-        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-200">
-          <b className="font-semibold text-white">{count}</b> · 24h
+        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-500">
+          <b className="font-semibold text-slate-900">{count}</b> · 24h
         </span>
       </span>
 
