@@ -13,8 +13,10 @@ import {
   enabledAudience,
   qualifiedAudience,
   filterPassRate,
-  signalAudience,
+  filterCascade,
+  allocateSignalAudiences,
   FAMILY_SIGNAL_CAP,
+
   customSignalId,
   customFilterId,
   SIGNAL_FAMILY_CLASS,
@@ -64,11 +66,16 @@ const CATEGORY_COLOR: Record<FlowCategory, string> = {
   Insurance: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
+/**
+ * Single formatter for the whole tab. One fixed unit (M, two decimals) so a
+ * total and its parts are always additive on screen: 0.97M + 4.08M + ...
+ */
 function formatAudience(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return n.toString();
+  if (n >= 10_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  return n.toLocaleString();
 }
+
+
 
 function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: number }) {
   const msg = signal.message;
@@ -295,9 +302,10 @@ function FilterRow({
           <div className="text-right shrink-0 w-28">
             <p className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Removes</p>
             <p className="text-[13px] font-bold text-rose-600 mt-0.5">
-              −{dropPct}% · −{formatAudience(removed)}
+              {enabled ? `−${dropPct}% · −${formatAudience(removed)}` : <span className="text-slate-400">—</span>}
             </p>
           </div>
+
           <ChevronRight className={cn("w-5 h-5 text-slate-400 shrink-0 transition-transform", open && "rotate-90")} />
         </button>
         <RowActions onEdit={onEdit} onDelete={onDelete} tone="rose" />
@@ -311,8 +319,11 @@ function FilterRow({
           <div className="mt-1 rounded-lg border border-rose-200 bg-rose-50/50 p-3">
             <p className="text-[10px] uppercase tracking-wider text-rose-500 font-semibold">Who this removes</p>
             <p className="text-[12px] text-slate-700 leading-snug mt-1">
-              −{dropPct}% of the triggered audience ({formatAudience(removed)} people) drops out here.
+              {enabled
+                ? `Removes ${dropPct}% of whatever reaches this step — ${formatAudience(removed)} people drop out here.`
+                : `Turned off. When on it removes ${dropPct}% of whatever reaches this step.`}
             </p>
+
             <p className="text-[12px] text-slate-500 leading-snug mt-2">
               This is a guardrail, never a trigger — it can only take customers out of the flow, never start
               outreach on its own.
@@ -357,6 +368,11 @@ function FlowRow({
   const enabledCount = signals.filter((s) => enabledSignals.has(s.id)).length;
   const filterCount = filters.filter((f) => enabledFilters.has(f.id)).length;
   const triggered = enabledAudience(flow, signals, enabledSignals);
+  const signalAlloc = useMemo(() => allocateSignalAudiences(flow, signals), [flow, signals]);
+  const cascade = useMemo(
+    () => filterCascade(triggered, filters, enabledFilters),
+    [triggered, filters, enabledFilters],
+  );
   const liveAudience = qualifiedAudience(flow, signals, enabledSignals, filters, enabledFilters);
   const passRate = filterPassRate(filters, enabledFilters);
   const totalRemoved = Math.max(0, triggered - liveAudience);
@@ -513,7 +529,7 @@ function FlowRow({
                 <SignalRow
                   key={sig.id}
                   signal={sig}
-                  audience={signalAudience(flow, signals, enabledSignals, sig)}
+                  audience={signalAlloc.get(sig.id) ?? 0}
                   enabled={enabledSignals.has(sig.id)}
                   open={openRow === sig.id}
                   edited={editedSignalIds.has(sig.id)}
@@ -580,7 +596,7 @@ function FlowRow({
                   <FilterRow
                     key={f.id}
                     filter={f}
-                    removed={Math.round(triggered * (1 - f.passRate))}
+                    removed={cascade.get(f.id) ?? 0}
                     enabled={enabledFilters.has(f.id)}
                     open={openRow === f.id}
                     edited={editedFilterIds.has(f.id)}

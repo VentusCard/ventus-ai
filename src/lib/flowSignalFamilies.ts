@@ -1021,6 +1021,12 @@ export function filterPassRate(filters: EligibilityFilter[], enabled: Set<string
     .reduce((rate, f) => rate * f.passRate, 1);
 }
 
+export function groupByFamily(signals: ExpandedSignal[]): Array<[SignalFamily, ExpandedSignal[]]> {
+  return SIGNAL_FAMILY_ORDER.map(
+    (family) => [family, signals.filter((s) => s.family === family)] as [SignalFamily, ExpandedSignal[]],
+  ).filter(([, list]) => list.length > 0);
+}
+
 /** Triggered audience narrowed by the enabled eligibility filters. */
 export function qualifiedAudience(
   flow: ProductFlow,
@@ -1029,38 +1035,103 @@ export function qualifiedAudience(
   filters: EligibilityFilter[],
   enabledFilters: Set<string>,
 ): number {
-  return Math.round(
-    enabledAudience(flow, signals, enabledSignals) * filterPassRate(filters, enabledFilters),
-  );
+  const triggered = enabledAudience(flow, signals, enabledSignals);
+  let removed = 0;
+  filterCascade(triggered, filters, enabledFilters).forEach((v) => {
+    removed += v;
+  });
+  return triggered - removed;
 }
 
-export function groupByFamily(signals: ExpandedSignal[]): Array<[SignalFamily, ExpandedSignal[]]> {
-  return SIGNAL_FAMILY_ORDER.map(
-    (family) => [family, signals.filter((s) => s.family === family)] as [SignalFamily, ExpandedSignal[]],
-  ).filter(([, list]) => list.length > 0);
+
+/**
+ * Split the flow audience across every signal with a largest-remainder
+ * allocation, so the parts sum EXACTLY to `flow.estimatedAudience`.
+ */
+export function allocateSignalAudiences(
+  flow: ProductFlow,
+  signals: ExpandedSignal[],
+): Map<string, number> {
+  const out = new Map<string, number>();
+  if (signals.length === 0) return out;
+  const total = flow.estimatedAudience;
+  const totalWeight = signals.reduce((sum, s) => sum + s.weight, 0) || 1;
+
+  const exact = signals.map((s) => (total * s.weight) / totalWeight);
+  const floors = exact.map((v) => Math.floor(v));
+  let remainder = total - floors.reduce((a, b) => a + b, 0);
+
+  const order = exact
+    .map((v, i) => ({ i, frac: v - Math.floor(v) }))
+    .sort((a, b) => b.frac - a.frac);
+
+  const alloc = [...floors];
+  for (let k = 0; k < order.length && remainder > 0; k++, remainder--) {
+    alloc[order[k].i] += 1;
+  }
+  signals.forEach((s, i) => out.set(s.id, alloc[i]));
+  return out;
 }
 
-/** Audience attributable to a signal, given the enabled set for its flow. */
+/** Audience attributable to a signal. Parts sum exactly to the flow total. */
 export function signalAudience(
   flow: ProductFlow,
   signals: ExpandedSignal[],
-  enabled: Set<string>,
+  _enabled: Set<string>,
   signal: ExpandedSignal,
 ): number {
-  const totalWeight = signals.reduce((sum, s) => sum + s.weight, 0) || 1;
-  return Math.round((flow.estimatedAudience * signal.weight) / totalWeight);
+  return allocateSignalAudiences(flow, signals).get(signal.id) ?? 0;
 }
 
-/** Flow audience limited to the enabled signals. */
+/** Flow audience limited to the enabled signals — the exact sum of their rows. */
 export function enabledAudience(
   flow: ProductFlow,
   signals: ExpandedSignal[],
   enabled: Set<string>,
 ): number {
-  const totalWeight = signals.reduce((sum, s) => sum + s.weight, 0) || 1;
-  const onWeight = signals.filter((s) => enabled.has(s.id)).reduce((sum, s) => sum + s.weight, 0);
-  return Math.round((flow.estimatedAudience * onWeight) / totalWeight);
+  const alloc = allocateSignalAudiences(flow, signals);
+  return signals
+    .filter((s) => enabled.has(s.id))
+    .reduce((sum, s) => sum + (alloc.get(s.id) ?? 0), 0);
 }
+
+/**
+ * Per-filter removals shown as a cascade: each enabled filter removes from the
+ * audience left by the filters above it, and the last enabled filter absorbs
+ * the rounding remainder so the rows sum EXACTLY to `triggered - qualified`.
+ * Disabled filters map to 0.
+ */
+export function filterCascade(
+  triggered: number,
+  filters: EligibilityFilter[],
+  enabled: Set<string>,
+): Map<string, number> {
+  const out = new Map<string, number>();
+  const on = filters.filter((f) => enabled.has(f.id));
+  filters.forEach((f) => out.set(f.id, 0));
+  if (on.length === 0) return out;
+
+  const qualified = Math.round(triggered * filterPassRate(filters, enabled));
+  const totalRemoved = Math.max(0, triggered - qualified);
+
+  let remaining = triggered;
+  let allocated = 0;
+  on.forEach((f, idx) => {
+    let removed: number;
+    if (idx === on.length - 1) {
+      removed = totalRemoved - allocated;
+    } else {
+      removed = Math.round(remaining * (1 - f.passRate));
+      removed = Math.min(removed, totalRemoved - allocated);
+    }
+    removed = Math.max(0, removed);
+    out.set(f.id, removed);
+    allocated += removed;
+    remaining -= removed;
+  });
+  return out;
+}
+
 
 /* ------------------------------------------------------------------ *
  * Public helpers used by the signal editor (add / edit signals).      *
