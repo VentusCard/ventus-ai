@@ -1,5 +1,5 @@
 import { PulseDot } from "@/components/tepilot/common/PulseDot";
-import { TOTAL_SIGNAL_DETECTIONS_24H } from "../CapabilitiesView";
+import { getSignalCoverage, fmtCount } from "@/lib/intelligenceSignalStats";
 
 type Tile = {
   label: string;
@@ -9,11 +9,17 @@ type Tile = {
 };
 
 export function IntelligenceKpiStrip() {
+  // Every figure here comes from the canonical book scale so the strip agrees
+  // with the coverage strip and External Intelligence card further down.
+  const c = getSignalCoverage();
+  // Activations are the slice of the 24h signal flow that reached a destination.
+  const activations24h = Math.round(c.signals24h * 0.0129);
+
   const tiles: Tile[] = [
     {
       label: "Customers profile enriched",
       dot: "#2563EB",
-      value: "418,204",
+      value: fmtCount(c.profilesEnriched),
       foot: (
         <span className="text-emerald-600">
           ▲ 1.2% <span className="text-slate-400">vs last week</span>
@@ -25,7 +31,8 @@ export function IntelligenceKpiStrip() {
       dot: "#1E9E6A",
       value: (
         <>
-          99<span className="text-[11px] font-medium text-slate-400">&nbsp;%</span>
+          {c.coveragePct.toFixed(1)}
+          <span className="text-[11px] font-medium text-slate-400">&nbsp;%</span>
         </>
       ),
       foot: <span className="text-slate-400">Rail-agnostic enrichment</span>,
@@ -33,17 +40,17 @@ export function IntelligenceKpiStrip() {
     {
       label: "External signals ingested (24h)",
       dot: "#1E9E6A",
-      value: TOTAL_SIGNAL_DETECTIONS_24H.toLocaleString(),
+      value: fmtCount(c.externalSignals24h),
       foot: (
         <span className="text-emerald-600">
-          ▲ 340 <span className="text-slate-400">today</span>
+          ▲ 2.1% <span className="text-slate-400">today</span>
         </span>
       ),
     },
     {
       label: "Activations routed (24h)",
       dot: "#6D4AD4",
-      value: "6,213",
+      value: fmtCount(activations24h),
       foot: (
         <span className="text-emerald-600">
           ▲ 8.4% <span className="text-slate-400">vs avg</span>

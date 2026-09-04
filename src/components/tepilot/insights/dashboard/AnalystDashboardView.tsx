@@ -165,7 +165,7 @@ export function AnalystDashboardView({
   const opportunitiesPanel = (
     <ChartCard
       title="Revenue opportunities"
-      hint={`${opportunities.length} flagged`}
+      hint={`${opportunities.length} flagged · overlapping cohorts`}
       onOpenDetail={() => onNavigate("dashboard")}
     >
       <div className="space-y-2">

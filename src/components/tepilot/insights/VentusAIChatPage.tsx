@@ -18,8 +18,8 @@ export const LEADERSHIP_CONTEXT = {
     "Answer in an executive tone: 2–4 concise bullet points, quantify with bankwide metrics where possible, no code, no jargon. Frame as strategic implications for the leadership team.",
   currentModule: "Ventus AI Dashboard — Leadership Briefing",
   bankwideMetrics: {
-    totalAccounts: "120M",
-    totalUsers: "75M",
+    totalAccounts: "109M",
+    totalUsers: "68.2M",
     totalAnnualSpend: "$385B",
     avgAccountsPerUser: 1.6,
     activeAccountRate: "87.3%",
@@ -165,7 +165,7 @@ export function VentusAIChatPage({
                 Ask Ventus AI · Leadership briefing
               </h1>
               <p className="text-[11px] text-slate-500">
-                Grounded on 75M customers · 120M accounts · $385B annual spend
+                Grounded on 68.2M customers · 109M accounts · $385B annual spend
               </p>
             </div>
           </div>

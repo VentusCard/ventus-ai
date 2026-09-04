@@ -277,7 +277,10 @@ const SIGNALS: SignalDetail[] = [
   },
 ];
 
-/** Total 24h external signal detections — shared with the Intelligence Database KPI strip. */
+/** Signal types enumerated across the five families rendered on this page. */
+export const TOTAL_SIGNAL_TYPES = SIGNALS.reduce((n, s) => n + s.items.length, 0);
+
+/** Total 24h signal detections across the taxonomy shown on this page. */
 export const TOTAL_SIGNAL_DETECTIONS_24H = SIGNALS.reduce(
   (n, s, i) => n + (640 + s.items.length * 187 + i * 53),
   0,
@@ -1086,7 +1089,7 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
                   </p>
                 </div>
                 <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] text-slate-400">
-                  5 families · 233 signals · 24h
+                  5 families · {TOTAL_SIGNAL_TYPES} signals · 24h
                 </p>
               </div>
 
