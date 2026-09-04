@@ -66,11 +66,17 @@ const CATEGORY_COLOR: Record<FlowCategory, string> = {
   Insurance: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
+/**
+ * Single formatter for the whole tab. Two decimals at M scale so a total and
+ * its parts stay legibly additive (0.24M + 1.06M = 1.30M).
+ */
 function formatAudience(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return n.toString();
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 10_000) return `${(n / 1_000).toFixed(0)}K`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return n.toLocaleString();
 }
+
 
 function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: number }) {
   const msg = signal.message;
