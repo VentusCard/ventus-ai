@@ -67,15 +67,14 @@ const CATEGORY_COLOR: Record<FlowCategory, string> = {
 };
 
 /**
- * Single formatter for the whole tab. Two decimals at M scale so a total and
- * its parts stay legibly additive (0.24M + 1.06M = 1.30M).
+ * Single formatter for the whole tab. One fixed unit (M, two decimals) so a
+ * total and its parts are always additive on screen: 0.97M + 4.08M + ...
  */
 function formatAudience(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 10_000) return `${(n / 1_000).toFixed(0)}K`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  if (n >= 10_000) return `${(n / 1_000_000).toFixed(2)}M`;
   return n.toLocaleString();
 }
+
 
 
 function SignalDetail({ signal, audience }: { signal: ExpandedSignal; audience: number }) {
