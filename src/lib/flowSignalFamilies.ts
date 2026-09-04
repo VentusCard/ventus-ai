@@ -516,7 +516,7 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   if (t.has("insurance") && !t.has("retirement")) add("demographic", DEMOGRAPHIC.parentYoung, 2);
   if (checkingProduct) add("demographic", DEMOGRAPHIC.renter, 1);
   if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester, 1);
-  if (out.filter(([f]) => f === "demographic").length < 2) {
+  if (out.filter(([f]) => f === "demographic").length < 2 && flow.id !== "heloc") {
     add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome, 1);
   }
 
