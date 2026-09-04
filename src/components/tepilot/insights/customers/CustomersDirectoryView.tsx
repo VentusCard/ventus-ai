@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fmtCount, scaleSample, shareOf } from "@/lib/bookScale";
 import { getSignalFamilyStats, type SignalSegmentSeed } from "@/lib/intelligenceSignalStats";
+import { synthesizeSegmentSample } from "@/lib/segmentSampleSynthesis";
 
 
 function parseValueK(value: string) {
@@ -117,7 +118,26 @@ export function CustomersDirectoryView({ segment, onClearSegment }: CustomersDir
     return sortCustomers(list, quickStart === "value" ? "value" : sortKey, quickStart === "value" ? "desc" : sortDir);
   }, [query, families, tiers, quickStart, sortKey, sortDir, segment]);
 
-  const selected = selectedId ? CUSTOMER_DIRECTORY.find((c) => c.id === selectedId) ?? null : null;
+  // Illustrative profiles standing in for the full book-level cohort behind an
+  // exported segment. Deterministic per segment; excluded from metrics/exports.
+  const synthetic = useMemo(
+    () => (segment ? synthesizeSegmentSample(segment, 24) : []),
+    [segment],
+  );
+
+  const displayed = useMemo(() => {
+    if (!segment) return filtered;
+    const q = query.trim().toLowerCase();
+    const extras = synthetic.filter((c) => {
+      if (q && !haystack(c).includes(q)) return false;
+      if (tiers.size > 0 && !tiers.has(c.tier)) return false;
+      return true;
+    });
+    return sortCustomers([...filtered, ...extras], sortKey, sortDir);
+  }, [segment, filtered, synthetic, query, tiers, sortKey, sortDir]);
+
+  const pool = useMemo(() => [...CUSTOMER_DIRECTORY, ...synthetic], [synthetic]);
+  const selected = selectedId ? pool.find((c) => c.id === selectedId) ?? null : null;
   const recentlyViewed = recentIds
     .map((id) => CUSTOMER_DIRECTORY.find((c) => c.id === id))
     .filter(Boolean) as DirectoryCustomer[];
