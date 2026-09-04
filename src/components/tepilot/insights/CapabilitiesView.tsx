@@ -822,7 +822,6 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
   const signalRows = SIGNALS.map((s, i) => ({
     label: s.label,
     dot: s.dot,
-    basis: SIGNAL_BASIS[s.label] ?? "First-party",
     detected: 640 + s.items.length * 187 + i * 53,
     confidence: [88, 76, 71, 64, 82][i % 5],
   }));
