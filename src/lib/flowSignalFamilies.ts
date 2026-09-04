@@ -542,18 +542,38 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome, 1);
   }
 
-  // --- Risk / eligibility: only where the bank takes on exposure ---
-  if (underwritten) {
+  // --- Risk / eligibility ---
+  // Credit exposure, insurance underwriting, advisory suitability and plain
+  // account-standing checks are different jobs and get different filters.
+  const lendingProduct =
+    isCard ||
+    t.has("credit") ||
+    ((t.has("home") || t.has("auto") || t.has("business")) &&
+      /loan|mortgage|heloc|line of credit|financing|refi|card|lease/i.test(name));
+  const businessCredit = t.has("business") && lendingProduct;
+
+  if (t.has("insurance")) {
+    add("risk", RISK.coverageGap, 3);
+    add("risk", RISK.premiumAffordability, 3);
+    add("risk", RISK.accountStanding, 1);
+  } else if (lendingProduct) {
     add("risk", RISK.healthyDti, 3);
     if (secured) add("risk", RISK.collateralClean, 3);
-    if (isCard) add("risk", RISK.cardPaysInFull, 3);
-    if (t.has("insurance")) add("risk", RISK.coverageGap, 3);
-    if (t.has("business")) add("risk", RISK.bizCashBuffer, 3);
+    if (isCard) add("risk", RISK.seriousDelinquency, 3);
+    if (businessCredit) add("risk", RISK.bizCashBuffer, 3);
+    if (!isCard && !secured) add("risk", RISK.noRecentDeclines, 2);
     add("risk", RISK.noOverdraft, 2);
   } else if (t.has("invest") || t.has("retirement") || parentEducation) {
-    // Advisory / plan products: suitability, not credit risk.
+    // Advisory / plan products: suitability and funding capacity, not credit risk.
+    add("risk", RISK.noInvestableSurplus, 3);
     add("risk", RISK.suitability, 3);
+    add("risk", RISK.accountStanding, 1);
+  } else {
+    // Deposits, services and everything else: compliance and account standing only.
+    add("risk", RISK.accountStanding, 3);
+    add("risk", RISK.cleanFraud, 3);
   }
+
 
   // --- Extra behavioral / life-event depth ---
   if (parentEducation) {
