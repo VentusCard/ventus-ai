@@ -320,8 +320,11 @@ function FilterRow({
           <div className="mt-1 rounded-lg border border-rose-200 bg-rose-50/50 p-3">
             <p className="text-[10px] uppercase tracking-wider text-rose-500 font-semibold">Who this removes</p>
             <p className="text-[12px] text-slate-700 leading-snug mt-1">
-              −{dropPct}% of the triggered audience ({formatAudience(removed)} people) drops out here.
+              {enabled
+                ? `Removes ${dropPct}% of whatever reaches this step — ${formatAudience(removed)} people drop out here.`
+                : `Turned off. When on it removes ${dropPct}% of whatever reaches this step.`}
             </p>
+
             <p className="text-[12px] text-slate-500 leading-snug mt-2">
               This is a guardrail, never a trigger — it can only take customers out of the flow, never start
               outreach on its own.
