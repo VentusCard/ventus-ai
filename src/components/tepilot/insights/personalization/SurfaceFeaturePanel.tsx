@@ -101,8 +101,6 @@ export function SurfaceFeaturePanel({
           ))}
         </div>
       </div>
-
-      <UnitEconomicsCard surface={surface} />
     </div>
   );
 }
