@@ -537,10 +537,11 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
 const FAMILY_CAP: Record<SignalFamily, number> = {
   "life-event": 3,
   behavioral: 3,
-  financial: 3,
-  demographic: 2,
+  financial: 4,
+  demographic: 3,
   risk: 3,
 };
+
 
 
 /* ------------------------------- *
