@@ -212,6 +212,26 @@ const FINANCIAL: Record<string, SeedSignal> = {
     evidence: "Large tuition deposits, large medical payments, or renovation deposits already leaving the account.",
     weight: 0.22,
   },
+  outsideMortgageServicer: {
+    label: "Mortgage payment to an outside servicer",
+    evidence: "Proves ownership, dates the origination, and reveals a lender the institution does not hold. Seasoning past three years plus continuing property tax and insurance establishes meaningful equity accumulation, and an escrow step-up usually means assessed value rose.",
+    weight: 0.32,
+  },
+  existingHelocElsewhere: {
+    label: "Existing HELOC at another lender",
+    evidence: "A recurring payment to a second lien servicer. Payment size implies the outstanding balance, and anything above roughly $25K drawn is worth pursuing. The refinance target, and the highest-converting audience in the set.",
+    weight: 0.36,
+  },
+  higherCostDebt: {
+    label: "Carrying higher-cost debt",
+    evidence: "Revolving balances with recurring interest charges, or payments to a personal loan servicer, home improvement financing company, or retail project card. Fires above $15K aggregate, where the rate difference produces savings large enough to move someone. All of it consolidates into a line at a fraction of the rate.",
+    weight: 0.34,
+  },
+  reachingLiquidity: {
+    label: "Reaching for liquidity",
+    evidence: "Savings drawn down toward zero, transfer direction reversing from checking-to-savings into savings-to-checking, or an investment account liquidating into deposits. The purpose does not have to be legible. What matters is that a household with equity is converting assets to cash rather than borrowing against the house.",
+    weight: 0.30,
+  },
 };
 
 
