@@ -449,12 +449,6 @@ function SourceGroupCard({
   );
 }
 
-const DETECTION_BASIS_CLASS_LIGHT: Record<Detection["basis"], string> = {
-  "1P": "bg-sky-100 text-sky-700",
-  Ext: "bg-amber-100 text-amber-700",
-  Both: "bg-slate-100 text-slate-700",
-};
-
 /* A single standing signal section with a rolling detection ticker. */
 function SignalSection({
   signal,
