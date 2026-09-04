@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Sparkles, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UnitEconomicsCard } from "./UnitEconomicsCard";
 
 export type Surface = "rewards" | "product" | "relationship";
 
