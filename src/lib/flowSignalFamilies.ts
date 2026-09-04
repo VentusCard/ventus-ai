@@ -541,10 +541,10 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
       add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
     }
     add("behavioral", EXTRA_BEHAVIORAL.educationOutbound, 3);
-  } else {
+  } else if (flow.id !== "heloc") {
     add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
   }
-  if (underwritten) add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
+  if (underwritten && flow.id !== "heloc") add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
   if ((t.has("card") || checkingProduct) && !parentEducation) {
     add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged, 1);
   }
