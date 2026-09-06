@@ -73,15 +73,19 @@ export function computeLtvLift(
   if (surface === "product") {
     const cards = inputs.productCards?.length ?? 0;
     const productConversion = 0.04;
+    const cacAvoided = 420;
     const productValue = 600;
-    const value = productConversion * productValue;
+    const stackedValue = cacAvoided + productValue;
+    const value = productConversion * stackedValue;
     return {
       display: `+${money(value)}`,
       driverHint: cards > 0 ? `driven by ${cards} recommended products` : "from next-product conversion",
       ready: cards > 0,
       lines: [
-        { label: "Expected conversion per recommendation", display: `${Math.round(productConversion * 100)}%` },
+        { label: "CAC avoided per conversion", display: money(cacAvoided) },
         { label: "Product value per conversion", display: money(productValue) },
+        { label: "Combined value per conversion", display: money(stackedValue) },
+        { label: "Expected conversion per recommendation", display: `${Math.round(productConversion * 100)}%` },
         { label: "Anticipated lift / customer / yr", display: `+${money(value)}` },
       ],
     };
