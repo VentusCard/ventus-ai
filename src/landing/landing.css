@@ -1,0 +1,396 @@
+/*
+  Shared shell rules every chapter uses (Direction C).
+
+  The chapter-head grid exists so no section can mis-compose the way the
+  30 Aug draft did (eyebrow floating one place, headline another): every
+  chapter head is the same single-column stack, full stop.
+
+  Surfaces: the page is paper; `.landing-chapter--dark` is the one night
+  chapter (Governance); `.landing-instrument` is the solid dark object that
+  carries the record wherever it appears. Glass is a navigation material
+  only (header.css) — nothing here blurs.
+*/
+.landing {
+  background: var(--paper);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--body);
+  line-height: 1.55;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+.landing *,
+.landing *::before,
+.landing *::after {
+  box-sizing: border-box;
+}
+
+.landing :where(h1, h2, h3, h4, p) {
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+}
+
+.landing :where(button, a, input, select, textarea) {
+  font: inherit;
+  color: inherit;
+}
+
+.landing a {
+  text-decoration: none;
+}
+
+.landing :focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+.landing-chapter--dark :focus-visible,
+.landing-instrument :focus-visible {
+  outline-color: var(--signal);
+}
+
+.landing-shell {
+  width: var(--shell);
+  margin-inline: auto;
+}
+
+/* The thesis voice. Only the H1, the four chapter H2s, the three stage
+   titles and the closing line may use it; components opt in with this class
+   or via .landing-chapter-head h2. */
+.landing-serif {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.014em;
+  text-wrap: balance;
+}
+
+/* One chapter = one <section>. scroll-margin-top matches the fixed header
+   offset (see header.css) so anchor jumps never land under the glass bar. */
+.landing-chapter {
+  padding-block: var(--section-pad);
+  scroll-margin-top: 96px;
+  position: relative;
+}
+
+@media (max-width: 899px) {
+  .landing-chapter {
+    scroll-margin-top: 80px;
+  }
+}
+
+/* The single allowed shape for a chapter's opening copy: eyebrow, then
+   headline, then optional supporting line, stacked, nothing beside it.
+   Section components lay their visual out as a sibling of this block inside
+   their own grid; they must not put anything inside .landing-chapter-head. */
+.landing-chapter-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  max-width: 46rem;
+}
+
+.landing-chapter-head h2 {
+  font-family: var(--font-serif);
+  font-size: var(--h2);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.014em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+.landing-chapter-head p {
+  font-size: var(--body-l);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 60ch;
+}
+
+/* Split head: eyebrow + headline on the left, the supporting line on the
+   right, its first line level with the headline's first line — the same
+   stack, laid across the shell so a chapter's opening does not leave its
+   right half empty above or below the copy. */
+@media (min-width: 900px) {
+  .landing-chapter-head--split {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: clamp(32px, 4vw, 64px);
+    max-width: none;
+    align-items: start;
+  }
+
+  .landing-chapter-head--split .landing-eyebrow {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .landing-chapter-head--split h2 {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: 22ch;
+  }
+
+  .landing-chapter-head--split p:not(.landing-eyebrow) {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    /* Sit the first body line on the headline's cap line rather than its
+       line box top: the serif's ascent overshoot is ~0.3em at this size. */
+    padding-top: calc(var(--h2) * 0.2);
+  }
+}
+
+.landing-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+/* Glass, where there is depth to reveal: cards that float over a glow
+   inside an instrument (dark) or over the tinted diagram panel (light).
+   Every glass rule ships a solid fallback fill first. */
+.landing-glass-dark {
+  background: var(--panel);
+  border: 1px solid var(--glass-dark-border);
+  box-shadow: var(--glass-dark-highlight), 0 12px 32px rgba(4, 10, 24, 0.35);
+}
+
+.landing-glass-light {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--glass-light-border);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .landing-glass-dark {
+    background: var(--glass-dark);
+    backdrop-filter: blur(var(--blur-card)) saturate(1.2);
+    -webkit-backdrop-filter: blur(var(--blur-card)) saturate(1.2);
+  }
+
+  .landing-glass-light {
+    background: var(--glass-light);
+    backdrop-filter: blur(var(--blur-card)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--blur-card)) saturate(1.1);
+  }
+}
+
+/* An ambient glow: a soft radial placed behind glass so it has something to
+   refract. Purely decorative; never carries text. */
+.landing-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(6px);
+}
+
+/* The one night chapter (Governance). Two seams, extra breathing room, and
+   the text tokens swapped for the instrument set. */
+.landing-chapter--dark {
+  background: var(--night);
+  color: var(--text-dark);
+  border-top: 1px solid var(--seam);
+  border-bottom: 1px solid var(--seam);
+  padding-block: calc(var(--section-pad) + 24px);
+  overflow: hidden; /* contains its glow */
+}
+
+.landing-chapter--dark .landing-chapter-head h2 {
+  color: var(--text-dark);
+}
+
+.landing-chapter--dark .landing-chapter-head p {
+  color: var(--muted-dark);
+}
+
+.landing-chapter--dark .landing-eyebrow {
+  color: var(--signal);
+}
+
+/* The instrument: a solid dark object set into paper. The seam on its left
+   edge is the edge of the layer; the shadow is long and dark, never
+   coloured. Never blurred. */
+.landing-instrument {
+  background: var(--night);
+  color: var(--text-dark);
+  border: 1px solid var(--hair-dark);
+  border-left: 1px solid var(--seam);
+  border-radius: var(--r-card);
+  box-shadow: var(--instrument-highlight), var(--instrument-shadow);
+}
+
+.landing-instrument .landing-eyebrow {
+  color: var(--signal);
+}
+
+/* Entrance rule used by every section: a 10px rise from a *legible* state,
+   once, on first reaching ~40% of the viewport. Components toggle .is-visible
+   via IntersectionObserver (see motif/useRevealed.ts) or a mount flip rather
+   than each rolling their own observer. The resting state is never
+   invisible: if the timeline is frozen (a hidden tab, a link preview, print,
+   a screenshot service) the page still reads — the entrance is a
+   refinement, not a gate. */
+.landing-reveal {
+  opacity: 0.55;
+  transform: translateY(10px);
+  transition: opacity var(--t-enter) var(--ease), transform var(--t-enter) var(--ease);
+}
+
+.landing-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Controls. The brand blue the site already uses, white text; `--on-dark`
+   swaps to the lighter signal blue for the closing band and the header's
+   night state. Buttons are not pills. */
+.landing-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding-inline: 20px;
+  border-radius: var(--r-button);
+  background: var(--brand);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--control);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  transition: background var(--t-hover) var(--ease), transform var(--t-hover) var(--ease);
+}
+
+.landing-cta:hover {
+  background: var(--brand-strong);
+}
+
+.landing-cta:active {
+  transform: translateY(1px);
+}
+
+.landing-cta svg {
+  width: 16px;
+  height: 16px;
+}
+
+.landing-cta--compact {
+  height: 36px;
+  padding-inline: 14px;
+  font-size: 14px;
+}
+
+.landing-cta--on-dark {
+  background: var(--signal);
+  color: var(--night);
+  box-shadow: none;
+}
+
+.landing-cta--on-dark:hover {
+  background: var(--signal-strong);
+}
+
+/* Diagram primitives shared by the record, the plane and the network. */
+.landing-grid-dark {
+  background-image: radial-gradient(var(--grid-dark) 1px, transparent 1.2px);
+  background-size: 18px 18px;
+  background-position: 9px 9px;
+}
+
+.landing-grid-paper {
+  background-image: radial-gradient(var(--grid-paper) 1px, transparent 1.2px);
+  background-size: 18px 18px;
+  background-position: 9px 9px;
+}
+
+/* A skeleton bar: structure without invented content. Never carries text. */
+.landing-bar {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--stone);
+}
+
+.landing-bar--dark {
+  background: rgba(148, 163, 184, 0.22);
+}
+
+.landing-bar--lit {
+  background: var(--tint-strong);
+}
+
+/* The stamp: the page's only chip. State is carried by the form of the dot
+   (filled vs ring); colour is secondary. Tone follows the surface. */
+.landing-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 3px;
+  border: 1px solid currentColor;
+  border-radius: var(--r-stamp);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.landing-stamp i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.landing-stamp--hollow i {
+  background: transparent;
+  border: 1px solid currentColor;
+}
+
+.landing-stamp--night.landing-stamp--filled {
+  color: var(--approved-dark);
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.landing-stamp--night.landing-stamp--hollow {
+  color: var(--muted-dark);
+}
+
+.landing-stamp--paper.landing-stamp--filled {
+  color: var(--approved);
+  background: rgba(21, 128, 61, 0.08);
+}
+
+.landing-stamp--paper.landing-stamp--hollow {
+  color: var(--muted);
+  border-color: var(--hair-strong);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

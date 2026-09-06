@@ -1,0 +1,349 @@
+/*
+  Floating header (Workstream W1'). Scoped entirely under .landing so nothing
+  here leaks onto legacy routes. Glass is a navigation-only material in
+  Direction C: solid paper fallback first, backdrop-filter layered on top
+  behind @supports. The page is paper by default, so the bar is paper glass;
+  the one dark chapter (Governance) passing behind the bar's own band flips
+  it to night glass, taking priority over the plain scrolled state.
+*/
+
+.landing {
+  scroll-behavior: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing {
+    scroll-behavior: smooth;
+  }
+}
+
+.landing .glass-header {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  z-index: 100;
+  /* Same "cap at 1240px, center" logic as .landing-shell, but with a 16px
+     side inset instead of the shell's 24px — the floating bar sits closer
+     to the viewport edge than page content does. */
+  width: min(100% - 32px, 1240px);
+  margin-inline: auto;
+  height: 58px;
+  padding-inline: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--r-header);
+  border: 1px solid var(--hair);
+  background: var(--sheet);
+  transition:
+    background var(--t-header) var(--ease),
+    border-color var(--t-header) var(--ease),
+    box-shadow var(--t-header) var(--ease);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .landing .glass-header {
+    background: var(--glass-header);
+    backdrop-filter: blur(var(--blur-header)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--blur-header)) saturate(1.1);
+  }
+
+  .landing .glass-header--on-dark {
+    backdrop-filter: blur(var(--blur-header-dark)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--blur-header-dark)) saturate(1.1);
+  }
+}
+
+/* After 32px of scroll: a touch more opaque, plus a soft shadow. */
+.landing .glass-header--scrolled {
+  background: var(--glass-header-scrolled);
+  box-shadow: var(--header-shadow);
+}
+
+/* While the one dark chapter (Governance) passes behind the header's own
+   band, swap to night glass instead of the scroll-state fill. This takes
+   priority over --glass-header--scrolled because it is a statement about
+   what is *behind* the header, not about how far the page has scrolled. */
+.landing .glass-header--on-dark {
+  background: var(--glass-header-dark);
+  border-color: var(--hair-dark);
+}
+
+/* --- Brand --- */
+
+.landing .glass-header__brand {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  color: var(--ink);
+  flex: 0 0 auto;
+}
+
+/* The original Ventus wordmark (brand blue on transparent). On the night
+   state it is knocked out to white with a filter rather than swapped for a
+   second asset, so the mark stays the mark. */
+.landing .glass-header__logo {
+  display: block;
+  height: 18px;
+  width: auto;
+  transition: filter var(--t-header) var(--ease);
+}
+
+.landing .glass-header--on-dark .glass-header__logo {
+  filter: brightness(0) invert(1);
+}
+
+/* Minimal "you have made progress" cue for the mobile bar: a thin underline
+   appears beneath the wordmark once any chapter has become active, so a
+   returning user gets a sense of where they are even with the menu closed,
+   without a second nav element competing for space. Ink on paper, signal
+   once the dark chapter is behind the bar. */
+.landing .glass-header__brand::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: var(--ink);
+  opacity: 0;
+  transition: opacity var(--t-hover) var(--ease), background var(--t-header) var(--ease);
+}
+
+.landing .glass-header__brand--progress::after {
+  opacity: 1;
+}
+
+.landing .glass-header--on-dark .glass-header__brand::after {
+  background: var(--signal);
+}
+
+/* --- Desktop nav --- */
+
+.landing .glass-header__nav {
+  display: none;
+}
+
+.landing .glass-header__link {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 0;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  /* Transparent by default so the active underline doesn't shift layout
+     when it appears. */
+  border-bottom: 1px solid transparent;
+  transition: color var(--t-hover) var(--ease), border-color var(--t-hover) var(--ease);
+}
+
+.landing .glass-header__link:hover {
+  color: var(--ink);
+}
+
+.landing .glass-header__link[aria-current="location"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.landing .glass-header--on-dark .glass-header__link {
+  color: var(--muted-dark);
+}
+
+.landing .glass-header--on-dark .glass-header__link:hover {
+  color: var(--text-dark);
+}
+
+.landing .glass-header--on-dark .glass-header__link[aria-current="location"] {
+  color: var(--text-dark);
+  border-bottom-color: var(--signal);
+}
+
+.landing .glass-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+/* Both CTAs are .landing-cta (ink on paper); this header only ever adjusts
+   their size, never their color — except on the dark state below, where
+   both flip to the signal-on-night look together. Only the compact CTA +
+   menu toggle render below 900px. */
+.landing .glass-header__desktop-cta {
+  display: none;
+  height: 36px;
+  padding-inline: 14px;
+  font-size: 14px;
+}
+
+.landing .glass-header__compact-cta {
+  display: inline-flex;
+  height: 32px;
+}
+
+.landing .glass-header--on-dark .landing-cta {
+  background: var(--signal);
+  color: var(--night);
+}
+
+.landing .glass-header--on-dark .landing-cta:hover {
+  background: var(--signal-strong);
+}
+
+.landing .glass-header__menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-button);
+  border: 1px solid var(--hair-strong);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.landing .glass-header--on-dark .glass-header__menu-toggle {
+  color: var(--text-dark);
+}
+
+.landing .glass-header__menu-toggle svg {
+  width: 22px;
+  height: 22px;
+}
+
+@media (min-width: 900px) {
+  .landing .glass-header {
+    top: 12px;
+    padding-inline: 24px;
+  }
+
+  .landing .glass-header__nav {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .landing .glass-header__desktop-cta {
+    display: inline-flex;
+  }
+
+  .landing .glass-header__compact-cta,
+  .landing .glass-header__menu-toggle {
+    display: none;
+  }
+}
+
+/* --- Mobile bar sizing --- */
+
+@media (max-width: 899px) {
+  .landing .glass-header {
+    top: max(8px, env(safe-area-inset-top));
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
+    width: auto;
+    height: 50px;
+    padding-inline: 14px;
+  }
+}
+
+/* --- Mobile menu panel --- */
+
+/* A paper sheet, not glass: the header bar is the only place blur belongs. */
+.landing .glass-header__panel {
+  position: fixed;
+  top: calc(max(8px, env(safe-area-inset-top)) + 50px + 8px);
+  left: max(8px, env(safe-area-inset-left));
+  right: max(8px, env(safe-area-inset-right));
+  z-index: 99;
+  border-radius: var(--r-sheet);
+  border: 1px solid var(--hair);
+  box-shadow: var(--sheet-shadow);
+  background: var(--sheet);
+  overflow: hidden;
+  transform-origin: top center;
+  animation: glass-header-panel-in var(--t-header) var(--ease);
+}
+
+.landing .glass-header__panel--on-dark {
+  background: var(--panel);
+  border-color: var(--hair-dark);
+}
+
+@keyframes glass-header-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing .glass-header__panel {
+    animation: none;
+  }
+}
+
+.landing .glass-header__panel-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing .glass-header__panel-link {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding-inline: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--label);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.landing .glass-header__panel-link:hover {
+  color: var(--ink);
+}
+
+.landing .glass-header__panel-link[aria-current="location"] {
+  color: var(--ink);
+  text-decoration-line: underline;
+  text-decoration-color: var(--ink);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.landing .glass-header__panel--on-dark .glass-header__panel-link {
+  color: var(--muted-dark);
+}
+
+.landing .glass-header__panel--on-dark .glass-header__panel-link:hover {
+  color: var(--text-dark);
+}
+
+.landing .glass-header__panel--on-dark .glass-header__panel-link[aria-current="location"] {
+  color: var(--text-dark);
+  text-decoration-color: var(--signal);
+}
+
+@media (min-width: 900px) {
+  .landing .glass-header__panel {
+    display: none;
+  }
+}

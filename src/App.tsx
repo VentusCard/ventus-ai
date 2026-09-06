@@ -37,6 +37,10 @@ const BankAnalyticsDashboard = lazy(() => import("./pages/BankAnalyticsDashboard
 const CoworkerPage = lazy(() => import("./pages/CoworkerPage"));
 const FAQPage = lazy(() => import("./pages/FAQ"));
 const AboutPage = lazy(() => import("./pages/About"));
+// Finnovate landing page, mounted at /next for team review; "/" is untouched
+// until the founders sign off (see docs/finnovate-landing-goal-c.md).
+const LandingPage = lazy(() => import("./landing/LandingPage"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 
 const queryClient = new QueryClient();
 
@@ -46,18 +50,21 @@ const RouteFallback = () => (
 
 const AppLayout = () => {
   const location = useLocation();
+  const isLandingPreview = location.pathname === "/next";
   const isTepilot = location.pathname.startsWith("/tepilot");
   const isDemo = location.pathname === "/deckmo"
     || location.pathname === "/demo";
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
-  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics;
+  const showChrome = !isLandingPreview && !isTepilot && !isDemo && !isPricing && !isBankAnalytics;
 
   const routes = (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/classic" element={<Index noindex />} />
+        <Route path="/next" element={<LandingPage path="/next" noindex />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="/platform" element={<Platform />} />
         <Route path="/transaction-enrichment" element={<TransactionEnrichmentPillar />} />
         <Route path="/smartrewards" element={<SmartRewards />} />

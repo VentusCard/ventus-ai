@@ -14,7 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      // Manually added ahead of `supabase gen types` — this file is normally
+      // auto-generated and was already out of sync with applied migrations
+      // (profiles/user_roles/saved_deals aren't reflected here either).
+      // Regenerate for real once 20260901000000_...access_requests.sql is
+      // applied and replace this entry.
+      access_requests: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          institution: string
+          role: string
+          decision_focus: string | null
+          source_path: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email: string
+          institution: string
+          role: string
+          decision_focus?: string | null
+          source_path?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          institution?: string
+          role?: string
+          decision_focus?: string | null
+          source_path?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
