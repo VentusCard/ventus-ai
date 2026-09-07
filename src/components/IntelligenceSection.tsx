@@ -77,7 +77,7 @@ const IntelligenceSection = () => {
         {/* Context plane */}
         <div
           ref={ref}
-          className="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-[#0A1628] shadow-xl"
+          className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-[#0A1628] shadow-xl"
         >
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
