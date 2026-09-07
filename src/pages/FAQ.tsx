@@ -1,6 +1,5 @@
 import ScrollReveal from "@/components/ScrollReveal";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import { faqSchema, breadcrumbSchema } from "@/lib/seoSchema";
 import { COMPANY_FAQS } from "@/lib/faqContent";
@@ -61,7 +60,6 @@ const FAQ = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };
