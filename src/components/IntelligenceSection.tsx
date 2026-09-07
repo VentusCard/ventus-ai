@@ -132,16 +132,16 @@ const IntelligenceSection = () => {
                   : "border-white/10 bg-white/[0.02] opacity-40"
               }`}
             >
-              <p className="border-b border-white/10 px-3 py-2.5 text-xs font-medium text-white">
+              <p className="border-b border-white/10 px-4 py-3 text-sm font-medium text-white">
                 Relationship view
               </p>
-              <div className="space-y-2.5 p-3">
+              <div className="space-y-3 p-4">
                 {SOURCES.map((s, i) => (
                   <div key={s.label} className="flex items-center gap-2">
-                    <span className="w-[68px] shrink-0 text-[9px] uppercase tracking-wider text-white/45">
+                    <span className="w-[84px] shrink-0 text-[10px] uppercase tracking-wider text-white/45">
                       {s.label}
                     </span>
-                    <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                    <span className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
                       <span
                         className="block h-full rounded-full bg-blue-400/60 transition-all duration-1000"
                         style={{ width: `${[92, 74, 60, 48][i]}%` }}
@@ -160,12 +160,12 @@ const IntelligenceSection = () => {
                   : "border-white/10 bg-white/[0.02] opacity-40"
               }`}
             >
-              <p className="border-b border-white/10 px-3 py-2.5 text-xs font-medium text-white">
+              <p className="border-b border-white/10 px-4 py-3 text-sm font-medium text-white">
                 Next action
               </p>
-              <div className="p-3">
+              <div className="p-4">
                 <div className="rounded-lg border-l-2 border-blue-400 bg-blue-500/10 px-3 py-2.5">
-                  <p className="text-xs text-white">Wealth conversation</p>
+                  <p className="text-sm text-white">Wealth conversation</p>
                   <span className="mt-1.5 inline-block rounded border border-blue-400/40 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-blue-300">
                     Within policy
                   </span>
@@ -181,12 +181,12 @@ const IntelligenceSection = () => {
                   : "border-white/10 bg-white/[0.02] opacity-40"
               }`}
             >
-              <p className="flex items-center gap-2 border-b border-white/10 px-3 py-2.5 text-xs font-medium text-white">
+              <p className="flex items-center gap-2 border-b border-white/10 px-4 py-3 text-sm font-medium text-white">
                 <Briefcase className="h-3.5 w-3.5 text-white/60" />
                 Advisor queue
               </p>
-              <div className="space-y-2 p-3">
-                <p className="rounded bg-white/[0.06] px-2.5 py-1.5 text-xs text-white/80">
+              <div className="space-y-2.5 p-4">
+                <p className="rounded bg-white/[0.06] px-2.5 py-1.5 text-sm text-white/80">
                   Wealth conversation
                 </p>
                 <span className="inline-block rounded border border-emerald-400/40 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-emerald-300">
@@ -212,9 +212,9 @@ const IntelligenceSection = () => {
               />
               <div className="mt-4 flex items-baseline gap-3">
                 <span className="text-xs font-semibold text-blue-600">{s.num}</span>
-                <h3 className="text-xl font-bold text-gray-900">{s.label}</h3>
+                <h3 className="text-2xl font-bold text-gray-900">{s.label}</h3>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-gray-500">{s.body}</p>
+              <p className="mt-2 text-base leading-relaxed text-gray-500">{s.body}</p>
             </button>
           ))}
         </div>
