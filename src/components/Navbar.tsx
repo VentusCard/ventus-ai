@@ -3,92 +3,119 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
-import AnnouncementBar from "./AnnouncementBar";
 
-const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
+const SECTION_LINKS = [
+  { id: "intelligence", label: "Intelligence" },
+  { id: "governance", label: "Governance" },
+  { id: "integration", label: "Integration" },
+];
 
+const PAGE_LINKS = [
+  { to: "/insights", label: "Insights" },
+  { to: "/faq", label: "FAQ" },
+];
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
-  const isTransparent = isDarkHero && !isMobileMenuOpen;
-
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  const scrollToFaq = (e: React.MouseEvent) => {
+  const goToSection = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     closeMobileMenu();
+    const scroll = () =>
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     if (location.pathname === "/") {
-      document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+      scroll();
     } else {
       navigate("/");
-      setTimeout(() => {
-        document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
-      }, 300);
+      setTimeout(scroll, 320);
     }
   };
 
-  const textColor = isTransparent ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-gray-900";
-  const mobileIconColor = isTransparent ? "text-white" : "text-gray-700";
-
   return (
-    <div className="absolute top-0 left-0 right-0 z-50">
-      <AnnouncementBar />
-      <nav className={`transition-colors duration-300 ${isTransparent ? "bg-[#0A1628]" : "ventus-glass-nav"}`}>
-      {/* Desktop navbar */}
-      <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
-        <div className="flex items-center gap-8">
+    <div className="fixed top-4 left-0 right-0 z-50 px-4 md:px-6">
+      <nav className="mx-auto max-w-5xl rounded-2xl border border-slate-200/80 bg-white/85 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+        {/* Desktop */}
+        <div className="hidden md:flex h-14 items-center justify-between pl-6 pr-3">
           <Link to="/" onClick={closeMobileMenu}>
-            <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
+            <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto" />
           </Link>
 
+          <div className="flex items-center gap-6">
+            {SECTION_LINKS.map((l) => (
+              <a
+                key={l.id}
+                href={`/#${l.id}`}
+                onClick={(e) => goToSection(e, l.id)}
+                className="cursor-pointer text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+              >
+                {l.label}
+              </a>
+            ))}
+            <span className="h-4 w-px bg-slate-200" />
+            {PAGE_LINKS.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </div>
 
-          <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
-          <a href="/#faq" onClick={scrollToFaq} className={`${textColor} text-sm font-medium transition-colors cursor-pointer`}>FAQ</a>
+          <Link to="/contact">
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
+              Schedule Demo
+            </Button>
+          </Link>
         </div>
-        <Link to="/contact">
-          <Button
-            size="sm"
-            className={isTransparent
-              ? "bg-white/10 hover:bg-white/20 text-white border border-white/20"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
-            }
+
+        {/* Mobile */}
+        <div className="flex md:hidden h-14 items-center justify-between px-5">
+          <Link to="/" onClick={closeMobileMenu}>
+            <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto" />
+          </Link>
+          <button
+            onClick={() => setIsMobileMenuOpen((v) => !v)}
+            className="text-gray-700"
+            aria-label="Toggle menu"
+            style={{ minWidth: "auto", minHeight: "auto", padding: 0 }}
           >
-            Schedule Demo
-          </Button>
-        </Link>
-      </div>
-
-      {/* Mobile navbar */}
-      <div className="flex md:hidden h-16 items-center justify-between" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
-        <Link to="/" onClick={closeMobileMenu}>
-          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
-        </Link>
-        <button onClick={toggleMobileMenu} className={mobileIconColor} aria-label="Toggle menu" style={{ minWidth: 'auto', minHeight: 'auto', padding: 0 }}>
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      <div
-        id="mobile-nav-menu"
-        className={`md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 transition-all duration-300 ${
-          isMobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
-        }`}
-      >
-        <div style={{ padding: '1.5rem' }}>
-          <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
-          <a href="/#faq" onClick={scrollToFaq} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left cursor-pointer">FAQ</a>
-
-          <Link to="/contact" onClick={closeMobileMenu} className="block pt-3">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
-          </Link>
+            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
-      </div>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-200 px-5 pb-5 pt-2">
+            {SECTION_LINKS.map((l) => (
+              <a
+                key={l.id}
+                href={`/#${l.id}`}
+                onClick={(e) => goToSection(e, l.id)}
+                className="block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+              >
+                {l.label}
+              </a>
+            ))}
+            {PAGE_LINKS.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                onClick={closeMobileMenu}
+                className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+              >
+                {l.label}
+              </Link>
+            ))}
+            <Link to="/contact" onClick={closeMobileMenu} className="block pt-4">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
+            </Link>
+          </div>
+        )}
       </nav>
     </div>
   );
