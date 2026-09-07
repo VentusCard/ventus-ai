@@ -1,4 +1,6 @@
+import ScrollReveal from "@/components/ScrollReveal";
 import Navbar from "@/components/Navbar";
+import SEO from "@/components/SEO";
 import { faqSchema, breadcrumbSchema } from "@/lib/seoSchema";
 import { COMPANY_FAQS } from "@/lib/faqContent";
 import {
