@@ -203,6 +203,78 @@ const FINANCIAL: Record<string, SeedSignal> = {
     weight: 0.14,
   },
 
+  // --- Purchase-mortgage intent (distinct from the HELOC equity story) ---
+  rentVsPayment: {
+    label: "Paying more in rent than a mortgage would cost",
+    evidence: "Monthly rent to a landlord or property manager runs above the payment a comparable local mortgage would carry.",
+    weight: 0.30,
+  },
+  downPaymentBuildup: {
+    label: "Building a down payment",
+    evidence: "Steady transfers into a savings balance that keeps climbing and never gets spent down.",
+    weight: 0.26,
+  },
+  // --- Construction / project financing ---
+  projectCashOutflow: {
+    label: "Paying project costs out of cash",
+    evidence: "Land, permit, architect and contractor payments leaving deposits directly instead of being drawn from a facility.",
+    weight: 0.18,
+  },
+  // --- Property insurance ---
+  outsideInsurerPremium: {
+    label: "Home premium paid to an outside insurer",
+    evidence: "An annual or monthly homeowners premium goes to a carrier the bank does not hold, often alongside an escrow line.",
+    weight: 0.29,
+  },
+  propertyEscrow: {
+    label: "Property taxes and escrow on file",
+    evidence: "Escrow or direct property-tax payments confirm ownership and date the coverage year.",
+    weight: 0.27,
+  },
+  // --- Business income shape ---
+  selfEmployedIncome: {
+    label: "Income arrives as client and customer payments",
+    evidence: "Deposits come from several payers on irregular dates rather than one employer on a fixed cycle.",
+    weight: 0.20,
+  },
+  bizCashSwings: {
+    label: "Operating cash swings month to month",
+    evidence: "Account balance peaks and troughs vary widely across the cycle, with recurring obligations landing in the trough.",
+    weight: 0.16,
+  },
+  bizPayrollRun: {
+    label: "Runs payroll every cycle",
+    evidence: "Regular payroll debits to a payroll processor or to employees on a fixed schedule.",
+    weight: 0.12,
+  },
+  bizSeasonalRevenue: {
+    label: "Revenue concentrated in a few months",
+    evidence: "Card settlements and customer payments cluster into a short season, leaving thin months in between.",
+    weight: 0.10,
+  },
+  // --- Investing ladder (one row per tier, so the tiers stop looking alike) ---
+  smallRecurringContrib: {
+    label: "Small automatic investing contributions",
+    evidence: "Modest transfers on a fixed schedule to an investing app — the habit exists, the balance is still small.",
+    weight: 0.15,
+  },
+  outsideAdvisoryFees: {
+    label: "Paying advisory fees somewhere else",
+    evidence: "Quarterly management or planning fees debited by an outside advisor or RIA.",
+    weight: 0.11,
+  },
+  multiCustodianAssets: {
+    label: "Assets spread across several custodians",
+    evidence: "Transfers and fee debits involving more than one brokerage, trust company or private bank.",
+    weight: 0.07,
+  },
+
+  thinBuffer: {
+    label: "Little cushion between payday and bills",
+    evidence: "Balances run down to near zero before each deposit lands, with obligations timed tightly against income.",
+    weight: 0.21,
+  },
+
   travelSpend: {
     label: "Travels often",
     evidence: "Airline, hotel and ride spending across several trips this past year.",
@@ -337,6 +409,36 @@ const DEMOGRAPHIC: Record<string, SeedSignal> = {
     evidence: "Income comfortably clears recurring commitments and a savings balance keeps building month after month.",
     weight: 0.20,
   },
+  singleEarner: {
+    label: "One income supports the household",
+    evidence: "A single paycheck covers housing, bills and everyday spending for the whole household.",
+    weight: 0.29,
+  },
+  parentManagedYouth: {
+    label: "Account managed by a parent",
+    evidence: "A parent funds and monitors the account, with allowance transfers and small teen-pattern spending.",
+    weight: 0.12,
+  },
+  caregiverAgingParent: {
+    label: "Caring for an aging parent",
+    evidence: "Eldercare, assisted-living and pharmacy payments made on someone else's behalf.",
+    weight: 0.10,
+  },
+  multiProperty: {
+    label: "Owns more than one property",
+    evidence: "Two separate property tax and insurance patterns tied to different addresses.",
+    weight: 0.06,
+  },
+  bizEstablished: {
+    label: "Business operating for years",
+    evidence: "Customer receipts and supplier payments running continuously for 24 months or more.",
+    weight: 0.09,
+  },
+  bizEmployer: {
+    label: "Employs a small team",
+    evidence: "Payroll debits for several people plus benefits and workers' cover premiums.",
+    weight: 0.05,
+  },
 };
 
 
@@ -465,6 +567,89 @@ const EXTRA_LIFE_EVENT: Record<string, SeedSignal> = {
 /** [family, seed, relevance] — relevance 3 = direct product match, 2 = adjacent, 1 = generic. */
 type ScoredSeed = [SignalFamily, SeedSignal, number];
 
+/** Products whose real play is winning a balance held at another provider. */
+const SWITCH_STORY_FLOWS = new Set([
+  "high-yield-savings",
+  "money-market-account",
+  "certificate-of-deposit",
+  "balance-transfer-card",
+  "cobrand-card",
+  "auto-refi",
+  "student-loan-refi",
+  "401k-rollover",
+  "ira",
+  "business-checking",
+  "business-savings-sweep",
+]);
+
+/** Flows whose audience is a single-earner household by definition. */
+const SINGLE_EARNER_FLOWS = new Set([
+  "solo-restart-checking",
+  "personal-line-of-credit",
+  "disability-insurance",
+  "student-credit-card",
+  "starter-checking",
+  "teen-youth-savings",
+  "inherited-ira",
+]);
+
+/** Flows where the "two earners" household frame genuinely adds information. */
+const HOUSEHOLD_SCALE_FLOWS = new Set([
+  "everyday-checking",
+  "relationship-checking",
+  "core-savings",
+  "life-insurance",
+  "permanent-life",
+  "umbrella-insurance",
+  "wedding-loan",
+  "move-financing",
+  "auto-loan",
+  "rv-boat-loan",
+]);
+
+/** A second, product-true demographic frame for flows the generic rules leave thin. */
+const EXTRA_FRAME: Record<string, keyof typeof DEMOGRAPHIC> = {
+  "trust-estate": "affluentHousehold",
+  "donor-advised-fund": "affluentHousehold",
+  "able-savings": "caregiverAgingParent",
+  "financial-planning-subscription": "dualIncome",
+  "identity-theft-protection": "preRetiree",
+  "global-account": "relocated",
+  "personal-loan": "dualIncome",
+  "balance-transfer-card": "dualIncome",
+  "category-cashback-card": "dualIncome",
+  "flat-cashback-card": "dualIncome",
+  "cobrand-card": "dualIncome",
+  "core-savings": "savingCapacityHousehold",
+  "high-yield-savings": "savingCapacityHousehold",
+  "money-market-account": "savingCapacityHousehold",
+  "certificate-of-deposit": "preRetiree",
+  "holiday-club-savings": "parentSchoolAge",
+  "hsa": "parentYoung",
+  "wedding-loan": "youngProfessional",
+  "move-financing": "relocated",
+  "lease-buyout-loan": "multiVehicle",
+  "student-loan-refi": "youngProfessional",
+  "self-directed-brokerage": "youngProfessional",
+  "hybrid-advisor-portfolio": "preRetiree",
+  "values-portfolio": "youngProfessional",
+  "secured-credit-card": "renter",
+  "disability-insurance": "singleEarner",
+};
+
+/** Investing tiers whose audience really is a high-net-worth household. */
+const AFFLUENT_INVEST_FLOWS = new Set([
+  "wealth-management",
+  "private-wealth",
+  "hybrid-advisor-portfolio",
+]);
+
+/** Accounts held by, or on behalf of, a minor. */
+const YOUTH_FLOWS = new Set(["teen-youth-savings", "starter-checking"]);
+
+/** Flows whose trigger is income disruption — a steady-paycheck row contradicts them. */
+const NO_PAYROLL_FLOWS = new Set(["personal-line-of-credit", "solo-restart-checking"]);
+
 function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   const t = tagsFor(flow);
   const name = `${flow.id} ${flow.name}`;
@@ -486,23 +671,55 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   const entryLevelCard = isCard && /student|secured|starter|first|cash back/i.test(name);
   const checkingProduct = /checking/i.test(name);
   const hasAuthoredLifeEvent = flow.signals.some((s) => s.type === "life-event");
+  const id = flow.id;
+  const isBusiness = t.has("business");
+  // Households where a second earner cannot be assumed (or is the wrong story).
+  const singleHousehold = SINGLE_EARNER_FLOWS.has(id);
 
 
   // --- Financial ---
-  if (t.has("business")) {
+  if (isBusiness) {
     add("financial", FINANCIAL.bizRevenue, 3);
     add("financial", FINANCIAL.bizTaxes, 3);
+    if (/payroll|checking|sweep|workers|policy|succession/i.test(name)) {
+      add("financial", FINANCIAL.bizPayrollRun, 3);
+    }
+    if (/line of credit|sba|equipment|merchant|loan/i.test(name)) {
+      add("financial", FINANCIAL.bizSeasonalRevenue, 3);
+    }
+    add("financial", FINANCIAL.bizCashSwings, 2);
+    add("financial", FINANCIAL.selfEmployedIncome, 1);
   }
-  if (t.has("home")) {
-    add("financial", FINANCIAL.outsideMortgageServicer, 3);
-    add("financial", FINANCIAL.existingHelocElsewhere, 3);
-    add("financial", FINANCIAL.higherCostDebt, 3);
-    add("financial", FINANCIAL.reachingLiquidity, 3);
-    add("financial", FINANCIAL.mortgagePayer, 2);
-    add("financial", FINANCIAL.homeEquityBuilt, 2);
-    add("financial", FINANCIAL.highInterestConsumerDebt, 2);
-    add("financial", FINANCIAL.largePlannedOutflow, 2);
-    add("financial", FINANCIAL.surplus, 2);
+  // The home financial block splits by intent — buying, borrowing against
+  // equity, building, or insuring are four different stories.
+  if (t.has("home") && !isBusiness) {
+    if (id === "heloc") {
+      add("financial", FINANCIAL.outsideMortgageServicer, 3);
+      add("financial", FINANCIAL.existingHelocElsewhere, 3);
+      add("financial", FINANCIAL.higherCostDebt, 3);
+      add("financial", FINANCIAL.reachingLiquidity, 3);
+    } else if (id === "mortgage") {
+      add("financial", FINANCIAL.rentVsPayment, 3);
+      add("financial", FINANCIAL.downPaymentBuildup, 3);
+      add("financial", FINANCIAL.depositGrowth, 2);
+      add("financial", FINANCIAL.surplus, 2);
+    } else if (id === "construction-loan") {
+      add("financial", FINANCIAL.projectCashOutflow, 3);
+      add("financial", FINANCIAL.homeEquityBuilt, 3);
+      add("financial", FINANCIAL.largePlannedOutflow, 2);
+    } else if (id === "second-home-mortgage") {
+      add("financial", FINANCIAL.outsideMortgageServicer, 3);
+      add("financial", FINANCIAL.homeEquityBuilt, 3);
+      add("financial", FINANCIAL.surplus, 2);
+    } else if (t.has("insurance")) {
+      add("financial", FINANCIAL.outsideInsurerPremium, 3);
+      add("financial", FINANCIAL.propertyEscrow, 3);
+    } else {
+      add("financial", FINANCIAL.mortgagePayer, 3);
+      add("financial", FINANCIAL.homeEquityBuilt, 2);
+      add("financial", FINANCIAL.higherCostDebt, 2);
+      add("financial", FINANCIAL.surplus, 2);
+    }
   }
 
   if (t.has("auto")) add("financial", FINANCIAL.autoPayer, 3);
@@ -519,17 +736,39 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
 
   if (t.has("retirement")) add("financial", FINANCIAL.retirementContrib, 3);
+  // Each rung of the investing ladder gets a qualifying row of its own so a
+  // robo account and a private-wealth relationship stop reading the same.
   if (t.has("invest")) {
-    add("financial", FINANCIAL.externalInvestFunding, 3);
-    add("financial", FINANCIAL.idleCash, 2);
+    if (id === "robo-portfolio") {
+      add("financial", FINANCIAL.smallRecurringContrib, 3);
+      add("financial", FINANCIAL.depositGrowth, 2);
+    } else if (id === "hybrid-advisor-portfolio") {
+      add("financial", FINANCIAL.outsideAdvisoryFees, 3);
+      add("financial", FINANCIAL.externalInvestFunding, 2);
+    } else if (id === "private-wealth" || id === "wealth-management") {
+      add("financial", FINANCIAL.multiCustodianAssets, 3);
+      add("financial", FINANCIAL.externalInvestFunding, 2);
+    } else {
+      add("financial", FINANCIAL.externalInvestFunding, 3);
+      add("financial", FINANCIAL.idleCash, 2);
+    }
   }
   if (t.has("deposit")) add("financial", FINANCIAL.depositGrowth, 3);
-  if (savingsProduct) add("financial", FINANCIAL.interestSeeking, 3);
-  if ((isCard || t.has("credit")) && flow.id !== "heloc") add("financial", FINANCIAL.lowUtil, 3);
+  if (savingsProduct) {
+    add("financial", FINANCIAL.interestSeeking, 3);
+    add("financial", FINANCIAL.surplus, 2);
+  }
+  // Products people reach for when the month is tight.
+  if (NO_PAYROLL_FLOWS.has(id) || /personal loan|line of credit|consolidat/i.test(name)) {
+    add("financial", FINANCIAL.thinBuffer, 3);
+  }
+  if ((isCard || t.has("credit")) && !isBusiness && id !== "heloc") add("financial", FINANCIAL.lowUtil, 3);
   if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend, 3);
   if (t.has("travel")) add("financial", FINANCIAL.travelSpend, 3);
   // Income stability matters where repayment, funding or premiums are involved.
-  if (!t.has("business") && (underwritten || t.has("deposit") || t.has("retirement"))) {
+  // Deposit accounts do not need proof of repayment capacity, so the income
+  // row stays on products where funding or repayment is actually underwritten.
+  if (!isBusiness && !NO_PAYROLL_FLOWS.has(id) && (underwritten || t.has("retirement"))) {
     add("financial", FINANCIAL.payroll, 1);
   }
   if (out.filter(([f]) => f === "financial").length < 2) {
@@ -537,9 +776,11 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
 
   // --- Demographic ---
-  if (t.has("business")) {
+  if (isBusiness) {
     add("demographic", DEMOGRAPHIC.ownerOperator, 3);
     add("demographic", DEMOGRAPHIC.selfEmployed, 3);
+    add("demographic", DEMOGRAPHIC.bizEstablished, 2);
+    add("demographic", DEMOGRAPHIC.bizEmployer, 2);
   }
   if (parentEducation) {
     add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
@@ -550,28 +791,84 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     }
   }
 
-  if (t.has("home") && flow.id !== "heloc") {
-    add("demographic", DEMOGRAPHIC.homeowner, 3);
-    add("demographic", DEMOGRAPHIC.longTenureHomeowner, 3);
-    add("demographic", DEMOGRAPHIC.dualIncomeHomeowner, 3);
-    add("demographic", DEMOGRAPHIC.preRetireeHomeowner, 2);
+  if (t.has("home") && !isBusiness && id !== "heloc") {
+    if (id === "mortgage") {
+      // A purchase-mortgage audience does not own a home yet.
+      add("demographic", DEMOGRAPHIC.renter, 3);
+      add("demographic", DEMOGRAPHIC.youngProfessional, 2);
+      if (!singleHousehold) add("demographic", DEMOGRAPHIC.dualIncome, 2);
+    } else if (id === "second-home-mortgage") {
+      add("demographic", DEMOGRAPHIC.multiProperty, 3);
+      add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+      add("demographic", DEMOGRAPHIC.longTenureHomeowner, 2);
+    } else {
+      add("demographic", DEMOGRAPHIC.homeowner, 3);
+      add("demographic", DEMOGRAPHIC.longTenureHomeowner, 3);
+      if (!singleHousehold) add("demographic", DEMOGRAPHIC.dualIncomeHomeowner, 2);
+      add("demographic", DEMOGRAPHIC.preRetireeHomeowner, 2);
+    }
   }
 
   // Only vehicle products get a vehicle-count signal — not life or pet cover.
-  if (autoInsurance) add("demographic", DEMOGRAPHIC.multiVehicle, 3);
+  if (autoInsurance && !t.has("insurance")) add("demographic", DEMOGRAPHIC.multiVehicle, 3);
   if (t.has("retirement")) add("demographic", DEMOGRAPHIC.preRetiree, 3);
-  if (t.has("invest")) add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
-  if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner, 3);
+  // Only the advised tiers assume real wealth — a robo account does not.
+  // Only the advised, relationship-priced tiers assume real wealth.
+  if (t.has("invest") && AFFLUENT_INVEST_FLOWS.has(id)) {
+    add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+  }
+  if (id === "robo-portfolio") add("demographic", DEMOGRAPHIC.youngProfessional, 3);
+  if (id === "private-wealth" || id === "wealth-management") {
+    add("demographic", DEMOGRAPHIC.multiProperty, 2);
+  }
   // Entry-level products skew young; premium products do not.
   if (t.has("student") || entryLevelCard) add("demographic", DEMOGRAPHIC.youngProfessional, 2);
   if (isCard && /premium|ultra|private|luxury/i.test(name)) {
     add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
   }
-  if (t.has("insurance") && !t.has("retirement")) add("demographic", DEMOGRAPHIC.parentYoung, 2);
-  if (checkingProduct) add("demographic", DEMOGRAPHIC.renter, 1);
+  // Insurance products carry very different households — the young-children
+  // frame only fits income-replacement cover.
+  if (t.has("insurance") && !isBusiness) {
+    if (id === "ltc-insurance") {
+      add("demographic", DEMOGRAPHIC.caregiverAgingParent, 3);
+      add("demographic", DEMOGRAPHIC.preRetiree, 3);
+    } else if (id === "umbrella-insurance") {
+      add("demographic", DEMOGRAPHIC.multiProperty, 3);
+      add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+    } else if (id === "auto-insurance") {
+      add("demographic", DEMOGRAPHIC.multiVehicle, 3);
+    } else if (t.has("pet")) {
+      add("demographic", DEMOGRAPHIC.petOwner, 3);
+    } else if (/life|disability/i.test(name)) {
+      add("demographic", DEMOGRAPHIC.parentYoung, 3);
+      add("demographic", singleHousehold ? DEMOGRAPHIC.singleEarner : DEMOGRAPHIC.dualIncome, 2);
+    } else if (t.has("home")) {
+      add("demographic", DEMOGRAPHIC.homeowner, 3);
+      add("demographic", DEMOGRAPHIC.longTenureHomeowner, 2);
+    }
+  }
+  if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner, 3);
+  if (YOUTH_FLOWS.has(id)) add("demographic", DEMOGRAPHIC.parentManagedYouth, 3);
+  if (checkingProduct && !isBusiness && !t.has("home")) {
+    add("demographic", DEMOGRAPHIC.renter, 1);
+  }
   if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester, 1);
-  if (out.filter(([f]) => f === "demographic").length < 2 && flow.id !== "heloc") {
-    add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome, 1);
+  const frame = EXTRA_FRAME[id];
+  if (frame) add("demographic", DEMOGRAPHIC[frame], 2);
+  // Household frame of last resort — chosen per product instead of always
+  // assuming two earners.
+  // One true demographic row beats two, so this only fires when there is none.
+  if (out.filter(([f]) => f === "demographic").length < 1 && id !== "heloc") {
+    if (YOUTH_FLOWS.has(id)) {
+      // A teen account already has its household frame: the parent.
+    } else if (singleHousehold) add("demographic", DEMOGRAPHIC.singleEarner, 1);
+    else if (t.has("invest") && id !== "robo-portfolio") {
+      add("demographic", DEMOGRAPHIC.affluentHousehold, 1);
+    }
+    else if (t.has("student") || entryLevelCard) add("demographic", DEMOGRAPHIC.youngProfessional, 1);
+    else if (HOUSEHOLD_SCALE_FLOWS.has(id) || t.has("home") || t.has("education")) {
+      add("demographic", DEMOGRAPHIC.dualIncome, 1);
+    } else add("demographic", DEMOGRAPHIC.savingCapacityHousehold, 1);
   }
 
   // --- Risk / eligibility ---
@@ -588,11 +885,16 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("risk", RISK.coverageGap, 3);
     add("risk", RISK.premiumAffordability, 3);
     add("risk", RISK.accountStanding, 1);
+  } else if (businessCredit) {
+    // Business credit is underwritten on the business, not on consumer
+    // delinquency or a consumer secured-loan history.
+    add("risk", RISK.bizCashBuffer, 3);
+    add("risk", RISK.healthyDti, 3);
+    add("risk", RISK.noRecentDeclines, 2);
   } else if (lendingProduct) {
     add("risk", RISK.healthyDti, 3);
     if (secured) add("risk", RISK.collateralClean, 3);
     if (isCard) add("risk", RISK.seriousDelinquency, 3);
-    if (businessCredit) add("risk", RISK.bizCashBuffer, 3);
     if (!isCard && !secured) add("risk", RISK.noRecentDeclines, 2);
     add("risk", RISK.noOverdraft, 2);
   } else if (t.has("invest") || t.has("retirement") || parentEducation) {
@@ -622,8 +924,10 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
       3,
     );
 
-  } else if (flow.id !== "heloc") {
-    add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
+  } else if (SWITCH_STORY_FLOWS.has(id)) {
+    // "Already has this elsewhere" is only meaningful where the play really is
+    // to win the balance over — not as a default row on every product.
+    add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 3);
   }
   if (underwritten && flow.id !== "heloc") add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
   if ((t.has("card") || checkingProduct) && !parentEducation) {
@@ -1037,6 +1341,33 @@ export const COMBINED_PASS_MIN = 0.45;
 
 
 
+/**
+ * [supplemental row, a signal it contradicts] — if a flow already carries the
+ * right-hand story, the left-hand supplemental row is dropped.
+ */
+const SIGNAL_CONFLICTS: Array<[RegExp, RegExp]> = [
+  [
+    /steady paycheck|payroll deposit/i,
+    /paycheck stopped|income stopped|shrank|lost (a|their) job|between jobs|paying the bills alone|left a job/i,
+  ],
+  [
+    /barely uses their credit limit|low credit utilization/i,
+    /carrying (expensive|high|higher)|debt building up|near the limit|paying down another bank|revolving balance|consolidat/i,
+  ],
+  [
+    /two earners|dual-income/i,
+    /alone|on their own|solo|family lawyer|single|one income|divorce/i,
+  ],
+  [/rents their home/i, /owns their home|homeowner|mortgage payment|property tax/i],
+  [/owns their home|homeowner/i, /rents their home/i],
+  [/has young children/i, /aging parent|eldercare|children have moved out|nearing retirement/i],
+  [/one income supports the household|single-earner/i, /two earners|dual-income|account managed by a parent/i],
+  [
+    /money left over each month|savings are growing|household saving beyond/i,
+    /savings moving fast|paycheck stopped|near the limit|payday|debt building up/i,
+  ],
+];
+
 function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: EligibilityFilter[] } {
   const authoredCopy = FLOW_MICROSEGMENTS[flow.id] ?? [];
 
@@ -1056,9 +1387,21 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
     };
   });
 
-  const supplemental = supplementalFor(flow).filter(
+  const deduped = supplementalFor(flow).filter(
     ([, s]) => !authored.some((a) => a.label.toLowerCase() === s.label.toLowerCase()),
   );
+
+  // A flow must never show both sides of the same fact (income stopped AND a
+  // steady paycheck, carrying debt AND unused credit, and so on). The
+  // supplemental row loses to whatever the flow already says.
+  const context = [...authored.map((a) => a.label), ...deduped.map(([, s]) => s.label)];
+  const supplemental = deduped.filter(([, s]) => {
+    for (const [row, contradicts] of SIGNAL_CONFLICTS) {
+      if (!row.test(s.label)) continue;
+      if (context.some((label) => label !== s.label && contradicts.test(label))) return false;
+    }
+    return true;
+  });
 
   // Keep the strongest supplemental signals per family, within the family cap
   // (authored signals always stay and count toward the cap).

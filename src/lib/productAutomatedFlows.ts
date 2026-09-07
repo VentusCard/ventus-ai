@@ -364,7 +364,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     positioning: "Financing for new or used motorcycle and powersport purchases.",
     signals: [
       { label: "Shopping at powersport dealers", evidence: "Card or bank payments to motorcycle dealerships, powersport retailers, or accessory shops.", type: "behavioral" },
-      { label: "Getting insurance quotes", evidence: "bank transfer or card payment to a motorcycle insurer shortly after a dealer deposit.", type: "life-event" },
+      { label: "Put a deposit down at a powersport dealer", evidence: "A dealer deposit or down payment followed by a motorcycle insurance premium starting up.", type: "life-event" },
       { label: "Paying a loan at another lender", evidence: "Outbound bank transfer to a captive powersport lender, indicating an existing loan elsewhere.", type: "behavioral" },
     ],
     estimatedAudience: 800_000,
@@ -869,7 +869,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     signals: [
       { label: "Contributes to a health savings account", evidence: "Regular incoming bank transfers from employer payroll or personal funding to a health savings administrator; may see 'HSA' or 'HEALTH SA' in descriptor.", type: "behavioral" },
       { label: "Paying medical bills out of pocket", evidence: "Consistent, out-of-pocket card or bank payments to medical providers ('HOSPITAL', 'PEDIATRIC', 'RX') before typical insurance coverage limits are met.", type: "behavioral" },
-      { label: "Old enough for extra retirement contributions", evidence: "Periodic, larger-than-normal bank transfer or app-to-app contributions to an HSA administrator, often occurring around age 55, indicating catch-up contributions.", type: "life-event" },
+      { label: "Moved onto a high-deductible health plan", evidence: "Payroll deduction for a lower-premium plan alongside a jump in out-of-pocket medical card spend, the pattern that makes an HSA eligible and worthwhile.", type: "life-event" },
     ],
     estimatedAudience: 5_100_000,
     penetration: 0.038,
@@ -997,7 +997,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     positioning: "Term financing secured by the equipment, replacing recurring rental spend.",
     signals: [
       { label: "Rents equipment every month", evidence: "Monthly bank transfer or card payments to equipment rental and leasing companies sustained over multiple quarters.", type: "behavioral" },
-      { label: "Spending more on home repairs", evidence: "Increasing card spend at industrial repair, parts, and service vendors indicating aging owned equipment.", type: "behavioral" },
+      { label: "Repair spend rising on aging equipment", evidence: "Increasing card spend at industrial repair, parts, and service vendors indicating owned equipment nearing the end of its useful life.", type: "behavioral" },
       { label: "Buys from trade suppliers", evidence: "Ongoing bank transfer to wholesale trade distributors and B2B suppliers consistent with an operating business.", type: "behavioral" },
     ],
     estimatedAudience: 700_000,
