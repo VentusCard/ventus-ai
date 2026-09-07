@@ -192,6 +192,17 @@ const FINANCIAL: Record<string, SeedSignal> = {
     evidence: "Regular payments go to a school or college.",
     weight: 0.11,
   },
+  outsideEducationPlan: {
+    label: "College plan funded at another provider",
+    evidence: "Recurring transfers to a state college-savings plan administrator or an outside brokerage's education account — the plan already exists, just not here.",
+    weight: 0.09,
+  },
+  childSavingsBuildup: {
+    label: "Setting money aside for a child",
+    evidence: "Gift deposits around birthdays and holidays plus steady transfers into a savings balance that never gets spent down.",
+    weight: 0.14,
+  },
+
   travelSpend: {
     label: "Travels often",
     evidence: "Airline, hotel and ride spending across several trips this past year.",
