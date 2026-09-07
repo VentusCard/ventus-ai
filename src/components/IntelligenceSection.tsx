@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeftRight, Share2, Globe, Users, Briefcase } from "lucide-react";
+import { ArrowLeftRight, Share2, Globe, Users, Smartphone, Building, UserCheck, Layers } from "lucide-react";
 
 const STAGES = [
   {
@@ -27,6 +27,18 @@ const SOURCES = [
   { icon: Share2, label: "Relationships" },
   { icon: Globe, label: "Digital" },
   { icon: Users, label: "Teams" },
+];
+
+const NEXT_ACTIONS = [
+  { icon: Smartphone, label: "Digital banking", detail: "In-app nudge" },
+  { icon: Building, label: "CRM", detail: "Advisor prompt" },
+  { icon: UserCheck, label: "Relationship check-in", detail: "Scheduled outreach" },
+];
+
+const DESTINATIONS = [
+  { label: "Digital banking" },
+  { label: "CRM" },
+  { label: "Relationship check-in" },
 ];
 
 const IntelligenceSection = () => {
@@ -104,7 +116,7 @@ const IntelligenceSection = () => {
           </div>
 
           <div
-            className="relative grid grid-cols-2 items-center gap-4 p-4 md:grid-cols-4 md:gap-6 md:p-8 min-h-[300px] md:min-h-[340px]"
+            className="relative grid grid-cols-2 gap-4 p-4 md:grid-cols-5 md:grid-rows-2 md:gap-6 md:p-8 min-h-[300px] md:min-h-[420px]"
             style={{
               backgroundImage:
                 "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), radial-gradient(ellipse 60% 70% at 50% 55%, rgba(59,130,246,0.14), transparent)",
@@ -112,7 +124,7 @@ const IntelligenceSection = () => {
             }}
           >
             {/* Sources */}
-            <div className="flex flex-col justify-center gap-3">
+            <div className="md:row-span-2 flex flex-col justify-center gap-3">
               {SOURCES.map(({ icon: Icon, label }) => (
                 <div
                   key={label}
@@ -152,46 +164,56 @@ const IntelligenceSection = () => {
               </div>
             </div>
 
-            {/* Next action */}
-            <div
-              className={`rounded-xl border transition-all duration-700 ${
-                stage >= 1
-                  ? "border-blue-400/40 bg-white/[0.06] opacity-100"
-                  : "border-white/10 bg-white/[0.02] opacity-40"
-              }`}
-            >
-              <p className="border-b border-white/10 px-4 py-3 text-sm font-medium text-white">
-                Next action
-              </p>
-              <div className="p-4">
-                <div className="rounded-lg border-l-2 border-blue-400 bg-blue-500/10 px-3 py-2.5">
-                  <p className="text-sm text-white">Wealth conversation</p>
-                  <span className="mt-1.5 inline-block rounded border border-blue-400/40 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-blue-300">
-                    Within policy
-                  </span>
+            {/* Next actions */}
+            {NEXT_ACTIONS.map(({ icon: Icon, label, detail }) => (
+              <div
+                key={label}
+                className={`rounded-xl border transition-all duration-700 ${
+                  stage >= 1
+                    ? "border-blue-400/40 bg-white/[0.06] opacity-100"
+                    : "border-white/10 bg-white/[0.02] opacity-40"
+                }`}
+              >
+                <p className="flex items-center gap-2 border-b border-white/10 px-4 py-3 text-sm font-medium text-white">
+                  <Icon className="h-3.5 w-3.5 text-blue-300" />
+                  {label}
+                </p>
+                <div className="p-4">
+                  <div className="rounded-lg border-l-2 border-blue-400 bg-blue-500/10 px-3 py-2.5">
+                    <p className="text-sm text-white">{detail}</p>
+                    <span className="mt-1.5 inline-block rounded border border-blue-400/40 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-blue-300">
+                      Within policy
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
 
-            {/* Destination */}
+            {/* Activation destinations */}
             <div
-              className={`rounded-xl border transition-all duration-700 ${
+              className={`md:col-span-4 rounded-xl border transition-all duration-700 ${
                 stage >= 2
                   ? "border-emerald-400/30 bg-white/[0.06] opacity-100"
                   : "border-white/10 bg-white/[0.02] opacity-40"
               }`}
             >
               <p className="flex items-center gap-2 border-b border-white/10 px-4 py-3 text-sm font-medium text-white">
-                <Briefcase className="h-3.5 w-3.5 text-white/60" />
-                Advisor queue
+                <Layers className="h-3.5 w-3.5 text-emerald-300" />
+                Activation destinations
               </p>
-              <div className="space-y-2.5 p-4">
-                <p className="rounded bg-white/[0.06] px-2.5 py-1.5 text-sm text-white/80">
-                  Wealth conversation
-                </p>
-                <span className="inline-block rounded border border-emerald-400/40 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-emerald-300">
-                  Filed
-                </span>
+              <div className="flex flex-wrap items-center gap-3 p-4">
+                {DESTINATIONS.map(({ label }) => (
+                  <div
+                    key={label}
+                    className="flex items-center gap-2 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    <span className="text-sm text-white/90">{label}</span>
+                    <span className="ml-1 rounded border border-emerald-400/40 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-emerald-300">
+                      Filed
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
