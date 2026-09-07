@@ -31,29 +31,35 @@ const SOURCES = [
 
 const IntelligenceSection = () => {
   const [stage, setStage] = useState(0);
-  const [live, setLive] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
+  // Scroll-driven: pin the section and walk through stages as the user scrolls.
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => setLive(entry.isIntersecting),
-      { threshold: 0.25 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
+    const track = trackRef.current;
+    if (!track) return;
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const rect = track.getBoundingClientRect();
+        const scrollable = rect.height - window.innerHeight;
+        if (scrollable <= 0) return;
+        const progress = Math.min(1, Math.max(0, -rect.top / scrollable));
+        setStage(Math.min(STAGES.length - 1, Math.floor(progress * STAGES.length)));
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
-  useEffect(() => {
-    if (!live) return;
-    const t = setInterval(() => setStage((s) => (s + 1) % STAGES.length), 2800);
-    return () => clearInterval(t);
-  }, [live]);
-
   return (
-    <section id="intelligence" className="bg-white scroll-mt-28 py-24 md:py-28">
-      <div className="max-w-7xl mx-auto px-6 md:px-8">
+    <section id="intelligence" ref={trackRef} className="bg-white scroll-mt-28 relative h-[340vh]">
+      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-7xl mx-auto px-6 md:px-8 py-16">
         <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">
           Intelligence
         </p>
