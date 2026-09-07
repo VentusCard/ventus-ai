@@ -614,7 +614,14 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     if (!flow.signals.some((s) => /educat|tutor|school|tuition/i.test(s.label))) {
       add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
     }
-    add("behavioral", EXTRA_BEHAVIORAL.educationOutbound, 3);
+    // The 529 flow surfaces the outside plan as a financial signal instead, so
+    // its behavioral row covers active shopping rather than repeating it.
+    add(
+      "behavioral",
+      flow.id === "529-plan" ? EXTRA_BEHAVIORAL.researchIntent : EXTRA_BEHAVIORAL.educationOutbound,
+      3,
+    );
+
   } else if (flow.id !== "heloc") {
     add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
   }
