@@ -59,7 +59,7 @@ const IntelligenceSection = () => {
 
   return (
     <section id="intelligence" ref={trackRef} className="bg-white scroll-mt-28 relative h-[340vh]">
-      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-[1400px] mx-auto px-6 md:px-10 py-8">
+      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-[1400px] mx-auto px-6 md:px-10 pt-20 pb-8">
         <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">
           Intelligence
         </p>
@@ -104,7 +104,7 @@ const IntelligenceSection = () => {
           </div>
 
           <div
-            className="relative grid grid-cols-2 gap-4 p-5 md:grid-cols-4 md:gap-8 md:p-10 min-h-[380px] md:min-h-[420px]"
+            className="relative grid grid-cols-2 items-center gap-4 p-5 md:grid-cols-4 md:gap-8 md:p-10 min-h-[360px] md:min-h-[400px]"
             style={{
               backgroundImage:
                 "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), radial-gradient(ellipse 60% 70% at 50% 55%, rgba(59,130,246,0.14), transparent)",
