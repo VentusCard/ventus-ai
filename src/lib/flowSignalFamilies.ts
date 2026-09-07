@@ -507,9 +507,17 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
 
   if (t.has("auto")) add("financial", FINANCIAL.autoPayer, 3);
   if (parentEducation) {
-    add("financial", FINANCIAL.tuitionOutflow, 3);
-    add("financial", FINANCIAL.surplus, 2);
+    if (flow.id === "529-plan") {
+      // The 529 flow already carries tuition evidence in its life-event and
+      // behavioral rows, so the financial family stays plan-specific.
+      add("financial", FINANCIAL.outsideEducationPlan, 3);
+      add("financial", FINANCIAL.childSavingsBuildup, 3);
+    } else {
+      add("financial", FINANCIAL.tuitionOutflow, 3);
+      add("financial", FINANCIAL.surplus, 2);
+    }
   }
+
   if (t.has("retirement")) add("financial", FINANCIAL.retirementContrib, 3);
   if (t.has("invest")) {
     add("financial", FINANCIAL.externalInvestFunding, 3);
