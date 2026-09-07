@@ -97,7 +97,7 @@ export function SurfaceFeaturePanel({
   }, [customerKey, surface, hasSelection, config.items.length]);
 
   return (
-    <div className="lg:col-span-1 min-h-0 flex flex-col gap-4">
+    <div className="lg:col-span-1 min-h-0 flex flex-col gap-3">
       {/* Anticipated LTV Lift sliver */}
       {ltvResult && <LtvLiftSliver result={ltvResult} hasSelection={hasSelection} />}
 
