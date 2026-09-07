@@ -59,15 +59,15 @@ const IntelligenceSection = () => {
 
   return (
     <section id="intelligence" ref={trackRef} className="bg-white scroll-mt-28 relative h-[340vh]">
-      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-[1400px] mx-auto px-6 md:px-10 pt-20 pb-8">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">
+      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-[1400px] mx-auto px-6 md:px-10 pt-20 pb-6">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-blue-600 mb-3">
           Intelligence
         </p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-24 items-start">
-          <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900 leading-[1.05]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16 items-start">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 leading-[1.08]">
             A shared understanding of the customer.
           </h2>
-          <p className="text-xl text-gray-500 leading-relaxed">
+          <p className="text-lg text-gray-500 leading-relaxed">
             Customer context is spread across transactions, product relationships, digital behavior,
             and teams. Ventus organizes what the bank has approved into one view, so every decision
             starts from the whole relationship.
