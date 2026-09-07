@@ -59,15 +59,15 @@ const IntelligenceSection = () => {
 
   return (
     <section id="intelligence" ref={trackRef} className="bg-white scroll-mt-28 relative h-[340vh]">
-      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-[1400px] mx-auto px-6 md:px-10 pt-20 pb-8">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">
+      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-[1400px] mx-auto px-6 md:px-10 pt-20 pb-6">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-blue-600 mb-3">
           Intelligence
         </p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-24 items-start">
-          <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900 leading-[1.05]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16 items-start">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 leading-[1.08]">
             A shared understanding of the customer.
           </h2>
-          <p className="text-xl text-gray-500 leading-relaxed">
+          <p className="text-lg text-gray-500 leading-relaxed">
             Customer context is spread across transactions, product relationships, digital behavior,
             and teams. Ventus organizes what the bank has approved into one view, so every decision
             starts from the whole relationship.
@@ -77,7 +77,7 @@ const IntelligenceSection = () => {
         {/* Context plane */}
         <div
           ref={ref}
-          className="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-[#0A1628] shadow-xl"
+          className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-[#0A1628] shadow-xl"
         >
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
@@ -104,7 +104,7 @@ const IntelligenceSection = () => {
           </div>
 
           <div
-            className="relative grid grid-cols-2 items-center gap-4 p-5 md:grid-cols-4 md:gap-8 md:p-10 min-h-[360px] md:min-h-[400px]"
+            className="relative grid grid-cols-2 items-center gap-4 p-4 md:grid-cols-4 md:gap-6 md:p-8 min-h-[300px] md:min-h-[340px]"
             style={{
               backgroundImage:
                 "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), radial-gradient(ellipse 60% 70% at 50% 55%, rgba(59,130,246,0.14), transparent)",
@@ -198,7 +198,7 @@ const IntelligenceSection = () => {
         </div>
 
         {/* Stage captions */}
-        <div className="mt-5 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
           {STAGES.map((s, i) => (
             <button
               key={s.id}
@@ -210,11 +210,11 @@ const IntelligenceSection = () => {
                   i === stage ? "bg-blue-600" : "bg-gray-200"
                 }`}
               />
-              <div className="mt-4 flex items-baseline gap-3">
-                <span className="text-xs font-semibold text-blue-600">{s.num}</span>
-                <h3 className="text-2xl font-bold text-gray-900">{s.label}</h3>
+              <div className="mt-3 flex items-baseline gap-3">
+                <span className="text-[11px] font-semibold text-blue-600">{s.num}</span>
+                <h3 className="text-xl font-bold text-gray-900">{s.label}</h3>
               </div>
-              <p className="mt-2 text-base leading-relaxed text-gray-500">{s.body}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-gray-500">{s.body}</p>
             </button>
           ))}
         </div>
