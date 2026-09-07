@@ -59,15 +59,15 @@ const IntelligenceSection = () => {
 
   return (
     <section id="intelligence" ref={trackRef} className="bg-white scroll-mt-28 relative h-[340vh]">
-      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-7xl mx-auto px-6 md:px-8 py-8">
+      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-[1400px] mx-auto px-6 md:px-10 py-8">
         <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">
           Intelligence
         </p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 leading-[1.1]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-24 items-start">
+          <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900 leading-[1.05]">
             A shared understanding of the customer.
           </h2>
-          <p className="text-lg text-gray-500 leading-relaxed">
+          <p className="text-xl text-gray-500 leading-relaxed">
             Customer context is spread across transactions, product relationships, digital behavior,
             and teams. Ventus organizes what the bank has approved into one view, so every decision
             starts from the whole relationship.
@@ -103,15 +103,22 @@ const IntelligenceSection = () => {
             </div>
           </div>
 
-          <div className="relative grid grid-cols-2 gap-4 p-5 md:grid-cols-4 md:gap-6 md:p-6">
+          <div
+            className="relative grid grid-cols-2 gap-4 p-5 md:grid-cols-4 md:gap-8 md:p-10 min-h-[380px] md:min-h-[420px]"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), radial-gradient(ellipse 60% 70% at 50% 55%, rgba(59,130,246,0.14), transparent)",
+              backgroundSize: "22px 22px, 100% 100%",
+            }}
+          >
             {/* Sources */}
-            <div className="flex flex-col justify-center gap-2.5">
+            <div className="flex flex-col justify-center gap-3">
               {SOURCES.map(({ icon: Icon, label }) => (
                 <div
                   key={label}
-                  className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/70"
+                  className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-[#0A1628]/80 px-4 py-2.5 text-sm text-white/70"
                 >
-                  <Icon className="h-3.5 w-3.5 text-blue-400" />
+                  <Icon className="h-4 w-4 text-blue-400" />
                   {label}
                 </div>
               ))}
