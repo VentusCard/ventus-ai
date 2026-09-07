@@ -26,46 +26,39 @@ export function LtvLiftSliver({ result, hasSelection }: LtvLiftSliverProps) {
     <div
       className={cn(
         "shrink-0 border border-slate-200 rounded-lg bg-white overflow-hidden transition-all duration-300",
-        expanded ? "max-h-[55%]" : "h-[12.5%] min-h-[48px]",
+        expanded ? "max-h-[55%]" : "h-[12.5%] min-h-[64px]",
         !hasSelection && "opacity-60 grayscale select-none",
       )}
     >
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="w-full h-full min-h-[48px] px-2.5 flex items-center text-left hover:bg-slate-50/60 transition-colors"
+        className="w-full h-full min-h-[64px] px-3.5 flex flex-col justify-center text-left hover:bg-slate-50/60 transition-colors"
       >
-        <div className="flex items-center gap-2 w-full">
+        <div className="flex items-center gap-2.5">
           <span
             className={cn(
-              "w-6 h-6 rounded-md flex items-center justify-center shrink-0",
+              "w-7 h-7 rounded-md flex items-center justify-center shrink-0",
               hasSelection ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400",
             )}
           >
-            <TrendingUp className="w-3.5 h-3.5" />
+            <TrendingUp className="w-4 h-4" />
           </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[12.5px] font-semibold text-slate-900 leading-snug truncate">
+          <div className="min-w-0 flex-1 flex items-center justify-center">
+            <p className="text-[12.5px] font-semibold text-slate-900 leading-snug text-center">
               Anticipated LTV Lift
             </p>
           </div>
           <span
             className={cn(
-              "flex flex-col items-end px-1.5 py-0.5 rounded-md shrink-0",
-              hasSelection ? "bg-emerald-50" : "bg-slate-100",
+              "flex items-baseline gap-1 px-2.5 py-1 rounded-md text-[19px] font-bold tabular-nums shrink-0",
+              hasSelection
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-slate-100 text-slate-400",
             )}
           >
-            <span
-              className={cn(
-                "text-[18px] font-bold tabular-nums leading-none",
-                hasSelection ? "text-emerald-600" : "text-slate-400",
-              )}
-            >
-              {result.display}
-            </span>
-            <span className="text-[9.5px] font-medium text-slate-400 leading-none">
-              / customer / yr
-            </span>
+            {result.display}
+            <span className="text-[10.5px] font-medium text-slate-400">/ customer / yr</span>
           </span>
           <ChevronDown
             className={cn(
@@ -74,10 +67,8 @@ export function LtvLiftSliver({ result, hasSelection }: LtvLiftSliverProps) {
             )}
           />
         </div>
-      </button>
 
-      {/* Expanded detail lines */}
-      <div className="px-3 pb-3">
+        {/* Expanded detail lines */}
         <div
           className={cn(
             "grid transition-[grid-template-rows] duration-300",
@@ -85,7 +76,7 @@ export function LtvLiftSliver({ result, hasSelection }: LtvLiftSliverProps) {
           )}
         >
           <div className="overflow-hidden">
-            <div className="pt-2 mt-2 border-t border-slate-100 space-y-1">
+            <div className="pt-2.5 mt-2.5 border-t border-slate-100 space-y-1.5">
               {result.lines.map((line) => (
                 <div key={line.label} className="flex items-center justify-between gap-3">
                   <span className="text-[11.5px] text-slate-500">{line.label}</span>
@@ -97,7 +88,7 @@ export function LtvLiftSliver({ result, hasSelection }: LtvLiftSliverProps) {
             </div>
           </div>
         </div>
-      </div>
+      </button>
     </div>
   );
 }
