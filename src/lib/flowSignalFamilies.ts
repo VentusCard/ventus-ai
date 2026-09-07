@@ -671,6 +671,23 @@ interface Angle {
 // Keyed by the seed key in the libraries above (resolved by label at build time).
 const ARCHETYPE_ANGLE: Record<string, Angle> = {
   // --- Financial ---
+  outsideEducationPlan: {
+    title: "Plan Held Elsewhere",
+    subject: "Your college savings could live closer to home",
+    open: (n) => `Money already leaves each month for a college-savings plan held somewhere else. Moving it into ${n} keeps the same contribution working while everything sits in one place.`,
+    cta: "Bring it over",
+  },
+  childSavingsBuildup: {
+    title: "Saving For A Child",
+    subject: "That growing balance has a job waiting",
+    open: (n) => `Gifts and steady transfers keep building a balance that never gets spent. ${n} gives that money a tax-advantaged home aimed squarely at school costs.`,
+  },
+  savingCapacityHousehold: {
+    title: "Room To Contribute",
+    subject: "You're already saving — this makes it count for school",
+    open: (n) => `Your household clears its commitments each month and keeps adding to savings. ${n} channels a slice of that into education without changing how you live.`,
+  },
+
   payroll: {
     title: "Steady Income",
     subject: "Your income makes this straightforward",
