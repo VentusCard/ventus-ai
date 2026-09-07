@@ -60,7 +60,6 @@ const FAQ = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };
