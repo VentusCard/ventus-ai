@@ -620,6 +620,7 @@ const EXTRA_FRAME: Record<string, keyof typeof DEMOGRAPHIC> = {
   "category-cashback-card": "dualIncome",
   "flat-cashback-card": "dualIncome",
   "cobrand-card": "dualIncome",
+  "relationship-checking": "affluentHousehold",
   "core-savings": "savingCapacityHousehold",
   "high-yield-savings": "savingCapacityHousehold",
   "money-market-account": "savingCapacityHousehold",
@@ -759,7 +760,7 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     add("financial", FINANCIAL.surplus, 2);
   }
   // Products people reach for when the month is tight.
-  if (NO_PAYROLL_FLOWS.has(id) || /personal loan|line of credit|consolidat/i.test(name)) {
+  if (!isBusiness && (NO_PAYROLL_FLOWS.has(id) || /personal loan|line of credit|consolidat/i.test(name))) {
     add("financial", FINANCIAL.thinBuffer, 3);
   }
   if ((isCard || t.has("credit")) && !isBusiness && id !== "heloc") add("financial", FINANCIAL.lowUtil, 3);
@@ -779,8 +780,10 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   if (isBusiness) {
     add("demographic", DEMOGRAPHIC.ownerOperator, 3);
     add("demographic", DEMOGRAPHIC.selfEmployed, 3);
-    add("demographic", DEMOGRAPHIC.bizEstablished, 2);
-    add("demographic", DEMOGRAPHIC.bizEmployer, 2);
+    // Employer-facing products lead with headcount; the rest with tenure.
+    const employerProduct = /payroll|corporate|purchasing|fleet|workers|succession|policy/i.test(name);
+    add("demographic", DEMOGRAPHIC.bizEmployer, employerProduct ? 3 : 2);
+    add("demographic", DEMOGRAPHIC.bizEstablished, employerProduct ? 2 : 3);
   }
   if (parentEducation) {
     add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
@@ -849,7 +852,7 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
   if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner, 3);
   if (YOUTH_FLOWS.has(id)) add("demographic", DEMOGRAPHIC.parentManagedYouth, 3);
-  if (checkingProduct && !isBusiness && !t.has("home")) {
+  if (checkingProduct && !isBusiness && !t.has("home") && id !== "relationship-checking") {
     add("demographic", DEMOGRAPHIC.renter, 1);
   }
   if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester, 1);
