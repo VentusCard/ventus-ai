@@ -332,7 +332,13 @@ const DEMOGRAPHIC: Record<string, SeedSignal> = {
     evidence: "Age band 50–62 with a paid-down mortgage and rising discretionary home-improvement spend.",
     weight: 0.18,
   },
+  savingCapacityHousehold: {
+    label: "Household saving beyond day-to-day needs",
+    evidence: "Income comfortably clears recurring commitments and a savings balance keeps building month after month.",
+    weight: 0.20,
+  },
 };
+
 
 
 // Risk items are exclusion filters, not triggers. Each label names WHO GETS
