@@ -33,9 +33,9 @@ export function LtvLiftSliver({ result, hasSelection }: LtvLiftSliverProps) {
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="w-full h-full min-h-[48px] px-3 flex items-center text-left hover:bg-slate-50/60 transition-colors"
+        className="w-full h-full min-h-[48px] px-2.5 flex items-center text-left hover:bg-slate-50/60 transition-colors"
       >
-        <div className="flex items-center gap-2.5 w-full">
+        <div className="flex items-center gap-2 w-full">
           <span
             className={cn(
               "w-6 h-6 rounded-md flex items-center justify-center shrink-0",
@@ -51,14 +51,21 @@ export function LtvLiftSliver({ result, hasSelection }: LtvLiftSliverProps) {
           </div>
           <span
             className={cn(
-              "flex items-baseline gap-1 px-2 py-0.5 rounded-md text-[18px] font-bold tabular-nums shrink-0",
-              hasSelection
-                ? "bg-emerald-50 text-emerald-600"
-                : "bg-slate-100 text-slate-400",
+              "flex flex-col items-end px-1.5 py-0.5 rounded-md shrink-0",
+              hasSelection ? "bg-emerald-50" : "bg-slate-100",
             )}
           >
-            {result.display}
-            <span className="text-[10px] font-medium text-slate-400">/ customer / yr</span>
+            <span
+              className={cn(
+                "text-[18px] font-bold tabular-nums leading-none",
+                hasSelection ? "text-emerald-600" : "text-slate-400",
+              )}
+            >
+              {result.display}
+            </span>
+            <span className="text-[9.5px] font-medium text-slate-400 leading-none">
+              / customer / yr
+            </span>
           </span>
           <ChevronDown
             className={cn(
