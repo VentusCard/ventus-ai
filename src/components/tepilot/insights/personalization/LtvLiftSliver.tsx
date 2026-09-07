@@ -44,12 +44,9 @@ export function LtvLiftSliver({ result, hasSelection }: LtvLiftSliverProps) {
           >
             <TrendingUp className="w-4 h-4" />
           </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[12.5px] font-semibold text-slate-900 leading-snug">
+          <div className="min-w-0 flex-1 flex items-center justify-center">
+            <p className="text-[12.5px] font-semibold text-slate-900 leading-snug text-center">
               Anticipated LTV Lift
-            </p>
-            <p className="text-[11.5px] text-slate-400 leading-relaxed mt-0.5 truncate">
-              {result.driverHint}
             </p>
           </div>
           <span
