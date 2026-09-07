@@ -198,7 +198,7 @@ const IntelligenceSection = () => {
         </div>
 
         {/* Stage captions */}
-        <div className="mt-5 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
           {STAGES.map((s, i) => (
             <button
               key={s.id}
@@ -210,11 +210,11 @@ const IntelligenceSection = () => {
                   i === stage ? "bg-blue-600" : "bg-gray-200"
                 }`}
               />
-              <div className="mt-4 flex items-baseline gap-3">
-                <span className="text-xs font-semibold text-blue-600">{s.num}</span>
-                <h3 className="text-2xl font-bold text-gray-900">{s.label}</h3>
+              <div className="mt-3 flex items-baseline gap-3">
+                <span className="text-[11px] font-semibold text-blue-600">{s.num}</span>
+                <h3 className="text-xl font-bold text-gray-900">{s.label}</h3>
               </div>
-              <p className="mt-2 text-base leading-relaxed text-gray-500">{s.body}</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-gray-500">{s.body}</p>
             </button>
           ))}
         </div>
