@@ -192,6 +192,17 @@ const FINANCIAL: Record<string, SeedSignal> = {
     evidence: "Regular payments go to a school or college.",
     weight: 0.11,
   },
+  outsideEducationPlan: {
+    label: "College plan funded at another provider",
+    evidence: "Recurring transfers to a state college-savings plan administrator or an outside brokerage's education account — the plan already exists, just not here.",
+    weight: 0.09,
+  },
+  childSavingsBuildup: {
+    label: "Setting money aside for a child",
+    evidence: "Gift deposits around birthdays and holidays plus steady transfers into a savings balance that never gets spent down.",
+    weight: 0.14,
+  },
+
   travelSpend: {
     label: "Travels often",
     evidence: "Airline, hotel and ride spending across several trips this past year.",
@@ -321,7 +332,13 @@ const DEMOGRAPHIC: Record<string, SeedSignal> = {
     evidence: "Age band 50–62 with a paid-down mortgage and rising discretionary home-improvement spend.",
     weight: 0.18,
   },
+  savingCapacityHousehold: {
+    label: "Household saving beyond day-to-day needs",
+    evidence: "Income comfortably clears recurring commitments and a savings balance keeps building month after month.",
+    weight: 0.20,
+  },
 };
+
 
 
 // Risk items are exclusion filters, not triggers. Each label names WHO GETS
@@ -490,9 +507,17 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
 
   if (t.has("auto")) add("financial", FINANCIAL.autoPayer, 3);
   if (parentEducation) {
-    add("financial", FINANCIAL.tuitionOutflow, 3);
-    add("financial", FINANCIAL.surplus, 2);
+    if (flow.id === "529-plan") {
+      // The 529 flow already carries tuition evidence in its life-event and
+      // behavioral rows, so the financial family stays plan-specific.
+      add("financial", FINANCIAL.outsideEducationPlan, 3);
+      add("financial", FINANCIAL.childSavingsBuildup, 3);
+    } else {
+      add("financial", FINANCIAL.tuitionOutflow, 3);
+      add("financial", FINANCIAL.surplus, 2);
+    }
   }
+
   if (t.has("retirement")) add("financial", FINANCIAL.retirementContrib, 3);
   if (t.has("invest")) {
     add("financial", FINANCIAL.externalInvestFunding, 3);
@@ -518,8 +543,13 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
   if (parentEducation) {
     add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
-    add("demographic", DEMOGRAPHIC.dualIncome, 2);
+    if (flow.id === "529-plan") {
+      add("demographic", DEMOGRAPHIC.savingCapacityHousehold, 3);
+    } else {
+      add("demographic", DEMOGRAPHIC.dualIncome, 2);
+    }
   }
+
   if (t.has("home") && flow.id !== "heloc") {
     add("demographic", DEMOGRAPHIC.homeowner, 3);
     add("demographic", DEMOGRAPHIC.longTenureHomeowner, 3);
@@ -584,7 +614,14 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     if (!flow.signals.some((s) => /educat|tutor|school|tuition/i.test(s.label))) {
       add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
     }
-    add("behavioral", EXTRA_BEHAVIORAL.educationOutbound, 3);
+    // The 529 flow surfaces the outside plan as a financial signal instead, so
+    // its behavioral row covers active shopping rather than repeating it.
+    add(
+      "behavioral",
+      flow.id === "529-plan" ? EXTRA_BEHAVIORAL.researchIntent : EXTRA_BEHAVIORAL.educationOutbound,
+      3,
+    );
+
   } else if (flow.id !== "heloc") {
     add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
   }
@@ -634,6 +671,23 @@ interface Angle {
 // Keyed by the seed key in the libraries above (resolved by label at build time).
 const ARCHETYPE_ANGLE: Record<string, Angle> = {
   // --- Financial ---
+  outsideEducationPlan: {
+    title: "Plan Held Elsewhere",
+    subject: "Your college savings could live closer to home",
+    open: (n) => `Money already leaves each month for a college-savings plan held somewhere else. Moving it into ${n} keeps the same contribution working while everything sits in one place.`,
+    cta: "Bring it over",
+  },
+  childSavingsBuildup: {
+    title: "Saving For A Child",
+    subject: "That growing balance has a job waiting",
+    open: (n) => `Gifts and steady transfers keep building a balance that never gets spent. ${n} gives that money a tax-advantaged home aimed squarely at school costs.`,
+  },
+  savingCapacityHousehold: {
+    title: "Room To Contribute",
+    subject: "You're already saving — this makes it count for school",
+    open: (n) => `Your household clears its commitments each month and keeps adding to savings. ${n} channels a slice of that into education without changing how you live.`,
+  },
+
   payroll: {
     title: "Steady Income",
     subject: "Your income makes this straightforward",
