@@ -543,8 +543,13 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
   if (parentEducation) {
     add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
-    add("demographic", DEMOGRAPHIC.dualIncome, 2);
+    if (flow.id === "529-plan") {
+      add("demographic", DEMOGRAPHIC.savingCapacityHousehold, 3);
+    } else {
+      add("demographic", DEMOGRAPHIC.dualIncome, 2);
+    }
   }
+
   if (t.has("home") && flow.id !== "heloc") {
     add("demographic", DEMOGRAPHIC.homeowner, 3);
     add("demographic", DEMOGRAPHIC.longTenureHomeowner, 3);
