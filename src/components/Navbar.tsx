@@ -1,36 +1,23 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3, Bot, Megaphone } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import AnnouncementBar from "./AnnouncementBar";
 
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
-const behavioralIntelligenceItems = [
-  { to: "/solutions/offer-intelligence", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Gift },
-  { to: "/solutions/product-intelligence", title: "Next Product", desc: "Surface the right product at the right moment", Icon: Package },
-  { to: "/solutions/conversation-intelligence", title: "Next Conversation", desc: "Surface the right conversation at the right moment.", Icon: MessageCircle },
-];
-
-const analyticsItems = [
-  { to: "/solutions/portfolio-intelligence", title: "Customer Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
-  { to: "/solutions/campaign-intelligence", title: "Segment of One Campaigns", desc: "Build micro-segment campaigns from life events, behavior, and financial signals.", Icon: Megaphone },
-  { to: "/coworker", title: "Ventus AI Coworker", desc: "AI teammate for advisors and banking teams.", Icon: Bot },
-];
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [solutionsOpen, setSolutionsOpen] = useState(false);
-  const [mobileSolutionsOpen, setMobileSolutionsOpen] = useState(false);
 
   const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
   const isTransparent = isDarkHero && !isMobileMenuOpen;
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const closeMobileMenu = () => { setIsMobileMenuOpen(false); setMobileSolutionsOpen(false); };
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const scrollToFaq = (e: React.MouseEvent) => {
     e.preventDefault();
