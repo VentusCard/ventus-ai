@@ -20,7 +20,7 @@ export function LtvLiftSliver({ result, hasSelection }: LtvLiftSliverProps) {
   // Collapse again whenever the customer changes.
   useEffect(() => {
     setExpanded(false);
-  }, [result.driverHint, hasSelection]);
+  }, [result.display, hasSelection]);
 
   return (
     <div
