@@ -59,60 +59,6 @@ const Navbar = () => {
             <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
           </Link>
 
-          {/* Solutions dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setSolutionsOpen(true)}
-            onMouseLeave={() => setSolutionsOpen(false)}
-          >
-            <button className={`${textColor} text-sm font-medium transition-colors flex items-center gap-1`}>
-              Solutions <ChevronDown size={14} className={`transition-transform ${solutionsOpen ? "rotate-180" : ""}`} />
-            </button>
-            {solutionsOpen && (
-              <div className="absolute top-full left-0 pt-2" onMouseEnter={() => setSolutionsOpen(true)}>
-                <div className="bg-white rounded-lg shadow-lg border border-gray-100 py-4 w-[640px] grid grid-cols-2">
-                  <div className="px-4">
-                    <div className="text-[11px] uppercase tracking-wider text-[#9CA3AF]">Banking Personalization</div>
-                    {behavioralIntelligenceItems.map((item) => (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setSolutionsOpen(false)}
-                        className="flex items-start gap-3 py-3 hover:bg-gray-50 transition-colors rounded-md"
-                      >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
-                          <item.Icon size={16} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="px-4 border-l border-gray-100">
-                    <div className="text-[11px] uppercase tracking-wider text-[#9CA3AF]">BANK-FACING INTELLIGENCE</div>
-                    {analyticsItems.map((item) => (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setSolutionsOpen(false)}
-                        className="flex items-start gap-3 py-3 hover:bg-gray-50 transition-colors rounded-md"
-                      >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
-                          <item.Icon size={16} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
 
           <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
           <a href="/#faq" onClick={scrollToFaq} className={`${textColor} text-sm font-medium transition-colors cursor-pointer`}>FAQ</a>
@@ -148,31 +94,6 @@ const Navbar = () => {
         }`}
       >
         <div style={{ padding: '1.5rem' }}>
-          <button
-            onClick={() => setMobileSolutionsOpen(!mobileSolutionsOpen)}
-            className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left"
-          >
-            Solutions <ChevronDown size={16} className={`transition-transform ${mobileSolutionsOpen ? "rotate-180" : ""}`} />
-          </button>
-          {mobileSolutionsOpen && (
-              <div className="pl-4 border-b border-gray-100 pb-2">
-                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">Banking Personalization</div>
-                {behavioralIntelligenceItems.map((item) => (
-                  <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
-                    <item.Icon size={14} className="text-blue-600" />
-                    {item.title}
-                  </Link>
-                ))}
-                <div className="mr-4 my-1 border-t border-gray-200" />
-                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">BANK-FACING INTELLIGENCE</div>
-                {analyticsItems.map((item) => (
-                  <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
-                    <item.Icon size={14} className="text-blue-600" />
-                    {item.title}
-                  </Link>
-                ))}
-            </div>
-          )}
           <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
           <a href="/#faq" onClick={scrollToFaq} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left cursor-pointer">FAQ</a>
 
