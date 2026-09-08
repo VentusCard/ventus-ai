@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 
 const W = 1000;
 const H = 700;
-const POINT_COUNT = 140;
+const POINT_COUNT = 210;
 
 type Point = { x: number; y: number; depth?: number };
 
@@ -39,9 +39,10 @@ const scattered: Point[] = Array.from({ length: POINT_COUNT }, () => ({
 const person: Point[] = (() => {
   const points: Point[] = [];
   const rings = [
-    { count: 28, rx: 80, ry: 105, cx: 510, cy: 215, depth: 1 },
-    { count: 22, rx: 59, ry: 84, cx: 526, cy: 218, depth: 0.72 },
-    { count: 16, rx: 37, ry: 62, cx: 540, cy: 221, depth: 0.46 },
+    { count: 34, rx: 80, ry: 105, cx: 510, cy: 215, depth: 1 },
+    { count: 28, rx: 62, ry: 86, cx: 524, cy: 218, depth: 0.76 },
+    { count: 22, rx: 43, ry: 67, cx: 536, cy: 220, depth: 0.54 },
+    { count: 16, rx: 25, ry: 45, cx: 544, cy: 223, depth: 0.34 },
   ];
 
   rings.forEach((ring) => {
@@ -56,15 +57,17 @@ const person: Point[] = (() => {
     }
   });
 
+  const bodyRows = 5;
   const bodyCount = POINT_COUNT - points.length;
   for (let index = 0; index < bodyCount; index += 1) {
-    const layer = index % 3;
-    const position = Math.floor(index / 3) / Math.max(1, Math.ceil(bodyCount / 3) - 1);
-    const normalized = position * 2 - 1;
+    const row = index % bodyRows;
+    const columnPosition = Math.floor(index / bodyRows) / Math.max(1, Math.ceil(bodyCount / bodyRows) - 1);
+    const normalized = columnPosition * 2 - 1;
+    const width = 278 - row * 35;
     points.push({
-      x: 500 + normalized * (270 - layer * 31) + layer * 9,
-      y: 588 - 160 * (1 - normalized * normalized) + layer * 29,
-      depth: 1 - layer * 0.24,
+      x: 500 + normalized * width + row * 7,
+      y: 594 - 168 * (1 - normalized * normalized) + row * 24,
+      depth: 1 - row * 0.15,
     });
   }
   return points;
@@ -79,19 +82,19 @@ const pointStyles = Array.from({ length: POINT_COUNT }, (_, index) => ({
 }));
 
 const SOURCE_LABELS = [
-  { label: "Card activity", x: 8, y: 17, icon: CreditCard, tone: "text-cyan-200 bg-cyan-400/15 border-cyan-300/40" },
-  { label: "Account patterns", x: 63, y: 10, icon: Landmark, tone: "text-blue-200 bg-blue-400/15 border-blue-300/40" },
-  { label: "Digital engagement", x: 72, y: 40, icon: Smartphone, tone: "text-violet-200 bg-violet-400/15 border-violet-300/40" },
-  { label: "Household context", x: 2, y: 54, icon: Home, tone: "text-emerald-200 bg-emerald-400/15 border-emerald-300/40" },
-  { label: "Merchant intelligence", x: 56, y: 77, icon: Building2, tone: "text-amber-200 bg-amber-400/15 border-amber-300/40" },
+  { label: "Card activity", x: 20, y: 18, icon: CreditCard },
+  { label: "Account patterns", x: 58, y: 11, icon: Landmark },
+  { label: "Digital engagement", x: 67, y: 41, icon: Smartphone },
+  { label: "Household context", x: 15, y: 51, icon: Home },
+  { label: "Merchant intelligence", x: 55, y: 75, icon: Building2 },
 ];
 
 const SIGNALS = [
-  { label: "Frequent Traveler", x: 74, y: 16, anchorX: 585, anchorY: 205, icon: Plane, tone: "text-cyan-100 bg-cyan-400/15 border-cyan-300/45" },
-  { label: "Young Parent", x: 78, y: 39, anchorX: 590, anchorY: 295, icon: Baby, tone: "text-violet-100 bg-violet-400/15 border-violet-300/45" },
-  { label: "College-Bound Child", x: 70, y: 66, anchorX: 590, anchorY: 430, icon: GraduationCap, tone: "text-amber-100 bg-amber-400/15 border-amber-300/45" },
-  { label: "Building Cash Reserves", x: 3, y: 67, anchorX: 408, anchorY: 430, icon: WalletCards, tone: "text-emerald-100 bg-emerald-400/15 border-emerald-300/45" },
-  { label: "Home Purchase Journey", x: 1, y: 29, anchorX: 410, anchorY: 265, icon: MapPin, tone: "text-blue-100 bg-blue-400/15 border-blue-300/45" },
+  { label: "Frequent Traveler", x: 65, y: 17, anchorX: 585, anchorY: 205, icon: Plane, tone: "text-cyan-100 bg-cyan-400/15 border-cyan-300/45" },
+  { label: "Young Parent", x: 69, y: 39, anchorX: 590, anchorY: 295, icon: Baby, tone: "text-violet-100 bg-violet-400/15 border-violet-300/45" },
+  { label: "College-Bound Child", x: 63, y: 66, anchorX: 590, anchorY: 430, icon: GraduationCap, tone: "text-amber-100 bg-amber-400/15 border-amber-300/45" },
+  { label: "Building Cash Reserves", x: 15, y: 66, anchorX: 408, anchorY: 430, icon: WalletCards, tone: "text-emerald-100 bg-emerald-400/15 border-emerald-300/45" },
+  { label: "Home Purchase Journey", x: 12, y: 29, anchorX: 410, anchorY: 265, icon: MapPin, tone: "text-blue-100 bg-blue-400/15 border-blue-300/45" },
 ];
 
 const CAPTIONS = [
@@ -181,23 +184,23 @@ const ScrollHero = () => {
     <section id="hero" ref={trackRef} className="relative h-[400vh] bg-[#070d1c]" aria-label="Ventus customer intelligence">
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.18),transparent_48%)]" />
-        <div className="relative mx-auto grid h-full max-w-7xl grid-cols-1 items-center gap-4 px-6 pb-6 pt-24 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-8 lg:px-10 lg:pb-0 lg:pt-0">
-          <div className="relative z-10">
+        <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center px-6 pb-4 pt-20 lg:px-10 lg:pt-20">
+          <div className="relative z-10 flex-none text-center">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-300/80">Customer intelligence for banks</p>
-            <h1 className="mt-5 max-w-xl text-4xl font-extrabold leading-[1.08] text-white sm:text-5xl lg:text-[3.4rem]">
-              The opportunities are already in your data. <span className="text-slate-400">You just can't see them.</span>
+            <h1 className="mx-auto mt-3 max-w-5xl text-4xl font-extrabold leading-[1.08] text-white sm:text-5xl lg:text-[3.4rem]">
+              Turn behavioral intelligence into <span className="italic text-blue-400">growth opportunities</span>
             </h1>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
               <Button size="lg" className="bg-blue-600 text-white hover:bg-blue-500" onClick={() => navigate("/contact")}>Schedule Demo <ArrowRight className="ml-2 h-4 w-4" /></Button>
               <Button size="lg" variant="outline" className="border-white/25 bg-white/5 text-white hover:bg-white/10 hover:text-white" onClick={() => document.getElementById("flows")?.scrollIntoView({ behavior: "smooth" })}>See the platform</Button>
             </div>
-            <div className="relative mt-7 h-6">
+            <div className="relative mt-4 h-5">
               {CAPTIONS.map((caption, index) => <span key={caption} ref={(node) => (captionRefs.current[index] = node)} className="absolute inset-0 text-sm text-slate-300/90 transition-opacity duration-500" style={{ opacity: index === 0 ? 1 : 0 }}>{caption}</span>)}
             </div>
-            <div className="mt-6 h-px w-40 overflow-hidden bg-white/10"><div ref={progressRef} className="h-px w-full origin-left bg-sky-400" style={{ transform: "scaleX(0)" }} /></div>
+            <div className="mx-auto mt-3 h-px w-40 overflow-hidden bg-white/10"><div ref={progressRef} className="h-px w-full origin-left bg-sky-400" style={{ transform: "scaleX(0)" }} /></div>
           </div>
 
-          <div className="relative h-[43vh] min-h-[310px] w-full lg:h-[76vh]">
+          <div className="relative min-h-0 w-full flex-1">
             <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden>
               <defs><radialGradient id="person-aura"><stop offset="0%" stopColor="#38bdf8" stopOpacity="0.38" /><stop offset="100%" stopColor="#38bdf8" stopOpacity="0" /></radialGradient></defs>
               <circle ref={auraRef} cx="500" cy="340" r="315" fill="url(#person-aura)" style={{ opacity: 0 }} />
@@ -211,11 +214,11 @@ const ScrollHero = () => {
 
             {SOURCE_LABELS.map((source, index) => {
               const Icon = source.icon;
-              return <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className={`absolute flex items-center gap-2 rounded-full border px-3.5 py-2.5 text-[11px] font-semibold shadow-lg backdrop-blur-md sm:text-xs ${source.tone}`} style={{ left: `${source.x}%`, top: `${source.y}%` }}><Icon className="h-4 w-4" />{source.label}</div>;
+              return <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className="absolute flex items-center gap-2.5 rounded-full border border-slate-400/35 bg-slate-500/15 px-5 py-3 text-xs font-semibold text-slate-200 shadow-lg backdrop-blur-md sm:text-sm" style={{ left: `${source.x}%`, top: `${source.y}%` }}><Icon className="h-5 w-5 text-slate-300" />{source.label}</div>;
             })}
             {SIGNALS.map((signal, index) => {
               const Icon = signal.icon;
-              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2 rounded-full border px-3.5 py-2.5 text-[11px] font-semibold shadow-[0_0_28px_rgba(56,189,248,0.18)] backdrop-blur-md sm:text-xs ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-4 w-4" />{signal.label}</div>;
+              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2.5 rounded-full border px-5 py-3 text-xs font-semibold shadow-[0_0_28px_rgba(56,189,248,0.18)] backdrop-blur-md sm:text-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-5 w-5" />{signal.label}</div>;
             })}
           </div>
         </div>
