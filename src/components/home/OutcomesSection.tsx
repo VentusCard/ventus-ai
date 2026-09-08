@@ -88,12 +88,16 @@ const OutcomesSection = () => {
           {cards.map((c, i) => (
             <div
               key={c.label}
-              className="rounded-[20px] border border-gray-200 bg-white p-7 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)] transition-all duration-150 hover:-translate-y-px hover:shadow-[0_28px_64px_-24px_rgba(15,23,42,0.2)]"
-              style={{
-                opacity: revealed ? 1 : 0,
-                transform: revealed ? "translateY(0)" : "translateY(24px)",
-                transition: `opacity 0.6s ease ${i * 90}ms, transform 0.6s ease ${i * 90}ms, box-shadow 150ms ease`,
-              }}
+              className="rounded-[20px] border border-gray-200 bg-white p-7 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)] transition-transform duration-150 hover:-translate-y-px hover:shadow-[0_28px_64px_-24px_rgba(15,23,42,0.2)]"
+              style={
+                settled
+                  ? undefined
+                  : {
+                      opacity: revealed ? 1 : 0,
+                      transform: revealed ? "translateY(0)" : "translateY(24px)",
+                      transition: `opacity 0.6s ease ${i * 90}ms, transform 0.6s ease ${i * 90}ms`,
+                    }
+              }
             >
               <div className={`mb-5 h-1 w-10 rounded-full ${c.accent}`} />
               <p
