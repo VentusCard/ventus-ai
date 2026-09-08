@@ -84,33 +84,36 @@ for (let i = 0; i < N; i++) {
 
 /* Phase 3: resolved into a person (head + shoulders silhouette) */
 const person: P[] = (() => {
-  const cx = W * 0.52;
-  const headY = 250;
-  const headR = 118;
+  const cx = W * 0.5;
+  const headY = 230;
+  const headR = 104;
   const pts: P[] = [];
-  const headCount = 58;
+  const headCount = 52;
   for (let i = 0; i < headCount; i++) {
     const t = i / headCount;
-    // ring plus a second denser inner ring
-    const ring = i % 3 === 0 ? headR * 0.68 : headR;
-    const a = t * Math.PI * 2 + (i % 3) * 0.12;
-    pts.push({ x: cx + Math.cos(a) * ring, y: headY + Math.sin(a) * ring });
+    const layer = i % 2;
+    const ring = headR - layer * 26;
+    const a = t * Math.PI * 2 + layer * 0.14;
+    pts.push({ x: cx + Math.cos(a) * ring, y: headY + Math.sin(a) * ring * 1.06 });
   }
   const bodyCount = N - headCount;
+  const halfW = 268;
+  const baseY = 610;
+  const rise = 170;
   for (let i = 0; i < bodyCount; i++) {
-    const t = i / (bodyCount - 1);
-    // shoulder arc sweeping left to right
-    const a = Math.PI * (1.02 + t * 0.96);
-    const rx = 268;
-    const ry = 210;
     const layer = i % 3;
-    pts.push({
-      x: cx + Math.cos(a) * (rx - layer * 26),
-      y: headY + 218 + Math.sin(a) * (ry - layer * 22) + ry,
-    });
+    const k = Math.floor(i / 3);
+    const per = Math.ceil(bodyCount / 3);
+    const t = per > 1 ? k / (per - 1) : 0.5;
+    const u = t * 2 - 1; // -1 .. 1
+    const x = cx + u * (halfW - layer * 24);
+    // shoulder curve: peaks near the neck, drops to the outer edges
+    const y = baseY - rise * (1 - u * u) + layer * 30;
+    pts.push({ x, y });
   }
   return pts;
 })();
+
 
 /* Phase 4: points redistribute onto four surfaces */
 const SURFACES = [
