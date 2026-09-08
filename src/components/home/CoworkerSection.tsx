@@ -45,8 +45,8 @@ const CoworkerSection = () => (
   <section id="coworker" className="scroll-mt-[96px] bg-white py-20 md:py-24">
     <div className="mx-auto max-w-7xl px-6 md:px-8">
       <p className="text-[12px] font-bold uppercase tracking-widest text-violet-600">AI Coworker</p>
-      <h2 className="mt-3 max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight text-gray-900 md:text-[40px]">
-        Actionable intelligence directly in your inbox
+      <h2 className="mt-3 whitespace-nowrap text-3xl font-bold leading-[1.15] tracking-tight text-[#2563eb] md:text-[40px]">
+        Actionable intelligence directly in your inbox.
       </h2>
       <p className="mt-5 max-w-3xl text-base leading-[1.65] text-gray-700">
         Relationship managers and advisors work out of email and meetings, not analytics tools. The
