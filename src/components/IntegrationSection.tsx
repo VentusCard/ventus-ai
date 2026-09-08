@@ -66,7 +66,7 @@ const IntegrationSection = () => {
   return (
     <section
       id="integration"
-      className="bg-white scroll-mt-20"
+      className="bg-white scroll-mt-[96px]"
       style={{ paddingTop: 56, paddingBottom: 56 }}
     >
       <div className="mx-auto max-w-6xl px-6 md:px-8">
