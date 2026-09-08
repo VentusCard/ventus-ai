@@ -29,12 +29,12 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         <ScrollHero />
         <ProblemTimelineSection />
         <OneCustomerSection />
-        <OutcomesSection />
 
         <IntelligenceDatabaseSection />
         <CoworkerSection />
         <GovernanceSection />
         <IntegrationSection />
+        <OutcomesSection />
         <HomeFAQSection />
         <CTA />
       </main>
