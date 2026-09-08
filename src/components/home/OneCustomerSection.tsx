@@ -386,9 +386,10 @@ const OneCustomerSection = () => {
                 {BEATS.map((item, index) => (
                   <span
                     key={item.eyebrow}
-                    className={`h-1.5 w-10 rounded-full transition-colors duration-300 ${
-                      beat >= index ? "bg-blue-600" : "bg-slate-300"
+                    className={`h-2 w-12 rounded-full transition-colors duration-300 ${
+                      beat >= index ? "bg-blue-600" : "bg-slate-400"
                     }`}
+
                   />
                 ))}
               </div>
