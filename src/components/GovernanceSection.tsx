@@ -154,39 +154,43 @@ const GovernanceSection = () => (
           The proof, one flow
         </p>
         <FlowCard />
-      <div className="mt-8 overflow-hidden rounded-[20px] border border-white/10 bg-gradient-to-br from-[#0D1B30] to-[#0A1628] shadow-[0_24px_60px_-24px_rgba(2,8,23,0.6)]">
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
-          <span className="text-[12px] font-bold uppercase tracking-[0.18em] text-white/70">
-            Decision control
-          </span>
-          <span className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-emerald-300">
-            <span className="ventus-pulse-halo h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            Policy active
-          </span>
-        </div>
+      </div>
+    </div>
 
-        <div className="divide-y divide-white/[0.07]">
-          {STEPS.map((s) => (
-            <div key={s.num} className="flex items-start gap-3 px-5 py-4">
-            <span className="pt-0.5 text-[13px] font-semibold text-blue-400">{s.num}</span>
-            <div className="min-w-0 flex-1">
-              <p className="text-base font-semibold text-white">{s.title}</p>
-              <p className="mt-1 text-base leading-[1.65] text-white/70">{s.body}</p>
-            </div>
-            <span
-              className={`shrink-0 rounded border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
-                s.tone === "emerald"
-                  ? "border-emerald-400/40 text-emerald-300"
-                  : "border-white/30 text-white/75"
-              }`}
-            >
-              {s.status}
-            </span>
-            </div>
-          ))}
-        </div>
+    <div className="mt-14">
+      <div className="mb-4 flex items-center justify-between">
+        <span className="text-[12px] font-bold uppercase tracking-[0.18em] text-white/70">
+          Decision control
+        </span>
+        <span className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+          <span className="ventus-pulse-halo h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          Policy active
+        </span>
       </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {STEPS.map((s) => (
+          <div
+            key={s.num}
+            className="rounded-[20px] border border-white/10 bg-gradient-to-br from-[#0D1B30] to-[#0A1628] p-6 shadow-[0_24px_60px_-24px_rgba(2,8,23,0.6)]"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] font-semibold text-blue-400">{s.num}</span>
+              <span
+                className={`rounded border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
+                  s.tone === "emerald"
+                    ? "border-emerald-400/40 text-emerald-300"
+                    : "border-white/30 text-white/75"
+                }`}
+              >
+                {s.status}
+              </span>
+            </div>
+            <p className="mt-4 text-lg font-semibold text-white">{s.title}</p>
+            <p className="mt-2 text-base leading-[1.65] text-white/70">{s.body}</p>
+          </div>
+        ))}
       </div>
+    </div>
     </div>
   </section>
 );
