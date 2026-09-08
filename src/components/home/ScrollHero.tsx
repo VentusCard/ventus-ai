@@ -272,11 +272,11 @@ const ScrollHero = () => {
 
           {/* Desktop overlap composition */}
           <div
-            className="relative hidden h-[640px] lg:block"
+            className="relative hidden h-[760px] lg:block"
             style={{ transform: `translate3d(${tilt.x * 0.3}px, ${tilt.y * 0.3}px, 0)` }}
           >
             <div
-              className="ventus-hero-rise absolute left-0 top-4 z-10 w-[330px]"
+              className="ventus-hero-rise absolute -left-16 top-0 z-10 w-[340px]"
               style={{ animationDelay: "120ms" }}
             >
               <div
@@ -291,7 +291,7 @@ const ScrollHero = () => {
             </div>
 
             <div
-              className="ventus-hero-rise absolute right-0 top-16 z-20 w-[520px]"
+              className="ventus-hero-rise absolute right-0 top-20 z-20 w-[500px]"
               style={{ animationDelay: "0ms" }}
             >
               <div className="ventus-hero-drift" style={{ animationDuration: "12s" }}>
@@ -300,7 +300,7 @@ const ScrollHero = () => {
             </div>
 
             <div
-              className="ventus-hero-rise absolute bottom-6 right-16 z-30 w-[380px]"
+              className="ventus-hero-rise absolute bottom-0 right-8 z-30 w-[370px]"
               style={{ animationDelay: "240ms" }}
             >
               <div
