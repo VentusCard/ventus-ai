@@ -61,7 +61,6 @@ const person: Point[] = (() => {
   const arcCount = 6;
   const bodyCount = POINT_COUNT - points.length;
   const perArc = Math.floor(bodyCount / arcCount);
-  let arcIndex = 0;
   for (let arc = 0; arc < arcCount; arc += 1) {
     const dotsInArc = arc === arcCount - 1 ? bodyCount - perArc * (arcCount - 1) : perArc;
     const t = arc / (arcCount - 1);
