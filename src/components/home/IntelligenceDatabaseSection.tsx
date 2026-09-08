@@ -272,13 +272,13 @@ const IntelligenceDatabaseSection = () => {
 
   const framing = (
     <div>
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-blue-600">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
         Intelligence database
       </p>
-      <h2 className="mt-3 max-w-md text-2xl font-bold leading-tight tracking-tight text-slate-900 md:text-3xl">
+      <h2 className="mt-3 max-w-xl text-3xl font-bold leading-[1.15] tracking-tight text-slate-900 md:text-[40px]">
         Now do that 64.9 million times.
       </h2>
-      <p className="mt-4 text-[13px] leading-relaxed text-slate-500">
+      <p className="mt-4 max-w-xl text-[15px] font-medium leading-[1.65] text-slate-600">
         68,200,000 customers · 95.2% enrichment coverage · 64,900,000 enriched profiles · 5 signal
         families · 233 signals
       </p>
@@ -287,16 +287,19 @@ const IntelligenceDatabaseSection = () => {
 
   if (!pinned) {
     return (
-      <section id="intelligence-database" className="scroll-mt-24 bg-white py-16 md:py-20">
-        <div className="mx-auto max-w-6xl space-y-10 px-6 md:px-8">
+      <section id="intelligence-database" className="scroll-mt-[96px] bg-white py-16 md:py-20">
+        <div className="mx-auto max-w-7xl space-y-10 px-6 md:px-8">
           {framing}
           {BEATS.map((item, index) => (
-            <div key={item.eyebrow} className="rounded-xl border border-slate-200 bg-slate-50/60 p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-blue-600">
+            <div
+              key={item.eyebrow}
+              className="rounded-[20px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)]"
+            >
+              <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
                 {item.eyebrow}
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.copy}</p>
-              <div className="mt-5 flex justify-center">
+              <p className="mt-2 text-base leading-[1.65] text-slate-700">{item.copy}</p>
+              <div className="mt-6 flex justify-center">
                 <BeatVisual beat={index} count={68_200_000} coverage={95.2} />
               </div>
             </div>
@@ -307,13 +310,13 @@ const IntelligenceDatabaseSection = () => {
   }
 
   return (
-    <section id="intelligence-database" className="scroll-mt-24 bg-white">
+    <section id="intelligence-database" className="scroll-mt-[96px] bg-white">
       <div ref={trackRef} className="relative h-[420vh]">
-        <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-6 md:px-8 lg:grid-cols-2">
-            <div>
+        <div className="sticky top-0 flex h-screen items-center overflow-hidden pt-20">
+          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-12 px-6 md:px-8 lg:grid-cols-2">
+            <div className="pt-2">
               {framing}
-              <div className="relative mt-8 h-32">
+              <div className="relative mt-8 h-36">
                 {BEATS.map((item, index) => (
                   <div
                     key={item.eyebrow}
@@ -321,21 +324,21 @@ const IntelligenceDatabaseSection = () => {
                       beat === index ? "opacity-100" : "pointer-events-none opacity-0"
                     }`}
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+                    <p className="text-[12px] font-bold uppercase tracking-widest text-slate-700">
                       {String(index + 1).padStart(2, "0")} · {item.eyebrow}
                     </p>
-                    <p className="mt-2 max-w-md text-base leading-relaxed text-slate-600">
+                    <p className="mt-2.5 max-w-xl text-base leading-[1.65] text-slate-700">
                       {item.copy}
                     </p>
                   </div>
                 ))}
               </div>
-              <div className="mt-6 flex gap-1.5">
+              <div className="mt-4 flex gap-2">
                 {BEATS.map((item, index) => (
                   <span
                     key={item.eyebrow}
-                    className={`h-1 w-8 rounded-full transition-colors duration-300 ${
-                      beat >= index ? "bg-blue-600" : "bg-slate-200"
+                    className={`h-1.5 w-10 rounded-full transition-colors duration-300 ${
+                      beat >= index ? "bg-blue-600" : "bg-slate-300"
                     }`}
                   />
                 ))}
