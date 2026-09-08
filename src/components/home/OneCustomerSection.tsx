@@ -227,12 +227,13 @@ const BeatVisual = ({ beat }: { beat: number }) => {
       {/* BOTTOM ZONE: current beat surface */}
       <div className="relative min-h-0 flex-1">
         <div
-          className={`absolute inset-0 flex items-start justify-center transition-opacity duration-500 ${
-            beat <= 1 ? "opacity-100" : "pointer-events-none opacity-0"
-          }`}
+          className={`absolute inset-x-0 bottom-0 flex items-start justify-center transition-all duration-500 ${
+            beat === 0 ? "top-[-152px]" : "top-0"
+          } ${beat <= 1 ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
           <ColdRecord />
         </div>
+
 
         <div
           className={`absolute inset-0 flex items-start justify-center transition-opacity duration-500 ${
