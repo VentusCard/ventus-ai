@@ -219,10 +219,10 @@ const SignalToActionPanel = () => {
             </span>
           </div>
 
-          <div className="relative px-5 py-8 md:px-7 md:py-10">
+          <div className="relative px-4 py-6 md:px-6 md:py-8">
             <div
               ref={gridRef}
-              className="relative grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-4 lg:grid-cols-[minmax(0,1fr)_52px_minmax(0,1.3fr)_52px_minmax(0,1fr)] lg:gap-0"
+              className="relative grid grid-cols-1 gap-7 md:grid-cols-3 md:gap-4 lg:grid-cols-[minmax(0,1fr)_52px_minmax(0,1.3fr)_52px_minmax(0,1fr)] lg:gap-0"
             >
               {/* connectors */}
               {geometry && (
@@ -285,11 +285,11 @@ const SignalToActionPanel = () => {
                             <div
                               key={source.id}
                               ref={(el) => (sourceRefs.current[index] = el)}
-                              className="flex w-full items-start gap-2.5 rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-2.5"
+                              className="flex w-full items-start gap-2.5 rounded-[10px] border border-white/10 bg-white/[0.05] px-2.5 py-2"
                             >
                               <Icon size={14} className="mt-0.5 shrink-0 text-slate-300" />
                               <span className="min-w-0">
-                                <span className="block text-[13px] font-medium leading-tight text-white">
+                                <span className="block text-[12.5px] font-medium leading-tight text-white">
                                   {source.label}
                                 </span>
                                 <span className="mt-0.5 block font-mono text-[10px] leading-tight text-slate-500">
@@ -314,10 +314,10 @@ const SignalToActionPanel = () => {
               >
                 <div
                   ref={coreRef}
-                  className="rounded-[14px] border border-white/12 bg-white/[0.06] p-4"
+                  className="rounded-[14px] border border-white/12 bg-white/[0.06] p-3.5"
                 >
                   <div className="mb-3">
-                    <span className="block text-[13px] font-semibold text-white">
+                    <span className="block text-[12.5px] font-semibold text-white">
                       Customer Intelligence Core
                     </span>
                     <span className="mt-0.5 block font-mono text-[10px] text-slate-500">
@@ -331,7 +331,7 @@ const SignalToActionPanel = () => {
                         className="flex w-full items-center gap-2.5 rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-2"
                       >
                         <span className={`h-2 w-2 shrink-0 rounded-full ${family.dot}`} />
-                        <span className="text-[13px] font-medium text-slate-100">{family.label}</span>
+                        <span className="text-[12.5px] font-medium text-slate-100">{family.label}</span>
                       </div>
                     ))}
                   </div>
@@ -356,10 +356,10 @@ const SignalToActionPanel = () => {
                         key={dest.id}
                         to={dest.href}
                         ref={(el) => (destRefs.current[index] = el)}
-                        className="flex w-full items-center gap-2.5 rounded-[10px] border border-white/20 bg-white/[0.12] px-3 py-2.5 transition-transform duration-200 hover:-translate-y-0.5"
+                        className="flex w-full items-center gap-2.5 rounded-[10px] border border-white/20 bg-white/[0.12] px-2.5 py-2 transition-transform duration-200 hover:-translate-y-0.5"
                       >
                         <Icon size={14} className="shrink-0 text-sky-200" />
-                        <span className="text-[13px] font-medium leading-tight text-white">{dest.label}</span>
+                        <span className="text-[12.5px] font-medium leading-tight text-white">{dest.label}</span>
                       </Link>
                     );
                   })}
