@@ -54,20 +54,18 @@ const RESULTS = [
 const formatCount = (value: number) =>
   value.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
-const ProfileCard = ({ compact = false }: { compact?: boolean }) => (
-  <div
-    className={`rounded-lg border border-slate-300 bg-white shadow-sm ${
-      compact ? "w-56" : "w-full max-w-sm"
-    }`}
-  >
-    <div className="border-b border-slate-200 px-4 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+const ProfileCard = () => (
+  <div className="w-full rounded-[20px] border border-slate-200 bg-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.18)]">
+    <div className="border-b border-slate-200 px-6 py-5">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-slate-600">
         Enriched profile
       </p>
-      <p className="mt-1 text-sm font-semibold text-slate-700">Morgan Ellis</p>
-      <p className="mt-0.5 text-[11px] text-slate-400">Austin, TX · Age 34-40 · Preferred tier</p>
+      <p className="mt-2 text-lg font-semibold text-slate-900">Morgan Ellis</p>
+      <p className="mt-1 text-[14px] font-medium text-slate-600">
+        Austin, TX · Age 34-40 · Preferred tier
+      </p>
     </div>
-    <div className="space-y-1.5 px-4 py-3">
+    <div className="space-y-2.5 px-6 py-5">
       {[
         ["Life Event", "New baby at home", "border-violet-300 bg-violet-50 text-violet-800"],
         ["Financial", "Auto loan servicing", "border-emerald-300 bg-emerald-50 text-emerald-800"],
@@ -76,40 +74,42 @@ const ProfileCard = ({ compact = false }: { compact?: boolean }) => (
       ].map(([family, label, tone]) => (
         <div
           key={label}
-          className={`flex items-center justify-between rounded-full border px-3 py-1 text-[11px] font-medium ${tone}`}
+          className={`flex items-center justify-between rounded-full border px-4 py-2.5 text-[15px] font-medium ${tone}`}
         >
           <span>{label}</span>
-          <span className="text-[9px] uppercase tracking-wide opacity-70">{family}</span>
+          <span className="text-[11px] uppercase tracking-wide opacity-80">{family}</span>
         </div>
       ))}
-      <p className="pt-1 text-[10px] text-slate-400">7 signals across 4 families</p>
+      <p className="pt-2 text-[14px] font-medium text-slate-600">7 signals across 4 families</p>
     </div>
   </div>
 );
 
 const QuerySurface = () => (
-  <div className="w-full max-w-md rounded-lg border border-slate-300 bg-white shadow-sm">
-    <div className="border-b border-slate-200 px-4 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+  <div className="w-full rounded-[20px] border border-slate-200 bg-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.18)]">
+    <div className="border-b border-slate-200 px-6 py-5">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-slate-600">
         Audience definition
       </p>
-      <p className="mt-1 font-mono text-[11px] leading-relaxed text-slate-600">
+      <p className="mt-2 font-mono text-[14px] leading-[1.65] text-slate-700">
         family = Life Event · signal = "New baby at home" · confidence ≥ Likely
       </p>
-      <p className="mt-2 text-[13px] font-semibold text-slate-700">
-        1,284,600 customers <span className="font-normal text-slate-400">resolved</span>
+      <p className="mt-3 text-[18px] font-semibold text-slate-900">
+        1,284,600 customers <span className="font-normal text-slate-600">resolved</span>
       </p>
     </div>
     <div className="divide-y divide-slate-200">
       {RESULTS.map((row) => (
-        <div key={row.name} className="flex items-center justify-between px-4 py-2.5">
+        <div key={row.name} className="flex items-center justify-between px-6 py-4">
           <div>
-            <p className="text-[12px] font-medium text-slate-700">{row.name}</p>
-            <p className="text-[10px] text-slate-400">{row.location}</p>
+            <p className="text-[16px] font-medium text-slate-900">{row.name}</p>
+            <p className="text-[13px] text-slate-600">{row.location}</p>
           </div>
           <div className="text-right">
-            <p className="text-[11px] font-medium text-violet-700">{row.signal}</p>
-            <p className="text-[10px] uppercase tracking-wide text-slate-400">{row.band}</p>
+            <p className="text-[15px] font-medium text-violet-700">{row.signal}</p>
+            <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-600">
+              {row.band}
+            </p>
           </div>
         </div>
       ))}
