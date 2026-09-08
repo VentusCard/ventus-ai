@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Baby, Car, GraduationCap, Mail, Sparkles } from "lucide-react";
+import { Baby, Car, GraduationCap, Mail } from "lucide-react";
 
 const BEATS = [
   {
