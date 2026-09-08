@@ -102,7 +102,7 @@ const person: Point[] = (() => {
 
 const pointStyles = Array.from({ length: POINT_COUNT }, (_, index) => ({
   radius: 1.8 + random() * 2.6,
-  color: ["#38bdf8", "#60a5fa", "#818cf8", "#a78bfa", "#22d3ee"][index % 5],
+  color: "#2563eb",
   driftAngle: random() * Math.PI * 2,
   driftSpeed: 0.22 + random() * 0.55,
   driftRadius: 6 + random() * 18,
