@@ -47,14 +47,18 @@ const Navbar = () => {
       setOnDark(isDark);
 
       let current: string | null = null;
-      let bestTop = Infinity;
+      let bestDistance = Infinity;
       for (const section of SCROLL_SECTIONS) {
         const el = document.getElementById(section.id);
         if (!el) continue;
         const rect = el.getBoundingClientRect();
         const offset = rect.top - probe;
-        if (offset <= 0 && Math.abs(offset) < Math.abs(bestTop)) {
-          bestTop = offset;
+        // Prefer the section whose top is nearest the probe, but don't select
+        // a section that is far below the viewport (it hasn't been reached yet).
+        if (offset > 300) continue;
+        const distance = Math.abs(offset);
+        if (distance < bestDistance) {
+          bestDistance = distance;
           current = section.link;
         }
       }
