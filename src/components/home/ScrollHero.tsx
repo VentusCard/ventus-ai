@@ -82,11 +82,11 @@ const pointStyles = Array.from({ length: POINT_COUNT }, (_, index) => ({
 }));
 
 const SOURCE_LABELS = [
-  { label: "Card activity", x: 20, y: 18, icon: CreditCard },
-  { label: "Account patterns", x: 58, y: 11, icon: Landmark },
-  { label: "Digital engagement", x: 67, y: 41, icon: Smartphone },
-  { label: "Household context", x: 15, y: 51, icon: Home },
-  { label: "Merchant intelligence", x: 55, y: 75, icon: Building2 },
+  { label: "Card activity", x: 26, y: 24, icon: CreditCard },
+  { label: "Account patterns", x: 52, y: 17, icon: Landmark },
+  { label: "Digital engagement", x: 56, y: 42, icon: Smartphone },
+  { label: "Household context", x: 24, y: 47, icon: Home },
+  { label: "Merchant intelligence", x: 40, y: 63, icon: Building2 },
 ];
 
 const SIGNALS = [
