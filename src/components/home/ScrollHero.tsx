@@ -202,7 +202,7 @@ const ScrollHero = () => {
 
             {SOURCE_LABELS.map((source, index) => {
               const Icon = source.icon;
-              return <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className="absolute flex items-center gap-2 rounded-full border border-slate-400/30 bg-slate-500/12 px-3.5 py-2 text-[11px] font-medium text-slate-200 shadow-sm backdrop-blur-sm" style={{ left: `${source.x}%`, top: `${source.y}%` }}><Icon className="h-4 w-4 text-slate-300" />{source.label}</div>;
+              return <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className="absolute flex items-center gap-2.5 rounded-full border border-slate-400/35 bg-slate-500/15 px-5 py-3 text-sm font-medium text-slate-100 shadow-sm backdrop-blur-sm" style={{ left: `${source.x}%`, top: `${source.y}%` }}><Icon className="h-5 w-5 text-slate-300" />{source.label}</div>;
             })}
             {SIGNALS.map((signal, index) => {
               const Icon = signal.icon;
