@@ -530,30 +530,31 @@ const ScrollDrivenHero = () => {
                 }}
               >
                 {/* Header */}
-                <div className="flex items-center gap-2.5 mb-3 relative z-10">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
-                    V
-                  </span>
-                  <span className="text-[15px] font-bold tracking-tight text-gray-900">
-                    Orchestrate
-                  </span>
+                <div className="mb-3 relative z-10">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
+                      V
+                    </span>
+                    <span className="text-[15px] font-bold tracking-tight text-gray-900">
+                      Orchestrate
+                    </span>
+                  </div>
                   {activePersona && (
-                    <>
-                      <span className="text-gray-500">·</span>
+                    <div className="flex items-center gap-1.5 mt-1.5">
                       <span
-                        className="text-[13px] font-bold tracking-tight"
+                        className="text-[12px] font-bold tracking-tight"
                         style={{ color: activePersona.color }}
                       >
                         {activePersona.label}
                       </span>
                       <span
-                        className="ml-0.5 w-1.5 h-1.5 rounded-full animate-pulse"
+                        className="w-1.5 h-1.5 rounded-full animate-pulse"
                         style={{
                           background: "#22c55e",
                           boxShadow: "0 0 8px #22c55e",
                         }}
                       />
-                    </>
+                    </div>
                   )}
                 </div>
 
