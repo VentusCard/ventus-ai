@@ -110,7 +110,7 @@ const Navbar = () => {
           </Link>
           <button
             onClick={() => setIsMobileMenuOpen((v) => !v)}
-            className="text-gray-700"
+            className={onDark ? "text-white" : "text-gray-700"}
             aria-label="Toggle menu"
             style={{ minWidth: "auto", minHeight: "auto", padding: 0 }}
           >
