@@ -50,6 +50,38 @@ const Header = () => (
   </div>
 );
 
+const RevealCard = ({
+  children,
+  index,
+}: {
+  children: React.ReactNode;
+  index: number;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-500 ${visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}`}
+      style={{ transitionDelay: `${index * 80}ms` }}
+    >
+      {children}
+    </div>
+  );
+};
+
 const CardGrid = ({
   cardRefs,
   staticVersion = false,
@@ -59,38 +91,59 @@ const CardGrid = ({
 }) => (
   <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map((c, i) => (
-        <div
-          key={c.label}
-          ref={cardRefs ? (node) => (cardRefs.current[i] = node) : undefined}
-          className="rounded-[20px] border border-gray-200 bg-white p-7 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)] transition-transform duration-150 hover:-translate-y-px hover:shadow-[0_28px_64px_-24px_rgba(15,23,42,0.2)]"
-          style={staticVersion ? undefined : { opacity: 0, transform: "translateY(28px)" }}
-        >
-          <div className={`mb-5 h-1 w-10 rounded-full ${c.accent}`} />
-          <p
-            className={`mb-2 text-[11px] font-semibold uppercase tracking-widest ${c.labelColor}`}
+      {cards.map((c, i) => {
+        const card = (
+          <div
+            key={c.label}
+            ref={cardRefs ? (node) => (cardRefs.current[i] = node) : undefined}
+            className="rounded-[20px] border border-gray-200 bg-white p-7 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)] transition-transform duration-150 hover:-translate-y-px hover:shadow-[0_28px_64px_-24px_rgba(15,23,42,0.2)]"
+            style={staticVersion ? undefined : { opacity: 0, transform: "translateY(28px)" }}
           >
-            {c.label}
-          </p>
-          <h3 className="mb-3 text-xl font-bold leading-tight text-gray-900">{c.title}</h3>
-          <p className="text-base leading-[1.65] text-gray-600">{c.body}</p>
-        </div>
-      ))}
+            <div className={`mb-5 h-1 w-10 rounded-full ${c.accent}`} />
+            <p
+              className={`mb-2 text-[11px] font-semibold uppercase tracking-widest ${c.labelColor}`}
+            >
+              {c.label}
+            </p>
+            <h3 className="mb-3 text-xl font-bold leading-tight text-gray-900">{c.title}</h3>
+            <p className="text-base leading-[1.65] text-gray-600">{c.body}</p>
+          </div>
+        );
+        return staticVersion ? (
+          <RevealCard key={c.label} index={i}>
+            {card}
+          </RevealCard>
+        ) : (
+          card
+        );
+      })}
     </div>
   </div>
 );
+
+const useMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isMobile;
+};
 
 const OutcomesSection = () => {
   const trackRef = useRef<HTMLElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const progressRef = useRef<HTMLDivElement>(null);
   const [pinEnabled, setPinEnabled] = useState(false);
+  const isMobile = useMobile();
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const wide = window.matchMedia("(min-width: 1024px)").matches;
-    setPinEnabled(!reduced && wide);
-  }, []);
+    setPinEnabled(!reduced && !isMobile);
+  }, [isMobile]);
 
   useEffect(() => {
     if (!pinEnabled) return;
@@ -139,7 +192,7 @@ const OutcomesSection = () => {
       ref={trackRef}
       className="relative h-[320vh] scroll-mt-[96px] bg-white"
     >
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
+      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden bg-white">
         <HueField
           blobs={[
             { hue: "sky", size: 640, top: "-22%", right: "-10%" },

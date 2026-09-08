@@ -205,25 +205,35 @@ const BeatVisual = ({ beat, count, coverage }: { beat: number; count: number; co
   </div>
 );
 
+const useMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isMobile;
+};
+
 const IntelligenceDatabaseSection = () => {
   const trackRef = useRef<HTMLDivElement>(null);
   const [beat, setBeat] = useState(0);
   const [pinned, setPinned] = useState(false);
   const [count, setCount] = useState(0);
   const [coverage, setCoverage] = useState(0);
+  const isMobile = useMobile();
 
   useEffect(() => {
-    const media = window.matchMedia("(min-width: 1024px)");
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setPinned(media.matches && !motion.matches);
+    const update = () => setPinned(!motion.matches && !isMobile);
     update();
-    media.addEventListener("change", update);
     motion.addEventListener("change", update);
     return () => {
-      media.removeEventListener("change", update);
       motion.removeEventListener("change", update);
     };
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     if (!pinned) return;
@@ -290,24 +300,47 @@ const IntelligenceDatabaseSection = () => {
     </div>
   );
 
+  const RevealCard = ({ item, index }: { item: (typeof BEATS)[number]; index: number }) => {
+    const ref = useRef<HTMLDivElement>(null);
+    const [visible, setVisible] = useState(false);
+    useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setVisible(true);
+        },
+        { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+      );
+      observer.observe(el);
+      return () => observer.disconnect();
+    }, []);
+    return (
+      <div
+        ref={ref}
+        className={`rounded-[20px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)] transition-all duration-500 ${
+          visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+        }`}
+        style={{ transitionDelay: `${index * 80}ms` }}
+      >
+        <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
+          {item.eyebrow}
+        </p>
+        <p className="mt-2 text-base leading-[1.65] text-slate-700">{item.copy}</p>
+        <div className="mt-6 flex justify-center">
+          <BeatVisual beat={index} count={68_200_000} coverage={95.2} />
+        </div>
+      </div>
+    );
+  };
+
   if (!pinned) {
     return (
       <section id="intelligence-database" className="scroll-mt-[96px] bg-white py-16 md:py-20">
         <div className="mx-auto max-w-7xl space-y-10 px-6 md:px-8">
           {framing}
           {BEATS.map((item, index) => (
-            <div
-              key={item.eyebrow}
-              className="rounded-[20px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)]"
-            >
-              <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
-                {item.eyebrow}
-              </p>
-              <p className="mt-2 text-base leading-[1.65] text-slate-700">{item.copy}</p>
-              <div className="mt-6 flex justify-center">
-                <BeatVisual beat={index} count={68_200_000} coverage={95.2} />
-              </div>
-            </div>
+            <RevealCard key={item.eyebrow} item={item} index={index} />
           ))}
         </div>
       </section>
@@ -317,7 +350,7 @@ const IntelligenceDatabaseSection = () => {
   return (
     <section id="intelligence-database" className="scroll-mt-[96px] bg-white">
       <div ref={trackRef} className="relative h-[420vh]">
-        <div className="sticky top-0 flex h-screen items-center overflow-hidden pt-20">
+        <div className="sticky top-0 flex h-screen items-center overflow-hidden bg-white pt-20">
           <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-12 px-6 md:px-8 lg:grid-cols-2">
             <div className="pt-2">
               {framing}
