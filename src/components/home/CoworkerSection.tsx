@@ -45,7 +45,7 @@ const CoworkerSection = () => (
   <section id="coworker" className="scroll-mt-[96px] bg-white py-20 md:py-24">
     <div className="mx-auto max-w-7xl px-6 md:px-8">
       <p className="text-[12px] font-bold uppercase tracking-widest text-[#2563eb]">AI Coworker</p>
-      <h2 className="mt-3 text-2xl font-bold leading-[1.15] tracking-tight text-black md:whitespace-nowrap md:text-[40px]">
+      <h2 className="mt-3 text-3xl font-bold leading-[1.15] tracking-tight text-black md:whitespace-nowrap md:text-[52px]">
         Actionable intelligence directly in your inbox.
       </h2>
       <p className="mt-5 max-w-3xl text-base leading-[1.65] text-gray-700">
