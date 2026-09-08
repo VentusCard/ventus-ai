@@ -10,7 +10,7 @@ const SECTION_LINKS = [
   { id: "outcomes", label: "Results" },
   { id: "integration", label: "Integrations" },
   { id: "governance", label: "Governance" },
-  { id: "faq", label: "FAQs" },
+  { id: "faq", label: "FAQ" },
 ];
 
 const SCROLL_SECTIONS = [
