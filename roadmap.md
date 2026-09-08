@@ -7,3 +7,4 @@
 - [x] Clean up mobile spacing and section header alignment
 - [x] Fix mobile animations not working
 - [x] Change navbar label from FAQs to FAQ
+- [ ] Make Governance section background white
