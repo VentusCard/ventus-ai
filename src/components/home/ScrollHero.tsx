@@ -29,9 +29,7 @@ const SIGNALS: { family: Family; label: string; band: string }[] = [
   { family: "Life Event", label: "New Baby At Home", band: "Strong" },
   { family: "Life Event", label: "Household Move Planning", band: "Emerging" },
   { family: "Financial", label: "Auto Loan Servicing", band: "Strong" },
-  { family: "Financial", label: "Retirement Contributions", band: "Likely" },
   { family: "Behavioral", label: "Weeknight Delivery Habit", band: "Strong" },
-  { family: "Behavioral", label: "Warehouse Bulk Shopper", band: "Likely" },
   { family: "Demographic", label: "Dual-Income Household", band: "Strong" },
 ];
 
@@ -152,7 +150,7 @@ const StreamCard = () => {
   }, []);
 
   return (
-    <div className="w-full overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-[0_28px_60px_-28px_rgba(15,23,42,0.28)]">
+    <div className="w-full overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-[0_20px_48px_-24px_rgba(15,23,42,0.2)]">
       <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-3.5">
         <span className="ventus-pulse-halo h-1.5 w-1.5 rounded-full bg-blue-500" />
         <p className="text-[12px] font-bold uppercase tracking-wider text-slate-600">
@@ -183,7 +181,7 @@ const StreamCard = () => {
 };
 
 const ActionsCard = () => (
-  <div className="w-full overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-[0_28px_60px_-28px_rgba(15,23,42,0.28)]">
+  <div className="w-full overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-[0_20px_48px_-24px_rgba(15,23,42,0.22)]">
     <div className="border-b border-slate-100 px-5 py-3.5">
       <p className="text-[12px] font-bold uppercase tracking-wider text-slate-600">
         Suggested next actions
@@ -272,44 +270,43 @@ const ScrollHero = () => {
             </div>
           </div>
 
-          {/* Desktop composition: three fully visible cards, no overlap */}
+          {/* Desktop composition: deliberate three-card stack, back to front */}
           <div
             className="relative hidden lg:block"
             style={{ transform: `translate3d(${tilt.x * 0.3}px, ${tilt.y * 0.3}px, 0)` }}
           >
-            <div className="ventus-hero-rise" style={{ animationDelay: "120ms" }}>
-              <div
-                className="w-[300px]"
-                style={{
-                  transform: `translate3d(${tilt.x * 0.5}px, ${tilt.y * 0.5}px, 0)`,
-                }}
-              >
-                <div className="ventus-hero-drift" style={{ animationDelay: "0.8s" }}>
-                  <StreamCard />
+            <div className="relative mx-auto w-fit pl-12 pr-6 pt-12 pb-14">
+              {/* Back card: signal stream, offset up-left, behind, 94% scale */}
+              <div className="ventus-hero-rise absolute left-0 top-0 z-0" style={{ animationDelay: "120ms" }}>
+                <div
+                  className="w-[300px] origin-top-left scale-[0.94]"
+                  style={{ transform: `scale(0.94) translate3d(${tilt.x * 0.5}px, ${tilt.y * 0.5}px, 0)` }}
+                >
+                  <div className="ventus-hero-drift" style={{ animationDelay: "0.8s" }}>
+                    <StreamCard />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="ventus-hero-rise mt-5 flex justify-end" style={{ animationDelay: "0ms" }}>
-              <div className="w-[420px]">
+              {/* Middle: profile card, focal point, strongest shadow */}
+              <div className="ventus-hero-rise relative z-10 w-[420px]" style={{ animationDelay: "0ms" }}>
                 <div className="ventus-hero-drift" style={{ animationDuration: "12s" }}>
                   <ProfileCard />
                 </div>
               </div>
-            </div>
 
-            <div className="ventus-hero-rise mt-5" style={{ animationDelay: "240ms" }}>
-              <div
-                className="ml-10 w-[320px]"
-                style={{
-                  transform: `translate3d(${tilt.x * 0.6}px, ${tilt.y * 0.6}px, 0)`,
-                }}
-              >
+              {/* Front: next actions, overlapping lower-right, in front */}
+              <div className="ventus-hero-rise absolute bottom-0 right-0 z-20" style={{ animationDelay: "240ms" }}>
                 <div
-                  className="ventus-hero-drift"
-                  style={{ animationDuration: "9s", animationDelay: "1.6s" }}
+                  className="w-[320px]"
+                  style={{ transform: `translate3d(${tilt.x * 0.6}px, ${tilt.y * 0.6}px, 0)` }}
                 >
-                  <ActionsCard />
+                  <div
+                    className="ventus-hero-drift"
+                    style={{ animationDuration: "9s", animationDelay: "1.6s" }}
+                  >
+                    <ActionsCard />
+                  </div>
                 </div>
               </div>
             </div>
