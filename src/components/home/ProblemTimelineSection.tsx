@@ -78,7 +78,7 @@ const ProblemTimelineSection = () => {
   const linesShown = beat >= 3;
 
   return (
-    <section className="relative bg-white" aria-label="The problem">
+<section id="problem" className="relative scroll-mt-[96px] bg-white" aria-label="The problem">
       <div ref={stageRef} className="relative lg:h-[380vh]">
         <div className="lg:sticky lg:top-0 lg:flex lg:h-screen lg:items-center">
           <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 px-6 py-20 md:px-8 lg:grid-cols-[34fr_66fr] lg:gap-14 lg:py-0">
