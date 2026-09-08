@@ -102,7 +102,7 @@ const person: Point[] = (() => {
 
 const pointStyles = Array.from({ length: POINT_COUNT }, (_, index) => ({
   radius: 1.8 + random() * 2.6,
-  color: ["#38bdf8", "#60a5fa", "#818cf8", "#a78bfa", "#22d3ee"][index % 5],
+  color: "#2563eb",
   driftAngle: random() * Math.PI * 2,
   driftSpeed: 0.22 + random() * 0.55,
   driftRadius: 6 + random() * 18,
@@ -117,11 +117,11 @@ const SOURCE_LABELS = [
 ];
 
 const SIGNALS = [
-  { label: "Frequent Traveler", x: 62, y: 14, anchorX: 585, anchorY: 195, icon: Plane, tone: "text-cyan-100 bg-cyan-400/15 border-cyan-300/45" },
-  { label: "Young Parent", x: 72, y: 34, anchorX: 605, anchorY: 285, icon: Baby, tone: "text-violet-100 bg-violet-400/15 border-violet-300/45" },
-  { label: "College-Bound Child", x: 68, y: 62, anchorX: 600, anchorY: 410, icon: GraduationCap, tone: "text-amber-100 bg-amber-400/15 border-amber-300/45" },
-  { label: "Building Cash Reserves", x: 18, y: 62, anchorX: 400, anchorY: 410, icon: WalletCards, tone: "text-emerald-100 bg-emerald-400/15 border-emerald-300/45" },
-  { label: "Home Purchase Journey", x: 14, y: 30, anchorX: 395, anchorY: 255, icon: MapPin, tone: "text-blue-100 bg-blue-400/15 border-blue-300/45" },
+  { label: "Frequent Traveler", x: 62, y: 14, anchorX: 585, anchorY: 195, icon: Plane, tone: "text-cyan-700 bg-cyan-50 border-cyan-200" },
+  { label: "Young Parent", x: 72, y: 34, anchorX: 605, anchorY: 285, icon: Baby, tone: "text-violet-700 bg-violet-50 border-violet-200" },
+  { label: "College-Bound Child", x: 68, y: 62, anchorX: 600, anchorY: 410, icon: GraduationCap, tone: "text-amber-700 bg-amber-50 border-amber-200" },
+  { label: "Building Cash Reserves", x: 18, y: 62, anchorX: 400, anchorY: 410, icon: WalletCards, tone: "text-emerald-700 bg-emerald-50 border-emerald-200" },
+  { label: "Home Purchase Journey", x: 14, y: 30, anchorX: 395, anchorY: 255, icon: MapPin, tone: "text-blue-700 bg-blue-50 border-blue-200" },
 ];
 
 const CAPTIONS = [
@@ -202,38 +202,38 @@ const ScrollHero = () => {
   }, []);
 
   return (
-    <section id="hero" ref={trackRef} className="relative h-[320vh] bg-[#070d1c]" aria-label="Ventus customer intelligence">
+    <section id="hero" ref={trackRef} className="relative h-[320vh] bg-white" aria-label="Ventus customer intelligence">
       <div className="sticky top-0 h-screen overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.14),transparent_48%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.08),transparent_48%)]" />
         <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center gap-6 px-6 pb-6 pt-24 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-10 lg:px-10 lg:pt-20">
           <div className="relative z-10 flex-none text-center lg:text-left">
-            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-[1.1] text-white sm:text-[2.75rem] lg:mx-0 lg:text-[3.1rem]">
-              Turn behavioral intelligence into <span className="italic text-blue-400">growth opportunities</span>
+            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-[1.1] text-slate-900 sm:text-[2.85rem] lg:mx-0 lg:text-[3.45rem]">
+              Turn behavioral intelligence into <span className="italic text-blue-600">growth opportunities</span>
             </h1>
             <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
               <Button className="bg-blue-600 text-white hover:bg-blue-500" onClick={() => navigate("/contact")}>Schedule Demo <ArrowRight className="ml-2 h-4 w-4" /></Button>
-              <Button variant="outline" className="border-white/25 bg-white/5 text-white hover:bg-white/10 hover:text-white" onClick={() => document.getElementById("flows")?.scrollIntoView({ behavior: "smooth" })}>See the platform</Button>
+              <Button variant="outline" className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900" onClick={() => document.getElementById("flows")?.scrollIntoView({ behavior: "smooth" })}>See the platform</Button>
             </div>
             <div className="relative mt-5 h-4">
-              {CAPTIONS.map((caption, index) => <span key={caption} ref={(node) => (captionRefs.current[index] = node)} className="absolute inset-0 text-xs text-slate-300/90 transition-opacity duration-500 lg:text-left" style={{ opacity: index === 0 ? 1 : 0 }}>{caption}</span>)}
+              {CAPTIONS.map((caption, index) => <span key={caption} ref={(node) => (captionRefs.current[index] = node)} className="absolute inset-0 text-xs text-slate-500 transition-opacity duration-500 lg:text-left" style={{ opacity: index === 0 ? 1 : 0 }}>{caption}</span>)}
             </div>
-            <div className="mx-auto mt-4 h-px w-32 overflow-hidden bg-white/10 lg:mx-0"><div ref={progressRef} className="h-px w-full origin-left bg-sky-400" style={{ transform: "scaleX(0)" }} /></div>
+            <div className="mx-auto mt-4 h-px w-32 overflow-hidden bg-slate-200 lg:mx-0"><div ref={progressRef} className="h-px w-full origin-left bg-blue-600" style={{ transform: "scaleX(0)" }} /></div>
           </div>
 
           <div className="relative min-h-0 w-full max-w-4xl flex-1 lg:h-[76vh] lg:flex-none">
             <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden>
-              <defs><radialGradient id="person-aura"><stop offset="0%" stopColor="#38bdf8" stopOpacity="0.34" /><stop offset="100%" stopColor="#38bdf8" stopOpacity="0" /></radialGradient></defs>
+              <defs><radialGradient id="person-aura"><stop offset="0%" stopColor="#2563eb" stopOpacity="0.22" /><stop offset="100%" stopColor="#2563eb" stopOpacity="0" /></radialGradient></defs>
               <circle ref={auraRef} cx="500" cy="320" r="285" fill="url(#person-aura)" style={{ opacity: 0 }} />
               {pointStyles.map((style, index) => <circle key={index} ref={(node) => (pointRefs.current[index] = node)} r={style.radius} fill={style.color} transform={`translate(${scattered[index].x} ${scattered[index].y})`} style={{ opacity: 0.3 }} />)}
             </svg>
 
             {SOURCE_LABELS.map((source, index) => {
               const Icon = source.icon;
-              return <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className="absolute flex items-center gap-2.5 rounded-full border border-slate-400/35 bg-slate-500/15 px-5 py-3 text-sm font-medium text-slate-100 shadow-sm backdrop-blur-sm" style={{ left: `${source.x}%`, top: `${source.y}%` }}><Icon className="h-5 w-5 text-slate-300" />{source.label}</div>;
+              return <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className="absolute flex items-center gap-2.5 rounded-full border border-slate-300 bg-slate-100 px-5 py-3 text-sm font-medium text-slate-700 shadow-sm backdrop-blur-sm" style={{ left: `${source.x}%`, top: `${source.y}%` }}><Icon className="h-5 w-5 text-slate-500" />{source.label}</div>;
             })}
             {SIGNALS.map((signal, index) => {
               const Icon = signal.icon;
-              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2.5 rounded-full border px-5 py-3 text-sm font-medium shadow-[0_0_24px_rgba(56,189,248,0.16)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-5 w-5" />{signal.label}</div>;
+              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2.5 rounded-full border px-5 py-3 text-sm font-medium shadow-[0_0_24px_rgba(37,99,235,0.12)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-5 w-5" />{signal.label}</div>;
             })}
           </div>
         </div>
