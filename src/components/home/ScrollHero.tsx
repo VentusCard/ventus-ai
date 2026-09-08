@@ -24,8 +24,13 @@ const ScrollHero = () => {
             Customer intelligence for banks
           </p>
           <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 md:text-[52px]">
-            Everything you need to know about your customer is already in their account.
+            Turn behavioral intelligence into growth opportunities
           </h1>
+          <p className="mt-5 max-w-md text-lg leading-relaxed text-slate-600">
+            Ventus AI orchestrates a hyper-personalized banking experience for every customer with
+            your existing stack.
+          </p>
+
           <div className="mt-9 flex flex-wrap gap-3">
             <Button
               size="lg"
