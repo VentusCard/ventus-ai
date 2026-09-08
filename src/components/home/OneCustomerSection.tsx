@@ -326,7 +326,7 @@ const OneCustomerSection = () => {
       <h2 className="mt-3 max-w-xl text-3xl font-bold leading-[1.15] tracking-tight text-slate-900 md:text-[34px]">
         Six years of history. Three products. And no idea who she is.
       </h2>
-      <p className="mt-4 max-w-xl text-[15px] font-medium leading-[1.65] text-slate-600">
+      <p className="mt-4 max-w-xl text-[16px] font-medium leading-[1.65] text-slate-700">
         Morgan Ellis · Austin, TX · 6 years with the bank · Preferred tier · Checking, Rewards Card,
         Auto Loan · $60k-$90k relationship value
       </p>
