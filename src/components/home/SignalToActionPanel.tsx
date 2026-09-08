@@ -1,42 +1,67 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Activity,
   BadgeCheck,
-  Baby,
+  Building2,
   Gift,
+  Globe2,
   Megaphone,
   MessageSquare,
   PieChart,
-  ShieldAlert,
-  Users,
-  Wallet,
+  Smartphone,
 } from "lucide-react";
 
-type Family = {
+type Source = {
   id: string;
+  group: string;
   label: string;
-  dot: string;
+  sublabel: string;
   icon: typeof Activity;
-  targets: string[];
 };
 
-const FAMILIES: Family[] = [
-  { id: "behavioral", label: "Behavioral", dot: "bg-sky-400", icon: Activity, targets: ["next-offer", "campaign-intelligence"] },
-  { id: "life-event", label: "Life Event", dot: "bg-amber-400", icon: Baby, targets: ["next-product", "next-conversation"] },
-  { id: "financial", label: "Financial", dot: "bg-emerald-400", icon: Wallet, targets: ["next-product", "portfolio-intelligence"] },
-  { id: "demographic", label: "Demographic", dot: "bg-violet-400", icon: Users, targets: ["campaign-intelligence"] },
-  { id: "risk", label: "Risk", dot: "bg-rose-400", icon: ShieldAlert, targets: ["portfolio-intelligence"] },
+const SOURCES: Source[] = [
+  {
+    id: "banking-core",
+    group: "Internal signals",
+    label: "Banking Core",
+    sublabel: "accounts · transactions · ledger",
+    icon: Building2,
+  },
+  {
+    id: "digital-banking",
+    group: "Internal signals",
+    label: "Digital Banking",
+    sublabel: "app + web telemetry",
+    icon: Smartphone,
+  },
+  {
+    id: "external-1",
+    group: "External signals",
+    label: "External Intelligence 1",
+    sublabel: "national data partnership",
+    icon: Globe2,
+  },
+  {
+    id: "external-2",
+    group: "External signals",
+    label: "External Intelligence 2",
+    sublabel: "national data partnership",
+    icon: Globe2,
+  },
 ];
 
-type Destination = {
-  id: string;
-  label: string;
-  href: string;
-  icon: typeof Activity;
-};
+const SOURCE_GROUPS = ["Internal signals", "External signals"];
 
-const DESTINATIONS: Destination[] = [
+const FAMILIES = [
+  { id: "behavioral", label: "Behavioral", dot: "bg-sky-400" },
+  { id: "life-event", label: "Life Event", dot: "bg-amber-400" },
+  { id: "financial", label: "Financial", dot: "bg-emerald-400" },
+  { id: "demographic", label: "Demographic", dot: "bg-violet-400" },
+  { id: "risk", label: "Risk", dot: "bg-rose-400" },
+];
+
+const DESTINATIONS = [
   { id: "next-offer", label: "Next Offer", href: "/solutions/next-offer", icon: Gift },
   { id: "next-product", label: "Next Product", href: "/solutions/next-product", icon: BadgeCheck },
   { id: "next-conversation", label: "Next Conversation", href: "/solutions/next-conversation", icon: MessageSquare },
@@ -44,195 +69,316 @@ const DESTINATIONS: Destination[] = [
   { id: "campaign-intelligence", label: "Campaign Intelligence", href: "/solutions/campaign-intelligence", icon: Megaphone },
 ];
 
-const CYCLE_MS = 2500;
+const CAPTIONS = [
+  "Read the data you already hold.",
+  "Resolve it into signals your institution approved.",
+  "Route each decision to the system that already owns it.",
+];
 
-// Diagram geometry in a 100 x 100 viewBox.
-const NODE_X = 50;
-const NODE_Y = 50;
-const LEFT_X = 8;
-const RIGHT_X = 92;
-const rowY = (index: number) => 12 + index * 19;
-
-const leftPath = (index: number) =>
-  `M ${LEFT_X} ${rowY(index)} C ${LEFT_X + 22} ${rowY(index)}, ${NODE_X - 22} ${NODE_Y}, ${NODE_X} ${NODE_Y}`;
-
-const rightPath = (index: number) =>
-  `M ${NODE_X} ${NODE_Y} C ${NODE_X + 22} ${NODE_Y}, ${RIGHT_X - 22} ${rowY(index)}, ${RIGHT_X} ${rowY(index)}`;
+type Geometry = {
+  width: number;
+  height: number;
+  left: { x1: number; y1: number; x2: number; y2: number }[];
+  right: { x1: number; y1: number; x2: number; y2: number }[];
+};
 
 const SignalToActionPanel = () => {
-  const [active, setActive] = useState(0);
-  const [phase, setPhase] = useState<"in" | "flare" | "out" | "rest">("rest");
-  const [looping, setLooping] = useState(true);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const coreRef = useRef<HTMLDivElement>(null);
+  const sourceRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const destRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+
+  const [geometry, setGeometry] = useState<Geometry | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setLooping(!motion.matches);
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(mq.matches);
     update();
-    motion.addEventListener("change", update);
-    return () => motion.removeEventListener("change", update);
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
 
-  useEffect(() => {
-    if (!looping) return;
-    let timers: number[] = [];
-    const run = () => {
-      setPhase("in");
-      timers.push(window.setTimeout(() => setPhase("flare"), 900));
-      timers.push(window.setTimeout(() => setPhase("out"), 1200));
-      timers.push(window.setTimeout(() => setPhase("rest"), 2100));
-    };
-    run();
-    const interval = window.setInterval(() => {
-      setActive((prev) => (prev + 1) % FAMILIES.length);
-      run();
-    }, CYCLE_MS);
+  const measure = useCallback(() => {
+    const grid = gridRef.current;
+    const core = coreRef.current;
+    if (!grid || !core) return;
+    const g = grid.getBoundingClientRect();
+    if (g.width === 0) return;
+    const c = core.getBoundingClientRect();
+    const coreLeft = c.left - g.left;
+    const coreRight = c.right - g.left;
+    const coreMid = c.top - g.top + c.height / 2;
+
+    const left = SOURCES.map((_, i) => {
+      const el = sourceRefs.current[i];
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return {
+        x1: r.right - g.left,
+        y1: r.top - g.top + r.height / 2,
+        x2: coreLeft,
+        y2: coreMid + (i - (SOURCES.length - 1) / 2) * 10,
+      };
+    }).filter(Boolean) as Geometry["left"];
+
+    const right = DESTINATIONS.map((_, i) => {
+      const el = destRefs.current[i];
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return {
+        x1: coreRight,
+        y1: coreMid + (i - (DESTINATIONS.length - 1) / 2) * 10,
+        x2: r.left - g.left,
+        y2: r.top - g.top + r.height / 2,
+      };
+    }).filter(Boolean) as Geometry["right"];
+
+    setGeometry({ width: g.width, height: g.height, left, right });
+  }, []);
+
+  useLayoutEffect(() => {
+    measure();
+    const ro = new ResizeObserver(() => measure());
+    if (gridRef.current) ro.observe(gridRef.current);
+    window.addEventListener("resize", measure);
     return () => {
-      window.clearInterval(interval);
-      timers.forEach((t) => window.clearTimeout(t));
-      timers = [];
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
     };
-  }, [looping]);
+  }, [measure]);
 
-  const activeFamily = FAMILIES[active];
-  const inbound = looping ? phase === "in" || phase === "flare" : true;
-  const outbound = looping ? phase === "out" : true;
-  const nodeFlare = looping ? phase === "flare" || phase === "out" : true;
+  useEffect(() => {
+    if (reducedMotion) {
+      setProgress(1);
+      return;
+    }
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const el = stageRef.current;
+        if (!el) return;
+        if (window.innerWidth < 1024) {
+          setProgress(1);
+          return;
+        }
+        const rect = el.getBoundingClientRect();
+        const total = rect.height - window.innerHeight;
+        if (total <= 0) {
+          setProgress(1);
+          return;
+        }
+        const raw = -rect.top / total;
+        setProgress(Math.min(1, Math.max(0, raw)));
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [reducedMotion]);
 
-  const leftActive = (index: number) => !looping || (index === active && phase !== "rest");
-  const rightActive = (id: string) =>
-    !looping || (activeFamily.targets.includes(id) && (phase === "out" || phase === "flare"));
+  const stage = progress < 0.33 ? 0 : progress < 0.66 ? 1 : 2;
+
+  const colStyle = (index: number) => {
+    const lit = index <= stage;
+    const dip = index < stage;
+    return {
+      opacity: lit ? (dip ? 0.88 : 1) : 0.4,
+      filter: lit ? "saturate(1)" : "saturate(0.25)",
+    } as React.CSSProperties;
+  };
+
+  const leftDraw = stage >= 1;
+  const rightDraw = stage >= 2;
 
   return (
-    <div className="relative overflow-hidden rounded-[20px] border border-white/10 bg-[#0B1730] shadow-[0_30px_80px_-40px_rgba(2,6,23,0.9)]">
-      {/* dotted grid texture */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.18]"
-        style={{
-          backgroundImage: "radial-gradient(rgba(148,197,255,0.35) 1px, transparent 1px)",
-          backgroundSize: "18px 18px",
-        }}
-      />
-
-      {/* header bar */}
-      <div className="relative border-b border-white/10 bg-white/[0.04] px-5 py-3">
-        <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
-          Signal to action
-        </span>
-      </div>
-
-      <div className="relative px-5 py-7 md:px-7 md:py-9">
-        {/* column labels */}
-        <div className="mb-4 flex items-center justify-between md:mb-5">
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-            Signals
-          </span>
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-            Activation
-          </span>
-        </div>
-
-        <div className="relative">
-          {/* connectors: desktop horizontal */}
-          <svg
+    <div ref={stageRef} className="relative lg:h-[320vh]">
+      <div className="lg:sticky lg:top-24">
+        <div className="relative overflow-hidden rounded-[20px] border border-white/10 bg-[#0B1730] shadow-[0_30px_80px_-40px_rgba(2,6,23,0.9)]">
+          <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 hidden h-full w-full lg:block"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-          >
-            {FAMILIES.map((family, index) => (
-              <path
-                key={`l-${family.id}`}
-                d={leftPath(index)}
-                fill="none"
-                stroke="#60A5FA"
-                strokeWidth="0.6"
-                vectorEffect="non-scaling-stroke"
-                className="transition-opacity duration-500"
-                opacity={leftActive(index) && inbound ? 0.85 : 0.2}
-              />
-            ))}
-            {DESTINATIONS.map((dest, index) => (
-              <path
-                key={`r-${dest.id}`}
-                d={rightPath(index)}
-                fill="none"
-                stroke="#60A5FA"
-                strokeWidth="0.6"
-                vectorEffect="non-scaling-stroke"
-                className="transition-opacity duration-500"
-                opacity={rightActive(dest.id) && outbound ? 0.85 : 0.2}
-              />
-            ))}
-          </svg>
+            className="pointer-events-none absolute inset-0 opacity-[0.18]"
+            style={{
+              backgroundImage: "radial-gradient(rgba(148,197,255,0.35) 1px, transparent 1px)",
+              backgroundSize: "18px 18px",
+            }}
+          />
 
-          <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-[minmax(0,1fr)_150px_minmax(0,1fr)]">
-            {/* SIGNALS */}
-            <div className="relative z-10 flex flex-col gap-2.5">
-              {FAMILIES.map((family, index) => {
-                const Icon = family.icon;
-                const on = leftActive(index);
-                return (
-                  <div
-                    key={family.id}
-                    className={`flex items-center gap-2.5 rounded-[10px] border px-3 py-2 transition-all duration-500 ${
-                      on
-                        ? "border-white/25 bg-white/[0.10] opacity-100"
-                        : "border-white/10 bg-white/[0.05] opacity-70"
-                    }`}
-                  >
-                    <Icon size={14} className="shrink-0 text-slate-300" />
-                    <span className="text-[13px] font-medium text-slate-100">{family.label}</span>
-                    <span className={`ml-auto h-2 w-2 rounded-full ${family.dot}`} />
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* NODE */}
-            <div className="relative z-10 hidden flex-col items-center justify-center gap-3 md:flex">
-              <span className="relative flex h-4 w-4 items-center justify-center">
-                <span
-                  className={`absolute h-9 w-9 rounded-full border border-sky-400/40 transition-all duration-500 ${
-                    nodeFlare ? "scale-110 opacity-100" : "scale-90 opacity-50"
-                  }`}
-                />
-                <span
-                  className={`h-3 w-3 rounded-full bg-sky-400 transition-all duration-500 ${
-                    nodeFlare
-                      ? "scale-125 shadow-[0_0_24px_6px_rgba(56,189,248,0.55)]"
-                      : "scale-100 shadow-[0_0_12px_2px_rgba(56,189,248,0.35)]"
-                  }`}
-                />
-              </span>
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                Ventus
-              </span>
-            </div>
-
-            {/* ACTIVATION */}
-            <div className="relative z-10 flex flex-col gap-2.5">
-              {DESTINATIONS.map((dest) => {
-                const Icon = dest.icon;
-                const on = rightActive(dest.id);
-                return (
-                  <Link
-                    key={dest.id}
-                    to={dest.href}
-                    className={`flex items-center gap-2.5 rounded-[10px] border px-3 py-2 transition-all duration-500 hover:-translate-y-0.5 hover:border-white/35 hover:bg-white/[0.18] ${
-                      on
-                        ? "border-white/30 bg-white/[0.16] opacity-100"
-                        : "border-white/15 bg-white/[0.09] opacity-75"
-                    }`}
-                  >
-                    <Icon size={14} className="shrink-0 text-sky-200" />
-                    <span className="text-[13px] font-medium text-white">{dest.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
+          <div className="relative border-b border-white/10 bg-white/[0.04] px-5 py-3">
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+              Source to action
+            </span>
           </div>
 
+          <div className="relative px-4 py-6 md:px-6 md:py-8">
+            <div
+              ref={gridRef}
+              className="relative grid grid-cols-1 gap-7 md:grid-cols-3 md:gap-4 lg:grid-cols-[minmax(0,1fr)_52px_minmax(0,1.3fr)_52px_minmax(0,1fr)] lg:gap-0"
+            >
+              {/* connectors */}
+              {geometry && (
+                <svg
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 hidden h-full w-full lg:block"
+                  viewBox={`0 0 ${geometry.width} ${geometry.height}`}
+                  preserveAspectRatio="none"
+                >
+                  {geometry.left.map((p, i) => (
+                    <path
+                      key={`l-${i}`}
+                      d={`M ${p.x1} ${p.y1} C ${p.x1 + (p.x2 - p.x1) * 0.65} ${p.y1}, ${p.x2 - (p.x2 - p.x1) * 0.65} ${p.y2}, ${p.x2} ${p.y2}`}
+                      fill="none"
+                      stroke="#60A5FA"
+                      strokeWidth="1"
+                      pathLength={1}
+                      strokeDasharray={1}
+                      strokeDashoffset={leftDraw ? 0 : 1}
+                      opacity={leftDraw ? 0.75 : 0}
+                      style={{ transition: "stroke-dashoffset 700ms ease-out, opacity 400ms ease-out" }}
+                    />
+                  ))}
+                  {geometry.right.map((p, i) => (
+                    <path
+                      key={`r-${i}`}
+                      d={`M ${p.x1} ${p.y1} C ${p.x1 + (p.x2 - p.x1) * 0.65} ${p.y1}, ${p.x2 - (p.x2 - p.x1) * 0.65} ${p.y2}, ${p.x2} ${p.y2}`}
+                      fill="none"
+                      stroke="#60A5FA"
+                      strokeWidth="1"
+                      pathLength={1}
+                      strokeDasharray={1}
+                      strokeDashoffset={rightDraw ? 0 : 1}
+                      opacity={rightDraw ? 0.75 : 0}
+                      style={{ transition: "stroke-dashoffset 700ms ease-out, opacity 400ms ease-out" }}
+                    />
+                  ))}
+                </svg>
+              )}
+
+              {/* COLUMN 1 */}
+              <div
+                className="relative z-10 flex flex-col justify-center pr-0 transition-all duration-700 lg:pr-2"
+                style={colStyle(0)}
+              >
+                <span className="mb-4 block font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                  Data sources
+                </span>
+                <div className="flex flex-col gap-5">
+                  {SOURCE_GROUPS.map((group) => (
+                    <div key={group}>
+                      <span className="mb-2 block font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                        {group}
+                      </span>
+                      <div className="flex flex-col gap-2.5">
+                        {SOURCES.filter((s) => s.group === group).map((source) => {
+                          const Icon = source.icon;
+                          const index = SOURCES.findIndex((s) => s.id === source.id);
+                          return (
+                            <div
+                              key={source.id}
+                              ref={(el) => (sourceRefs.current[index] = el)}
+                              className="flex w-full items-start gap-2.5 rounded-[10px] border border-white/10 bg-white/[0.05] px-2.5 py-2"
+                            >
+                              <Icon size={14} className="mt-0.5 shrink-0 text-slate-300" />
+                              <span className="min-w-0">
+                                <span className="block text-[12.5px] font-medium leading-tight text-white">
+                                  {source.label}
+                                </span>
+                                <span className="mt-0.5 block font-mono text-[10px] leading-tight text-slate-500">
+                                  {source.sublabel}
+                                </span>
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div aria-hidden className="hidden lg:block" />
+
+              {/* COLUMN 2 */}
+              <div
+                className="relative z-10 flex flex-col justify-center transition-all duration-700"
+                style={colStyle(1)}
+              >
+                <div
+                  ref={coreRef}
+                  className="rounded-[14px] border border-white/12 bg-white/[0.06] p-3.5"
+                >
+                  <div className="mb-3">
+                    <span className="block text-[12.5px] font-semibold text-white">
+                      Customer Intelligence Core
+                    </span>
+                    <span className="mt-0.5 block font-mono text-[10px] text-slate-500">
+                      5 families · 233 signals · 24h
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {FAMILIES.map((family) => (
+                      <div
+                        key={family.id}
+                        className="flex w-full items-center gap-2.5 rounded-[10px] border border-white/10 bg-white/[0.05] px-3 py-2"
+                      >
+                        <span className={`h-2 w-2 shrink-0 rounded-full ${family.dot}`} />
+                        <span className="text-[12.5px] font-medium text-slate-100">{family.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div aria-hidden className="hidden lg:block" />
+
+              {/* COLUMN 3 */}
+              <div
+                className="relative z-10 flex flex-col justify-center pl-0 transition-all duration-700 lg:pl-2"
+                style={colStyle(2)}
+              >
+                <span className="mb-4 block font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                  Activation
+                </span>
+                <div className="flex flex-col gap-2.5">
+                  {DESTINATIONS.map((dest, index) => {
+                    const Icon = dest.icon;
+                    return (
+                      <Link
+                        key={dest.id}
+                        to={dest.href}
+                        ref={(el) => (destRefs.current[index] = el)}
+                        className="flex w-full items-center gap-2.5 rounded-[10px] border border-white/20 bg-white/[0.12] px-2.5 py-2 transition-transform duration-200 hover:-translate-y-0.5"
+                      >
+                        <Icon size={14} className="shrink-0 text-sky-200" />
+                        <span className="text-[12.5px] font-medium leading-tight text-white">{dest.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative mt-4 h-6">
+          {CAPTIONS.map((caption, index) => (
+            <p
+              key={caption}
+              className="absolute inset-x-0 text-center text-[13px] text-slate-600 transition-opacity duration-500"
+              style={{ opacity: (reducedMotion ? 2 : stage) === index ? 1 : 0 }}
+            >
+              {caption}
+            </p>
+          ))}
         </div>
       </div>
     </div>
