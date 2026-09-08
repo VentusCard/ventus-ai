@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { COMPANY_ONE_LINER, OUTCOMES_INLINE } from "@/lib/companyCopy";
+
 
 const Footer = () => {
   return (
@@ -11,12 +11,15 @@ const Footer = () => {
           <div className="md:col-span-2">
             <h3 className="text-xl font-bold tracking-wide mb-4 text-white">VENTUS AI</h3>
             <p className="text-white/60 text-sm leading-relaxed max-w-sm">
-              {COMPANY_ONE_LINER} We extract signals in spending behavior, financial behavior, and
-              major life events, then orchestrate them into the systems banks already run.
+              Ventus AI is a customer intelligence and personalization engine for financial
+              institutions. We extract behavioral, life-event, financial, demographic, and risk
+              signals from the data banks already hold, then route them into the systems they
+              already run.
             </p>
             <p className="mt-4 text-[11px] uppercase tracking-wider text-white/70">
-              {OUTCOMES_INLINE}
+              More card spend · More products per customer · More deposits · Better retention
             </p>
+
           </div>
 
 
