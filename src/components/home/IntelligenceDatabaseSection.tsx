@@ -145,9 +145,9 @@ const Grid = ({ beat }: { beat: number }) => (
 );
 
 const BeatVisual = ({ beat, count, coverage }: { beat: number; count: number; coverage: number }) => (
-  <div className="relative flex min-h-[420px] w-full items-center justify-center">
+  <div className="relative flex min-h-[70vh] w-full items-center justify-center">
     <div
-      className={`absolute transition-all duration-700 ${
+      className={`absolute w-full transition-all duration-700 ${
         beat === 0 ? "scale-100 opacity-100" : "pointer-events-none scale-90 opacity-0"
       }`}
     >
@@ -159,37 +159,44 @@ const BeatVisual = ({ beat, count, coverage }: { beat: number; count: number; co
         beat === 1 || beat === 2 ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
     >
-      <div className="flex items-end justify-between pb-3">
+      <div className="flex items-end justify-between pb-5">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+          <p className="text-[12px] font-bold uppercase tracking-widest text-slate-600">
             Customers
           </p>
-          <p className="text-xl font-bold tabular-nums text-slate-900">{formatCount(count)}</p>
+          <p className="mt-1 text-[38px] font-bold leading-none tabular-nums text-slate-900">
+            {formatCount(count)}
+          </p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+          <p className="text-[12px] font-bold uppercase tracking-widest text-slate-600">
             Enrichment coverage
           </p>
-          <p className="text-xl font-bold tabular-nums text-slate-900">{coverage.toFixed(1)}%</p>
+          <p className="mt-1 text-[38px] font-bold leading-none tabular-nums text-slate-900">
+            {coverage.toFixed(1)}%
+          </p>
         </div>
       </div>
       <Grid beat={beat} />
       <div
-        className={`flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 transition-opacity duration-500 ${
+        className={`flex flex-wrap items-center gap-x-5 gap-y-2 pt-4 transition-opacity duration-500 ${
           beat >= 2 ? "opacity-100" : "opacity-0"
         }`}
       >
         {FAMILIES.map((family) => (
-          <span key={family.name} className="flex items-center gap-1.5 text-[10px] text-slate-500">
-            <span className={`h-2 w-2 rounded-full ${family.dot}`} />
-            {family.name} <span className="text-slate-400">{family.share}%</span>
+          <span
+            key={family.name}
+            className="flex items-center gap-2 text-[14px] font-medium text-slate-700"
+          >
+            <span className={`h-2.5 w-2.5 rounded-full ${family.dot}`} />
+            {family.name} <span className="text-slate-500">{family.share}%</span>
           </span>
         ))}
       </div>
     </div>
 
     <div
-      className={`absolute transition-all duration-700 ${
+      className={`absolute w-full transition-all duration-700 ${
         beat === 3 ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"
       }`}
     >
