@@ -12,6 +12,17 @@ const SECTION_LINKS = [
   { id: "faq", label: "FAQs" },
 ];
 
+const SCROLL_SECTIONS = [
+  { id: "problem", link: "problem" },
+  { id: "one-customer", link: "one-customer" },
+  { id: "intelligence-database", link: "one-customer" },
+  { id: "coworker", link: "one-customer" },
+  { id: "outcomes", link: "outcomes" },
+  { id: "integration", link: "integration" },
+  { id: "governance", link: "integration" },
+  { id: "faq", link: "faq" },
+];
+
 const PAGE_LINKS = [{ to: "/insights", label: "Insights" }];
 
 
@@ -22,6 +33,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [onDark, setOnDark] = useState(location.pathname === "/");
+  const [activeLink, setActiveLink] = useState<string | null>(null);
 
   useEffect(() => {
     const measure = () => {
@@ -33,6 +45,24 @@ const Navbar = () => {
         return rect.top <= probe && rect.bottom >= probe;
       });
       setOnDark(isDark);
+
+      let current: string | null = null;
+      let bestDistance = Infinity;
+      for (const section of SCROLL_SECTIONS) {
+        const el = document.getElementById(section.id);
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        const offset = rect.top - probe;
+        // Prefer the section whose top is nearest the probe, but don't select
+        // a section that is far below the viewport (it hasn't been reached yet).
+        if (offset > 300) continue;
+        const distance = Math.abs(offset);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          current = section.link;
+        }
+      }
+      setActiveLink(current);
     };
     measure();
     window.addEventListener("scroll", measure, { passive: true });
@@ -75,16 +105,26 @@ const Navbar = () => {
           </Link>
 
           <div className="flex items-center gap-6">
-            {SECTION_LINKS.map((l) => (
-              <a
-                key={l.id}
-                href={`/#${l.id}`}
-                onClick={(e) => goToSection(e, l.id)}
-                className={`cursor-pointer text-[13px] font-medium uppercase tracking-wide transition-colors ${linkTone}`}
-              >
-                {l.label}
-              </a>
-            ))}
+            {SECTION_LINKS.map((l) => {
+              const isActive = activeLink === l.id;
+              return (
+                <a
+                  key={l.id}
+                  href={`/#${l.id}`}
+                  onClick={(e) => goToSection(e, l.id)}
+                  className={`relative cursor-pointer text-[13px] font-medium uppercase tracking-wide transition-colors ${linkTone} ${
+                    isActive ? "text-blue-600" : ""
+                  }`}
+                >
+                  {l.label}
+                  <span
+                    className={`absolute -bottom-1 left-0 h-0.5 rounded-full bg-blue-600 transition-all duration-300 ${
+                      isActive ? "w-full" : "w-0"
+                    }`}
+                  />
+                </a>
+              );
+            })}
             <span className={`h-4 w-px ${onDark ? "bg-white/20" : "bg-slate-200"}`} />
             {PAGE_LINKS.map((l) => (
               <Link
@@ -121,16 +161,21 @@ const Navbar = () => {
 
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-slate-200 px-5 pb-5 pt-2">
-            {SECTION_LINKS.map((l) => (
-              <a
-                key={l.id}
-                href={`/#${l.id}`}
-                onClick={(e) => goToSection(e, l.id)}
-                className="block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
-              >
-                {l.label}
-              </a>
-            ))}
+            {SECTION_LINKS.map((l) => {
+              const isActive = activeLink === l.id;
+              return (
+                <a
+                  key={l.id}
+                  href={`/#${l.id}`}
+                  onClick={(e) => goToSection(e, l.id)}
+                  className={`block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium ${
+                    isActive ? "text-blue-600" : "text-gray-700"
+                  }`}
+                >
+                  {l.label}
+                </a>
+              );
+            })}
             {PAGE_LINKS.map((l) => (
               <Link
                 key={l.to}
