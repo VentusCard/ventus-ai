@@ -28,11 +28,11 @@ const destinations: Tile[] = [
 
 const TileBox = ({ tile }: { tile: Tile }) => (
   <div
-    className="flex items-center justify-center rounded-xl bg-white relative z-10"
+    className="flex items-center justify-center rounded-lg bg-white relative z-10"
     style={{
       border: "1px solid #E5E7EB",
       boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-      height: 72,
+      height: 60,
     }}
   >
     {tile.src ? (
@@ -40,10 +40,10 @@ const TileBox = ({ tile }: { tile: Tile }) => (
         src={tile.src}
         alt={tile.name}
         title={tile.name}
-        className="max-h-10 max-w-[65%] w-auto object-contain"
+        className="max-h-8 max-w-[60%] w-auto object-contain"
       />
     ) : (
-      <span className="text-[15px] font-semibold text-gray-500 tracking-tight">
+      <span className="text-sm font-semibold text-gray-500 tracking-tight">
         {tile.label}
       </span>
     )}
@@ -67,21 +67,21 @@ const IntegrationSection = () => {
     <section
       id="integration"
       className="bg-white scroll-mt-20"
-      style={{ paddingTop: 80, paddingBottom: 80 }}
+      style={{ paddingTop: 56, paddingBottom: 56 }}
     >
-      <div className="mx-auto max-w-7xl px-6 md:px-8">
+      <div className="mx-auto max-w-6xl px-6 md:px-8">
         <ScrollReveal>
-          <div className="text-center max-w-3xl mx-auto">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+          <div className="text-center max-w-2xl mx-auto">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-blue-600">
               Integration
             </p>
-            <h2 className="font-bold text-gray-900 leading-tight" style={{ fontSize: 36 }}>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
               Plugs into your existing stack.
             </h2>
-            <p className="mt-2 text-gray-500 font-medium" style={{ fontSize: 20 }}>
+            <p className="mt-1 text-gray-500 font-medium text-base">
               Without replacing it.
             </p>
-            <p className="mt-5 text-gray-600 leading-relaxed text-[15px]">
+            <p className="mt-4 text-gray-600 leading-relaxed text-sm">
               Connect Ventus to the cores, warehouses, and CRMs you already run.
               Transactions in, behavioral intelligence out — through whatever pipe your bank
               prefers.
@@ -91,17 +91,17 @@ const IntegrationSection = () => {
 
         <ScrollReveal delay={0.12}>
           <div
-            className="mt-14 rounded-2xl p-6 md:p-8"
+            className="mt-10 rounded-xl p-5 md:p-6"
             style={{ background: "#F8FAFC", border: "1px solid #E5E7EB" }}
           >
             {/* Column headers, outside the tile grid so flow lines line up cleanly */}
-            <div className="hidden md:grid grid-cols-[1fr_auto_1fr] gap-12 mb-3">
+            <div className="hidden md:grid grid-cols-[1fr_auto_1fr] gap-10 mb-2">
               <div className="px-1">
                 <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                   Sources
                 </span>
               </div>
-              <div className="md:w-[260px]" />
+              <div className="md:w-[220px]" />
               <div className="px-1 text-right">
                 <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                   Destinations
@@ -163,7 +163,7 @@ const IntegrationSection = () => {
                 ))}
               </svg>
 
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-12 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-5 md:gap-10 items-stretch">
                 {/* SOURCES */}
                 <div className="md:hidden mb-1 px-1">
                   <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
@@ -177,7 +177,7 @@ const IntegrationSection = () => {
                 </div>
 
                 {/* VENTUS ENGINE */}
-                <div className="hidden md:flex items-center justify-center md:w-[260px]">
+                <div className="hidden md:flex items-center justify-center md:w-[220px]">
                   <style>{`
                     @keyframes glowPulse {
                       0%, 100% { box-shadow: 0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18); }
@@ -185,21 +185,21 @@ const IntegrationSection = () => {
                     }
                   `}</style>
                   <div
-                    className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
+                    className="rounded-xl w-full overflow-hidden bg-white relative z-10"
                     style={{
                       border: "1px solid #DBEAFE",
                       animation: "glowPulse 3s ease-in-out infinite",
                     }}
                   >
-                    <div className="px-5 py-8 flex flex-col items-center justify-center gap-3">
+                    <div className="px-4 py-6 flex flex-col items-center justify-center gap-2">
                       <span
-                        className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white font-black text-[22px] leading-none shadow-md"
+                        className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 text-white font-black text-lg leading-none shadow-md"
                         style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}
                       >
                         V
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[15px] font-bold text-gray-900 tracking-tight">
+                        <span className="text-sm font-bold text-gray-900 tracking-tight">
                           Ventus
                         </span>
                       </div>
