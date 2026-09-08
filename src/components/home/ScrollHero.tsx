@@ -38,36 +38,43 @@ const scattered: Point[] = Array.from({ length: POINT_COUNT }, () => ({
 
 const person: Point[] = (() => {
   const points: Point[] = [];
+  const headCx = 500;
+  const headCy = 210;
   const rings = [
-    { count: 30, rx: 72, ry: 95, cx: 510, cy: 205, depth: 1 },
-    { count: 26, rx: 56, ry: 78, cx: 522, cy: 208, depth: 0.76 },
-    { count: 20, rx: 39, ry: 60, cx: 533, cy: 210, depth: 0.54 },
-    { count: 14, rx: 22, ry: 40, cx: 541, cy: 213, depth: 0.34 },
+    { count: 34, rx: 76, ry: 96, cx: headCx, cy: headCy, depth: 1 },
+    { count: 30, rx: 62, ry: 80, cx: headCx, cy: headCy, depth: 0.8 },
+    { count: 26, rx: 48, ry: 64, cx: headCx, cy: headCy, depth: 0.62 },
+    { count: 20, rx: 34, ry: 46, cx: headCx, cy: headCy, depth: 0.44 },
+    { count: 14, rx: 20, ry: 30, cx: headCx, cy: headCy, depth: 0.28 },
   ];
 
   rings.forEach((ring) => {
     for (let index = 0; index < ring.count; index += 1) {
       const angle = (index / ring.count) * Math.PI * 2;
-      const profilePush = Math.max(0, Math.cos(angle)) * 14;
       points.push({
-        x: ring.cx + Math.cos(angle) * ring.rx + profilePush,
+        x: ring.cx + Math.cos(angle) * ring.rx,
         y: ring.cy + Math.sin(angle) * ring.ry,
         depth: ring.depth,
       });
     }
   });
 
-  const bodyRows = 5;
+  const bodyRows = 6;
   const bodyCount = POINT_COUNT - points.length;
+  const columns = Math.ceil(bodyCount / bodyRows);
   for (let index = 0; index < bodyCount; index += 1) {
     const row = index % bodyRows;
-    const columnPosition = Math.floor(index / bodyRows) / Math.max(1, Math.ceil(bodyCount / bodyRows) - 1);
-    const normalized = columnPosition * 2 - 1;
-    const width = 252 - row * 32;
+    const col = Math.floor(index / bodyRows);
+    const t = col / Math.max(1, columns - 1);
+    const normalized = t * 2 - 1;
+    const topWidth = 220;
+    const bottomWidth = 360;
+    const width = topWidth + (bottomWidth - topWidth) * (row / (bodyRows - 1));
+    const shoulderCurve = Math.cos(normalized * Math.PI * 0.45) * 18 * (row / (bodyRows - 1));
     points.push({
-      x: 500 + normalized * width + row * 7,
-      y: 560 - 152 * (1 - normalized * normalized) + row * 22,
-      depth: 1 - row * 0.15,
+      x: headCx + normalized * (width / 2),
+      y: 330 + row * 46 - shoulderCurve,
+      depth: 1 - row * 0.12,
     });
   }
   return points;
