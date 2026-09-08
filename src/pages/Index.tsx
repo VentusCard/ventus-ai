@@ -5,6 +5,7 @@ import IntegrationSection from "@/components/IntegrationSection";
 import IntelligenceSection from "@/components/IntelligenceSection";
 import PersonalizationSection from "@/components/PersonalizationSection";
 import GovernanceSection from "@/components/GovernanceSection";
+import PartnersSection from "@/components/PartnersSection";
 import CTA from "@/components/CTA";
 import ProblemStatementSection from "@/components/ProblemStatementSection";
 import { COMPANY_FAQS } from "@/lib/faqContent";
