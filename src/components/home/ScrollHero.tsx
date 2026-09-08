@@ -280,13 +280,13 @@ const ScrollHero = () => {
               style={{ animationDelay: "120ms" }}
             >
               <div
-                className="ventus-hero-drift"
                 style={{
-                  animationDelay: "0.8s",
                   transform: `scale(0.96) translate3d(${tilt.x * 0.5}px, ${tilt.y * 0.5}px, 0)`,
                 }}
               >
-                <StreamCard />
+                <div className="ventus-hero-drift" style={{ animationDelay: "0.8s" }}>
+                  <StreamCard />
+                </div>
               </div>
             </div>
 
@@ -294,10 +294,7 @@ const ScrollHero = () => {
               className="ventus-hero-rise absolute right-0 top-16 z-20 w-[520px]"
               style={{ animationDelay: "0ms" }}
             >
-              <div
-                className="ventus-hero-drift"
-                style={{ animationDuration: "12s", transform: "translate3d(0,0,0)" }}
-              >
+              <div className="ventus-hero-drift" style={{ animationDuration: "12s" }}>
                 <ProfileCard />
               </div>
             </div>
@@ -307,14 +304,16 @@ const ScrollHero = () => {
               style={{ animationDelay: "240ms" }}
             >
               <div
-                className="ventus-hero-drift"
                 style={{
-                  animationDuration: "9s",
-                  animationDelay: "1.6s",
                   transform: `scale(0.96) translate3d(${tilt.x * 0.6}px, ${tilt.y * 0.6}px, 0)`,
                 }}
               >
-                <ActionsCard />
+                <div
+                  className="ventus-hero-drift"
+                  style={{ animationDuration: "9s", animationDelay: "1.6s" }}
+                >
+                  <ActionsCard />
+                </div>
               </div>
             </div>
           </div>
