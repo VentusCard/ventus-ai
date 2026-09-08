@@ -51,7 +51,7 @@ const GovernanceSection = () => (
         <p className="mt-6 max-w-md text-sm text-white/40">
           If a figure can't be substantiated, the system withholds it rather than estimating.
         </p>
-
+      </div>
 
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0D1B30] to-[#0A1628]">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
