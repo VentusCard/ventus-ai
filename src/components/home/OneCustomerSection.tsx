@@ -102,7 +102,7 @@ const BAND_OPACITY: Record<Band, string> = {
 };
 
 const ColdRecord = () => (
-  <div className="w-full rounded-[20px] border border-slate-300 bg-slate-50">
+  <div className="flex w-full flex-col rounded-[20px] border border-slate-300 bg-slate-50">
     <div className="border-b border-slate-300 bg-slate-100 px-6 py-5">
       <p className="text-[12px] font-bold uppercase tracking-widest text-slate-600">
         Customer record
@@ -110,7 +110,7 @@ const ColdRecord = () => (
       <p className="mt-2 text-lg font-semibold text-slate-800">Morgan Ellis</p>
       <p className="mt-1 text-[14px] font-medium text-slate-600">Austin, TX · Age 34-40</p>
     </div>
-    <dl className="divide-y divide-slate-200 text-[15px]">
+    <dl className="flex flex-1 flex-col divide-y divide-slate-200 text-[15px]">
       {[
         ["Tier", "Preferred"],
         ["Tenure", "6 years"],
@@ -119,7 +119,7 @@ const ColdRecord = () => (
         ["Product 2", "Rewards Card"],
         ["Product 3", "Auto Loan"],
       ].map(([k, v]) => (
-        <div key={k} className="flex items-center justify-between px-6 py-3.5">
+        <div key={k} className="flex flex-1 items-center justify-between px-6 py-3.5">
           <dt className="text-slate-500">{k}</dt>
           <dd className="font-medium text-slate-700">{v}</dd>
         </div>
@@ -208,7 +208,7 @@ const BeatVisual = ({ beat }: { beat: number }) => {
   return (
     <div className="flex min-h-[70vh] w-full flex-col">
       {/* TOP ZONE: pills only */}
-      <div className="flex h-[120px] shrink-0 flex-wrap content-start justify-center gap-2 overflow-hidden">
+      <div className="flex h-[168px] shrink-0 flex-wrap content-start justify-center gap-2 overflow-hidden">
         {SIGNALS.map((signal, index) => (
           <SignalPill
             key={signal.label}
@@ -228,7 +228,7 @@ const BeatVisual = ({ beat }: { beat: number }) => {
       <div className="relative min-h-0 flex-1">
         <div
           className={`absolute inset-x-0 bottom-0 flex items-start justify-center transition-all duration-500 ${
-            beat === 0 ? "top-[-152px]" : "top-0"
+            beat === 0 ? "top-[-200px] items-stretch" : "top-0"
           } ${beat <= 1 ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
           <ColdRecord />
