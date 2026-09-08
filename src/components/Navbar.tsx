@@ -33,6 +33,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [onDark, setOnDark] = useState(location.pathname === "/");
+  const [activeLink, setActiveLink] = useState<string | null>(null);
 
   useEffect(() => {
     const measure = () => {
@@ -44,6 +45,17 @@ const Navbar = () => {
         return rect.top <= probe && rect.bottom >= probe;
       });
       setOnDark(isDark);
+
+      let current: string | null = null;
+      for (const section of SCROLL_SECTIONS) {
+        const el = document.getElementById(section.id);
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= probe + window.innerHeight * 0.35) {
+          current = section.link;
+        }
+      }
+      setActiveLink(current);
     };
     measure();
     window.addEventListener("scroll", measure, { passive: true });
