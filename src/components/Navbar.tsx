@@ -154,16 +154,21 @@ const Navbar = () => {
 
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-slate-200 px-5 pb-5 pt-2">
-            {SECTION_LINKS.map((l) => (
-              <a
-                key={l.id}
-                href={`/#${l.id}`}
-                onClick={(e) => goToSection(e, l.id)}
-                className="block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
-              >
-                {l.label}
-              </a>
-            ))}
+            {SECTION_LINKS.map((l) => {
+              const isActive = activeLink === l.id;
+              return (
+                <a
+                  key={l.id}
+                  href={`/#${l.id}`}
+                  onClick={(e) => goToSection(e, l.id)}
+                  className={`block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium ${
+                    isActive ? "text-blue-600" : "text-gray-700"
+                  }`}
+                >
+                  {l.label}
+                </a>
+              );
+            })}
             {PAGE_LINKS.map((l) => (
               <Link
                 key={l.to}
