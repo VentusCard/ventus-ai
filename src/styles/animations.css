@@ -282,3 +282,32 @@
     animation: none;
   }
 }
+
+@keyframes ventus-bust-drift {
+  0%, 100% { transform: perspective(900px) rotateY(-2deg) translateY(0); }
+  50% { transform: perspective(900px) rotateY(3deg) translateY(-5px); }
+}
+
+@keyframes ventus-flow-particle {
+  0% { left: 0; opacity: 0; }
+  14% { opacity: 1; }
+  86% { opacity: 1; }
+  100% { left: calc(100% - 6px); opacity: 0; }
+}
+
+.ventus-hero-bust {
+  animation: ventus-bust-drift 10s ease-in-out infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.ventus-flow-particle {
+  animation: ventus-flow-particle 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ventus-hero-bust,
+  .ventus-flow-particle {
+    animation: none;
+  }
+}
