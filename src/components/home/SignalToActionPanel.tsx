@@ -4,7 +4,6 @@ import {
   Activity,
   BadgeCheck,
   Baby,
-  BarChart3,
   Gift,
   Megaphone,
   MessageSquare,
@@ -191,7 +190,7 @@ const SignalToActionPanel = () => {
             </div>
 
             {/* NODE */}
-            <div className="relative z-10 hidden flex-col items-center justify-center gap-3 lg:flex">
+            <div className="relative z-10 hidden flex-col items-center justify-center gap-3 md:flex">
               <span className="relative flex h-4 w-4 items-center justify-center">
                 <span
                   className={`absolute h-9 w-9 rounded-full border border-sky-400/40 transition-all duration-500 ${
@@ -234,16 +233,6 @@ const SignalToActionPanel = () => {
             </div>
           </div>
 
-          {/* node for tablet vertical layout */}
-          <div className="my-5 hidden flex-col items-center gap-2 md:flex lg:hidden">
-            <span className="relative flex h-4 w-4 items-center justify-center">
-              <span className="absolute h-9 w-9 rounded-full border border-sky-400/40" />
-              <span className="h-3 w-3 rounded-full bg-sky-400 shadow-[0_0_18px_4px_rgba(56,189,248,0.45)]" />
-            </span>
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              Ventus
-            </span>
-          </div>
         </div>
       </div>
     </div>
