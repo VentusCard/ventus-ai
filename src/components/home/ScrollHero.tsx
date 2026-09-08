@@ -1,14 +1,25 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Baby,
+  Building2,
+  CreditCard,
+  GraduationCap,
+  Home,
+  Landmark,
+  MapPin,
+  Plane,
+  Smartphone,
+  WalletCards,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ventusHeroBust from "@/assets/ventus-hero-bust-points.png";
 
 const W = 1000;
 const H = 700;
 const POINT_COUNT = 140;
 
-type Point = { x: number; y: number };
+type Point = { x: number; y: number; depth?: number };
 
 const makeRandom = (seed: number) => {
   let value = seed >>> 0;
@@ -25,6 +36,40 @@ const scattered: Point[] = Array.from({ length: POINT_COUNT }, () => ({
   y: 60 + random() * (H - 120),
 }));
 
+const person: Point[] = (() => {
+  const points: Point[] = [];
+  const rings = [
+    { count: 28, rx: 80, ry: 105, cx: 510, cy: 215, depth: 1 },
+    { count: 22, rx: 59, ry: 84, cx: 526, cy: 218, depth: 0.72 },
+    { count: 16, rx: 37, ry: 62, cx: 540, cy: 221, depth: 0.46 },
+  ];
+
+  rings.forEach((ring) => {
+    for (let index = 0; index < ring.count; index += 1) {
+      const angle = (index / ring.count) * Math.PI * 2;
+      const profilePush = Math.max(0, Math.cos(angle)) * 16;
+      points.push({
+        x: ring.cx + Math.cos(angle) * ring.rx + profilePush,
+        y: ring.cy + Math.sin(angle) * ring.ry,
+        depth: ring.depth,
+      });
+    }
+  });
+
+  const bodyCount = POINT_COUNT - points.length;
+  for (let index = 0; index < bodyCount; index += 1) {
+    const layer = index % 3;
+    const position = Math.floor(index / 3) / Math.max(1, Math.ceil(bodyCount / 3) - 1);
+    const normalized = position * 2 - 1;
+    points.push({
+      x: 500 + normalized * (270 - layer * 31) + layer * 9,
+      y: 588 - 160 * (1 - normalized * normalized) + layer * 29,
+      depth: 1 - layer * 0.24,
+    });
+  }
+  return points;
+})();
+
 const pointStyles = Array.from({ length: POINT_COUNT }, (_, index) => ({
   radius: 2 + random() * 3.3,
   color: ["#38bdf8", "#60a5fa", "#818cf8", "#a78bfa", "#22d3ee"][index % 5],
@@ -34,19 +79,19 @@ const pointStyles = Array.from({ length: POINT_COUNT }, (_, index) => ({
 }));
 
 const SOURCE_LABELS = [
-  { label: "Card activity", x: 10, y: 18 },
-  { label: "Account patterns", x: 66, y: 12 },
-  { label: "Digital engagement", x: 75, y: 42 },
-  { label: "Household context", x: 4, y: 54 },
-  { label: "Merchant intelligence", x: 58, y: 76 },
+  { label: "Card activity", x: 8, y: 17, icon: CreditCard, tone: "text-cyan-200 bg-cyan-400/15 border-cyan-300/40" },
+  { label: "Account patterns", x: 63, y: 10, icon: Landmark, tone: "text-blue-200 bg-blue-400/15 border-blue-300/40" },
+  { label: "Digital engagement", x: 72, y: 40, icon: Smartphone, tone: "text-violet-200 bg-violet-400/15 border-violet-300/40" },
+  { label: "Household context", x: 2, y: 54, icon: Home, tone: "text-emerald-200 bg-emerald-400/15 border-emerald-300/40" },
+  { label: "Merchant intelligence", x: 56, y: 77, icon: Building2, tone: "text-amber-200 bg-amber-400/15 border-amber-300/40" },
 ];
 
 const SIGNALS = [
-  { label: "Frequent Traveler", x: 74, y: 16, anchorX: 585, anchorY: 205 },
-  { label: "Young Parent", x: 78, y: 39, anchorX: 590, anchorY: 295 },
-  { label: "College-Bound Child", x: 70, y: 66, anchorX: 590, anchorY: 430 },
-  { label: "Building Cash Reserves", x: 3, y: 67, anchorX: 408, anchorY: 430 },
-  { label: "Home Purchase Journey", x: 1, y: 29, anchorX: 410, anchorY: 265 },
+  { label: "Frequent Traveler", x: 74, y: 16, anchorX: 585, anchorY: 205, icon: Plane, tone: "text-cyan-100 bg-cyan-400/15 border-cyan-300/45" },
+  { label: "Young Parent", x: 78, y: 39, anchorX: 590, anchorY: 295, icon: Baby, tone: "text-violet-100 bg-violet-400/15 border-violet-300/45" },
+  { label: "College-Bound Child", x: 70, y: 66, anchorX: 590, anchorY: 430, icon: GraduationCap, tone: "text-amber-100 bg-amber-400/15 border-amber-300/45" },
+  { label: "Building Cash Reserves", x: 3, y: 67, anchorX: 408, anchorY: 430, icon: WalletCards, tone: "text-emerald-100 bg-emerald-400/15 border-emerald-300/45" },
+  { label: "Home Purchase Journey", x: 1, y: 29, anchorX: 410, anchorY: 265, icon: MapPin, tone: "text-blue-100 bg-blue-400/15 border-blue-300/45" },
 ];
 
 const CAPTIONS = [
@@ -67,7 +112,6 @@ const ScrollHero = () => {
   const lineRefs = useRef<(SVGLineElement | null)[]>([]);
   const captionRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const auraRef = useRef<SVGCircleElement>(null);
-  const personRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -93,14 +137,11 @@ const ScrollHero = () => {
         const drift = 1 - personProgress;
         const sourceX = scattered[index].x + Math.cos(time * style.driftSpeed + style.driftAngle) * style.driftRadius * drift;
         const sourceY = scattered[index].y + Math.sin(time * style.driftSpeed * 0.8 + style.driftAngle) * style.driftRadius * drift;
-        const angle = (index / POINT_COUNT) * Math.PI * 8;
-        const targetRadius = 45 + (index % 7) * 7;
-        const targetX = 500 + Math.cos(angle) * targetRadius;
-        const targetY = 340 + Math.sin(angle) * targetRadius * 1.25;
-        const x = sourceX + (targetX - sourceX) * personProgress;
-        const y = sourceY + (targetY - sourceY) * personProgress;
+        const x = sourceX + (person[index].x - sourceX) * personProgress;
+        const y = sourceY + (person[index].y - sourceY) * personProgress;
         point.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
-        point.style.opacity = String(0.3 * (1 - personProgress));
+        point.style.opacity = String(0.3 + personProgress * (0.38 + (person[index].depth ?? 1) * 0.3));
+        point.setAttribute("r", String(style.radius * (0.86 + (person[index].depth ?? 1) * 0.3)));
       });
 
       sourceRefs.current.forEach((source, index) => {
@@ -125,10 +166,6 @@ const ScrollHero = () => {
       });
 
       if (auraRef.current) auraRef.current.style.opacity = String(personProgress * 0.42);
-      if (personRef.current) {
-        personRef.current.style.opacity = String(personProgress);
-        personRef.current.style.transform = `translate3d(0, ${(1 - personProgress) * 16}px, 0) scale(${0.94 + personProgress * 0.06})`;
-      }
       const phase = progress < 0.3 ? 0 : progress < 0.7 ? 1 : 2;
       captionRefs.current.forEach((caption, index) => {
         if (caption) caption.style.opacity = index === phase ? "1" : "0";
@@ -172,12 +209,14 @@ const ScrollHero = () => {
               {pointStyles.map((style, index) => <circle key={index} ref={(node) => (pointRefs.current[index] = node)} r={style.radius} fill={style.color} transform={`translate(${scattered[index].x} ${scattered[index].y})`} style={{ opacity: 0.3 }} />)}
             </svg>
 
-            <div ref={personRef} className="ventus-hero-bust pointer-events-none absolute inset-[3%_17%_0] flex items-center justify-center" style={{ opacity: 0 }}>
-              <img src={ventusHeroBust} alt="Abstract three-dimensional human bust formed from blue points and wireframe" width={1024} height={1280} className="h-full w-full object-contain mix-blend-screen" />
-            </div>
-
-            {SOURCE_LABELS.map((source, index) => <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className="absolute rounded-full border border-sky-300/20 bg-sky-300/[0.06] px-3 py-1.5 text-[10px] font-medium text-sky-100/70 backdrop-blur-sm sm:text-xs" style={{ left: `${source.x}%`, top: `${source.y}%` }}>{source.label}</div>)}
-            {SIGNALS.map((signal, index) => <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className="absolute rounded-full border border-sky-300/35 bg-[#0d1d38]/90 px-3 py-2 text-[10px] font-semibold text-sky-100 shadow-[0_0_24px_rgba(56,189,248,0.16)] backdrop-blur-md sm:text-xs" style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}>{signal.label}</div>)}
+            {SOURCE_LABELS.map((source, index) => {
+              const Icon = source.icon;
+              return <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className={`absolute flex items-center gap-2 rounded-full border px-3.5 py-2.5 text-[11px] font-semibold shadow-lg backdrop-blur-md sm:text-xs ${source.tone}`} style={{ left: `${source.x}%`, top: `${source.y}%` }}><Icon className="h-4 w-4" />{source.label}</div>;
+            })}
+            {SIGNALS.map((signal, index) => {
+              const Icon = signal.icon;
+              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2 rounded-full border px-3.5 py-2.5 text-[11px] font-semibold shadow-[0_0_28px_rgba(56,189,248,0.18)] backdrop-blur-md sm:text-xs ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-4 w-4" />{signal.label}</div>;
+            })}
           </div>
         </div>
       </div>
