@@ -1,41 +1,30 @@
 import SEO from "@/components/SEO";
 import { faqSchema, softwareApplicationSchema } from "@/lib/seoSchema";
-import ScrollHero from "@/components/home/ScrollHero";
-import ProblemTimelineSection from "@/components/home/ProblemTimelineSection";
-
-import OutcomesSection from "@/components/home/OutcomesSection";
-import OneCustomerSection from "@/components/home/OneCustomerSection";
-import IntelligenceDatabaseSection from "@/components/home/IntelligenceDatabaseSection";
-
-import CoworkerSection from "@/components/home/CoworkerSection";
-import GovernanceSection from "@/components/GovernanceSection";
+import ScrollDrivenHero from "@/components/ScrollDrivenHero";
 import IntegrationSection from "@/components/IntegrationSection";
-import HomeFAQSection from "@/components/home/HomeFAQSection";
+import IntelligenceSection from "@/components/IntelligenceSection";
+import GovernanceSection from "@/components/GovernanceSection";
 import CTA from "@/components/CTA";
+import ProblemStatementSection from "@/components/ProblemStatementSection";
 import { COMPANY_FAQS } from "@/lib/faqContent";
 
 const Index = ({ noindex = false }: { noindex?: boolean }) => {
   return (
     <div>
       <SEO
-        title="Ventus AI: Customer Intelligence & Personalization for Banks"
-        description="Customer intelligence and personalization engine for banks. Named behavioral, life-event, financial, demographic, and risk signals routed into the systems you already run."
+        title="Ventus AI — Behavioral Intelligence & Personalization for Banks"
+        description="Customer intelligence and personalization system for banks — spending, financial, and life-event signals from multi-rail data and national partnerships."
         path={noindex ? "/classic" : "/"}
         noindex={noindex}
-        keywords="customer intelligence for banks, personalization engine for financial institutions, behavioral signals, life event detection banking, next best product banking, automated flows, bank personalization governance"
+        keywords="behavioral intelligence, personalization engine for financial institutions, behavioral enrichment, multi-rail transaction data, life event detection banking, personalized rewards for banks, next best offer banking, card linked offer redemption, interchange growth"
         jsonLd={noindex ? undefined : [softwareApplicationSchema, faqSchema(COMPANY_FAQS)]}
       />
       <main className="flex flex-col">
-        <ScrollHero />
-        <ProblemTimelineSection />
-        <OneCustomerSection />
-
-        <IntelligenceDatabaseSection />
-        <CoworkerSection />
-        <OutcomesSection />
-        <IntegrationSection />
+        <ScrollDrivenHero />
+        <ProblemStatementSection />
+        <IntelligenceSection />
         <GovernanceSection />
-        <HomeFAQSection />
+        <IntegrationSection />
         <CTA />
       </main>
     </div>
