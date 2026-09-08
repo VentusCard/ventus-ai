@@ -4,21 +4,21 @@ import HueField from "@/components/HueField";
 const columns = [
   {
     num: "01",
-    label: "RETENTION",
-    title: "Keep customers longer.",
-    body: "Behavioral signals surface the right moment to engage — before customers go looking elsewhere.",
+    label: "WIN MORE PRODUCTS",
+    title: "Win more products.",
+    body: "Behavioral signals reveal the right product for the right customer, so offers convert instead of interrupt.",
   },
   {
     num: "02",
-    label: "GROWTH",
-    title: "Grow assets under management.",
-    body: "Personalized offers and products that match real customer behavior convert at higher rates.",
+    label: "RETAIN FOR LONGER",
+    title: "Retain for longer.",
+    body: "Early life-event and churn signals let the bank engage before customers start shopping elsewhere.",
   },
   {
     num: "03",
-    label: "REVENUE",
-    title: "Win more relationships.",
-    body: "Life event detection connects advisors to customers at exactly the right financial moment.",
+    label: "GROW DEPOSITS",
+    title: "Grow deposits.",
+    body: "Personalized nudges and context-aware prompts steer surplus cash into the bank's deposit products.",
   },
 ];
 
