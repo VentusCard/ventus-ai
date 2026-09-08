@@ -1,6 +1,6 @@
 import SEO from "@/components/SEO";
 import { faqSchema, softwareApplicationSchema } from "@/lib/seoSchema";
-import ScrollDrivenHero from "@/components/ScrollDrivenHero";
+import ScrollHero from "@/components/home/ScrollHero";
 import OutcomesSection from "@/components/home/OutcomesSection";
 
 import AutomatedFlowsSection from "@/components/home/AutomatedFlowsSection";
@@ -23,7 +23,7 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         jsonLd={noindex ? undefined : [softwareApplicationSchema, faqSchema(COMPANY_FAQS)]}
       />
       <main className="flex flex-col">
-        <ScrollDrivenHero />
+        <ScrollHero />
         <OutcomesSection />
         <AutomatedFlowsSection />
         <CoworkerSection />
