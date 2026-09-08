@@ -47,11 +47,14 @@ const Navbar = () => {
       setOnDark(isDark);
 
       let current: string | null = null;
+      let bestTop = Infinity;
       for (const section of SCROLL_SECTIONS) {
         const el = document.getElementById(section.id);
         if (!el) continue;
         const rect = el.getBoundingClientRect();
-        if (rect.top <= probe + window.innerHeight * 0.35) {
+        const offset = rect.top - probe;
+        if (offset <= 0 && Math.abs(offset) < Math.abs(bestTop)) {
+          bestTop = offset;
           current = section.link;
         }
       }
