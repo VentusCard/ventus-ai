@@ -324,18 +324,22 @@ const ScrollDrivenHero = () => {
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="order-2 xl:order-none w-full xl:w-[38%] flex justify-center xl:justify-end mt-2 xl:mt-0">
-            <div className="relative flex flex-col items-stretch" style={{ width: 400, maxWidth: "calc(100vw - 48px)" }}>
-              {/* Ventus Orchestrate panel — sits ABOVE the dark card (desktop only) */}
+          <div className="order-2 xl:order-none w-full xl:w-[50%] flex flex-col items-center xl:items-end mt-2 xl:mt-0">
+            <div className="relative flex flex-col xl:flex-row items-center xl:items-center justify-center gap-4 xl:gap-4" style={{ maxWidth: "calc(100vw - 48px)" }}>
+              {/* The Card */}
               <div
-                className="relative transition-all duration-500 ease-out hidden xl:block text-gray-900"
+                className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out hero-dark-card"
                 style={{
-                  opacity: stage === 4 ? 1 : 0,
-                  transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
-                  pointerEvents: stage === 4 ? "auto" : "none",
-                  minHeight: 168,
-                  marginBottom: 4,
-                  overflow: "visible",
+                  width: 380,
+                  maxWidth: "calc(100vw - 48px)",
+                  background: "#0A1628",
+                  paddingRight: 3,
+                  boxShadow: loaded ? "0 25px 60px -12px rgba(0,0,0,0.25)" : "0 10px 30px -8px rgba(0,0,0,0.1)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  opacity: loaded ? 1 : 0,
+                  transform: loaded ? "translateY(0) scale(1)" : "translateY(32px) scale(0.97)",
+                  transitionDelay: "200ms",
+                  animation: loaded && stage === 1 ? "heroCardFloat 4s ease-in-out infinite" : "none",
                 }}
               >
                 {/* Header */}
