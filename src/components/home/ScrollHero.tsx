@@ -98,8 +98,8 @@ const person: P[] = (() => {
   }
   const bodyCount = N - headCount;
   const halfW = 268;
-  const baseY = 610;
-  const rise = 170;
+  const baseY = 590;
+  const rise = 155;
   for (let i = 0; i < bodyCount; i++) {
     const layer = i % 3;
     const k = Math.floor(i / 3);
