@@ -217,37 +217,37 @@ const BeatVisual = ({ beat }: { beat: number }) => (
         beat === 2 ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
       }`}
     >
-      <span className="inline-flex items-center gap-2 rounded-full border border-violet-300 bg-violet-50 px-3 py-1.5 text-[11px] font-medium text-violet-800">
-        <Sparkles className="h-3 w-3" />
+      <span className="inline-flex items-center gap-2 rounded-full border border-violet-300 bg-violet-50 px-4 py-2 text-[14px] font-medium text-violet-800">
+        <Sparkles className="h-4 w-4" />
         New baby at home
       </span>
-      <span className="h-6 w-px bg-violet-300" />
+      <span className="h-8 w-px bg-violet-300" />
       <PhoneSurface />
     </div>
 
     <div
-      className={`absolute w-full max-w-md space-y-3 transition-all duration-500 ${
+      className={`absolute w-full space-y-4 transition-all duration-500 ${
         beat === 3 ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
       }`}
     >
       {PRODUCTS.map(({ signal, product, icon: Icon }) => (
         <div
           key={product}
-          className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm"
+          className="flex items-center gap-4 rounded-[20px] border border-slate-200 bg-white px-6 py-5 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.15)]"
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-            <Icon className="h-4 w-4" />
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+            <Icon className="h-5 w-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wide text-slate-400">{signal}</p>
-            <p className="text-[13px] font-medium leading-snug text-slate-700">{product}</p>
+            <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">{signal}</p>
+            <p className="mt-0.5 text-[16px] font-medium leading-snug text-slate-800">{product}</p>
           </div>
         </div>
       ))}
     </div>
 
     <div
-      className={`absolute transition-all duration-500 ${
+      className={`absolute w-full transition-all duration-500 ${
         beat === 4 ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
       }`}
     >
