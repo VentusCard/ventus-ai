@@ -572,15 +572,15 @@ const ScrollDrivenHero = () => {
                         className="ventus-glass"
                         style={{
                           borderRadius: 10,
-                          minHeight: 100,
+                          minHeight: 120,
                           opacity: cardProgress,
                           transform: `translateY(${(1 - cardProgress) * -10}px) scale(${0.92 + cardProgress * 0.08})`,
                           transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
-                        <div className="px-2 py-3">
+                        <div className="px-1.5 py-3">
                           <span
-                            className="inline-block text-[8px] font-bold uppercase tracking-[0.12em] mb-2 px-1 py-0.5 rounded"
+                            className="inline-block text-[8px] font-bold uppercase tracking-[0.12em] mb-1.5 px-1 py-0.5 rounded"
                             style={{
                               color,
                               background: `${color}1f`,
