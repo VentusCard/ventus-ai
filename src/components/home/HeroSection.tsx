@@ -62,7 +62,7 @@ const HeroSection = () => {
               variant="outline"
               className="h-12 border-white/25 bg-transparent px-8 text-base text-white hover:bg-white/10 hover:text-white"
               onClick={() =>
-                document.getElementById("platform")?.scrollIntoView({ behavior: "smooth" })
+                document.getElementById("one-customer")?.scrollIntoView({ behavior: "smooth" })
               }
             >
               See the platform
