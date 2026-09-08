@@ -75,10 +75,8 @@ const person: Point[] = (() => {
         y: apexY + drop * normalized * normalized,
         depth: 1 - t * 0.4,
       });
-      arcIndex += 1;
     }
   }
-  void arcIndex;
   return points;
 })();
 
