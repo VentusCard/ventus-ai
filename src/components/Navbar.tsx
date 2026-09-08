@@ -6,8 +6,7 @@ import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 const SECTION_LINKS = [
   { id: "intelligence", label: "Intelligence" },
-  { id: "governance", label: "Governance" },
-  { id: "integration", label: "Integration" },
+  { id: "personalization", label: "Personalization" },
 ];
 
 const PAGE_LINKS = [
@@ -55,16 +54,19 @@ const Navbar = () => {
                 {l.label}
               </a>
             ))}
+            <Link
+              to="/insights"
+              className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+            >
+              Insights
+            </Link>
             <span className="h-4 w-px bg-slate-200" />
-            {PAGE_LINKS.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
-              >
-                {l.label}
-              </Link>
-            ))}
+            <Link
+              to="/faq"
+              className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+            >
+              FAQ
+            </Link>
           </div>
 
           <Link to="/contact">
@@ -101,16 +103,21 @@ const Navbar = () => {
                 {l.label}
               </a>
             ))}
-            {PAGE_LINKS.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                onClick={closeMobileMenu}
-                className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
-              >
-                {l.label}
-              </Link>
-            ))}
+            <Link
+              to="/insights"
+              onClick={closeMobileMenu}
+              className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+            >
+              Insights
+            </Link>
+            <div className="my-2 h-px bg-slate-200" />
+            <Link
+              to="/faq"
+              onClick={closeMobileMenu}
+              className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+            >
+              FAQ
+            </Link>
             <Link to="/contact" onClick={closeMobileMenu} className="block pt-4">
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
             </Link>
