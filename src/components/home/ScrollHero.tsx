@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ventusHeroBust from "@/assets/ventus-hero-bust-points.png";
 
 const W = 1000;
 const H = 700;
@@ -23,36 +24,6 @@ const scattered: Point[] = Array.from({ length: POINT_COUNT }, () => ({
   x: 70 + random() * (W - 140),
   y: 60 + random() * (H - 120),
 }));
-
-const person: Point[] = (() => {
-  const points: Point[] = [];
-  const centerX = 500;
-  const headCenterY = 225;
-  const headCount = 58;
-
-  for (let index = 0; index < headCount; index += 1) {
-    const ring = index % 3;
-    const angle = (index / headCount) * Math.PI * 2 + ring * 0.12;
-    const radius = 108 - ring * 23;
-    points.push({
-      x: centerX + Math.cos(angle) * radius * 0.82,
-      y: headCenterY + Math.sin(angle) * radius,
-    });
-  }
-
-  const bodyCount = POINT_COUNT - headCount;
-  for (let index = 0; index < bodyCount; index += 1) {
-    const layer = index % 3;
-    const position = Math.floor(index / 3) / Math.max(1, Math.ceil(bodyCount / 3) - 1);
-    const normalized = position * 2 - 1;
-    points.push({
-      x: centerX + normalized * (265 - layer * 25),
-      y: 590 - 158 * (1 - normalized * normalized) + layer * 30,
-    });
-  }
-
-  return points;
-})();
 
 const pointStyles = Array.from({ length: POINT_COUNT }, (_, index) => ({
   radius: 2 + random() * 3.3,
@@ -96,6 +67,7 @@ const ScrollHero = () => {
   const lineRefs = useRef<(SVGLineElement | null)[]>([]);
   const captionRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const auraRef = useRef<SVGCircleElement>(null);
+  const personRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -121,10 +93,14 @@ const ScrollHero = () => {
         const drift = 1 - personProgress;
         const sourceX = scattered[index].x + Math.cos(time * style.driftSpeed + style.driftAngle) * style.driftRadius * drift;
         const sourceY = scattered[index].y + Math.sin(time * style.driftSpeed * 0.8 + style.driftAngle) * style.driftRadius * drift;
-        const x = sourceX + (person[index].x - sourceX) * personProgress;
-        const y = sourceY + (person[index].y - sourceY) * personProgress;
+        const angle = (index / POINT_COUNT) * Math.PI * 8;
+        const targetRadius = 45 + (index % 7) * 7;
+        const targetX = 500 + Math.cos(angle) * targetRadius;
+        const targetY = 340 + Math.sin(angle) * targetRadius * 1.25;
+        const x = sourceX + (targetX - sourceX) * personProgress;
+        const y = sourceY + (targetY - sourceY) * personProgress;
         point.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
-        point.style.opacity = String(0.3 + personProgress * 0.65);
+        point.style.opacity = String(0.3 * (1 - personProgress));
       });
 
       sourceRefs.current.forEach((source, index) => {
@@ -149,6 +125,10 @@ const ScrollHero = () => {
       });
 
       if (auraRef.current) auraRef.current.style.opacity = String(personProgress * 0.42);
+      if (personRef.current) {
+        personRef.current.style.opacity = String(personProgress);
+        personRef.current.style.transform = `translate3d(0, ${(1 - personProgress) * 16}px, 0) scale(${0.94 + personProgress * 0.06})`;
+      }
       const phase = progress < 0.3 ? 0 : progress < 0.7 ? 1 : 2;
       captionRefs.current.forEach((caption, index) => {
         if (caption) caption.style.opacity = index === phase ? "1" : "0";
@@ -191,6 +171,10 @@ const ScrollHero = () => {
               })}
               {pointStyles.map((style, index) => <circle key={index} ref={(node) => (pointRefs.current[index] = node)} r={style.radius} fill={style.color} transform={`translate(${scattered[index].x} ${scattered[index].y})`} style={{ opacity: 0.3 }} />)}
             </svg>
+
+            <div ref={personRef} className="ventus-hero-bust pointer-events-none absolute inset-[3%_17%_0] flex items-center justify-center" style={{ opacity: 0 }}>
+              <img src={ventusHeroBust} alt="Abstract three-dimensional human bust formed from blue points and wireframe" width={1024} height={1280} className="h-full w-full object-contain mix-blend-screen" />
+            </div>
 
             {SOURCE_LABELS.map((source, index) => <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className="absolute rounded-full border border-sky-300/20 bg-sky-300/[0.06] px-3 py-1.5 text-[10px] font-medium text-sky-100/70 backdrop-blur-sm sm:text-xs" style={{ left: `${source.x}%`, top: `${source.y}%` }}>{source.label}</div>)}
             {SIGNALS.map((signal, index) => <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className="absolute rounded-full border border-sky-300/35 bg-[#0d1d38]/90 px-3 py-2 text-[10px] font-semibold text-sky-100 shadow-[0_0_24px_rgba(56,189,248,0.16)] backdrop-blur-md sm:text-xs" style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}>{signal.label}</div>)}
