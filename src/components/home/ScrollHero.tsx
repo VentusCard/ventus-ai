@@ -39,43 +39,43 @@ const scattered: Point[] = Array.from({ length: POINT_COUNT }, () => ({
 const person: Point[] = (() => {
   const points: Point[] = [];
   const headCx = 500;
-  const headCy = 210;
-  const rings = [
-    { count: 34, rx: 76, ry: 96, cx: headCx, cy: headCy, depth: 1 },
-    { count: 30, rx: 62, ry: 80, cx: headCx, cy: headCy, depth: 0.8 },
-    { count: 26, rx: 48, ry: 64, cx: headCx, cy: headCy, depth: 0.62 },
-    { count: 20, rx: 34, ry: 46, cx: headCx, cy: headCy, depth: 0.44 },
-    { count: 14, rx: 20, ry: 30, cx: headCx, cy: headCy, depth: 0.28 },
-  ];
+  const headCy = 195;
 
-  rings.forEach((ring) => {
+  // Head: hollow dot-outline circle, no filled interior
+  const headRings = [
+    { count: 30, rx: 74, ry: 92, depth: 1 },
+    { count: 24, rx: 58, ry: 74, depth: 0.78 },
+  ];
+  headRings.forEach((ring) => {
     for (let index = 0; index < ring.count; index += 1) {
       const angle = (index / ring.count) * Math.PI * 2;
       points.push({
-        x: ring.cx + Math.cos(angle) * ring.rx,
-        y: ring.cy + Math.sin(angle) * ring.ry,
+        x: headCx + Math.cos(angle) * ring.rx,
+        y: headCy + Math.sin(angle) * ring.ry,
         depth: ring.depth,
       });
     }
   });
 
-  const bodyRows = 6;
+  // Body: nested sweeping arcs of dots, apex near the neck, ends drooping outward
+  const arcCount = 6;
   const bodyCount = POINT_COUNT - points.length;
-  const columns = Math.ceil(bodyCount / bodyRows);
-  for (let index = 0; index < bodyCount; index += 1) {
-    const row = index % bodyRows;
-    const col = Math.floor(index / bodyRows);
-    const t = col / Math.max(1, columns - 1);
-    const normalized = t * 2 - 1;
-    const topWidth = 220;
-    const bottomWidth = 360;
-    const width = topWidth + (bottomWidth - topWidth) * (row / (bodyRows - 1));
-    const shoulderCurve = Math.cos(normalized * Math.PI * 0.45) * 18 * (row / (bodyRows - 1));
-    points.push({
-      x: headCx + normalized * (width / 2),
-      y: 306 + row * 44 - shoulderCurve,
-      depth: 1 - row * 0.12,
-    });
+  const perArc = Math.floor(bodyCount / arcCount);
+  for (let arc = 0; arc < arcCount; arc += 1) {
+    const dotsInArc = arc === arcCount - 1 ? bodyCount - perArc * (arcCount - 1) : perArc;
+    const t = arc / (arcCount - 1);
+    const halfWidth = 100 + t * 240;
+    const apexY = 320 + t * 120;
+    const drop = 46 + t * 120;
+    for (let dot = 0; dot < dotsInArc; dot += 1) {
+      const u = dotsInArc > 1 ? dot / (dotsInArc - 1) : 0;
+      const normalized = u * 2 - 1;
+      points.push({
+        x: headCx + normalized * halfWidth,
+        y: apexY + drop * normalized * normalized,
+        depth: 1 - t * 0.4,
+      });
+    }
   }
   return points;
 })();
