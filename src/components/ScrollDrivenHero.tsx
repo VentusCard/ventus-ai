@@ -343,7 +343,6 @@ const ScrollDrivenHero = () => {
                 }}
               >
                 {/* Header row */}
-                {/* Header row */}
                 <div
                   className="flex items-center justify-between px-5 pt-4 pb-3 border-b"
                   style={{ borderColor: "rgba(255,255,255,0.08)" }}
