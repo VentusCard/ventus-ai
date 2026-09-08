@@ -372,11 +372,12 @@ const OneCustomerSection = () => {
                       beat === index ? "opacity-100" : "pointer-events-none opacity-0"
                     }`}
                   >
-                    <p className="text-[12px] font-bold uppercase tracking-widest text-slate-700">
+                    <p className="text-[12px] font-bold uppercase tracking-widest text-slate-800">
                       {String(index + 1).padStart(2, "0")} · {item.eyebrow}
                     </p>
-                    <p className="mt-2.5 max-w-xl text-base leading-[1.65] text-slate-700">
+                    <p className="mt-2.5 max-w-xl text-[16px] leading-[1.65] text-slate-800">
                       {item.copy}
+
                     </p>
                   </div>
                 ))}
