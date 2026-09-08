@@ -98,16 +98,26 @@ const Navbar = () => {
           </Link>
 
           <div className="flex items-center gap-6">
-            {SECTION_LINKS.map((l) => (
-              <a
-                key={l.id}
-                href={`/#${l.id}`}
-                onClick={(e) => goToSection(e, l.id)}
-                className={`cursor-pointer text-[13px] font-medium uppercase tracking-wide transition-colors ${linkTone}`}
-              >
-                {l.label}
-              </a>
-            ))}
+            {SECTION_LINKS.map((l) => {
+              const isActive = activeLink === l.id;
+              return (
+                <a
+                  key={l.id}
+                  href={`/#${l.id}`}
+                  onClick={(e) => goToSection(e, l.id)}
+                  className={`relative cursor-pointer text-[13px] font-medium uppercase tracking-wide transition-colors ${linkTone} ${
+                    isActive ? "text-blue-600" : ""
+                  }`}
+                >
+                  {l.label}
+                  <span
+                    className={`absolute -bottom-1 left-0 h-0.5 rounded-full bg-blue-600 transition-all duration-300 ${
+                      isActive ? "w-full" : "w-0"
+                    }`}
+                  />
+                </a>
+              );
+            })}
             <span className={`h-4 w-px ${onDark ? "bg-white/20" : "bg-slate-200"}`} />
             {PAGE_LINKS.map((l) => (
               <Link
