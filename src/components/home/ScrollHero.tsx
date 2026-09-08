@@ -17,7 +17,7 @@ const ScrollHero = () => {
       </div>
 
 
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-14 px-6 md:px-8 lg:grid-cols-[45fr_55fr]">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-14 px-6 md:px-8 lg:grid-cols-[40fr_60fr]">
         <div className="ventus-hero-rise lg:sticky lg:top-40">
 
           <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">

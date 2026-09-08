@@ -289,10 +289,10 @@ const SignalToActionPanel = () => {
                             >
                               <Icon size={14} className="mt-0.5 shrink-0 text-slate-300" />
                               <span className="min-w-0">
-                                <span className="block truncate text-[13px] font-medium text-white">
+                                <span className="block text-[13px] font-medium leading-tight text-white">
                                   {source.label}
                                 </span>
-                                <span className="block truncate font-mono text-[10px] text-slate-500">
+                                <span className="mt-0.5 block font-mono text-[10px] leading-tight text-slate-500">
                                   {source.sublabel}
                                 </span>
                               </span>
@@ -359,7 +359,7 @@ const SignalToActionPanel = () => {
                         className="flex w-full items-center gap-2.5 rounded-[10px] border border-white/20 bg-white/[0.12] px-3 py-2.5 transition-transform duration-200 hover:-translate-y-0.5"
                       >
                         <Icon size={14} className="shrink-0 text-sky-200" />
-                        <span className="truncate text-[13px] font-medium text-white">{dest.label}</span>
+                        <span className="text-[13px] font-medium leading-tight text-white">{dest.label}</span>
                       </Link>
                     );
                   })}
