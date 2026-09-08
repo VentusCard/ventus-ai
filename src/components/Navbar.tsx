@@ -54,16 +54,19 @@ const Navbar = () => {
                 {l.label}
               </a>
             ))}
+            <Link
+              to="/insights"
+              className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+            >
+              Insights
+            </Link>
             <span className="h-4 w-px bg-slate-200" />
-            {PAGE_LINKS.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
-              >
-                {l.label}
-              </Link>
-            ))}
+            <Link
+              to="/faq"
+              className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+            >
+              FAQ
+            </Link>
           </div>
 
           <Link to="/contact">
