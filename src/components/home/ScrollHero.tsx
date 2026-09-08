@@ -117,11 +117,11 @@ const SOURCE_LABELS = [
 ];
 
 const SIGNALS = [
-  { label: "Frequent Traveler", x: 78, y: 12, anchorX: 585, anchorY: 195, icon: Plane, tone: "text-cyan-700 bg-cyan-50 border-cyan-200" },
-  { label: "Young Parent", x: 84, y: 38, anchorX: 605, anchorY: 285, icon: Baby, tone: "text-violet-700 bg-violet-50 border-violet-200" },
-  { label: "College-Bound Child", x: 80, y: 82, anchorX: 600, anchorY: 410, icon: GraduationCap, tone: "text-amber-700 bg-amber-50 border-amber-200" },
-  { label: "Building Cash Reserves", x: 8, y: 78, anchorX: 400, anchorY: 410, icon: WalletCards, tone: "text-emerald-700 bg-emerald-50 border-emerald-200" },
-  { label: "Home Purchase Journey", x: 6, y: 14, anchorX: 395, anchorY: 255, icon: MapPin, tone: "text-blue-700 bg-blue-50 border-blue-200" },
+  { label: "Frequent Traveler", x: 70, y: 10, anchorX: 585, anchorY: 195, icon: Plane, tone: "text-cyan-700 bg-cyan-50 border-cyan-200" },
+  { label: "Young Parent", x: 74, y: 34, anchorX: 605, anchorY: 285, icon: Baby, tone: "text-violet-700 bg-violet-50 border-violet-200" },
+  { label: "College-Bound Child", x: 71, y: 82, anchorX: 600, anchorY: 410, icon: GraduationCap, tone: "text-amber-700 bg-amber-50 border-amber-200" },
+  { label: "Building Cash Reserves", x: 18, y: 78, anchorX: 400, anchorY: 410, icon: WalletCards, tone: "text-emerald-700 bg-emerald-50 border-emerald-200" },
+  { label: "Home Purchase Journey", x: 16, y: 14, anchorX: 395, anchorY: 255, icon: MapPin, tone: "text-blue-700 bg-blue-50 border-blue-200" },
 ];
 
 const CAPTIONS = [
@@ -207,7 +207,7 @@ const ScrollHero = () => {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.08),transparent_48%)]" />
         <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center gap-6 px-6 pb-6 pt-24 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-10 lg:px-10 lg:pt-20">
           <div className="relative z-10 flex-none text-center lg:text-left">
-            <h1 className="mx-auto max-w-3xl text-[2.65rem] font-bold leading-[1.1] text-slate-900 sm:text-[2.85rem] lg:mx-0 lg:text-[3.25rem]">
+            <h1 className="mx-auto max-w-3xl text-[2.9rem] font-bold leading-[1.08] text-slate-900 sm:text-[3.2rem] lg:mx-0 lg:text-[3.65rem]">
               Turn behavioral intelligence into <span className="italic text-blue-600">growth opportunities</span>
             </h1>
             <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
@@ -233,7 +233,7 @@ const ScrollHero = () => {
             })}
             {SIGNALS.map((signal, index) => {
               const Icon = signal.icon;
-              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium shadow-[0_0_20px_rgba(37,99,235,0.1)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-4 w-4" />{signal.label}</div>;
+              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm font-medium shadow-[0_0_20px_rgba(37,99,235,0.1)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-4 w-4" />{signal.label}</div>;
             })}
           </div>
         </div>
