@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -202,6 +203,7 @@ const ActionsCard = () => (
 const ScrollHero = () => {
   const stageRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (prefersReducedMotion()) return;
@@ -240,7 +242,7 @@ const ScrollHero = () => {
             <Button
               size="lg"
               className="h-12 rounded-full bg-blue-600 px-7 text-base font-semibold text-white hover:bg-blue-700"
-              onClick={() => scrollTo("cta")}
+              onClick={() => navigate("/contact")}
             >
               Schedule Demo
               <ArrowRight className="ml-2 h-4 w-4" />
