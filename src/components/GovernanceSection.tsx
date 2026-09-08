@@ -125,7 +125,8 @@ const GovernanceSection = () => (
     id="governance"
     className="scroll-mt-[96px] border-y border-blue-500/30 bg-[#08111F] py-20 md:py-24"
   >
-    <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 px-6 md:px-8 lg:grid-cols-2">
+    <div className="mx-auto max-w-7xl px-6 md:px-8">
+    <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
       <div className="pt-2">
         <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-blue-400">
           Governance
