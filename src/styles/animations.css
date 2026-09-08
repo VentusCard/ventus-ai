@@ -311,3 +311,23 @@
     animation: none;
   }
 }
+
+@keyframes ventus-hero-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ventus-hero-rise {
+  opacity: 0;
+  animation: ventus-hero-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes ventus-hero-drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+.ventus-hero-drift {
+  animation: ventus-hero-drift 10s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ventus-hero-rise { opacity: 1; animation: none; }
+  .ventus-hero-drift { animation: none; }
+}
