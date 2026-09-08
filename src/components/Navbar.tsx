@@ -6,8 +6,7 @@ import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 const SECTION_LINKS = [
   { id: "intelligence", label: "Intelligence" },
-  { id: "governance", label: "Governance" },
-  { id: "integration", label: "Integration" },
+  { id: "personalization", label: "Personalization" },
 ];
 
 const PAGE_LINKS = [
