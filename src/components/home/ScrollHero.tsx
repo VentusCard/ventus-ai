@@ -272,18 +272,16 @@ const ScrollHero = () => {
             </div>
           </div>
 
-          {/* Desktop overlap composition */}
+          {/* Desktop composition: three fully visible cards, no overlap */}
           <div
-            className="relative hidden h-[760px] lg:block"
+            className="relative hidden lg:block"
             style={{ transform: `translate3d(${tilt.x * 0.3}px, ${tilt.y * 0.3}px, 0)` }}
           >
-            <div
-              className="ventus-hero-rise absolute -left-16 top-0 z-10 w-[340px]"
-              style={{ animationDelay: "120ms" }}
-            >
+            <div className="ventus-hero-rise" style={{ animationDelay: "120ms" }}>
               <div
+                className="w-[300px]"
                 style={{
-                  transform: `scale(0.96) translate3d(${tilt.x * 0.5}px, ${tilt.y * 0.5}px, 0)`,
+                  transform: `translate3d(${tilt.x * 0.5}px, ${tilt.y * 0.5}px, 0)`,
                 }}
               >
                 <div className="ventus-hero-drift" style={{ animationDelay: "0.8s" }}>
@@ -292,22 +290,19 @@ const ScrollHero = () => {
               </div>
             </div>
 
-            <div
-              className="ventus-hero-rise absolute right-0 top-20 z-20 w-[500px]"
-              style={{ animationDelay: "0ms" }}
-            >
-              <div className="ventus-hero-drift" style={{ animationDuration: "12s" }}>
-                <ProfileCard />
+            <div className="ventus-hero-rise mt-5 flex justify-end" style={{ animationDelay: "0ms" }}>
+              <div className="w-[420px]">
+                <div className="ventus-hero-drift" style={{ animationDuration: "12s" }}>
+                  <ProfileCard />
+                </div>
               </div>
             </div>
 
-            <div
-              className="ventus-hero-rise absolute right-0 top-[600px] z-30 w-[360px]"
-              style={{ animationDelay: "240ms" }}
-            >
+            <div className="ventus-hero-rise mt-5" style={{ animationDelay: "240ms" }}>
               <div
+                className="ml-10 w-[320px]"
                 style={{
-                  transform: `scale(0.96) translate3d(${tilt.x * 0.6}px, ${tilt.y * 0.6}px, 0)`,
+                  transform: `translate3d(${tilt.x * 0.6}px, ${tilt.y * 0.6}px, 0)`,
                 }}
               >
                 <div
