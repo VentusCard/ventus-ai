@@ -137,7 +137,7 @@ const OutcomesSection = () => {
     <section
       id="outcomes"
       ref={trackRef}
-      className="relative h-[320vh] scroll-mt-24 overflow-hidden bg-white"
+      className="relative h-[320vh] scroll-mt-24 bg-white"
     >
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
         <HueField
