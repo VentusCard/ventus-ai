@@ -517,52 +517,166 @@ const ScrollDrivenHero = () => {
                 </div>
               </div>
 
-              {/* Stage indicator below the dark card */}
+              {/* Ventus Orchestrate panel — sits to the RIGHT of the dark card (desktop only) */}
               <div
-                className="mt-3 xl:mt-6 w-full transition-all duration-700 ease-out"
+                className="relative transition-all duration-500 ease-out hidden xl:block text-gray-900"
                 style={{
-                  opacity: loaded ? 1 : 0,
-                  transform: loaded ? "translateY(0)" : "translateY(12px)",
-                  transitionDelay: "400ms",
+                  opacity: stage === 4 ? 1 : 0,
+                  transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
+                  pointerEvents: stage === 4 ? "auto" : "none",
+                  width: 200,
+                  minHeight: 168,
+                  overflow: "visible",
                 }}
               >
-                <div className="grid grid-cols-4 gap-1.5 xl:gap-3">
-                  {STAGE_LABELS.map((label, i) => {
-                    const [start, end] = STAGE_RANGES[i];
-                    const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
-                    const isActive = i === activeStageIdx;
-                    const isComplete = scrollProgress >= end;
+                {/* Header */}
+                <div className="flex items-center gap-2.5 mb-3 relative z-10">
+                  <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
+                    V
+                  </span>
+                  <span className="text-[15px] font-bold tracking-tight text-gray-900">
+                    Orchestrate
+                  </span>
+                  {activePersona && (
+                    <>
+                      <span className="text-gray-500">·</span>
+                      <span
+                        className="text-[13px] font-bold tracking-tight"
+                        style={{ color: activePersona.color }}
+                      >
+                        {activePersona.label}
+                      </span>
+                      <span
+                        className="ml-0.5 w-1.5 h-1.5 rounded-full animate-pulse"
+                        style={{
+                          background: "#22c55e",
+                          boxShadow: "0 0 8px #22c55e",
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+
+                {/* Three output cards */}
+                <div className="grid grid-cols-3 gap-2 relative z-10">
+                  {(activePersona?.outputs ?? [null, null, null]).map((output, oi) => {
+                    const stagger = oi * 0.08;
+                    const cardProgress = activePersona
+                      ? Math.max(0, Math.min(1, (personaWindowProgress - stagger) / 0.2))
+                      : 0;
+                    const color = activePersona?.color ?? "#94a3b8";
                     return (
-                      <div key={label} className="flex flex-col items-start">
-                        <div
-                          className="relative w-full rounded-full overflow-hidden"
-                          style={{ height: 4, background: "#E5E7EB" }}
-                        >
-                          <div
-                            className="absolute inset-y-0 left-0 rounded-full"
+                      <div
+                        key={oi}
+                        className="ventus-glass"
+                        style={{
+                          borderRadius: 10,
+                          minHeight: 100,
+                          opacity: cardProgress,
+                          transform: `translateY(${(1 - cardProgress) * -10}px) scale(${0.92 + cardProgress * 0.08})`,
+                          transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div className="px-2 py-3">
+                          <span
+                            className="inline-block text-[8px] font-bold uppercase tracking-[0.12em] mb-2 px-1 py-0.5 rounded"
                             style={{
-                              width: `${(isComplete ? 1 : fill) * 100}%`,
-                              background: "#2563EB",
-                              transition: "width 120ms linear",
+                              color,
+                              background: `${color}1f`,
                             }}
-                          />
+                          >
+                            {output?.label ?? "—"}
+                          </span>
+                          <div className="text-[11px] font-semibold text-gray-900 leading-snug">
+                            {output?.text ?? "—"}
+                          </div>
                         </div>
-                        <span
-                          className="mt-1.5 xl:mt-2 uppercase tracking-[0.08em] xl:tracking-[0.12em] whitespace-nowrap text-[9px] xl:text-[12px]"
-                          style={{
-                            color: isActive || isComplete ? "#111827" : "#9CA3AF",
-                            fontWeight: isActive ? 800 : 500,
-                            transition: "color 300ms ease, font-weight 300ms ease",
-                          }}
-                        >
-                          {label}
-                        </span>
                       </div>
                     );
                   })}
                 </div>
-              </div>
 
+                {/* Animated dashed connecting lines */}
+                {activePersona && (
+                  <svg
+                    className="absolute pointer-events-none"
+                    style={{ top: "50%", left: -44, width: 44, height: 120, transform: "translateY(-50%)", overflow: "visible", zIndex: 0 }}
+                  >
+                    {[0, 1, 2].map((oi) => {
+                      const yPct = ((oi + 0.5) / 3) * 100;
+                      return (
+                        <line
+                          key={oi}
+                          x1="100%"
+                          y1={`${yPct}%`}
+                          x2="0"
+                          y2="50%"
+                          stroke={activePersona.color}
+                          strokeWidth="1.5"
+                          strokeDasharray="4 3"
+                          opacity="0.5"
+                        >
+                          <animate
+                            attributeName="stroke-dashoffset"
+                            from="0"
+                            to="-14"
+                            dur="1.5s"
+                            repeatCount="indefinite"
+                          />
+                        </line>
+                      );
+                    })}
+                  </svg>
+                )}
+              </div>
+            </div>
+
+            {/* Stage indicator below the dark card */}
+            <div
+              className="mt-3 xl:mt-6 transition-all duration-700 ease-out"
+              style={{
+                width: 380,
+                maxWidth: "calc(100vw - 48px)",
+                opacity: loaded ? 1 : 0,
+                transform: loaded ? "translateY(0)" : "translateY(12px)",
+                transitionDelay: "400ms",
+              }}
+            >
+              <div className="grid grid-cols-4 gap-1.5 xl:gap-3">
+                {STAGE_LABELS.map((label, i) => {
+                  const [start, end] = STAGE_RANGES[i];
+                  const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
+                  const isActive = i === activeStageIdx;
+                  const isComplete = scrollProgress >= end;
+                  return (
+                    <div key={label} className="flex flex-col items-start">
+                      <div
+                        className="relative w-full rounded-full overflow-hidden"
+                        style={{ height: 4, background: "#E5E7EB" }}
+                      >
+                        <div
+                          className="absolute inset-y-0 left-0 rounded-full"
+                          style={{
+                            width: `${(isComplete ? 1 : fill) * 100}%`,
+                            background: "#2563EB",
+                            transition: "width 120ms linear",
+                          }}
+                        />
+                      </div>
+                      <span
+                        className="mt-1.5 xl:mt-2 uppercase tracking-[0.08em] xl:tracking-[0.12em] whitespace-nowrap text-[9px] xl:text-[12px]"
+                        style={{
+                          color: isActive || isComplete ? "#111827" : "#9CA3AF",
+                          fontWeight: isActive ? 800 : 500,
+                          transition: "color 300ms ease, font-weight 300ms ease",
+                        }}
+                      >
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
