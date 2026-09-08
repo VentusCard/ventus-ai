@@ -79,17 +79,17 @@ const Navbar = () => {
                 key={l.id}
                 href={`/#${l.id}`}
                 onClick={(e) => goToSection(e, l.id)}
-                className="cursor-pointer text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+                className={`cursor-pointer text-[13px] font-medium uppercase tracking-wide transition-colors ${linkTone}`}
               >
                 {l.label}
               </a>
             ))}
-            <span className="h-4 w-px bg-slate-200" />
+            <span className={`h-4 w-px ${onDark ? "bg-white/20" : "bg-slate-200"}`} />
             {PAGE_LINKS.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
-                className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+                className={`text-[13px] font-medium uppercase tracking-wide transition-colors ${linkTone}`}
               >
                 {l.label}
               </Link>
