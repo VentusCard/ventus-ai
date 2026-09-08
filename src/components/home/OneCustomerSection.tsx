@@ -179,20 +179,20 @@ const SignalPill = ({
   index: number;
 }) => (
   <span
-    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all duration-500 ${signal.tone} ${
+    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[14px] font-medium transition-all duration-500 ${signal.tone} ${
       visible ? `${BAND_OPACITY[signal.band]} translate-y-0` : "translate-y-2 opacity-0"
     }`}
     style={{ transitionDelay: `${index * 70}ms` }}
   >
     {signal.label}
-    <span className="rounded-full bg-white/70 px-1.5 py-0.5 text-[9px] uppercase tracking-wide">
+    <span className="rounded-full bg-white/70 px-2 py-0.5 text-[11px] uppercase tracking-wide">
       {signal.band}
     </span>
   </span>
 );
 
 const BeatVisual = ({ beat }: { beat: number }) => (
-  <div className="relative flex min-h-[420px] w-full items-center justify-center">
+  <div className="relative flex min-h-[70vh] w-full items-center justify-center">
     {/* signals layer */}
     <div
       className={`absolute inset-x-0 top-0 flex flex-wrap justify-center gap-2 transition-opacity duration-500 ${
