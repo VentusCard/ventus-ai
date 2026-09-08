@@ -205,16 +205,19 @@ const ScrollHero = () => {
     <section id="hero" ref={trackRef} className="relative h-[320vh] bg-white" aria-label="Ventus customer intelligence">
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.08),transparent_48%)]" />
-        <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center gap-6 px-6 pb-6 pt-24 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-10 lg:px-10 lg:pt-20">
+        <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center gap-8 px-6 pb-6 pt-24 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-center lg:gap-12 lg:px-10 lg:pt-20">
           <div className="relative z-10 flex-none text-center lg:text-left">
-            <h1 className="mx-auto max-w-3xl text-[2.9rem] font-bold leading-[1.08] text-slate-900 sm:text-[3.2rem] lg:mx-0 lg:text-[3.65rem]">
+            <h1 className="mx-auto max-w-4xl text-[2.9rem] font-bold leading-[1.05] tracking-tight text-slate-900 sm:text-[3.6rem] lg:mx-0 lg:text-[4.25rem]">
               Turn behavioral intelligence into <span className="italic text-blue-600">growth opportunities</span>
             </h1>
-            <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
-              <Button className="bg-blue-600 text-white hover:bg-blue-500" onClick={() => navigate("/contact")}>Schedule Demo <ArrowRight className="ml-2 h-4 w-4" /></Button>
-              <Button variant="outline" className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900" onClick={() => document.getElementById("flows")?.scrollIntoView({ behavior: "smooth" })}>See the platform</Button>
+            <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg lg:mx-0">
+              Ventus AI orchestrates a hyper-personalized banking experience for every customer with your existing stack.
+            </p>
+            <div className="mt-7 flex flex-wrap justify-center gap-4 lg:justify-start">
+              <Button size="lg" className="h-12 bg-blue-600 px-7 text-base text-white hover:bg-blue-500" onClick={() => navigate("/contact")}>Schedule Demo <ArrowRight className="ml-2 h-5 w-5" /></Button>
+              <Button size="lg" variant="outline" className="h-12 border-slate-300 bg-white px-7 text-base text-slate-700 hover:bg-slate-50 hover:text-slate-900" onClick={() => document.getElementById("outcomes")?.scrollIntoView({ behavior: "smooth" })}>Learn More</Button>
             </div>
-            <div className="relative mt-5 h-4">
+            <div className="relative mt-6 h-4">
               {CAPTIONS.map((caption, index) => <span key={caption} ref={(node) => (captionRefs.current[index] = node)} className="absolute inset-0 text-xs text-slate-500 transition-opacity duration-500 lg:text-left" style={{ opacity: index === 0 ? 1 : 0 }}>{caption}</span>)}
             </div>
             <div className="mx-auto mt-4 h-px w-32 overflow-hidden bg-slate-200 lg:mx-0"><div ref={progressRef} className="h-px w-full origin-left bg-blue-600" style={{ transform: "scaleX(0)" }} /></div>
