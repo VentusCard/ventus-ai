@@ -123,27 +123,27 @@ const FlowCard = () => {
 const GovernanceSection = () => (
   <section
     id="governance"
-    className="scroll-mt-[96px] border-y border-blue-500/30 bg-[#08111F] py-20 md:py-24"
+    className="scroll-mt-[96px] border-y border-slate-200 bg-white py-20 md:py-24"
   >
     <div className="mx-auto max-w-7xl px-6 md:px-8">
     <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
       <div className="pt-2">
-        <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-blue-400">
+        <p className="mb-3 text-[12px] font-bold uppercase tracking-widest text-blue-600">
           Governance
         </p>
-        <h2 className="max-w-xl text-3xl font-bold leading-[1.15] tracking-tight text-white md:text-[40px]">
+        <h2 className="max-w-xl text-3xl font-bold leading-[1.15] tracking-tight text-slate-900 md:text-[40px]">
           Personalization under the bank's rules.
         </h2>
-        <p className="mt-5 max-w-xl text-base leading-[1.65] text-white/80">
+        <p className="mt-5 max-w-xl text-base leading-[1.65] text-slate-600">
           Governance is part of the decision, not a review after it. Every recommendation traces
           back to the signals you approved, the rules your teams set, and the activity that produced
           the number.
         </p>
-        <p className="mt-4 max-w-xl text-base leading-[1.65] text-white/80">
+        <p className="mt-4 max-w-xl text-base leading-[1.65] text-slate-600">
           76 products carry 233 triggers, each named in plain English and each switchable by risk
           and compliance.
         </p>
-        <p className="mt-4 max-w-xl text-[15px] leading-[1.65] text-white/60">
+        <p className="mt-4 max-w-xl text-[15px] leading-[1.65] text-slate-500">
           If a figure can't be substantiated, the system withholds it rather than estimating.
         </p>
 

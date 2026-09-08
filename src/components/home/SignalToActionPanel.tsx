@@ -162,10 +162,6 @@ const SignalToActionPanel = () => {
         frame = 0;
         const el = stageRef.current;
         if (!el) return;
-        if (window.innerWidth < 1024) {
-          setProgress(1);
-          return;
-        }
         const rect = el.getBoundingClientRect();
         const total = rect.height - window.innerHeight;
         if (total <= 0) {

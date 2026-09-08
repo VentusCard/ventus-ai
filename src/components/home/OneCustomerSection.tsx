@@ -277,23 +277,33 @@ const BeatVisual = ({ beat }: { beat: number }) => {
 };
 
 
+const useMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isMobile;
+};
+
 const OneCustomerSection = () => {
   const trackRef = useRef<HTMLDivElement>(null);
   const [beat, setBeat] = useState(0);
   const [pinned, setPinned] = useState(false);
+  const isMobile = useMobile();
 
   useEffect(() => {
-    const media = window.matchMedia("(min-width: 1024px)");
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setPinned(media.matches && !motion.matches);
+    const update = () => setPinned(!motion.matches && !isMobile);
     update();
-    media.addEventListener("change", update);
     motion.addEventListener("change", update);
     return () => {
-      media.removeEventListener("change", update);
       motion.removeEventListener("change", update);
     };
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     if (!pinned) return;
@@ -324,7 +334,7 @@ const OneCustomerSection = () => {
         One customer
       </p>
       <h2 className="mt-3 max-w-xl text-3xl font-bold leading-[1.15] tracking-tight text-slate-900 md:text-[34px]">
-        Six years of history. Three products. And no idea who she is.
+        What Ventus detects for one customer.
       </h2>
       <p className="mt-4 max-w-xl text-[16px] font-medium leading-[1.65] text-slate-700">
         Morgan Ellis · Austin, TX · 6 years with the bank · Preferred tier · Checking, Rewards Card,
@@ -333,24 +343,47 @@ const OneCustomerSection = () => {
     </div>
   );
 
+  const RevealCard = ({ item, index }: { item: (typeof BEATS)[number]; index: number }) => {
+    const ref = useRef<HTMLDivElement>(null);
+    const [visible, setVisible] = useState(false);
+    useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setVisible(true);
+        },
+        { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+      );
+      observer.observe(el);
+      return () => observer.disconnect();
+    }, []);
+    return (
+      <div
+        ref={ref}
+        className={`rounded-[20px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)] transition-all duration-500 ${
+          visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+        }`}
+        style={{ transitionDelay: `${index * 80}ms` }}
+      >
+        <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
+          {item.eyebrow}
+        </p>
+        <p className="mt-2 text-base leading-[1.65] text-slate-700">{item.copy}</p>
+        <div className="mt-6 flex justify-center">
+          <BeatVisual beat={index} />
+        </div>
+      </div>
+    );
+  };
+
   if (!pinned) {
     return (
       <section id="one-customer" className="scroll-mt-[96px] bg-white py-16 md:py-20">
         <div className="mx-auto max-w-7xl space-y-10 px-6 md:px-8">
           {framing}
           {BEATS.map((item, index) => (
-            <div
-              key={item.eyebrow}
-              className="rounded-[20px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)]"
-            >
-              <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
-                {item.eyebrow}
-              </p>
-              <p className="mt-2 text-base leading-[1.65] text-slate-700">{item.copy}</p>
-              <div className="mt-6 flex justify-center">
-                <BeatVisual beat={index} />
-              </div>
-            </div>
+            <RevealCard key={item.eyebrow} item={item} index={index} />
           ))}
         </div>
       </section>
@@ -360,7 +393,7 @@ const OneCustomerSection = () => {
   return (
     <section id="one-customer" className="scroll-mt-[96px] bg-white">
       <div ref={trackRef} className="relative h-[500vh]">
-        <div className="sticky top-0 flex h-screen items-center overflow-hidden pt-20">
+        <div className="sticky top-0 flex h-screen items-center overflow-hidden bg-white pt-20">
           <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-12 px-6 md:px-8 lg:grid-cols-2">
             <div className="pt-2">
               {framing}
