@@ -123,7 +123,7 @@ const IntelligenceSection = () => {
           </div>
 
           <div
-            className="relative grid grid-cols-2 items-stretch gap-4 p-4 md:grid-cols-4 md:gap-6 md:p-8 min-h-[300px] md:min-h-[340px]"
+            className="relative grid grid-cols-2 items-stretch gap-4 p-4 md:grid-cols-4 md:gap-6 md:p-8"
             style={{
               backgroundImage:
                 "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), radial-gradient(ellipse 60% 70% at 50% 55%, rgba(59,130,246,0.14), transparent)",
@@ -131,78 +131,87 @@ const IntelligenceSection = () => {
             }}
           >
             {/* Sources */}
-            <div
-              className={`flex flex-col justify-center gap-3 rounded-xl border px-4 py-5 transition-all duration-700 ${
-                stage >= 0
-                  ? "border-blue-400/30 bg-white/[0.06] opacity-100"
-                  : "border-white/10 bg-white/[0.02] opacity-40"
-              }`}
-            >
-              <p className="text-sm font-medium text-white">Sources</p>
-              {SOURCES.map(({ icon: Icon, label }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-[#0A1628]/80 px-3 py-2 text-sm text-white/70"
-                >
-                  <Icon className="h-4 w-4 text-blue-400" />
-                  {label}
-                </div>
-              ))}
-            </div>
-
-            {/* Behavior enrichment */}
-            <div
-              className={`flex flex-col items-center justify-center gap-3 rounded-xl border px-4 py-5 text-center transition-all duration-700 ${
-                stage >= 1
-                  ? "border-blue-400/30 bg-white/[0.06] opacity-100"
-                  : "border-white/10 bg-white/[0.02] opacity-40"
-              }`}
-            >
-              <Brain className="h-8 w-8 text-blue-400" />
-              <p className="text-sm font-medium text-white">
-                Rail agnostic behavioral enrichment
-              </p>
-            </div>
-
-            {/* External intelligence */}
-            <div
-              className={`flex flex-col items-center justify-center gap-3 rounded-xl border px-4 py-5 text-center transition-all duration-700 ${
-                stage >= 2
-                  ? "border-blue-400/40 bg-white/[0.06] opacity-100"
-                  : "border-white/10 bg-white/[0.02] opacity-40"
-              }`}
-            >
-              <ExternalLink className="h-8 w-8 text-blue-400" />
-              <p className="text-sm font-medium text-white">External intelligence</p>
-            </div>
-
-            {/* Holistic understanding */}
-            <div
-              className={`flex flex-col justify-center gap-3 rounded-xl border px-4 py-5 transition-all duration-700 ${
-                stage >= 3
-                  ? "border-emerald-400/30 bg-white/[0.06] opacity-100"
-                  : "border-white/10 bg-white/[0.02] opacity-40"
-              }`}
-            >
-              <p className="flex items-center gap-2 text-sm font-medium text-white">
-                <UserCircle className="h-4 w-4 text-emerald-400" />
-                Holistic understanding of each customer
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {HOLISTIC_PILLS.map((pill) => (
-                  <span
-                    key={pill.label}
-                    className={`rounded border px-2 py-1 text-[11px] font-semibold uppercase tracking-wider ${pill.color}`}
+            <FlowCell active={stage >= 0} connectorActive={stage >= 1} showConnector>
+              <div
+                className={`flex h-full flex-col justify-center gap-2 rounded-xl border px-4 py-4 transition-all duration-700 ${
+                  stage >= 0
+                    ? "border-blue-400/30 bg-white/[0.06] opacity-100 ventus-card-breathe"
+                    : "border-white/10 bg-white/[0.02] opacity-40"
+                }`}
+              >
+                <p className="text-sm font-medium text-white">Sources</p>
+                {SOURCES.map(({ icon: Icon, label }) => (
+                  <div
+                    key={label}
+                    className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#0A1628]/80 px-2.5 py-1.5 text-[13px] text-white/70"
                   >
-                    {pill.label}
-                  </span>
+                    <Icon className="h-3.5 w-3.5 text-blue-400" />
+                    {label}
+                  </div>
                 ))}
               </div>
-              <p className="text-xs leading-relaxed text-white/50">
-                Every signal converges into one view of the customer.
-              </p>
-            </div>
+            </FlowCell>
+
+            {/* Behavior enrichment */}
+            <FlowCell active={stage >= 1} connectorActive={stage >= 2} showConnector>
+              <div
+                className={`flex h-full flex-col items-center justify-center gap-3 rounded-xl border px-4 py-4 text-center transition-all duration-700 ${
+                  stage >= 1
+                    ? "border-blue-400/30 bg-white/[0.06] opacity-100 ventus-card-breathe"
+                    : "border-white/10 bg-white/[0.02] opacity-40"
+                }`}
+              >
+                <Brain className="h-8 w-8 text-blue-400" />
+                <p className="text-sm font-medium text-white">
+                  Rail agnostic behavioral enrichment
+                </p>
+              </div>
+            </FlowCell>
+
+            {/* External intelligence */}
+            <FlowCell active={stage >= 2} connectorActive={stage >= 3} showConnector emerald>
+              <div
+                className={`flex h-full flex-col items-center justify-center gap-3 rounded-xl border px-4 py-4 text-center transition-all duration-700 ${
+                  stage >= 2
+                    ? "border-blue-400/40 bg-white/[0.06] opacity-100 ventus-card-breathe"
+                    : "border-white/10 bg-white/[0.02] opacity-40"
+                }`}
+              >
+                <ExternalLink className="h-8 w-8 text-blue-400" />
+                <p className="text-sm font-medium text-white">External intelligence</p>
+              </div>
+            </FlowCell>
+
+            {/* Holistic understanding */}
+            <FlowCell active={stage >= 3}>
+              <div
+                className={`flex h-full flex-col justify-center gap-2.5 rounded-xl border px-4 py-4 transition-all duration-700 ${
+                  stage >= 3
+                    ? "border-emerald-400/30 bg-white/[0.06] opacity-100"
+                    : "border-white/10 bg-white/[0.02] opacity-40"
+                }`}
+              >
+                <p className="flex items-center gap-2 text-sm font-medium text-white">
+                  <UserCircle className="h-4 w-4 text-emerald-400" />
+                  Holistic understanding of each customer
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {HOLISTIC_PILLS.map((pill) => (
+                    <span
+                      key={pill.label}
+                      className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${pill.color}`}
+                    >
+                      {pill.label}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-xs leading-relaxed text-white/50">
+                  Every signal converges into one view of the customer.
+                </p>
+              </div>
+            </FlowCell>
           </div>
+
         </div>
 
         {/* Stage captions */}
