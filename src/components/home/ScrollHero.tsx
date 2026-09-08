@@ -213,7 +213,7 @@ const ScrollHero = () => {
             })}
             {SIGNALS.map((signal, index) => {
               const Icon = signal.icon;
-              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2 rounded-full border px-4 py-2.5 text-xs font-medium shadow-[0_0_20px_rgba(56,189,248,0.14)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-4 w-4" />{signal.label}</div>;
+              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2.5 rounded-full border px-5 py-3 text-sm font-medium shadow-[0_0_24px_rgba(56,189,248,0.16)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-5 w-5" />{signal.label}</div>;
             })}
           </div>
         </div>
