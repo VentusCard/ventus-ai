@@ -37,9 +37,6 @@ const ease = (value: number) => 1 - Math.pow(1 - clamp(value), 3);
 
 const Header = () => (
   <div className="relative z-10 mx-auto mb-14 max-w-6xl px-6 md:px-8">
-    <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-blue-600">
-      Why it matters
-    </p>
     <h2 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-gray-900 md:text-[54px] md:leading-[1.08]">
       Four metrics that move.
     </h2>
