@@ -302,7 +302,7 @@ const OneCustomerSection = () => {
       <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
         One customer
       </p>
-      <h2 className="mt-3 max-w-xl text-3xl font-bold leading-[1.15] tracking-tight text-slate-900 md:text-[40px]">
+      <h2 className="mt-3 max-w-xl text-3xl font-bold leading-[1.15] tracking-tight text-slate-900 md:text-[34px]">
         Six years of history. Three products. And no idea who she is.
       </h2>
       <p className="mt-4 max-w-xl text-[15px] font-medium leading-[1.65] text-slate-600">
