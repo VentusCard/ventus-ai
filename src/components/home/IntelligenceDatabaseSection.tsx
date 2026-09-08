@@ -132,10 +132,10 @@ const Grid = ({ beat }: { beat: number }) => (
           key={index}
           className={`aspect-square rounded-[1px] transition-all duration-700 ${
             isMorgan
-              ? "bg-blue-600 opacity-100 ring-2 ring-blue-300"
+              ? "bg-blue-700 opacity-100 ring-2 ring-blue-300"
               : colored
-                ? `${family.cell} opacity-60`
-                : "bg-slate-300 opacity-50"
+                ? `${family.cell} opacity-100`
+                : "bg-slate-400 opacity-80"
           }`}
           style={{ transitionDelay: `${(index % 37) * 8}ms` }}
         />
