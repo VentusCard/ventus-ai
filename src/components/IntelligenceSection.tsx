@@ -52,7 +52,45 @@ const HOLISTIC_PILLS = [
   { label: "Risk", color: "bg-rose-400/20 text-rose-300 border-rose-400/40" },
 ];
 
+const FlowCell = ({
+  children,
+  connectorActive = false,
+  showConnector = false,
+  emerald = false,
+}: {
+  children: React.ReactNode;
+  active?: boolean;
+  connectorActive?: boolean;
+  showConnector?: boolean;
+  emerald?: boolean;
+}) => (
+  <div className="relative h-[210px] md:h-[220px]">
+    {children}
+    {showConnector && (
+      <div className="pointer-events-none absolute left-full top-1/2 hidden h-[2px] w-4 -translate-y-1/2 overflow-hidden md:block md:w-6">
+        <div
+          className={`absolute inset-0 transition-colors duration-700 ${
+            connectorActive
+              ? emerald
+                ? "bg-gradient-to-r from-blue-400/70 to-emerald-400/70"
+                : "bg-blue-400/60"
+              : "bg-white/12"
+          }`}
+        />
+        {connectorActive && (
+          <div
+            className={`ventus-flow-travel absolute inset-y-0 w-1/2 rounded-full ${
+              emerald ? "bg-emerald-200" : "bg-blue-200"
+            }`}
+          />
+        )}
+      </div>
+    )}
+  </div>
+);
+
 const IntelligenceSection = () => {
+
   const [stage, setStage] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
 
