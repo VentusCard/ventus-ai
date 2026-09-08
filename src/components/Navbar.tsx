@@ -12,6 +12,17 @@ const SECTION_LINKS = [
   { id: "faq", label: "FAQs" },
 ];
 
+const SCROLL_SECTIONS = [
+  { id: "problem", link: "problem" },
+  { id: "one-customer", link: "one-customer" },
+  { id: "intelligence-database", link: "one-customer" },
+  { id: "coworker", link: "one-customer" },
+  { id: "outcomes", link: "outcomes" },
+  { id: "integration", link: "integration" },
+  { id: "governance", link: "integration" },
+  { id: "faq", link: "faq" },
+];
+
 const PAGE_LINKS = [{ to: "/insights", label: "Insights" }];
 
 
