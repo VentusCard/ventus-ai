@@ -73,7 +73,7 @@ const person: Point[] = (() => {
     const shoulderCurve = Math.cos(normalized * Math.PI * 0.45) * 18 * (row / (bodyRows - 1));
     points.push({
       x: headCx + normalized * (width / 2),
-      y: 330 + row * 46 - shoulderCurve,
+      y: 306 + row * 44 - shoulderCurve,
       depth: 1 - row * 0.12,
     });
   }
