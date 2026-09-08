@@ -35,6 +35,13 @@ const cards = [
 const OutcomesSection = () => {
   const gridRef = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
+  const [settled, setSettled] = useState(false);
+
+  useEffect(() => {
+    if (!revealed) return;
+    const t = setTimeout(() => setSettled(true), 3 * 90 + 650);
+    return () => clearTimeout(t);
+  }, [revealed]);
 
   useEffect(() => {
     const el = gridRef.current;
