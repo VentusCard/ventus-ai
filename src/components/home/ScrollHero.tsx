@@ -236,7 +236,7 @@ const ScrollHero = () => {
             Customer intelligence for banks
           </p>
           <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 md:text-[52px]">
-            Turn behavioral intelligence into growth opportunities
+            Everything you need to know about your customer is already in their account.
           </h1>
           <div className="mt-9 flex flex-wrap gap-3">
             <Button

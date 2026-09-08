@@ -4,23 +4,23 @@ import { Baby, Car, GraduationCap, Mail } from "lucide-react";
 const BEATS = [
   {
     eyebrow: "What the bank sees today",
-    copy: "Today Morgan is a tier, a tenure, and three product codes. Everything that would tell you what she needs next is sitting in her account, unread.",
+    copy: "Today Morgan is a tier, a tenure, and three product codes. What she needs next is in the account, unread.",
   },
   {
     eyebrow: "The signals resolve",
-    copy: "Ventus reads the same account and finds seven signals across four families. Each one carries its own confidence.",
+    copy: "Ventus reads the same account and finds seven signals across four families, each with a confidence band.",
   },
   {
     eyebrow: "Her app changes",
-    copy: "The offers in her app stop being generic. They reflect a household that just got bigger.",
+    copy: "The offers in her app change to match a household that just got bigger.",
   },
   {
     eyebrow: "The right product, offered once",
-    copy: "Three products become relevant at once. Not because of a campaign calendar, because of what changed in her life.",
+    copy: "Three products become relevant at the same time, because of what changed in her life rather than what week it is.",
   },
   {
     eyebrow: "Her banker already knows",
-    copy: "And the colleague who owns the relationship gets it as an email, before Morgan ever calls.",
+    copy: "The colleague who owns the relationship gets it by email before she calls.",
   },
 ];
 

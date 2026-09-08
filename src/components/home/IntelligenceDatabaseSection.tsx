@@ -276,9 +276,14 @@ const IntelligenceDatabaseSection = () => {
         Intelligence database
       </p>
       <h2 className="mt-3 max-w-xl text-3xl font-bold leading-[1.15] tracking-tight text-slate-900 md:text-[40px]">
-        Now do that 64.9 million times.
+        The same thing, across every account you hold.
       </h2>
-      <p className="mt-4 max-w-xl text-[15px] font-medium leading-[1.65] text-slate-600">
+      <p className="mt-4 max-w-xl text-base leading-[1.65] text-slate-700">
+        One customer proves the idea. What matters is that it runs on all of them, on the same
+        taxonomy, refreshed daily, and that every number it gives you breaks back down into named
+        people.
+      </p>
+      <p className="mt-3 max-w-xl text-[15px] font-medium leading-[1.65] text-slate-600">
         68,200,000 customers · 95.2% enrichment coverage · 64,900,000 enriched profiles · 5 signal
         families · 233 signals
       </p>
