@@ -4,21 +4,21 @@ import HueField from "@/components/HueField";
 const columns = [
   {
     num: "01",
-    label: "RETENTION",
-    title: "Keep customers longer.",
-    body: "Behavioral signals surface the right moment to engage — before customers go looking elsewhere.",
+    label: "WIN MORE PRODUCTS",
+    title: "Win more products.",
+    body: "Behavioral signals reveal the right product for the right customer, so offers convert instead of interrupt.",
   },
   {
     num: "02",
-    label: "GROWTH",
-    title: "Grow assets under management.",
-    body: "Personalized offers and products that match real customer behavior convert at higher rates.",
+    label: "RETAIN FOR LONGER",
+    title: "Retain for longer.",
+    body: "Early life-event and churn signals let the bank engage before customers start shopping elsewhere.",
   },
   {
     num: "03",
-    label: "REVENUE",
-    title: "Win more relationships.",
-    body: "Life event detection connects advisors to customers at exactly the right financial moment.",
+    label: "GROW DEPOSITS",
+    title: "Grow deposits.",
+    body: "Personalized nudges and context-aware prompts steer surplus cash into the bank's deposit products.",
   },
 ];
 
@@ -37,10 +37,10 @@ const ProblemStatementSection = () => {
             The Gap
           </p>
           <h2 className="font-bold tracking-tight text-gray-900 leading-[1.1] text-left text-[34px] sm:text-4xl md:text-5xl xl:text-[64px] max-w-5xl">
-            Your bank knows what a customer spent. <span className="text-gray-400">Not why.</span>
+            Banks have transaction data. <span className="text-gray-400">Ventus turns it into behavioral intelligence and personalization orchestration.</span>
           </h2>
           <p className="italic mt-5 md:mt-6 text-[23px] md:text-[25px]" style={{ color: "#2563EB" }}>
-            Ventus is the behavioral intelligence layer that bridges the gap.
+            Understand what customers do, why they do it, and act on it across every channel — automatically and at scale.
           </p>
         </ScrollReveal>
       </div>
