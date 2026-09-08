@@ -207,7 +207,7 @@ const ScrollHero = () => {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.08),transparent_48%)]" />
         <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center gap-6 px-6 pb-6 pt-24 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-10 lg:px-10 lg:pt-20">
           <div className="relative z-10 flex-none text-center lg:text-left">
-            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-[1.08] text-slate-900 sm:text-[3rem] lg:mx-0 lg:text-[3.65rem]">
+            <h1 className="mx-auto max-w-3xl text-[2.65rem] font-bold leading-[1.1] text-slate-900 sm:text-[2.85rem] lg:mx-0 lg:text-[3.25rem]">
               Turn behavioral intelligence into <span className="italic text-blue-600">growth opportunities</span>
             </h1>
             <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
@@ -229,11 +229,11 @@ const ScrollHero = () => {
 
             {SOURCE_LABELS.map((source, index) => {
               const Icon = source.icon;
-              return <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className="absolute flex items-center gap-2.5 rounded-full border border-slate-300 bg-slate-100 px-5 py-3 text-base font-medium text-slate-700 shadow-sm backdrop-blur-sm" style={{ left: `${source.x}%`, top: `${source.y}%` }}><Icon className="h-5 w-5 text-slate-500" />{source.label}</div>;
+              return <div key={source.label} ref={(node) => (sourceRefs.current[index] = node)} className="absolute flex items-center gap-2 rounded-full border border-slate-300 bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm backdrop-blur-sm" style={{ left: `${source.x}%`, top: `${source.y}%` }}><Icon className="h-4 w-4 text-slate-500" />{source.label}</div>;
             })}
             {SIGNALS.map((signal, index) => {
               const Icon = signal.icon;
-              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2.5 rounded-full border px-5 py-3 text-base font-medium shadow-[0_0_24px_rgba(37,99,235,0.12)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-5 w-5" />{signal.label}</div>;
+              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium shadow-[0_0_20px_rgba(37,99,235,0.1)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-4 w-4" />{signal.label}</div>;
             })}
           </div>
         </div>
