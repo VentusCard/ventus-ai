@@ -223,7 +223,7 @@ const ScrollHero = () => {
             <div className="mx-auto mt-4 h-px w-32 overflow-hidden bg-slate-200 lg:mx-0"><div ref={progressRef} className="h-px w-full origin-left bg-blue-600" style={{ transform: "scaleX(0)" }} /></div>
           </div>
 
-          <div className="relative min-h-0 w-full max-w-4xl flex-1 lg:h-[76vh] lg:flex-none">
+          <div className="relative min-h-0 w-full max-w-3xl flex-1 justify-self-end lg:h-[64vh] lg:flex-none lg:translate-x-4">
             <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden>
               <defs><radialGradient id="person-aura"><stop offset="0%" stopColor="#2563eb" stopOpacity="0.22" /><stop offset="100%" stopColor="#2563eb" stopOpacity="0" /></radialGradient></defs>
               <circle ref={auraRef} cx="500" cy="320" r="285" fill="url(#person-aura)" style={{ opacity: 0 }} />
