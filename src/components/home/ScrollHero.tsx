@@ -236,7 +236,7 @@ const ScrollHero = () => {
             Customer intelligence for banks
           </p>
           <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 md:text-[52px]">
-            The opportunities are already in your data. You just can't see them.
+            Turn behavioral intelligence into growth opportunities
           </h1>
           <div className="mt-9 flex flex-wrap gap-3">
             <Button
