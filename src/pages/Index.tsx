@@ -3,7 +3,7 @@ import { faqSchema, softwareApplicationSchema } from "@/lib/seoSchema";
 import ScrollDrivenHero from "@/components/ScrollDrivenHero";
 import ProblemStatementSection from "@/components/ProblemStatementSection";
 import OutcomesSection from "@/components/home/OutcomesSection";
-import OneCustomerSection from "@/components/home/OneCustomerSection";
+
 import AutomatedFlowsSection from "@/components/home/AutomatedFlowsSection";
 import CoworkerSection from "@/components/home/CoworkerSection";
 import GovernanceSection from "@/components/GovernanceSection";
@@ -27,7 +27,6 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         <ScrollDrivenHero />
         <ProblemStatementSection />
         <OutcomesSection />
-        <OneCustomerSection />
         <AutomatedFlowsSection />
         <CoworkerSection />
         <GovernanceSection />
