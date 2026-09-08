@@ -72,7 +72,7 @@ const person: Point[] = (() => {
   const remaining = POINT_COUNT - points.length;
 
   // Outline of the shoulder curve
-  const outlineCount = Math.round(remaining * 0.45);
+  const outlineCount = Math.round(remaining * 0.34);
   for (let i = 0; i < outlineCount; i += 1) {
     const u = outlineCount > 1 ? i / (outlineCount - 1) : 0.5;
     const x = (u * 2 - 1) * halfWidth;
@@ -81,16 +81,20 @@ const person: Point[] = (() => {
 
   // Interior fill of the bust so it reads as a solid mass
   const fillCount = remaining - outlineCount;
+  const cols = 13;
+  const rows = Math.max(1, Math.ceil(fillCount / cols));
   for (let i = 0; i < fillCount; i += 1) {
-    const row = Math.floor(i / 12);
-    const col = i % 12;
-    const u = 12 > 1 ? col / 11 : 0.5;
-    const x = (u * 2 - 1) * (halfWidth - 22);
-    const top = topAt(x) + 24;
-    const span = Math.max(10, bottomY - top);
-    const y = top + (span * ((row % 4) + 0.5)) / 4;
-    points.push({ x: cx + x, y, depth: 0.62 });
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+    const stagger = row % 2 === 0 ? 0 : 0.5 / (cols - 1);
+    const u = col / (cols - 1) + stagger;
+    const x = (Math.min(1, u) * 2 - 1) * (halfWidth - 18);
+    const top = topAt(x) + 20;
+    const span = Math.max(12, bottomY - top);
+    const y = top + (span * (row + 0.5)) / rows;
+    points.push({ x: cx + x, y, depth: 0.66 });
   }
+
 
   return points;
 })();
