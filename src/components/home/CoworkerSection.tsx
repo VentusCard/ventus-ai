@@ -1,19 +1,19 @@
 const CARDS = [
   {
-    title: "It arrives before anyone asks.",
-    body: "Every morning each colleague gets the households in their book that moved, ranked strongest first, one row each.",
+    title: "Arrives daily, unprompted",
+    body: "Each colleague gets the households in their book that changed, ranked strongest first, one row each.",
   },
   {
-    title: "It shows the arithmetic.",
-    body: "Every dollar figure is net of the annual fee and net of what the customer already earns elsewhere. Where a number can't be calculated honestly, it says so.",
+    title: "Shows how the number was calculated",
+    body: "Every dollar figure is net of the annual fee and net of what the customer already earns elsewhere. Where it can't be calculated, it says so.",
   },
   {
-    title: "It answers in plain English.",
-    body: "Reply and ask it to screen the whole book against a product, show the evidence behind a row, or prepare you for a meeting.",
+    title: "Takes instructions by reply",
+    body: "Ask it to screen the book against a product, show the evidence behind a row, or prepare you for a meeting. It answers in the same thread.",
   },
   {
-    title: "It drafts, never sends.",
-    body: "Outreach comes back in two halves: the note the customer would read, and the rationale you need to defend it. A person approves everything that leaves.",
+    title: "Drafts, never sends",
+    body: "Client outreach comes back in two halves: the note the customer would read, and the rationale you need to defend it. A person approves everything.",
   },
 ];
 
@@ -46,11 +46,12 @@ const CoworkerSection = () => (
     <div className="mx-auto max-w-7xl px-6 md:px-8">
       <p className="text-[12px] font-bold uppercase tracking-widest text-violet-600">AI Coworker</p>
       <h2 className="mt-3 max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight text-gray-900 md:text-[40px]">
-        The intelligence arrives as an email. Reply to it and it works.
+        It shows up in the inbox, and it takes instructions.
       </h2>
       <p className="mt-5 max-w-3xl text-base leading-[1.65] text-gray-700">
-        Most customer intelligence dies in a dashboard nobody opens. The Ventus Coworker delivers it
-        where your teams already are, then behaves like a colleague.
+        Relationship managers and advisors work out of email and meetings, not analytics tools. The
+        AI Coworker delivers the same intelligence there, and behaves like a colleague when you
+        reply to it.
       </p>
 
       <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
