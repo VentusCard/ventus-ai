@@ -1,19 +1,19 @@
 const CARDS = [
   {
-    title: "Arrives daily, unprompted",
+    title: "Arrives daily",
     body: "Each colleague gets the households in their book that changed, ranked strongest first, one row each.",
-  },
-  {
-    title: "Shows how the number was calculated",
-    body: "Every dollar figure is net of the annual fee and net of what the customer already earns elsewhere. Where it can't be calculated, it says so.",
   },
   {
     title: "Takes instructions by reply",
     body: "Ask it to screen the book against a product, show the evidence behind a row, or prepare you for a meeting. It answers in the same thread.",
   },
   {
-    title: "Drafts, never sends",
-    body: "Client outreach comes back in two halves: the note the customer would read, and the rationale you need to defend it. A person approves everything.",
+    title: "Drafting documents",
+    body: "It writes the client note, the internal rationale, and the meeting prep brief so the relationship manager has something concrete to start from.",
+  },
+  {
+    title: "Creating tasks in CRMs",
+    body: "Follow-ups are logged as tasks with the household, the signal, and the recommended next step, so nothing sits in an inbox.",
   },
 ];
 
