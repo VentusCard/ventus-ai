@@ -42,34 +42,34 @@ const ROWS = [
 ];
 
 const CoworkerSection = () => (
-  <section id="coworker" className="scroll-mt-24 bg-white py-24 md:py-28">
-    <div className="mx-auto max-w-7xl px-6 md:px-8">
-      <p className="text-xs font-semibold uppercase tracking-widest text-violet-600">AI Coworker</p>
-      <h2 className="mt-4 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl">
+  <section id="coworker" className="scroll-mt-24 bg-white py-16 md:py-20">
+    <div className="mx-auto max-w-6xl px-6 md:px-8">
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-violet-600">AI Coworker</p>
+      <h2 className="mt-3 max-w-3xl text-2xl font-bold leading-tight tracking-tight text-gray-900 md:text-3xl">
         The intelligence arrives as an email. Reply to it and it works.
       </h2>
-      <p className="mt-5 max-w-3xl text-lg leading-relaxed text-gray-500">
+      <p className="mt-4 max-w-3xl text-base leading-relaxed text-gray-500">
         Most customer intelligence dies in a dashboard nobody opens. The Ventus Coworker delivers it
         where your teams already are, then behaves like a colleague.
       </p>
 
-      <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2">
+      <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
         {CARDS.map((c) => (
           <div
             key={c.title}
-            className="rounded-2xl border border-violet-200/70 bg-violet-50/40 p-6"
+            className="rounded-xl border border-violet-200/70 bg-violet-50/40 p-5"
           >
-            <h3 className="text-lg font-bold text-gray-900">{c.title}</h3>
-            <p className="mt-2.5 text-sm leading-relaxed text-gray-600">{c.body}</p>
+            <h3 className="text-base font-bold text-gray-900">{c.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">{c.body}</p>
           </div>
         ))}
       </div>
 
       {/* Email mockup */}
-      <div className="mt-12 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_40px_rgba(15,23,42,0.07)]">
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white">
+      <div className="mt-10 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-4 py-3.5">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
               V
             </span>
             <div className="min-w-0">
@@ -82,30 +82,30 @@ const CoworkerSection = () => (
               </p>
             </div>
           </div>
-          <span className="shrink-0 rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-violet-700">
+          <span className="shrink-0 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-violet-700">
             Daily Digest
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full min-w-[640px] text-left text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-[10px] uppercase tracking-wider text-gray-500">
-                <th className="px-5 py-3 font-semibold">Household</th>
-                <th className="px-5 py-3 font-semibold">Signal</th>
-                <th className="px-5 py-3 font-semibold">Best-fit product</th>
-                <th className="px-5 py-3 font-semibold">Annual benefit</th>
-                <th className="px-5 py-3 font-semibold">Outreach window</th>
+                <th className="px-4 py-2.5 font-semibold">Household</th>
+                <th className="px-4 py-2.5 font-semibold">Signal</th>
+                <th className="px-4 py-2.5 font-semibold">Best-fit product</th>
+                <th className="px-4 py-2.5 font-semibold">Annual benefit</th>
+                <th className="px-4 py-2.5 font-semibold">Outreach window</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {ROWS.map((r) => (
                 <tr key={r.household}>
-                  <td className="px-5 py-4 font-medium text-gray-900">{r.household}</td>
-                  <td className="px-5 py-4 text-gray-600">{r.signal}</td>
-                  <td className="px-5 py-4 text-gray-600">{r.product}</td>
-                  <td className="px-5 py-4 font-semibold text-gray-900">{r.benefit}</td>
-                  <td className="px-5 py-4 text-gray-600">{r.window}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">{r.household}</td>
+                  <td className="px-4 py-3 text-gray-600">{r.signal}</td>
+                  <td className="px-4 py-3 text-gray-600">{r.product}</td>
+                  <td className="px-4 py-3 font-semibold text-gray-900">{r.benefit}</td>
+                  <td className="px-4 py-3 text-gray-600">{r.window}</td>
                 </tr>
               ))}
             </tbody>

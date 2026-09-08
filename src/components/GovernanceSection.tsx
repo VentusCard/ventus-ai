@@ -33,32 +33,32 @@ const STEPS = [
 const GovernanceSection = () => (
   <section
     id="governance"
-    className="scroll-mt-28 border-y border-blue-500/30 bg-[#08111F] py-24 md:py-28"
+    className="scroll-mt-28 border-y border-blue-500/30 bg-[#08111F] py-16 md:py-20"
   >
-    <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 md:px-8 lg:grid-cols-2 lg:gap-16">
+    <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 md:px-8 lg:grid-cols-2 lg:gap-12">
       <div>
-        <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-blue-400">
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-blue-400">
           Governance
         </p>
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-[1.1]">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white leading-[1.15]">
           Personalization under the bank's rules.
         </h2>
-        <p className="mt-6 max-w-md text-lg leading-relaxed text-white/60">
+        <p className="mt-4 max-w-md text-base leading-relaxed text-white/60">
           Governance is part of the decision, not a review after it. Every recommendation traces
           back to the signals you approved, the rules your teams set, and the activity that produced
           the number.
         </p>
-        <p className="mt-6 max-w-md text-sm text-white/40">
+        <p className="mt-4 max-w-md text-sm text-white/40">
           If a figure can't be substantiated, the system withholds it rather than estimating.
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0D1B30] to-[#0A1628]">
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
+      <div className="overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-[#0D1B30] to-[#0A1628]">
+        <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
             Decision control
           </span>
-          <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-300">
+          <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-300">
             <span className="ventus-pulse-halo h-1.5 w-1.5 rounded-full bg-emerald-400" />
             Policy active
           </span>
@@ -66,14 +66,14 @@ const GovernanceSection = () => (
 
         <div className="divide-y divide-white/[0.07]">
           {STEPS.map((s) => (
-            <div key={s.num} className="flex items-start gap-4 px-5 py-5">
-              <span className="pt-0.5 text-xs font-semibold text-blue-400">{s.num}</span>
+            <div key={s.num} className="flex items-start gap-3 px-4 py-4">
+              <span className="pt-0.5 text-[11px] font-semibold text-blue-400">{s.num}</span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-white">{s.title}</p>
-                <p className="mt-1 text-sm text-white/55">{s.body}</p>
+                <p className="mt-0.5 text-sm text-white/55">{s.body}</p>
               </div>
               <span
-                className={`shrink-0 rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                className={`shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                   s.tone === "emerald"
                     ? "border-emerald-400/40 text-emerald-300"
                     : "border-white/25 text-white/60"

@@ -9,23 +9,23 @@ const TRIGGERS = [
 const AutomatedFlowsSection = () => (
   <section
     id="flows"
-    className="scroll-mt-24 border-y border-blue-500/20 bg-[#08111F] py-24 md:py-28"
+    className="scroll-mt-24 border-y border-blue-500/20 bg-[#08111F] py-16 md:py-20"
   >
-    <div className="mx-auto max-w-7xl px-6 md:px-8">
-      <p className="text-xs font-semibold uppercase tracking-widest text-blue-400">
+    <div className="mx-auto max-w-6xl px-6 md:px-8">
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-blue-400">
         Automated flows
       </p>
-      <h2 className="mt-4 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-white md:text-4xl">
+      <h2 className="mt-3 max-w-3xl text-2xl font-bold leading-tight tracking-tight text-white md:text-3xl">
         76 products. 233 triggers. All editable in plain English.
       </h2>
-      <p className="mt-5 max-w-3xl text-lg leading-relaxed text-white/60">
+      <p className="mt-4 max-w-3xl text-base leading-relaxed text-white/60">
         One customer is a story. Your whole book needs rules. Automated Flows match customers to
         products on signals your own teams define, across Wealth, Lending, Deposits, Cards, and
         Insurance.
       </p>
 
-      <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
-        <div className="space-y-5 text-[15px] leading-relaxed text-white/65">
+      <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
+        <div className="space-y-4 text-sm leading-relaxed text-white/65">
           <p>
             Every product runs on its own triggers. A 529 plan fires on a new baby in the household,
             on a child heading to college, or on education spending outside of tuition. A home
@@ -39,13 +39,13 @@ const AutomatedFlowsSection = () => (
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0D1B30] to-[#0A1628]">
-          <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
+        <div className="overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-[#0D1B30] to-[#0A1628]">
+          <div className="flex items-start justify-between gap-4 border-b border-white/10 px-4 py-3.5">
             <div>
-              <p className="text-base font-semibold text-white">529 College Savings Plan</p>
-              <p className="mt-1 text-xs text-white/45">Wealth · 3 triggers</p>
+              <p className="text-sm font-semibold text-white">529 College Savings Plan</p>
+              <p className="mt-0.5 text-[11px] text-white/45">Wealth · 3 triggers</p>
             </div>
-            <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-400/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
+            <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-400/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               Active
             </span>
@@ -53,25 +53,25 @@ const AutomatedFlowsSection = () => (
 
           <div className="divide-y divide-white/[0.07]">
             {TRIGGERS.map((t) => (
-              <div key={t.label} className="flex items-center gap-4 px-5 py-4">
+              <div key={t.label} className="flex items-center gap-4 px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-white">{t.label}</p>
-                  <p className="mt-0.5 text-xs text-white/45">{t.type}</p>
+                  <p className="mt-0.5 text-[11px] text-white/45">{t.type}</p>
                 </div>
                 <span
-                  className="flex h-5 w-9 shrink-0 items-center rounded-full bg-emerald-500/70 px-0.5"
+                  className="flex h-4 w-8 shrink-0 items-center rounded-full bg-emerald-500/70 px-0.5"
                   role="img"
                   aria-label="Trigger enabled"
                 >
-                  <span className="ml-auto h-4 w-4 rounded-full bg-white" />
+                  <span className="ml-auto h-3 w-3 rounded-full bg-white" />
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="flex items-start gap-2 border-t border-white/10 px-5 py-4">
-            <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-white/45" />
-            <p className="text-xs leading-relaxed text-white/50">
+          <div className="flex items-start gap-2 border-t border-white/10 px-4 py-3">
+            <Lock className="mt-0.5 h-3 w-3 shrink-0 text-white/45" />
+            <p className="text-[11px] leading-relaxed text-white/50">
               Any trigger can be turned off. Nothing runs that your team has not approved.
             </p>
           </div>
