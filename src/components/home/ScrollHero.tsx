@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -190,12 +190,14 @@ const ScrollHero = () => {
   );
 };
 
-const PipelineConnector = ({ ref }: { ref: (element: HTMLDivElement | null) => void }) => (
+const PipelineConnector = forwardRef<HTMLDivElement>((_, ref) => (
   <div ref={ref} className="relative h-px origin-left bg-sky-400/35" style={{ transform: "scaleX(0.15)", opacity: 0.2 }}>
     <span className="ventus-flow-particle absolute top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-sky-300 shadow-[0_0_10px_rgba(125,211,252,0.9)]" />
     <ArrowRight className="absolute -right-1 top-1/2 h-3 w-3 -translate-y-1/2 text-sky-300/60" />
   </div>
-);
+));
+
+PipelineConnector.displayName = "PipelineConnector";
 
 const Destination = ({ icon: Icon, label }: { icon: typeof Landmark; label: string }) => (
   <div className="flex min-h-8 items-center gap-2 rounded-md border border-white/10 bg-white/[0.05] px-2 py-1.5 text-[10px] font-medium text-slate-100 sm:text-[11px]">
