@@ -28,6 +28,7 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         <PersonalizationSection />
         <IntegrationSection />
         <GovernanceSection />
+        <PartnersSection />
         <CTA />
       </main>
     </div>
