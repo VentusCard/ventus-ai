@@ -42,31 +42,31 @@ const ROWS = [
 ];
 
 const CoworkerSection = () => (
-  <section id="coworker" className="scroll-mt-24 bg-white py-16 md:py-20">
-    <div className="mx-auto max-w-6xl px-6 md:px-8">
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-violet-600">AI Coworker</p>
-      <h2 className="mt-3 max-w-3xl text-2xl font-bold leading-tight tracking-tight text-gray-900 md:text-3xl">
+  <section id="coworker" className="scroll-mt-[96px] bg-white py-20 md:py-24">
+    <div className="mx-auto max-w-7xl px-6 md:px-8">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-violet-600">AI Coworker</p>
+      <h2 className="mt-3 max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight text-gray-900 md:text-[40px]">
         The intelligence arrives as an email. Reply to it and it works.
       </h2>
-      <p className="mt-4 max-w-3xl text-base leading-relaxed text-gray-500">
+      <p className="mt-5 max-w-3xl text-base leading-[1.65] text-gray-700">
         Most customer intelligence dies in a dashboard nobody opens. The Ventus Coworker delivers it
         where your teams already are, then behaves like a colleague.
       </p>
 
-      <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
         {CARDS.map((c) => (
           <div
             key={c.title}
-            className="rounded-xl border border-violet-200/70 bg-violet-50/40 p-5"
+            className="rounded-[20px] border border-gray-200 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)]"
           >
-            <h3 className="text-base font-bold text-gray-900">{c.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">{c.body}</p>
+            <h3 className="text-lg font-bold text-gray-900">{c.title}</h3>
+            <p className="mt-2.5 text-base leading-[1.65] text-gray-700">{c.body}</p>
           </div>
         ))}
       </div>
 
       {/* Email mockup */}
-      <div className="mt-10 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+      <div className="mt-10 w-full overflow-hidden rounded-[20px] border border-gray-200 bg-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.16)]">
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-4 py-3.5">
           <div className="flex min-w-0 items-center gap-2.5">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
