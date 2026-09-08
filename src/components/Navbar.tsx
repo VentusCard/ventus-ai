@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 const SECTION_LINKS = [
-  { id: "flows", label: "Platform" },
+  { id: "one-customer", label: "Platform" },
   { id: "coworker", label: "Coworker" },
   { id: "governance", label: "Governance" },
   { id: "integration", label: "Integrations" },
@@ -14,7 +14,7 @@ const SECTION_LINKS = [
 const PAGE_LINKS = [{ to: "/insights", label: "Insights" }];
 
 
-const DARK_SECTION_IDS = ["hero", "flows", "governance"];
+const DARK_SECTION_IDS = ["hero", "governance"];
 
 const Navbar = () => {
   const location = useLocation();

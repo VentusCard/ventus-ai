@@ -36,11 +36,11 @@ const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const ease = (value: number) => 1 - Math.pow(1 - clamp(value), 3);
 
 const Header = () => (
-  <div className="relative z-10 mx-auto mb-14 max-w-6xl px-6 md:px-8">
-    <h2 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-gray-900 md:text-[54px] md:leading-[1.08]">
+  <div className="relative z-10 mx-auto mb-14 max-w-7xl px-6 md:px-8">
+    <h2 className="text-left max-w-3xl text-4xl font-bold leading-tight tracking-tight text-gray-900 md:text-[54px] md:leading-[1.08]">
       Four metrics that move.
     </h2>
-    <p className="mt-4 max-w-3xl text-lg leading-relaxed text-gray-600">
+    <p className="mt-4 max-w-3xl text-left text-lg leading-[1.65] text-gray-700">
       Ventus sits between the transaction and the decision. These are the numbers that change
       once your teams have it.
     </p>
@@ -54,8 +54,8 @@ const CardGrid = ({
   cardRefs?: React.MutableRefObject<(HTMLDivElement | null)[]>;
   staticVersion?: boolean;
 }) => (
-  <div className="relative z-10 mx-auto max-w-6xl px-6 md:px-8">
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-8">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((c, i) => (
         <div
           key={c.label}
@@ -117,7 +117,7 @@ const OutcomesSection = () => {
 
   if (!pinEnabled) {
     return (
-      <section id="outcomes" className="relative scroll-mt-24 overflow-hidden bg-white py-24">
+      <section id="outcomes" className="relative scroll-mt-[96px] overflow-hidden bg-white py-24">
         <HueField
           blobs={[
             { hue: "sky", size: 640, top: "-22%", right: "-10%" },
@@ -134,7 +134,7 @@ const OutcomesSection = () => {
     <section
       id="outcomes"
       ref={trackRef}
-      className="relative h-[320vh] scroll-mt-24 bg-white"
+      className="relative h-[320vh] scroll-mt-[96px] bg-white"
     >
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
         <HueField
@@ -145,7 +145,7 @@ const OutcomesSection = () => {
         />
         <Header />
         <CardGrid cardRefs={cardRefs} />
-        <div className="relative z-10 mx-auto mt-12 w-full max-w-6xl px-6 md:px-8">
+        <div className="relative z-10 mx-auto mt-12 w-full max-w-7xl px-6 md:px-8">
           <div className="h-px w-32 overflow-hidden bg-gray-200">
             <div
               ref={progressRef}

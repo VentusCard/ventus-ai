@@ -102,15 +102,15 @@ const BAND_OPACITY: Record<Band, string> = {
 };
 
 const ColdRecord = () => (
-  <div className="w-full max-w-sm rounded-lg border border-slate-300 bg-white shadow-sm">
-    <div className="border-b border-slate-200 px-4 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+  <div className="w-full rounded-[20px] border border-slate-300 bg-slate-50">
+    <div className="border-b border-slate-300 bg-slate-100 px-6 py-5">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-slate-600">
         Customer record
       </p>
-      <p className="mt-1 text-sm font-semibold text-slate-700">Morgan Ellis</p>
-      <p className="mt-0.5 text-[11px] text-slate-400">Austin, TX · Age 34-40</p>
+      <p className="mt-2 text-lg font-semibold text-slate-800">Morgan Ellis</p>
+      <p className="mt-1 text-[14px] font-medium text-slate-600">Austin, TX · Age 34-40</p>
     </div>
-    <dl className="divide-y divide-slate-200 text-[12px]">
+    <dl className="divide-y divide-slate-200 text-[15px]">
       {[
         ["Tier", "Preferred"],
         ["Tenure", "6 years"],
@@ -119,9 +119,9 @@ const ColdRecord = () => (
         ["Product 2", "Rewards Card"],
         ["Product 3", "Auto Loan"],
       ].map(([k, v]) => (
-        <div key={k} className="flex items-center justify-between px-4 py-2">
-          <dt className="text-slate-400">{k}</dt>
-          <dd className="font-medium text-slate-600">{v}</dd>
+        <div key={k} className="flex items-center justify-between px-6 py-3.5">
+          <dt className="text-slate-500">{k}</dt>
+          <dd className="font-medium text-slate-700">{v}</dd>
         </div>
       ))}
     </dl>
@@ -129,14 +129,14 @@ const ColdRecord = () => (
 );
 
 const PhoneSurface = () => (
-  <div className="w-[210px] rounded-[26px] border border-slate-300 bg-white p-2.5 shadow-lg">
-    <div className="rounded-[18px] bg-slate-50 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">For you</p>
-      <div className="mt-3 space-y-2.5">
+  <div className="w-[290px] rounded-[32px] border border-slate-300 bg-white p-3 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.25)]">
+    <div className="rounded-[24px] bg-slate-50 p-4">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-slate-600">For you</p>
+      <div className="mt-4 space-y-3">
         {OFFERS.map((offer) => (
-          <div key={offer.title} className="rounded-lg border border-slate-200 bg-white p-2.5">
-            <p className="text-[11px] font-semibold text-slate-700">{offer.title}</p>
-            <p className="mt-0.5 text-[10px] leading-snug text-slate-500">{offer.detail}</p>
+          <div key={offer.title} className="rounded-[14px] border border-slate-200 bg-white p-3.5">
+            <p className="text-[15px] font-semibold text-slate-800">{offer.title}</p>
+            <p className="mt-1 text-[13px] leading-snug text-slate-600">{offer.detail}</p>
           </div>
         ))}
       </div>
@@ -145,25 +145,25 @@ const PhoneSurface = () => (
 );
 
 const EmailSurface = () => (
-  <div className="w-full max-w-md rounded-lg border border-slate-300 bg-white shadow-sm">
-    <div className="flex items-center gap-2 border-b border-slate-200 px-4 py-3">
-      <Mail className="h-4 w-4 text-blue-600" />
-      <p className="text-sm font-semibold text-slate-700">
+  <div className="w-full rounded-[20px] border border-slate-200 bg-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.18)]">
+    <div className="flex items-center gap-2.5 border-b border-slate-200 px-6 py-4">
+      <Mail className="h-5 w-5 text-blue-600" />
+      <p className="text-[16px] font-semibold text-slate-900">
         Your book this week: 1 household to reach
       </p>
     </div>
-    <div className="grid grid-cols-3 gap-3 px-4 py-3 text-[11px]">
+    <div className="grid grid-cols-3 gap-4 px-6 py-5 text-[14px]">
       <div>
-        <p className="text-slate-400">Signal</p>
-        <p className="mt-0.5 font-medium text-slate-700">New baby at home</p>
+        <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">Signal</p>
+        <p className="mt-1 font-medium text-slate-800">New baby at home</p>
       </div>
       <div>
-        <p className="text-slate-400">Best-fit product</p>
-        <p className="mt-0.5 font-medium text-slate-700">Family-tier rewards upgrade</p>
+        <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">Best-fit product</p>
+        <p className="mt-1 font-medium text-slate-800">Family-tier rewards upgrade</p>
       </div>
       <div>
-        <p className="text-slate-400">Outreach window</p>
-        <p className="mt-0.5 font-medium text-slate-700">Next 14 days</p>
+        <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">Outreach window</p>
+        <p className="mt-1 font-medium text-slate-800">Next 14 days</p>
       </div>
     </div>
   </div>
@@ -179,20 +179,20 @@ const SignalPill = ({
   index: number;
 }) => (
   <span
-    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all duration-500 ${signal.tone} ${
+    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[14px] font-medium transition-all duration-500 ${signal.tone} ${
       visible ? `${BAND_OPACITY[signal.band]} translate-y-0` : "translate-y-2 opacity-0"
     }`}
     style={{ transitionDelay: `${index * 70}ms` }}
   >
     {signal.label}
-    <span className="rounded-full bg-white/70 px-1.5 py-0.5 text-[9px] uppercase tracking-wide">
+    <span className="rounded-full bg-white/70 px-2 py-0.5 text-[11px] uppercase tracking-wide">
       {signal.band}
     </span>
   </span>
 );
 
 const BeatVisual = ({ beat }: { beat: number }) => (
-  <div className="relative flex min-h-[420px] w-full items-center justify-center">
+  <div className="relative flex min-h-[70vh] w-full items-center justify-center">
     {/* signals layer */}
     <div
       className={`absolute inset-x-0 top-0 flex flex-wrap justify-center gap-2 transition-opacity duration-500 ${
@@ -205,9 +205,9 @@ const BeatVisual = ({ beat }: { beat: number }) => (
     </div>
 
     <div
-      className={`absolute transition-all duration-500 ${
+      className={`absolute w-full transition-all duration-500 ${
         beat <= 1 ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-      } ${beat === 1 ? "mt-28" : ""}`}
+      } ${beat === 1 ? "mt-40" : ""}`}
     >
       <ColdRecord />
     </div>
@@ -217,37 +217,37 @@ const BeatVisual = ({ beat }: { beat: number }) => (
         beat === 2 ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
       }`}
     >
-      <span className="inline-flex items-center gap-2 rounded-full border border-violet-300 bg-violet-50 px-3 py-1.5 text-[11px] font-medium text-violet-800">
-        <Sparkles className="h-3 w-3" />
+      <span className="inline-flex items-center gap-2 rounded-full border border-violet-300 bg-violet-50 px-4 py-2 text-[14px] font-medium text-violet-800">
+        <Sparkles className="h-4 w-4" />
         New baby at home
       </span>
-      <span className="h-6 w-px bg-violet-300" />
+      <span className="h-8 w-px bg-violet-300" />
       <PhoneSurface />
     </div>
 
     <div
-      className={`absolute w-full max-w-md space-y-3 transition-all duration-500 ${
+      className={`absolute w-full space-y-4 transition-all duration-500 ${
         beat === 3 ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
       }`}
     >
       {PRODUCTS.map(({ signal, product, icon: Icon }) => (
         <div
           key={product}
-          className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm"
+          className="flex items-center gap-4 rounded-[20px] border border-slate-200 bg-white px-6 py-5 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.15)]"
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-            <Icon className="h-4 w-4" />
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+            <Icon className="h-5 w-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wide text-slate-400">{signal}</p>
-            <p className="text-[13px] font-medium leading-snug text-slate-700">{product}</p>
+            <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">{signal}</p>
+            <p className="mt-0.5 text-[16px] font-medium leading-snug text-slate-800">{product}</p>
           </div>
         </div>
       ))}
     </div>
 
     <div
-      className={`absolute transition-all duration-500 ${
+      className={`absolute w-full transition-all duration-500 ${
         beat === 4 ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
       }`}
     >
@@ -299,13 +299,13 @@ const OneCustomerSection = () => {
 
   const framing = (
     <div>
-      <p className="text-[11px] font-semibold uppercase tracking-widest text-blue-600">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
         One customer
       </p>
-      <h2 className="mt-3 max-w-md text-2xl font-bold leading-tight tracking-tight text-slate-900 md:text-3xl">
+      <h2 className="mt-3 max-w-xl text-3xl font-bold leading-[1.15] tracking-tight text-slate-900 md:text-[34px]">
         Six years of history. Three products. And no idea who she is.
       </h2>
-      <p className="mt-4 text-[13px] leading-relaxed text-slate-500">
+      <p className="mt-4 max-w-xl text-[15px] font-medium leading-[1.65] text-slate-600">
         Morgan Ellis · Austin, TX · 6 years with the bank · Preferred tier · Checking, Rewards Card,
         Auto Loan · $60k-$90k relationship value
       </p>
@@ -314,16 +314,19 @@ const OneCustomerSection = () => {
 
   if (!pinned) {
     return (
-      <section id="one-customer" className="scroll-mt-24 bg-white py-16 md:py-20">
-        <div className="mx-auto max-w-6xl space-y-10 px-6 md:px-8">
+      <section id="one-customer" className="scroll-mt-[96px] bg-white py-16 md:py-20">
+        <div className="mx-auto max-w-7xl space-y-10 px-6 md:px-8">
           {framing}
           {BEATS.map((item, index) => (
-            <div key={item.eyebrow} className="rounded-xl border border-slate-200 bg-slate-50/60 p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-blue-600">
+            <div
+              key={item.eyebrow}
+              className="rounded-[20px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12)]"
+            >
+              <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
                 {item.eyebrow}
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.copy}</p>
-              <div className="mt-5 flex justify-center">
+              <p className="mt-2 text-base leading-[1.65] text-slate-700">{item.copy}</p>
+              <div className="mt-6 flex justify-center">
                 <BeatVisual beat={index} />
               </div>
             </div>
@@ -334,13 +337,13 @@ const OneCustomerSection = () => {
   }
 
   return (
-    <section id="one-customer" className="scroll-mt-24 bg-white">
+    <section id="one-customer" className="scroll-mt-[96px] bg-white">
       <div ref={trackRef} className="relative h-[500vh]">
-        <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 px-6 md:px-8 lg:grid-cols-2">
-            <div>
+        <div className="sticky top-0 flex h-screen items-center overflow-hidden pt-20">
+          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-12 px-6 md:px-8 lg:grid-cols-2">
+            <div className="pt-2">
               {framing}
-              <div className="relative mt-8 h-32">
+              <div className="relative mt-8 h-36">
                 {BEATS.map((item, index) => (
                   <div
                     key={item.eyebrow}
@@ -348,21 +351,21 @@ const OneCustomerSection = () => {
                       beat === index ? "opacity-100" : "pointer-events-none opacity-0"
                     }`}
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+                    <p className="text-[12px] font-bold uppercase tracking-widest text-slate-700">
                       {String(index + 1).padStart(2, "0")} · {item.eyebrow}
                     </p>
-                    <p className="mt-2 max-w-md text-base leading-relaxed text-slate-600">
+                    <p className="mt-2.5 max-w-xl text-base leading-[1.65] text-slate-700">
                       {item.copy}
                     </p>
                   </div>
                 ))}
               </div>
-              <div className="mt-6 flex gap-1.5">
+              <div className="mt-4 flex gap-2">
                 {BEATS.map((item, index) => (
                   <span
                     key={item.eyebrow}
-                    className={`h-1 w-8 rounded-full transition-colors duration-300 ${
-                      beat >= index ? "bg-blue-600" : "bg-slate-200"
+                    className={`h-1.5 w-10 rounded-full transition-colors duration-300 ${
+                      beat >= index ? "bg-blue-600" : "bg-slate-300"
                     }`}
                   />
                 ))}
