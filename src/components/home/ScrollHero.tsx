@@ -207,7 +207,7 @@ const ScrollHero = () => {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.08),transparent_48%)]" />
         <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center gap-6 px-6 pb-6 pt-24 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-10 lg:px-10 lg:pt-20">
           <div className="relative z-10 flex-none text-center lg:text-left">
-            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-[1.1] text-slate-900 sm:text-[2.85rem] lg:mx-0 lg:text-[3.45rem]">
+            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-[1.08] text-slate-900 sm:text-[3rem] lg:mx-0 lg:text-[3.65rem]">
               Turn behavioral intelligence into <span className="italic text-blue-600">growth opportunities</span>
             </h1>
             <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
