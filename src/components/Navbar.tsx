@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,10 +14,40 @@ const SECTION_LINKS = [
 const PAGE_LINKS = [{ to: "/insights", label: "Insights" }];
 
 
+const DARK_SECTION_IDS = ["hero", "flows", "governance"];
+
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [onDark, setOnDark] = useState(location.pathname === "/");
+
+  useEffect(() => {
+    const measure = () => {
+      const probe = 44;
+      const isDark = DARK_SECTION_IDS.some((id) => {
+        const el = document.getElementById(id);
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        return rect.top <= probe && rect.bottom >= probe;
+      });
+      setOnDark(isDark);
+    };
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+    };
+  }, [location.pathname]);
+
+  const shell = onDark
+    ? "border-white/15 bg-white/10 shadow-[0_8px_30px_rgba(2,6,23,0.35)]"
+    : "border-slate-200/80 bg-white/85 shadow-[0_8px_30px_rgba(15,23,42,0.08)]";
+  const linkTone = onDark
+    ? "text-slate-200 hover:text-white"
+    : "text-gray-600 hover:text-gray-900";
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
@@ -36,7 +66,7 @@ const Navbar = () => {
 
   return (
     <div className="fixed top-4 left-0 right-0 z-50 px-4 md:px-6">
-      <nav className="mx-auto max-w-5xl rounded-2xl border border-slate-200/80 bg-white/85 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+      <nav className={`mx-auto max-w-5xl rounded-2xl border backdrop-blur-xl transition-colors duration-500 ${shell}`}>
         {/* Desktop */}
         <div className="hidden md:flex h-14 items-center justify-between pl-6 pr-3">
           <Link to="/" onClick={closeMobileMenu}>
@@ -49,17 +79,17 @@ const Navbar = () => {
                 key={l.id}
                 href={`/#${l.id}`}
                 onClick={(e) => goToSection(e, l.id)}
-                className="cursor-pointer text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+                className={`cursor-pointer text-[13px] font-medium uppercase tracking-wide transition-colors ${linkTone}`}
               >
                 {l.label}
               </a>
             ))}
-            <span className="h-4 w-px bg-slate-200" />
+            <span className={`h-4 w-px ${onDark ? "bg-white/20" : "bg-slate-200"}`} />
             {PAGE_LINKS.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
-                className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+                className={`text-[13px] font-medium uppercase tracking-wide transition-colors ${linkTone}`}
               >
                 {l.label}
               </Link>
@@ -80,7 +110,7 @@ const Navbar = () => {
           </Link>
           <button
             onClick={() => setIsMobileMenuOpen((v) => !v)}
-            className="text-gray-700"
+            className={onDark ? "text-white" : "text-gray-700"}
             aria-label="Toggle menu"
             style={{ minWidth: "auto", minHeight: "auto", padding: 0 }}
           >
