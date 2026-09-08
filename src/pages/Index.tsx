@@ -24,6 +24,7 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         <ScrollDrivenHero />
         <ProblemStatementSection />
         <IntelligenceSection />
+        <PersonalizationSection />
         <GovernanceSection />
         <IntegrationSection />
         <CTA />
