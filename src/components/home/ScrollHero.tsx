@@ -122,7 +122,7 @@ const ScrollHero = () => {
           </div>
 
           <div className="relative flex min-h-[330px] items-center lg:min-h-[610px]">
-            <div className="grid w-full grid-cols-[minmax(150px,0.9fr)_34px_minmax(190px,1.2fr)_34px_minmax(160px,0.95fr)] items-center sm:grid-cols-[minmax(170px,0.9fr)_42px_minmax(220px,1.25fr)_42px_minmax(180px,0.95fr)]">
+            <div className="grid w-full grid-cols-[minmax(0,0.9fr)_18px_minmax(0,1.2fr)_18px_minmax(0,0.95fr)] items-center sm:grid-cols-[minmax(170px,0.9fr)_42px_minmax(220px,1.25fr)_42px_minmax(180px,0.95fr)]">
               <div
                 ref={(element) => (stageRefs.current[0] = element)}
                 className="rounded-lg border border-slate-200/80 bg-slate-50 p-3 text-slate-900 shadow-2xl shadow-black/20 sm:p-4"
