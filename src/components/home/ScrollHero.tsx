@@ -178,22 +178,22 @@ const ScrollHero = () => {
     <section id="hero" ref={trackRef} className="relative h-[320vh] bg-[#070d1c]" aria-label="Ventus customer intelligence">
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.14),transparent_48%)]" />
-        <div className="relative mx-auto flex h-full max-w-6xl flex-col items-center px-6 pb-6 pt-24 lg:px-10 lg:pt-24">
-          <div className="relative z-10 flex-none text-center">
-            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-[1.1] text-white sm:text-[2.75rem] lg:text-[3.1rem]">
+        <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center gap-6 px-6 pb-6 pt-24 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-10 lg:px-10 lg:pt-20">
+          <div className="relative z-10 flex-none text-center lg:text-left">
+            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-[1.1] text-white sm:text-[2.75rem] lg:mx-0 lg:text-[3.1rem]">
               Turn behavioral intelligence into <span className="italic text-blue-400">growth opportunities</span>
             </h1>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
               <Button className="bg-blue-600 text-white hover:bg-blue-500" onClick={() => navigate("/contact")}>Schedule Demo <ArrowRight className="ml-2 h-4 w-4" /></Button>
               <Button variant="outline" className="border-white/25 bg-white/5 text-white hover:bg-white/10 hover:text-white" onClick={() => document.getElementById("flows")?.scrollIntoView({ behavior: "smooth" })}>See the platform</Button>
             </div>
             <div className="relative mt-5 h-4">
-              {CAPTIONS.map((caption, index) => <span key={caption} ref={(node) => (captionRefs.current[index] = node)} className="absolute inset-0 text-xs text-slate-300/90 transition-opacity duration-500" style={{ opacity: index === 0 ? 1 : 0 }}>{caption}</span>)}
+              {CAPTIONS.map((caption, index) => <span key={caption} ref={(node) => (captionRefs.current[index] = node)} className="absolute inset-0 text-xs text-slate-300/90 transition-opacity duration-500 lg:text-left" style={{ opacity: index === 0 ? 1 : 0 }}>{caption}</span>)}
             </div>
-            <div className="mx-auto mt-4 h-px w-32 overflow-hidden bg-white/10"><div ref={progressRef} className="h-px w-full origin-left bg-sky-400" style={{ transform: "scaleX(0)" }} /></div>
+            <div className="mx-auto mt-4 h-px w-32 overflow-hidden bg-white/10 lg:mx-0"><div ref={progressRef} className="h-px w-full origin-left bg-sky-400" style={{ transform: "scaleX(0)" }} /></div>
           </div>
 
-          <div className="relative mt-8 min-h-0 w-full max-w-4xl flex-1">
+          <div className="relative min-h-0 w-full max-w-4xl flex-1 lg:h-[76vh] lg:flex-none">
             <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden>
               <defs><radialGradient id="person-aura"><stop offset="0%" stopColor="#38bdf8" stopOpacity="0.34" /><stop offset="100%" stopColor="#38bdf8" stopOpacity="0" /></radialGradient></defs>
               <circle ref={auraRef} cx="500" cy="320" r="285" fill="url(#person-aura)" style={{ opacity: 0 }} />
