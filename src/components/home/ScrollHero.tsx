@@ -17,8 +17,9 @@ const ScrollHero = () => {
         className="pointer-events-none absolute inset-y-0 right-0 w-full bg-[radial-gradient(60%_60%_at_75%_35%,rgba(37,99,235,0.14),transparent_70%),radial-gradient(45%_55%_at_92%_75%,rgba(139,92,246,0.12),transparent_70%)]"
       />
 
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-6 md:px-8 lg:grid-cols-[45fr_55fr]">
-        <div className="ventus-hero-rise">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-14 px-6 md:px-8 lg:grid-cols-[45fr_55fr]">
+        <div className="ventus-hero-rise lg:sticky lg:top-40">
+
           <p className="text-[12px] font-bold uppercase tracking-widest text-blue-600">
             Customer intelligence for banks
           </p>

@@ -374,7 +374,7 @@ const SignalToActionPanel = () => {
             <p
               key={caption}
               className="absolute inset-x-0 text-center text-[13px] text-slate-600 transition-opacity duration-500"
-              style={{ opacity: (reducedMotion ? 2 : stage) === index || (reducedMotion && index === 2) ? 1 : 0 }}
+              style={{ opacity: (reducedMotion ? 2 : stage) === index ? 1 : 0 }}
             >
               {caption}
             </p>
