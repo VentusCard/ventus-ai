@@ -5,15 +5,14 @@ import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 const SECTION_LINKS = [
-  { id: "intelligence", label: "Intelligence" },
+  { id: "platform", label: "Platform" },
+  { id: "coworker", label: "Coworker" },
   { id: "governance", label: "Governance" },
-  { id: "integration", label: "Integration" },
+  { id: "integration", label: "Integrations" },
 ];
 
-const PAGE_LINKS = [
-  { to: "/insights", label: "Insights" },
-  { to: "/faq", label: "FAQ" },
-];
+const PAGE_LINKS = [{ to: "/insights", label: "Insights" }];
+
 
 const Navbar = () => {
   const location = useLocation();
