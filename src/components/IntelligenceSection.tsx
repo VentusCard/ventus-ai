@@ -216,7 +216,7 @@ const IntelligenceSection = () => {
                 }`}
               >
                 <ExternalLink className="h-8 w-8 text-blue-400" />
-                <p className="text-sm font-medium text-white">External intelligence</p>
+                <p className="text-sm font-medium text-white">External intelligence Boost</p>
               </div>
             </FlowCell>
 
