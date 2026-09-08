@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 const SECTION_LINKS = [
-  { id: "platform", label: "Platform" },
+  { id: "one-customer", label: "Platform" },
   { id: "coworker", label: "Coworker" },
   { id: "governance", label: "Governance" },
   { id: "integration", label: "Integrations" },

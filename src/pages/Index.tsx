@@ -2,7 +2,6 @@ import SEO from "@/components/SEO";
 import { faqSchema, softwareApplicationSchema } from "@/lib/seoSchema";
 import HeroSection from "@/components/home/HeroSection";
 import OutcomesSection from "@/components/home/OutcomesSection";
-import SignalWallSection from "@/components/home/SignalWallSection";
 import OneCustomerSection from "@/components/home/OneCustomerSection";
 import AutomatedFlowsSection from "@/components/home/AutomatedFlowsSection";
 import CoworkerSection from "@/components/home/CoworkerSection";
@@ -26,7 +25,6 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
       <main className="flex flex-col">
         <HeroSection />
         <OutcomesSection />
-        <SignalWallSection />
         <OneCustomerSection />
         <AutomatedFlowsSection />
         <CoworkerSection />
