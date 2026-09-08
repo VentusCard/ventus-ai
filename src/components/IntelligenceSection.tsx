@@ -43,21 +43,6 @@ const SOURCES = [
   { icon: Users, label: "CRM" },
 ];
 
-const ENRICHED_SIGNALS = [
-  { label: "Behavioral", color: "bg-blue-400", width: "92%" },
-  { label: "Life Event", color: "bg-amber-400", width: "74%" },
-  { label: "Financial", color: "bg-emerald-400", width: "60%" },
-  { label: "Demographic", color: "bg-violet-400", width: "48%" },
-  { label: "Risk", color: "bg-rose-400", width: "36%" },
-];
-
-const EXTERNAL_SOURCES = [
-  "Bureau tradelines",
-  "Property records",
-  "Auto data",
-  "Demographics",
-  "Life events",
-];
 
 const HOLISTIC_PILLS = [
   { label: "Behavioral", color: "bg-blue-400/20 text-blue-300 border-blue-400/40" },
@@ -167,55 +152,28 @@ const IntelligenceSection = () => {
 
             {/* Behavior enrichment */}
             <div
-              className={`flex flex-col justify-center gap-3 rounded-xl border px-4 py-5 transition-all duration-700 ${
+              className={`flex flex-col items-center justify-center gap-3 rounded-xl border px-4 py-5 text-center transition-all duration-700 ${
                 stage >= 1
                   ? "border-blue-400/30 bg-white/[0.06] opacity-100"
                   : "border-white/10 bg-white/[0.02] opacity-40"
               }`}
             >
-              <p className="flex items-center gap-2 text-sm font-medium text-white">
-                <Brain className="h-4 w-4 text-blue-400" />
-                Real agnostic behavior enrichment
+              <Brain className="h-8 w-8 text-blue-400" />
+              <p className="text-sm font-medium text-white">
+                Rail agnostic behavioral enrichment
               </p>
-              <div className="space-y-2.5">
-                {ENRICHED_SIGNALS.map((s) => (
-                  <div key={s.label} className="flex items-center gap-2">
-                    <span className="w-[72px] shrink-0 text-[10px] uppercase tracking-wider text-white/45">
-                      {s.label}
-                    </span>
-                    <span className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-                      <span
-                        className={`block h-full rounded-full ${s.color} transition-all duration-1000`}
-                        style={{ width: s.width }}
-                      />
-                    </span>
-                  </div>
-                ))}
-              </div>
             </div>
 
             {/* External intelligence */}
             <div
-              className={`flex flex-col justify-center gap-3 rounded-xl border px-4 py-5 transition-all duration-700 ${
+              className={`flex flex-col items-center justify-center gap-3 rounded-xl border px-4 py-5 text-center transition-all duration-700 ${
                 stage >= 2
                   ? "border-blue-400/40 bg-white/[0.06] opacity-100"
                   : "border-white/10 bg-white/[0.02] opacity-40"
               }`}
             >
-              <p className="flex items-center gap-2 text-sm font-medium text-white">
-                <ExternalLink className="h-4 w-4 text-blue-400" />
-                External intelligence
-              </p>
-              <div className="flex flex-col gap-2">
-                {EXTERNAL_SOURCES.map((label) => (
-                  <div
-                    key={label}
-                    className="rounded-lg border border-blue-400/20 bg-blue-500/10 px-3 py-2 text-sm text-white/80"
-                  >
-                    {label}
-                  </div>
-                ))}
-              </div>
+              <ExternalLink className="h-8 w-8 text-blue-400" />
+              <p className="text-sm font-medium text-white">External intelligence</p>
             </div>
 
             {/* Holistic understanding */}
