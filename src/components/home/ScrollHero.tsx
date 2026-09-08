@@ -300,7 +300,7 @@ const ScrollHero = () => {
             </div>
 
             <div
-              className="ventus-hero-rise absolute bottom-0 right-8 z-30 w-[370px]"
+              className="ventus-hero-rise absolute -bottom-10 -right-10 z-30 w-[360px]"
               style={{ animationDelay: "240ms" }}
             >
               <div
