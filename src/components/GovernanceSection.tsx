@@ -2,32 +2,33 @@ const STEPS = [
   {
     num: "01",
     title: "Approved context",
-    body: "Only permitted signal families enter the decision.",
-    status: "Approved",
+    body: "You choose which of the five signal families are in scope. Nothing outside that set reaches a decision.",
+    status: "In scope",
     tone: "emerald",
   },
   {
     num: "02",
-    title: "Policy checks",
-    body: "Institution-defined rules shape what can happen next.",
-    status: "Passed",
+    title: "Editable policy",
+    body: "All 233 triggers are named in plain English, editable, and switchable off by risk and compliance.",
+    status: "Editable",
     tone: "emerald",
   },
   {
     num: "03",
-    title: "Review threshold",
-    body: "Human involvement stays visible where required.",
+    title: "Human threshold",
+    body: "Customer-facing outreach is drafted, never sent. A person approves every message.",
     status: "Human review",
     tone: "neutral",
   },
   {
     num: "04",
     title: "Decision record",
-    body: "The rationale and the destination remain connected.",
+    body: "Every figure carries the arithmetic that produced it. Every signal carries the activity it was inferred from.",
     status: "Retained",
     tone: "emerald",
   },
 ];
+
 
 const GovernanceSection = () => (
   <section
@@ -43,10 +44,14 @@ const GovernanceSection = () => (
           Personalization under the bank's rules.
         </h2>
         <p className="mt-6 max-w-md text-lg leading-relaxed text-white/60">
-          Governance is part of the decision itself, not a review after it. Approved context, policy
-          checks, review thresholds, and the decision record stay connected in one visible path.
+          Governance is part of the decision, not a review after it. Every recommendation traces
+          back to the signals you approved, the rules your teams set, and the activity that produced
+          the number.
         </p>
-      </div>
+        <p className="mt-6 max-w-md text-sm text-white/40">
+          If a figure can't be substantiated, the system withholds it rather than estimating.
+        </p>
+
 
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0D1B30] to-[#0A1628]">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
