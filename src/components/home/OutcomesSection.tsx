@@ -13,22 +13,22 @@ const cards = [
     label: "PRODUCT GROWTH",
     title: "More products per customer.",
     body: "Life events are the moment a product becomes relevant. Detect the moment and you're the bank that showed up first.",
-    accent: "bg-indigo-500",
-    labelColor: "text-indigo-600",
+    accent: "bg-blue-500",
+    labelColor: "text-blue-600",
   },
   {
     label: "DEPOSITS",
     title: "More deposits.",
     body: "Idle cash sitting at another institution is visible in the data. So is the moment a customer starts shopping for yield.",
-    accent: "bg-cyan-500",
-    labelColor: "text-cyan-600",
+    accent: "bg-blue-500",
+    labelColor: "text-blue-600",
   },
   {
     label: "RETENTION",
     title: "Fewer customers leaving.",
     body: "Behavioral change shows up before attrition does. Engage at the signal, not at the exit interview.",
-    accent: "bg-slate-500",
-    labelColor: "text-slate-600",
+    accent: "bg-blue-500",
+    labelColor: "text-blue-600",
   },
 ];
 
