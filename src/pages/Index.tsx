@@ -24,7 +24,8 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         jsonLd={noindex ? undefined : [softwareApplicationSchema, faqSchema(COMPANY_FAQS)]}
       />
       <main className="flex flex-col">
-        <HeroSection />
+        <ScrollDrivenHero />
+        <ProblemStatementSection />
         <OutcomesSection />
         <OneCustomerSection />
         <AutomatedFlowsSection />
