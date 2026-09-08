@@ -275,7 +275,7 @@ const ScrollHero = () => {
             className="relative hidden lg:block"
             style={{ transform: `translate3d(${tilt.x * 0.3}px, ${tilt.y * 0.3}px, 0)` }}
           >
-            <div className="relative mx-auto w-fit pl-12 pr-6 pt-12 pb-14">
+            <div className="relative mx-auto w-fit pl-12 pr-[160px] pt-12 pb-36">
               {/* Back card: signal stream, offset up-left, behind, 94% scale */}
               <div className="ventus-hero-rise absolute left-0 top-0 z-0" style={{ animationDelay: "120ms" }}>
                 <div
@@ -298,7 +298,7 @@ const ScrollHero = () => {
               {/* Front: next actions, overlapping lower-right, in front */}
               <div className="ventus-hero-rise absolute bottom-0 right-0 z-20" style={{ animationDelay: "240ms" }}>
                 <div
-                  className="w-[320px]"
+                  className="w-[280px]"
                   style={{ transform: `translate3d(${tilt.x * 0.6}px, ${tilt.y * 0.6}px, 0)` }}
                 >
                   <div
