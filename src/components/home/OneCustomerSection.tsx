@@ -102,15 +102,15 @@ const BAND_OPACITY: Record<Band, string> = {
 };
 
 const ColdRecord = () => (
-  <div className="w-full max-w-sm rounded-lg border border-slate-300 bg-white shadow-sm">
-    <div className="border-b border-slate-200 px-4 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+  <div className="w-full rounded-[20px] border border-slate-300 bg-slate-50">
+    <div className="border-b border-slate-300 bg-slate-100 px-6 py-5">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-slate-600">
         Customer record
       </p>
-      <p className="mt-1 text-sm font-semibold text-slate-700">Morgan Ellis</p>
-      <p className="mt-0.5 text-[11px] text-slate-400">Austin, TX · Age 34-40</p>
+      <p className="mt-2 text-lg font-semibold text-slate-800">Morgan Ellis</p>
+      <p className="mt-1 text-[14px] font-medium text-slate-600">Austin, TX · Age 34-40</p>
     </div>
-    <dl className="divide-y divide-slate-200 text-[12px]">
+    <dl className="divide-y divide-slate-200 text-[15px]">
       {[
         ["Tier", "Preferred"],
         ["Tenure", "6 years"],
@@ -119,9 +119,9 @@ const ColdRecord = () => (
         ["Product 2", "Rewards Card"],
         ["Product 3", "Auto Loan"],
       ].map(([k, v]) => (
-        <div key={k} className="flex items-center justify-between px-4 py-2">
-          <dt className="text-slate-400">{k}</dt>
-          <dd className="font-medium text-slate-600">{v}</dd>
+        <div key={k} className="flex items-center justify-between px-6 py-3.5">
+          <dt className="text-slate-500">{k}</dt>
+          <dd className="font-medium text-slate-700">{v}</dd>
         </div>
       ))}
     </dl>
@@ -129,14 +129,14 @@ const ColdRecord = () => (
 );
 
 const PhoneSurface = () => (
-  <div className="w-[210px] rounded-[26px] border border-slate-300 bg-white p-2.5 shadow-lg">
-    <div className="rounded-[18px] bg-slate-50 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">For you</p>
-      <div className="mt-3 space-y-2.5">
+  <div className="w-[290px] rounded-[32px] border border-slate-300 bg-white p-3 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.25)]">
+    <div className="rounded-[24px] bg-slate-50 p-4">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-slate-600">For you</p>
+      <div className="mt-4 space-y-3">
         {OFFERS.map((offer) => (
-          <div key={offer.title} className="rounded-lg border border-slate-200 bg-white p-2.5">
-            <p className="text-[11px] font-semibold text-slate-700">{offer.title}</p>
-            <p className="mt-0.5 text-[10px] leading-snug text-slate-500">{offer.detail}</p>
+          <div key={offer.title} className="rounded-[14px] border border-slate-200 bg-white p-3.5">
+            <p className="text-[15px] font-semibold text-slate-800">{offer.title}</p>
+            <p className="mt-1 text-[13px] leading-snug text-slate-600">{offer.detail}</p>
           </div>
         ))}
       </div>
@@ -145,25 +145,25 @@ const PhoneSurface = () => (
 );
 
 const EmailSurface = () => (
-  <div className="w-full max-w-md rounded-lg border border-slate-300 bg-white shadow-sm">
-    <div className="flex items-center gap-2 border-b border-slate-200 px-4 py-3">
-      <Mail className="h-4 w-4 text-blue-600" />
-      <p className="text-sm font-semibold text-slate-700">
+  <div className="w-full rounded-[20px] border border-slate-200 bg-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.18)]">
+    <div className="flex items-center gap-2.5 border-b border-slate-200 px-6 py-4">
+      <Mail className="h-5 w-5 text-blue-600" />
+      <p className="text-[16px] font-semibold text-slate-900">
         Your book this week: 1 household to reach
       </p>
     </div>
-    <div className="grid grid-cols-3 gap-3 px-4 py-3 text-[11px]">
+    <div className="grid grid-cols-3 gap-4 px-6 py-5 text-[14px]">
       <div>
-        <p className="text-slate-400">Signal</p>
-        <p className="mt-0.5 font-medium text-slate-700">New baby at home</p>
+        <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">Signal</p>
+        <p className="mt-1 font-medium text-slate-800">New baby at home</p>
       </div>
       <div>
-        <p className="text-slate-400">Best-fit product</p>
-        <p className="mt-0.5 font-medium text-slate-700">Family-tier rewards upgrade</p>
+        <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">Best-fit product</p>
+        <p className="mt-1 font-medium text-slate-800">Family-tier rewards upgrade</p>
       </div>
       <div>
-        <p className="text-slate-400">Outreach window</p>
-        <p className="mt-0.5 font-medium text-slate-700">Next 14 days</p>
+        <p className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">Outreach window</p>
+        <p className="mt-1 font-medium text-slate-800">Next 14 days</p>
       </div>
     </div>
   </div>
