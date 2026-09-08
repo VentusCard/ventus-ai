@@ -90,11 +90,11 @@ const SOURCE_LABELS = [
 ];
 
 const SIGNALS = [
-  { label: "Frequent Traveler", x: 65, y: 17, anchorX: 585, anchorY: 195, icon: Plane, tone: "text-cyan-100 bg-cyan-400/15 border-cyan-300/45" },
-  { label: "Young Parent", x: 69, y: 39, anchorX: 590, anchorY: 285, icon: Baby, tone: "text-violet-100 bg-violet-400/15 border-violet-300/45" },
-  { label: "College-Bound Child", x: 63, y: 66, anchorX: 590, anchorY: 410, icon: GraduationCap, tone: "text-amber-100 bg-amber-400/15 border-amber-300/45" },
-  { label: "Building Cash Reserves", x: 15, y: 66, anchorX: 408, anchorY: 410, icon: WalletCards, tone: "text-emerald-100 bg-emerald-400/15 border-emerald-300/45" },
-  { label: "Home Purchase Journey", x: 12, y: 29, anchorX: 410, anchorY: 255, icon: MapPin, tone: "text-blue-100 bg-blue-400/15 border-blue-300/45" },
+  { label: "Frequent Traveler", x: 62, y: 14, anchorX: 585, anchorY: 195, icon: Plane, tone: "text-cyan-100 bg-cyan-400/15 border-cyan-300/45" },
+  { label: "Young Parent", x: 72, y: 34, anchorX: 605, anchorY: 285, icon: Baby, tone: "text-violet-100 bg-violet-400/15 border-violet-300/45" },
+  { label: "College-Bound Child", x: 68, y: 62, anchorX: 600, anchorY: 410, icon: GraduationCap, tone: "text-amber-100 bg-amber-400/15 border-amber-300/45" },
+  { label: "Building Cash Reserves", x: 18, y: 62, anchorX: 400, anchorY: 410, icon: WalletCards, tone: "text-emerald-100 bg-emerald-400/15 border-emerald-300/45" },
+  { label: "Home Purchase Journey", x: 14, y: 30, anchorX: 395, anchorY: 255, icon: MapPin, tone: "text-blue-100 bg-blue-400/15 border-blue-300/45" },
 ];
 
 const CAPTIONS = [
@@ -112,7 +112,6 @@ const ScrollHero = () => {
   const pointRefs = useRef<(SVGCircleElement | null)[]>([]);
   const sourceRefs = useRef<(HTMLDivElement | null)[]>([]);
   const signalRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const lineRefs = useRef<(SVGLineElement | null)[]>([]);
   const captionRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const auraRef = useRef<SVGCircleElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -157,15 +156,10 @@ const ScrollHero = () => {
       signalRefs.current.forEach((signal, index) => {
         if (!signal) return;
         const local = ease((signalProgress - index * 0.08) / 0.68);
+        const floatY = Math.sin(time * 0.9 + index * 1.3) * 5;
+        const floatX = Math.cos(time * 0.6 + index * 1.1) * 3;
         signal.style.opacity = String(local);
-        signal.style.transform = `translate3d(${(1 - local) * (index < 3 ? -18 : 18)}px, 0, 0) scale(${0.94 + local * 0.06})`;
-      });
-
-      lineRefs.current.forEach((line, index) => {
-        if (!line) return;
-        const local = ease((signalProgress - index * 0.08) / 0.68);
-        line.style.opacity = String(local * 0.45);
-        line.style.strokeDashoffset = String(120 * (1 - local));
+        signal.style.transform = `translate3d(${(1 - local) * (index < 3 ? -18 : 18) + floatX}px, ${floatY}px, 0) scale(${0.94 + local * 0.06})`;
       });
 
       if (auraRef.current) auraRef.current.style.opacity = String(personProgress * 0.38);
@@ -186,8 +180,7 @@ const ScrollHero = () => {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.14),transparent_48%)]" />
         <div className="relative mx-auto flex h-full max-w-6xl flex-col items-center px-6 pb-6 pt-24 lg:px-10 lg:pt-24">
           <div className="relative z-10 flex-none text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300/80">Customer intelligence for banks</p>
-            <h1 className="mx-auto mt-4 max-w-3xl text-3xl font-bold leading-[1.12] text-white sm:text-4xl lg:text-[2.6rem]">
+            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-[1.1] text-white sm:text-[2.75rem] lg:text-[3.1rem]">
               Turn behavioral intelligence into <span className="italic text-blue-400">growth opportunities</span>
             </h1>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -204,11 +197,6 @@ const ScrollHero = () => {
             <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden>
               <defs><radialGradient id="person-aura"><stop offset="0%" stopColor="#38bdf8" stopOpacity="0.34" /><stop offset="100%" stopColor="#38bdf8" stopOpacity="0" /></radialGradient></defs>
               <circle ref={auraRef} cx="500" cy="320" r="285" fill="url(#person-aura)" style={{ opacity: 0 }} />
-              {SIGNALS.map((signal, index) => {
-                const endX = signal.x > 50 ? signal.x * 10 - 20 : signal.x * 10 + 170;
-                const endY = signal.y * 7;
-                return <line key={signal.label} ref={(node) => (lineRefs.current[index] = node)} x1={signal.anchorX} y1={signal.anchorY} x2={endX} y2={endY} stroke="#7dd3fc" strokeWidth="1" strokeDasharray="5 5" style={{ opacity: 0, strokeDashoffset: 120 }} />;
-              })}
               {pointStyles.map((style, index) => <circle key={index} ref={(node) => (pointRefs.current[index] = node)} r={style.radius} fill={style.color} transform={`translate(${scattered[index].x} ${scattered[index].y})`} style={{ opacity: 0.3 }} />)}
             </svg>
 
@@ -218,7 +206,7 @@ const ScrollHero = () => {
             })}
             {SIGNALS.map((signal, index) => {
               const Icon = signal.icon;
-              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2 rounded-full border px-3.5 py-2 text-[11px] font-medium shadow-[0_0_20px_rgba(56,189,248,0.14)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-4 w-4" />{signal.label}</div>;
+              return <div key={signal.label} ref={(node) => (signalRefs.current[index] = node)} className={`absolute flex items-center gap-2 rounded-full border px-4 py-2.5 text-xs font-medium shadow-[0_0_20px_rgba(56,189,248,0.14)] backdrop-blur-sm ${signal.tone}`} style={{ left: `${signal.x}%`, top: `${signal.y}%`, opacity: 0 }}><Icon className="h-4 w-4" />{signal.label}</div>;
             })}
           </div>
         </div>
