@@ -205,9 +205,9 @@ const BeatVisual = ({ beat }: { beat: number }) => (
     </div>
 
     <div
-      className={`absolute transition-all duration-500 ${
+      className={`absolute w-full transition-all duration-500 ${
         beat <= 1 ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-      } ${beat === 1 ? "mt-28" : ""}`}
+      } ${beat === 1 ? "mt-40" : ""}`}
     >
       <ColdRecord />
     </div>
