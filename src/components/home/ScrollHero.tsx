@@ -117,11 +117,11 @@ const SOURCE_LABELS = [
 ];
 
 const SIGNALS = [
-  { label: "Frequent Traveler", x: 62, y: 14, anchorX: 585, anchorY: 195, icon: Plane, tone: "text-cyan-700 bg-cyan-50 border-cyan-200" },
-  { label: "Young Parent", x: 72, y: 34, anchorX: 605, anchorY: 285, icon: Baby, tone: "text-violet-700 bg-violet-50 border-violet-200" },
-  { label: "College-Bound Child", x: 68, y: 62, anchorX: 600, anchorY: 410, icon: GraduationCap, tone: "text-amber-700 bg-amber-50 border-amber-200" },
-  { label: "Building Cash Reserves", x: 18, y: 62, anchorX: 400, anchorY: 410, icon: WalletCards, tone: "text-emerald-700 bg-emerald-50 border-emerald-200" },
-  { label: "Home Purchase Journey", x: 14, y: 30, anchorX: 395, anchorY: 255, icon: MapPin, tone: "text-blue-700 bg-blue-50 border-blue-200" },
+  { label: "Frequent Traveler", x: 78, y: 12, anchorX: 585, anchorY: 195, icon: Plane, tone: "text-cyan-700 bg-cyan-50 border-cyan-200" },
+  { label: "Young Parent", x: 84, y: 38, anchorX: 605, anchorY: 285, icon: Baby, tone: "text-violet-700 bg-violet-50 border-violet-200" },
+  { label: "College-Bound Child", x: 80, y: 82, anchorX: 600, anchorY: 410, icon: GraduationCap, tone: "text-amber-700 bg-amber-50 border-amber-200" },
+  { label: "Building Cash Reserves", x: 8, y: 78, anchorX: 400, anchorY: 410, icon: WalletCards, tone: "text-emerald-700 bg-emerald-50 border-emerald-200" },
+  { label: "Home Purchase Journey", x: 6, y: 14, anchorX: 395, anchorY: 255, icon: MapPin, tone: "text-blue-700 bg-blue-50 border-blue-200" },
 ];
 
 const CAPTIONS = [
