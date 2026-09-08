@@ -205,7 +205,7 @@ const ScrollHero = () => {
     <section id="hero" ref={trackRef} className="relative h-[320vh] bg-white" aria-label="Ventus customer intelligence">
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_44%,rgba(37,99,235,0.08),transparent_48%)]" />
-        <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center gap-8 px-6 pb-6 pt-24 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:items-center lg:gap-12 lg:px-10 lg:pt-20">
+        <div className="relative mx-auto flex h-full max-w-7xl flex-col items-center gap-8 px-6 pb-6 pt-24 lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center lg:gap-12 lg:px-10 lg:pt-20">
           <div className="relative z-10 flex-none text-center lg:text-left">
             <h1 className="mx-auto max-w-4xl text-[2.9rem] font-bold leading-[1.05] tracking-tight text-slate-900 sm:text-[3.6rem] lg:mx-0 lg:text-[4.25rem]">
               Turn behavioral intelligence into <span className="italic text-blue-600">growth opportunities</span>
