@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 const SECTION_LINKS = [
-  { id: "one-customer", label: "Platform" },
-  { id: "coworker", label: "Coworker" },
-  { id: "governance", label: "Governance" },
+  { id: "problem", label: "Problem" },
+  { id: "one-customer", label: "Solution" },
+  { id: "outcomes", label: "Results" },
   { id: "integration", label: "Integrations" },
+  { id: "faq", label: "FAQs" },
 ];
 
 const PAGE_LINKS = [{ to: "/insights", label: "Insights" }];

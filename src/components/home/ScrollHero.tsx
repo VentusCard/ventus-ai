@@ -6,10 +6,6 @@ import SignalToActionPanel from "@/components/home/SignalToActionPanel";
 const ScrollHero = () => {
   const navigate = useNavigate();
 
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section className="relative bg-white pb-20 pt-28 md:pb-28 md:pt-32">
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -24,7 +20,8 @@ const ScrollHero = () => {
             Customer intelligence for banks
           </p>
           <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 md:text-[52px]">
-            Turn behavioral intelligence into growth opportunities
+            Turn behavioral intelligence into{" "}
+            <span className="italic text-blue-600">growth opportunities</span>
           </h1>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-slate-600">
             Ventus AI orchestrates a hyper-personalized banking experience for every customer with
@@ -40,18 +37,13 @@ const ScrollHero = () => {
               Schedule Demo
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-12 rounded-full border-slate-300 px-7 text-base font-semibold text-slate-700"
-              onClick={() => scrollTo("one-customer")}
-            >
-              See the platform
-            </Button>
           </div>
         </div>
 
-        <div className="ventus-hero-rise relative" style={{ animationDelay: "120ms" }}>
+        <div
+          className="ventus-hero-rise relative lg:ml-auto lg:w-[94%] lg:origin-top-right lg:scale-[0.93]"
+          style={{ animationDelay: "120ms" }}
+        >
           <SignalToActionPanel />
         </div>
       </div>

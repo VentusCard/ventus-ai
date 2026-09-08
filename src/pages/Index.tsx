@@ -28,9 +28,9 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
       <main className="flex flex-col">
         <ScrollHero />
         <ProblemTimelineSection />
+        <OneCustomerSection />
         <OutcomesSection />
 
-        <OneCustomerSection />
         <IntelligenceDatabaseSection />
         <CoworkerSection />
         <GovernanceSection />
