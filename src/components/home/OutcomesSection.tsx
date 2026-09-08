@@ -13,22 +13,22 @@ const cards = [
     label: "PRODUCT GROWTH",
     title: "More products per customer.",
     body: "Life events are the moment a product becomes relevant. Detect the moment and you're the bank that showed up first.",
-    accent: "bg-indigo-500",
-    labelColor: "text-indigo-600",
+    accent: "bg-blue-500",
+    labelColor: "text-blue-600",
   },
   {
     label: "DEPOSITS",
     title: "More deposits.",
     body: "Idle cash sitting at another institution is visible in the data. So is the moment a customer starts shopping for yield.",
-    accent: "bg-cyan-500",
-    labelColor: "text-cyan-600",
+    accent: "bg-blue-500",
+    labelColor: "text-blue-600",
   },
   {
     label: "RETENTION",
     title: "Fewer customers leaving.",
     body: "Behavioral change shows up before attrition does. Engage at the signal, not at the exit interview.",
-    accent: "bg-slate-500",
-    labelColor: "text-slate-600",
+    accent: "bg-blue-500",
+    labelColor: "text-blue-600",
   },
 ];
 
@@ -37,9 +37,6 @@ const ease = (value: number) => 1 - Math.pow(1 - clamp(value), 3);
 
 const Header = () => (
   <div className="relative z-10 mx-auto mb-14 max-w-6xl px-6 md:px-8">
-    <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-blue-600">
-      Why it matters
-    </p>
     <h2 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-gray-900 md:text-[54px] md:leading-[1.08]">
       Four metrics that move.
     </h2>
