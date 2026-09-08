@@ -123,7 +123,7 @@ const FlowCard = () => {
 const GovernanceSection = () => (
   <section
     id="governance"
-    className="scroll-mt-[96px] border-y border-blue-500/30 bg-[#08111F] py-20 md:py-24"
+    className="scroll-mt-[96px] border-y border-slate-200 bg-white py-20 md:py-24"
   >
     <div className="mx-auto max-w-7xl px-6 md:px-8">
     <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
