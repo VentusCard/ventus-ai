@@ -14,10 +14,40 @@ const SECTION_LINKS = [
 const PAGE_LINKS = [{ to: "/insights", label: "Insights" }];
 
 
+const DARK_SECTION_IDS = ["hero", "flows", "governance"];
+
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [onDark, setOnDark] = useState(location.pathname === "/");
+
+  useEffect(() => {
+    const measure = () => {
+      const probe = 44;
+      const isDark = DARK_SECTION_IDS.some((id) => {
+        const el = document.getElementById(id);
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        return rect.top <= probe && rect.bottom >= probe;
+      });
+      setOnDark(isDark);
+    };
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+    };
+  }, [location.pathname]);
+
+  const shell = onDark
+    ? "border-white/15 bg-white/10 shadow-[0_8px_30px_rgba(2,6,23,0.35)]"
+    : "border-slate-200/80 bg-white/85 shadow-[0_8px_30px_rgba(15,23,42,0.08)]";
+  const linkTone = onDark
+    ? "text-slate-200 hover:text-white"
+    : "text-gray-600 hover:text-gray-900";
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
