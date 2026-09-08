@@ -1,6 +1,7 @@
 import SEO from "@/components/SEO";
 import { faqSchema, softwareApplicationSchema } from "@/lib/seoSchema";
-import HeroSection from "@/components/home/HeroSection";
+import ScrollDrivenHero from "@/components/ScrollDrivenHero";
+import ProblemStatementSection from "@/components/ProblemStatementSection";
 import OutcomesSection from "@/components/home/OutcomesSection";
 import OneCustomerSection from "@/components/home/OneCustomerSection";
 import AutomatedFlowsSection from "@/components/home/AutomatedFlowsSection";
@@ -23,7 +24,8 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         jsonLd={noindex ? undefined : [softwareApplicationSchema, faqSchema(COMPANY_FAQS)]}
       />
       <main className="flex flex-col">
-        <HeroSection />
+        <ScrollDrivenHero />
+        <ProblemStatementSection />
         <OutcomesSection />
         <OneCustomerSection />
         <AutomatedFlowsSection />
