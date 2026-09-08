@@ -208,7 +208,7 @@ const BeatVisual = ({ beat }: { beat: number }) => {
   return (
     <div className="flex min-h-[70vh] w-full flex-col">
       {/* TOP ZONE: pills only */}
-      <div className="flex h-[168px] shrink-0 flex-wrap content-start justify-center gap-2 overflow-hidden">
+      <div className="flex h-[190px] shrink-0 flex-wrap content-start justify-center gap-2 overflow-hidden">
         {SIGNALS.map((signal, index) => (
           <SignalPill
             key={signal.label}
