@@ -38,47 +38,67 @@ const scattered: Point[] = Array.from({ length: POINT_COUNT }, () => ({
 
 const person: Point[] = (() => {
   const points: Point[] = [];
-  const headCx = 500;
-  const headCy = 195;
+  const cx = 500;
+  const headCy = 190;
+  const headR = 78;
 
-  // Head: hollow dot-outline circle, no filled interior
+  // Head: outer outline ring plus one inner ring for density
   const headRings = [
-    { count: 30, rx: 74, ry: 92, depth: 1 },
-    { count: 24, rx: 58, ry: 74, depth: 0.78 },
+    { count: 34, r: headR, depth: 1 },
+    { count: 22, r: headR * 0.66, depth: 0.72 },
+    { count: 10, r: headR * 0.32, depth: 0.5 },
   ];
   headRings.forEach((ring) => {
     for (let index = 0; index < ring.count; index += 1) {
-      const angle = (index / ring.count) * Math.PI * 2;
+      const angle = (index / ring.count) * Math.PI * 2 - Math.PI / 2;
       points.push({
-        x: headCx + Math.cos(angle) * ring.rx,
-        y: headCy + Math.sin(angle) * ring.ry,
+        x: cx + Math.cos(angle) * ring.r,
+        y: headCy + Math.sin(angle) * ring.r * 1.06,
         depth: ring.depth,
       });
     }
   });
 
-  // Body: nested sweeping arcs of dots, apex near the neck, ends drooping outward
-  const arcCount = 6;
-  const bodyCount = POINT_COUNT - points.length;
-  const perArc = Math.floor(bodyCount / arcCount);
-  for (let arc = 0; arc < arcCount; arc += 1) {
-    const dotsInArc = arc === arcCount - 1 ? bodyCount - perArc * (arcCount - 1) : perArc;
-    const t = arc / (arcCount - 1);
-    const halfWidth = 100 + t * 240;
-    const apexY = 320 + t * 120;
-    const drop = 46 + t * 120;
-    for (let dot = 0; dot < dotsInArc; dot += 1) {
-      const u = dotsInArc > 1 ? dot / (dotsInArc - 1) : 0;
-      const normalized = u * 2 - 1;
-      points.push({
-        x: headCx + normalized * halfWidth,
-        y: apexY + drop * normalized * normalized,
-        depth: 1 - t * 0.4,
-      });
-    }
+  // Shoulders: bust silhouette, neck at center rising into sloping shoulders
+  const shoulderTop = 300;
+  const halfWidth = 250;
+  const bottomY = 470;
+  const topAt = (x: number) => {
+    const n = Math.min(1, Math.abs(x) / halfWidth);
+    // flat-ish near the neck, then curving down toward the outer shoulder
+    return shoulderTop + 118 * Math.pow(n, 1.7);
+  };
+
+  const remaining = POINT_COUNT - points.length;
+
+  // Outline of the shoulder curve
+  const outlineCount = Math.round(remaining * 0.34);
+  for (let i = 0; i < outlineCount; i += 1) {
+    const u = outlineCount > 1 ? i / (outlineCount - 1) : 0.5;
+    const x = (u * 2 - 1) * halfWidth;
+    points.push({ x: cx + x, y: topAt(x), depth: 1 });
   }
+
+  // Interior fill of the bust so it reads as a solid mass
+  const fillCount = remaining - outlineCount;
+  const cols = 13;
+  const rows = Math.max(1, Math.ceil(fillCount / cols));
+  for (let i = 0; i < fillCount; i += 1) {
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+    const stagger = row % 2 === 0 ? 0 : 0.5 / (cols - 1);
+    const u = col / (cols - 1) + stagger;
+    const x = (Math.min(1, u) * 2 - 1) * (halfWidth - 18);
+    const top = topAt(x) + 20;
+    const span = Math.max(12, bottomY - top);
+    const y = top + (span * (row + 0.5)) / rows;
+    points.push({ x: cx + x, y, depth: 0.66 });
+  }
+
+
   return points;
 })();
+
 
 const pointStyles = Array.from({ length: POINT_COUNT }, (_, index) => ({
   radius: 1.8 + random() * 2.6,
