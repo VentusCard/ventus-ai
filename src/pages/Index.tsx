@@ -32,9 +32,9 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
 
         <IntelligenceDatabaseSection />
         <CoworkerSection />
-        <GovernanceSection />
         <IntegrationSection />
         <OutcomesSection />
+        <GovernanceSection />
         <HomeFAQSection />
         <CTA />
       </main>
