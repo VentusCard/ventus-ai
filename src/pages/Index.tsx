@@ -1,6 +1,8 @@
 import SEO from "@/components/SEO";
 import { faqSchema, softwareApplicationSchema } from "@/lib/seoSchema";
 import ScrollHero from "@/components/home/ScrollHero";
+import ProblemTimelineSection from "@/components/home/ProblemTimelineSection";
+
 import OutcomesSection from "@/components/home/OutcomesSection";
 import OneCustomerSection from "@/components/home/OneCustomerSection";
 import IntelligenceDatabaseSection from "@/components/home/IntelligenceDatabaseSection";
@@ -25,7 +27,9 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
       />
       <main className="flex flex-col">
         <ScrollHero />
+        <ProblemTimelineSection />
         <OutcomesSection />
+
         <OneCustomerSection />
         <IntelligenceDatabaseSection />
         <CoworkerSection />
