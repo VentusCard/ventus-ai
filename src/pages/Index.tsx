@@ -16,7 +16,7 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
   return (
     <div>
       <SEO
-        title="Ventus AI — Customer Intelligence & Personalization for Banks"
+        title="Ventus AI: Customer Intelligence & Personalization for Banks"
         description="Customer intelligence and personalization engine for banks. Named behavioral, life-event, financial, demographic, and risk signals routed into the systems you already run."
         path={noindex ? "/classic" : "/"}
         noindex={noindex}
