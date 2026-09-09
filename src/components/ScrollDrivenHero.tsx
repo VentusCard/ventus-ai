@@ -600,7 +600,7 @@ const ScrollDrivenHero = () => {
                 {activePersona && (
                   <svg
                     className="absolute pointer-events-none"
-                    style={{ top: 0, left: -32, width: 32, height: "100%", overflow: "visible", zIndex: 0 }}
+                    style={{ top: 0, left: -16, width: 16, height: "100%", overflow: "visible", zIndex: 0 }}
                   >
                     {[38.6, 64, 89.5].map((yPct, oi) => (
                       <line
