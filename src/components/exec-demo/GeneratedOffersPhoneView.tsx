@@ -58,6 +58,7 @@ const MERCHANT_LOOKUP: Record<string, string> = {
 
 // Curated image bank — keys must match the imageCategory enum returned by generate-next-offers.
 // LLM picks the closest category from the rollup label; we hand-pick a vetted Unsplash photo per key.
+// NOTE: a dead URL silently falls back to DEFAULT_IMAGE (blue gradient). Verify with curl before changing.
 const COLLECTION_IMAGE_BANK: Record<string, string> = {
   ski: "https://images.unsplash.com/photo-1551524559-8af4e6624178?w=400&h=200&fit=crop",
   beach: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=200&fit=crop",
@@ -85,7 +86,7 @@ const COLLECTION_IMAGE_BANK: Record<string, string> = {
   auto: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=200&fit=crop",
   "travel-urban": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=200&fit=crop",
   "travel-generic": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=200&fit=crop",
-  finance: "https://images.unsplash.com/photo-1590283603380-0bf078489ff1?w=400&h=200&fit=crop",
+  finance: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop",
   entertainment: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop",
   grocery: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=200&fit=crop",
 };
