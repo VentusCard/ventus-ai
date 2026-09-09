@@ -575,7 +575,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                 return (
                   <div
                     key={deal.id}
-                    className="shrink-0 rounded-lg border border-slate-100 bg-white px-2.5 py-2 min-w-[120px] max-w-[140px]"
+                    className="shrink-0 rounded-lg border border-slate-100 bg-white px-2.5 py-2 min-w-[124px] max-w-[152px]"
                   >
                     <p className="text-[11px] font-bold text-slate-800 truncate">{deal.merchant}</p>
                     <div className="flex items-center justify-between mt-1">
