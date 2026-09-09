@@ -67,4 +67,42 @@ test('unknown memory scope throws', async () => {
 test('keys builders are stable', () => {
   assert.deepEqual(keys.thread('t1'), { PK: 'THREAD#t1', SK: 'META' });
   assert.deepEqual(keys.memory('a', 'household', 'x'), { PK: 'ADVISOR#a', SK: 'MEM#household#x' });
+  assert.deepEqual(keys.rate('a@b.com'), { PK: 'RATE#a@b.com', SK: 'WINDOW' });
+});
+
+test('checkAndBumpRate counts within a window and blocks over the limit', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  // Base on the real clock: the in-memory backend enforces TTL against wall time,
+  // so the persisted window record must carry a future ttl to stay readable.
+  const t0 = new Date();
+  const opts = { sender: 'flood@x.com', windowMs: 3600_000, limit: 2 };
+
+  const a = await store.checkAndBumpRate({ ...opts, now: t0 });
+  const b = await store.checkAndBumpRate({ ...opts, now: new Date(t0.getTime() + 1000) });
+  const c = await store.checkAndBumpRate({ ...opts, now: new Date(t0.getTime() + 2000) });
+  assert.deepEqual([a.allowed, b.allowed, c.allowed], [true, true, false]);
+  assert.equal(c.count, 3);
+});
+
+test('checkAndBumpRate resets after the window elapses', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const t0 = new Date();
+  const opts = { sender: 'flood@x.com', windowMs: 1000, limit: 1 };
+
+  const a = await store.checkAndBumpRate({ ...opts, now: t0 });
+  const blocked = await store.checkAndBumpRate({ ...opts, now: new Date(t0.getTime() + 500) });
+  const afterWindow = await store.checkAndBumpRate({ ...opts, now: new Date(t0.getTime() + 2000) });
+  assert.equal(a.allowed, true);
+  assert.equal(blocked.allowed, false);
+  assert.equal(afterWindow.allowed, true);
+  assert.equal(afterWindow.count, 1);
+});
+
+test('checkAndBumpRate isolates senders', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const now = new Date();
+  const one = await store.checkAndBumpRate({ sender: 'a@x.com', now, limit: 1 });
+  const two = await store.checkAndBumpRate({ sender: 'b@x.com', now, limit: 1 });
+  assert.equal(one.allowed, true);
+  assert.equal(two.allowed, true);
 });

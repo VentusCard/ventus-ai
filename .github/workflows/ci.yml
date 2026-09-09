@@ -33,10 +33,10 @@ jobs:
           node --check backend/scripts/list-functions.mjs
           node --check backend/scripts/package-functions.mjs
           node --check backend/scripts/smoke-api.mjs
-          node --check backend/scripts/build-plaid-golden-enrich-fixture.mjs
-          node --check backend/scripts/capture-plaid-enrichment-predictions.mjs
-          node --check backend/scripts/generate-plaid-golden-candidates.mjs
-          node --check backend/scripts/pull-plaid-sandbox-transactions.mjs
+          node --check backend/eval/build-plaid-golden-enrich-fixture.mjs
+          node --check backend/eval/capture-plaid-enrichment-predictions.mjs
+          node --check backend/eval/generate-plaid-golden-candidates.mjs
+          node --check backend/eval/pull-plaid-sandbox-transactions.mjs
           node --check backend/scripts/validate-openapi.mjs
           node --check backend/scripts/check-openapi-contract.mjs
           node --check backend/scripts/generate-api-docs.mjs
@@ -46,8 +46,8 @@ jobs:
           node --check backend/scripts/check-relative-imports.mjs
           node --check backend/scripts/package-monitors.mjs
           node --check backend/scripts/qa-enrichment-contract.mjs
-          node --check backend/scripts/qa-golden-enrichment.mjs
-          node --check backend/scripts/qa-model-output-report.mjs
+          node --check backend/eval/qa-golden-enrichment.mjs
+          node --check backend/eval/qa-model-output-report.mjs
           node --check backend/scripts/qa-partner-ingest.mjs
           node --check backend/scripts/qa-live-pipeline.mjs
           node --check backend/scripts/lib/qa-validators.mjs

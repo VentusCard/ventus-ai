@@ -1,5 +1,5 @@
-import { createSecretsProvider } from '../../shared/secrets.mjs';
-import { createDemoConnectorService, DemoConnectorError } from '../../shared/demo-connectors.mjs';
+import { createSecretsProvider } from '../../shared/platform/secrets.mjs';
+import { createDemoConnectorService, DemoConnectorError } from '../../shared/demo/demo-connectors.mjs';
 
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://demo.ventusai.com',

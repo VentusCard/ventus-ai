@@ -26,6 +26,13 @@ new VentusCoworkerStack(app, 'VentusCoworkerStack', {
     account: env.account,
     region: app.node.tryGetContext('coworkerRegion') ?? 'us-east-2',
   },
+  // Override with -c coworkerEmailDomain=demo.ventusai.com to receive/send on a
+  // subdomain and avoid clobbering the root domain's existing MX (real mail).
+  emailDomain: app.node.tryGetContext('coworkerEmailDomain'),
+  mailboxLocalPart: app.node.tryGetContext('coworkerMailbox'),
+  // Reply from a verified root address while receiving on a subdomain, e.g.
+  // -c coworkerFrom=coworker@ventusai.com with -c coworkerEmailDomain=demo.ventusai.com.
+  fromAddress: app.node.tryGetContext('coworkerFrom'),
 });
 
 const evidenceStoreEnabled = ['true', '1', 'yes'].includes(

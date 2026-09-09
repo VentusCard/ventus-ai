@@ -1,12 +1,12 @@
 {
-  "version": 1,
-  "note": "Cross-category signals per household: canonical life events, behavioral patterns, risk flags, and a financial posture summary. Confidence bands (high/medium/low) mirror the production lifestyle/risk detectors. These are the evidence the Coworker cites; every external attribute must be surfaced as third-party modeled.",
+  "version": 2,
+  "note": "Cross-category signals per household: canonical life events, behavioral patterns, risk flags, and a financial posture summary. Confidence bands (high/medium/low) mirror the production lifestyle/risk detectors. These are the evidence the Coworker cites. Every household carries at least two signals so no digest row rests on a single balance the advisor can already see. Risk flags are exclusions the institution applies, not determinations Ventus makes.",
   "signals": {
     "hh_okafor": {
       "life_events": [],
       "behavioral": [
-        { "name": "Travel-heavy spend", "level": "HIGH", "evidence": "3 flights + 2 lodging bookings across 90 days totaling ~$4,300 in Travel & Exploration." },
-        { "name": "Pays card in full", "level": "HIGH", "evidence": "No revolving balance; cashback card cleared each cycle." }
+        { "name": "Travel-heavy spend", "level": "HIGH", "evidence": "9 flights and 7 lodging bookings over 12 months totaling about $18,400 in Travel & Exploration." },
+        { "name": "Pays card in full", "level": "HIGH", "evidence": "No revolving balance; cashback card cleared every cycle for 12 months." }
       ],
       "risk": [],
       "financial": { "idle_cash_usd": 40000, "monthly_surplus_usd": 3200, "wallet_share": 0.42, "posture": "accumulator" }
@@ -43,7 +43,7 @@
         { "type": "nsf_overdraft_cluster", "band": "high", "evidence": "Two overdraft fees plus one NSF returned item in 60 days." },
         { "type": "low_liquidity_buffer", "band": "high", "evidence": "Checking buffer under $2k against irregular inflows." }
       ],
-      "financial": { "idle_cash_usd": 0, "monthly_surplus_usd": -150, "wallet_share": 0.30, "posture": "juggler" }
+      "financial": { "idle_cash_usd": 0, "monthly_surplus_usd": -150, "wallet_share": 0.3, "posture": "juggler" }
     },
     "hh_petrov": {
       "life_events": [
@@ -51,10 +51,11 @@
         { "type": "home_purchase_intent", "confidence_band": "medium", "evidence": "Redfin/Zillow activity plus accelerating down-payment transfers." }
       ],
       "behavioral": [
-        { "name": "Accelerating savings velocity", "level": "HIGH", "evidence": "$3,000/mo into high-yield savings, up from prior cadence." }
+        { "name": "Accelerating savings velocity", "level": "HIGH", "evidence": "$3,000/mo into high-yield savings, up from prior cadence." },
+        { "name": "Pays card in full", "level": "HIGH", "evidence": "Cashback card cleared every cycle across 12 months, no interest charges." }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 22100, "monthly_surplus_usd": 3400, "wallet_share": 0.60, "posture": "saver", "down_payment_fund_usd": 133900 }
+      "financial": { "idle_cash_usd": 22100, "monthly_surplus_usd": 3400, "wallet_share": 0.6, "posture": "saver", "down_payment_fund_usd": 133900 }
     },
     "hh_sharma": {
       "life_events": [
@@ -62,7 +63,8 @@
       ],
       "behavioral": [
         { "name": "Idle cash spike", "level": "HIGH", "evidence": "Checking balance jumped to $512k after the inflow, undeployed." },
-        { "name": "Luxury discretionary", "level": "MED", "evidence": "First-class travel and an auction-house purchase." }
+        { "name": "Travel-heavy spend", "level": "HIGH", "evidence": "First-class international itineraries and premium lodging across 12 months, about $41,200 in Travel & Exploration." },
+        { "name": "Pays card in full", "level": "HIGH", "evidence": "No revolving balance on the cashback card across 12 months." }
       ],
       "risk": [],
       "financial": { "idle_cash_usd": 512000, "monthly_surplus_usd": 20000, "wallet_share": 0.64, "posture": "accumulator" }
@@ -70,7 +72,7 @@
     "hh_delgado": {
       "life_events": [],
       "behavioral": [
-        { "name": "Steady student-loan servicing", "level": "HIGH", "evidence": "$640/mo to Nelnet, consistently on time." },
+        { "name": "Steady student-loan servicing", "level": "HIGH", "evidence": "$640/mo to Nelnet, consistently on time for 12 months." },
         { "name": "Building emergency fund", "level": "MED", "evidence": "$500/mo to savings." }
       ],
       "risk": [],
@@ -82,10 +84,54 @@
       ],
       "behavioral": [
         { "name": "Automated investing", "level": "HIGH", "evidence": "Recurring $7,000/mo Vanguard buys." },
-        { "name": "Idle cash accumulation", "level": "MED", "evidence": "$40k cash sweep landed uninvested." }
+        { "name": "Idle cash accumulation", "level": "MED", "evidence": "$40k cash sweep landed uninvested." },
+        { "name": "Pays card in full", "level": "HIGH", "evidence": "Cashback card cleared every cycle across 12 months." }
       ],
       "risk": [],
       "financial": { "idle_cash_usd": 90000, "monthly_surplus_usd": 6500, "wallet_share": 0.58, "posture": "accumulator" }
+    },
+    "hh_whitfield": {
+      "life_events": [
+        { "type": "retirement_horizon", "confidence_band": "medium", "evidence": "Age band 46-52 with a rising travel cadence and no new contribution schedule since the last review." }
+      ],
+      "behavioral": [
+        { "name": "Travel-heavy spend", "level": "HIGH", "evidence": "14 international flight bookings and 11 lodging stays over 12 months, about $34,800 in Travel & Exploration." },
+        { "name": "Pays card in full", "level": "HIGH", "evidence": "No revolving balance across 12 months on a card earning a flat rate." },
+        { "name": "Dining-led discretionary", "level": "MED", "evidence": "About $14,600 in Dining Out and Coffee & Cafes over 12 months, the largest discretionary pillar after travel." }
+      ],
+      "risk": [],
+      "financial": { "idle_cash_usd": 84000, "monthly_surplus_usd": 11000, "wallet_share": 0.49, "posture": "accumulator" }
+    },
+    "hh_castellanos": {
+      "life_events": [],
+      "behavioral": [
+        { "name": "Dining-led discretionary", "level": "HIGH", "evidence": "About $19,300 across Dining Out and Coffee & Cafes over 12 months, the single largest discretionary pillar." },
+        { "name": "Travel-heavy spend", "level": "MED", "evidence": "6 flights and 5 lodging stays over 12 months, about $11,900 in Travel & Exploration." },
+        { "name": "Pays card in full", "level": "HIGH", "evidence": "Cashback card cleared every cycle across 12 months." }
+      ],
+      "risk": [],
+      "financial": { "idle_cash_usd": 39500, "monthly_surplus_usd": 4200, "wallet_share": 0.44, "posture": "accumulator" }
+    },
+    "hh_oyelaran": {
+      "life_events": [],
+      "behavioral": [
+        { "name": "Building emergency fund", "level": "HIGH", "evidence": "$900/mo to savings for 11 of the last 12 months." },
+        { "name": "Automated investing", "level": "MED", "evidence": "Recurring $250/mo brokerage buys started eight months ago." }
+      ],
+      "risk": [
+        { "type": "thin_credit_file", "band": "medium", "evidence": "First banking relationship opened 14 months ago; no revolving trade lines on file." }
+      ],
+      "financial": { "idle_cash_usd": 25600, "monthly_surplus_usd": 1100, "wallet_share": 0.28, "posture": "saver" }
+    },
+    "hh_lindqvist": {
+      "life_events": [],
+      "behavioral": [
+        { "name": "Travel-heavy spend", "level": "HIGH", "evidence": "11 flights and 8 lodging stays over 12 months, about $22,700 in Travel & Exploration." },
+        { "name": "Dining-led discretionary", "level": "MED", "evidence": "About $12,100 across Dining Out and Coffee & Cafes over 12 months." },
+        { "name": "Pays card in full", "level": "HIGH", "evidence": "No revolving balance across 12 months; travel spend currently runs through a card held elsewhere." }
+      ],
+      "risk": [],
+      "financial": { "idle_cash_usd": 61700, "monthly_surplus_usd": 5200, "wallet_share": 0.53, "posture": "accumulator" }
     }
   }
 }

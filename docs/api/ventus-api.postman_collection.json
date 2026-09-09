@@ -1,0 +1,722 @@
+{
+  "info": {
+    "name": "Ventus AI API",
+    "description": "Generated from docs/api/openapi-draft.yaml. Use this for pilot onboarding, API smoke checks, and partner webhook integration testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "x-api-key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get(\"apiKey\")) {",
+          "  console.warn(\"Set the apiKey collection variable before calling authenticated endpoints.\");",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.ventusai.com",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "",
+      "type": "secret"
+    },
+    {
+      "key": "jobId",
+      "value": "job_demo_001",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "cust_demo_001",
+      "type": "string"
+    },
+    {
+      "key": "lifeEventId",
+      "value": "life_event_demo_001",
+      "type": "string"
+    },
+    {
+      "key": "behavioralSignalId",
+      "value": "behavioral_signal_demo_001",
+      "type": "string"
+    },
+    {
+      "key": "tripId",
+      "value": "trip_demo_001",
+      "type": "string"
+    },
+    {
+      "key": "riskFactorId",
+      "value": "risk_factor_demo_001",
+      "type": "string"
+    },
+    {
+      "key": "webhookId",
+      "value": "wh_bank_demo_1770000000000",
+      "type": "string"
+    },
+    {
+      "key": "deliveryId",
+      "value": "00000000-0000-4000-8000-000000000000",
+      "type": "string"
+    },
+    {
+      "key": "webhookIdFilter",
+      "value": "wh_bank_demo_1770000000000",
+      "type": "string"
+    },
+    {
+      "key": "status",
+      "value": "failed",
+      "type": "string"
+    },
+    {
+      "key": "limit",
+      "value": "20",
+      "type": "string"
+    },
+    {
+      "key": "offset",
+      "value": "0",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ],
+              "query": []
+            },
+            "description": "GET /health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enrichment",
+      "item": [
+        {
+          "name": "Submit transactions for enrichment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/enrich",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "enrich"
+              ],
+              "query": []
+            },
+            "description": "POST /v1/enrich",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactions\": [\n    {\n      \"transaction_id\": \"txn_demo_001\",\n      \"customer_id\": \"cust_demo_001\",\n      \"merchant_name\": \"United Airlines\",\n      \"amount\": 438.72,\n      \"date\": \"2026-05-21\",\n      \"mcc_code\": \"3000\",\n      \"zip_code\": \"94105\",\n      \"home_zip\": \"10001\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "List recent batches or look up by S3 key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/jobs?s3_key={{s3Key}}&limit={{limit}}&offset={{offset}}&status={{status}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "jobs"
+              ],
+              "query": [
+                {
+                  "key": "s3_key",
+                  "value": "{{s3Key}}",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "{{status}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /v1/jobs"
+          }
+        },
+        {
+          "name": "Get enrichment job status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/jobs/{{jobId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "jobs",
+                "{{jobId}}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/jobs/{job_id}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Get enriched transactions for a customer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/transactions?limit={{limit}}&offset={{offset}}&pillar={{pillar}}&date_from={{dateFrom}}&date_to={{dateTo}}&confidence_min={{confidenceMin}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                },
+                {
+                  "key": "pillar",
+                  "value": "{{pillar}}",
+                  "disabled": true
+                },
+                {
+                  "key": "date_from",
+                  "value": "{{dateFrom}}",
+                  "disabled": true
+                },
+                {
+                  "key": "date_to",
+                  "value": "{{dateTo}}",
+                  "disabled": true
+                },
+                {
+                  "key": "confidence_min",
+                  "value": "{{confidenceMin}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /v1/customers/{customer_id}/transactions"
+          }
+        },
+        {
+          "name": "Get customer lifestyle profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "profile"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/profile"
+          }
+        },
+        {
+          "name": "Get active customer life events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/life-events?limit={{limit}}&offset={{offset}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "life-events"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /v1/customers/{customer_id}/life-events"
+          }
+        },
+        {
+          "name": "Get one active life event by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/life-events/{{lifeEventId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "life-events",
+                "{{lifeEventId}}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/life-events/{life_event_id}"
+          }
+        },
+        {
+          "name": "Get one active behavioral signal by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/behavioral-signals/{{behavioralSignalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "behavioral-signals",
+                "{{behavioralSignalId}}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/behavioral-signals/{behavioral_signal_id}"
+          }
+        },
+        {
+          "name": "Get purchase cycle signals for a customer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/purchase-signals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "purchase-signals"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/purchase-signals"
+          }
+        },
+        {
+          "name": "Get detected customer trips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/trips?limit={{limit}}&offset={{offset}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "trips"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /v1/customers/{customer_id}/trips"
+          }
+        },
+        {
+          "name": "Get one customer trip by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/trips/{{tripId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "trips",
+                "{{tripId}}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/trips/{trip_id}"
+          }
+        },
+        {
+          "name": "Get customer risk factors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/risk-factors?limit={{limit}}&offset={{offset}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "risk-factors"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /v1/customers/{customer_id}/risk-factors"
+          }
+        },
+        {
+          "name": "Get one customer risk factor by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/risk-factors/{{riskFactorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "risk-factors",
+                "{{riskFactorId}}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/risk-factors/{risk_factor_id}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Get portfolio-level bank analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/analytics/bank",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "analytics",
+                "bank"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/analytics/bank"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "List webhook registrations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/webhooks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "webhooks"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/webhooks"
+          }
+        },
+        {
+          "name": "Register or update a webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/webhooks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "webhooks"
+              ],
+              "query": []
+            },
+            "description": "POST /v1/webhooks",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://partner.example.com/ventus/webhooks\",\n  \"events\": [\n    \"batch_complete\",\n    \"risk_detected\"\n  ],\n  \"secret\": \"replace-with-shared-secret\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List recent webhook delivery attempts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/webhook-deliveries?webhook_id={{webhookId}}&status={{status}}&limit={{limit}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "webhook-deliveries"
+              ],
+              "query": [
+                {
+                  "key": "webhook_id",
+                  "value": "{{webhookId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "{{status}}",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /v1/webhook-deliveries"
+          }
+        },
+        {
+          "name": "Replay a failed webhook delivery",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/webhook-deliveries/{{deliveryId}}/replay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "webhook-deliveries",
+                "{{deliveryId}}",
+                "replay"
+              ],
+              "query": []
+            },
+            "description": "POST /v1/webhook-deliveries/{delivery_id}/replay"
+          }
+        },
+        {
+          "name": "Update a webhook registration",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/webhooks/{{webhookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "webhooks",
+                "{{webhookId}}"
+              ],
+              "query": []
+            },
+            "description": "PUT /v1/webhooks/{webhook_id}"
+          }
+        },
+        {
+          "name": "Disable a webhook registration",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/webhooks/{{webhookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "webhooks",
+                "{{webhookId}}"
+              ],
+              "query": []
+            },
+            "description": "DELETE /v1/webhooks/{webhook_id}"
+          }
+        },
+        {
+          "name": "Send a test webhook delivery",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/webhooks/{{webhookId}}/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "webhooks",
+                "{{webhookId}}",
+                "test"
+              ],
+              "query": []
+            },
+            "description": "POST /v1/webhooks/{webhook_id}/test"
+          }
+        }
+      ]
+    }
+  ]
+}

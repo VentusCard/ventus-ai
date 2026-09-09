@@ -1,5 +1,11 @@
 # Ventus Intelligence And Control Planes
 
+> **🧭 PLANNED / TARGET STATE (as of 2026-08).** This is the target control-plane
+> architecture (Growth Console operating loop, `decision-run` contract, tenant
+> ledger). The enrichment backend is real, but the Growth Console / decision
+> runtime / ledger described here are **not built**. For what actually exists, see
+> [`current-system.md`](./current-system.md).
+
 ## Purpose
 
 Ventus currently has an AWS enrichment backend and a newer Growth Console operating loop. The target architecture keeps both investments by making AWS the canonical intelligence and execution plane while the Growth Console remains the human control and product plane.

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, '..', '..');
 const apiSourcePath = resolve(repoRoot, 'backend/functions/ventus-api/index.mjs');
-const openApiPath = resolve(repoRoot, 'docs/openapi-draft.yaml');
+const openApiPath = resolve(repoRoot, 'docs/api/openapi-draft.yaml');
 
 const apiSource = readFileSync(apiSourcePath, 'utf8');
 const openApi = readFileSync(openApiPath, 'utf8');

@@ -16,7 +16,7 @@ const modelEvaluationSql = readFileSync(
   'utf8'
 );
 const gatewaySource = readFileSync(
-  resolve('../backend/shared/model-gateway.mjs'),
+  resolve('../backend/shared/platform/model-gateway.mjs'),
   'utf8'
 );
 const riskDetectionSource = readFileSync(
@@ -38,7 +38,7 @@ const classificationSource = readFileSync(
 // The classification lambda delegates the routed model call to the shared
 // classify-core module, so the merchant_classification task string lives there.
 const classifyCoreSource = readFileSync(
-  resolve('../backend/shared/classify-core.mjs'),
+  resolve('../backend/shared/pipeline/classify-core.mjs'),
   'utf8'
 );
 

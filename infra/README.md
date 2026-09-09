@@ -33,7 +33,7 @@ Current posture:
 
 Do not run `cdk deploy` against production until the synthesized change set has been reviewed by engineering leadership.
 
-Use `docs/cdk-deployment-review-checklist.md` before any deployment.
+Use `docs/runbooks/cdk-deployment-review-checklist.md` before any deployment.
 
 ## Current Skeleton
 
@@ -54,7 +54,7 @@ The current CDK stack records known production resource names and defines readin
 
 The current RDS network exposure baseline is captured in `infra/security/rds-network-exposure-baseline.json` and checked by CI. It documents the existing temporary public `/32` Postgres ingress exceptions and the target posture of private-only database access.
 
-The current secrets boundary baseline is captured in `infra/security/secrets-boundary-baseline.json` and checked by CI. The live Lambda env/IAM cutover to `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` was completed on 2026-05-20, the recovered backend package that reads the separated model-provider secret was deployed to the seven backend Lambdas the same day, and the duplicated `GEMINI_API_KEY` was removed from the DB credential secret. Use `docs/aws-secrets-cutover-runbook.md` plus `npm run --prefix infra audit:secrets-cutover` to verify live Lambda environment variables, secret contents, and secret metadata.
+The current secrets boundary baseline is captured in `infra/security/secrets-boundary-baseline.json` and checked by CI. The live Lambda env/IAM cutover to `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` was completed on 2026-05-20, the recovered backend package that reads the separated model-provider secret was deployed to the seven backend Lambdas the same day, and the duplicated `GEMINI_API_KEY` was removed from the DB credential secret. Use `docs/security/aws-secrets-cutover-runbook.md` plus `npm run --prefix infra audit:secrets-cutover` to verify live Lambda environment variables, secret contents, and secret metadata.
 
 The rotation/KMS target posture is captured in `infra/security/secrets-rotation-kms-baseline.json` and checked by CI. Use `npm run --prefix infra audit:secrets-rotation-kms` to inspect live rotation metadata, rotation enablement, and customer-managed KMS status without reading secret values. Customer-managed KMS and rotation metadata tags are enabled for the DB and model-provider credential secrets; Secrets Manager rotation remains pending.
 
@@ -68,45 +68,13 @@ npm run --prefix infra synth -- -c alertEmail=yusheng_chen@ventusai.com -c enabl
 
 The opt-in resource deploys `AWS::Serverless::Application` from AWS's `SecretsManagerRDSPostgreSQLRotationSingleUser` Serverless Application Repository application, names the function `ventus-db-credential-rotation`, places it in the backend Lambda subnet/security-group path, and points it at `alias/ventus/database-secrets`. This resource was deployed through the protected GitHub infra workflow on 2026-05-21. It does not enable the 30-day secret rotation schedule by itself; that remains a separate post-test step.
 
-## Evidence Store Migrator
+## Evidence Store / Console API (retired)
 
-The durable decision/outcome evidence store is an opt-in, manually invoked deployment. It
-reuses the private Aurora cluster and adds only:
-
-- an isolated `ventus_evidence` schema;
-- a generated Secrets Manager credential for `ventus_evidence_app_v1`, which is explicitly
-  `NOSUPERUSER NOBYPASSRLS`;
-- a private migration/verifier Lambda with no schedule and no API route.
-
-The opt-in `VentusConsoleApiStack` adds the first authenticated, institution-scoped
-Growth Console endpoint. It verifies Cognito access tokens and resolves active
-memberships through the non-bypass Evidence Store runtime role. It remains separate
-from the current frontend login until the end-to-end Cognito path is proven.
-
-Review the additive template before deployment:
-
-```bash
-npm run --prefix infra synth -- VentusEvidenceStoreStack -c enableEvidenceStoreMigrator=true
-npm run --prefix infra diff -- VentusEvidenceStoreStack -c enableEvidenceStoreMigrator=true
-```
-
-The Lambda defaults to read-only status. Mutation requires `mode=migrate-and-verify` and the
-exact confirmation phrase `APPLY_VENTUS_EVIDENCE_SCHEMA`. It applies all nine migrations in
-one transaction, reconnects as the generated runtime role, appends and replays a four-event
-lineage, verifies its SHA-256 chain, persists and replays an authorized connected-experiment
-exposure receipt, and confirms another tenant sees zero ledger or exposure events. Do not
-connect application traffic until this invocation succeeds and its CloudWatch receipt is
-reviewed.
-
-Use `docs/evidence-store-deployment-runbook.md` for the protected workflow inputs, read-only
-preflight, confirmation-gated migration invocation, evidence capture, and rollback posture.
-
-Deploy only the isolated stack after review; do not deploy `VentusExistingInfraStack` as part
-of this change:
-
-```bash
-npm run --prefix infra deploy -- VentusEvidenceStoreStack -c enableEvidenceStoreMigrator=true
-```
+The durable decision/outcome evidence store, its migration/verifier Lambda, and the
+authenticated Growth Console API (`VentusEvidenceStoreStack`, `VentusConsoleApiStack`)
+were retired. The CDK stacks remain in the tree only as empty retirement shells with
+no Lambda or DB access. Tenant-scoped audit persistence and an authenticated console
+API are tracked as future work, not deployed surfaces.
 
 KMS review artifacts live under `infra/iam/secrets-kms-*.json` and are checked by `npm run --prefix infra check:iam`.
 
@@ -164,7 +132,7 @@ npm run --prefix infra diff
 
 Pull request CI runs synth only. Deploys require the protected staging workflow.
 
-The staging GitHub workflow lives at `.github/workflows/infra-staging.yml`. Configure the OIDC role and protected environment with `docs/github-aws-oidc-staging.md` before enabling it for deploys.
+The staging GitHub workflow lives at `.github/workflows/infra-staging.yml`. Configure the OIDC role and protected environment with `docs/security/github-aws-oidc-staging.md` before enabling it for deploys.
 
 Optional email subscription:
 

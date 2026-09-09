@@ -1,6 +1,8 @@
 # Repo organization north star
 
-Target state for **ventus-ai-backend** and **ventus-ai-frontend** before STAR pilot. This doc is internal engineering context; partners use `docs/webhook-partner-integration-guide.md` and `docs/openapi.yaml`.
+> **🧭 TARGET STATE (as of 2026-08).** Describes a future two-repo split (`ventus-ai-backend` / `ventus-ai-frontend`) and folder layout. The repo is currently a monorepo and some paths here (e.g. `backend/shared/pilot/`) no longer exist. Aspirational direction, not current layout.
+
+Target state for **ventus-ai-backend** and **ventus-ai-frontend** before STAR pilot. This doc is internal engineering context; partners use `docs/integrations/webhook-partner-integration-guide.md` and `docs/openapi.yaml`.
 
 ## Two repositories
 
@@ -19,11 +21,17 @@ ventus-ai-backend/
 ├── RUNBOOK.md
 ├── package.json
 ├── functions/              # One folder per Lambda (index.mjs + package.json)
-├── shared/                 # Libraries imported by functions (db, webhooks, batch-*)
+├── shared/                 # Libraries imported by functions, grouped by concern:
+│   ├── platform/           #   db, secrets, tenant-context, webhooks, batch-*, model gateway
+│   ├── pipeline/           #   production enrichment (classify-core, ingest normalizers)
+│   ├── pilot/              #   governed pilot / control-plane (ledger, experiments, growth-play)
+│   ├── demo/               #   demo connector service (synthetic)
+│   └── coworker/           #   AI Coworker subsystem (+ fixtures)
 ├── monitors/               # Scheduled Lambdas (stuck job, webhook delivery)
 ├── sql/
 │   └── migrations/         # Numbered, idempotent; staging first, then public
-├── scripts/                # package-*, deploy, qa:*, check:*, smoke-api
+├── scripts/                # CI/deploy/ops only: package-*, deploy, qa contract checks, check:*, smoke-api
+├── eval/                   # Offline evaluation & benchmarking lab (model-eval, plaid-bench) — not deployed
 ├── config/
 │   └── environments/       # staging.json, production.json (no secrets)
 ├── fixtures/               # QA / golden data (not deployed)
@@ -53,12 +61,13 @@ Promotion: merge → deploy staging → migrate staging → qa:live → approve 
 
 ## Monitors and shared/ packaging
 
-**Pipeline Lambdas** and **monitor Lambdas** both use the same rule in packaging scripts: copy the full `backend/shared/` tree into `./shared/` inside the zip (excluding `*.test.mjs`).
+**Pipeline Lambdas** and **monitor Lambdas** use the same rule in packaging scripts: copy into `./shared/` inside the zip only the `shared/` subfolders each entry transitively imports (excluding `*.test.mjs`), so production pipeline Lambdas no longer ship `pilot/`, `demo/`, or `coworker/` code.
 
 - `scripts/package-functions.mjs` — all workers
 - `scripts/package-monitors.mjs` — `copySharedIntoBuild()` (same behavior)
+- `scripts/lib/collect-shared-modules.mjs` — static import tracer that computes the needed subfolders
 
-Monitors import shared code as `./shared/batch-stuck.mjs`, etc. After any change under `shared/`, run:
+Monitors import shared code as `./shared/platform/batch-stuck.mjs`, etc. After any change under `shared/`, run:
 
 ```bash
 npm run package:functions   # if pipeline workers changed

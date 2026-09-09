@@ -10,8 +10,8 @@
 
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
-import { createModelGateway } from '../../shared/model-gateway.mjs';
-import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
+import { createModelGateway } from '../../shared/platform/model-gateway.mjs';
+import { createSecretsProvider, resolveSecretId } from '../../shared/platform/secrets.mjs';
 import { createFixturePortfolioProvider } from '../../shared/coworker/portfolio-provider.mjs';
 import { createCoworkerStore, createDynamoBackend } from '../../shared/coworker/store.mjs';
 import { runCoworkerTurn } from '../../shared/coworker/core.mjs';
@@ -23,13 +23,32 @@ const TABLE_NAME = process.env.COWORKER_TABLE || 'ventus-coworker';
 const INBOUND_BUCKET = process.env.COWORKER_INBOUND_BUCKET;
 const INBOUND_PREFIX = process.env.COWORKER_INBOUND_PREFIX || 'inbound/';
 const FROM_ADDRESS = process.env.COWORKER_FROM || 'coworker@ventusai.com';
+// SES configuration set: routes bounces/complaints and tracks reputation. Sends
+// still succeed without it, so treat an empty value as "no config set".
+const CONFIG_SET = process.env.COWORKER_CONFIG_SET || undefined;
 // When true, skip the SES send and return the rendered reply instead. Lets us
 // smoke-test the full reasoning + persistence path before any SES identity is
 // verified. Set COWORKER_DRY_RUN=true on the function to enable.
 const DRY_RUN = process.env.COWORKER_DRY_RUN === 'true';
+// Demo mode: admit senders who are not on the advisor allowlist and reply to
+// them as a synthetic advisor over the full demo book. Lets anyone email the
+// coworker and get mock-data replies. Keep OFF in production.
+const DEMO_OPEN = process.env.COWORKER_DEMO_OPEN === 'true';
+// Open-inbox abuse guards (tunable without a code change). Per-sender fixed
+// window rate limit + a cap on the body we feed the model. Set the limit to 0
+// to disable rate limiting.
+const RATE_LIMIT = Number.parseInt(process.env.COWORKER_RATE_LIMIT ?? '12', 10);
+const RATE_WINDOW_MS = Number.parseInt(process.env.COWORKER_RATE_WINDOW_MS ?? '3600000', 10);
+const MAX_BODY_CHARS = Number.parseInt(process.env.COWORKER_MAX_BODY_CHARS ?? '8000', 10);
 
 const MODEL_PROVIDER_SECRET_ID = resolveSecretId({ envVar: 'MODEL_PROVIDER_SECRET_ID' });
-const getModelSecrets = createSecretsProvider({ secretId: MODEL_PROVIDER_SECRET_ID });
+// Read the secret from this Lambda's own region. The shared provider defaults to
+// us-east-2, but the coworker stack runs in us-east-1 (SES receiving region) and
+// only grants secret/KMS access to the us-east-1 replica, so pin to REGION.
+const getModelSecrets = createSecretsProvider({
+  secretId: MODEL_PROVIDER_SECRET_ID,
+  region: REGION,
+});
 
 const s3 = new S3Client({ region: REGION });
 const ses = new SESv2Client({ region: REGION });
@@ -66,12 +85,24 @@ export const handler = async (event) => {
         continue;
       }
 
-      const turn = await runCoworkerTurn({ raw, provider, gateway: modelGateway, store });
+      const turn = await runCoworkerTurn({
+        raw,
+        provider,
+        gateway: modelGateway,
+        store,
+        demoOpen: DEMO_OPEN,
+        rateLimit: { limit: RATE_LIMIT, windowMs: RATE_WINDOW_MS },
+        maxBodyChars: MAX_BODY_CHARS,
+      });
 
       if (!turn.allowed) {
         console.log(`[${LAMBDA_NAME}] Rejected sender ${turn.from} (${turn.reason}); no reply sent.`);
         results.push({ allowed: false, from: turn.from });
         continue;
+      }
+
+      if (turn.demo) {
+        console.log(`[${LAMBDA_NAME}] Demo sender admitted for thread=${turn.threadId} task=${turn.task.task_type}`);
       }
 
       if (DRY_RUN) {
@@ -172,6 +203,7 @@ async function sendReply(reply) {
       FromEmailAddress: FROM_ADDRESS,
       Destination: { ToAddresses: [reply.to] },
       Content: { Raw: { Data: Buffer.from(rawMime, 'utf8') } },
+      ...(CONFIG_SET ? { ConfigurationSetName: CONFIG_SET } : {}),
     })
   );
 }

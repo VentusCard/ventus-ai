@@ -271,7 +271,7 @@ Triage sequence:
 7. Send a signed test delivery with `POST /v1/webhooks/{webhook_id}/test` after endpoint changes.
 8. Replay a failed delivery with `POST /v1/webhook-deliveries/{delivery_id}/replay` only after the partner endpoint is ready.
 
-Partner onboarding and support examples live in `docs/webhook-partner-integration-guide.md`.
+Partner onboarding and support examples live in `docs/integrations/webhook-partner-integration-guide.md`.
 
 ## S3 CSV Ingestion Triage
 

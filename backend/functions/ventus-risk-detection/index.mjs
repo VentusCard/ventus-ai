@@ -4,11 +4,11 @@
 // → runs deterministic risk detection + model-routed AML analysis
 // → writes to customer_risk_factors → fires risk_detected webhook if high severity
 
-import { createDbFactory } from '../../shared/db.mjs';
-import { createModelGateway } from '../../shared/model-gateway.mjs';
-import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
-import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
-import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
+import { createDbFactory } from '../../shared/platform/db.mjs';
+import { createModelGateway } from '../../shared/platform/model-gateway.mjs';
+import { createSecretsProvider, resolveSecretId } from '../../shared/platform/secrets.mjs';
+import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/platform/batch-outcome.mjs';
+import { createWebhookDispatcher } from '../../shared/platform/webhooks.mjs';
 
 const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
 const MODEL_PROVIDER_SECRET_ID = resolveSecretId({

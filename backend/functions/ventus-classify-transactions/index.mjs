@@ -4,17 +4,17 @@
 // → updates pipeline_runs → publishes to pillar, travel, lifestyle queues
 
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
-import { createDbFactory } from '../../shared/db.mjs';
-import { createModelGateway } from '../../shared/model-gateway.mjs';
-import { publishGeminiRateLimit } from '../../shared/gemini.mjs';
+import { createDbFactory } from '../../shared/platform/db.mjs';
+import { createModelGateway } from '../../shared/platform/model-gateway.mjs';
+import { publishGeminiRateLimit } from '../../shared/platform/gemini.mjs';
 import {
   classifyTransactionSummaries,
   stripPartnerContext,
   summarizeHttpTransaction,
-} from '../../shared/classify-core.mjs';
-import { markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
-import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
-import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
+} from '../../shared/pipeline/classify-core.mjs';
+import { markCustomerPipelineFailed } from '../../shared/platform/batch-outcome.mjs';
+import { createSecretsProvider, resolveSecretId } from '../../shared/platform/secrets.mjs';
+import { createWebhookDispatcher } from '../../shared/platform/webhooks.mjs';
 
 const sqs = new SQSClient({ region: 'us-east-2' });
 

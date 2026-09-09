@@ -2,8 +2,8 @@ import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwat
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Client } from 'pg';
-import { emitBatchStuckWebhooks } from './shared/batch-stuck.mjs';
-import { createWebhookDispatcher } from './shared/webhooks.mjs';
+import { emitBatchStuckWebhooks } from './shared/platform/batch-stuck.mjs';
+import { createWebhookDispatcher } from './shared/platform/webhooks.mjs';
 
 const fireWebhook = createWebhookDispatcher({ includeUrlInFinalError: false });
 

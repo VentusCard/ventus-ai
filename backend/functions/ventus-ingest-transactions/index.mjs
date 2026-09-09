@@ -7,9 +7,9 @@
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { parse } from 'csv-parse/sync';
-import { createDbFactory } from '../../shared/db.mjs';
-import { resolveSecretId } from '../../shared/secrets.mjs';
-import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
+import { createDbFactory } from '../../shared/platform/db.mjs';
+import { resolveSecretId } from '../../shared/platform/secrets.mjs';
+import { createWebhookDispatcher } from '../../shared/platform/webhooks.mjs';
 
 const s3 = new S3Client({ region: 'us-east-2' });
 const sqs = new SQSClient({ region: 'us-east-2' });

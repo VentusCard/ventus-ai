@@ -71,7 +71,7 @@
 //   Requires the `pg` package (dynamically imported).
 //   Install once:  npm i --prefix backend pg
 //
-// Full usage guide: docs/load-testing.md
+// Full usage guide: docs/engineering/load-testing.md
 //
 // Examples:
 //   # Burst: one 1000-txn wave

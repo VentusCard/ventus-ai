@@ -5,16 +5,16 @@
 
 import { STATE_TAX_RATES } from './tax-rates.mjs';
 import { ZIP_TO_STATE } from './zip-to-state.mjs';
-import { createDbFactory } from '../../shared/db.mjs';
+import { createDbFactory } from '../../shared/platform/db.mjs';
 import {
   is429,
   get429DelayMs,
   parseRetryAfterMs,
   publishGeminiRateLimit,
-} from '../../shared/gemini.mjs';
-import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
-import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
-import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
+} from '../../shared/platform/gemini.mjs';
+import { createSecretsProvider, resolveSecretId } from '../../shared/platform/secrets.mjs';
+import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/platform/batch-outcome.mjs';
+import { createWebhookDispatcher } from '../../shared/platform/webhooks.mjs';
 
 const LAMBDA_NAME =
   process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-analyze-pillar-transactions';
