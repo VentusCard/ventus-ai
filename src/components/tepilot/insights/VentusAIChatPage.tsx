@@ -69,6 +69,7 @@ export function VentusAIChatPage({
   const [loadingStep, setLoadingStep] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const suppressScrollRef = useRef(false);
 
   const priorityCards = useMemo(
     () => getVentusPriorityCards(getRevenueOpportunities(EMPTY_FILTERS)),
