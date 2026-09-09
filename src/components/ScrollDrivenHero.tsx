@@ -524,7 +524,7 @@ const ScrollDrivenHero = () => {
                   opacity: stage === 4 ? 1 : 0,
                   transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
                   pointerEvents: stage === 4 ? "auto" : "none",
-                  width: 300,
+                  width: 220,
                   overflow: "visible",
                 }}
               >
