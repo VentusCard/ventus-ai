@@ -140,7 +140,7 @@ const IntelligenceSection = () => {
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
               Context plane
             </span>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
               {STAGES.map((s, i) => (
                 <button
                   key={s.id}
