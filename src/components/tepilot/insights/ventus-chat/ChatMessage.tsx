@@ -27,7 +27,7 @@ export function ChatMessage({ role, content, timestamp, onRegenerate }: ChatMess
   if (role === "user") {
     return (
       <div className="flex flex-col items-end gap-1">
-        <div className="max-w-[80%] rounded-2xl rounded-br-md bg-slate-900 px-4 py-2.5 text-sm leading-relaxed text-white">
+        <div className="max-w-[80%] rounded-2xl rounded-br-md bg-indigo-700 px-4 py-2.5 text-sm leading-relaxed text-white">
           {content}
         </div>
         {time && <span className="pr-1 text-[10px] text-slate-400">{time}</span>}
@@ -37,14 +37,15 @@ export function ChatMessage({ role, content, timestamp, onRegenerate }: ChatMess
 
   return (
     <div className="group flex gap-3">
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-blue-200 bg-blue-50">
-        <span className="text-[12px] font-black leading-none text-blue-600">V</span>
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-700">
+        <span className="text-[12px] font-bold leading-none text-white">V</span>
       </div>
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-2">
-          <span className="text-[11px] font-semibold text-slate-700">Ventus AI</span>
+          <span className="text-[11px] font-semibold text-slate-600">Ventus AI</span>
           {time && <span className="text-[10px] text-slate-400">{time}</span>}
         </div>
+
         <div
           className={cn(
             "max-w-none text-[13.5px] leading-relaxed text-slate-700",
