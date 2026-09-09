@@ -130,30 +130,31 @@ export function VentusAIChatPage({
     hasMessages && !isLoading && messages[messages.length - 1]?.role === "assistant" && followUps.length > 0;
 
   return (
-    <div className="flex h-full min-h-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
+    <div className="flex h-full min-h-0 overflow-hidden rounded-xl border border-slate-200/80 bg-white">
       <PromptRail onSelect={handleSend} />
 
       {/* Center column */}
-      <div className="flex min-w-0 flex-1 flex-col bg-slate-50">
-        <header className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 py-3.5">
+      <div className="flex min-w-0 flex-1 flex-col bg-[#FBFCFE]">
+        <header className="flex shrink-0 items-center justify-between border-b border-slate-200/70 bg-white px-6 py-3.5">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600">
-              <span className="text-base font-black leading-none text-white">V</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-700">
+              <span className="text-base font-bold leading-none text-white">V</span>
             </div>
             <div>
               <h1 className="text-[15px] font-semibold tracking-tight text-slate-900">
                 Ask Ventus AI · Leadership briefing
               </h1>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-400">
                 Grounded on 68.2M customers · 109M accounts · $385B annual spend
               </p>
             </div>
           </div>
-          <span className="hidden items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10.5px] font-medium text-emerald-700 sm:flex">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+          <span className="hidden items-center gap-1.5 text-[10.5px] font-medium uppercase tracking-[0.1em] text-slate-400 sm:flex">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
             Live context
           </span>
         </header>
+
 
         {/* Transcript */}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
