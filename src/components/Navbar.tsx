@@ -17,15 +17,11 @@ const PAGE_LINKS = [
 /** Section anchors tracked for the nav underline, in document order. */
 const TRACKED_SECTIONS = ["intelligence", "personalization", "insights", "faq"];
 
-const useActiveSection = (enabled: boolean) => {
+const useActiveSection = (pathname: string) => {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!enabled) {
-      setActiveId(null);
-      return;
-    }
-
+    setActiveId(null);
     const visible = new Map<string, number>();
     const observer = new IntersectionObserver(
       (entries) => {
@@ -49,21 +45,37 @@ const useActiveSection = (enabled: boolean) => {
             best = id;
           }
         }
-        console.log("IO_ACTIVE", best);
         setActiveId(best);
       },
-      { rootMargin: "-72px 0px -45% 0px", threshold: [0, 0.15, 0.35, 0.6, 0.9] }
+      { rootMargin: "-72px 0px -40% 0px", threshold: [0, 0.05, 0.2, 0.5, 0.9] }
     );
 
-    const els = TRACKED_SECTIONS.map((id) => document.getElementById(id)).filter(
-      (el): el is HTMLElement => Boolean(el)
-    );
-    els.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [enabled]);
+    // Page content can mount after the nav (lazy routes), so poll briefly for anchors.
+    const seen = new Set<string>();
+    const attach = () => {
+      for (const id of TRACKED_SECTIONS) {
+        if (seen.has(id)) continue;
+        const el = document.getElementById(id);
+        if (el) {
+          seen.add(id);
+          observer.observe(el);
+        }
+      }
+    };
+    attach();
+    const interval = window.setInterval(attach, 300);
+    const stop = window.setTimeout(() => window.clearInterval(interval), 5000);
+
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(stop);
+      observer.disconnect();
+    };
+  }, [pathname]);
 
   return activeId;
 };
+
 
 const navLinkClass =
   "relative cursor-pointer text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900";
