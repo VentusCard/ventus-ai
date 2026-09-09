@@ -548,12 +548,12 @@ function SignalSection({
   );
 
   const cardBase = familyMeta
-    ? cn(familyMeta.fullBg, familyMeta.cardBorder, familyMeta.cardBorderHover)
-    : cn("bg-slate-600 border-slate-500 hover:border-slate-400");
-  const activeRing = familyMeta ? `ring-2 ${familyMeta.cardRing}` : "ring-2 ring-slate-300";
-  const chipBase = familyMeta?.fullAccent ?? "bg-white/15 text-white border-white/25";
-  const barColor = familyMeta ? "bg-white/30" : "bg-slate-300";
-  const labelColor = familyMeta?.fullText ?? "text-white";
+    ? cn("border-slate-200 hover:border-slate-300", familyMeta.tint)
+    : "bg-slate-50 border-slate-200 hover:border-slate-300";
+  const activeRing = familyMeta ? `ring-1 ${familyMeta.cardRing}` : "ring-1 ring-slate-300";
+  const chipBase = familyMeta?.chip ?? "bg-slate-100 text-slate-700 border-slate-200";
+  const barColor = familyMeta?.dot ?? "bg-slate-400";
+  const labelColor = "text-slate-900";
 
   return (
     <button
@@ -567,7 +567,7 @@ function SignalSection({
     >
       <span className={cn("absolute inset-y-0 left-0 w-[5px]", barColor)} />
       <span className="mb-0 flex items-center gap-2">
-        <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px] border text-white", chipBase)}>
+        <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px] border", chipBase)}>
           <Icon className="h-3.5 w-3.5" />
         </span>
         <span className={cn("text-[13px] font-semibold tracking-tight", labelColor)}>{signal.label}</span>
@@ -577,8 +577,8 @@ function SignalSection({
           delayMs={startDelay}
           className="rounded-full ring-[3px] ring-white/60"
         />
-        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-white/80">
-          <b className="font-semibold text-white">{count}</b> · 24h
+        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-500">
+          <b className="font-semibold text-slate-700">{count}</b> · 24h
         </span>
       </span>
 
