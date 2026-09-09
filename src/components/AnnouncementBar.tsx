@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 
@@ -6,15 +6,35 @@ const STORAGE_KEY = "ventus-announcement-bar-dismissed";
 
 interface AnnouncementBarProps {
   onClose?: () => void;
+  onHeightChange?: (height: number) => void;
 }
 
-const AnnouncementBar = ({ onClose }: AnnouncementBarProps) => {
+const AnnouncementBar = ({ onClose, onHeightChange }: AnnouncementBarProps) => {
   const [isVisible, setIsVisible] = useState(false);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const dismissed = sessionStorage.getItem(STORAGE_KEY);
     setIsVisible(dismissed !== "true");
   }, []);
+
+  useEffect(() => {
+    if (!barRef.current || !isVisible) return;
+
+    const measure = () => {
+      onHeightChange?.(barRef.current?.offsetHeight ?? 40);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(barRef.current);
+    window.addEventListener("resize", measure);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [isVisible, onHeightChange]);
 
   const handleClose = () => {
     sessionStorage.setItem(STORAGE_KEY, "true");
@@ -26,6 +46,7 @@ const AnnouncementBar = ({ onClose }: AnnouncementBarProps) => {
 
   return (
     <div
+      ref={barRef}
       className="fixed top-0 left-0 right-0 z-[60] h-auto min-h-10 bg-blue-600 py-2 text-white sm:h-10 sm:py-0"
       role="banner"
       aria-label="Conference announcement"
