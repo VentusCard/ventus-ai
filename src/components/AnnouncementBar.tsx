@@ -4,43 +4,50 @@ import { X } from "lucide-react";
 
 const STORAGE_KEY = "ventus-announcement-bar-dismissed";
 
-const AnnouncementBar = () => {
+interface AnnouncementBarProps {
+  onClose?: () => void;
+}
+
+const AnnouncementBar = ({ onClose }: AnnouncementBarProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const dismissed = sessionStorage.getItem(STORAGE_KEY) === "true";
-    setIsVisible(!dismissed);
+    const dismissed = sessionStorage.getItem(STORAGE_KEY);
+    setIsVisible(dismissed !== "true");
   }, []);
 
-  const handleDismiss = () => {
+  const handleClose = () => {
     sessionStorage.setItem(STORAGE_KEY, "true");
     setIsVisible(false);
+    onClose?.();
   };
 
   if (!isVisible) return null;
 
   return (
-    <div className="relative w-full bg-blue-50 border-b border-blue-100">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 min-h-[36px] md:min-h-[40px] py-1.5 md:py-2 flex items-center justify-center gap-3">
-        <p className="text-xs md:text-sm text-blue-900 leading-tight">
-          <span className="font-semibold">See Ventus AI live this fall</span>
-          <span className="text-blue-700/80 hidden sm:inline"> — Finovate Fall, Boston Fintech Week, and MoneyLIVE 2026.</span>
-          <span className="text-blue-700/80 sm:hidden"> at Finovate Fall, Boston Fintech Week, and MoneyLIVE 2026.</span>
+    <div
+      className="fixed top-0 left-0 right-0 z-[60] h-10 bg-blue-600 text-white"
+      role="banner"
+      aria-label="Conference announcement"
+    >
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-6">
+        <span className="hidden sm:block" aria-hidden="true" />
+        <p className="flex-1 text-center text-sm font-medium sm:flex-none sm:text-left">
+          Meet the Ventus team at Finovate Fall, MoneyLIVE, and Boston Fintech Week{" "}
+          <span className="hidden sm:inline">—</span>{" "}
           <Link
             to="/contact"
-            className="ml-1.5 inline-flex items-center font-semibold text-blue-600 hover:text-blue-700 underline-offset-2 hover:underline whitespace-pre-wrap"
+            className="inline-flex items-center gap-1 underline underline-offset-2 transition-opacity hover:opacity-80"
           >
-            Schedule a Meeting{"\n"}
-            <span aria-hidden="true" className="ml-0.5">→</span>
+            schedule a meeting
           </Link>
         </p>
         <button
-          type="button"
-          onClick={handleDismiss}
+          onClick={handleClose}
           aria-label="Dismiss announcement"
-          className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 p-1 rounded-md text-blue-600/70 hover:text-blue-800 hover:bg-blue-100 transition-colors"
+          className="ml-3 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
         >
-          <X className="w-3.5 h-3.5 md:w-4 md:h-4" />
+          <X size={14} strokeWidth={2.5} />
         </button>
       </div>
     </div>
