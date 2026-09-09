@@ -618,9 +618,6 @@ const ScrollDrivenHero = () => {
               </div>
 
             </div>
-            <p className="mt-4 xl:mt-5 text-center text-sm text-gray-500 max-w-xl leading-relaxed mx-auto">
-              See a messy stream of transactions get categorized, enriched with life signals, and orchestrated into personalized offers.
-            </p>
           </div>
         </div>
       </div>
