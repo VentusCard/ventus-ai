@@ -58,6 +58,7 @@ const MERCHANT_LOOKUP: Record<string, string> = {
 
 // Curated image bank — keys must match the imageCategory enum returned by generate-next-offers.
 // LLM picks the closest category from the rollup label; we hand-pick a vetted Unsplash photo per key.
+// NOTE: a dead URL silently falls back to DEFAULT_IMAGE (blue gradient). Verify with curl before changing.
 const COLLECTION_IMAGE_BANK: Record<string, string> = {
   ski: "https://images.unsplash.com/photo-1551524559-8af4e6624178?w=400&h=200&fit=crop",
   beach: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=200&fit=crop",
