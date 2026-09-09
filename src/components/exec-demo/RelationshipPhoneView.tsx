@@ -100,7 +100,7 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
         </div>
 
         {/* Recommended for You — product slider */}
-        <div className="flex-1 min-h-[330px] flex flex-col">
+        <div className="flex-1 min-h-[280px] flex flex-col">
           <div className="flex items-center gap-1.5 mb-1.5 px-1">
             <Sparkles className="w-3 h-3 text-indigo-500" />
             <span className="text-[10px] font-bold text-slate-700">Recommended for You</span>

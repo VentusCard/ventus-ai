@@ -216,8 +216,8 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
   };
 
   return (
-    <div className={compact ? "h-full px-2 py-1" : "px-2 py-3"}>
-      <div className={compact ? "relative h-full" : "relative"}>
+    <div className={compact ? "h-full px-2 py-1 flex flex-col justify-center" : "px-2 py-3"}>
+      <div className={compact ? "relative h-full max-h-[85%] mx-auto w-full" : "relative"}>
         {/* Slider viewport */}
         <div
           className={compact ? "overflow-hidden h-full" : "overflow-hidden"}
@@ -244,7 +244,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                     className="rounded-2xl shadow-md overflow-hidden h-full flex flex-col"
                     style={{ background: fam.gradient, borderTop: `3px solid ${fam.accent}` }}
                   >
-                    <div className={`${compact ? "p-4 grid grid-rows-[auto_auto_minmax(0,1fr)_auto_auto] gap-2.5" : "p-5 gap-2.5 flex flex-col"} flex-1 min-h-0`}>
+                    <div className={`${compact ? "p-3.5 grid grid-rows-[auto_auto_minmax(0,1fr)_auto_auto] gap-2" : "p-5 gap-2.5 flex flex-col"} flex-1 min-h-0`}>
                       <div className="flex items-start gap-2.5">
                         <div
                           className={`${compact ? "w-9 h-9" : "w-9 h-9"} rounded-xl flex items-center justify-center shrink-0 shadow-sm`}
