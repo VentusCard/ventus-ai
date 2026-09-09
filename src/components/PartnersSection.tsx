@@ -1,8 +1,8 @@
 const partners = [
-  { name: "Finovate", src: "/partners/finovate.png", height: 96 },
-  { name: "Fintech Sandbox", src: "/partners/fintech-sandbox.png", height: 128 },
-  { name: "OneValley", src: "/partners/onevalley.png", height: 132 },
-  { name: "Plug and Play", src: "/partners/plug-and-play.png", height: 124 },
+  { name: "Finovate", src: "/partners/finovate.png", height: 72 },
+  { name: "Fintech Sandbox", src: "/partners/fintech-sandbox.png", height: 96 },
+  { name: "OneValley", src: "/partners/onevalley.png", height: 88 },
+  { name: "Plug and Play", src: "/partners/plug-and-play.png", height: 64 },
 ];
 
 const PartnersSection = () => {
