@@ -11,7 +11,8 @@ import { getVentusPriorityCards } from "@/lib/ventusPriorityCards";
 
 const EMPTY_FILTERS = { cardProducts: [], regions: [], ageRanges: [] };
 
-export { LEADERSHIP_CONTEXT } from "@/lib/ventusLeadershipContext";
+import { LEADERSHIP_CONTEXT } from "@/lib/ventusLeadershipContext";
+export { LEADERSHIP_CONTEXT };
 
 export const VENTUS_QUICK_ACTIONS = [
   "Where are we losing deposits?",
@@ -77,6 +78,7 @@ export function VentusAIChatPage({
   const { messages, isLoading, sendMessage } = useAdvisorChat({
     advisorContext: LEADERSHIP_CONTEXT,
     functionName: "bankwide-chat",
+    usePrewarm: true,
   });
 
   const handleSend = useCallback(
