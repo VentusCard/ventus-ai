@@ -33,8 +33,7 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
  * (type size, photo height, padding) identical at any window size or browser zoom.
  */
 const DESIGN_WIDTH = 360;
-const MIN_SCALE = 0.5;
-const MAX_SCALE = 1.6;
+const DESIGN_HEIGHT = 640;
 
 /** Measures a box and returns the uniform scale that maps DESIGN_WIDTH onto it. */
 function useDesignScale<T extends HTMLElement>() {
@@ -51,8 +50,9 @@ function useDesignScale<T extends HTMLElement>() {
     return () => ro.disconnect();
   }, []);
 
-  const raw = box.width > 0 ? box.width / DESIGN_WIDTH : 1;
-  const scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, raw));
+  const widthScale = box.width > 0 ? box.width / DESIGN_WIDTH : 1;
+  const heightScale = box.height > 0 ? box.height / DESIGN_HEIGHT : 1;
+  const scale = Math.min(widthScale, heightScale);
   return { ref, scale, box };
 }
 
@@ -206,12 +206,12 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         {/* Measured viewport: content is authored at DESIGN_WIDTH and uniformly scaled to fit */}
         <div ref={scaleRef} className="flex-1 min-h-0 relative overflow-hidden">
         <div
-          className="absolute top-0 left-0 flex flex-col"
+          className="absolute top-0 left-1/2 flex flex-col"
           style={{
             width: DESIGN_WIDTH,
-            height: box.height > 0 ? box.height / scale : "100%",
-            transform: `scale(${scale})`,
-            transformOrigin: "top left",
+            height: DESIGN_HEIGHT,
+            transform: `translateX(-50%) scale(${scale})`,
+            transformOrigin: "top center",
             visibility: box.width > 0 ? "visible" : "hidden",
           }}
         >
