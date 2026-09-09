@@ -1,6 +1,14 @@
 import ScrollReveal from "@/components/ScrollReveal";
 import HueField from "@/components/HueField";
-import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Star,
+  Database,
+  Megaphone,
+  Bot,
+  Globe,
+  Cloud,
+} from "lucide-react";
 import fisLogo from "@/assets/fis-logo.svg";
 import fiservLogo from "@/assets/fiserv-logo.png";
 import jackHenryLogo from "@/assets/jack-henry-logo.png";
@@ -12,7 +20,8 @@ type Tile = {
   name: string;
   src?: string;
   label?: string;
-  icon?: "star" | "iphone";
+  icon?: "star" | "iphone" | "database" | "megaphone" | "bot" | "globe" | "cloud";
+  href?: string;
 };
 
 const IphoneGlyph = ({ className }: { className?: string }) => (
@@ -46,15 +55,27 @@ const IphoneGlyph = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const sources: Tile[] = [
+const coreProviders: Tile[] = [
   { name: "FIS", src: fisLogo },
   { name: "Fiserv", src: fiservLogo },
   { name: "Jack Henry SilverLake", src: jackHenryLogo },
+];
+
+const dataWarehouses: Tile[] = [
   { name: "Databricks", src: databricksLogo },
   { name: "Snowflake", src: snowflakeLogo },
 ];
 
+const sources: Tile[] = [
+  { name: "Core Service Providers", label: "Core Service Providers", icon: "cloud" },
+  { name: "Data Warehouse", label: "Data Warehouse", icon: "database" },
+  { name: "External Intelligence", label: "External Intelligence", icon: "globe" },
+];
+
 const destinations: Tile[] = [
+  { name: "Ventus AI Database", label: "Ventus AI Database", icon: "database" },
+  { name: "Marketing Automation", label: "Marketing Automation", icon: "megaphone" },
+  { name: "AI Coworker", label: "AI Coworker", icon: "bot", href: "/coworker" },
   { name: "Salesforce Financial Cloud", src: salesforceLogo },
   { name: "Rewards Engine", label: "Rewards Engine", icon: "star" },
   { name: "Digital Banking App", label: "Digital Banking App", icon: "iphone" },
@@ -62,29 +83,119 @@ const destinations: Tile[] = [
 
 const iconAccentClass = "text-blue-600";
 
-const TileBox = ({ tile }: { tile: Tile }) => (
+const IconFor = ({ icon }: { icon: Tile["icon"] }) => {
+  switch (icon) {
+    case "star":
+      return <Star className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "iphone":
+      return <IphoneGlyph className={`h-4 w-4 shrink-0 ${iconAccentClass}`} />;
+    case "database":
+      return <Database className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "megaphone":
+      return <Megaphone className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "bot":
+      return <Bot className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "globe":
+      return <Globe className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "cloud":
+      return <Cloud className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    default:
+      return null;
+  }
+};
+
+const TileBox = ({ tile }: { tile: Tile }) => {
+  const content = (
+    <div
+      className={`ventus-glass flex items-center justify-center rounded-xl relative z-10 w-full ${
+        tile.href ? "group" : ""
+      }`}
+      style={{ height: 60 }}
+    >
+      {tile.src ? (
+        <img
+          src={tile.src}
+          alt={tile.name}
+          title={tile.name}
+          className="max-h-9 max-w-[60%] w-auto object-contain"
+        />
+      ) : (
+        <span className="flex items-center justify-center gap-2 text-[14px] font-semibold text-gray-500 tracking-tight px-2 text-center">
+          {tile.icon ? <IconFor icon={tile.icon} /> : null}
+          {tile.label}
+        </span>
+      )}
+      {tile.href ? (
+        <span className="absolute inset-0 rounded-xl ring-1 ring-inset ring-blue-600/0 transition-all group-hover:ring-blue-600/30 group-hover:bg-blue-50/20" />
+      ) : null}
+    </div>
+  );
+
+  if (tile.href) {
+    return (
+      <Link to={tile.href} aria-label={tile.name} className="block">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
+};
+
+const CoreProviderTicker = () => (
   <div
-    className="ventus-glass flex items-center justify-center rounded-xl relative z-10 w-full"
-    style={{ height: 72 }}
+    className="ventus-glass flex items-center rounded-xl relative z-10 w-full overflow-hidden"
+    style={{ height: 60 }}
   >
-    {tile.src ? (
-      <img
-        src={tile.src}
-        alt={tile.name}
-        title={tile.name}
-        className="max-h-10 max-w-[65%] w-auto object-contain"
-      />
-    ) : (
-      <span className="flex items-center justify-center gap-2 text-[15px] font-semibold text-gray-500 tracking-tight px-2 text-center">
-        {tile.icon === "star" ? (
-          <Star className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />
-        ) : null}
-        {tile.icon === "iphone" ? <IphoneGlyph className={`h-4 w-4 shrink-0 ${iconAccentClass}`} /> : null}
-        {tile.label}
-      </span>
-    )}
+    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white/80 to-transparent z-20 pointer-events-none" />
+    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/80 to-transparent z-20 pointer-events-none" />
+    <div className="ticker-track flex items-center">
+      {[...coreProviders, ...coreProviders, ...coreProviders].map((t, i) => (
+        <div
+          key={`${t.name}-${i}`}
+          className="ticker-item flex items-center justify-center px-6"
+        >
+          {t.src ? (
+            <img
+              src={t.src}
+              alt={t.name}
+              title={t.name}
+              className="max-h-8 max-w-[120px] w-auto object-contain"
+            />
+          ) : (
+            <span className="text-[14px] font-semibold text-gray-500 whitespace-nowrap">
+              {t.name}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
   </div>
 );
+
+const DataWarehouseCard = () => (
+  <div
+    className="ventus-glass flex items-center justify-center rounded-xl relative z-10 w-full gap-4 px-4"
+    style={{ height: 60 }}
+  >
+    {dataWarehouses.map((t) => (
+      <img
+        key={t.name}
+        src={t.src}
+        alt={t.name}
+        title={t.name}
+        className="max-h-7 w-auto object-contain"
+        style={{ maxWidth: "42%" }}
+      />
+    ))}
+  </div>
+);
+
+const SourceTile = ({ tile }: { tile: Tile }) => {
+  if (tile.name === "Core Service Providers") return <CoreProviderTicker />;
+  if (tile.name === "Data Warehouse") return <DataWarehouseCard />;
+  return <TileBox tile={tile} />;
+};
 
 const IntegrationSection = () => {
   const srcYs = sources.map((_, i) => ((i + 0.5) / sources.length) * 100);
@@ -205,7 +316,7 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2 min-w-0">
                   {sources.map((t) => (
-                    <TileBox key={t.name} tile={t} />
+                    <SourceTile key={t.name} tile={t} />
                   ))}
                 </div>
 
@@ -254,6 +365,24 @@ const IntegrationSection = () => {
           </div>
         </ScrollReveal>
       </div>
+
+      <style>{`
+        @keyframes ticker-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.3333%); }
+        }
+        .ticker-track {
+          animation: ticker-scroll 12s linear infinite;
+          will-change: transform;
+        }
+        .ticker-track:hover {
+          animation-play-state: paused;
+        }
+        .ticker-item {
+          flex: 0 0 33.3333%;
+          min-width: 140px;
+        }
+      `}</style>
     </section>
   );
 };
