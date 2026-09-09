@@ -6,10 +6,10 @@ import plugAndPlayAsset from "@/assets/partners/plug-and-play.png.asset.json";
 // Heights are optically normalised, not mathematically equal:
 // wordmarks with descenders / wide lockups render slightly shorter.
 const partners = [
-  { name: "Finovate", src: finovateAsset.url, height: 152 },
-  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 138 },
-  { name: "OneValley", src: onevalleyAsset.url, height: 126 },
-  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 160 },
+  { name: "Finovate", src: finovateAsset.url, height: 128 },
+  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 118 },
+  { name: "OneValley", src: onevalleyAsset.url, height: 108 },
+  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 132 },
 ];
 
 const PartnersSection = () => {
@@ -25,13 +25,13 @@ const PartnersSection = () => {
           </h2>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-6 md:gap-x-10 gap-y-8">
+        <div className="flex flex-wrap items-center justify-between gap-x-8 md:gap-x-12 gap-y-8">
           {partners.map((partner) => (
             <img
               key={partner.name}
               src={partner.src}
               alt={`${partner.name} logo`}
-              style={{ height: partner.height, maxWidth: 360 }}
+              style={{ height: partner.height, maxWidth: 320 }}
               className="w-auto object-contain opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
             />
           ))}
