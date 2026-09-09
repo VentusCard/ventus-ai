@@ -325,7 +325,7 @@ const ScrollDrivenHero = () => {
 
           {/* RIGHT COLUMN */}
           <div className="order-2 xl:order-none w-full xl:w-[50%] flex flex-col items-center xl:items-end mt-2 xl:mt-0">
-            <div className="relative flex flex-col xl:flex-row items-center xl:items-center justify-center gap-4 xl:gap-4" style={{ maxWidth: "calc(100vw - 48px)" }}>
+            <div className="relative flex flex-col xl:flex-row items-center xl:items-center justify-center xl:justify-end gap-4 xl:gap-6" style={{ maxWidth: "calc(100vw - 48px)" }}>
               {/* The Card */}
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out hero-dark-card"
