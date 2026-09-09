@@ -206,7 +206,7 @@ const IntegrationSection = () => {
         ]}
       />
       <div className="mx-auto max-w-7xl px-6 md:px-8 relative z-10">
-        <ScrollReveal>
+        <div>
           <div className="max-w-3xl">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
               Integration
