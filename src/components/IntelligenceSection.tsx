@@ -141,8 +141,8 @@ const IntelligenceSection = () => {
   }, []);
 
   return (
-    <section id="intelligence" ref={trackRef} className="bg-white scroll-mt-28 relative h-[340vh]">
-      <div className="sticky top-0 flex min-h-screen flex-col justify-center max-w-7xl mx-auto px-6 md:px-8 pt-20 pb-6">
+<section id="intelligence" ref={trackRef} className="bg-white scroll-mt-28 relative h-auto lg:h-[340vh]">
+      <div className="flex flex-col justify-center max-w-7xl mx-auto px-6 md:px-8 py-20 lg:py-0 lg:sticky lg:top-0 lg:min-h-screen lg:pt-20 lg:pb-6">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-blue-600 mb-3">
           Intelligence
         </p>
@@ -192,7 +192,7 @@ const IntelligenceSection = () => {
             }}
           >
             {/* Sources */}
-            <FlowCell active={stage >= 0} connectorActive={stage >= 1} showConnector>
+            <FlowCell active={stage >= 0} connectorActive={stage >= 1} showConnector cellIndex={0} innerRef={(el) => (cellRefs.current[0] = el)}>
               <div
                 className={`flex h-full flex-col justify-center gap-2 rounded-xl border px-4 py-4 transition-all duration-700 ${
                   stage >= 0
@@ -214,7 +214,7 @@ const IntelligenceSection = () => {
             </FlowCell>
 
             {/* Behavior enrichment */}
-            <FlowCell active={stage >= 1} connectorActive={stage >= 2} showConnector>
+            <FlowCell active={stage >= 1} connectorActive={stage >= 2} showConnector cellIndex={1} innerRef={(el) => (cellRefs.current[1] = el)}>
               <div
                 className={`flex h-full flex-col items-center justify-center gap-3 rounded-xl border px-4 py-4 text-center transition-all duration-700 ${
                   stage >= 1
@@ -230,7 +230,7 @@ const IntelligenceSection = () => {
             </FlowCell>
 
             {/* External intelligence */}
-            <FlowCell active={stage >= 2} connectorActive={stage >= 3} showConnector emerald>
+            <FlowCell active={stage >= 2} connectorActive={stage >= 3} showConnector emerald cellIndex={2} innerRef={(el) => (cellRefs.current[2] = el)}>
               <div
                 className={`flex h-full flex-col items-center justify-center gap-3 rounded-xl border px-4 py-4 text-center transition-all duration-700 ${
                   stage >= 2
@@ -244,7 +244,7 @@ const IntelligenceSection = () => {
             </FlowCell>
 
             {/* Holistic understanding */}
-            <FlowCell active={stage >= 3}>
+            <FlowCell active={stage >= 3} cellIndex={3} innerRef={(el) => (cellRefs.current[3] = el)}>
               <div
                 className={`flex h-full flex-col justify-center gap-2.5 rounded-xl border px-4 py-4 transition-all duration-700 ${
                   stage >= 3
