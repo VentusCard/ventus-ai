@@ -514,16 +514,15 @@ const ScrollDrivenHero = () => {
               </div>
 
               {/* Ventus Orchestrate panel — sits to the RIGHT of the dark card (desktop only) */}
-              {stage === 4 && (
               <div
-                className="relative animate-fade-in hidden xl:block text-gray-900"
+                className={`relative hidden xl:block text-gray-900 transition-all duration-500 ease-out ${stage === 4 ? 'opacity-100 ml-6' : 'opacity-0 ml-0'}`}
                 style={{
-                  width: 220,
-                  overflow: "visible",
+                  width: stage === 4 ? 220 : 0,
+                  overflow: "hidden",
                 }}
               >
                 {/* Header */}
-                <div className="mb-3 relative z-10">
+                <div className="mb-3 relative z-10" style={{ width: 220 }}>
                   <div className="flex items-center gap-2.5">
                     <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
                       V
@@ -552,11 +551,11 @@ const ScrollDrivenHero = () => {
                 </div>
 
                 {/* Three output cards — stacked vertically */}
-                <div className="flex flex-col gap-2.5 relative z-10">
+                <div className="flex flex-col gap-2.5 relative z-10" style={{ width: 220 }}>
                   {(activePersona?.outputs ?? [null, null, null]).map((output, oi) => {
                     const stagger = oi * 0.08;
                     const cardProgress = activePersona
-                      ? Math.max(0, Math.min(1, (personaWindowProgress - stagger) / 0.2))
+                      ? Math.max(0, Math.min(1, (cardRevealProgress - stagger) / 0.2))
                       : 0;
                     const color = activePersona?.color ?? "#94a3b8";
                     return (
@@ -620,7 +619,7 @@ const ScrollDrivenHero = () => {
                   </svg>
                 )}
               </div>
-              )}
+
             </div>
           </div>
         </div>
