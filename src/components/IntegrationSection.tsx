@@ -13,7 +13,6 @@ import fiservLogo from "@/assets/fiserv-logo.png";
 import jackHenryLogo from "@/assets/jack-henry-logo.png";
 import databricksLogo from "@/assets/databricks-logo.png";
 import snowflakeLogo from "@/assets/snowflake-logo.png";
-import salesforceLogo from "@/assets/salesforce-logo.png";
 
 type Tile = {
   name: string;
@@ -73,9 +72,8 @@ const sources: Tile[] = [
 
 const destinations: Tile[] = [
   { name: "Ventus AI Database", label: "Ventus AI Database", icon: "database" },
-  { name: "Marketing Automation", label: "Marketing Automation", icon: "megaphone" },
+  { name: "Marketing/CRM automation", label: "Marketing/CRM automation", icon: "megaphone" },
   { name: "AI Coworker", label: "AI Coworker", icon: "bot", href: "/coworker" },
-  { name: "Salesforce Financial Cloud", src: salesforceLogo },
   { name: "Rewards Engine", label: "Rewards Engine", icon: "star" },
   { name: "Digital Banking App", label: "Digital Banking App", icon: "iphone" },
 ];
