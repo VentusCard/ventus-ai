@@ -194,21 +194,27 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
               {l.label}
             </a>
           ))}
+          {LEFT_PAGE_LINKS.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              onClick={closeMobileMenu}
+              className="block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+            >
+              {l.label}
+            </Link>
+          ))}
           <div className="my-2 h-px bg-slate-200" />
-          <Link
-            to="/insights"
-            onClick={closeMobileMenu}
-            className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
-          >
-            Insights
-          </Link>
-          <Link
-            to="/faq"
-            onClick={closeMobileMenu}
-            className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
-          >
-            FAQ
-          </Link>
+          {RIGHT_PAGE_LINKS.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              onClick={closeMobileMenu}
+              className="block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+            >
+              {l.label}
+            </Link>
+          ))}
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-4">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>
