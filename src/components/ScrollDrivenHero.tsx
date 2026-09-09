@@ -217,7 +217,6 @@ const ScrollDrivenHero = () => {
   // 4 stages: Raw Stream / Categorize / Detect / Orchestrate
   // <0.1 = 1, <0.22 = 2, <0.5 = 3 (Detect), >=0.5 = 4 (Orchestrate)
   const stage = scrollProgress < 0.1 ? 1 : scrollProgress < 0.22 ? 2 : scrollProgress < 0.5 ? 3 : 4;
-  const activeStageIdx = stage - 1;
 
   // Detect stage: progressively reveal pills 0..3
   const detectProgress = stage >= 3 ? Math.min(1, Math.max(0, (scrollProgress - 0.22) / 0.28)) : 0;
