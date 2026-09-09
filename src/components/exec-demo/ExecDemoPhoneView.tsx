@@ -33,7 +33,7 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
  * (type size, photo height, padding) identical at any window size or browser zoom.
  */
 const DESIGN_WIDTH = 360;
-const MIN_SCALE = 0.8;
+const MIN_SCALE = 0.5;
 const MAX_SCALE = 1.6;
 
 /** Measures a box and returns the uniform scale that maps DESIGN_WIDTH onto it. */
