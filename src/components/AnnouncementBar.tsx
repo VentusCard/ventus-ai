@@ -69,7 +69,7 @@ const AnnouncementBar = ({ onClose, onHeightChange }: AnnouncementBarProps) => {
         <button
           onClick={handleClose}
           aria-label="Dismiss announcement"
-          className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 flex-shrink-0 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20 sm:right-4 sm:h-6 sm:w-6"
+          className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 flex-shrink-0 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20 min-w-0 min-h-0 sm:right-4 sm:h-6 sm:w-6"
         >
           <X className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2.5} />
         </button>
