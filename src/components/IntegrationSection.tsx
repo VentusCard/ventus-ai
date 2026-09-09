@@ -1,4 +1,3 @@
-import ScrollReveal from "@/components/ScrollReveal";
 import HueField from "@/components/HueField";
 import { Link } from "react-router-dom";
 import {
@@ -206,7 +205,7 @@ const IntegrationSection = () => {
         ]}
       />
       <div className="mx-auto max-w-7xl px-6 md:px-8 relative z-10">
-        <ScrollReveal>
+        <div>
           <div className="max-w-3xl">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
               Integration
@@ -224,9 +223,9 @@ const IntegrationSection = () => {
             </p>
           </div>
 
-        </ScrollReveal>
+        </div>
 
-        <ScrollReveal delay={0.12}>
+        <div>
           <div
             className="ventus-glass ventus-glass-soft mt-14 rounded-2xl p-6 md:p-8 min-w-0"
           >
@@ -263,15 +262,7 @@ const IntegrationSection = () => {
                     strokeDasharray="1.4 1.4"
                     opacity="0.9"
                     vectorEffect="non-scaling-stroke"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      from="0"
-                      to="-6"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
+                  />
                 ))}
                 {dstYs.map((y, i) => (
                   <path
@@ -285,15 +276,7 @@ const IntegrationSection = () => {
                     strokeDasharray="1.4 1.4"
                     opacity="0.9"
                     vectorEffect="non-scaling-stroke"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      from="0"
-                      to="-6"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
+                  />
                 ))}
               </svg>
 
@@ -310,17 +293,10 @@ const IntegrationSection = () => {
                 </div>
 
                 <div className="hidden lg:flex items-center justify-center lg:w-[260px] shrink-0">
-                  <style>{`
-                    @keyframes glowPulse {
-                      0%, 100% { box-shadow: 0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18); }
-                      50% { box-shadow: 0 0 0 8px rgba(59,130,246,0.10), 0 24px 60px -10px rgba(59,130,246,0.35), 0 0 80px rgba(59,130,246,0.28); }
-                    }
-                  `}</style>
                   <div
-                    className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
+                    className="rounded-2xl w-full overflow-hidden bg-white relative z-10 shadow-lg"
                     style={{
                       border: "1px solid #DBEAFE",
-                      animation: "glowPulse 3s ease-in-out infinite",
                     }}
                   >
                     <div className="px-5 py-8 flex flex-col items-center justify-center gap-3">
@@ -352,7 +328,7 @@ const IntegrationSection = () => {
               </div>
             </div>
           </div>
-        </ScrollReveal>
+        </div>
       </div>
 
 
