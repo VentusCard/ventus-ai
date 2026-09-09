@@ -6,15 +6,15 @@ import plugAndPlayAsset from "@/assets/partners/plug-and-play.png.asset.json";
 // Heights are optically normalised, not mathematically equal:
 // wordmarks with descenders / wide lockups render slightly shorter.
 const partners = [
-  { name: "Finovate", src: finovateAsset.url, height: 152 },
-  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 138 },
-  { name: "OneValley", src: onevalleyAsset.url, height: 126 },
-  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 160 },
+  { name: "Finovate", src: finovateAsset.url, height: 168 },
+  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 154 },
+  { name: "OneValley", src: onevalleyAsset.url, height: 142 },
+  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 176 },
 ];
 
 const PartnersSection = () => {
   return (
-    <section className="bg-white py-10 md:py-12">
+    <section className="bg-white py-14 md:py-16">
       <div className="mx-auto max-w-[1400px] px-4 md:px-6">
         <div className="mb-8 md:mb-10">
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-blue-600">
@@ -25,13 +25,13 @@ const PartnersSection = () => {
           </h2>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-6 md:gap-x-10 gap-y-8">
+        <div className="flex flex-wrap items-center justify-center gap-x-10 md:gap-x-14 gap-y-10">
           {partners.map((partner) => (
             <img
               key={partner.name}
               src={partner.src}
               alt={`${partner.name} logo`}
-              style={{ height: partner.height, maxWidth: 360 }}
+              style={{ height: partner.height, maxWidth: 380 }}
               className="w-auto object-contain opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
             />
           ))}
