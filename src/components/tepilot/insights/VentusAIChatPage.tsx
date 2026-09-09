@@ -306,9 +306,8 @@ export function VentusAIChatPage({
             </div>
           </div>
         </div>
-
-        </div>
       </div>
+
 
       <ContextPanel
         metrics={LEADERSHIP_CONTEXT.bankwideMetrics}
