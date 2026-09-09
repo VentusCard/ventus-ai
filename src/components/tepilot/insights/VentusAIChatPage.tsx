@@ -102,6 +102,7 @@ export function VentusAIChatPage({
   }, [messages, handleSend]);
 
   useEffect(() => {
+    if (suppressScrollRef.current) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages, isLoading]);
 
