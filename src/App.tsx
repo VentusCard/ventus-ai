@@ -104,7 +104,12 @@ const AppLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#0A1628]">
-      <Navbar />
+      <AnnouncementBar onClose={() => setShowAnnouncement(false)} />
+      <div style={{ top: showAnnouncement ? 56 : 16 }} className="fixed left-0 right-0 z-50 transition-[top] duration-300">
+        <div className="px-4 md:px-6">
+          <Navbar />
+        </div>
+      </div>
       {/* Page content sits above the footer with a solid white bg, revealing the footer as you scroll */}
       <div className="relative z-10 bg-white">
         {routes}
