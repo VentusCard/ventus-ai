@@ -130,7 +130,8 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
           </Link>
         </div>
       )}
-    </nav>
+      </nav>
+    </div>
   );
 };
 
