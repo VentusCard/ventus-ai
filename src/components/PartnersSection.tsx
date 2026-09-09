@@ -1,8 +1,13 @@
+import finovateAsset from "@/assets/partners/finovate.png.asset.json";
+import fintechSandboxAsset from "@/assets/partners/fintech-sandbox.png.asset.json";
+import onevalleyAsset from "@/assets/partners/onevalley.png.asset.json";
+import plugAndPlayAsset from "@/assets/partners/plug-and-play.png.asset.json";
+
 const partners = [
-  { name: "Finovate", slug: "Finovate" },
-  { name: "Fintech Sandbox", slug: "Fintech Sandbox" },
-  { name: "OneValley", slug: "OneValley" },
-  { name: "Plug and Play", slug: "Plug and Play" },
+  { name: "Finovate", src: finovateAsset.url },
+  { name: "Fintech Sandbox", src: fintechSandboxAsset.url },
+  { name: "OneValley", src: onevalleyAsset.url },
+  { name: "Plug and Play", src: plugAndPlayAsset.url },
 ];
 
 const PartnersSection = () => {
@@ -24,9 +29,11 @@ const PartnersSection = () => {
               key={partner.name}
               className="flex items-center justify-center h-24 md:h-28 rounded-2xl border border-slate-200 bg-white px-6 transition-all duration-200 hover:border-blue-300 hover:shadow-[0_8px_24px_-12px_rgba(37,99,235,0.18)]"
             >
-              <span className="text-lg md:text-xl font-bold text-gray-800 tracking-tight text-center leading-tight">
-                {partner.slug}
-              </span>
+              <img
+                src={partner.src}
+                alt={`${partner.name} logo`}
+                className="max-h-10 md:max-h-12 w-auto object-contain"
+              />
             </div>
           ))}
         </div>
