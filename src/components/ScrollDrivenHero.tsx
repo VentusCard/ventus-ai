@@ -308,13 +308,6 @@ const ScrollDrivenHero = () => {
                 Schedule Demo
                 <ArrowRight className="w-4 h-4" />
               </Button>
-              <Button
-                variant="outline"
-                className="h-12 px-10 text-base border-slate-300 text-gray-700 hover:bg-slate-50 hover:text-gray-900"
-                onClick={() => document.getElementById("problem")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                Learn More
-              </Button>
             </div>
 
           </div>
