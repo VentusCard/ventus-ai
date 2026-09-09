@@ -7,17 +7,18 @@ import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 const SECTION_LINKS = [
   { id: "intelligence", label: "Intelligence" },
   { id: "personalization", label: "Personalization" },
-  { id: "integration", label: "Integration" },
-  { id: "governance", label: "Governance" },
 ];
 
-const PAGE_LINKS = [
+const LEFT_PAGE_LINKS = [
   { to: "/insights", label: "Insights" },
+];
+
+const RIGHT_PAGE_LINKS = [
   { to: "/faq", label: "FAQ" },
 ];
 
 /** Section anchors tracked for the nav underline, in document order. */
-const TRACKED_SECTIONS = ["intelligence", "personalization", "integration", "governance", "insights", "faq"];
+const TRACKED_SECTIONS = ["intelligence", "personalization"];
 
 const useActiveSection = (pathname: string) => {
   const [activeId, setActiveId] = useState<string | null>(null);
