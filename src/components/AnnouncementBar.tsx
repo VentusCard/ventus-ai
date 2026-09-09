@@ -52,7 +52,7 @@ const AnnouncementBar = ({ onClose, onHeightChange }: AnnouncementBarProps) => {
       aria-label="Conference announcement"
     >
       <div className="relative mx-auto flex h-full min-h-[inherit] max-w-7xl items-center justify-center px-10 md:px-14">
-        <p className="text-center text-sm font-medium leading-snug">
+        <p className="text-center text-sm font-medium leading-snug text-white">
           <span className="sm:hidden">
             Meet us at Finovate Fall, MoneyLIVE & Boston Fintech Week —{" "}
           </span>
@@ -61,7 +61,7 @@ const AnnouncementBar = ({ onClose, onHeightChange }: AnnouncementBarProps) => {
           </span>
           <Link
             to="/contact"
-            className="inline-flex items-center gap-1 underline underline-offset-2 transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-1 text-white underline underline-offset-2 transition-opacity hover:opacity-80"
           >
             schedule a meeting
           </Link>
