@@ -1,5 +1,3 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import { organizationSchema, breadcrumbSchema } from "@/lib/seoSchema";
 import {
@@ -33,7 +31,6 @@ const About = () => {
           ]),
         ]}
       />
-      <Navbar />
       <main className="pt-32 pb-16">
         <div className="max-w-6xl mx-auto px-4 md:px-8">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">
@@ -154,7 +151,6 @@ const About = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
