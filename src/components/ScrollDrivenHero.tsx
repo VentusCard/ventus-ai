@@ -325,7 +325,7 @@ const ScrollDrivenHero = () => {
 
           {/* RIGHT COLUMN */}
           <div className="order-2 xl:order-none w-full xl:w-[50%] flex flex-col items-center xl:items-end mt-2 xl:mt-0">
-            <div className="relative flex flex-col xl:flex-row items-center xl:items-center justify-center gap-4 xl:gap-4" style={{ maxWidth: "calc(100vw - 48px)" }}>
+            <div className="relative flex flex-col xl:flex-row items-center xl:items-center justify-center xl:justify-end gap-4 xl:gap-6" style={{ maxWidth: "calc(100vw - 48px)" }}>
               {/* The Card */}
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out hero-dark-card"
@@ -524,7 +524,7 @@ const ScrollDrivenHero = () => {
                   opacity: stage === 4 ? 1 : 0,
                   transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
                   pointerEvents: stage === 4 ? "auto" : "none",
-                  width: 300,
+                  width: 220,
                   overflow: "visible",
                 }}
               >
@@ -600,7 +600,7 @@ const ScrollDrivenHero = () => {
                 {activePersona && (
                   <svg
                     className="absolute pointer-events-none"
-                    style={{ top: 0, left: -16, width: 16, height: "100%", overflow: "visible", zIndex: 0 }}
+                    style={{ top: 0, left: -24, width: 24, height: "100%", overflow: "visible", zIndex: 0 }}
                   >
                     {[38.6, 64, 89.5].map((yPct, oi) => (
                       <line
