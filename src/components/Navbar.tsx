@@ -47,7 +47,7 @@ const useActiveSection = (pathname: string) => {
         }
         setActiveId(best);
       },
-      { rootMargin: "-72px 0px -40% 0px", threshold: [0, 0.05, 0.2, 0.5, 0.9] }
+      { rootMargin: "-72px 0px -25% 0px", threshold: [0, 0.05, 0.2, 0.5, 0.9] }
     );
 
     // Page content can mount after the nav (lazy routes), so poll briefly for anchors.
