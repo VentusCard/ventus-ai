@@ -52,10 +52,6 @@ const ProblemStatementSection = () => {
               }`}
             >
               <div className="relative z-10">
-                <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-blue-600">
-                  <span className="text-gray-400">{c.num}</span>
-                  {c.label}
-                </p>
                 <h3 className="mb-2 text-[30px] font-bold text-gray-900 leading-tight">
                   {c.title}
                 </h3>
