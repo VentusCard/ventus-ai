@@ -480,7 +480,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
   return (
     <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
-      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5 flex flex-col [&>*]:shrink-0" style={{ scrollbarWidth: "none" }}>
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollbarWidth: "none" }}>
 
         {!focusMode && (
         <>
@@ -608,14 +608,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
             <div
               key={`${active.pillar}::${active.rollup}`}
-              className="rounded-xl overflow-hidden border border-slate-100 flex flex-col min-h-[190px] flex-1 !shrink cursor-pointer hover:shadow-md transition-shadow"
+              className="rounded-xl overflow-hidden border border-slate-100 flex flex-col min-h-[190px] cursor-pointer hover:shadow-md transition-shadow"
               style={{
                 background: "linear-gradient(145deg, #f8fafc, #ffffff)",
                 animation: `collection-slide-${direction} 0.35s ease-out`,
               }}
               onClick={() => setExpandedGroup(active)}
             >
-              <div className="flex-1 min-h-[110px] w-full overflow-hidden">
+              <div className="h-[110px] w-full overflow-hidden">
                 <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={handleImageError} />
               </div>
               <div className="px-3 pt-2 pb-1.5 shrink-0">
