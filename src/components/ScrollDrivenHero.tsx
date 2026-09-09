@@ -515,26 +515,26 @@ const ScrollDrivenHero = () => {
 
               {/* Ventus Orchestrate panel — sits to the RIGHT of the dark card (desktop only) */}
               <div
-                className={`relative hidden xl:block text-gray-900 transition-all duration-500 ease-out ${stage === 4 ? 'opacity-100 ml-6' : 'opacity-0 ml-0'}`}
+                className={`relative hidden xl:block text-gray-900 transition-all duration-500 ease-out ${stage === 4 ? 'opacity-100 ml-5' : 'opacity-0 ml-0'}`}
                 style={{
-                  width: stage === 4 ? 220 : 0,
+                  width: stage === 4 ? 170 : 0,
                   overflow: "hidden",
                 }}
               >
                 {/* Header */}
-                <div className="mb-3 relative z-10" style={{ width: 220 }}>
-                  <div className="flex items-center gap-2.5">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
+                <div className="mb-3 relative z-10" style={{ width: 170 }}>
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-md bg-blue-600 text-white font-black text-[12px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
                       V
                     </span>
-                    <span className="text-[15px] font-bold tracking-tight text-gray-900">
+                    <span className="text-[13px] font-bold tracking-tight text-gray-900">
                       Orchestrate
                     </span>
                   </div>
                   {activePersona && (
                     <div className="flex items-center gap-1.5 mt-1.5">
                       <span
-                        className="text-[12px] font-bold tracking-tight"
+                        className="text-[11px] font-bold tracking-tight"
                         style={{ color: activePersona.color }}
                       >
                         {activePersona.label}
@@ -551,7 +551,7 @@ const ScrollDrivenHero = () => {
                 </div>
 
                 {/* Three output cards — stacked vertically */}
-                <div className="flex flex-col gap-2.5 relative z-10" style={{ width: 220 }}>
+                <div className="flex flex-col gap-2 relative z-10" style={{ width: 170 }}>
                   {(activePersona?.outputs ?? [null, null, null]).map((output, oi) => {
                     const stagger = oi * 0.08;
                     const cardProgress = activePersona
