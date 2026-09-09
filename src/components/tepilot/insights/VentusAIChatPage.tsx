@@ -69,6 +69,7 @@ export function VentusAIChatPage({
   const [loadingStep, setLoadingStep] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const suppressScrollRef = useRef(false);
 
   const priorityCards = useMemo(
     () => getVentusPriorityCards(getRevenueOpportunities(EMPTY_FILTERS)),
@@ -101,8 +102,17 @@ export function VentusAIChatPage({
   }, [messages, handleSend]);
 
   useEffect(() => {
+    if (suppressScrollRef.current) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages, isLoading]);
+
+  // Clear the priority-card scroll suppression once the first assistant response finishes,
+  // so normal auto-scroll resumes for any follow-up messages.
+  useEffect(() => {
+    if (!isLoading && suppressScrollRef.current) {
+      suppressScrollRef.current = false;
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     if (active) setTimeout(() => inputRef.current?.focus(), 40);
@@ -119,6 +129,7 @@ export function VentusAIChatPage({
 
   useEffect(() => {
     if (!pendingPrompt) return;
+    suppressScrollRef.current = true;
     handleSend(pendingPrompt);
     onPendingPromptConsumed?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
