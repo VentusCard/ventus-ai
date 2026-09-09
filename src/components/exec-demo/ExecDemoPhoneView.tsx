@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Gift, Users, Bot, Wallet, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
@@ -26,6 +26,35 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
   product: "relationship",
   relationship: "ai",
 };
+
+/**
+ * The phone UI is authored once at this fixed design width and then uniformly
+ * scaled to whatever space the frame actually gets. This keeps every proportion
+ * (type size, photo height, padding) identical at any window size or browser zoom.
+ */
+const DESIGN_WIDTH = 360;
+const MIN_SCALE = 0.8;
+const MAX_SCALE = 1.6;
+
+/** Measures a box and returns the uniform scale that maps DESIGN_WIDTH onto it. */
+function useDesignScale<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [box, setBox] = useState({ width: 0, height: 0 });
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setBox({ width: el.clientWidth, height: el.clientHeight });
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const raw = box.width > 0 ? box.width / DESIGN_WIDTH : 1;
+  const scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, raw));
+  return { ref, scale, box };
+}
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
   { key: "budget", label: "Budget", icon: Wallet, color: "#0ea5e9" },
