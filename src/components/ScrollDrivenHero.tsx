@@ -596,36 +596,33 @@ const ScrollDrivenHero = () => {
                   })}
                 </div>
 
-                {/* Animated dashed connecting lines */}
+                {/* Animated dashed connecting lines — one per stacked card */}
                 {activePersona && (
                   <svg
                     className="absolute pointer-events-none"
-                    style={{ top: "50%", left: -44, width: 44, height: 120, transform: "translateY(-50%)", overflow: "visible", zIndex: 0 }}
+                    style={{ top: 0, left: -32, width: 32, height: "100%", overflow: "visible", zIndex: 0 }}
                   >
-                    {[0, 1, 2].map((oi) => {
-                      const yPct = ((oi + 0.5) / 3) * 100;
-                      return (
-                        <line
-                          key={oi}
-                          x1="100%"
-                          y1={`${yPct}%`}
-                          x2="0"
-                          y2="50%"
-                          stroke={activePersona.color}
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                          opacity="0.5"
-                        >
-                          <animate
-                            attributeName="stroke-dashoffset"
-                            from="0"
-                            to="-14"
-                            dur="1.5s"
-                            repeatCount="indefinite"
-                          />
-                        </line>
-                      );
-                    })}
+                    {[38.6, 64, 89.5].map((yPct, oi) => (
+                      <line
+                        key={oi}
+                        x1="0"
+                        y1={`${yPct}%`}
+                        x2="100%"
+                        y2={`${yPct}%`}
+                        stroke={activePersona.color}
+                        strokeWidth="1.5"
+                        strokeDasharray="4 3"
+                        opacity="0.5"
+                      >
+                        <animate
+                          attributeName="stroke-dashoffset"
+                          from="0"
+                          to="-14"
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
+                      </line>
+                    ))}
                   </svg>
                 )}
               </div>
