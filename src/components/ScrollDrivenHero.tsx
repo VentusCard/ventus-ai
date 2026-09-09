@@ -267,10 +267,10 @@ const ScrollDrivenHero = () => {
         />
       </div>
 
-      <div className="sticky top-0 xl:h-screen min-h-screen flex items-start xl:items-center justify-center overflow-visible pt-24 md:pt-28 xl:pt-0 pb-10 xl:pb-0">
+      <div className="sticky top-0 xl:h-screen min-h-screen flex items-start xl:items-center justify-center overflow-visible pt-28 md:pt-32 xl:pt-14 pb-10 xl:pb-0">
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-8">
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
-          <div className="contents xl:flex xl:flex-col xl:w-[50%] xl:items-start w-full">
+          <div className="contents xl:flex xl:flex-col xl:w-[46%] xl:items-start w-full">
             <h1
               className="order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left transition-all duration-700 ease-out text-[44px] sm:text-5xl md:text-6xl xl:text-[68px]"
               style={{
@@ -320,13 +320,13 @@ const ScrollDrivenHero = () => {
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="order-2 xl:order-none w-full xl:w-[50%] flex flex-col items-center xl:items-end mt-2 xl:mt-0">
-            <div className="relative flex flex-col xl:flex-row items-center xl:items-center justify-center xl:justify-end gap-4 xl:gap-6" style={{ maxWidth: "calc(100vw - 48px)" }}>
+          <div className="order-2 xl:order-none w-full xl:w-[54%] flex flex-col items-center xl:items-end mt-2 xl:mt-0">
+            <div className="relative flex flex-col xl:flex-row items-center xl:items-center justify-center xl:justify-end gap-4 xl:gap-5" style={{ maxWidth: "calc(100vw - 48px)" }}>
               {/* The Card */}
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out hero-dark-card"
                 style={{
-                  width: 380,
+                  width: 420,
                   maxWidth: "calc(100vw - 48px)",
                   background: "#0A1628",
                   paddingRight: 3,
@@ -515,26 +515,26 @@ const ScrollDrivenHero = () => {
 
               {/* Ventus Orchestrate panel — sits to the RIGHT of the dark card (desktop only) */}
               <div
-                className={`relative hidden xl:block text-gray-900 transition-all duration-500 ease-out ${stage === 4 ? 'opacity-100 ml-6' : 'opacity-0 ml-0'}`}
+                className={`relative hidden xl:block text-gray-900 transition-all duration-500 ease-out ${stage === 4 ? 'opacity-100 ml-5' : 'opacity-0 ml-0'}`}
                 style={{
-                  width: stage === 4 ? 220 : 0,
+                  width: stage === 4 ? 170 : 0,
                   overflow: "hidden",
                 }}
               >
                 {/* Header */}
-                <div className="mb-3 relative z-10" style={{ width: 220 }}>
-                  <div className="flex items-center gap-2.5">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
+                <div className="mb-3 relative z-10" style={{ width: 170 }}>
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-md bg-blue-600 text-white font-black text-[12px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
                       V
                     </span>
-                    <span className="text-[15px] font-bold tracking-tight text-gray-900">
+                    <span className="text-[13px] font-bold tracking-tight text-gray-900">
                       Orchestrate
                     </span>
                   </div>
                   {activePersona && (
                     <div className="flex items-center gap-1.5 mt-1.5">
                       <span
-                        className="text-[12px] font-bold tracking-tight"
+                        className="text-[11px] font-bold tracking-tight"
                         style={{ color: activePersona.color }}
                       >
                         {activePersona.label}
@@ -551,7 +551,7 @@ const ScrollDrivenHero = () => {
                 </div>
 
                 {/* Three output cards — stacked vertically */}
-                <div className="flex flex-col gap-2.5 relative z-10" style={{ width: 220 }}>
+                <div className="flex flex-col gap-2 relative z-10" style={{ width: 170 }}>
                   {(activePersona?.outputs ?? [null, null, null]).map((output, oi) => {
                     const stagger = oi * 0.08;
                     const cardProgress = activePersona
@@ -564,15 +564,15 @@ const ScrollDrivenHero = () => {
                         className="ventus-glass"
                         style={{
                           borderRadius: 10,
-                          minHeight: 48,
+                          minHeight: 44,
                           opacity: cardProgress,
-                          transform: `translateX(${(1 - cardProgress) * 14}px) scale(${0.96 + cardProgress * 0.04})`,
+                          transform: `translateX(${(1 - cardProgress) * 10}px) scale(${0.96 + cardProgress * 0.04})`,
                           transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
-                        <div className="flex items-center gap-2.5 px-3 py-2.5">
+                        <div className="flex flex-col gap-1 px-2.5 py-2">
                           <span
-                            className="shrink-0 inline-block text-[8px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded"
+                            className="self-start inline-block text-[7.5px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded"
                             style={{
                               color,
                               background: `${color}1f`,
@@ -580,7 +580,7 @@ const ScrollDrivenHero = () => {
                           >
                             {output?.label ?? "—"}
                           </span>
-                          <div className="text-[12px] font-semibold text-gray-900 leading-snug">
+                          <div className="text-[11px] font-semibold text-gray-900 leading-snug">
                             {output?.text ?? "—"}
                           </div>
                         </div>
@@ -593,7 +593,7 @@ const ScrollDrivenHero = () => {
                 {activePersona && (
                   <svg
                     className="absolute pointer-events-none"
-                    style={{ top: 0, left: -24, width: 24, height: "100%", overflow: "visible", zIndex: 0 }}
+                    style={{ top: 0, left: -20, width: 20, height: "100%", overflow: "visible", zIndex: 0 }}
                   >
                     {[38.6, 64, 89.5].map((yPct, oi) => (
                       <line

@@ -6,18 +6,18 @@ import plugAndPlayAsset from "@/assets/partners/plug-and-play.png.asset.json";
 // Heights are optically normalised, not mathematically equal:
 // wordmarks with descenders / wide lockups render slightly shorter.
 const partners = [
-  { name: "Finovate", src: finovateAsset.url, height: 40 },
-  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 38 },
-  { name: "OneValley", src: onevalleyAsset.url, height: 34 },
-  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 42 },
+  { name: "Finovate", src: finovateAsset.url, height: 152 },
+  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 138 },
+  { name: "OneValley", src: onevalleyAsset.url, height: 126 },
+  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 160 },
 ];
 
 const PartnersSection = () => {
   return (
-    <section className="bg-white py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-6 md:px-8">
-        <div className="mb-10 md:mb-12">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+    <section className="bg-white py-10 md:py-12">
+      <div className="mx-auto max-w-[1400px] px-4 md:px-6">
+        <div className="mb-8 md:mb-10">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-blue-600">
             Partners &amp; accelerators
           </p>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -25,13 +25,13 @@ const PartnersSection = () => {
           </h2>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-x-16 gap-y-10">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 md:gap-x-10 gap-y-8">
           {partners.map((partner) => (
             <img
               key={partner.name}
               src={partner.src}
               alt={`${partner.name} logo`}
-              style={{ height: partner.height }}
+              style={{ height: partner.height, maxWidth: 360 }}
               className="w-auto object-contain opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
             />
           ))}
