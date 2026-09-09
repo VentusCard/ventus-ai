@@ -1,13 +1,8 @@
-import finovateAsset from "@/assets/partners/finovate.png.asset.json";
-import fintechSandboxAsset from "@/assets/partners/fintech-sandbox.png.asset.json";
-import onevalleyAsset from "@/assets/partners/onevalley.png.asset.json";
-import plugAndPlayAsset from "@/assets/partners/plug-and-play.png.asset.json";
-
 const partners = [
-  { name: "Finovate", src: finovateAsset.url, height: 96 },
-  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 128 },
-  { name: "OneValley", src: onevalleyAsset.url, height: 132 },
-  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 124 },
+  { name: "Finovate", src: "/partners/finovate.png", height: 64 },
+  { name: "Fintech Sandbox", src: "/partners/fintech-sandbox.png", height: 86 },
+  { name: "OneValley", src: "/partners/onevalley.png", height: 80 },
+  { name: "Plug and Play", src: "/partners/plug-and-play.png", height: 56 },
 ];
 
 const PartnersSection = () => {
