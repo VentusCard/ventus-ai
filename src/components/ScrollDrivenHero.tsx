@@ -183,13 +183,6 @@ const personas = [
   },
 ];
 
-const STAGE_LABELS = ["Raw Stream", "Categorize", "Detect", "Orchestrate"];
-const STAGE_RANGES: [number, number][] = [
-  [0, 0.1],
-  [0.1, 0.22],
-  [0.22, 0.5],
-  [0.5, 1],
-];
 
 const ScrollDrivenHero = () => {
   const navigate = useNavigate();
@@ -224,7 +217,6 @@ const ScrollDrivenHero = () => {
   // 4 stages: Raw Stream / Categorize / Detect / Orchestrate
   // <0.1 = 1, <0.22 = 2, <0.5 = 3 (Detect), >=0.5 = 4 (Orchestrate)
   const stage = scrollProgress < 0.1 ? 1 : scrollProgress < 0.22 ? 2 : scrollProgress < 0.5 ? 3 : 4;
-  const activeStageIdx = stage - 1;
 
   // Detect stage: progressively reveal pills 0..3
   const detectProgress = stage >= 3 ? Math.min(1, Math.max(0, (scrollProgress - 0.22) / 0.28)) : 0;
@@ -518,12 +510,10 @@ const ScrollDrivenHero = () => {
               </div>
 
               {/* Ventus Orchestrate panel — sits to the RIGHT of the dark card (desktop only) */}
+              {stage === 4 && (
               <div
-                className="relative transition-all duration-500 ease-out hidden xl:block text-gray-900"
+                className="relative animate-fade-in hidden xl:block text-gray-900"
                 style={{
-                  opacity: stage === 4 ? 1 : 0,
-                  transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
-                  pointerEvents: stage === 4 ? "auto" : "none",
                   width: 220,
                   overflow: "visible",
                 }}
@@ -626,54 +616,7 @@ const ScrollDrivenHero = () => {
                   </svg>
                 )}
               </div>
-            </div>
-
-            {/* Stage indicator below the dark card */}
-            <div
-              className="mt-3 xl:mt-6 transition-all duration-700 ease-out"
-              style={{
-                width: 380,
-                maxWidth: "calc(100vw - 48px)",
-                opacity: loaded ? 1 : 0,
-                transform: loaded ? "translateY(0)" : "translateY(12px)",
-                transitionDelay: "400ms",
-              }}
-            >
-              <div className="grid grid-cols-4 gap-1.5 xl:gap-3">
-                {STAGE_LABELS.map((label, i) => {
-                  const [start, end] = STAGE_RANGES[i];
-                  const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
-                  const isActive = i === activeStageIdx;
-                  const isComplete = scrollProgress >= end;
-                  return (
-                    <div key={label} className="flex flex-col items-start">
-                      <div
-                        className="relative w-full rounded-full overflow-hidden"
-                        style={{ height: 4, background: "#E5E7EB" }}
-                      >
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-full"
-                          style={{
-                            width: `${(isComplete ? 1 : fill) * 100}%`,
-                            background: "#2563EB",
-                            transition: "width 120ms linear",
-                          }}
-                        />
-                      </div>
-                      <span
-                        className="mt-1.5 xl:mt-2 uppercase tracking-[0.08em] xl:tracking-[0.12em] whitespace-nowrap text-[9px] xl:text-[12px]"
-                        style={{
-                          color: isActive || isComplete ? "#111827" : "#9CA3AF",
-                          fontWeight: isActive ? 800 : 500,
-                          transition: "color 300ms ease, font-weight 300ms ease",
-                        }}
-                      >
-                        {label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              )}
             </div>
           </div>
         </div>
