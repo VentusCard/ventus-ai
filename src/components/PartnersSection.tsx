@@ -14,10 +14,10 @@ const partners = [
 
 const PartnersSection = () => {
   return (
-    <section className="bg-white py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-6 md:px-8">
-        <div className="mb-10 md:mb-12">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+    <section className="bg-white py-10 md:py-12">
+      <div className="mx-auto max-w-[1400px] px-4 md:px-6">
+        <div className="mb-8 md:mb-10">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-blue-600">
             Partners &amp; accelerators
           </p>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -25,13 +25,13 @@ const PartnersSection = () => {
           </h2>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-x-16 gap-y-10">
+        <div className="flex flex-wrap items-center justify-between gap-x-8 md:gap-x-12 gap-y-8">
           {partners.map((partner) => (
             <img
               key={partner.name}
               src={partner.src}
               alt={`${partner.name} logo`}
-              style={{ height: partner.height }}
+              style={{ height: partner.height, maxWidth: 320 }}
               className="w-auto object-contain opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
             />
           ))}
