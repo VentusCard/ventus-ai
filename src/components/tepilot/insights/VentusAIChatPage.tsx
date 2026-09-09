@@ -106,6 +106,14 @@ export function VentusAIChatPage({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages, isLoading]);
 
+  // Clear the priority-card scroll suppression once the first assistant response finishes,
+  // so normal auto-scroll resumes for any follow-up messages.
+  useEffect(() => {
+    if (!isLoading && suppressScrollRef.current) {
+      suppressScrollRef.current = false;
+    }
+  }, [isLoading]);
+
   useEffect(() => {
     if (active) setTimeout(() => inputRef.current?.focus(), 40);
   }, [active]);
