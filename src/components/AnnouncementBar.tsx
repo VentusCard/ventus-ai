@@ -63,7 +63,7 @@ const AnnouncementBar = ({ onClose, onHeightChange }: AnnouncementBarProps) => {
             to="/contact"
             className="inline-flex items-center gap-1 text-white underline underline-offset-2 transition-opacity hover:opacity-80"
           >
-            schedule a meeting
+            Schedule A Meeting
           </Link>
         </p>
         <button
