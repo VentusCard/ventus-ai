@@ -53,8 +53,12 @@ const AnnouncementBar = ({ onClose, onHeightChange }: AnnouncementBarProps) => {
     >
       <div className="mx-auto flex h-full min-h-[inherit] max-w-7xl items-center justify-between gap-2 px-4 md:px-6">
         <p className="flex-1 text-center text-sm font-medium leading-snug sm:text-left">
-          Meet the Ventus team at Finovate Fall, MoneyLIVE, and Boston Fintech Week{" "}
-          <span className="hidden sm:inline">—</span>{" "}
+          <span className="sm:hidden">
+            Meet us at Finovate Fall, MoneyLIVE & Boston Fintech Week —{" "}
+          </span>
+          <span className="hidden sm:inline">
+            Meet the Ventus team at Finovate Fall, MoneyLIVE, and Boston Fintech Week —{" "}
+          </span>
           <Link
             to="/contact"
             className="inline-flex items-center gap-1 underline underline-offset-2 transition-opacity hover:opacity-80"
