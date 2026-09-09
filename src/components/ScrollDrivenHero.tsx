@@ -272,7 +272,7 @@ const ScrollDrivenHero = () => {
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
           <div className="contents xl:flex xl:flex-col xl:w-[46%] xl:items-start w-full">
             <h1
-              className="order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left transition-all duration-700 ease-out text-[44px] sm:text-5xl md:text-6xl xl:text-[68px]"
+              className="order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left transition-all duration-700 ease-out text-4xl sm:text-5xl md:text-6xl xl:text-[68px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",

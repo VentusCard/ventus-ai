@@ -161,7 +161,7 @@ const IntelligenceSection = () => {
           </div>
 
           <div
-            className="relative grid grid-cols-2 items-stretch gap-4 p-4 md:grid-cols-4 md:gap-6 md:p-8"
+            className="relative grid grid-cols-1 items-stretch gap-4 p-4 md:grid-cols-4 md:gap-6 md:p-8"
             style={{
               backgroundImage:
                 "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), radial-gradient(ellipse 60% 70% at 50% 55%, rgba(59,130,246,0.14), transparent)",
@@ -253,7 +253,7 @@ const IntelligenceSection = () => {
         </div>
 
         {/* Stage captions */}
-        <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div className="mt-4 hidden grid-cols-1 gap-6 md:grid md:grid-cols-4">
           {STAGES.map((s, i) => (
             <button key={s.id} onClick={() => setStage(i)} className="group text-left">
               <span
