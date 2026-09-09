@@ -203,8 +203,18 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           <div className="w-2 h-2 rounded-full bg-slate-300" />
         </div>
 
-        {/* Zoomed inner stack */}
-        <div className="flex-1 min-h-0 flex flex-col" style={{ zoom: 1.1 }}>
+        {/* Measured viewport: content is authored at DESIGN_WIDTH and uniformly scaled to fit */}
+        <div ref={scaleRef} className="flex-1 min-h-0 relative overflow-hidden">
+        <div
+          className="absolute top-0 left-0 flex flex-col"
+          style={{
+            width: DESIGN_WIDTH,
+            height: box.height > 0 ? box.height / scale : "100%",
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            visibility: box.width > 0 ? "visible" : "hidden",
+          }}
+        >
           {/* Status bar */}
           <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
             {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
