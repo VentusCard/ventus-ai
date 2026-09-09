@@ -510,12 +510,10 @@ const ScrollDrivenHero = () => {
               </div>
 
               {/* Ventus Orchestrate panel — sits to the RIGHT of the dark card (desktop only) */}
+              {stage === 4 && (
               <div
-                className="relative transition-all duration-500 ease-out hidden xl:block text-gray-900"
+                className="relative animate-fade-in hidden xl:block text-gray-900"
                 style={{
-                  opacity: stage === 4 ? 1 : 0,
-                  transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
-                  pointerEvents: stage === 4 ? "auto" : "none",
                   width: 220,
                   overflow: "visible",
                 }}
