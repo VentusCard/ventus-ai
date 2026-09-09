@@ -57,14 +57,18 @@ const FlowCell = ({
   connectorActive = false,
   showConnector = false,
   emerald = false,
+  innerRef,
+  cellIndex,
 }: {
   children: React.ReactNode;
   active?: boolean;
   connectorActive?: boolean;
   showConnector?: boolean;
   emerald?: boolean;
+  innerRef?: (el: HTMLDivElement | null) => void;
+  cellIndex?: number;
 }) => (
-  <div className="relative h-[210px] md:h-[220px]">
+  <div ref={innerRef} data-cell-index={cellIndex} className="relative h-[210px] md:h-[220px]">
     {children}
     {showConnector && (
       <div className="pointer-events-none absolute left-full top-1/2 hidden h-[2px] w-4 -translate-y-1/2 overflow-hidden md:block md:w-6">
@@ -94,7 +98,9 @@ const IntelligenceSection = () => {
   const [stage, setStage] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
 
-  // Scroll-driven: pin the section and walk through stages as the user scrolls.
+  const cellRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Scroll-driven: pin the section and walk through stages as the user scrolls (desktop only).
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
@@ -102,6 +108,7 @@ const IntelligenceSection = () => {
     const onScroll = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
+        if (window.innerWidth < 1024) return;
         const rect = track.getBoundingClientRect();
         const scrollable = rect.height - window.innerHeight;
         if (scrollable <= 0) return;
@@ -115,6 +122,22 @@ const IntelligenceSection = () => {
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
     };
+  }, []);
+
+  // Mobile: no pinning — each cell lights up as it scrolls into view.
+  useEffect(() => {
+    if (window.innerWidth >= 1024) return;
+    const obs = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setStage(Number((e.target as HTMLElement).dataset.cellIndex ?? 0));
+          }
+        }),
+      { rootMargin: "-35% 0px -35% 0px" }
+    );
+    cellRefs.current.forEach((el) => el && obs.observe(el));
+    return () => obs.disconnect();
   }, []);
 
   return (
