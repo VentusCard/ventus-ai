@@ -37,12 +37,12 @@ export function PriorityBriefing({
 
   return (
     <div className="flex gap-3">
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
-        <span className="text-[12px] font-black leading-none text-white">V</span>
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-700">
+        <span className="text-[12px] font-bold leading-none text-white">V</span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[13.5px] leading-relaxed text-slate-800">
-          <span className="font-semibold">{cards.length} priorities in your book right now.</span>{" "}
+        <p className="text-[13.5px] leading-[1.7] text-slate-600">
+          <span className="font-semibold text-slate-900">{cards.length} priorities in your book right now.</span>{" "}
           Each one is a signal Ventus already detected in enriched transactions — the segment,
           the addressable value, and the next step are below.
         </p>
@@ -55,17 +55,18 @@ export function PriorityBriefing({
             return (
               <div
                 key={card.id}
-                className="rounded-lg border border-slate-200 bg-white px-3.5 py-3"
+                className="rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 transition-colors hover:border-indigo-200"
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={cn(
-                      "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border",
+                      "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
                       style.tone,
                     )}
                   >
                     <Icon className="h-3.5 w-3.5" />
                   </div>
+
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-2">
                       <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
