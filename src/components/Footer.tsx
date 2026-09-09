@@ -1,8 +1,30 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { COMPANY_ONE_LINER, OUTCOMES_INLINE } from "@/lib/companyCopy";
 
+const SECTION_LINKS = [
+  { id: "intelligence", label: "Intelligence" },
+  { id: "personalization", label: "Personalization" },
+  { id: "integration", label: "Integration" },
+  { id: "governance", label: "Governance" },
+];
+
 const Footer = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const goToSection = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    const scroll = () =>
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (location.pathname === "/") {
+      scroll();
+    } else {
+      navigate("/");
+      setTimeout(scroll, 320);
+    }
+  };
+
   return (
     <footer className="bg-[#0A1628] text-white py-16">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
@@ -19,15 +41,20 @@ const Footer = () => {
             </p>
           </div>
 
-
-          {/* Learn */}
+          {/* Explore */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Learn</h4>
+            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Explore</h4>
             <nav className="flex flex-col gap-2.5">
-              <Link to="/platform" className="text-white/60 hover:text-white text-sm transition-colors">Platform</Link>
-              <Link to="/transaction-enrichment" className="text-white/60 hover:text-white text-sm transition-colors">Transaction Enrichment</Link>
-              <Link to="/insights" className="text-white/60 hover:text-white text-sm transition-colors">Insights</Link>
-              <Link to="/faq" className="text-white/60 hover:text-white text-sm transition-colors">FAQ</Link>
+              {SECTION_LINKS.map((s) => (
+                <a
+                  key={s.id}
+                  href={`/#${s.id}`}
+                  onClick={(e) => goToSection(e, s.id)}
+                  className="text-white/60 hover:text-white text-sm transition-colors"
+                >
+                  {s.label}
+                </a>
+              ))}
             </nav>
           </div>
 
@@ -35,7 +62,8 @@ const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Company</h4>
             <nav className="flex flex-col gap-2.5">
-              <Link to="/about" className="text-white/60 hover:text-white text-sm transition-colors">About</Link>
+              <Link to="/insights" className="text-white/60 hover:text-white text-sm transition-colors">Insights</Link>
+              <Link to="/faq" className="text-white/60 hover:text-white text-sm transition-colors">FAQ</Link>
               <Link to="/contact" className="text-white/60 hover:text-white text-sm transition-colors">Schedule Demo</Link>
             </nav>
             <p className="text-white/60 text-sm mt-5 mb-3">Have questions? We're here to help.</p>

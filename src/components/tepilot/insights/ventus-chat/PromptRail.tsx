@@ -51,10 +51,12 @@ interface PromptRailProps {
 
 export function PromptRail({ onSelect }: PromptRailProps) {
   return (
-    <aside className="hidden xl:flex w-60 shrink-0 flex-col gap-5 overflow-y-auto border-r border-slate-200 bg-white px-4 py-5">
+    <aside className="hidden xl:flex w-60 shrink-0 flex-col gap-7 overflow-y-auto border-r border-slate-200/70 bg-white px-4 py-6">
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Starter prompts</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
+        <p className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+          Starter prompts
+        </p>
+        <p className="mt-1.5 text-[11px] leading-relaxed text-slate-400">
           Grounded on the bankwide book — pick a thread to start.
         </p>
       </div>
@@ -62,16 +64,18 @@ export function PromptRail({ onSelect }: PromptRailProps) {
         const Icon = group.icon;
         return (
           <div key={group.label}>
-            <div className="mb-1.5 flex items-center gap-1.5">
-              <Icon className="h-3.5 w-3.5 text-slate-400" />
-              <span className="text-[11px] font-semibold text-slate-600">{group.label}</span>
+            <div className="mb-2 flex items-center gap-1.5">
+              <Icon className="h-3 w-3 text-slate-300" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">
+                {group.label}
+              </span>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {group.prompts.map((prompt) => (
                 <button
                   key={prompt}
                   onClick={() => onSelect(prompt)}
-                  className="w-full rounded-md border border-transparent px-2 py-1.5 text-left text-[11.5px] leading-snug text-slate-500 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                  className="w-full rounded-lg px-2 py-1.5 text-left text-[11.5px] leading-snug text-slate-500 transition-colors hover:bg-indigo-50 hover:text-indigo-700"
                 >
                   {prompt}
                 </button>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AdvisorContext } from "@/lib/advisorContextBuilder";
+import { getPrewarmedAnswer } from "@/lib/ventusPrewarm";
 
 interface Message {
   role: "user" | "assistant";
@@ -12,9 +13,11 @@ interface Message {
 interface UseAdvisorChatProps {
   advisorContext?: Partial<AdvisorContext> & Record<string, unknown>;
   functionName?: string;
+  /** Serve pre-warmed answers instantly when one is cached for the prompt. */
+  usePrewarm?: boolean;
 }
 
-export const useAdvisorChat = ({ advisorContext, functionName = "advisor-chat" }: UseAdvisorChatProps) => {
+export const useAdvisorChat = ({ advisorContext, functionName = "advisor-chat", usePrewarm = false }: UseAdvisorChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,6 +33,17 @@ export const useAdvisorChat = ({ advisorContext, functionName = "advisor-chat" }
 
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
+
+    // Instant path: a background pre-warm already answered this exact prompt.
+    if (usePrewarm) {
+      const cached = getPrewarmedAnswer(content);
+      if (cached) {
+        await new Promise(resolve => setTimeout(resolve, 350));
+        setMessages(prev => [...prev, { role: "assistant", content: cached, timestamp: new Date() }]);
+        setIsLoading(false);
+        return;
+      }
+    }
 
     try {
       // Prepare conversation history for API

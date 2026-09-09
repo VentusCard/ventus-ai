@@ -7,17 +7,18 @@ import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 const SECTION_LINKS = [
   { id: "intelligence", label: "Intelligence" },
   { id: "personalization", label: "Personalization" },
-  { id: "integration", label: "Integration" },
-  { id: "governance", label: "Governance" },
 ];
 
-const PAGE_LINKS = [
+const LEFT_PAGE_LINKS = [
   { to: "/insights", label: "Insights" },
+];
+
+const RIGHT_PAGE_LINKS = [
   { to: "/faq", label: "FAQ" },
 ];
 
 /** Section anchors tracked for the nav underline, in document order. */
-const TRACKED_SECTIONS = ["intelligence", "personalization", "integration", "governance", "insights", "faq"];
+const TRACKED_SECTIONS = ["intelligence", "personalization"];
 
 const useActiveSection = (pathname: string) => {
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -143,15 +144,19 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
               <Underline active={activeId === l.id} />
             </a>
           ))}
+          {LEFT_PAGE_LINKS.map((l) => (
+            <Link key={l.to} to={l.to} className={navLinkClass}>
+              {l.label}
+              <Underline active={activeId === l.to.replace("/", "")} />
+            </Link>
+          ))}
           <span className="h-4 w-px bg-slate-200" />
-          <Link to="/insights" className={navLinkClass}>
-            Insights
-            <Underline active={activeId === "insights"} />
-          </Link>
-          <Link to="/faq" className={navLinkClass}>
-            FAQ
-            <Underline active={activeId === "faq"} />
-          </Link>
+          {RIGHT_PAGE_LINKS.map((l) => (
+            <Link key={l.to} to={l.to} className={navLinkClass}>
+              {l.label}
+              <Underline active={activeId === l.to.replace("/", "")} />
+            </Link>
+          ))}
         </div>
 
 
@@ -189,21 +194,27 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
               {l.label}
             </a>
           ))}
+          {LEFT_PAGE_LINKS.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              onClick={closeMobileMenu}
+              className="block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+            >
+              {l.label}
+            </Link>
+          ))}
           <div className="my-2 h-px bg-slate-200" />
-          <Link
-            to="/insights"
-            onClick={closeMobileMenu}
-            className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
-          >
-            Insights
-          </Link>
-          <Link
-            to="/faq"
-            onClick={closeMobileMenu}
-            className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
-          >
-            FAQ
-          </Link>
+          {RIGHT_PAGE_LINKS.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              onClick={closeMobileMenu}
+              className="block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+            >
+              {l.label}
+            </Link>
+          ))}
           <Link to="/contact" onClick={closeMobileMenu} className="block pt-4">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>

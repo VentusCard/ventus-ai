@@ -11,29 +11,8 @@ import { getVentusPriorityCards } from "@/lib/ventusPriorityCards";
 
 const EMPTY_FILTERS = { cardProducts: [], regions: [], ageRanges: [] };
 
-export const LEADERSHIP_CONTEXT = {
-  role: "Ventus AI briefing analyst for bank executive leadership",
-  audience: "CEO, Chief Retail Officer, Chief Data Officer, Head of Wealth",
-  responseGuidance:
-    "Answer in an executive tone: 2–4 concise bullet points, quantify with bankwide metrics where possible, no code, no jargon. Frame as strategic implications for the leadership team.",
-  currentModule: "Ventus AI Dashboard — Leadership Briefing",
-  bankwideMetrics: {
-    totalAccounts: "109M",
-    totalUsers: "68.2M",
-    totalAnnualSpend: "$385B",
-    avgAccountsPerUser: 1.6,
-    activeAccountRate: "87.3%",
-    crossSellRate: "34.2%",
-    topSpendingPillar: "Food & Dining",
-  },
-  hotTrends: [
-    "Travel & Exploration spending up 12% MoM — strongest growth pillar",
-    "Neobank outflow at $4.2B annually with deposit flight rate trending up",
-    "Home Purchase life event signals up 8% QoQ across 2.1M households",
-    "Holiday spending wave beginning in Q4 — gift & travel categories accelerating",
-    "Sports & Active Living is the #2 pillar by spend volume across all card products",
-  ],
-};
+import { LEADERSHIP_CONTEXT } from "@/lib/ventusLeadershipContext";
+export { LEADERSHIP_CONTEXT };
 
 export const VENTUS_QUICK_ACTIONS = [
   "Where are we losing deposits?",
@@ -99,6 +78,7 @@ export function VentusAIChatPage({
   const { messages, isLoading, sendMessage } = useAdvisorChat({
     advisorContext: LEADERSHIP_CONTEXT,
     functionName: "bankwide-chat",
+    usePrewarm: true,
   });
 
   const handleSend = useCallback(
@@ -150,30 +130,31 @@ export function VentusAIChatPage({
     hasMessages && !isLoading && messages[messages.length - 1]?.role === "assistant" && followUps.length > 0;
 
   return (
-    <div className="flex h-full min-h-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
+    <div className="flex h-full min-h-0 overflow-hidden rounded-xl border border-slate-200/80 bg-white">
       <PromptRail onSelect={handleSend} />
 
       {/* Center column */}
-      <div className="flex min-w-0 flex-1 flex-col bg-slate-50">
-        <header className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 py-3.5">
+      <div className="flex min-w-0 flex-1 flex-col bg-[#FBFCFE]">
+        <header className="flex shrink-0 items-center justify-between border-b border-slate-200/70 bg-white px-6 py-3.5">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600">
-              <span className="text-base font-black leading-none text-white">V</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-700">
+              <span className="text-base font-bold leading-none text-white">V</span>
             </div>
             <div>
               <h1 className="text-[15px] font-semibold tracking-tight text-slate-900">
                 Ask Ventus AI · Leadership briefing
               </h1>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-400">
                 Grounded on 68.2M customers · 109M accounts · $385B annual spend
               </p>
             </div>
           </div>
-          <span className="hidden items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10.5px] font-medium text-emerald-700 sm:flex">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+          <span className="hidden items-center gap-1.5 text-[10.5px] font-medium uppercase tracking-[0.1em] text-slate-400 sm:flex">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
             Live context
           </span>
         </header>
+
 
         {/* Transcript */}
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
@@ -187,22 +168,22 @@ export function VentusAIChatPage({
                   onNavigate={onNavigate}
                 />
 
-                <div className="my-6 flex items-center gap-3">
-                  <span className="h-px flex-1 bg-slate-200" />
-                  <span className="text-[10.5px] uppercase tracking-wide text-slate-400">
+                <div className="my-7 flex items-center gap-3">
+                  <span className="h-px flex-1 bg-slate-200/70" />
+                  <span className="text-[9.5px] uppercase tracking-[0.14em] text-slate-400">
                     Or ask anything
                   </span>
-                  <span className="h-px flex-1 bg-slate-200" />
+                  <span className="h-px flex-1 bg-slate-200/70" />
                 </div>
 
                 <div className="mb-6 text-center">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600">
-                    <span className="text-xl font-black leading-none text-white">V</span>
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-700">
+                    <span className="text-xl font-bold leading-none text-white">V</span>
                   </div>
                   <h2 className="text-lg font-semibold tracking-tight text-slate-900">
                     Your bankwide briefing analyst
                   </h2>
-                  <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-slate-500">
+                  <p className="mx-auto mt-1.5 max-w-md text-[12.5px] leading-relaxed text-slate-500">
                     Ask about spending shifts, competitor outflow, segments, life-event signals, and what
                     leadership should do next.
                   </p>
@@ -215,21 +196,22 @@ export function VentusAIChatPage({
                       <button
                         key={card.title}
                         onClick={() => handleSend(card.prompt)}
-                        className="rounded-xl border border-slate-200 bg-white p-4 text-left transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-sm"
+                        className="rounded-xl border border-slate-200/70 bg-white p-4 text-left transition-colors hover:border-indigo-200 hover:bg-indigo-50/50"
                       >
-                        <Icon className="mb-2 h-4 w-4 text-blue-600" />
+                        <Icon className="mb-2 h-4 w-4 text-indigo-500" />
                         <p className="text-[13px] font-semibold text-slate-800">{card.title}</p>
                         <p className="mt-1 text-[11.5px] leading-snug text-slate-500">{card.body}</p>
-                        <p className="mt-2.5 text-[11px] italic leading-snug text-blue-600">"{card.prompt}"</p>
+                        <p className="mt-2.5 text-[11px] italic leading-snug text-indigo-600">"{card.prompt}"</p>
                       </button>
                     );
                   })}
                 </div>
 
-                <p className="mt-5 text-center text-[10.5px] text-slate-400">
+                <p className="mt-6 text-center text-[10.5px] leading-relaxed text-slate-400">
                   Grounded on transaction enrichment, pillar rollups, competitor outflow, and life-event
                   detection across the bankwide book.
                 </p>
+
               </div>
             ) : (
               messages.map((msg, i) => (
@@ -247,7 +229,7 @@ export function VentusAIChatPage({
 
             {isLoading && (
               <div className="flex items-center gap-2.5 text-slate-400">
-                <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
                 <span className="animate-pulse text-[12px]">{LOADING_STEPS[loadingStep]}</span>
               </div>
             )}
@@ -258,7 +240,7 @@ export function VentusAIChatPage({
                   <button
                     key={q}
                     onClick={() => handleSend(q)}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11.5px] text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                    className="rounded-full border border-slate-200/80 bg-white px-3 py-1.5 text-[11.5px] text-slate-500 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
                   >
                     {q}
                   </button>
@@ -266,17 +248,20 @@ export function VentusAIChatPage({
               </div>
             )}
 
+
             <div ref={messagesEndRef} />
           </div>
         </div>
 
         {/* Composer */}
-        <div className="shrink-0 border-t border-slate-200 bg-white px-6 py-4">
+        <div className="shrink-0 border-t border-slate-200/70 bg-white px-6 py-4">
           <div className="mx-auto w-full max-w-[760px]">
             <div
               className={cn(
-                "rounded-xl border bg-white transition-colors",
-                isLoading ? "border-slate-200" : "border-slate-300 focus-within:border-blue-400",
+                "rounded-2xl border bg-white transition-colors",
+                isLoading
+                  ? "border-slate-200"
+                  : "border-slate-200 focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100",
               )}
             >
               <textarea
@@ -298,12 +283,10 @@ export function VentusAIChatPage({
                 disabled={isLoading}
                 className="max-h-40 w-full resize-none bg-transparent px-4 pt-3 text-sm leading-relaxed text-slate-800 placeholder:text-slate-400 focus:outline-none"
               />
-              <div className="flex items-center justify-between px-3 pb-2.5 pt-1">
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10.5px] text-slate-500">
-                    Scope: Bankwide book
-                  </span>
-                  <span className="hidden text-[10.5px] text-slate-400 sm:inline">
+              <div className="flex items-center justify-between px-4 pb-2.5 pt-1">
+                <div className="flex items-center gap-3">
+                  <span className="text-[10.5px] text-slate-400">Scope: Bankwide book</span>
+                  <span className="hidden text-[10.5px] text-slate-300 sm:inline">
                     Enter to send · Shift+Enter for a new line
                   </span>
                 </div>
@@ -313,8 +296,8 @@ export function VentusAIChatPage({
                   className={cn(
                     "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
                     isLoading || !input.trim()
-                      ? "bg-slate-100 text-slate-400"
-                      : "bg-slate-900 text-white hover:bg-slate-800",
+                      ? "bg-indigo-50 text-indigo-300"
+                      : "bg-indigo-700 text-white hover:bg-indigo-800",
                   )}
                 >
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
@@ -324,6 +307,7 @@ export function VentusAIChatPage({
           </div>
         </div>
       </div>
+
 
       <ContextPanel
         metrics={LEADERSHIP_CONTEXT.bankwideMetrics}
