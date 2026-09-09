@@ -348,7 +348,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           <span className="text-[11px] font-medium">Back</span>
         </button>
 
-        <div className="h-[90px] w-full overflow-hidden">
+        <div className="h-[110px] w-full overflow-hidden">
           <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={handleImageError} />
         </div>
 
@@ -366,18 +366,18 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               className="rounded-xl border border-slate-100 bg-white p-3 flex items-stretch justify-between gap-2"
             >
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-bold text-slate-800 leading-snug">{deal.merchant}</p>
-                {deal.product && <p className="text-[11px] text-slate-500 leading-snug">{deal.product}</p>}
-                {deal.message && <p className="text-[10.5px] text-slate-500 mt-1 leading-snug">{deal.message}</p>}
+                <p className="text-[13px] font-bold text-slate-800 leading-snug">{deal.merchant}</p>
+                {deal.product && <p className="text-[12px] text-slate-500 leading-snug">{deal.product}</p>}
+                {deal.message && <p className="text-[11.5px] text-slate-500 mt-1 leading-snug">{deal.message}</p>}
               </div>
               <div className="flex flex-col items-end justify-between gap-1.5 shrink-0">
                 {deal.rewardValue ? (
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: c.dot }}>
+                  <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: c.dot }}>
                     {deal.rewardValue}
                   </span>
                 ) : <span />}
                 <button
-                  className="text-[9px] font-semibold px-2.5 py-1 rounded-full border transition-colors"
+                  className="text-[10.5px] font-semibold px-2.5 py-1 rounded-full border transition-colors"
                   style={{ borderColor: c.dot, color: c.dot }}
                 >
                   {deal.cta || "Activate"}
