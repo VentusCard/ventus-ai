@@ -8,10 +8,11 @@ import {
 } from "@/lib/ventusPriorityCards";
 
 const TONE_STYLE: Record<VentusCardTone, { tone: string; icon: typeof Gift }> = {
-  "life-event": { tone: "text-violet-700 bg-violet-50 border-violet-100", icon: CalendarHeart },
-  offer: { tone: "text-blue-700 bg-blue-50 border-blue-100", icon: Gift },
-  flow: { tone: "text-emerald-700 bg-emerald-50 border-emerald-100", icon: Repeat },
+  "life-event": { tone: "text-violet-600 bg-violet-50", icon: CalendarHeart },
+  offer: { tone: "text-indigo-600 bg-indigo-50", icon: Gift },
+  flow: { tone: "text-emerald-600 bg-emerald-50", icon: Repeat },
 };
+
 
 interface PriorityBriefingProps {
   cards: VentusPriorityCard[];
