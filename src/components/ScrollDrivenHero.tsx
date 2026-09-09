@@ -230,6 +230,10 @@ const ScrollDrivenHero = () => {
   // Sub-progress within the active persona window — drives output card stagger
   const personaWindowProgress = stage === 4 ? (orchestrateProgress * 3) - activePersonaIndex : 0;
 
+  // Delayed reveal so the panel can settle before output cards begin sliding in
+  const cardRevealProgress = stage === 4 ? Math.max(0, Math.min(1, (personaWindowProgress - 0.18) / 0.82)) : 0;
+
+
   // For Detect: highlight evidence rows for the most recently revealed pill
   const detectHighlightPersona =
     stage === 3 && pillsRevealed > 0 ? personas[pillsRevealed - 1].id : null;
