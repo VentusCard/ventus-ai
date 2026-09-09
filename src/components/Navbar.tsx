@@ -49,6 +49,7 @@ const useActiveSection = (enabled: boolean) => {
             best = id;
           }
         }
+        console.log("IO_ACTIVE", best);
         setActiveId(best);
       },
       { rootMargin: "-72px 0px -45% 0px", threshold: [0, 0.15, 0.35, 0.6, 0.9] }
