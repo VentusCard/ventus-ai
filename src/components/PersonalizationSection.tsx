@@ -34,7 +34,7 @@ const PersonalizationSection = () => (
           Personalization
         </p>
         <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-[1.1]">
-          Personalization, everywhere it matters.
+          Personalize every customer touchpoint.
         </h2>
         <p className="mt-4 text-base leading-[1.65] text-white/75">
           The same intelligence powers consistent, context-aware experiences across every channel the customer touches.
