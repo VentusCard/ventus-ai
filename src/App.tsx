@@ -54,6 +54,7 @@ const AppLayout = () => {
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
   const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics;
   const [showAnnouncement, setShowAnnouncement] = useState(true);
+  const [barHeight, setBarHeight] = useState(40);
 
   const routes = (
     <Suspense fallback={<RouteFallback />}>
