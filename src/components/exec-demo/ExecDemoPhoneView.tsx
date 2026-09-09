@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Gift, Users, Bot, Wallet, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
@@ -26,6 +26,35 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
   product: "relationship",
   relationship: "ai",
 };
+
+/**
+ * The phone UI is authored once at this fixed design width and then uniformly
+ * scaled to whatever space the frame actually gets. This keeps every proportion
+ * (type size, photo height, padding) identical at any window size or browser zoom.
+ */
+const DESIGN_WIDTH = 360;
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 1.6;
+
+/** Measures a box and returns the uniform scale that maps DESIGN_WIDTH onto it. */
+function useDesignScale<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [box, setBox] = useState({ width: 0, height: 0 });
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setBox({ width: el.clientWidth, height: el.clientHeight });
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const raw = box.width > 0 ? box.width / DESIGN_WIDTH : 1;
+  const scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, raw));
+  return { ref, scale, box };
+}
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
   { key: "budget", label: "Budget", icon: Wallet, color: "#0ea5e9" },
@@ -68,6 +97,7 @@ interface Props {
 
 export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default" }: Props) {
   const isCompactFrame = frame === "compact";
+  const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -173,8 +203,18 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           <div className="w-2 h-2 rounded-full bg-slate-300" />
         </div>
 
-        {/* Zoomed inner stack */}
-        <div className="flex-1 min-h-0 flex flex-col" style={{ zoom: 1.1 }}>
+        {/* Measured viewport: content is authored at DESIGN_WIDTH and uniformly scaled to fit */}
+        <div ref={scaleRef} className="flex-1 min-h-0 relative overflow-hidden">
+        <div
+          className="absolute top-0 left-0 flex flex-col"
+          style={{
+            width: DESIGN_WIDTH,
+            height: box.height > 0 ? box.height / scale : "100%",
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            visibility: box.width > 0 ? "visible" : "hidden",
+          }}
+        >
           {/* Status bar */}
           <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
             {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
@@ -234,6 +274,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
               })}
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
