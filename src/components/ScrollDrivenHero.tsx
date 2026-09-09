@@ -564,15 +564,15 @@ const ScrollDrivenHero = () => {
                         className="ventus-glass"
                         style={{
                           borderRadius: 10,
-                          minHeight: 48,
+                          minHeight: 44,
                           opacity: cardProgress,
-                          transform: `translateX(${(1 - cardProgress) * 14}px) scale(${0.96 + cardProgress * 0.04})`,
+                          transform: `translateX(${(1 - cardProgress) * 10}px) scale(${0.96 + cardProgress * 0.04})`,
                           transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
-                        <div className="flex items-center gap-2.5 px-3 py-2.5">
+                        <div className="flex flex-col gap-1 px-2.5 py-2">
                           <span
-                            className="shrink-0 inline-block text-[8px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded"
+                            className="self-start inline-block text-[7.5px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded"
                             style={{
                               color,
                               background: `${color}1f`,
@@ -580,7 +580,7 @@ const ScrollDrivenHero = () => {
                           >
                             {output?.label ?? "—"}
                           </span>
-                          <div className="text-[12px] font-semibold text-gray-900 leading-snug">
+                          <div className="text-[11px] font-semibold text-gray-900 leading-snug">
                             {output?.text ?? "—"}
                           </div>
                         </div>
