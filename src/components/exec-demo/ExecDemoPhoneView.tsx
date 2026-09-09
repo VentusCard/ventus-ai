@@ -28,12 +28,11 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
 };
 
 /**
- * The phone UI is authored once at this fixed design width and then uniformly
- * scaled to whatever space the frame actually gets. This keeps every proportion
- * (type size, photo height, padding) identical at any window size or browser zoom.
+ * The phone content is authored once at this fixed design width and then
+ * uniformly scaled to whatever width the content area actually gets. The frame
+ * chrome (status bar, bottom nav) is never scaled — it always fills the frame.
  */
 const DESIGN_WIDTH = 360;
-const DESIGN_HEIGHT = 640;
 
 /** Measures a box and returns the uniform scale that maps DESIGN_WIDTH onto it. */
 function useDesignScale<T extends HTMLElement>() {
@@ -50,9 +49,7 @@ function useDesignScale<T extends HTMLElement>() {
     return () => ro.disconnect();
   }, []);
 
-  const widthScale = box.width > 0 ? box.width / DESIGN_WIDTH : 1;
-  const heightScale = box.height > 0 ? box.height / DESIGN_HEIGHT : 1;
-  const scale = Math.min(widthScale, heightScale);
+  const scale = box.width > 0 ? box.width / DESIGN_WIDTH : 1;
   return { ref, scale, box };
 }
 
@@ -203,79 +200,78 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           <div className="w-2 h-2 rounded-full bg-slate-300" />
         </div>
 
-        {/* Measured viewport: content is authored at DESIGN_WIDTH and uniformly scaled to fit */}
-        <div ref={scaleRef} className="flex-1 min-h-0 relative overflow-hidden">
-        <div
-          className="absolute top-0 left-1/2 flex flex-col"
-          style={{
-            width: DESIGN_WIDTH,
-            height: DESIGN_HEIGHT,
-            transform: `translateX(-50%) scale(${scale})`,
-            transformOrigin: "top center",
-            visibility: box.width > 0 ? "visible" : "hidden",
-          }}
-        >
-          {/* Status bar */}
-          <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
-            {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
+        {/* Status bar — frame chrome, never scaled */}
+        <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
+          {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+            </span>
+            <span className="font-semibold text-slate-600 text-[11px]">
+              {wmCopilotMode ? `${bankLabel} · Advisor` : `${bankLabel} · ${firstName}`}
+            </span>
+          </div>
+          {wmCopilotMode ? (
+            <span />
+          ) : (
             <div className="flex items-center gap-1.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-              </span>
-              <span className="font-semibold text-slate-600 text-[11px]">
-                {wmCopilotMode ? `${bankLabel} · Advisor` : `${bankLabel} · ${firstName}`}
-              </span>
-            </div>
-            {wmCopilotMode ? (
-              <span />
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <Wifi className="w-3 h-3" />
-                <Battery className="w-3.5 h-3.5" />
-              </div>
-            )}
-          </div>
-
-          {/* Content */}
-          <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || wmCopilotMode) ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
-            {wmCopilotMode ? (
-              <AdvisorConversationTabletView onClose={() => onCloseWMCopilot?.()} />
-            ) : showContent ? (
-              renderContent()
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <span className="text-[11px] text-slate-300">Waiting for analysis...</span>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom Tab Bar — hidden in WM CoPilot mode */}
-          {!wmCopilotMode && (
-            <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-              {CONSUMER_TABS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = consumerTab === tab.key;
-                return (
-                  <button
-                    key={tab.key}
-                    onClick={() => setConsumerTab(tab.key)}
-                    className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
-                  >
-                    <Icon className="w-3.5 h-3.5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
-                    <span className="text-[9px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
-                      {tab.label}
-                    </span>
-                    {isActive && (
-                      <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
-                    )}
-                  </button>
-                );
-              })}
+              <Wifi className="w-3 h-3" />
+              <Battery className="w-3.5 h-3.5" />
             </div>
           )}
         </div>
+
+        {/* Measured content viewport: authored at DESIGN_WIDTH and uniformly scaled by width */}
+        <div ref={scaleRef} className="flex-1 min-h-0 relative overflow-hidden bg-white">
+          <div
+            className="absolute top-0 left-0 flex flex-col"
+            style={{
+              width: DESIGN_WIDTH,
+              height: scale > 0 ? box.height / scale : "100%",
+              transform: `scale(${scale})`,
+              transformOrigin: "top left",
+              visibility: box.width > 0 ? "visible" : "hidden",
+            }}
+          >
+            <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || wmCopilotMode) ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
+              {wmCopilotMode ? (
+                <AdvisorConversationTabletView onClose={() => onCloseWMCopilot?.()} />
+              ) : showContent ? (
+                renderContent()
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <span className="text-[11px] text-slate-300">Waiting for analysis...</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
+
+        {/* Bottom Tab Bar — frame chrome, never scaled, hidden in WM CoPilot mode */}
+        {!wmCopilotMode && (
+          <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
+            {CONSUMER_TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = consumerTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setConsumerTab(tab.key)}
+                  className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
+                >
+                  <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                  <span className="text-[10px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                    {tab.label}
+                  </span>
+                  {isActive && (
+                    <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
