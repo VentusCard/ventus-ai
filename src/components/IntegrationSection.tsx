@@ -73,7 +73,7 @@ const sources: Tile[] = [
 const destinations: Tile[] = [
   { name: "Ventus AI Database", label: "Ventus AI Database", icon: "database" },
   { name: "Marketing/CRM automation", label: "Marketing/CRM automation", icon: "megaphone" },
-  { name: "AI Coworker", label: "AI Coworker", icon: "bot", href: "/coworker" },
+  { name: "AI Coworker", label: "AI Coworker", icon: "bot" },
   { name: "Rewards Engine", label: "Rewards Engine", icon: "star" },
   { name: "Digital Banking App", label: "Digital Banking App", icon: "iphone" },
 ];
