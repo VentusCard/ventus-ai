@@ -85,7 +85,7 @@ export function PriorityBriefing({
                       <button
                         type="button"
                         onClick={() => onAsk(getPriorityPrompt(card))}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[11px] text-slate-700 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-2.5 py-1 text-[11px] text-slate-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
                       >
                         <MessageSquare className="h-3 w-3" />
                         Brief me on this
@@ -99,7 +99,7 @@ export function PriorityBriefing({
                           }
                           onNavigate?.(action.tab);
                         }}
-                        className="inline-flex items-center gap-1 rounded-md bg-slate-900 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-slate-800"
+                        className="inline-flex items-center gap-1 rounded-lg bg-indigo-700 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-indigo-800"
                       >
                         {card.opportunityId ? "Open the briefing report" : action.label}
                         <ArrowRight className="h-3 w-3" />
