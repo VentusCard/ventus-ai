@@ -4,10 +4,10 @@ import onevalleyAsset from "@/assets/partners/onevalley.png.asset.json";
 import plugAndPlayAsset from "@/assets/partners/plug-and-play.png.asset.json";
 
 const partners = [
-  { name: "Finovate", src: finovateAsset.url },
-  { name: "Fintech Sandbox", src: fintechSandboxAsset.url },
-  { name: "OneValley", src: onevalleyAsset.url },
-  { name: "Plug and Play", src: plugAndPlayAsset.url },
+  { name: "Finovate", src: finovateAsset.url, sizeClass: "max-h-20 md:max-h-24" },
+  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, sizeClass: "max-h-20 md:max-h-24" },
+  { name: "OneValley", src: onevalleyAsset.url, sizeClass: "max-h-16 md:max-h-20" },
+  { name: "Plug and Play", src: plugAndPlayAsset.url, sizeClass: "max-h-20 md:max-h-24" },
 ];
 
 const PartnersSection = () => {
@@ -32,7 +32,7 @@ const PartnersSection = () => {
               <img
                 src={partner.src}
                 alt={`${partner.name} logo`}
-                className="max-h-16 md:max-h-20 w-auto object-contain"
+                className={`${partner.sizeClass} w-auto object-contain`}
               />
             </div>
           ))}
