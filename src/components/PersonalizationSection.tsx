@@ -29,11 +29,11 @@ const PersonalizationSection = () => (
     className="scroll-mt-28 border-y border-white/10 bg-[#08111F] py-16 md:py-20"
   >
     <div className="mx-auto max-w-7xl px-6 md:px-8">
-      <div className="mb-8 max-w-2xl">
+      <div className="mb-8 max-w-2xl md:max-w-3xl">
         <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-blue-400">
           Personalization
         </p>
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-[1.1]">
+        <h2 className="text-3xl md:text-4xl md:whitespace-nowrap font-bold tracking-tight text-white leading-[1.1]">
           Personalize every customer touchpoint.
         </h2>
         <p className="mt-4 text-base leading-[1.65] text-white/75">
