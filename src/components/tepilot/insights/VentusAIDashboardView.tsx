@@ -10,6 +10,8 @@ import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { QueryConsoleView } from "./QueryConsoleView";
 import { ApiAccessView } from "./api/ApiAccessView";
 import { getVentusPriorityCards, getPriorityPrompt } from "@/lib/ventusPriorityCards";
+import { prewarmPrompts } from "@/lib/ventusPrewarm";
+import { LEADERSHIP_CONTEXT } from "@/lib/ventusLeadershipContext";
 import { getRevenueOpportunities } from "@/lib/mockBankwideData";
 import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
 import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal, Users, Plug } from "lucide-react";
@@ -45,6 +47,11 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
     () => getVentusPriorityCards(getRevenueOpportunities(EMPTY_FILTERS)),
     [],
   );
+
+  // Pre-warm Ventus so clicking a priority renders an answer instantly.
+  useEffect(() => {
+    prewarmPrompts(priorityCards.map(getPriorityPrompt), LEADERSHIP_CONTEXT);
+  }, [priorityCards]);
 
   const [priorityIndex, setPriorityIndex] = useState(0);
   const [paused, setPaused] = useState(false);

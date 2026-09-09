@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Check, Copy, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,12 +47,33 @@ export function ChatMessage({ role, content, timestamp, onRegenerate }: ChatMess
         </div>
         <div
           className={cn(
-            "prose prose-sm prose-slate max-w-none text-slate-700",
-            "[&>p]:mb-2 [&>ul]:mb-2 [&>ol]:mb-2 [&_li]:my-0.5 [&_strong]:text-slate-900",
-            "[&_table]:text-[12px] [&_th]:text-slate-500",
+            "max-w-none text-[13.5px] leading-relaxed text-slate-700",
+            // Paragraphs & headings
+            "[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
+            "[&_h1]:mb-1.5 [&_h1]:mt-4 [&_h1]:text-[13.5px] [&_h1]:font-semibold [&_h1]:text-slate-900",
+            "[&_h2]:mb-1.5 [&_h2]:mt-4 [&_h2]:text-[13px] [&_h2]:font-semibold [&_h2]:text-slate-900",
+            "[&_h3]:mb-1 [&_h3]:mt-3 [&_h3]:text-[12.5px] [&_h3]:font-semibold [&_h3]:uppercase [&_h3]:tracking-wide [&_h3]:text-slate-500",
+            "[&_h1:first-child]:mt-0 [&_h2:first-child]:mt-0 [&_h3:first-child]:mt-0",
+            // Lists
+            "[&_ul]:my-2 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-4",
+            "[&_ol]:my-2 [&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:pl-4",
+            "[&_li]:pl-0.5 [&_li>p]:my-0 [&_li_ul]:my-1 [&_li_ol]:my-1",
+            // Emphasis & inline code
+            "[&_strong]:font-semibold [&_strong]:text-slate-900",
+            "[&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[12px] [&_code]:text-slate-800",
+            "[&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-slate-900 [&_pre]:p-3 [&_pre]:text-[12px] [&_pre_code]:bg-transparent [&_pre_code]:text-slate-100",
+            "[&_a]:text-blue-600 [&_a]:underline [&_a]:underline-offset-2",
+            // Tables
+            "[&_table]:my-3 [&_table]:w-full [&_table]:border-collapse [&_table]:overflow-hidden [&_table]:rounded-lg [&_table]:border [&_table]:border-slate-200 [&_table]:text-[12px]",
+            "[&_th]:border-b [&_th]:border-slate-200 [&_th]:bg-slate-50 [&_th]:px-2.5 [&_th]:py-1.5 [&_th]:text-left [&_th]:font-semibold [&_th]:text-slate-500",
+            "[&_td]:border-b [&_td]:border-slate-100 [&_td]:px-2.5 [&_td]:py-1.5 [&_td]:align-top [&_td]:tabular-nums [&_td]:text-slate-700",
+            "[&_tr:last-child_td]:border-b-0",
+            // Rules & quotes
+            "[&_hr]:my-4 [&_hr]:border-slate-200",
+            "[&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-slate-200 [&_blockquote]:pl-3 [&_blockquote]:text-slate-500",
           )}
         >
-          <ReactMarkdown>{content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
         </div>
         <div className="mt-1.5 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           <button
