@@ -1,4 +1,3 @@
-import ScrollReveal from "@/components/ScrollReveal";
 import HueField from "@/components/HueField";
 import { Link } from "react-router-dom";
 import {
@@ -224,9 +223,9 @@ const IntegrationSection = () => {
             </p>
           </div>
 
-        </ScrollReveal>
+        </div>
 
-        <ScrollReveal delay={0.12}>
+        <div>
           <div
             className="ventus-glass ventus-glass-soft mt-14 rounded-2xl p-6 md:p-8 min-w-0"
           >
@@ -352,7 +351,7 @@ const IntegrationSection = () => {
               </div>
             </div>
           </div>
-        </ScrollReveal>
+        </div>
       </div>
 
 
