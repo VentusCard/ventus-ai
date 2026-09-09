@@ -98,7 +98,7 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isHome = location.pathname === "/";
-  const activeSection = useActiveSection(true);
+  const activeSection = useActiveSection(location.pathname);
   const activeId = isHome ? activeSection : location.pathname.replace("/", "");
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
