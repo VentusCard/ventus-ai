@@ -317,6 +317,9 @@ const ScrollDrivenHero = () => {
             <div className="relative flex flex-col xl:flex-row items-center xl:items-center justify-center xl:justify-end gap-4 xl:gap-5" style={{ maxWidth: "calc(100vw - 48px)" }}>
               {/* The Card */}
               <div
+                className={`transition-transform duration-500 ease-out ${stage === 4 ? 'xl:translate-x-0' : 'xl:-translate-x-[18px]'}`}
+              >
+              <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out hero-dark-card"
                 style={{
                   width: 420,
@@ -504,6 +507,7 @@ const ScrollDrivenHero = () => {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
 
               {/* Ventus Orchestrate panel — sits to the RIGHT of the dark card (desktop only) */}
