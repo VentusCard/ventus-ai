@@ -2,20 +2,14 @@ import HueField from "@/components/HueField";
 
 const columns = [
   {
-    num: "01",
-    label: "WIN MORE PRODUCTS",
     title: "Win more products.",
     body: "Behavioral signals reveal the right product for the right customer, so offers convert instead of interrupt.",
   },
   {
-    num: "02",
-    label: "RETAIN FOR LONGER",
     title: "Retain for longer.",
     body: "Early life-event and churn signals let the bank engage before customers start shopping elsewhere.",
   },
   {
-    num: "03",
-    label: "GROW DEPOSITS",
     title: "Grow deposits.",
     body: "Personalized nudges and context-aware prompts steer surplus cash into the bank's deposit products.",
   },
@@ -46,16 +40,12 @@ const ProblemStatementSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3">
           {columns.map((c, i) => (
             <div
-              key={c.label}
+              key={c.title}
               className={`relative min-w-0 px-5 py-10 lg:px-6 ${
                 i > 0 ? "border-t border-gray-200 lg:border-l lg:border-t-0" : ""
               }`}
             >
               <div className="relative z-10">
-                <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-blue-600">
-                  <span className="text-gray-400">{c.num}</span>
-                  {c.label}
-                </p>
                 <h3 className="mb-2 text-[30px] font-bold text-gray-900 leading-tight">
                   {c.title}
                 </h3>
