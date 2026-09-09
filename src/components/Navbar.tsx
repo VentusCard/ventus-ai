@@ -14,7 +14,11 @@ const PAGE_LINKS = [
   { to: "/faq", label: "FAQ" },
 ];
 
-const Navbar = () => {
+interface NavbarProps {
+  offsetTop?: number;
+}
+
+const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -35,7 +39,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="mx-auto max-w-5xl rounded-2xl border border-slate-200/80 bg-white/85 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+    <div
+      className="fixed left-0 right-0 z-50 px-4 md:px-6 transition-[top] duration-300"
+      style={{ top: offsetTop }}
+    >
+      <nav className="mx-auto max-w-5xl rounded-2xl border border-slate-200/80 bg-white/85 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl">
       {/* Desktop */}
       <div className="hidden md:flex h-14 items-center justify-between pl-6 pr-3">
         <Link to="/" onClick={closeMobileMenu}>
