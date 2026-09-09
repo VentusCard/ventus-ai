@@ -615,10 +615,10 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               }}
               onClick={() => setExpandedGroup(active)}
             >
-              <div className="h-[110px] w-full overflow-hidden">
+              <div className="flex-1 min-h-[110px] w-full overflow-hidden">
                 <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={handleImageError} />
               </div>
-              <div className="px-3 pt-2 pb-1.5 flex-1">
+              <div className="px-3 pt-2 pb-1.5 shrink-0">
                 <p className="text-[12px] font-semibold text-slate-800 leading-snug">
                   {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
                 </p>
