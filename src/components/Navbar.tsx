@@ -7,6 +7,8 @@ import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 const SECTION_LINKS = [
   { id: "intelligence", label: "Intelligence" },
   { id: "personalization", label: "Personalization" },
+  { id: "integration", label: "Integration" },
+  { id: "governance", label: "Governance" },
 ];
 
 const PAGE_LINKS = [
@@ -15,7 +17,7 @@ const PAGE_LINKS = [
 ];
 
 /** Section anchors tracked for the nav underline, in document order. */
-const TRACKED_SECTIONS = ["intelligence", "personalization", "insights", "faq"];
+const TRACKED_SECTIONS = ["intelligence", "personalization", "integration", "governance", "insights", "faq"];
 
 const useActiveSection = (pathname: string) => {
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -141,11 +143,11 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
               <Underline active={activeId === l.id} />
             </a>
           ))}
+          <span className="h-4 w-px bg-slate-200" />
           <Link to="/insights" className={navLinkClass}>
             Insights
             <Underline active={activeId === "insights"} />
           </Link>
-          <span className="h-4 w-px bg-slate-200" />
           <Link to="/faq" className={navLinkClass}>
             FAQ
             <Underline active={activeId === "faq"} />
@@ -187,6 +189,7 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
               {l.label}
             </a>
           ))}
+          <div className="my-2 h-px bg-slate-200" />
           <Link
             to="/insights"
             onClick={closeMobileMenu}
@@ -194,7 +197,6 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
           >
             Insights
           </Link>
-          <div className="my-2 h-px bg-slate-200" />
           <Link
             to="/faq"
             onClick={closeMobileMenu}
