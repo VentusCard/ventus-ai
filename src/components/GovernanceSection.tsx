@@ -42,7 +42,7 @@ const GovernanceSection = () => (
         <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-[1.1]">
           Personalization under the bank's rules.
         </h2>
-        <p className="mt-6 max-w-md text-lg leading-relaxed text-white/60">
+        <p className="mt-6 max-w-md text-base leading-[1.65] text-white/75">
           Governance is part of the decision itself, not a review after it. Approved context, policy
           checks, review thresholds, and the decision record stay connected in one visible path.
         </p>
@@ -65,7 +65,7 @@ const GovernanceSection = () => (
               <span className="pt-0.5 text-xs font-semibold text-blue-400">{s.num}</span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-white">{s.title}</p>
-                <p className="mt-1 text-sm text-white/55">{s.body}</p>
+                <p className="mt-1 text-[15px] leading-[1.6] text-white/70">{s.body}</p>
               </div>
               <span
                 className={`shrink-0 rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${

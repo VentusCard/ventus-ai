@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,68 @@ const PAGE_LINKS = [
   { to: "/faq", label: "FAQ" },
 ];
 
+/** Section anchors tracked for the nav underline, in document order. */
+const TRACKED_SECTIONS = ["intelligence", "personalization", "insights", "faq"];
+
+const useActiveSection = (enabled: boolean) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!enabled) {
+      setActiveId(null);
+      return;
+    }
+
+    const visible = new Map<string, number>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            visible.set(entry.target.id, entry.intersectionRatio);
+          } else {
+            visible.delete(entry.target.id);
+          }
+        }
+        if (visible.size === 0) {
+          setActiveId(null);
+          return;
+        }
+        // Only one item active at a time: the most visible tracked section.
+        let best: string | null = null;
+        let bestRatio = -1;
+        for (const [id, ratio] of visible) {
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            best = id;
+          }
+        }
+        setActiveId(best);
+      },
+      { rootMargin: "-72px 0px -45% 0px", threshold: [0, 0.15, 0.35, 0.6, 0.9] }
+    );
+
+    const els = TRACKED_SECTIONS.map((id) => document.getElementById(id)).filter(
+      (el): el is HTMLElement => Boolean(el)
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [enabled]);
+
+  return activeId;
+};
+
+const navLinkClass =
+  "relative cursor-pointer text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900";
+
+const Underline = ({ active }: { active: boolean }) => (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute -bottom-[6px] left-0 h-[2px] rounded-full bg-blue-600 transition-[width] duration-200 ease-out"
+    style={{ width: active ? "100%" : "0%" }}
+  />
+);
+
+
 interface NavbarProps {
   offsetTop?: number;
 }
@@ -22,8 +84,12 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isHome = location.pathname === "/";
+  const activeSection = useActiveSection(true);
+  const activeId = isHome ? activeSection : location.pathname.replace("/", "");
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
 
   const goToSection = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -56,25 +122,23 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
               key={l.id}
               href={`/#${l.id}`}
               onClick={(e) => goToSection(e, l.id)}
-              className="cursor-pointer text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
+              className={navLinkClass}
             >
               {l.label}
+              <Underline active={activeId === l.id} />
             </a>
           ))}
-          <Link
-            to="/insights"
-            className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
-          >
+          <Link to="/insights" className={navLinkClass}>
             Insights
+            <Underline active={activeId === "insights"} />
           </Link>
           <span className="h-4 w-px bg-slate-200" />
-          <Link
-            to="/faq"
-            className="text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900"
-          >
+          <Link to="/faq" className={navLinkClass}>
             FAQ
+            <Underline active={activeId === "faq"} />
           </Link>
         </div>
+
 
         <Link to="/contact">
           <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
