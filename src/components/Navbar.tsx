@@ -1,186 +1,214 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3, Bot, Megaphone } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
-import AnnouncementBar from "./AnnouncementBar";
 
-const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
-
-const behavioralIntelligenceItems = [
-  { to: "/solutions/offer-intelligence", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Gift },
-  { to: "/solutions/product-intelligence", title: "Next Product", desc: "Surface the right product at the right moment", Icon: Package },
-  { to: "/solutions/conversation-intelligence", title: "Next Conversation", desc: "Surface the right conversation at the right moment.", Icon: MessageCircle },
+const SECTION_LINKS = [
+  { id: "intelligence", label: "Intelligence" },
+  { id: "personalization", label: "Personalization" },
+  { id: "integration", label: "Integration" },
+  { id: "governance", label: "Governance" },
 ];
 
-const analyticsItems = [
-  { to: "/solutions/portfolio-intelligence", title: "Customer Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
-  { to: "/solutions/campaign-intelligence", title: "Segment of One Campaigns", desc: "Build micro-segment campaigns from life events, behavior, and financial signals.", Icon: Megaphone },
-  { to: "/coworker", title: "Ventus AI Coworker", desc: "AI teammate for advisors and banking teams.", Icon: Bot },
+const PAGE_LINKS = [
+  { to: "/insights", label: "Insights" },
+  { to: "/faq", label: "FAQ" },
 ];
 
-const Navbar = () => {
+/** Section anchors tracked for the nav underline, in document order. */
+const TRACKED_SECTIONS = ["intelligence", "personalization", "integration", "governance", "insights", "faq"];
+
+const useActiveSection = (pathname: string) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setActiveId(null);
+    const visible = new Map<string, number>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            visible.set(entry.target.id, entry.intersectionRatio);
+          } else {
+            visible.delete(entry.target.id);
+          }
+        }
+        if (visible.size === 0) {
+          setActiveId(null);
+          return;
+        }
+        // Only one item active at a time: the most visible tracked section.
+        let best: string | null = null;
+        let bestRatio = -1;
+        for (const [id, ratio] of visible) {
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            best = id;
+          }
+        }
+        setActiveId(best);
+      },
+      { rootMargin: "-72px 0px -25% 0px", threshold: [0, 0.05, 0.2, 0.5, 0.9] }
+    );
+
+    // Page content can mount after the nav (lazy routes), so poll briefly for anchors.
+    const seen = new Set<string>();
+    const attach = () => {
+      for (const id of TRACKED_SECTIONS) {
+        if (seen.has(id)) continue;
+        const el = document.getElementById(id);
+        if (el) {
+          seen.add(id);
+          observer.observe(el);
+        }
+      }
+    };
+    attach();
+    const interval = window.setInterval(attach, 300);
+    const stop = window.setTimeout(() => window.clearInterval(interval), 5000);
+
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(stop);
+      observer.disconnect();
+    };
+  }, [pathname]);
+
+  return activeId;
+};
+
+
+const navLinkClass =
+  "relative cursor-pointer text-[13px] font-medium uppercase tracking-wide text-gray-600 transition-colors hover:text-gray-900";
+
+const Underline = ({ active }: { active: boolean }) => (
+  <span
+    aria-hidden
+    className="pointer-events-none absolute -bottom-[6px] left-0 h-[2px] rounded-full bg-blue-600 transition-[width] duration-200 ease-out"
+    style={{ width: active ? "100%" : "0%" }}
+  />
+);
+
+
+interface NavbarProps {
+  offsetTop?: number;
+}
+
+const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [solutionsOpen, setSolutionsOpen] = useState(false);
-  const [mobileSolutionsOpen, setMobileSolutionsOpen] = useState(false);
+  const isHome = location.pathname === "/";
+  const activeSection = useActiveSection(location.pathname);
+  const activeId = isHome ? activeSection : location.pathname.replace("/", "");
 
-  const isDarkHero = DARK_HERO_PAGES.includes(location.pathname);
-  const isTransparent = isDarkHero && !isMobileMenuOpen;
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const closeMobileMenu = () => { setIsMobileMenuOpen(false); setMobileSolutionsOpen(false); };
 
-  const scrollToFaq = (e: React.MouseEvent) => {
+  const goToSection = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     closeMobileMenu();
+    const scroll = () =>
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     if (location.pathname === "/") {
-      document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+      scroll();
     } else {
       navigate("/");
-      setTimeout(() => {
-        document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
-      }, 300);
+      setTimeout(scroll, 320);
     }
   };
 
-  const textColor = isTransparent ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-gray-900";
-  const mobileIconColor = isTransparent ? "text-white" : "text-gray-700";
-
   return (
-    <div className="absolute top-0 left-0 right-0 z-50">
-      <AnnouncementBar />
-      <nav className={`transition-colors duration-300 ${isTransparent ? "bg-[#0A1628]" : "ventus-glass-nav"}`}>
-      {/* Desktop navbar */}
-      <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
-        <div className="flex items-center gap-8">
-          <Link to="/" onClick={closeMobileMenu}>
-            <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
+    <div
+      className="fixed left-0 right-0 z-50 px-4 md:px-6 transition-[top] duration-300"
+      style={{ top: offsetTop }}
+    >
+      <nav className="mx-auto max-w-5xl rounded-2xl border border-slate-200/80 bg-white/85 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+      {/* Desktop */}
+      <div className="hidden md:flex h-14 items-center justify-between pl-6 pr-3">
+        <Link to="/" onClick={closeMobileMenu}>
+          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto" />
+        </Link>
+
+        <div className="flex items-center gap-6">
+          {SECTION_LINKS.map((l) => (
+            <a
+              key={l.id}
+              href={`/#${l.id}`}
+              onClick={(e) => goToSection(e, l.id)}
+              className={navLinkClass}
+            >
+              {l.label}
+              <Underline active={activeId === l.id} />
+            </a>
+          ))}
+          <span className="h-4 w-px bg-slate-200" />
+          <Link to="/insights" className={navLinkClass}>
+            Insights
+            <Underline active={activeId === "insights"} />
           </Link>
-
-          {/* Solutions dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setSolutionsOpen(true)}
-            onMouseLeave={() => setSolutionsOpen(false)}
-          >
-            <button className={`${textColor} text-sm font-medium transition-colors flex items-center gap-1`}>
-              Solutions <ChevronDown size={14} className={`transition-transform ${solutionsOpen ? "rotate-180" : ""}`} />
-            </button>
-            {solutionsOpen && (
-              <div className="absolute top-full left-0 pt-2" onMouseEnter={() => setSolutionsOpen(true)}>
-                <div className="bg-white rounded-lg shadow-lg border border-gray-100 py-4 w-[640px] grid grid-cols-2">
-                  <div className="px-4">
-                    <div className="text-[11px] uppercase tracking-wider text-[#9CA3AF]">Banking Personalization</div>
-                    {behavioralIntelligenceItems.map((item) => (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setSolutionsOpen(false)}
-                        className="flex items-start gap-3 py-3 hover:bg-gray-50 transition-colors rounded-md"
-                      >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
-                          <item.Icon size={16} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="px-4 border-l border-gray-100">
-                    <div className="text-[11px] uppercase tracking-wider text-[#9CA3AF]">BANK-FACING INTELLIGENCE</div>
-                    {analyticsItems.map((item) => (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setSolutionsOpen(false)}
-                        className="flex items-start gap-3 py-3 hover:bg-gray-50 transition-colors rounded-md"
-                      >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
-                          <item.Icon size={16} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Link to="/insights" className={`${textColor} text-sm font-medium transition-colors`}>Insights</Link>
-          <a href="/#faq" onClick={scrollToFaq} className={`${textColor} text-sm font-medium transition-colors cursor-pointer`}>FAQ</a>
+          <Link to="/faq" className={navLinkClass}>
+            FAQ
+            <Underline active={activeId === "faq"} />
+          </Link>
         </div>
+
+
         <Link to="/contact">
-          <Button
-            size="sm"
-            className={isTransparent
-              ? "bg-white/10 hover:bg-white/20 text-white border border-white/20"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
-            }
-          >
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
             Schedule Demo
           </Button>
         </Link>
       </div>
 
-      {/* Mobile navbar */}
-      <div className="flex md:hidden h-16 items-center justify-between" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+      {/* Mobile */}
+      <div className="flex md:hidden h-14 items-center justify-between px-5">
         <Link to="/" onClick={closeMobileMenu}>
-          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-5 w-auto" />
+          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto" />
         </Link>
-        <button onClick={toggleMobileMenu} className={mobileIconColor} aria-label="Toggle menu" style={{ minWidth: 'auto', minHeight: 'auto', padding: 0 }}>
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        <button
+          onClick={() => setIsMobileMenuOpen((v) => !v)}
+          className="text-gray-700"
+          aria-label="Toggle menu"
+          style={{ minWidth: "auto", minHeight: "auto", padding: 0 }}
+        >
+          {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      <div
-        id="mobile-nav-menu"
-        className={`md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 transition-all duration-300 ${
-          isMobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
-        }`}
-      >
-        <div style={{ padding: '1.5rem' }}>
-          <button
-            onClick={() => setMobileSolutionsOpen(!mobileSolutionsOpen)}
-            className="flex items-center justify-between w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left"
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-200 px-5 pb-5 pt-2">
+          {SECTION_LINKS.map((l) => (
+            <a
+              key={l.id}
+              href={`/#${l.id}`}
+              onClick={(e) => goToSection(e, l.id)}
+              className="block w-full cursor-pointer border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+            >
+              {l.label}
+            </a>
+          ))}
+          <div className="my-2 h-px bg-slate-200" />
+          <Link
+            to="/insights"
+            onClick={closeMobileMenu}
+            className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
           >
-            Solutions <ChevronDown size={16} className={`transition-transform ${mobileSolutionsOpen ? "rotate-180" : ""}`} />
-          </button>
-          {mobileSolutionsOpen && (
-              <div className="pl-4 border-b border-gray-100 pb-2">
-                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">Banking Personalization</div>
-                {behavioralIntelligenceItems.map((item) => (
-                  <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
-                    <item.Icon size={14} className="text-blue-600" />
-                    {item.title}
-                  </Link>
-                ))}
-                <div className="mr-4 my-1 border-t border-gray-200" />
-                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">BANK-FACING INTELLIGENCE</div>
-                {analyticsItems.map((item) => (
-                  <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
-                    <item.Icon size={14} className="text-blue-600" />
-                    {item.title}
-                  </Link>
-                ))}
-            </div>
-          )}
-          <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
-          <a href="/#faq" onClick={scrollToFaq} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left cursor-pointer">FAQ</a>
-
-          <Link to="/contact" onClick={closeMobileMenu} className="block pt-3">
+            Insights
+          </Link>
+          <Link
+            to="/faq"
+            onClick={closeMobileMenu}
+            className="block w-full border-b border-gray-100 py-3 text-left text-base font-medium text-gray-700"
+          >
+            FAQ
+          </Link>
+          <Link to="/contact" onClick={closeMobileMenu} className="block pt-4">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Schedule Demo</Button>
           </Link>
         </div>
-      </div>
+      )}
       </nav>
     </div>
   );

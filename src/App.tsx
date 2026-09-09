@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import AnnouncementBar from "./components/AnnouncementBar";
 
 const Index = lazy(() => import("./pages/Index"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
@@ -52,6 +53,8 @@ const AppLayout = () => {
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
   const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics;
+  const [showAnnouncement, setShowAnnouncement] = useState(true);
+  const [barHeight, setBarHeight] = useState(40);
 
   const routes = (
     <Suspense fallback={<RouteFallback />}>
@@ -102,7 +105,11 @@ const AppLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#0A1628]">
-      <Navbar />
+      <AnnouncementBar
+        onClose={() => setShowAnnouncement(false)}
+        onHeightChange={setBarHeight}
+      />
+      <Navbar offsetTop={showAnnouncement ? barHeight + 16 : 16} />
       {/* Page content sits above the footer with a solid white bg, revealing the footer as you scroll */}
       <div className="relative z-10 bg-white">
         {routes}

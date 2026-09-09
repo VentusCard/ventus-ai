@@ -192,12 +192,131 @@ const FINANCIAL: Record<string, SeedSignal> = {
     evidence: "Regular payments go to a school or college.",
     weight: 0.11,
   },
+  outsideEducationPlan: {
+    label: "College plan funded at another provider",
+    evidence: "Recurring transfers to a state college-savings plan administrator or an outside brokerage's education account — the plan already exists, just not here.",
+    weight: 0.09,
+  },
+  childSavingsBuildup: {
+    label: "Setting money aside for a child",
+    evidence: "Gift deposits around birthdays and holidays plus steady transfers into a savings balance that never gets spent down.",
+    weight: 0.14,
+  },
+
+  // --- Purchase-mortgage intent (distinct from the HELOC equity story) ---
+  rentVsPayment: {
+    label: "Paying more in rent than a mortgage would cost",
+    evidence: "Monthly rent to a landlord or property manager runs above the payment a comparable local mortgage would carry.",
+    weight: 0.30,
+  },
+  downPaymentBuildup: {
+    label: "Building a down payment",
+    evidence: "Steady transfers into a savings balance that keeps climbing and never gets spent down.",
+    weight: 0.26,
+  },
+  // --- Construction / project financing ---
+  projectCashOutflow: {
+    label: "Paying project costs out of cash",
+    evidence: "Land, permit, architect and contractor payments leaving deposits directly instead of being drawn from a facility.",
+    weight: 0.18,
+  },
+  // --- Property insurance ---
+  outsideInsurerPremium: {
+    label: "Home premium paid to an outside insurer",
+    evidence: "An annual or monthly homeowners premium goes to a carrier the bank does not hold, often alongside an escrow line.",
+    weight: 0.29,
+  },
+  propertyEscrow: {
+    label: "Property taxes and escrow on file",
+    evidence: "Escrow or direct property-tax payments confirm ownership and date the coverage year.",
+    weight: 0.27,
+  },
+  // --- Business income shape ---
+  selfEmployedIncome: {
+    label: "Income arrives as client and customer payments",
+    evidence: "Deposits come from several payers on irregular dates rather than one employer on a fixed cycle.",
+    weight: 0.20,
+  },
+  bizCashSwings: {
+    label: "Operating cash swings month to month",
+    evidence: "Account balance peaks and troughs vary widely across the cycle, with recurring obligations landing in the trough.",
+    weight: 0.16,
+  },
+  bizPayrollRun: {
+    label: "Runs payroll every cycle",
+    evidence: "Regular payroll debits to a payroll processor or to employees on a fixed schedule.",
+    weight: 0.12,
+  },
+  bizSeasonalRevenue: {
+    label: "Revenue concentrated in a few months",
+    evidence: "Card settlements and customer payments cluster into a short season, leaving thin months in between.",
+    weight: 0.10,
+  },
+  // --- Investing ladder (one row per tier, so the tiers stop looking alike) ---
+  smallRecurringContrib: {
+    label: "Small automatic investing contributions",
+    evidence: "Modest transfers on a fixed schedule to an investing app — the habit exists, the balance is still small.",
+    weight: 0.15,
+  },
+  outsideAdvisoryFees: {
+    label: "Paying advisory fees somewhere else",
+    evidence: "Quarterly management or planning fees debited by an outside advisor or RIA.",
+    weight: 0.11,
+  },
+  multiCustodianAssets: {
+    label: "Assets spread across several custodians",
+    evidence: "Transfers and fee debits involving more than one brokerage, trust company or private bank.",
+    weight: 0.07,
+  },
+
+  thinBuffer: {
+    label: "Little cushion between payday and bills",
+    evidence: "Balances run down to near zero before each deposit lands, with obligations timed tightly against income.",
+    weight: 0.21,
+  },
+
   travelSpend: {
     label: "Travels often",
     evidence: "Airline, hotel and ride spending across several trips this past year.",
     weight: 0.17,
   },
+  homeEquityBuilt: {
+    label: "Built meaningful home equity",
+    evidence: "Mortgage principal paid down over several years alongside property tax and homeowners insurance outflows.",
+    weight: 0.35,
+  },
+  highInterestConsumerDebt: {
+    label: "Carrying high-interest consumer debt",
+    evidence: "Recurring interest charges and revolving balances that a lower-rate home equity line could consolidate.",
+    weight: 0.31,
+  },
+  largePlannedOutflow: {
+    label: "Large planned outflow ahead",
+    evidence: "Large tuition deposits, large medical payments, or renovation deposits already leaving the account.",
+    weight: 0.22,
+  },
+  outsideMortgageServicer: {
+    label: "Mortgage payment to an outside servicer",
+    evidence: "Proves ownership, dates the origination, and reveals a lender the institution does not hold. Seasoning past three years plus continuing property tax and insurance establishes meaningful equity accumulation, and an escrow step-up usually means assessed value rose.",
+    weight: 0.32,
+  },
+  existingHelocElsewhere: {
+    label: "Existing HELOC at another lender",
+    evidence: "A recurring payment to a second lien servicer. Payment size implies the outstanding balance, and anything above roughly $25K drawn is worth pursuing. The refinance target, and the highest-converting audience in the set.",
+    weight: 0.36,
+  },
+  higherCostDebt: {
+    label: "Carrying higher-cost debt",
+    evidence: "Revolving balances with recurring interest charges, or payments to a personal loan servicer, home improvement financing company, or retail project card. Fires above $15K aggregate, where the rate difference produces savings large enough to move someone. All of it consolidates into a line at a fraction of the rate.",
+    weight: 0.34,
+  },
+  reachingLiquidity: {
+    label: "Reaching for liquidity",
+    evidence: "Savings drawn down toward zero, transfer direction reversing from checking-to-savings into savings-to-checking, or an investment account liquidating into deposits. The purpose does not have to be legible. What matters is that a household with equity is converting assets to cash rather than borrowing against the house.",
+    weight: 0.30,
+  },
 };
+
 
 const DEMOGRAPHIC: Record<string, SeedSignal> = {
   dualIncome: {
@@ -270,56 +389,132 @@ const DEMOGRAPHIC: Record<string, SeedSignal> = {
     evidence: "Family spending dropped off while travel and dining picked up.",
     weight: 0.14,
   },
+  longTenureHomeowner: {
+    label: "Long-tenure homeowner",
+    evidence: "Same property payments for 7+ years, indicating a paid-down mortgage and strong equity position.",
+    weight: 0.28,
+  },
+  dualIncomeHomeowner: {
+    label: "Dual-income homeowner",
+    evidence: "Two payroll streams land in the household alongside mortgage and property tax outflows.",
+    weight: 0.26,
+  },
+  preRetireeHomeowner: {
+    label: "Pre-retiree homeowner",
+    evidence: "Age band 50–62 with a paid-down mortgage and rising discretionary home-improvement spend.",
+    weight: 0.18,
+  },
+  savingCapacityHousehold: {
+    label: "Household saving beyond day-to-day needs",
+    evidence: "Income comfortably clears recurring commitments and a savings balance keeps building month after month.",
+    weight: 0.20,
+  },
+  singleEarner: {
+    label: "One income supports the household",
+    evidence: "A single paycheck covers housing, bills and everyday spending for the whole household.",
+    weight: 0.29,
+  },
+  parentManagedYouth: {
+    label: "Account managed by a parent",
+    evidence: "A parent funds and monitors the account, with allowance transfers and small teen-pattern spending.",
+    weight: 0.12,
+  },
+  caregiverAgingParent: {
+    label: "Caring for an aging parent",
+    evidence: "Eldercare, assisted-living and pharmacy payments made on someone else's behalf.",
+    weight: 0.10,
+  },
+  multiProperty: {
+    label: "Owns more than one property",
+    evidence: "Two separate property tax and insurance patterns tied to different addresses.",
+    weight: 0.06,
+  },
+  bizEstablished: {
+    label: "Business operating for years",
+    evidence: "Customer receipts and supplier payments running continuously for 24 months or more.",
+    weight: 0.09,
+  },
+  bizEmployer: {
+    label: "Employs a small team",
+    evidence: "Payroll debits for several people plus benefits and workers' cover premiums.",
+    weight: 0.05,
+  },
 };
+
+
 
 // Risk items are exclusion filters, not triggers. Each label names WHO GETS
 // REMOVED; the weight is the share of the triggered audience that still clears.
+// Pass rates are calibrated for an audience that is ALREADY signal-qualified,
+// so a healthy pre-screen clears 70-98% on any single check.
 const RISK: Record<string, SeedSignal> = {
   noOverdraft: {
     label: "Recent overdrafts",
     evidence: "Removes anyone who overdrew or bounced a payment in the last three months.",
-    weight: 0.78,
+    weight: 0.91,
   },
   healthyDti: {
     label: "Payments already stretched",
     evidence: "Removes anyone whose existing loan and card payments take up too much of what comes in each month.",
-    weight: 0.48,
+    weight: 0.82,
   },
   cleanFraud: {
-    label: "Fraud or dispute history",
-    evidence: "Removes accounts with a fraud claim or a disputed charge in the past year.",
-    weight: 0.93,
+    label: "Unresolved fraud or identity flag",
+    evidence: "Removes accounts carrying an open fraud claim or an unresolved identity check.",
+    weight: 0.97,
+  },
+  accountStanding: {
+    label: "Prior charge-off or account closed for cause",
+    evidence: "Removes anyone with a written-off balance or an account the bank previously closed for cause.",
+    weight: 0.96,
   },
   noRecentDeclines: {
     label: "Recent declined payments",
     evidence: "Removes anyone whose card or bank payments were turned down in the last two months.",
-    weight: 0.71,
+    weight: 0.94,
   },
   collateralClean: {
     label: "Missed secured-loan payments",
     evidence: "Removes anyone who has fallen behind on a mortgage or car loan.",
-    weight: 0.44,
+    weight: 0.94,
+  },
+  seriousDelinquency: {
+    label: "Serious delinquency in the last 24 months",
+    evidence: "Removes anyone 60+ days past due on any credit obligation in the past two years.",
+    weight: 0.93,
   },
   cardPaysInFull: {
     label: "Carries a revolving balance",
     evidence: "Removes anyone rolling a balance month to month or paying the card late.",
-    weight: 0.38,
+    weight: 0.86,
   },
   bizCashBuffer: {
     label: "Thin payroll cushion",
     evidence: "Removes businesses that end the month with less than one payroll run in the account.",
-    weight: 0.05,
+    weight: 0.88,
+  },
+  premiumAffordability: {
+    label: "Premium not affordable",
+    evidence: "Removes households whose monthly surplus will not carry the premium for this cover.",
+    weight: 0.85,
   },
   suitability: {
-    label: "Outside the suitability range",
-    evidence: "Removes households whose savings or steady income fall outside what this product is built for.",
-    weight: 0.29,
+    label: "Suitability profile flag",
+    evidence: "Removes households whose recorded risk profile or time horizon does not fit this product.",
+    weight: 0.9,
+  },
+  noInvestableSurplus: {
+    label: "No investable surplus",
+    evidence: "Removes households with nothing left over each month once obligations and reserves are covered.",
+    weight: 0.74,
   },
   coverageGap: {
     label: "Coverage already adequate",
     evidence: "Removes households whose insurance already tracks their income and assets.",
-    weight: 0.31,
+    weight: 0.8,
   },
+
+
 };
 
 
@@ -372,6 +567,90 @@ const EXTRA_LIFE_EVENT: Record<string, SeedSignal> = {
 /** [family, seed, relevance] — relevance 3 = direct product match, 2 = adjacent, 1 = generic. */
 type ScoredSeed = [SignalFamily, SeedSignal, number];
 
+/** Products whose real play is winning a balance held at another provider. */
+const SWITCH_STORY_FLOWS = new Set([
+  "high-yield-savings",
+  "money-market-account",
+  "certificate-of-deposit",
+  "balance-transfer-card",
+  "cobrand-card",
+  "auto-refi",
+  "student-loan-refi",
+  "401k-rollover",
+  "ira",
+  "business-checking",
+  "business-savings-sweep",
+]);
+
+/** Flows whose audience is a single-earner household by definition. */
+const SINGLE_EARNER_FLOWS = new Set([
+  "solo-restart-checking",
+  "personal-line-of-credit",
+  "disability-insurance",
+  "student-credit-card",
+  "starter-checking",
+  "teen-youth-savings",
+  "inherited-ira",
+]);
+
+/** Flows where the "two earners" household frame genuinely adds information. */
+const HOUSEHOLD_SCALE_FLOWS = new Set([
+  "everyday-checking",
+  "relationship-checking",
+  "core-savings",
+  "life-insurance",
+  "permanent-life",
+  "umbrella-insurance",
+  "wedding-loan",
+  "move-financing",
+  "auto-loan",
+  "rv-boat-loan",
+]);
+
+/** A second, product-true demographic frame for flows the generic rules leave thin. */
+const EXTRA_FRAME: Record<string, keyof typeof DEMOGRAPHIC> = {
+  "trust-estate": "affluentHousehold",
+  "donor-advised-fund": "affluentHousehold",
+  "able-savings": "caregiverAgingParent",
+  "financial-planning-subscription": "dualIncome",
+  "identity-theft-protection": "preRetiree",
+  "global-account": "relocated",
+  "personal-loan": "dualIncome",
+  "balance-transfer-card": "dualIncome",
+  "category-cashback-card": "dualIncome",
+  "flat-cashback-card": "dualIncome",
+  "cobrand-card": "dualIncome",
+  "relationship-checking": "affluentHousehold",
+  "core-savings": "savingCapacityHousehold",
+  "high-yield-savings": "savingCapacityHousehold",
+  "money-market-account": "savingCapacityHousehold",
+  "certificate-of-deposit": "preRetiree",
+  "holiday-club-savings": "parentSchoolAge",
+  "hsa": "parentYoung",
+  "wedding-loan": "youngProfessional",
+  "move-financing": "relocated",
+  "lease-buyout-loan": "multiVehicle",
+  "student-loan-refi": "youngProfessional",
+  "self-directed-brokerage": "youngProfessional",
+  "hybrid-advisor-portfolio": "preRetiree",
+  "values-portfolio": "youngProfessional",
+  "secured-credit-card": "renter",
+  "disability-insurance": "singleEarner",
+};
+
+/** Investing tiers whose audience really is a high-net-worth household. */
+const AFFLUENT_INVEST_FLOWS = new Set([
+  "wealth-management",
+  "private-wealth",
+  "hybrid-advisor-portfolio",
+]);
+
+/** Accounts held by, or on behalf of, a minor. */
+const YOUTH_FLOWS = new Set(["teen-youth-savings", "starter-checking"]);
+
+/** Flows whose trigger is income disruption — a steady-paycheck row contradicts them. */
+const NO_PAYROLL_FLOWS = new Set(["personal-line-of-credit", "solo-restart-checking"]);
+
 function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   const t = tagsFor(flow);
   const name = `${flow.id} ${flow.name}`;
@@ -393,34 +672,104 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   const entryLevelCard = isCard && /student|secured|starter|first|cash back/i.test(name);
   const checkingProduct = /checking/i.test(name);
   const hasAuthoredLifeEvent = flow.signals.some((s) => s.type === "life-event");
+  const id = flow.id;
+  const isBusiness = t.has("business");
+  // Households where a second earner cannot be assumed (or is the wrong story).
+  const singleHousehold = SINGLE_EARNER_FLOWS.has(id);
 
 
   // --- Financial ---
-  if (t.has("business")) {
+  if (isBusiness) {
     add("financial", FINANCIAL.bizRevenue, 3);
     add("financial", FINANCIAL.bizTaxes, 3);
+    if (/payroll|checking|sweep|workers|policy|succession/i.test(name)) {
+      add("financial", FINANCIAL.bizPayrollRun, 3);
+    }
+    if (/line of credit|sba|equipment|merchant|loan/i.test(name)) {
+      add("financial", FINANCIAL.bizSeasonalRevenue, 3);
+    }
+    add("financial", FINANCIAL.bizCashSwings, 2);
+    add("financial", FINANCIAL.selfEmployedIncome, 1);
   }
-  if (t.has("home")) {
-    add("financial", FINANCIAL.mortgagePayer, 3);
-    add("financial", FINANCIAL.surplus, 2);
+  // The home financial block splits by intent — buying, borrowing against
+  // equity, building, or insuring are four different stories.
+  if (t.has("home") && !isBusiness) {
+    if (id === "heloc") {
+      add("financial", FINANCIAL.outsideMortgageServicer, 3);
+      add("financial", FINANCIAL.existingHelocElsewhere, 3);
+      add("financial", FINANCIAL.higherCostDebt, 3);
+      add("financial", FINANCIAL.reachingLiquidity, 3);
+    } else if (id === "mortgage") {
+      add("financial", FINANCIAL.rentVsPayment, 3);
+      add("financial", FINANCIAL.downPaymentBuildup, 3);
+      add("financial", FINANCIAL.depositGrowth, 2);
+      add("financial", FINANCIAL.surplus, 2);
+    } else if (id === "construction-loan") {
+      add("financial", FINANCIAL.projectCashOutflow, 3);
+      add("financial", FINANCIAL.homeEquityBuilt, 3);
+      add("financial", FINANCIAL.largePlannedOutflow, 2);
+    } else if (id === "second-home-mortgage") {
+      add("financial", FINANCIAL.outsideMortgageServicer, 3);
+      add("financial", FINANCIAL.homeEquityBuilt, 3);
+      add("financial", FINANCIAL.surplus, 2);
+    } else if (t.has("insurance")) {
+      add("financial", FINANCIAL.outsideInsurerPremium, 3);
+      add("financial", FINANCIAL.propertyEscrow, 3);
+    } else {
+      add("financial", FINANCIAL.mortgagePayer, 3);
+      add("financial", FINANCIAL.homeEquityBuilt, 2);
+      add("financial", FINANCIAL.higherCostDebt, 2);
+      add("financial", FINANCIAL.surplus, 2);
+    }
   }
+
   if (t.has("auto")) add("financial", FINANCIAL.autoPayer, 3);
   if (parentEducation) {
-    add("financial", FINANCIAL.tuitionOutflow, 3);
-    add("financial", FINANCIAL.surplus, 2);
+    if (flow.id === "529-plan") {
+      // The 529 flow already carries tuition evidence in its life-event and
+      // behavioral rows, so the financial family stays plan-specific.
+      add("financial", FINANCIAL.outsideEducationPlan, 3);
+      add("financial", FINANCIAL.childSavingsBuildup, 3);
+    } else {
+      add("financial", FINANCIAL.tuitionOutflow, 3);
+      add("financial", FINANCIAL.surplus, 2);
+    }
   }
+
   if (t.has("retirement")) add("financial", FINANCIAL.retirementContrib, 3);
+  // Each rung of the investing ladder gets a qualifying row of its own so a
+  // robo account and a private-wealth relationship stop reading the same.
   if (t.has("invest")) {
-    add("financial", FINANCIAL.externalInvestFunding, 3);
-    add("financial", FINANCIAL.idleCash, 2);
+    if (id === "robo-portfolio") {
+      add("financial", FINANCIAL.smallRecurringContrib, 3);
+      add("financial", FINANCIAL.depositGrowth, 2);
+    } else if (id === "hybrid-advisor-portfolio") {
+      add("financial", FINANCIAL.outsideAdvisoryFees, 3);
+      add("financial", FINANCIAL.externalInvestFunding, 2);
+    } else if (id === "private-wealth" || id === "wealth-management") {
+      add("financial", FINANCIAL.multiCustodianAssets, 3);
+      add("financial", FINANCIAL.externalInvestFunding, 2);
+    } else {
+      add("financial", FINANCIAL.externalInvestFunding, 3);
+      add("financial", FINANCIAL.idleCash, 2);
+    }
   }
   if (t.has("deposit")) add("financial", FINANCIAL.depositGrowth, 3);
-  if (savingsProduct) add("financial", FINANCIAL.interestSeeking, 3);
-  if (isCard || t.has("credit")) add("financial", FINANCIAL.lowUtil, 3);
+  if (savingsProduct) {
+    add("financial", FINANCIAL.interestSeeking, 3);
+    add("financial", FINANCIAL.surplus, 2);
+  }
+  // Products people reach for when the month is tight.
+  if (!isBusiness && (NO_PAYROLL_FLOWS.has(id) || /personal loan|line of credit|consolidat/i.test(name))) {
+    add("financial", FINANCIAL.thinBuffer, 3);
+  }
+  if ((isCard || t.has("credit")) && !isBusiness && id !== "heloc") add("financial", FINANCIAL.lowUtil, 3);
   if (t.has("insurance")) add("financial", FINANCIAL.highInsuranceSpend, 3);
   if (t.has("travel")) add("financial", FINANCIAL.travelSpend, 3);
   // Income stability matters where repayment, funding or premiums are involved.
-  if (!t.has("business") && (underwritten || t.has("deposit") || t.has("retirement"))) {
+  // Deposit accounts do not need proof of repayment capacity, so the income
+  // row stays on products where funding or repayment is actually underwritten.
+  if (!isBusiness && !NO_PAYROLL_FLOWS.has(id) && (underwritten || t.has("retirement"))) {
     add("financial", FINANCIAL.payroll, 1);
   }
   if (out.filter(([f]) => f === "financial").length < 2) {
@@ -428,44 +777,140 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
   }
 
   // --- Demographic ---
-  if (t.has("business")) {
+  if (isBusiness) {
     add("demographic", DEMOGRAPHIC.ownerOperator, 3);
     add("demographic", DEMOGRAPHIC.selfEmployed, 3);
+    // Employer-facing products lead with headcount; the rest with tenure.
+    const employerProduct = /payroll|corporate|purchasing|fleet|workers|succession|policy/i.test(name);
+    add("demographic", DEMOGRAPHIC.bizEmployer, employerProduct ? 3 : 2);
+    add("demographic", DEMOGRAPHIC.bizEstablished, employerProduct ? 2 : 3);
   }
   if (parentEducation) {
     add("demographic", DEMOGRAPHIC.parentSchoolAge, 3);
-    add("demographic", DEMOGRAPHIC.dualIncome, 2);
+    if (flow.id === "529-plan") {
+      add("demographic", DEMOGRAPHIC.savingCapacityHousehold, 3);
+    } else {
+      add("demographic", DEMOGRAPHIC.dualIncome, 2);
+    }
   }
-  if (t.has("home")) add("demographic", DEMOGRAPHIC.homeowner, 3);
+
+  if (t.has("home") && !isBusiness && id !== "heloc") {
+    if (id === "mortgage") {
+      // A purchase-mortgage audience does not own a home yet.
+      add("demographic", DEMOGRAPHIC.renter, 3);
+      add("demographic", DEMOGRAPHIC.youngProfessional, 2);
+      if (!singleHousehold) add("demographic", DEMOGRAPHIC.dualIncome, 2);
+    } else if (id === "second-home-mortgage") {
+      add("demographic", DEMOGRAPHIC.multiProperty, 3);
+      add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+      add("demographic", DEMOGRAPHIC.longTenureHomeowner, 2);
+    } else {
+      add("demographic", DEMOGRAPHIC.homeowner, 3);
+      add("demographic", DEMOGRAPHIC.longTenureHomeowner, 3);
+      if (!singleHousehold) add("demographic", DEMOGRAPHIC.dualIncomeHomeowner, 2);
+      add("demographic", DEMOGRAPHIC.preRetireeHomeowner, 2);
+    }
+  }
+
   // Only vehicle products get a vehicle-count signal — not life or pet cover.
-  if (autoInsurance) add("demographic", DEMOGRAPHIC.multiVehicle, 3);
+  if (autoInsurance && !t.has("insurance")) add("demographic", DEMOGRAPHIC.multiVehicle, 3);
   if (t.has("retirement")) add("demographic", DEMOGRAPHIC.preRetiree, 3);
-  if (t.has("invest")) add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
-  if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner, 3);
+  // Only the advised tiers assume real wealth — a robo account does not.
+  // Only the advised, relationship-priced tiers assume real wealth.
+  if (t.has("invest") && AFFLUENT_INVEST_FLOWS.has(id)) {
+    add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+  }
+  if (id === "robo-portfolio") add("demographic", DEMOGRAPHIC.youngProfessional, 3);
+  if (id === "private-wealth" || id === "wealth-management") {
+    add("demographic", DEMOGRAPHIC.multiProperty, 2);
+  }
   // Entry-level products skew young; premium products do not.
   if (t.has("student") || entryLevelCard) add("demographic", DEMOGRAPHIC.youngProfessional, 2);
   if (isCard && /premium|ultra|private|luxury/i.test(name)) {
     add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
   }
-  if (t.has("insurance") && !t.has("retirement")) add("demographic", DEMOGRAPHIC.parentYoung, 2);
-  if (checkingProduct) add("demographic", DEMOGRAPHIC.renter, 1);
+  // Insurance products carry very different households — the young-children
+  // frame only fits income-replacement cover.
+  if (t.has("insurance") && !isBusiness) {
+    if (id === "ltc-insurance") {
+      add("demographic", DEMOGRAPHIC.caregiverAgingParent, 3);
+      add("demographic", DEMOGRAPHIC.preRetiree, 3);
+    } else if (id === "umbrella-insurance") {
+      add("demographic", DEMOGRAPHIC.multiProperty, 3);
+      add("demographic", DEMOGRAPHIC.affluentHousehold, 3);
+    } else if (id === "auto-insurance") {
+      add("demographic", DEMOGRAPHIC.multiVehicle, 3);
+    } else if (t.has("pet")) {
+      add("demographic", DEMOGRAPHIC.petOwner, 3);
+    } else if (/life|disability/i.test(name)) {
+      add("demographic", DEMOGRAPHIC.parentYoung, 3);
+      add("demographic", singleHousehold ? DEMOGRAPHIC.singleEarner : DEMOGRAPHIC.dualIncome, 2);
+    } else if (t.has("home")) {
+      add("demographic", DEMOGRAPHIC.homeowner, 3);
+      add("demographic", DEMOGRAPHIC.longTenureHomeowner, 2);
+    }
+  }
+  if (t.has("pet")) add("demographic", DEMOGRAPHIC.petOwner, 3);
+  if (YOUTH_FLOWS.has(id)) add("demographic", DEMOGRAPHIC.parentManagedYouth, 3);
+  if (checkingProduct && !isBusiness && !t.has("home") && id !== "relationship-checking") {
+    add("demographic", DEMOGRAPHIC.renter, 1);
+  }
   if (t.has("travel")) add("demographic", DEMOGRAPHIC.emptyNester, 1);
-  if (out.filter(([f]) => f === "demographic").length < 2) {
-    add("demographic", t.has("invest") ? DEMOGRAPHIC.affluentHousehold : DEMOGRAPHIC.dualIncome, 1);
+  const frame = EXTRA_FRAME[id];
+  if (frame) add("demographic", DEMOGRAPHIC[frame], 2);
+  // Household frame of last resort — chosen per product instead of always
+  // assuming two earners.
+  // One true demographic row beats two, so this only fires when there is none.
+  if (out.filter(([f]) => f === "demographic").length < 1 && id !== "heloc") {
+    if (YOUTH_FLOWS.has(id)) {
+      // A teen account already has its household frame: the parent.
+    } else if (singleHousehold) add("demographic", DEMOGRAPHIC.singleEarner, 1);
+    else if (t.has("invest") && id !== "robo-portfolio") {
+      add("demographic", DEMOGRAPHIC.affluentHousehold, 1);
+    }
+    else if (t.has("student") || entryLevelCard) add("demographic", DEMOGRAPHIC.youngProfessional, 1);
+    else if (HOUSEHOLD_SCALE_FLOWS.has(id) || t.has("home") || t.has("education")) {
+      add("demographic", DEMOGRAPHIC.dualIncome, 1);
+    } else add("demographic", DEMOGRAPHIC.savingCapacityHousehold, 1);
   }
 
-  // --- Risk / eligibility: only where the bank takes on exposure ---
-  if (underwritten) {
+  // --- Risk / eligibility ---
+  // Credit exposure, insurance underwriting, advisory suitability and plain
+  // account-standing checks are different jobs and get different filters.
+  const lendingProduct =
+    isCard ||
+    t.has("credit") ||
+    ((t.has("home") || t.has("auto") || t.has("business")) &&
+      /loan|mortgage|heloc|line of credit|financing|refi|card|lease/i.test(name));
+  const businessCredit = t.has("business") && lendingProduct;
+
+  if (t.has("insurance")) {
+    add("risk", RISK.coverageGap, 3);
+    add("risk", RISK.premiumAffordability, 3);
+    add("risk", RISK.accountStanding, 1);
+  } else if (businessCredit) {
+    // Business credit is underwritten on the business, not on consumer
+    // delinquency or a consumer secured-loan history.
+    add("risk", RISK.bizCashBuffer, 3);
+    add("risk", RISK.healthyDti, 3);
+    add("risk", RISK.noRecentDeclines, 2);
+  } else if (lendingProduct) {
     add("risk", RISK.healthyDti, 3);
     if (secured) add("risk", RISK.collateralClean, 3);
-    if (isCard) add("risk", RISK.cardPaysInFull, 3);
-    if (t.has("insurance")) add("risk", RISK.coverageGap, 3);
-    if (t.has("business")) add("risk", RISK.bizCashBuffer, 3);
+    if (isCard) add("risk", RISK.seriousDelinquency, 3);
+    if (!isCard && !secured) add("risk", RISK.noRecentDeclines, 2);
     add("risk", RISK.noOverdraft, 2);
   } else if (t.has("invest") || t.has("retirement") || parentEducation) {
-    // Advisory / plan products: suitability, not credit risk.
+    // Advisory / plan products: suitability and funding capacity, not credit risk.
+    add("risk", RISK.noInvestableSurplus, 3);
     add("risk", RISK.suitability, 3);
+    add("risk", RISK.accountStanding, 1);
+  } else {
+    // Deposits, services and everything else: compliance and account standing only.
+    add("risk", RISK.accountStanding, 3);
+    add("risk", RISK.cleanFraud, 3);
   }
+
 
   // --- Extra behavioral / life-event depth ---
   if (parentEducation) {
@@ -474,11 +919,20 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
     if (!flow.signals.some((s) => /educat|tutor|school|tuition/i.test(s.label))) {
       add("behavioral", EXTRA_BEHAVIORAL.educationSpend, 3);
     }
-    add("behavioral", EXTRA_BEHAVIORAL.educationOutbound, 3);
-  } else {
-    add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 2);
+    // The 529 flow surfaces the outside plan as a financial signal instead, so
+    // its behavioral row covers active shopping rather than repeating it.
+    add(
+      "behavioral",
+      flow.id === "529-plan" ? EXTRA_BEHAVIORAL.researchIntent : EXTRA_BEHAVIORAL.educationOutbound,
+      3,
+    );
+
+  } else if (SWITCH_STORY_FLOWS.has(id)) {
+    // "Already has this elsewhere" is only meaningful where the play really is
+    // to win the balance over — not as a default row on every product.
+    add("behavioral", EXTRA_BEHAVIORAL.competitorProduct, 3);
   }
-  if (underwritten) add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
+  if (underwritten && flow.id !== "heloc") add("behavioral", EXTRA_BEHAVIORAL.researchIntent, 2);
   if ((t.has("card") || checkingProduct) && !parentEducation) {
     add("behavioral", EXTRA_BEHAVIORAL.digitalEngaged, 1);
   }
@@ -495,10 +949,11 @@ function supplementalFor(flow: ProductFlow): ScoredSeed[] {
 const FAMILY_CAP: Record<SignalFamily, number> = {
   "life-event": 3,
   behavioral: 3,
-  financial: 3,
-  demographic: 2,
+  financial: 4,
+  demographic: 3,
   risk: 3,
 };
+
 
 
 /* ------------------------------- *
@@ -523,6 +978,23 @@ interface Angle {
 // Keyed by the seed key in the libraries above (resolved by label at build time).
 const ARCHETYPE_ANGLE: Record<string, Angle> = {
   // --- Financial ---
+  outsideEducationPlan: {
+    title: "Plan Held Elsewhere",
+    subject: "Your college savings could live closer to home",
+    open: (n) => `Money already leaves each month for a college-savings plan held somewhere else. Moving it into ${n} keeps the same contribution working while everything sits in one place.`,
+    cta: "Bring it over",
+  },
+  childSavingsBuildup: {
+    title: "Saving For A Child",
+    subject: "That growing balance has a job waiting",
+    open: (n) => `Gifts and steady transfers keep building a balance that never gets spent. ${n} gives that money a tax-advantaged home aimed squarely at school costs.`,
+  },
+  savingCapacityHousehold: {
+    title: "Room To Contribute",
+    subject: "You're already saving — this makes it count for school",
+    open: (n) => `Your household clears its commitments each month and keeps adding to savings. ${n} channels a slice of that into education without changing how you live.`,
+  },
+
   payroll: {
     title: "Steady Income",
     subject: "Your income makes this straightforward",
@@ -602,8 +1074,45 @@ const ARCHETYPE_ANGLE: Record<string, Angle> = {
     subject: "You travel enough for this to pay off",
     open: (n) => `Flights, hotels and rides show up across several trips this year. That's the spend level where ${n} stops being a nice-to-have and starts paying for itself.`,
   },
+  homeEquityBuilt: {
+    title: "Equity Built Up",
+    subject: "Your home has been quietly building value",
+    open: (n) => `Years of mortgage payments have turned your home into a real asset. ${n[0].toUpperCase()}${n.slice(1)} lets you put that equity to work without refinancing the loan you already have.`,
+  },
+  highInterestConsumerDebt: {
+    title: "High-Interest Debt",
+    subject: "A lower-rate option is sitting right here",
+    open: (n) => `Revolving balances are racking up interest every month. Moving that debt into ${n} usually means one lower rate and a faster path to zero.`,
+  },
+  largePlannedOutflow: {
+    title: "Big Expense Ahead",
+    subject: "The money is already leaving — make it cheaper",
+    open: (n) => `Large tuition, medical, or renovation payments are on their way out. ${n[0].toUpperCase()}${n.slice(1)} covers the same spending at a fraction of the interest cost.`,
+  },
+  outsideMortgageServicer: {
+    title: "Mortgage Held Elsewhere",
+    subject: "Your equity is already growing with someone else",
+    open: (n) => `A mortgage payment goes out every month to another lender, which means your equity is building even though the loan isn't here. ${n[0].toUpperCase()}${n.slice(1)} lets you tap that equity without moving the mortgage.`,
+  },
+  existingHelocElsewhere: {
+    title: "HELOC Refinance Candidate",
+    subject: "Move that balance to a better line",
+    open: (n) => `You're already using a home equity line at another lender. Bringing the balance to ${n} usually means a lower rate, fewer logins, and one place to manage it.`,
+    cta: "Compare and move",
+  },
+  higherCostDebt: {
+    title: "Higher-Rate Debt Consolidation",
+    subject: "Replace expensive balances with a single line",
+    open: (n) => `Revolving balances and personal-loan payments are racking up interest. Moving that debt into ${n} can cut the rate and the number of payments you track each month.`,
+  },
+  reachingLiquidity: {
+    title: "Liquidity Squeeze",
+    subject: "Access cash without selling assets",
+    open: (n) => `Savings are being drawn down and investments are moving into checking. ${n[0].toUpperCase()}${n.slice(1)} lets you borrow against equity instead of cashing out positions.`,
+  },
 
   // --- Demographic ---
+
   dualIncome: {
     title: "Dual-Income Household",
     subject: "Two incomes, one plan",
@@ -674,8 +1183,24 @@ const ARCHETYPE_ANGLE: Record<string, Angle> = {
     subject: "The budget just changed shape",
     open: (n) => `Family spending has eased while travel and dining have picked up. ${n[0].toUpperCase()}${n.slice(1)} fits the version of the budget you're living in now.`,
   },
+  longTenureHomeowner: {
+    title: "Long-Tenure Homeowner",
+    subject: "You've owned long enough for this to matter",
+    open: (n) => `Seven or more years of payments have built real equity in your home. ${n[0].toUpperCase()}${n.slice(1)} is the cleanest way to access it when a large expense comes up.`,
+  },
+  dualIncomeHomeowner: {
+    title: "Dual-Income Homeowner",
+    subject: "Two incomes, one house, more options",
+    open: (n) => `Two paychecks land in this household and the mortgage is well in hand. ${n[0].toUpperCase()}${n.slice(1)} is easier to qualify for and manage with that income foundation.`,
+  },
+  preRetireeHomeowner: {
+    title: "Pre-Retiree Homeowner",
+    subject: "The right window for a low-rate backstop",
+    open: (n) => `You're in the years when a paid-down mortgage and upcoming life changes overlap. ${n[0].toUpperCase()}${n.slice(1)} gives you flexible access to equity before you need it.`,
+  },
 
   // --- Behavioral ---
+
   competitorProduct: {
     title: "Held at Another Provider",
     subject: "You already have this — just not with us",
@@ -811,6 +1336,40 @@ export interface EligibilityFilter {
   passRate: number;
 }
 
+/** Guardrails so a single check — or a stack of them — can never gut an audience. */
+export const FILTER_PASS_MIN = 0.7;
+export const FILTER_PASS_MAX = 0.98;
+export const COMBINED_PASS_MIN = 0.45;
+
+
+
+
+/**
+ * [supplemental row, a signal it contradicts] — if a flow already carries the
+ * right-hand story, the left-hand supplemental row is dropped.
+ */
+const SIGNAL_CONFLICTS: Array<[RegExp, RegExp]> = [
+  [
+    /steady paycheck|payroll deposit/i,
+    /paycheck stopped|income stopped|shrank|lost (a|their) job|between jobs|paying the bills alone|left a job/i,
+  ],
+  [
+    /barely uses their credit limit|low credit utilization/i,
+    /carrying (expensive|high|higher)|debt building up|near the limit|paying down another bank|revolving balance|consolidat/i,
+  ],
+  [
+    /two earners|dual-income/i,
+    /alone|on their own|solo|family lawyer|single|one income|divorce/i,
+  ],
+  [/rents their home/i, /owns their home|homeowner|mortgage payment|property tax/i],
+  [/owns their home|homeowner/i, /rents their home/i],
+  [/has young children/i, /aging parent|eldercare|children have moved out|nearing retirement/i],
+  [/one income supports the household|single-earner/i, /two earners|dual-income|account managed by a parent/i],
+  [
+    /money left over each month|savings are growing|household saving beyond/i,
+    /savings moving fast|paycheck stopped|near the limit|payday|debt building up/i,
+  ],
+];
 
 function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: EligibilityFilter[] } {
   const authoredCopy = FLOW_MICROSEGMENTS[flow.id] ?? [];
@@ -831,9 +1390,21 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
     };
   });
 
-  const supplemental = supplementalFor(flow).filter(
+  const deduped = supplementalFor(flow).filter(
     ([, s]) => !authored.some((a) => a.label.toLowerCase() === s.label.toLowerCase()),
   );
+
+  // A flow must never show both sides of the same fact (income stopped AND a
+  // steady paycheck, carrying debt AND unused credit, and so on). The
+  // supplemental row loses to whatever the flow already says.
+  const context = [...authored.map((a) => a.label), ...deduped.map(([, s]) => s.label)];
+  const supplemental = deduped.filter(([, s]) => {
+    for (const [row, contradicts] of SIGNAL_CONFLICTS) {
+      if (!row.test(s.label)) continue;
+      if (context.some((label) => label !== s.label && contradicts.test(label))) return false;
+    }
+    return true;
+  });
 
   // Keep the strongest supplemental signals per family, within the family cap
   // (authored signals always stay and count toward the cap).
@@ -865,7 +1436,7 @@ function buildFlow(flow: ProductFlow): { signals: ExpandedSignal[]; filters: Eli
       id: `${flow.id}--filter--${slug(s.label)}`,
       label: s.label,
       evidence: s.evidence,
-      passRate: Math.min(0.98, Math.max(0.2, s.weight ?? 0.5)),
+      passRate: Math.min(FILTER_PASS_MAX, Math.max(FILTER_PASS_MIN, s.weight ?? 0.9)),
     }));
 
   const signals = [...authored, ...triggering].sort(
@@ -896,9 +1467,17 @@ export function expandFlowFilters(flow: ProductFlow): EligibilityFilter[] {
 
 /** Combined pass rate of the enabled eligibility filters. */
 export function filterPassRate(filters: EligibilityFilter[], enabled: Set<string>): number {
-  return filters
+  const raw = filters
     .filter((f) => enabled.has(f.id))
     .reduce((rate, f) => rate * f.passRate, 1);
+  return Math.max(COMBINED_PASS_MIN, raw);
+}
+
+
+export function groupByFamily(signals: ExpandedSignal[]): Array<[SignalFamily, ExpandedSignal[]]> {
+  return SIGNAL_FAMILY_ORDER.map(
+    (family) => [family, signals.filter((s) => s.family === family)] as [SignalFamily, ExpandedSignal[]],
+  ).filter(([, list]) => list.length > 0);
 }
 
 /** Triggered audience narrowed by the enabled eligibility filters. */
@@ -909,38 +1488,103 @@ export function qualifiedAudience(
   filters: EligibilityFilter[],
   enabledFilters: Set<string>,
 ): number {
-  return Math.round(
-    enabledAudience(flow, signals, enabledSignals) * filterPassRate(filters, enabledFilters),
-  );
+  const triggered = enabledAudience(flow, signals, enabledSignals);
+  let removed = 0;
+  filterCascade(triggered, filters, enabledFilters).forEach((v) => {
+    removed += v;
+  });
+  return triggered - removed;
 }
 
-export function groupByFamily(signals: ExpandedSignal[]): Array<[SignalFamily, ExpandedSignal[]]> {
-  return SIGNAL_FAMILY_ORDER.map(
-    (family) => [family, signals.filter((s) => s.family === family)] as [SignalFamily, ExpandedSignal[]],
-  ).filter(([, list]) => list.length > 0);
+
+/**
+ * Split the flow audience across every signal with a largest-remainder
+ * allocation, so the parts sum EXACTLY to `flow.estimatedAudience`.
+ */
+export function allocateSignalAudiences(
+  flow: ProductFlow,
+  signals: ExpandedSignal[],
+): Map<string, number> {
+  const out = new Map<string, number>();
+  if (signals.length === 0) return out;
+  const total = flow.estimatedAudience;
+  const totalWeight = signals.reduce((sum, s) => sum + s.weight, 0) || 1;
+
+  const exact = signals.map((s) => (total * s.weight) / totalWeight);
+  const floors = exact.map((v) => Math.floor(v));
+  let remainder = total - floors.reduce((a, b) => a + b, 0);
+
+  const order = exact
+    .map((v, i) => ({ i, frac: v - Math.floor(v) }))
+    .sort((a, b) => b.frac - a.frac);
+
+  const alloc = [...floors];
+  for (let k = 0; k < order.length && remainder > 0; k++, remainder--) {
+    alloc[order[k].i] += 1;
+  }
+  signals.forEach((s, i) => out.set(s.id, alloc[i]));
+  return out;
 }
 
-/** Audience attributable to a signal, given the enabled set for its flow. */
+/** Audience attributable to a signal. Parts sum exactly to the flow total. */
 export function signalAudience(
   flow: ProductFlow,
   signals: ExpandedSignal[],
-  enabled: Set<string>,
+  _enabled: Set<string>,
   signal: ExpandedSignal,
 ): number {
-  const totalWeight = signals.reduce((sum, s) => sum + s.weight, 0) || 1;
-  return Math.round((flow.estimatedAudience * signal.weight) / totalWeight);
+  return allocateSignalAudiences(flow, signals).get(signal.id) ?? 0;
 }
 
-/** Flow audience limited to the enabled signals. */
+/** Flow audience limited to the enabled signals — the exact sum of their rows. */
 export function enabledAudience(
   flow: ProductFlow,
   signals: ExpandedSignal[],
   enabled: Set<string>,
 ): number {
-  const totalWeight = signals.reduce((sum, s) => sum + s.weight, 0) || 1;
-  const onWeight = signals.filter((s) => enabled.has(s.id)).reduce((sum, s) => sum + s.weight, 0);
-  return Math.round((flow.estimatedAudience * onWeight) / totalWeight);
+  const alloc = allocateSignalAudiences(flow, signals);
+  return signals
+    .filter((s) => enabled.has(s.id))
+    .reduce((sum, s) => sum + (alloc.get(s.id) ?? 0), 0);
 }
+
+/**
+ * Per-filter removals shown as a cascade: each enabled filter removes from the
+ * audience left by the filters above it, and the last enabled filter absorbs
+ * the rounding remainder so the rows sum EXACTLY to `triggered - qualified`.
+ * Disabled filters map to 0.
+ */
+export function filterCascade(
+  triggered: number,
+  filters: EligibilityFilter[],
+  enabled: Set<string>,
+): Map<string, number> {
+  const out = new Map<string, number>();
+  const on = filters.filter((f) => enabled.has(f.id));
+  filters.forEach((f) => out.set(f.id, 0));
+  if (on.length === 0) return out;
+
+  const qualified = Math.round(triggered * filterPassRate(filters, enabled));
+  const totalRemoved = Math.max(0, triggered - qualified);
+
+  let remaining = triggered;
+  let allocated = 0;
+  on.forEach((f, idx) => {
+    let removed: number;
+    if (idx === on.length - 1) {
+      removed = totalRemoved - allocated;
+    } else {
+      removed = Math.round(remaining * (1 - f.passRate));
+      removed = Math.min(removed, totalRemoved - allocated);
+    }
+    removed = Math.max(0, removed);
+    out.set(f.id, removed);
+    allocated += removed;
+    remaining -= removed;
+  });
+  return out;
+}
+
 
 /* ------------------------------------------------------------------ *
  * Public helpers used by the signal editor (add / edit signals).      *

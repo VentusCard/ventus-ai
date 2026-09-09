@@ -35,7 +35,7 @@ export function BankwideView() {
       <TabHeader
         icon={<BarChart3 className="w-4 h-4" />}
         title="Lifestyle Pillar Intelligence"
-        subtitle="12 lifestyle pillars across 120M accounts from 75M users"
+        subtitle="12 lifestyle pillars across 109M accounts from 68.2M users"
         howItWorks="Ventus classifies every transaction into 12 lifestyle pillars using 3-level semantic labeling — not MCC codes. Patterns are updated in real time across your full customer base."
         whyItMatters="Reveals behavioral segments traditional BI cannot see, enabling data-driven product and campaign decisions at the portfolio level."
       />

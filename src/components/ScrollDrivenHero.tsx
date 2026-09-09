@@ -183,13 +183,6 @@ const personas = [
   },
 ];
 
-const STAGE_LABELS = ["Raw Stream", "Categorize", "Detect", "Orchestrate"];
-const STAGE_RANGES: [number, number][] = [
-  [0, 0.1],
-  [0.1, 0.22],
-  [0.22, 0.5],
-  [0.5, 1],
-];
 
 const ScrollDrivenHero = () => {
   const navigate = useNavigate();
@@ -224,7 +217,6 @@ const ScrollDrivenHero = () => {
   // 4 stages: Raw Stream / Categorize / Detect / Orchestrate
   // <0.1 = 1, <0.22 = 2, <0.5 = 3 (Detect), >=0.5 = 4 (Orchestrate)
   const stage = scrollProgress < 0.1 ? 1 : scrollProgress < 0.22 ? 2 : scrollProgress < 0.5 ? 3 : 4;
-  const activeStageIdx = stage - 1;
 
   // Detect stage: progressively reveal pills 0..3
   const detectProgress = stage >= 3 ? Math.min(1, Math.max(0, (scrollProgress - 0.22) / 0.28)) : 0;
@@ -237,6 +229,10 @@ const ScrollDrivenHero = () => {
 
   // Sub-progress within the active persona window — drives output card stagger
   const personaWindowProgress = stage === 4 ? (orchestrateProgress * 3) - activePersonaIndex : 0;
+
+  // Delayed reveal so the panel can settle before output cards begin sliding in
+  const cardRevealProgress = stage === 4 ? Math.max(0, Math.min(1, (personaWindowProgress - 0.18) / 0.82)) : 0;
+
 
   // For Detect: highlight evidence rows for the most recently revealed pill
   const detectHighlightPersona =
@@ -271,12 +267,12 @@ const ScrollDrivenHero = () => {
         />
       </div>
 
-      <div className="sticky top-0 xl:h-screen min-h-screen flex items-start justify-center overflow-visible pt-24 md:pt-28 xl:pt-16 pb-10">
-        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
+      <div className="sticky top-0 xl:h-screen min-h-screen flex items-start xl:items-center justify-center overflow-visible pt-36 md:pt-40 xl:pt-14 pb-10 xl:pb-0">
+        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-8">
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
-          <div className="contents xl:flex xl:flex-col xl:w-[62%] xl:items-start w-full">
+          <div className="contents xl:flex xl:flex-col xl:w-[46%] xl:items-start w-full">
             <h1
-              className="order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left transition-all duration-700 ease-out text-[44px] sm:text-5xl md:text-6xl xl:text-[68px]"
+              className="order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left transition-all duration-700 ease-out text-4xl sm:text-5xl md:text-6xl xl:text-[68px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
@@ -295,7 +291,7 @@ const ScrollDrivenHero = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Ventus AI orchestrates a hyper-personalized banking experience for every customer with your existing stack
+              Ventus AI orchestrates a hyper-personalized banking experience to grow spend, products and deposits with your existing stack.
             </p>
 
             <div className="order-4 xl:order-none mt-6 xl:mt-7 flex flex-col sm:flex-row items-center gap-3 transition-all duration-700 ease-out"
@@ -312,143 +308,24 @@ const ScrollDrivenHero = () => {
                 Schedule Demo
                 <ArrowRight className="w-4 h-4" />
               </Button>
-              <Button
-                variant="outline"
-                className="h-12 px-10 text-base border-slate-300 text-gray-700 hover:bg-slate-50 hover:text-gray-900"
-                onClick={() => document.getElementById("problem")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                Learn More
-              </Button>
             </div>
 
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="order-2 xl:order-none w-full xl:w-[38%] flex justify-center xl:justify-end mt-2 xl:mt-0">
-            <div className="relative flex flex-col items-stretch" style={{ width: 400, maxWidth: "calc(100vw - 48px)" }}>
-              {/* Ventus Orchestrate panel — sits ABOVE the dark card (desktop only) */}
-              <div
-                className="relative transition-all duration-500 ease-out hidden xl:block text-gray-900"
-                style={{
-                  opacity: stage === 4 ? 1 : 0,
-                  transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
-                  pointerEvents: stage === 4 ? "auto" : "none",
-                  minHeight: 168,
-                  marginBottom: 4,
-                  overflow: "visible",
-                }}
-              >
-                {/* Header */}
-                <div className="flex items-center gap-2.5 mb-3 relative z-10">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
-                    V
-                  </span>
-                  <span className="text-[15px] font-bold tracking-tight text-gray-900">
-                    Orchestrate
-                  </span>
-                  {activePersona && (
-                    <>
-                      <span className="text-gray-500">·</span>
-                      <span
-                        className="text-[13px] font-bold tracking-tight"
-                        style={{ color: activePersona.color }}
-                      >
-                        {activePersona.label}
-                      </span>
-                      <span
-                        className="ml-0.5 w-1.5 h-1.5 rounded-full animate-pulse"
-                        style={{
-                          background: "#22c55e",
-                          boxShadow: "0 0 8px #22c55e",
-                        }}
-                      />
-                    </>
-                  )}
-                </div>
-
-                {/* Three output cards */}
-                <div className="grid grid-cols-3 gap-3 relative z-10">
-                  {(activePersona?.outputs ?? [null, null, null]).map((output, oi) => {
-                    const stagger = oi * 0.08;
-                    const cardProgress = activePersona
-                      ? Math.max(0, Math.min(1, (personaWindowProgress - stagger) / 0.2))
-                      : 0;
-                    const color = activePersona?.color ?? "#94a3b8";
-                    return (
-                      <div
-                        key={oi}
-                        className="ventus-glass"
-                        style={{
-                          borderRadius: 10,
-                          minHeight: 100,
-                          opacity: cardProgress,
-                          transform: `translateY(${(1 - cardProgress) * -10}px) scale(${0.92 + cardProgress * 0.08})`,
-                          transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-                        }}
-                      >
-                        <div className="px-3 py-3">
-                          <span
-                            className="inline-block text-[9px] font-bold uppercase tracking-[0.15em] mb-2 px-1.5 py-0.5 rounded"
-                            style={{
-                              color,
-                              background: `${color}1f`,
-                            }}
-                          >
-                            {output?.label ?? "—"}
-                          </span>
-                          <div className="text-[12px] font-semibold text-gray-900 leading-snug">
-                            {output?.text ?? "—"}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Animated dashed connecting lines */}
-                {activePersona && (
-                  <svg
-                    className="absolute pointer-events-none"
-                    style={{ bottom: -10, left: 0, width: "100%", height: 50, overflow: "visible", zIndex: 0 }}
-                  >
-                    {[0, 1, 2].map((oi) => {
-                      const cardCenterPct = (oi + 0.5) / 3;
-                      return (
-                        <line
-                          key={oi}
-                          x1={`${cardCenterPct * 100}%`}
-                          y1="0"
-                          x2="50%"
-                          y2="50"
-                          stroke={activePersona.color}
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                          opacity="0.5"
-                        >
-                          <animate
-                            attributeName="stroke-dashoffset"
-                            from="0"
-                            to="-14"
-                            dur="1.5s"
-                            repeatCount="indefinite"
-                          />
-                        </line>
-                      );
-                    })}
-                  </svg>
-                )}
-              </div>
-
+          <div className="order-2 xl:order-none w-full xl:w-[54%] flex flex-col items-center xl:items-end mt-2 xl:mt-0">
+            <div className="relative flex flex-col xl:flex-row items-center xl:items-center justify-center xl:justify-end gap-4 xl:gap-5" style={{ maxWidth: "calc(100vw - 48px)" }}>
               {/* The Card */}
-
+              <div
+                className={`transition-transform duration-500 ease-out ${stage === 4 ? 'xl:translate-x-0' : 'xl:-translate-x-[18px]'}`}
+              >
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out hero-dark-card"
                 style={{
-                  width: "100%",
+                  width: 420,
                   maxWidth: "calc(100vw - 48px)",
                   background: "#0A1628",
                   paddingRight: 3,
-                  marginTop: 6,
                   boxShadow: loaded ? "0 25px 60px -12px rgba(0,0,0,0.25)" : "0 10px 30px -8px rgba(0,0,0,0.1)",
                   border: "1px solid rgba(255,255,255,0.06)",
                   opacity: loaded ? 1 : 0,
@@ -631,51 +508,113 @@ const ScrollDrivenHero = () => {
                   </div>
                 </div>
               </div>
+              </div>
 
-              {/* Stage indicator below the dark card */}
+              {/* Ventus Orchestrate panel — sits to the RIGHT of the dark card (desktop only) */}
               <div
-                className="mt-3 xl:mt-6 w-full transition-all duration-700 ease-out"
+                className={`relative hidden xl:block text-gray-900 transition-all duration-500 ease-out ${stage === 4 ? 'opacity-100 ml-5' : 'opacity-0 ml-0'}`}
                 style={{
-                  opacity: loaded ? 1 : 0,
-                  transform: loaded ? "translateY(0)" : "translateY(12px)",
-                  transitionDelay: "400ms",
+                  width: stage === 4 ? 170 : 0,
+                  overflow: "hidden",
                 }}
               >
-                <div className="grid grid-cols-4 gap-1.5 xl:gap-3">
-                  {STAGE_LABELS.map((label, i) => {
-                    const [start, end] = STAGE_RANGES[i];
-                    const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
-                    const isActive = i === activeStageIdx;
-                    const isComplete = scrollProgress >= end;
+                {/* Header */}
+                <div className="mb-3 relative z-10" style={{ width: 170 }}>
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-md bg-blue-600 text-white font-black text-[12px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
+                      V
+                    </span>
+                    <span className="text-[13px] font-bold tracking-tight text-gray-900">
+                      Orchestrate
+                    </span>
+                  </div>
+                  {activePersona && (
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <span
+                        className="text-[11px] font-bold tracking-tight"
+                        style={{ color: activePersona.color }}
+                      >
+                        {activePersona.label}
+                      </span>
+                      <span
+                        className="w-1.5 h-1.5 rounded-full animate-pulse"
+                        style={{
+                          background: "#22c55e",
+                          boxShadow: "0 0 8px #22c55e",
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Three output cards — stacked vertically */}
+                <div className="flex flex-col gap-2 relative z-10" style={{ width: 170 }}>
+                  {(activePersona?.outputs ?? [null, null, null]).map((output, oi) => {
+                    const stagger = oi * 0.08;
+                    const cardProgress = activePersona
+                      ? Math.max(0, Math.min(1, (cardRevealProgress - stagger) / 0.2))
+                      : 0;
+                    const color = activePersona?.color ?? "#94a3b8";
                     return (
-                      <div key={label} className="flex flex-col items-start">
-                        <div
-                          className="relative w-full rounded-full overflow-hidden"
-                          style={{ height: 4, background: "#E5E7EB" }}
-                        >
-                          <div
-                            className="absolute inset-y-0 left-0 rounded-full"
+                      <div
+                        key={oi}
+                        className="ventus-glass"
+                        style={{
+                          borderRadius: 10,
+                          minHeight: 44,
+                          opacity: cardProgress,
+                          transform: `translateX(${(1 - cardProgress) * 10}px) scale(${0.96 + cardProgress * 0.04})`,
+                          transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div className="flex flex-col gap-1 px-2.5 py-2">
+                          <span
+                            className="self-start inline-block text-[7.5px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded"
                             style={{
-                              width: `${(isComplete ? 1 : fill) * 100}%`,
-                              background: "#2563EB",
-                              transition: "width 120ms linear",
+                              color,
+                              background: `${color}1f`,
                             }}
-                          />
+                          >
+                            {output?.label ?? "—"}
+                          </span>
+                          <div className="text-[11px] font-semibold text-gray-900 leading-snug">
+                            {output?.text ?? "—"}
+                          </div>
                         </div>
-                        <span
-                          className="mt-1.5 xl:mt-2 uppercase tracking-[0.08em] xl:tracking-[0.12em] whitespace-nowrap text-[9px] xl:text-[12px]"
-                          style={{
-                            color: isActive || isComplete ? "#111827" : "#9CA3AF",
-                            fontWeight: isActive ? 800 : 500,
-                            transition: "color 300ms ease, font-weight 300ms ease",
-                          }}
-                        >
-                          {label}
-                        </span>
                       </div>
                     );
                   })}
                 </div>
+
+                {/* Animated dashed connecting lines — one per stacked card */}
+                {activePersona && (
+                  <svg
+                    className="absolute pointer-events-none"
+                    style={{ top: 0, left: -20, width: 20, height: "100%", overflow: "visible", zIndex: 0 }}
+                  >
+                    {[38.6, 64, 89.5].map((yPct, oi) => (
+                      <line
+                        key={oi}
+                        x1="0"
+                        y1={`${yPct}%`}
+                        x2="100%"
+                        y2={`${yPct}%`}
+                        stroke={activePersona.color}
+                        strokeWidth="1.5"
+                        strokeDasharray="4 3"
+                        opacity="0.5"
+                      >
+                        <animate
+                          attributeName="stroke-dashoffset"
+                          from="0"
+                          to="-14"
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
+                      </line>
+                    ))}
+                  </svg>
+                )}
               </div>
 
             </div>

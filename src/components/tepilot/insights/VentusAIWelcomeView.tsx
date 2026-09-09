@@ -55,7 +55,7 @@ const HOT_TRENDS = [
   {
     label: "Portfolio Overview",
     value: "$385B annual spend",
-    detail: "120M accounts across 75M unique users",
+    detail: "109M accounts across 68.2M unique users",
     icon: Users,
     accent: "text-blue-400",
     border: "border-blue-500/30",
@@ -90,8 +90,8 @@ const PLATFORM_CONTEXT = {
   role: "Ventus AI Banking Intelligence Co-Pilot",
   platformDescription: "You are the AI co-pilot for a bank-wide customer intelligence and personalization platform. You have access to insights across all modules.",
   bankwideMetrics: {
-    totalAccounts: "120M",
-    totalUsers: "75M",
+    totalAccounts: "109M",
+    totalUsers: "68.2M",
     totalAnnualSpend: "$385B",
     avgAccountsPerUser: 1.6,
     activeAccountRate: "87.3%",

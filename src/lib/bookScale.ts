@@ -4,7 +4,8 @@
 // stay proportionate to one another.
 
 export const BOOK_CUSTOMERS = 68_200_000;
-export const ENRICHMENT_RATE = 0.952;
+export const ENRICHMENT_RATE = 0.999;
+
 export const ENRICHED_PROFILES = Math.round(BOOK_CUSTOMERS * ENRICHMENT_RATE);
 
 /** Convert a share of the enriched population into an absolute headcount. */

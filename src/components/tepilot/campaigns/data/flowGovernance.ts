@@ -34,13 +34,15 @@ export const FLOW_GOVERNANCE = {
     pending: MARKETING_PENDING,
     lastReviewed: "reviewed 2h ago",
   },
+  // Owner sign-off only sees what marketing has already approved.
   owner: {
-    total: totalSignals,
+    total: totalSignals - MARKETING_PENDING,
     approved: totalSignals - MARKETING_PENDING - OWNER_PENDING,
     pending: OWNER_PENDING,
     oldestOwner: "Consumer Lending",
   },
-  live: totalProducts - MARKETING_PENDING - OWNER_PENDING,
+  // Products whose signals have all cleared both gates.
+  live: activeProducts,
   readySignals: totalSignals - MARKETING_PENDING - OWNER_PENDING,
   progressPct: Math.round(
     ((totalSignals - MARKETING_PENDING - OWNER_PENDING) /

@@ -247,32 +247,32 @@ export const FLOW_MICROSEGMENTS: Record<string, FlowMicrosegment[]> = {
   ],
   "heloc": [
     {
-      "signalLabel": "[behavioral] Significant home improvement outlays \u2014 Accumulation of large ticket card charges at building material retailers and ACH payments to general contractors exceeding $5,000 within 3 months.",
-      "title": "Home Improver",
-      "subject": "Unlock Your Home's Potential!",
-      "body": "Hi {{first_name}},\nDreaming of a refreshed home? A Home Equity Line of Credit can help you easily fund those exciting renovations and create the space you've always wanted.",
-      "cta": "Explore Options"
+      "signalLabel": "[life-event] Major home renovation underway \u2014 Improvement retail rising across consecutive months, repeated contractor payments in $3K to $20K increments, supply houses, flooring and appliances, or deposits to roofing, HVAC, solar, window and pool installers.",
+      "title": "Renovation Underway",
+      "subject": "Fund the project without touching your mortgage",
+      "body": "Hi {{first_name}},\nWe see the build taking shape — building-material purchases, contractor payments, and permits adding up. A home equity line lets you draw only what you need, when you need it, and pay interest-only during the draw period.",
+      "cta": "Check your line"
     },
     {
-      "signalLabel": "[behavioral] Recurring property tax payments \u2014 Consistent annual or semi-annual ACH debits to municipal tax authorities or large bill-pay disbursements to county treasurers.",
-      "title": "Property Tax Payer",
-      "subject": "Smart Way to Pay Taxes!",
-      "body": "Hi {{first_name}},\nManaging property taxes can be simple and stress-free. A Home Equity Line of Credit offers a flexible way to handle these important payments.",
-      "cta": "Learn More"
+      "signalLabel": "[life-event] Large tuition obligation starting \u2014 Test prep and application fees, then an enrollment deposit, then the first tuition payment. Fires on annual obligations above $20K or per-term payments exceeding one month of household inflow.",
+      "title": "Tuition Bill Ahead",
+      "subject": "A smarter way to cover the next term",
+      "body": "Hi {{first_name}},\nApplication fees, deposits, and tuition payments are on the calendar. Instead of draining savings or carrying high-rate balances, a home equity line can cover the gap at a lower cost.",
+      "cta": "See your options"
     },
     {
-      "signalLabel": "[life-event] Established property ownership \u2014 Mortgage payments, property tax records, and utility bill-pays indicate continuous homeownership for over five years.",
-      "title": "Established Homeowner",
-      "subject": "Your Home, Your Opportunity!",
-      "body": "Hi {{first_name}},\nAs a homeowner, you have a valuable asset. Discover how your home's equity can provide flexible funds for whatever life brings your way.",
-      "cta": "Discover Benefits"
+      "signalLabel": "[life-event] Large medical expense \u2014 Hospital system payments, surgical center charges, or a new payment plan to a medical billing company. Fires on a single charge above $5K or a payment plan running past 12 months.",
+      "title": "Medical Expense Coverage",
+      "subject": "Handle the bill on your terms",
+      "body": "Hi {{first_name}},\nA hospital system or surgical center charge, or a long payment plan, can strain monthly cash flow. A home equity line gives you flexible access to cover it without a rigid loan.",
+      "cta": "Explore coverage"
     },
     {
-      "signalLabel": "[life-event] Home equity unlock potential \u2014 Large inbound ACH from a different bank followed by series of high-value home improvement transactions via card and ACH.",
-      "title": "Equity Unlocker",
-      "subject": "Harness Your Home Equity!",
-      "body": "Hi {{first_name}},\nIt's exciting to see your home's value grow! A Home Equity Line of Credit empowers you to tap into that value for new possibilities and projects.",
-      "cta": "Start Today"
+      "signalLabel": "[life-event] Second property in progress \u2014 Inspection, appraisal, or title company payments while the existing mortgage continues. Down payment scale rather than transaction scale.",
+      "title": "Second Property in Progress",
+      "subject": "Bridge the down payment gap",
+      "body": "Hi {{first_name}},\nInspection, appraisal, and title fees while your current mortgage continues mean liquidity matters. A home equity line can backstop the down payment so you don't have to liquidate other assets.",
+      "cta": "Check your line"
     }
   ],
   "auto-loan": [

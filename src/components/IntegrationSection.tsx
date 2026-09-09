@@ -1,6 +1,13 @@
-import ScrollReveal from "@/components/ScrollReveal";
 import HueField from "@/components/HueField";
-import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Star,
+  Database,
+  Megaphone,
+  Bot,
+  Globe,
+  Cloud,
+} from "lucide-react";
 import fisLogo from "@/assets/fis-logo.svg";
 import fiservLogo from "@/assets/fiserv-logo.png";
 import jackHenryLogo from "@/assets/jack-henry-logo.png";
@@ -12,7 +19,8 @@ type Tile = {
   name: string;
   src?: string;
   label?: string;
-  icon?: "star" | "iphone";
+  icon?: "star" | "iphone" | "database" | "megaphone" | "bot" | "globe" | "cloud";
+  href?: string;
 };
 
 const IphoneGlyph = ({ className }: { className?: string }) => (
@@ -46,15 +54,27 @@ const IphoneGlyph = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const sources: Tile[] = [
+const coreProviders: Tile[] = [
   { name: "FIS", src: fisLogo },
   { name: "Fiserv", src: fiservLogo },
   { name: "Jack Henry SilverLake", src: jackHenryLogo },
+];
+
+const dataWarehouses: Tile[] = [
   { name: "Databricks", src: databricksLogo },
   { name: "Snowflake", src: snowflakeLogo },
 ];
 
+const sources: Tile[] = [
+  { name: "Core Service Providers", label: "Core Service Providers", icon: "cloud" },
+  { name: "Data Warehouse", label: "Data Warehouse", icon: "database" },
+  { name: "External Intelligence", label: "External Intelligence", icon: "globe" },
+];
+
 const destinations: Tile[] = [
+  { name: "Ventus AI Database", label: "Ventus AI Database", icon: "database" },
+  { name: "Marketing Automation", label: "Marketing Automation", icon: "megaphone" },
+  { name: "AI Coworker", label: "AI Coworker", icon: "bot", href: "/coworker" },
   { name: "Salesforce Financial Cloud", src: salesforceLogo },
   { name: "Rewards Engine", label: "Rewards Engine", icon: "star" },
   { name: "Digital Banking App", label: "Digital Banking App", icon: "iphone" },
@@ -62,29 +82,107 @@ const destinations: Tile[] = [
 
 const iconAccentClass = "text-blue-600";
 
-const TileBox = ({ tile }: { tile: Tile }) => (
+const IconFor = ({ icon }: { icon: Tile["icon"] }) => {
+  switch (icon) {
+    case "star":
+      return <Star className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "iphone":
+      return <IphoneGlyph className={`h-4 w-4 shrink-0 ${iconAccentClass}`} />;
+    case "database":
+      return <Database className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "megaphone":
+      return <Megaphone className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "bot":
+      return <Bot className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "globe":
+      return <Globe className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    case "cloud":
+      return <Cloud className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />;
+    default:
+      return null;
+  }
+};
+
+const TileBox = ({ tile }: { tile: Tile }) => {
+  const content = (
+    <div
+      className={`ventus-glass flex items-center justify-center rounded-xl relative z-10 w-full ${
+        tile.href ? "group" : ""
+      }`}
+      style={{ height: 60 }}
+    >
+      {tile.src ? (
+        <img
+          src={tile.src}
+          alt={tile.name}
+          title={tile.name}
+          className="max-h-9 max-w-[60%] w-auto object-contain"
+        />
+      ) : (
+        <span className="flex items-center justify-center gap-2 text-[14px] font-semibold text-gray-500 tracking-tight px-2 text-center">
+          {tile.icon ? <IconFor icon={tile.icon} /> : null}
+          {tile.label}
+        </span>
+      )}
+      {tile.href ? (
+        <span className="absolute inset-0 rounded-xl ring-1 ring-inset ring-blue-600/0 transition-all group-hover:ring-blue-600/30 group-hover:bg-blue-50/20" />
+      ) : null}
+    </div>
+  );
+
+  if (tile.href) {
+    return (
+      <Link to={tile.href} aria-label={tile.name} className="block">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
+};
+
+const CoreProviderCard = () => (
   <div
-    className="ventus-glass flex items-center justify-center rounded-xl relative z-10 w-full"
-    style={{ height: 72 }}
+    className="ventus-glass relative z-10 grid w-full grid-cols-3 items-center gap-3 rounded-xl px-4"
+    style={{ height: 60 }}
   >
-    {tile.src ? (
-      <img
-        src={tile.src}
-        alt={tile.name}
-        title={tile.name}
-        className="max-h-10 max-w-[65%] w-auto object-contain"
-      />
-    ) : (
-      <span className="flex items-center justify-center gap-2 text-[15px] font-semibold text-gray-500 tracking-tight px-2 text-center">
-        {tile.icon === "star" ? (
-          <Star className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />
-        ) : null}
-        {tile.icon === "iphone" ? <IphoneGlyph className={`h-4 w-4 shrink-0 ${iconAccentClass}`} /> : null}
-        {tile.label}
-      </span>
-    )}
+    {coreProviders.map((t) => (
+      <div key={t.name} className="flex items-center justify-center">
+        <img
+          src={t.src}
+          alt={t.name}
+          title={t.name}
+          className="max-h-7 w-auto max-w-full object-contain"
+        />
+      </div>
+    ))}
   </div>
 );
+
+
+const DataWarehouseCard = () => (
+  <div
+    className="ventus-glass flex items-center justify-center rounded-xl relative z-10 w-full gap-4 px-4"
+    style={{ height: 60 }}
+  >
+    {dataWarehouses.map((t) => (
+      <img
+        key={t.name}
+        src={t.src}
+        alt={t.name}
+        title={t.name}
+        className="max-h-7 w-auto object-contain"
+        style={{ maxWidth: "42%" }}
+      />
+    ))}
+  </div>
+);
+
+const SourceTile = ({ tile }: { tile: Tile }) => {
+  if (tile.name === "Core Service Providers") return <CoreProviderCard />;
+  if (tile.name === "Data Warehouse") return <DataWarehouseCard />;
+  return <TileBox tile={tile} />;
+};
 
 const IntegrationSection = () => {
   const srcYs = sources.map((_, i) => ((i + 0.5) / sources.length) * 100);
@@ -107,26 +205,27 @@ const IntegrationSection = () => {
         ]}
       />
       <div className="mx-auto max-w-7xl px-6 md:px-8 relative z-10">
-        <ScrollReveal>
-          <div className="text-center max-w-3xl mx-auto">
+        <div>
+          <div className="max-w-3xl">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
               Integration
             </p>
             <h2 className="font-bold text-gray-900 leading-tight" style={{ fontSize: 36 }}>
               Plugs into your existing stack.
             </h2>
-            <p className="mt-2 text-gray-500 font-medium" style={{ fontSize: 20 }}>
+            <p className="mt-2 text-gray-600 font-medium" style={{ fontSize: 20 }}>
               Without replacing it.
             </p>
-            <p className="mt-5 text-gray-600 leading-relaxed text-[15px]">
+            <p className="mt-5 text-base leading-[1.65] text-gray-700">
               Connect Ventus to the cores, warehouses, and CRMs you already run.
-              Transactions in, behavioral intelligence out — through whatever pipe your bank
+              Transactions in, behavioral intelligence out, through whatever pipe your bank
               prefers.
             </p>
           </div>
-        </ScrollReveal>
 
-        <ScrollReveal delay={0.12}>
+        </div>
+
+        <div>
           <div
             className="ventus-glass ventus-glass-soft mt-14 rounded-2xl p-6 md:p-8 min-w-0"
           >
@@ -163,15 +262,7 @@ const IntegrationSection = () => {
                     strokeDasharray="1.4 1.4"
                     opacity="0.9"
                     vectorEffect="non-scaling-stroke"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      from="0"
-                      to="-6"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
+                  />
                 ))}
                 {dstYs.map((y, i) => (
                   <path
@@ -185,15 +276,7 @@ const IntegrationSection = () => {
                     strokeDasharray="1.4 1.4"
                     opacity="0.9"
                     vectorEffect="non-scaling-stroke"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      from="0"
-                      to="-6"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
+                  />
                 ))}
               </svg>
 
@@ -205,22 +288,15 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2 min-w-0">
                   {sources.map((t) => (
-                    <TileBox key={t.name} tile={t} />
+                    <SourceTile key={t.name} tile={t} />
                   ))}
                 </div>
 
                 <div className="hidden lg:flex items-center justify-center lg:w-[260px] shrink-0">
-                  <style>{`
-                    @keyframes glowPulse {
-                      0%, 100% { box-shadow: 0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18); }
-                      50% { box-shadow: 0 0 0 8px rgba(59,130,246,0.10), 0 24px 60px -10px rgba(59,130,246,0.35), 0 0 80px rgba(59,130,246,0.28); }
-                    }
-                  `}</style>
                   <div
-                    className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
+                    className="rounded-2xl w-full overflow-hidden bg-white relative z-10 shadow-lg"
                     style={{
                       border: "1px solid #DBEAFE",
-                      animation: "glowPulse 3s ease-in-out infinite",
                     }}
                   >
                     <div className="px-5 py-8 flex flex-col items-center justify-center gap-3">
@@ -252,8 +328,11 @@ const IntegrationSection = () => {
               </div>
             </div>
           </div>
-        </ScrollReveal>
+        </div>
       </div>
+
+
+
     </section>
   );
 };

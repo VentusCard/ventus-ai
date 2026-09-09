@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { Gift, Users, Bot, Wallet, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
@@ -26,6 +26,32 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
   product: "relationship",
   relationship: "ai",
 };
+
+/**
+ * The phone content is authored once at this fixed design width and then
+ * uniformly scaled to whatever width the content area actually gets. The frame
+ * chrome (status bar, bottom nav) is never scaled — it always fills the frame.
+ */
+const DESIGN_WIDTH = 360;
+
+/** Measures a box and returns the uniform scale that maps DESIGN_WIDTH onto it. */
+function useDesignScale<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [box, setBox] = useState({ width: 0, height: 0 });
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setBox({ width: el.clientWidth, height: el.clientHeight });
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const scale = box.width > 0 ? box.width / DESIGN_WIDTH : 1;
+  return { ref, scale, box };
+}
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
   { key: "budget", label: "Budget", icon: Wallet, color: "#0ea5e9" },
@@ -68,6 +94,7 @@ interface Props {
 
 export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default" }: Props) {
   const isCompactFrame = frame === "compact";
+  const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -173,68 +200,78 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           <div className="w-2 h-2 rounded-full bg-slate-300" />
         </div>
 
-        {/* Zoomed inner stack */}
-        <div className="flex-1 min-h-0 flex flex-col" style={{ zoom: 1.1 }}>
-          {/* Status bar */}
-          <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
-            {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
+        {/* Status bar — frame chrome, never scaled */}
+        <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
+          {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+            </span>
+            <span className="font-semibold text-slate-600 text-[11px]">
+              {wmCopilotMode ? `${bankLabel} · Advisor` : `${bankLabel} · ${firstName}`}
+            </span>
+          </div>
+          {wmCopilotMode ? (
+            <span />
+          ) : (
             <div className="flex items-center gap-1.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-              </span>
-              <span className="font-semibold text-slate-600 text-[11px]">
-                {wmCopilotMode ? `${bankLabel} · Advisor` : `${bankLabel} · ${firstName}`}
-              </span>
-            </div>
-            {wmCopilotMode ? (
-              <span />
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <Wifi className="w-3 h-3" />
-                <Battery className="w-3.5 h-3.5" />
-              </div>
-            )}
-          </div>
-
-          {/* Content */}
-          <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || wmCopilotMode) ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
-            {wmCopilotMode ? (
-              <AdvisorConversationTabletView onClose={() => onCloseWMCopilot?.()} />
-            ) : showContent ? (
-              renderContent()
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <span className="text-[11px] text-slate-300">Waiting for analysis...</span>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom Tab Bar — hidden in WM CoPilot mode */}
-          {!wmCopilotMode && (
-            <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-              {CONSUMER_TABS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = consumerTab === tab.key;
-                return (
-                  <button
-                    key={tab.key}
-                    onClick={() => setConsumerTab(tab.key)}
-                    className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
-                  >
-                    <Icon className="w-3.5 h-3.5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
-                    <span className="text-[9px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
-                      {tab.label}
-                    </span>
-                    {isActive && (
-                      <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
-                    )}
-                  </button>
-                );
-              })}
+              <Wifi className="w-3 h-3" />
+              <Battery className="w-3.5 h-3.5" />
             </div>
           )}
         </div>
+
+        {/* Measured content viewport: authored at DESIGN_WIDTH and uniformly scaled by width */}
+        <div ref={scaleRef} className="flex-1 min-h-0 relative overflow-hidden bg-white">
+          <div
+            className="absolute top-0 left-0 flex flex-col"
+            style={{
+              width: DESIGN_WIDTH,
+              height: scale > 0 ? box.height / scale : "100%",
+              transform: `scale(${scale})`,
+              transformOrigin: "top left",
+              visibility: box.width > 0 ? "visible" : "hidden",
+            }}
+          >
+            <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || wmCopilotMode) ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
+              {wmCopilotMode ? (
+                <AdvisorConversationTabletView onClose={() => onCloseWMCopilot?.()} />
+              ) : showContent ? (
+                renderContent()
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <span className="text-[11px] text-slate-300">Waiting for analysis...</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Tab Bar — frame chrome, never scaled, hidden in WM CoPilot mode */}
+        {!wmCopilotMode && (
+          <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
+            {CONSUMER_TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = consumerTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setConsumerTab(tab.key)}
+                  className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
+                >
+                  <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                  <span className="text-[10px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                    {tab.label}
+                  </span>
+                  {isActive && (
+                    <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ import {
   usePersonalizationResult,
 } from "@/lib/personalizationResultStore";
 import { buildChatSignalContext, pillarFor } from "@/lib/personalizationGeneration";
+import { computeLtvLift } from "@/lib/personalizationLtvLift";
 import { findGroupForLabel } from "@/components/exec-demo/GeneratedOffersPhoneView";
 import { SIGNAL_FAMILY_META, type DirectorySignal } from "@/lib/customerDirectoryData";
 import { ExampleCustomerBar } from "./personalization/ExampleCustomerBar";
@@ -103,10 +104,19 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
 
   const workspaceRef = useScrollIntoWorkspace(hasSelection, `${surface}:${selectedId ?? ""}`);
 
+  const ltvResult = useMemo(
+    () =>
+      computeLtvLift(surface, example, {
+        offers: useSession ? session.generatedOffers : generated.offers,
+        productCards: useSession ? session.productCards : generated.productCards,
+      }),
+    [surface, example, useSession, session.generatedOffers, session.productCards, generated.offers, generated.productCards],
+  );
+
   return (
     <div
       ref={workspaceRef}
-      className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr_1.0fr] gap-4 h-[calc(100vh-140px)] min-h-[720px]"
+      className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-140px)] min-h-[720px]"
     >
       {/* ---------- Customer Selection ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
@@ -144,8 +154,6 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
         </div>
       </div>
 
-      {/* ---------- Key features + unit economics ---------- */}
-      <SurfaceFeaturePanel surface={surface} customerKey={hasSelection ? selectedId ?? displayName : null} />
 
       {/* ---------- Personalized surface ---------- */}
       <div className="lg:col-span-1 min-h-0 flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden">
@@ -171,10 +179,10 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
 
         <div className="flex-1 min-h-0 p-1.5 flex flex-col">
           {!hasSelection ? (
-            <div className="flex-1 min-h-0 flex justify-center relative">
+            <div className="flex-1 min-h-0 flex justify-center relative" style={{ containerType: "size" }}>
               <div
-                className="h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none"
-                style={{ width: "min(100%, calc((100vh - 200px) * 0.60))", maxWidth: "100%" }}
+                className="self-center flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none"
+                style={{ width: "min(100%, 360px, 56.25cqh)", aspectRatio: "9 / 16", height: "auto", maxHeight: "100%" }}
               >
                 <ExecDemoPhoneView
                   customer={EXAMPLE_CUSTOMERS[0].demo}
@@ -198,10 +206,10 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
               </div>
             </div>
           ) : (
-            <div className="flex-1 min-h-0 flex justify-center">
+            <div className="flex-1 min-h-0 flex justify-center" style={{ containerType: "size" }}>
               <div
-                className="h-full flex flex-col"
-                style={{ width: "min(100%, calc((100vh - 200px) * 0.60))", maxWidth: "100%" }}
+                className="self-center flex flex-col"
+                style={{ width: "min(100%, 360px, 56.25cqh)", aspectRatio: "9 / 16", height: "auto", maxHeight: "100%" }}
               >
                 <ExecDemoPhoneView
                   customer={phoneCustomer!}
@@ -240,6 +248,13 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           )}
         </div>
       </div>
+
+      {/* ---------- LTV lift + Key features ---------- */}
+      <SurfaceFeaturePanel
+        surface={surface}
+        customerKey={hasSelection ? selectedId ?? displayName : null}
+        ltvResult={ltvResult}
+      />
     </div>
   );
 }

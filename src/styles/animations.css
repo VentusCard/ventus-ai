@@ -282,3 +282,30 @@
     animation: none;
   }
 }
+
+@keyframes ventus-flow-travel {
+  0% { transform: translateX(-30%); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateX(130%); opacity: 0; }
+}
+
+.ventus-flow-travel {
+  animation: ventus-flow-travel 2.2s linear infinite;
+}
+
+@keyframes ventus-card-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  50% { box-shadow: 0 0 22px 0 rgba(59, 130, 246, 0.22); }
+}
+
+.ventus-card-breathe {
+  animation: ventus-card-breathe 3.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ventus-flow-travel,
+  .ventus-card-breathe {
+    animation: none;
+  }
+}

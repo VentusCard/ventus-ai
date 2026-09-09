@@ -60,9 +60,22 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
+import { SIGNAL_FAMILY_META } from "@/lib/customerDirectoryData";
 
 import { PulseDot } from "@/components/tepilot/common/PulseDot";
 import type { TabValue } from "./AnalyticsContainer";
+
+const FAMILY_META_BY_LABEL = Object.fromEntries(
+  SIGNAL_FAMILY_META.map((m) => [m.label, m]),
+) as Record<string, (typeof SIGNAL_FAMILY_META)[number]>;
+
+const LABEL_TO_KEY: Record<string, string> = {
+  Behavioral: "spending_habit",
+  "Life Event": "life_event",
+  Financial: "financial",
+  Demographic: "demographic",
+  Risk: "risk",
+};
 
 type SourceInput = {
   label: string;
@@ -277,7 +290,10 @@ const SIGNALS: SignalDetail[] = [
   },
 ];
 
-/** Total 24h external signal detections — shared with the Intelligence Database KPI strip. */
+/** Signal types enumerated across the five families rendered on this page. */
+export const TOTAL_SIGNAL_TYPES = SIGNALS.reduce((n, s) => n + s.items.length, 0);
+
+/** Total 24h signal detections across the taxonomy shown on this page. */
 export const TOTAL_SIGNAL_DETECTIONS_24H = SIGNALS.reduce(
   (n, s, i) => n + (640 + s.items.length * 187 + i * 53),
   0,
@@ -433,120 +449,10 @@ function SourceGroupCard({
   );
 }
 
-const SIGNAL_BASIS: Record<string, "First-party" | "Both" | "Modeled"> = {
-  "Life Event": "Both",
-  Behavioral: "First-party",
-  Financial: "Both",
-  Demographic: "Modeled",
-  Risk: "First-party",
-};
-
-const BASIS_BADGE: Record<string, string> = {
-  "First-party": "bg-sky-50 text-sky-600",
-  Both: "border border-slate-200 bg-gradient-to-r from-sky-50 to-amber-50 text-slate-600",
-  Modeled: "bg-amber-50 text-amber-600",
-};
-
-const BASIS_BADGE_DARK: Record<string, string> = {
-  "First-party": "bg-sky-400/20 text-sky-100",
-  Both: "bg-white/[0.12] text-slate-100",
-  Modeled: "bg-amber-400/20 text-amber-100",
-};
-
-const DETECTION_BASIS_CLASS: Record<Detection["basis"], string> = {
-  "1P": "bg-sky-400/20 text-sky-100",
-  Ext: "bg-amber-400/20 text-amber-100",
-  Both: "bg-white/[0.12] text-slate-100",
-};
-
-/* Per-family chrome for the signal cards on the dark Intelligence Core panel.
-   Hues mirror the shared family palette (blue / amber / emerald / violet / rose). */
-type DarkFamilyStyle = {
-  surface: string;
-  hover: string;
-  border: string;
-  activeSurface: string;
-  activeBorder: string;
-  chip: string;
-  icon: string;
-  label: string;
-  bar: string;
-};
-
-const SIGNAL_DARK_STYLE: Record<string, DarkFamilyStyle> = {
-  Behavioral: {
-    surface: "bg-blue-600/30",
-    hover: "hover:bg-blue-600/38",
-    border: "border-blue-400/55",
-    activeSurface: "bg-blue-600/45",
-    activeBorder: "border-blue-300/70 ring-2 ring-blue-400/60",
-    chip: "bg-blue-500 border border-white/20",
-    icon: "text-white",
-    label: "text-white",
-    bar: "bg-blue-300",
-  },
-  "Life Event": {
-    surface: "bg-amber-600/30",
-    hover: "hover:bg-amber-600/38",
-    border: "border-amber-400/55",
-    activeSurface: "bg-amber-600/45",
-    activeBorder: "border-amber-300/70 ring-2 ring-amber-400/60",
-    chip: "bg-amber-500 border border-white/20",
-    icon: "text-white",
-    label: "text-white",
-    bar: "bg-amber-300",
-  },
-  Financial: {
-    surface: "bg-emerald-600/30",
-    hover: "hover:bg-emerald-600/38",
-    border: "border-emerald-400/55",
-    activeSurface: "bg-emerald-600/45",
-    activeBorder: "border-emerald-300/70 ring-2 ring-emerald-400/60",
-    chip: "bg-emerald-500 border border-white/20",
-    icon: "text-white",
-    label: "text-white",
-    bar: "bg-emerald-300",
-  },
-  Demographic: {
-    surface: "bg-violet-600/30",
-    hover: "hover:bg-violet-600/38",
-    border: "border-violet-400/55",
-    activeSurface: "bg-violet-600/45",
-    activeBorder: "border-violet-300/70 ring-2 ring-violet-400/60",
-    chip: "bg-violet-500 border border-white/20",
-    icon: "text-white",
-    label: "text-white",
-    bar: "bg-violet-300",
-  },
-  Risk: {
-    surface: "bg-rose-600/30",
-    hover: "hover:bg-rose-600/38",
-    border: "border-rose-400/55",
-    activeSurface: "bg-rose-600/45",
-    activeBorder: "border-rose-300/70 ring-2 ring-rose-400/60",
-    chip: "bg-rose-500 border border-white/20",
-    icon: "text-white",
-    label: "text-white",
-    bar: "bg-rose-300",
-  },
-};
-
-const DEFAULT_DARK_STYLE: DarkFamilyStyle = {
-  surface: "bg-white/[0.045]",
-  hover: "hover:bg-white/[0.08]",
-  border: "border-white/[0.08]",
-  activeSurface: "bg-white/[0.11]",
-  activeBorder: "border-white/25",
-  chip: "bg-white/10 border border-white/15",
-  icon: "text-slate-100",
-  label: "text-white",
-  bar: "bg-slate-400",
-};
-
-
 /* A single standing signal section with a rolling detection ticker. */
 function SignalSection({
   signal,
+  meta,
   count,
   isActive,
   startDelay,
@@ -554,6 +460,7 @@ function SignalSection({
   onSelect,
 }: {
   signal: SignalDetail;
+  meta?: (typeof SIGNAL_FAMILY_META)[number];
   count: string;
   isActive: boolean;
   startDelay: number;
@@ -621,15 +528,18 @@ function SignalSection({
   const current = signal.examples[idx];
   const next = signal.examples[(idx + 1) % total];
 
+  const Icon = signal.icon;
+  const familyKey = LABEL_TO_KEY[signal.label] ?? signal.label.toLowerCase().replace(/\s+/g, "_");
+  const familyMeta = meta ?? SIGNAL_FAMILY_META.find((m) => m.key === familyKey);
+
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-10 items-center gap-2 text-[13px] leading-normal text-slate-100">
+    <span ref={ref} className="flex h-10 items-center gap-2 text-[13px] leading-normal text-white/80">
       <span className="relative z-10 truncate pb-px text-[14px] font-medium leading-normal text-white">{example.to}</span>
-      <span className="relative z-0 flex-none text-[12px] leading-normal text-slate-300">&rarr;</span>
-      <span className="relative z-0 truncate pb-px text-[13px] leading-normal text-slate-200">{example.ev}</span>
+      <span className="relative z-0 flex-none text-[12px] leading-normal text-white/60">&rarr;</span>
+      <span className="relative z-0 truncate pb-px text-[13px] leading-normal text-white/85">{example.ev}</span>
       <span
         className={cn(
-          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[12px] tracking-wide",
-          DETECTION_BASIS_CLASS[example.basis],
+          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[12px] tracking-wide bg-white/90 text-slate-900",
         )}
       >
         {example.basis}
@@ -637,33 +547,37 @@ function SignalSection({
     </span>
   );
 
-  const style = SIGNAL_DARK_STYLE[signal.label] ?? DEFAULT_DARK_STYLE;
-  const Icon = signal.icon;
+  const cardBase = familyMeta
+    ? cn(familyMeta.fullBg, familyMeta.cardBorder, familyMeta.cardBorderHover)
+    : cn("bg-slate-600 border-slate-500 hover:border-slate-400");
+  const activeRing = familyMeta ? `ring-2 ${familyMeta.cardRing}` : "ring-2 ring-slate-300";
+  const chipBase = familyMeta?.fullAccent ?? "bg-white/15 text-white border-white/25";
+  const barColor = familyMeta ? "bg-white/30" : "bg-slate-300";
+  const labelColor = familyMeta?.fullText ?? "text-white";
 
   return (
     <button
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2 pl-3 pr-3 text-left transition-all duration-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.4)]",
-        style.surface,
-        style.border,
-        isActive ? cn(style.activeSurface, style.activeBorder) : style.hover,
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2 pl-3 pr-3 text-left transition-all duration-200 shadow-sm",
+        cardBase,
+        isActive ? activeRing : "",
       )}
     >
-      <span className={cn("absolute inset-y-0 left-0 w-[5px]", style.bar)} />
+      <span className={cn("absolute inset-y-0 left-0 w-[5px]", barColor)} />
       <span className="mb-0 flex items-center gap-2">
-        <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px]", style.chip)}>
-          <Icon className={cn("h-3.5 w-3.5", style.icon)} />
+        <span className={cn("flex h-6 w-6 flex-none items-center justify-center rounded-[6px] border text-white", chipBase)}>
+          <Icon className="h-3.5 w-3.5" />
         </span>
-        <span className={cn("text-[13px] font-semibold tracking-tight drop-shadow-sm", style.label)}>{signal.label}</span>
+        <span className={cn("text-[13px] font-semibold tracking-tight", labelColor)}>{signal.label}</span>
         <PulseDot
           colorClass={signal.dot}
           sizeClass="h-[6px] w-[6px]"
           delayMs={startDelay}
-          className="rounded-full ring-[3px] ring-white/10"
+          className="rounded-full ring-[3px] ring-white/60"
         />
-        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-slate-200">
+        <span className="ml-auto font-mono text-[11.5px] tabular-nums text-white/80">
           <b className="font-semibold text-white">{count}</b> · 24h
         </span>
       </span>
@@ -899,7 +813,6 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
   const signalRows = SIGNALS.map((s, i) => ({
     label: s.label,
     dot: s.dot,
-    basis: SIGNAL_BASIS[s.label] ?? "First-party",
     detected: 640 + s.items.length * 187 + i * 53,
     confidence: [88, 76, 71, 64, 82][i % 5],
   }));
@@ -1077,33 +990,35 @@ export function CapabilitiesView({ onNavigate }: { onNavigate?: (tab: TabValue) 
               !coreLive && "pointer-events-none select-none opacity-45 grayscale [&_*]:animate-none",
             )}
           >
-            <div className="h-full overflow-hidden rounded-xl bg-[#141432] p-4">
-              <div className="mb-3 border-b border-white/10 pb-2">
+            <div className="h-full overflow-hidden rounded-xl border-2 border-blue-300 bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 p-4 shadow-sm">
+              <div className="mb-3 border-b border-blue-200/40 pb-2">
                 <div className="flex min-w-0 items-center gap-2.5">
-                  <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto shrink-0 brightness-0 invert opacity-95" />
-                  <p className="truncate text-[14px] font-semibold tracking-tight text-white">
+                  <img src={ventusLogoTransparent} alt="Ventus" className="h-4 w-auto shrink-0 opacity-95" />
+                  <p className="truncate text-[14px] font-semibold tracking-tight text-slate-900">
                     Customer Intelligence Core
                   </p>
                 </div>
-                <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] text-slate-400">
-                  5 families · 233 signals · 24h
+                <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] text-slate-500">
+                  5 families · {TOTAL_SIGNAL_TYPES} signals · 24h
                 </p>
               </div>
 
 
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
-                <div className="mb-2 whitespace-nowrap font-mono text-[11px] uppercase tracking-wider text-slate-300">
+                <div className="mb-2 whitespace-nowrap font-mono text-[11px] uppercase tracking-wider text-slate-500">
                   Signals · what we detect
                 </div>
                 <div className="flex flex-col gap-2">
 
                   {SIGNALS.map((s, i) => {
                     const row = signalRows.find((r) => r.label === s.label);
+                    const meta = FAMILY_META_BY_LABEL[s.label];
                     return (
                       <SignalSection
                         key={s.label}
                         signal={s}
+                        meta={meta}
                         count={row ? row.detected.toLocaleString() : "—"}
                         isActive={s.label === activeSignalLabel}
                         startDelay={i * 900}
