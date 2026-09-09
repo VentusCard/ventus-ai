@@ -85,7 +85,7 @@ const COLLECTION_IMAGE_BANK: Record<string, string> = {
   auto: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=200&fit=crop",
   "travel-urban": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=200&fit=crop",
   "travel-generic": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=200&fit=crop",
-  finance: "https://images.unsplash.com/photo-1590283603380-0bf078489ff1?w=400&h=200&fit=crop",
+  finance: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop",
   entertainment: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop",
   grocery: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=200&fit=crop",
 };
