@@ -121,6 +121,7 @@ export function VentusAIChatPage({
 
   useEffect(() => {
     if (!pendingPrompt) return;
+    suppressScrollRef.current = true;
     handleSend(pendingPrompt);
     onPendingPromptConsumed?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
