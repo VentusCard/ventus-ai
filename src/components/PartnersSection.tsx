@@ -29,7 +29,8 @@ const PartnersSection = () => {
               key={partner.name}
               src={partner.src}
               alt={`${partner.name} logo`}
-              className="h-24 md:h-28 w-auto max-w-[320px] object-contain opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
+              style={{ height: partner.height }}
+              className="w-auto max-w-[320px] object-contain opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
             />
           ))}
         </div>
