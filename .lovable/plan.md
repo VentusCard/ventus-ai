@@ -1,7 +1,7 @@
 # Make homepage partner logos bigger
 
 ## Goal
-Increase the visual weight of the four partner logos in the homepage Partners & accelerators section.
+Increase the visual weight of the four partner logos in the homepage Partners & accelerators section without altering the cards themselves.
 
 ## Current state
 - File: `src/components/PartnersSection.tsx`
@@ -9,9 +9,8 @@ Increase the visual weight of the four partner logos in the homepage Partners & 
 - Cards are `h-24` (96px) mobile / `md:h-28` (112px) desktop.
 
 ## Changes
-1. Increase logo max-height to roughly `max-h-14 md:max-h-18` (56px mobile / 72px desktop).
-2. Increase card height proportionally to `h-28 md:h-36` so logos do not feel cramped.
-3. Keep the 2×2 / 4-column grid, borders, hover effect, and light theme unchanged.
+1. Increase only the logo max-height inside the existing cards to roughly `max-h-14 md:max-h-18` (56px mobile / 72px desktop).
+2. Leave card dimensions, grid gaps, borders, hover effects, and light theme untouched.
 
 ## Verification
 - Build/typecheck.
