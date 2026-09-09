@@ -181,7 +181,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           {!hasSelection ? (
             <div className="flex-1 min-h-0 flex justify-center relative" style={{ containerType: "size" }}>
               <div
-                className="h-full flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none"
+                className="self-center flex flex-col opacity-50 grayscale blur-[1.5px] pointer-events-none select-none"
                 style={{ width: "min(100%, 360px, 56.25cqh)", aspectRatio: "9 / 16", height: "auto", maxHeight: "100%" }}
               >
                 <ExecDemoPhoneView
@@ -208,7 +208,7 @@ export function CustomerMockupPanel({ surface }: CustomerMockupPanelProps) {
           ) : (
             <div className="flex-1 min-h-0 flex justify-center" style={{ containerType: "size" }}>
               <div
-                className="h-full flex flex-col"
+                className="self-center flex flex-col"
                 style={{ width: "min(100%, 360px, 56.25cqh)", aspectRatio: "9 / 16", height: "auto", maxHeight: "100%" }}
               >
                 <ExecDemoPhoneView
