@@ -271,8 +271,8 @@ const ScrollDrivenHero = () => {
         />
       </div>
 
-      <div className="sticky top-0 xl:h-screen min-h-screen flex items-start justify-center overflow-visible pt-24 md:pt-28 xl:pt-16 pb-10">
-        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
+      <div className="sticky top-0 xl:h-screen min-h-screen flex items-start xl:items-center justify-center overflow-visible pt-24 md:pt-28 xl:pt-0 pb-10 xl:pb-0">
+        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-8">
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
           <div className="contents xl:flex xl:flex-col xl:w-[50%] xl:items-start w-full">
             <h1
@@ -524,8 +524,7 @@ const ScrollDrivenHero = () => {
                   opacity: stage === 4 ? 1 : 0,
                   transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
                   pointerEvents: stage === 4 ? "auto" : "none",
-                  width: 220,
-                  minHeight: 168,
+                  width: 300,
                   overflow: "visible",
                 }}
               >
