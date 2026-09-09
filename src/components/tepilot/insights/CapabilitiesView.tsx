@@ -533,13 +533,13 @@ function SignalSection({
   const familyMeta = meta ?? SIGNAL_FAMILY_META.find((m) => m.key === familyKey);
 
   const renderRow = (example: SignalDetail["examples"][number], ref: React.RefObject<HTMLSpanElement>) => (
-    <span ref={ref} className="flex h-10 items-center gap-2 text-[13px] leading-normal text-white/80">
-      <span className="relative z-10 truncate pb-px text-[14px] font-medium leading-normal text-white">{example.to}</span>
-      <span className="relative z-0 flex-none text-[12px] leading-normal text-white/60">&rarr;</span>
-      <span className="relative z-0 truncate pb-px text-[13px] leading-normal text-white/85">{example.ev}</span>
+    <span ref={ref} className="flex h-10 items-center gap-2 text-[13px] leading-normal text-slate-600">
+      <span className="relative z-10 truncate pb-px text-[14px] font-medium leading-normal text-slate-800">{example.to}</span>
+      <span className="relative z-0 flex-none text-[12px] leading-normal text-slate-400">&rarr;</span>
+      <span className="relative z-0 truncate pb-px text-[13px] leading-normal text-slate-600">{example.ev}</span>
       <span
         className={cn(
-          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[12px] tracking-wide bg-white/90 text-slate-900",
+          "relative z-10 ml-auto flex-none rounded px-1.5 py-px font-mono text-[12px] tracking-wide bg-slate-100 text-slate-700",
         )}
       >
         {example.basis}
