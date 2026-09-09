@@ -144,15 +144,19 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
               <Underline active={activeId === l.id} />
             </a>
           ))}
+          {LEFT_PAGE_LINKS.map((l) => (
+            <Link key={l.to} to={l.to} className={navLinkClass}>
+              {l.label}
+              <Underline active={activeId === l.to.replace("/", "")} />
+            </Link>
+          ))}
           <span className="h-4 w-px bg-slate-200" />
-          <Link to="/insights" className={navLinkClass}>
-            Insights
-            <Underline active={activeId === "insights"} />
-          </Link>
-          <Link to="/faq" className={navLinkClass}>
-            FAQ
-            <Underline active={activeId === "faq"} />
-          </Link>
+          {RIGHT_PAGE_LINKS.map((l) => (
+            <Link key={l.to} to={l.to} className={navLinkClass}>
+              {l.label}
+              <Underline active={activeId === l.to.replace("/", "")} />
+            </Link>
+          ))}
         </div>
 
 
