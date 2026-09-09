@@ -271,8 +271,8 @@ const ScrollDrivenHero = () => {
         />
       </div>
 
-      <div className="sticky top-0 xl:h-screen min-h-screen flex items-start justify-center overflow-visible pt-24 md:pt-28 xl:pt-16 pb-10">
-        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
+      <div className="sticky top-0 xl:h-screen min-h-screen flex items-start xl:items-center justify-center overflow-visible pt-24 md:pt-28 xl:pt-0 pb-10 xl:pb-0">
+        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-8">
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
           <div className="contents xl:flex xl:flex-col xl:w-[50%] xl:items-start w-full">
             <h1
@@ -524,8 +524,7 @@ const ScrollDrivenHero = () => {
                   opacity: stage === 4 ? 1 : 0,
                   transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
                   pointerEvents: stage === 4 ? "auto" : "none",
-                  width: 220,
-                  minHeight: 168,
+                  width: 300,
                   overflow: "visible",
                 }}
               >
@@ -558,8 +557,8 @@ const ScrollDrivenHero = () => {
                   )}
                 </div>
 
-                {/* Three output cards */}
-                <div className="grid grid-cols-3 gap-2 relative z-10">
+                {/* Three output cards — stacked vertically */}
+                <div className="flex flex-col gap-2.5 relative z-10">
                   {(activePersona?.outputs ?? [null, null, null]).map((output, oi) => {
                     const stagger = oi * 0.08;
                     const cardProgress = activePersona
@@ -572,15 +571,15 @@ const ScrollDrivenHero = () => {
                         className="ventus-glass"
                         style={{
                           borderRadius: 10,
-                          minHeight: 120,
+                          minHeight: 48,
                           opacity: cardProgress,
-                          transform: `translateY(${(1 - cardProgress) * -10}px) scale(${0.92 + cardProgress * 0.08})`,
+                          transform: `translateX(${(1 - cardProgress) * 14}px) scale(${0.96 + cardProgress * 0.04})`,
                           transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
-                        <div className="px-1.5 py-3">
+                        <div className="flex items-center gap-2.5 px-3 py-2.5">
                           <span
-                            className="inline-block text-[8px] font-bold uppercase tracking-[0.12em] mb-1.5 px-1 py-0.5 rounded"
+                            className="shrink-0 inline-block text-[8px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded"
                             style={{
                               color,
                               background: `${color}1f`,
@@ -588,7 +587,7 @@ const ScrollDrivenHero = () => {
                           >
                             {output?.label ?? "—"}
                           </span>
-                          <div className="text-[11px] font-semibold text-gray-900 leading-snug">
+                          <div className="text-[12px] font-semibold text-gray-900 leading-snug">
                             {output?.text ?? "—"}
                           </div>
                         </div>
@@ -597,36 +596,33 @@ const ScrollDrivenHero = () => {
                   })}
                 </div>
 
-                {/* Animated dashed connecting lines */}
+                {/* Animated dashed connecting lines — one per stacked card */}
                 {activePersona && (
                   <svg
                     className="absolute pointer-events-none"
-                    style={{ top: "50%", left: -44, width: 44, height: 120, transform: "translateY(-50%)", overflow: "visible", zIndex: 0 }}
+                    style={{ top: 0, left: -16, width: 16, height: "100%", overflow: "visible", zIndex: 0 }}
                   >
-                    {[0, 1, 2].map((oi) => {
-                      const yPct = ((oi + 0.5) / 3) * 100;
-                      return (
-                        <line
-                          key={oi}
-                          x1="100%"
-                          y1={`${yPct}%`}
-                          x2="0"
-                          y2="50%"
-                          stroke={activePersona.color}
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                          opacity="0.5"
-                        >
-                          <animate
-                            attributeName="stroke-dashoffset"
-                            from="0"
-                            to="-14"
-                            dur="1.5s"
-                            repeatCount="indefinite"
-                          />
-                        </line>
-                      );
-                    })}
+                    {[38.6, 64, 89.5].map((yPct, oi) => (
+                      <line
+                        key={oi}
+                        x1="0"
+                        y1={`${yPct}%`}
+                        x2="100%"
+                        y2={`${yPct}%`}
+                        stroke={activePersona.color}
+                        strokeWidth="1.5"
+                        strokeDasharray="4 3"
+                        opacity="0.5"
+                      >
+                        <animate
+                          attributeName="stroke-dashoffset"
+                          from="0"
+                          to="-14"
+                          dur="1.5s"
+                          repeatCount="indefinite"
+                        />
+                      </line>
+                    ))}
                   </svg>
                 )}
               </div>
