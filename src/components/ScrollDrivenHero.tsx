@@ -291,7 +291,7 @@ const ScrollDrivenHero = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Ventus AI orchestrates a hyper-personalized banking experience for every customer with your existing stack
+              Ventus AI orchestrates a hyper-personalized banking experience to grow spend, products and deposits with your existing stack.
             </p>
 
             <div className="order-4 xl:order-none mt-6 xl:mt-7 flex flex-col sm:flex-row items-center gap-3 transition-all duration-700 ease-out"
