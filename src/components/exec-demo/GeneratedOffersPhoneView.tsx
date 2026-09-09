@@ -600,35 +600,35 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         {!isSearchActive && groups.length > 0 && active && (
           <>
             <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-[11px] font-bold text-slate-700">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span className="text-[12.5px] font-bold text-slate-700">
                 Curated for {firstName}
               </span>
             </div>
 
             <div
               key={`${active.pillar}::${active.rollup}`}
-              className="rounded-xl overflow-hidden border border-slate-100 flex flex-col min-h-[124px] cursor-pointer hover:shadow-md transition-shadow"
+              className="rounded-xl overflow-hidden border border-slate-100 flex flex-col min-h-[190px] cursor-pointer hover:shadow-md transition-shadow"
               style={{
                 background: "linear-gradient(145deg, #f8fafc, #ffffff)",
                 animation: `collection-slide-${direction} 0.35s ease-out`,
               }}
               onClick={() => setExpandedGroup(active)}
             >
-              <div className="h-[60px] w-full overflow-hidden">
+              <div className="h-[110px] w-full overflow-hidden">
                 <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={handleImageError} />
               </div>
-              <div className="px-3 pt-2 pb-1 flex-1">
-                <p className="text-[10px] font-semibold text-slate-800 leading-snug">
+              <div className="px-3 pt-2 pb-1.5 flex-1">
+                <p className="text-[12px] font-semibold text-slate-800 leading-snug">
                   {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
                 </p>
               </div>
 
-              <div className="flex items-center gap-1 px-3 pb-2.5 overflow-hidden">
+              <div className="flex items-center gap-1.5 px-3 pb-2.5 overflow-hidden">
                 {activeDeals.map((deal) => (
                   <span
                     key={deal.id}
-                    className="inline-flex items-center text-[8px] font-medium px-1.5 py-0.5 rounded-full border border-slate-100 bg-white text-slate-600 shadow-sm truncate shrink min-w-0"
+                    className="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full border border-slate-100 bg-white text-slate-600 shadow-sm truncate shrink min-w-0"
                   >
                     {deal.merchant}
                   </span>
@@ -640,16 +640,16 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               <div className="flex items-center justify-center gap-2 pt-1">
                 <button
                   onClick={() => goTo((safeIdx - 1 + groups.length) % groups.length)}
-                  className="w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
                 >
-                  <ChevronLeft className="w-3 h-3 text-slate-500" />
+                  <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
                 </button>
                 <div className="flex gap-1.5">
                   {groups.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => goTo(i)}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
                         i === safeIdx
                           ? "bg-slate-700 scale-125"
                           : "bg-slate-300 hover:bg-slate-400"
@@ -659,9 +659,9 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                 </div>
                 <button
                   onClick={() => goTo((safeIdx + 1) % groups.length)}
-                  className="w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
                 >
-                  <ChevronRight className="w-3 h-3 text-slate-500" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
                 </button>
               </div>
             )}
