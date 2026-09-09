@@ -26,13 +26,12 @@ const AnnouncementBar = ({ onClose }: AnnouncementBarProps) => {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-[60] h-10 bg-blue-600 text-white"
+      className="fixed top-0 left-0 right-0 z-[60] h-auto min-h-10 bg-blue-600 py-2 text-white sm:h-10 sm:py-0"
       role="banner"
       aria-label="Conference announcement"
     >
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-6">
-        <span className="hidden sm:block" aria-hidden="true" />
-        <p className="flex-1 text-center text-sm font-medium sm:flex-none sm:text-left">
+      <div className="mx-auto flex h-full min-h-[inherit] max-w-7xl items-center justify-between gap-2 px-4 md:px-6">
+        <p className="flex-1 text-center text-sm font-medium leading-snug sm:text-left">
           Meet the Ventus team at Finovate Fall, MoneyLIVE, and Boston Fintech Week{" "}
           <span className="hidden sm:inline">—</span>{" "}
           <Link
@@ -45,7 +44,7 @@ const AnnouncementBar = ({ onClose }: AnnouncementBarProps) => {
         <button
           onClick={handleClose}
           aria-label="Dismiss announcement"
-          className="ml-3 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
+          className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
         >
           <X size={14} strokeWidth={2.5} />
         </button>
