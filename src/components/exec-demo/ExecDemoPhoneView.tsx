@@ -275,6 +275,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             </div>
           )}
         </div>
+        </div>
       </div>
     </div>
   );
