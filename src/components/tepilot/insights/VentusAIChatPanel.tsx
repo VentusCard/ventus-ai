@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -141,8 +142,29 @@ export function VentusAIChatPanel({ activeTab, onClose, contextExtras }: VentusA
             )}
           >
             {msg.role === "assistant" ? (
-              <div className="prose prose-xs max-w-none [&_p]:text-[12px] [&_p]:leading-relaxed [&_p]:my-1 [&_li]:text-[12px] [&_strong]:text-slate-900 [&_h1]:text-[13px] [&_h2]:text-[13px] [&_h3]:text-[12px] [&_ul]:my-1 [&_ol]:my-1">
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
+              <div
+                className={cn(
+                  "max-w-none text-[12px] leading-relaxed",
+                  "[&_p]:my-1.5 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
+                  "[&_h1]:mb-1 [&_h1]:mt-2.5 [&_h1]:text-[12.5px] [&_h1]:font-semibold [&_h1]:text-slate-900",
+                  "[&_h2]:mb-1 [&_h2]:mt-2.5 [&_h2]:text-[12.5px] [&_h2]:font-semibold [&_h2]:text-slate-900",
+                  "[&_h3]:mb-0.5 [&_h3]:mt-2 [&_h3]:text-[11px] [&_h3]:font-semibold [&_h3]:uppercase [&_h3]:tracking-wide [&_h3]:text-slate-500",
+                  "[&_h1:first-child]:mt-0 [&_h2:first-child]:mt-0 [&_h3:first-child]:mt-0",
+                  "[&_ul]:my-1.5 [&_ul]:list-disc [&_ul]:space-y-0.5 [&_ul]:pl-4",
+                  "[&_ol]:my-1.5 [&_ol]:list-decimal [&_ol]:space-y-0.5 [&_ol]:pl-4",
+                  "[&_li]:text-[12px] [&_li>p]:my-0",
+                  "[&_strong]:font-semibold [&_strong]:text-slate-900",
+                  "[&_code]:rounded [&_code]:bg-slate-200/70 [&_code]:px-1 [&_code]:text-[11px]",
+                  "[&_a]:text-blue-600 [&_a]:underline [&_a]:underline-offset-2",
+                  "[&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_table]:rounded-md [&_table]:border [&_table]:border-slate-200 [&_table]:text-[11px]",
+                  "[&_th]:border-b [&_th]:border-slate-200 [&_th]:bg-white [&_th]:px-1.5 [&_th]:py-1 [&_th]:text-left [&_th]:font-semibold [&_th]:text-slate-500",
+                  "[&_td]:border-b [&_td]:border-slate-200/70 [&_td]:px-1.5 [&_td]:py-1 [&_td]:tabular-nums",
+                  "[&_tr:last-child_td]:border-b-0",
+                  "[&_hr]:my-2.5 [&_hr]:border-slate-200",
+                  "[&_blockquote]:my-1.5 [&_blockquote]:border-l-2 [&_blockquote]:border-slate-300 [&_blockquote]:pl-2 [&_blockquote]:text-slate-500",
+                )}
+              >
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
               </div>
             ) : (
               msg.content
