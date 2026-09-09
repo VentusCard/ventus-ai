@@ -32,7 +32,7 @@ const PartnersSection = () => {
               <img
                 src={partner.src}
                 alt={`${partner.name} logo`}
-                className="max-h-14 md:max-h-16 w-auto object-contain"
+                className="max-h-16 md:max-h-20 w-auto object-contain"
               />
             </div>
           ))}
