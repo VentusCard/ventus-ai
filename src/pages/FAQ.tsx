@@ -26,7 +26,7 @@ const FAQ = () => {
         ]}
       />
       <main>
-        <section className="pt-32 md:pt-40 pb-16 md:pb-24 bg-white">
+        <section className="pt-44 md:pt-48 pb-16 md:pb-24 bg-white">
           <div className="max-w-7xl mx-auto px-6 md:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-12 lg:gap-20">
               <ScrollReveal>
