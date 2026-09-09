@@ -40,7 +40,7 @@ const ProblemStatementSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3">
           {columns.map((c, i) => (
             <div
-              key={c.label}
+              key={c.title}
               className={`relative min-w-0 px-5 py-10 lg:px-6 ${
                 i > 0 ? "border-t border-gray-200 lg:border-l lg:border-t-0" : ""
               }`}
