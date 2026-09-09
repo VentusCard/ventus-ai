@@ -43,7 +43,7 @@ const ProblemStatementSection = () => {
             Understand what customers do, why they do it, and act on it across every channel, automatically and at scale.
           </p>
 
-        </ScrollReveal>
+        </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-6 md:px-8 relative z-10">
