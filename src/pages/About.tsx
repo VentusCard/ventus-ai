@@ -1,5 +1,3 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import { organizationSchema, breadcrumbSchema } from "@/lib/seoSchema";
 import {
