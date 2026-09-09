@@ -51,8 +51,8 @@ const AnnouncementBar = ({ onClose, onHeightChange }: AnnouncementBarProps) => {
       role="banner"
       aria-label="Conference announcement"
     >
-      <div className="mx-auto flex h-full min-h-[inherit] max-w-7xl items-center justify-between gap-2 px-4 md:px-6">
-        <p className="flex-1 text-center text-sm font-medium leading-snug sm:text-left">
+      <div className="relative mx-auto flex h-full min-h-[inherit] max-w-7xl items-center justify-center px-10 md:px-14">
+        <p className="text-center text-sm font-medium leading-snug">
           <span className="sm:hidden">
             Meet us at Finovate Fall, MoneyLIVE & Boston Fintech Week —{" "}
           </span>
@@ -69,9 +69,9 @@ const AnnouncementBar = ({ onClose, onHeightChange }: AnnouncementBarProps) => {
         <button
           onClick={handleClose}
           aria-label="Dismiss announcement"
-          className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
+          className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 flex-shrink-0 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20 min-w-0 min-h-0 sm:right-4 sm:h-6 sm:w-6"
         >
-          <X size={14} strokeWidth={2.5} />
+          <X className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2.5} />
         </button>
       </div>
     </div>
