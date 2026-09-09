@@ -6,10 +6,10 @@ import plugAndPlayAsset from "@/assets/partners/plug-and-play.png.asset.json";
 // Heights are optically normalised, not mathematically equal:
 // wordmarks with descenders / wide lockups render slightly shorter.
 const partners = [
-  { name: "Finovate", src: finovateAsset.url, height: 68 },
-  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 64 },
-  { name: "OneValley", src: onevalleyAsset.url, height: 58 },
-  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 72 },
+  { name: "Finovate", src: finovateAsset.url, height: 92 },
+  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 86 },
+  { name: "OneValley", src: onevalleyAsset.url, height: 78 },
+  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 96 },
 ];
 
 const PartnersSection = () => {
