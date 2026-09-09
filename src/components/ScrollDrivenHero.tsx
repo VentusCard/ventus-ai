@@ -614,7 +614,7 @@ const ScrollDrivenHero = () => {
               </div>
 
             </div>
-            <p className="mt-4 xl:mt-5 text-center xl:text-right text-sm text-gray-500 max-w-md xl:max-w-xs leading-relaxed">
+            <p className="mt-4 xl:mt-5 text-center text-sm text-gray-500 max-w-xl leading-relaxed mx-auto">
               See a messy stream of transactions get categorized, enriched with life signals, and orchestrated into personalized offers.
             </p>
           </div>

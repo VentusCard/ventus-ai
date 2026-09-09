@@ -176,9 +176,6 @@ const PersonalizationSection = () => (
               <div className="mt-5 flex-1">
                 <Mockup />
               </div>
-              <button className="mt-5 self-start rounded-full border border-white/20 bg-white/[0.03] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/[0.08]">
-                Learn more
-              </button>
             </div>
           );
         })}
