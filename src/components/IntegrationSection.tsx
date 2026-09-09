@@ -142,36 +142,24 @@ const TileBox = ({ tile }: { tile: Tile }) => {
   return content;
 };
 
-const CoreProviderTicker = () => (
+const CoreProviderCard = () => (
   <div
-    className="ventus-glass flex items-center rounded-xl relative z-10 w-full overflow-hidden"
+    className="ventus-glass relative z-10 grid w-full grid-cols-3 items-center gap-3 rounded-xl px-4"
     style={{ height: 60 }}
   >
-    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white/80 to-transparent z-20 pointer-events-none" />
-    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/80 to-transparent z-20 pointer-events-none" />
-    <div className="ticker-track flex items-center">
-      {[...coreProviders, ...coreProviders, ...coreProviders].map((t, i) => (
-        <div
-          key={`${t.name}-${i}`}
-          className="ticker-item flex items-center justify-center px-6"
-        >
-          {t.src ? (
-            <img
-              src={t.src}
-              alt={t.name}
-              title={t.name}
-              className="max-h-8 max-w-[120px] w-auto object-contain"
-            />
-          ) : (
-            <span className="text-[14px] font-semibold text-gray-500 whitespace-nowrap">
-              {t.name}
-            </span>
-          )}
-        </div>
-      ))}
-    </div>
+    {coreProviders.map((t) => (
+      <div key={t.name} className="flex items-center justify-center">
+        <img
+          src={t.src}
+          alt={t.name}
+          title={t.name}
+          className="max-h-7 w-auto max-w-full object-contain"
+        />
+      </div>
+    ))}
   </div>
 );
+
 
 const DataWarehouseCard = () => (
   <div
@@ -192,7 +180,7 @@ const DataWarehouseCard = () => (
 );
 
 const SourceTile = ({ tile }: { tile: Tile }) => {
-  if (tile.name === "Core Service Providers") return <CoreProviderTicker />;
+  if (tile.name === "Core Service Providers") return <CoreProviderCard />;
   if (tile.name === "Data Warehouse") return <DataWarehouseCard />;
   return <TileBox tile={tile} />;
 };
@@ -219,22 +207,23 @@ const IntegrationSection = () => {
       />
       <div className="mx-auto max-w-7xl px-6 md:px-8 relative z-10">
         <ScrollReveal>
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="max-w-3xl">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
               Integration
             </p>
             <h2 className="font-bold text-gray-900 leading-tight" style={{ fontSize: 36 }}>
               Plugs into your existing stack.
             </h2>
-            <p className="mt-2 text-gray-500 font-medium" style={{ fontSize: 20 }}>
+            <p className="mt-2 text-gray-600 font-medium" style={{ fontSize: 20 }}>
               Without replacing it.
             </p>
-            <p className="mt-5 text-gray-600 leading-relaxed text-[15px]">
+            <p className="mt-5 text-base leading-[1.65] text-gray-700">
               Connect Ventus to the cores, warehouses, and CRMs you already run.
-              Transactions in, behavioral intelligence out — through whatever pipe your bank
+              Transactions in, behavioral intelligence out, through whatever pipe your bank
               prefers.
             </p>
           </div>
+
         </ScrollReveal>
 
         <ScrollReveal delay={0.12}>
@@ -366,23 +355,8 @@ const IntegrationSection = () => {
         </ScrollReveal>
       </div>
 
-      <style>{`
-        @keyframes ticker-scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-33.3333%); }
-        }
-        .ticker-track {
-          animation: ticker-scroll 12s linear infinite;
-          will-change: transform;
-        }
-        .ticker-track:hover {
-          animation-play-state: paused;
-        }
-        .ticker-item {
-          flex: 0 0 33.3333%;
-          min-width: 140px;
-        }
-      `}</style>
+
+
     </section>
   );
 };

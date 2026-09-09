@@ -3,38 +3,37 @@ import fintechSandboxAsset from "@/assets/partners/fintech-sandbox.png.asset.jso
 import onevalleyAsset from "@/assets/partners/onevalley.png.asset.json";
 import plugAndPlayAsset from "@/assets/partners/plug-and-play.png.asset.json";
 
+// Heights are optically normalised, not mathematically equal:
+// wordmarks with descenders / wide lockups render slightly shorter.
 const partners = [
-  { name: "Finovate", src: finovateAsset.url, sizeClass: "max-h-20 md:max-h-24" },
-  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, sizeClass: "max-h-20 md:max-h-24" },
-  { name: "OneValley", src: onevalleyAsset.url, sizeClass: "max-h-16 md:max-h-20" },
-  { name: "Plug and Play", src: plugAndPlayAsset.url, sizeClass: "max-h-20 md:max-h-24" },
+  { name: "Finovate", src: finovateAsset.url, height: 40 },
+  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 38 },
+  { name: "OneValley", src: onevalleyAsset.url, height: 34 },
+  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 42 },
 ];
 
 const PartnersSection = () => {
   return (
     <section className="bg-white py-16 md:py-20">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="text-center mb-10 md:mb-12">
-          <p className="text-sm font-semibold tracking-wider text-blue-600 uppercase mb-3">
-            Partners & accelerators
+      <div className="mx-auto max-w-7xl px-6 md:px-8">
+        <div className="mb-10 md:mb-12">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+            Partners &amp; accelerators
           </p>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
             Backed by the networks shaping financial innovation
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-x-16 gap-y-10">
           {partners.map((partner) => (
-            <div
+            <img
               key={partner.name}
-              className="flex items-center justify-center h-24 md:h-28 rounded-2xl border border-slate-200 bg-white px-6 transition-all duration-200 hover:border-blue-300 hover:shadow-[0_8px_24px_-12px_rgba(37,99,235,0.18)]"
-            >
-              <img
-                src={partner.src}
-                alt={`${partner.name} logo`}
-                className={`${partner.sizeClass} w-auto object-contain`}
-              />
-            </div>
+              src={partner.src}
+              alt={`${partner.name} logo`}
+              style={{ height: partner.height }}
+              className="w-auto object-contain opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
+            />
           ))}
         </div>
       </div>
