@@ -8,10 +8,11 @@ import {
 } from "@/lib/ventusPriorityCards";
 
 const TONE_STYLE: Record<VentusCardTone, { tone: string; icon: typeof Gift }> = {
-  "life-event": { tone: "text-violet-700 bg-violet-50 border-violet-100", icon: CalendarHeart },
-  offer: { tone: "text-blue-700 bg-blue-50 border-blue-100", icon: Gift },
-  flow: { tone: "text-emerald-700 bg-emerald-50 border-emerald-100", icon: Repeat },
+  "life-event": { tone: "text-violet-600 bg-violet-50", icon: CalendarHeart },
+  offer: { tone: "text-indigo-600 bg-indigo-50", icon: Gift },
+  flow: { tone: "text-emerald-600 bg-emerald-50", icon: Repeat },
 };
+
 
 interface PriorityBriefingProps {
   cards: VentusPriorityCard[];
@@ -36,12 +37,12 @@ export function PriorityBriefing({
 
   return (
     <div className="flex gap-3">
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
-        <span className="text-[12px] font-black leading-none text-white">V</span>
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-700">
+        <span className="text-[12px] font-bold leading-none text-white">V</span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[13.5px] leading-relaxed text-slate-800">
-          <span className="font-semibold">{cards.length} priorities in your book right now.</span>{" "}
+        <p className="text-[13.5px] leading-[1.7] text-slate-600">
+          <span className="font-semibold text-slate-900">{cards.length} priorities in your book right now.</span>{" "}
           Each one is a signal Ventus already detected in enriched transactions — the segment,
           the addressable value, and the next step are below.
         </p>
@@ -54,17 +55,18 @@ export function PriorityBriefing({
             return (
               <div
                 key={card.id}
-                className="rounded-lg border border-slate-200 bg-white px-3.5 py-3"
+                className="rounded-xl border border-slate-200/70 bg-white px-3.5 py-3 transition-colors hover:border-indigo-200"
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={cn(
-                      "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border",
+                      "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
                       style.tone,
                     )}
                   >
                     <Icon className="h-3.5 w-3.5" />
                   </div>
+
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-2">
                       <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
@@ -83,7 +85,7 @@ export function PriorityBriefing({
                       <button
                         type="button"
                         onClick={() => onAsk(getPriorityPrompt(card))}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[11px] text-slate-700 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-2.5 py-1 text-[11px] text-slate-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
                       >
                         <MessageSquare className="h-3 w-3" />
                         Brief me on this
@@ -97,7 +99,7 @@ export function PriorityBriefing({
                           }
                           onNavigate?.(action.tab);
                         }}
-                        className="inline-flex items-center gap-1 rounded-md bg-slate-900 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-slate-800"
+                        className="inline-flex items-center gap-1 rounded-lg bg-indigo-700 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-indigo-800"
                       >
                         {card.opportunityId ? "Open the briefing report" : action.label}
                         <ArrowRight className="h-3 w-3" />
