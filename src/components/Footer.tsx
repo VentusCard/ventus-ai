@@ -55,8 +55,6 @@ const Footer = () => {
                   {s.label}
                 </a>
               ))}
-              <Link to="/insights" className="text-white/60 hover:text-white text-sm transition-colors">Insights</Link>
-              <Link to="/faq" className="text-white/60 hover:text-white text-sm transition-colors">FAQ</Link>
             </nav>
           </div>
 
@@ -64,7 +62,8 @@ const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Company</h4>
             <nav className="flex flex-col gap-2.5">
-              <Link to="/about" className="text-white/60 hover:text-white text-sm transition-colors">About</Link>
+              <Link to="/insights" className="text-white/60 hover:text-white text-sm transition-colors">Insights</Link>
+              <Link to="/faq" className="text-white/60 hover:text-white text-sm transition-colors">FAQ</Link>
               <Link to="/contact" className="text-white/60 hover:text-white text-sm transition-colors">Schedule Demo</Link>
             </nav>
             <p className="text-white/60 text-sm mt-5 mb-3">Have questions? We're here to help.</p>
