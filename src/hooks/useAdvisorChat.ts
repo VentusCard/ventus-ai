@@ -34,6 +34,17 @@ export const useAdvisorChat = ({ advisorContext, functionName = "advisor-chat", 
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 
+    // Instant path: a background pre-warm already answered this exact prompt.
+    if (usePrewarm) {
+      const cached = getPrewarmedAnswer(content);
+      if (cached) {
+        await new Promise(resolve => setTimeout(resolve, 350));
+        setMessages(prev => [...prev, { role: "assistant", content: cached, timestamp: new Date() }]);
+        setIsLoading(false);
+        return;
+      }
+    }
+
     try {
       // Prepare conversation history for API
       const conversationHistory = messages.map(m => ({
