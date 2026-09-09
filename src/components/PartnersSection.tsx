@@ -3,13 +3,11 @@ import fintechSandboxAsset from "@/assets/partners/fintech-sandbox.png.asset.jso
 import onevalleyAsset from "@/assets/partners/onevalley.png.asset.json";
 import plugAndPlayAsset from "@/assets/partners/plug-and-play.png.asset.json";
 
-// Heights are optically normalised, not mathematically equal:
-// wordmarks with descenders / wide lockups render slightly shorter.
 const partners = [
-  { name: "Finovate", src: finovateAsset.url, height: 168 },
-  { name: "Fintech Sandbox", src: fintechSandboxAsset.url, height: 154 },
-  { name: "OneValley", src: onevalleyAsset.url, height: 142 },
-  { name: "Plug and Play", src: plugAndPlayAsset.url, height: 176 },
+  { name: "Finovate", src: finovateAsset.url },
+  { name: "Fintech Sandbox", src: fintechSandboxAsset.url },
+  { name: "OneValley", src: onevalleyAsset.url },
+  { name: "Plug and Play", src: plugAndPlayAsset.url },
 ];
 
 const PartnersSection = () => {
@@ -31,8 +29,7 @@ const PartnersSection = () => {
               key={partner.name}
               src={partner.src}
               alt={`${partner.name} logo`}
-              style={{ height: partner.height, maxWidth: 380 }}
-              className="w-auto object-contain opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
+              className="h-24 md:h-28 w-auto max-w-[320px] object-contain opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
             />
           ))}
         </div>

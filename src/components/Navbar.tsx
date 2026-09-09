@@ -124,7 +124,7 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
       className="fixed left-0 right-0 z-50 px-4 md:px-6 transition-[top] duration-300"
       style={{ top: offsetTop }}
     >
-      <nav className="mx-auto max-w-5xl rounded-2xl border border-slate-200/80 bg-white/85 shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+      <nav className="mx-auto max-w-5xl rounded-2xl border border-white/30 bg-white/20 shadow-[0_8px_32px_rgba(15,23,42,0.10),inset_0_1px_0_rgba(255,255,255,0.4)] backdrop-blur-2xl backdrop-saturate-150">
       {/* Desktop */}
       <div className="hidden md:flex h-14 items-center justify-between pl-6 pr-3">
         <Link to="/" onClick={closeMobileMenu}>
