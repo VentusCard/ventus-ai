@@ -508,6 +508,7 @@ const ScrollDrivenHero = () => {
                   </div>
                 </div>
               </div>
+              </div>
 
               {/* Ventus Orchestrate panel — sits to the RIGHT of the dark card (desktop only) */}
               <div
