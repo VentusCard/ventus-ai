@@ -1,4 +1,3 @@
-import ScrollReveal from "@/components/ScrollReveal";
 import HueField from "@/components/HueField";
 
 const columns = [
@@ -32,18 +31,15 @@ const ProblemStatementSection = () => {
         ]}
       />
       <div className="mx-auto mb-8 md:mb-10 max-w-7xl px-6 md:px-8 relative z-10">
-        <ScrollReveal>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
-            The Gap
-          </p>
-          <h2 className="font-bold tracking-tight text-gray-900 leading-[1.1] text-left text-[34px] sm:text-4xl md:text-5xl xl:text-[64px] max-w-5xl">
-            Banks have transaction data. <span className="text-gray-400">Ventus turns it into behavioral intelligence and personalization orchestration.</span>
-          </h2>
-          <p className="mt-5 md:mt-6 max-w-4xl text-[19px] md:text-xl leading-[1.65] text-gray-600">
-            Understand what customers do, why they do it, and act on it across every channel, automatically and at scale.
-          </p>
-
-        </div>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+          The Gap
+        </p>
+        <h2 className="font-bold tracking-tight text-gray-900 leading-[1.1] text-left text-[34px] sm:text-4xl md:text-5xl xl:text-[64px] max-w-5xl">
+          Banks have transaction data. <span className="text-gray-400">Ventus turns it into behavioral intelligence and personalization orchestration.</span>
+        </h2>
+        <p className="mt-5 md:mt-6 max-w-4xl text-[19px] md:text-xl leading-[1.65] text-gray-600">
+          Understand what customers do, why they do it, and act on it across every channel, automatically and at scale.
+        </p>
       </div>
 
       <div className="mx-auto max-w-7xl px-6 md:px-8 relative z-10">
