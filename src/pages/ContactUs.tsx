@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, CheckCircle, ClipboardList, Calendar, Sparkles } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const steps = [
 {
@@ -123,9 +125,9 @@ const ContactUs = () => {
                   <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center p-6">
                       <div className="text-center max-w-sm">
                         <CheckCircle className="w-14 h-14 text-blue-600 mx-auto mb-4" />
-                        <h3 className="text-2xl font-bold text-gray-900 mb-3">Message prepared!</h3>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-3">Message sent!</h3>
                         <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-                          Your default email client should open with the pre-filled message. You can also email us directly at info@ventusai.com.
+                          Thanks for reaching out — we'll get back to you within one business day. You can also email us directly at info@ventusai.com.
                         </p>
                         <Button onClick={() => setShowSuccess(false)} className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-11">
                           Close
@@ -134,7 +136,7 @@ const ContactUs = () => {
                     </div>
                   }
 
-                  <form className="space-y-4">
+                  <form className="space-y-4" onSubmit={handleSend}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-gray-900 font-medium mb-1.5 block text-sm">Full Name</label>
@@ -168,11 +170,10 @@ const ContactUs = () => {
                       <Textarea name="message" placeholder="Tell us about your needs..." className="min-h-[100px] resize-none bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" required />
                     </div>
                     <Button
-                      type="button"
-                      onClick={handleMailTo}
+                      type="submit"
+                      disabled={sending}
                       className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base">
-                      
-                      Send Message
+                      {sending ? "Sending…" : "Send Message"}
                     </Button>
                   </form>
                 </div>
