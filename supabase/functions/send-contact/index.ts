@@ -6,7 +6,7 @@ const BodySchema = z.object({
   email: z.string().trim().email().max(200),
   company: z.string().trim().max(200).optional().default(''),
   subject: z.string().trim().min(1).max(160),
-  message: z.string().trim().min(5).max(5000),
+  message: z.string().trim().min(1).max(5000),
 });
 
 const escapeHtml = (s: string) =>

@@ -42,10 +42,23 @@ const ContactUs = () => {
       subject: String(formData.get('subject') ?? '').trim(),
       message: String(formData.get('message') ?? '').trim(),
     };
-    if (!payload.name || !payload.email || !payload.subject || payload.message.length < 5) {
-      toast.error('Please complete all required fields.');
+    if (!payload.name) {
+      toast.error('Please enter your name.');
       return;
     }
+    if (!payload.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+      toast.error('Please enter a valid work email.');
+      return;
+    }
+    if (!payload.subject) {
+      toast.error('Please choose a subject.');
+      return;
+    }
+    if (!payload.message) {
+      toast.error('Please add a message.');
+      return;
+    }
+
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke('send-contact', { body: payload });
