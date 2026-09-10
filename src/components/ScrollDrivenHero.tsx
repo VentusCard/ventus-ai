@@ -273,7 +273,7 @@ const ScrollDrivenHero = () => {
           <div className="contents xl:flex xl:flex-col xl:w-[46%] xl:items-start w-full">
             <h1
               className="animate-fade-in-down order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left text-4xl sm:text-5xl md:text-6xl xl:text-[68px]"
-              style={{ animationDelay: "0ms" }}
+              style={{ animationDelay: "0ms", animationFillMode: "backwards" }}
             >
               Turn behavioral intelligence into <br className="hidden xl:block" />
               <span className="italic text-blue-600">growth opportunities</span>
@@ -281,13 +281,13 @@ const ScrollDrivenHero = () => {
 
             <p
               className="animate-fade-in-down order-3 xl:order-none mt-6 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left xl:text-[18px]"
-              style={{ lineHeight: 1.7, animationDelay: "150ms" }}
+              style={{ lineHeight: 1.7, animationDelay: "150ms", animationFillMode: "backwards" }}
             >
               Ventus AI orchestrates a hyper-personalized banking experience to grow spend, products and deposits with your existing stack.
             </p>
 
             <div className="animate-fade-in-down order-4 xl:order-none mt-6 xl:mt-7 flex flex-col sm:flex-row items-center gap-3"
-              style={{ animationDelay: "300ms" }}
+              style={{ animationDelay: "300ms", animationFillMode: "backwards" }}
             >
               <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-10 text-base gap-2"
