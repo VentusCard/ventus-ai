@@ -135,7 +135,7 @@ const ContactUs = () => {
               <ScrollReveal delay={0.15}>
                 <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
                   {showSuccess &&
-                  <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center p-6">
+                  <div className="absolute inset-0 z-10 bg-white rounded-2xl flex items-center justify-center p-6">
                       <div className="text-center max-w-sm">
                         <CheckCircle className="w-14 h-14 text-blue-600 mx-auto mb-4" />
                         <h3 className="text-2xl font-bold text-gray-900 mb-3">Message sent!</h3>
