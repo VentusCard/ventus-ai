@@ -317,6 +317,7 @@ export default {
 				// Entrance Animations
 				'unleashed': 'unleashed 1.2s ease-out',
 				'fadeUpSoft': 'fadeUpSoft 0.4s ease-out',
+				'fade-in-down': 'fade-in-down 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards',
 
 				// Brushstroke Animations
 				'brushstroke': 'brushstroke 1.5s ease-out',
