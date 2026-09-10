@@ -27,42 +27,37 @@ const steps = [
 
 const ContactUs = () => {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  const handleMailTo = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSend = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget.closest('form') as HTMLFormElement;
-    if (!form) return;
+    const form = e.currentTarget;
     const formData = new FormData(form);
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const company = formData.get('company') as string;
-    const subject = formData.get('subject') as string;
-    const message = formData.get('message') as string;
-    const emailSubject = `Contact Form: ${subject}`;
-    const emailBody = `
-Hello Ventus AI Team,
-
-I'm reaching out through your contact form with the following information:
-
-Name: ${name}
-Company: ${company}
-Email: ${email}
-Subject: ${subject}
-
-Message:
-${message}
-
-Best regards,
-${name}
-    `.trim();
-    const mailtoLink = `mailto:info@ventusai.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    const link = document.createElement('a');
-    link.href = mailtoLink;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setShowSuccess(true);
+    const payload = {
+      name: String(formData.get('name') ?? '').trim(),
+      email: String(formData.get('email') ?? '').trim(),
+      company: String(formData.get('company') ?? '').trim(),
+      subject: String(formData.get('subject') ?? '').trim(),
+      message: String(formData.get('message') ?? '').trim(),
+    };
+    if (!payload.name || !payload.email || !payload.subject || payload.message.length < 5) {
+      toast.error('Please complete all required fields.');
+      return;
+    }
+    setSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact', { body: payload });
+      if (error || (data && (data as any).error)) {
+        throw new Error(error?.message ?? 'Failed to send');
+      }
+      form.reset();
+      setShowSuccess(true);
+    } catch (err) {
+      toast.error("We couldn't send your message. Please email info@ventusai.com directly.");
+      console.error(err);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
