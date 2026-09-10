@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ventusLogo from "@/assets/ventus-ai-logo.png.asset.json";
+const ventusLogo = { url: "/ventus-ai-logo.png" };
 
 const SECTION_LINKS = [
   { id: "intelligence", label: "Intelligence" },
