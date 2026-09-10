@@ -69,7 +69,7 @@ ${message}`;
       },
       body: JSON.stringify({
         from: 'Ventus Website <onboarding@resend.dev>',
-        to: ['info@ventusai.com'],
+        to: ['marco@ventusai.com'],
         reply_to: email,
         subject: `Contact Form: ${subject} — ${name}`,
         html,
