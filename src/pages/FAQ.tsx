@@ -1,4 +1,4 @@
-import ScrollReveal from "@/components/ScrollReveal";
+
 import SEO from "@/components/SEO";
 import { faqSchema, breadcrumbSchema } from "@/lib/seoSchema";
 import { COMPANY_FAQS } from "@/lib/faqContent";
@@ -51,7 +51,7 @@ const FAQ = () => {
                     </AccordionItem>
                   ))}
                 </Accordion>
-              </ScrollReveal>
+              </div>
             </div>
           </div>
         </section>
