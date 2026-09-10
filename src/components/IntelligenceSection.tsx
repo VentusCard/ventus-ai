@@ -278,7 +278,11 @@ const IntelligenceSection = () => {
         {/* Stage captions */}
         <div className="mt-4 hidden grid-cols-1 gap-6 md:grid md:grid-cols-4">
           {STAGES.map((s, i) => (
-            <button key={s.id} onClick={() => setStage(i)} className="group text-left">
+            <button
+              key={s.id}
+              onClick={() => setStage(i)}
+              className="group flex h-full flex-col items-stretch justify-start text-left"
+            >
               <span className="block h-[2px] w-full rounded-full bg-slate-200" />
               <div className="mt-3 flex items-baseline gap-3">
                 <span className={`text-[11px] font-semibold ${i === stage ? "text-blue-600" : "text-blue-600/50"}`}>{s.num}</span>
