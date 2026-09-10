@@ -272,34 +272,22 @@ const ScrollDrivenHero = () => {
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
           <div className="contents xl:flex xl:flex-col xl:w-[46%] xl:items-start w-full">
             <h1
-              className="order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left transition-all duration-700 ease-out text-4xl sm:text-5xl md:text-6xl xl:text-[68px]"
-              style={{
-                opacity: loaded ? 1 : 0,
-                transform: loaded ? "translateY(0)" : "translateY(24px)",
-              }}
+              className="animate-fade-in-down order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left text-4xl sm:text-5xl md:text-6xl xl:text-[68px]"
+              style={{ animationDelay: "0ms", animationFillMode: "backwards" }}
             >
               Turn behavioral intelligence into <br className="hidden xl:block" />
               <span className="italic text-blue-600">growth opportunities</span>
             </h1>
 
             <p
-              className="order-3 xl:order-none mt-6 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left transition-all duration-700 ease-out xl:text-[18px]"
-              style={{
-                lineHeight: 1.7,
-                opacity: loaded ? 1 : 0,
-                transform: loaded ? "translateY(0)" : "translateY(20px)",
-                transitionDelay: "200ms",
-              }}
+              className="animate-fade-in-down order-3 xl:order-none mt-6 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left xl:text-[18px]"
+              style={{ lineHeight: 1.7, animationDelay: "150ms", animationFillMode: "backwards" }}
             >
               Ventus AI orchestrates a hyper-personalized banking experience to grow spend, products and deposits with your existing stack.
             </p>
 
-            <div className="order-4 xl:order-none mt-6 xl:mt-7 flex flex-col sm:flex-row items-center gap-3 transition-all duration-700 ease-out"
-              style={{
-                opacity: loaded ? 1 : 0,
-                transform: loaded ? "translateY(0)" : "translateY(20px)",
-                transitionDelay: "300ms",
-              }}
+            <div className="animate-fade-in-down order-4 xl:order-none mt-6 xl:mt-7 flex flex-col sm:flex-row items-center gap-3"
+              style={{ animationDelay: "300ms", animationFillMode: "backwards" }}
             >
               <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-10 text-base gap-2"

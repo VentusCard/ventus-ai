@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
+import ventusLogo from "@/assets/ventus-ai-logo.png.asset.json";
 
 const SECTION_LINKS = [
   { id: "intelligence", label: "Intelligence" },
@@ -129,7 +129,7 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
       {/* Desktop */}
       <div className="hidden md:flex h-14 items-center justify-between pl-6 pr-3">
         <Link to="/" onClick={closeMobileMenu}>
-          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto" />
+          <img src={ventusLogo.url} alt="Ventus AI" className="h-5 w-auto" />
         </Link>
 
         <div className="flex items-center gap-6">
@@ -170,7 +170,7 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
       {/* Mobile */}
       <div className="flex md:hidden h-14 items-center justify-between px-5">
         <Link to="/" onClick={closeMobileMenu}>
-          <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto" />
+          <img src={ventusLogo.url} alt="Ventus AI" className="h-5 w-auto" />
         </Link>
         <button
           onClick={() => setIsMobileMenuOpen((v) => !v)}
