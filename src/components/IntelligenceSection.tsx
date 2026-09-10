@@ -283,7 +283,11 @@ const IntelligenceSection = () => {
               onClick={() => setStage(i)}
               className="group flex h-full flex-col items-stretch justify-start text-left"
             >
-              <span className="block h-[2px] w-full rounded-full bg-slate-200" />
+              <span
+                className={`block h-[2px] w-full rounded-full transition-colors duration-300 ${
+                  i === stage ? "bg-blue-600" : "bg-slate-200"
+                }`}
+              />
               <div className="mt-3 flex items-baseline gap-3">
                 <span className={`text-[11px] font-semibold ${i === stage ? "text-blue-600" : "text-blue-600/50"}`}>{s.num}</span>
                 <h3 className={`text-xl font-bold ${i === stage ? "text-gray-900" : "text-gray-500"}`}>{s.label}</h3>
