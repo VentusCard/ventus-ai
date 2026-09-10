@@ -129,7 +129,7 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
       {/* Desktop */}
       <div className="hidden md:flex h-14 items-center justify-between pl-6 pr-3">
         <Link to="/" onClick={closeMobileMenu}>
-          <img src={ventusLogo.url} alt="Ventus AI" className="h-4 md:h-[18px] w-auto object-contain" />
+          <img src={ventusLogo.url} alt="Ventus AI" className="h-3.5 md:h-4 w-auto object-contain" />
         </Link>
 
         <div className="flex items-center gap-6">
@@ -170,7 +170,7 @@ const Navbar = ({ offsetTop = 16 }: NavbarProps) => {
       {/* Mobile */}
       <div className="flex md:hidden h-14 items-center justify-between px-5">
         <Link to="/" onClick={closeMobileMenu}>
-          <img src={ventusLogo.url} alt="Ventus AI" className="h-4 md:h-[18px] w-auto object-contain" />
+          <img src={ventusLogo.url} alt="Ventus AI" className="h-3.5 md:h-4 w-auto object-contain" />
         </Link>
         <button
           onClick={() => setIsMobileMenuOpen((v) => !v)}
