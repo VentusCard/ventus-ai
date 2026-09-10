@@ -31,11 +31,11 @@ const FAQ = () => {
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-12 lg:gap-20">
               <ScrollReveal>
                 <div className="lg:sticky lg:top-32 lg:self-start">
-                  <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-4">FAQ</p>
-                  <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                  <p className="animate-fade-in-down text-xs font-semibold tracking-widest text-blue-600 uppercase mb-4" style={{ animationDelay: "0ms" }}>FAQ</p>
+                  <h1 className="animate-fade-in-down text-4xl md:text-5xl font-bold text-gray-900 leading-tight" style={{ animationDelay: "80ms" }}>
                     Frequently Asked Questions
                   </h1>
-                  <p className="mt-5 text-gray-500 text-lg max-w-md">
+                  <p className="animate-fade-in-down mt-5 text-gray-500 text-lg max-w-md" style={{ animationDelay: "160ms" }}>
                     What Ventus AI does, where the signal comes from, how it plugs into the systems you
                     already run, and what it moves.
                   </p>
@@ -43,7 +43,7 @@ const FAQ = () => {
               </ScrollReveal>
 
               <ScrollReveal delay={0.15}>
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion type="single" collapsible className="animate-fade-in-down w-full" style={{ animationDelay: "240ms" }}>
                   {COMPANY_FAQS.map((faq, i) => (
                     <AccordionItem key={i} value={`faq-${i}`} className="border-b border-gray-200">
                       <AccordionTrigger className="text-left text-lg text-gray-900 py-5">{faq.q}</AccordionTrigger>
