@@ -18,12 +18,16 @@ const CalEmbed = () => {
   }, []);
 
   return (
-    <Cal
-      namespace="30min"
-      calLink="ventusai/30min"
-      style={{ width: "100%", height: "100%" }}
-      config={{ theme: "light", layout: "month_view", useSlotsViewOnSmallScreen: "true" }}
-    />
+    <div className="relative w-full h-full overflow-hidden">
+      <div className="absolute -inset-x-0 -top-0 -bottom-12">
+        <Cal
+          namespace="30min"
+          calLink="ventusai/30min"
+          style={{ width: "100%", height: "100%" }}
+          config={{ theme: "light", layout: "month_view", useSlotsViewOnSmallScreen: "true" }}
+        />
+      </div>
+    </div>
   );
 };
 
