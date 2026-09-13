@@ -86,7 +86,7 @@ const ContactUs = () => {
       <SEO title="Contact Ventus AI — Schedule a Demo" description="Get in touch with the Ventus AI team to explore behavioral intelligence and personalization for your bank or credit union." path="/contact" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Contact", path: "/contact" }])} />
       <main className="pt-32 md:pt-36">
         {/* Hero */}
-        <section className="py-10 md:py-16 bg-white">
+        <section className="py-8 md:py-12 bg-white">
           <div className="max-w-4xl mx-auto px-6 md:px-8 text-center">
             <p
               className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3 animate-fade-in-down"
@@ -101,7 +101,7 @@ const ContactUs = () => {
               Let's talk.
             </h1>
             <p
-              className="text-base md:text-lg text-gray-500 max-w-xl mx-auto leading-relaxed mb-8 animate-fade-in-down"
+              className="text-base md:text-lg text-gray-500 max-w-xl mx-auto leading-relaxed mb-6 animate-fade-in-down"
               style={{ animationDelay: '160ms', animationFillMode: 'backwards' }}
             >
               Whether you're exploring a partnership or ready to see a demo, we'd love to hear from you.
@@ -130,22 +130,22 @@ const ContactUs = () => {
         </section>
 
         {/* Book Meeting — Cal.com */}
-        <section ref={bookRef} className="py-10 md:py-16 bg-white border-t border-gray-100">
+        <section ref={bookRef} className="py-8 md:py-12 bg-white border-t border-gray-100">
           <div className="max-w-4xl mx-auto px-6 md:px-8">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">Book a Meeting</h2>
               <p className="text-base text-gray-500">Select a time for our 30-minute discovery call.</p>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[520px] h-[600px] md:h-[640px]">
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[440px] h-[480px] md:h-[520px]">
               <CalEmbed />
             </div>
           </div>
         </section>
 
         {/* Contact Form */}
-        <section ref={formRef} className="py-10 md:py-16 bg-white border-t border-gray-100">
+        <section ref={formRef} className="py-8 md:py-12 bg-white border-t border-gray-100">
           <div className="max-w-5xl mx-auto px-6 md:px-8">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">Send a message</p>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Prefer email?</h2>
               <p className="text-base text-gray-500">Fill out the form below and we'll get back within one business day.</p>
