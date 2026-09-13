@@ -136,7 +136,7 @@ const ContactUs = () => {
               <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">Book a Meeting</h2>
               <p className="text-base text-gray-500">Select a time for our 30-minute discovery call.</p>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[480px] h-[520px] md:h-[560px]">
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[440px] h-[480px] md:h-[520px]">
               <CalEmbed />
             </div>
           </div>
