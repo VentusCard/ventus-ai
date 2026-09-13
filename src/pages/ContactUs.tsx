@@ -86,7 +86,7 @@ const ContactUs = () => {
       <SEO title="Contact Ventus AI — Schedule a Demo" description="Get in touch with the Ventus AI team to explore behavioral intelligence and personalization for your bank or credit union." path="/contact" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Contact", path: "/contact" }])} />
       <main className="pt-32 md:pt-36">
         {/* Hero */}
-        <section className="py-10 md:py-16 bg-white">
+        <section className="py-8 md:py-12 bg-white">
           <div className="max-w-4xl mx-auto px-6 md:px-8 text-center">
             <p
               className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3 animate-fade-in-down"
