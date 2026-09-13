@@ -143,9 +143,9 @@ const ContactUs = () => {
         </section>
 
         {/* Contact Form */}
-        <section ref={formRef} className="py-10 md:py-16 bg-white border-t border-gray-100">
+        <section ref={formRef} className="py-8 md:py-12 bg-white border-t border-gray-100">
           <div className="max-w-5xl mx-auto px-6 md:px-8">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">Send a message</p>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Prefer email?</h2>
               <p className="text-base text-gray-500">Fill out the form below and we'll get back within one business day.</p>
