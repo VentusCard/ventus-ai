@@ -194,6 +194,27 @@ const ContactUs = () => {
             </div>
           </div>
         </section>
+
+        {/* Cal.com scheduling */}
+        <section className="py-8 md:py-14 bg-white border-t border-gray-200">
+          <div className="max-w-5xl mx-auto px-6 md:px-8">
+            <div className="text-center mb-8">
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">Or book directly</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Schedule a demo</h2>
+              <p className="text-base text-gray-500">Pick a time that works for you and we'll send a calendar invite.</p>
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden" style={{ minHeight: '680px' }}>
+              <iframe
+                src="https://cal.com/ventusai/30min"
+                title="Schedule a demo with Ventus AI"
+                className="w-full"
+                style={{ minHeight: '680px', border: 0 }}
+                allow="camera; microphone; autoplay; fullscreen"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </section>
       </main>
     </div>);
 
