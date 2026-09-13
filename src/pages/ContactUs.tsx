@@ -18,12 +18,16 @@ const CalEmbed = () => {
   }, []);
 
   return (
-    <Cal
-      namespace="30min"
-      calLink="ventusai/30min"
-      style={{ width: "100%", height: "100%" }}
-      config={{ theme: "light", layout: "month_view", useSlotsViewOnSmallScreen: "true" }}
-    />
+    <div className="relative w-full h-full overflow-hidden">
+      <div className="absolute -inset-x-0 -top-0 -bottom-12">
+        <Cal
+          namespace="30min"
+          calLink="ventusai/30min"
+          style={{ width: "100%", height: "100%" }}
+          config={{ theme: "light", layout: "month_view", useSlotsViewOnSmallScreen: "true" }}
+        />
+      </div>
+    </div>
   );
 };
 
@@ -136,8 +140,9 @@ const ContactUs = () => {
               <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">Book a Meeting</h2>
               <p className="text-base text-gray-500">Select a time for our 30-minute discovery call.</p>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[440px] h-[480px] md:h-[520px]">
+            <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[440px] h-[480px] md:h-[520px]">
               <CalEmbed />
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent" />
             </div>
           </div>
         </section>
