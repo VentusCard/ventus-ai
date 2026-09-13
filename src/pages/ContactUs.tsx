@@ -101,7 +101,7 @@ const ContactUs = () => {
               Let's talk.
             </h1>
             <p
-              className="text-base md:text-lg text-gray-500 max-w-xl mx-auto leading-relaxed mb-8 animate-fade-in-down"
+              className="text-base md:text-lg text-gray-500 max-w-xl mx-auto leading-relaxed mb-6 animate-fade-in-down"
               style={{ animationDelay: '160ms', animationFillMode: 'backwards' }}
             >
               Whether you're exploring a partnership or ready to see a demo, we'd love to hear from you.
