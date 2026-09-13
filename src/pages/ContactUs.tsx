@@ -148,7 +148,7 @@ const ContactUs = () => {
             <div className="text-center mb-6">
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">Send a message</p>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Prefer email?</h2>
-              <p className="text-base text-gray-500">Fill out the form below and we'll get back within one business day.</p>
+              <p className="text-base text-gray-500">Fill out the form below and we'll get back within one business day. You can also email us directly at info@ventusai.com</p>
             </div>
 
             <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
