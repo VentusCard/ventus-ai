@@ -1,19 +1,26 @@
-# Plan: Redesign /contact scheduling layout
+# Plan: Redesign /contact as a single vertical page
 
 ## Goal
-Replace the broken, clipped two-column Cal.com iframe layout on `/contact` with a clean, full-width stacked layout: intro and trust steps on top, full-width Cal.com embed in the middle, and the email form below.
+Rebuild `/contact` as one vertically-scrolling page with a hero section that offers two side-by-side actions, followed by the Cal.com embed section and the email contact form section.
 
 ## What will change
 - `src/pages/ContactUs.tsx`
-  - Remove the side-by-side grid (trust left, calendar right).
-  - Stack the page vertically:
-    1. Hero intro: "Get In Touch" eyebrow, "Let's talk." heading, subtext, "What happens next" 3-step list, direct email link.
-    2. Full-width Cal.com embed section in a light-themed card with enough height so the calendar is not clipped.
-    3. "Prefer email?" contact form section, unchanged in fields and behavior.
-- Keep the existing Cal.com React embed (`@calcom/embed-react`) with `theme: "light"`, `layout: "week_view"`, and `useSlotsViewOnSmallScreen: "true"`.
-- Set the embed container to full width and a taller, responsive height (e.g., `h-[520px] md:h-[680px]`) so the week view renders fully.
-- Preserve all existing form validation, Supabase `send-contact` edge-function submission, success overlay, and toast behavior.
-- Keep the site-wide light theme; do not introduce dark-mode utilities.
+  - **Hero section**
+    - Eyebrow "Get In Touch", heading "Let's talk.", and a short subline.
+    - Two buttons side by side:
+      - "Book Meeting" — scrolls to the Cal.com embed section.
+      - "Contact Form" — scrolls to the email form section.
+  - **Book Meeting section**
+    - Section heading (e.g., "Book a 30-minute meeting") and a short description.
+    - Full-width Cal.com React embed in a light-themed card with a responsive height tall enough to avoid clipping (e.g., `h-[520px] md:h-[680px]`).
+    - Keep `theme: "light"`, `layout: "week_view"`, `useSlotsViewOnSmallScreen: "true"`.
+  - **Contact Form section**
+    - Section heading "Prefer email?" and subline.
+    - Existing form fields, validation, Supabase `send-contact` submission, success overlay, and toast behavior preserved.
+    - Restyled to match the light theme and sit cleanly below the embed.
+  - Remove the current two-column grid and the inline "What happens next" list from the hero (or relocate/repurpose as concise copy under the hero subline).
+  - Use smooth scroll-to-section behavior via element refs and `scrollIntoView`.
+  - Add the same `fade-in-down` entrance animation used on the homepage hero/FAQ.
 
 ## Out of scope
 - No changes to the navbar, announcement bar, footer, SEO, or edge function.
@@ -21,4 +28,4 @@ Replace the broken, clipped two-column Cal.com iframe layout on `/contact` with 
 
 ## Verification
 - Run `bun run build` and confirm no errors.
-- Use Playwright to visit `/contact`, confirm the Cal embed loads full-width, the intro text sits above it, the form sits below it, and no clipping/dark-theme bleed is visible.
+- Use Playwright to visit `/contact`, confirm both buttons scroll to the correct sections, the Cal embed is full-width and fully visible, and the form submits successfully.
