@@ -131,13 +131,12 @@ const ContactUs = () => {
 
         {/* Book Meeting — Cal.com */}
         <section ref={bookRef} className="py-10 md:py-16 bg-white border-t border-gray-100">
-          <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <div className="max-w-4xl mx-auto px-6 md:px-8">
             <div className="text-center mb-8">
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">Book a meeting</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Schedule a 30-minute intro</h2>
-              <p className="text-base text-gray-500">Pick a time that works for you. We'll send a Microsoft Teams link.</p>
+              <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">Book a Meeting</h2>
+              <p className="text-base text-gray-500">Select a time for our 30-minute discovery call.</p>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[520px] h-[680px]">
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[520px] h-[600px] md:h-[640px]">
               <CalEmbed />
             </div>
           </div>
