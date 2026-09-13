@@ -1,6 +1,6 @@
 import SEO from "@/components/SEO";
 import { breadcrumbSchema } from "@/lib/seoSchema";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,7 @@ import { Mail, CheckCircle, ClipboardList, Calendar, Sparkles } from "lucide-rea
 import ScrollReveal from "@/components/ScrollReveal";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import Cal, { getCalApi } from "@calcom/embed-react";
 
 const steps = [
 {
@@ -26,6 +27,23 @@ const steps = [
   desc: "Before any demo, we build a sample analysis tailored to your institution."
 }];
 
+const CalEmbed = () => {
+  useEffect(() => {
+    (async function () {
+      const cal = await getCalApi({ namespace: "30min" });
+      cal("ui", { hideEventTypeDetails: false, layout: "week_view" });
+    })();
+  }, []);
+
+  return (
+    <Cal
+      namespace="30min"
+      calLink="ventusai/30min"
+      style={{ width: "100%", height: "100%" }}
+      config={{ theme: "light", layout: "week_view", useSlotsViewOnSmallScreen: "true" }}
+    />
+  );
+};
 
 const ContactUs = () => {
   const [showSuccess, setShowSuccess] = useState(false);
@@ -129,15 +147,8 @@ const ContactUs = () => {
 
               {/* RIGHT — Cal.com scheduling */}
               <ScrollReveal delay={0.15}>
-                <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden" style={{ minHeight: '680px' }}>
-                  <iframe
-                    src="https://cal.com/ventusai/30min?theme=light"
-                    title="Schedule a demo with Ventus AI"
-                    className="w-full"
-                    style={{ minHeight: '680px', border: 0 }}
-                    allow="camera; microphone; autoplay; fullscreen"
-                    loading="lazy"
-                  />
+                <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden" style={{ height: '560px' }}>
+                  <CalEmbed />
                 </div>
               </ScrollReveal>
             </div>
