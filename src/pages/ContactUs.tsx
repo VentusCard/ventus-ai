@@ -178,7 +178,7 @@ const ContactUs = () => {
 
                 {activeTab === "booking" ? (
                   <div role="tabpanel" aria-label="Book Meeting">
-                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[620px] h-[660px] md:h-[720px]">
+                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[720px]">
                       <CalEmbed />
                     </div>
                   </div>
