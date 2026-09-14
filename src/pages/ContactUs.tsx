@@ -9,22 +9,23 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import Cal, { getCalApi } from "@calcom/embed-react";
 
+// Booking embed uses Cal.com column_view with light theme for desktop and mobile slots.
 const CalEmbed = () => {
   useEffect(() => {
     (async function () {
       const cal = await getCalApi({ namespace: "30min" });
-      cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
+      cal("ui", { hideEventTypeDetails: false, layout: "column_view" });
     })();
   }, []);
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <div className="absolute -inset-x-0 -top-0 -bottom-12">
+      <div className="absolute inset-0 overflow-y-auto">
         <Cal
           namespace="30min"
           calLink="ventusai/30min"
-          style={{ width: "100%", height: "100%" }}
-          config={{ theme: "light", layout: "month_view", useSlotsViewOnSmallScreen: "true" }}
+          style={{ width: "100%", height: "100%", overflow: "scroll" }}
+          config={{ theme: "light", layout: "column_view", useSlotsViewOnSmallScreen: "true" }}
         />
       </div>
     </div>
@@ -103,11 +104,45 @@ const ContactUs = () => {
                   Let's talk.
                 </h1>
                 <p
-                  className="text-base md:text-lg text-gray-500 max-w-md leading-relaxed animate-fade-in-down"
+                  className="text-base md:text-lg text-gray-500 max-w-md leading-relaxed mb-8 animate-fade-in-down"
                   style={{ animationDelay: '160ms', animationFillMode: 'backwards' }}
                 >
                   Whether you're exploring a partnership or ready to see a demo, we'd love to hear from you.
                 </p>
+
+                <div
+                  className="mb-8 animate-fade-in-down"
+                  style={{ animationDelay: '240ms', animationFillMode: 'backwards' }}
+                >
+                  <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">What to expect</h2>
+                  <ul className="space-y-3 text-gray-600 text-sm leading-relaxed max-w-md">
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                      A live walkthrough of the product
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                      How we'd read your own transaction data, and what we'd expect to find in it.
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                      What integration actually involves and what we'd need from your team.
+                    </li>
+                  </ul>
+                </div>
+
+                <div
+                  className="animate-fade-in-down"
+                  style={{ animationDelay: '320ms', animationFillMode: 'backwards' }}
+                >
+                  <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-2">Prefer email?</h2>
+                  <a
+                    href="mailto:info@ventusai.com"
+                    className="text-base text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    info@ventusai.com
+                  </a>
+                </div>
               </div>
 
               {/* Right: tabbed card */}
@@ -148,9 +183,8 @@ const ContactUs = () => {
 
                 {activeTab === "booking" ? (
                   <div role="tabpanel" aria-label="Book Meeting">
-                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[440px] h-[480px] md:h-[520px]">
+                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[620px] h-[660px] md:h-[720px]">
                       <CalEmbed />
-                      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent" />
                     </div>
                   </div>
                 ) : (
