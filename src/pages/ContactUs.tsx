@@ -87,7 +87,7 @@ const ContactUs = () => {
         {/* Hero with tabs */}
         <section className="py-6 md:py-8 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8 lg:gap-12 items-start">
               {/* Left: text */}
               <div className="lg:pt-4">
                 <p
