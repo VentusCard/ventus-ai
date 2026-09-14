@@ -87,7 +87,7 @@ const ContactUs = () => {
         {/* Hero with tabs */}
         <section className="py-6 md:py-8 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8 lg:gap-12 items-start">
               {/* Left: text */}
               <div className="lg:pt-4">
                 <p
@@ -103,11 +103,46 @@ const ContactUs = () => {
                   Let's talk.
                 </h1>
                 <p
-                  className="text-base md:text-lg text-gray-500 max-w-md leading-relaxed animate-fade-in-down"
+                  className="text-base md:text-lg text-gray-500 max-w-md leading-relaxed mb-8 animate-fade-in-down"
                   style={{ animationDelay: '160ms', animationFillMode: 'backwards' }}
                 >
                   Whether you're exploring a partnership or ready to see a demo, we'd love to hear from you.
                 </p>
+
+                <div
+                  className="max-w-md animate-fade-in-down"
+                  style={{ animationDelay: '200ms', animationFillMode: 'backwards' }}
+                >
+                  <h2 className="text-sm font-semibold tracking-widest text-gray-900 uppercase mb-4">
+                    What to expect
+                  </h2>
+                  <ul className="space-y-3 text-gray-600 text-base leading-relaxed">
+                    <li className="flex gap-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2.5 shrink-0" />
+                      A live walkthrough of the product
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2.5 shrink-0" />
+                      How we'd read your own transaction data, and what we'd expect to find in it.
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2.5 shrink-0" />
+                      What integration actually involves and what we'd need from your team.
+                    </li>
+                  </ul>
+
+                  <div className="mt-8 pt-6 border-t border-slate-200">
+                    <p className="text-sm font-semibold tracking-widest text-gray-900 uppercase mb-2">
+                      Prefer email?
+                    </p>
+                    <a
+                      href="mailto:info@ventusai.com"
+                      className="text-base text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      info@ventusai.com
+                    </a>
+                  </div>
+                </div>
               </div>
 
               {/* Right: tabbed card */}
@@ -148,7 +183,7 @@ const ContactUs = () => {
 
                 {activeTab === "booking" ? (
                   <div role="tabpanel" aria-label="Book Meeting">
-                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[440px] h-[480px] md:h-[520px]">
+                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[560px] h-[600px] md:h-[720px]">
                       <CalEmbed />
                       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent" />
                     </div>
