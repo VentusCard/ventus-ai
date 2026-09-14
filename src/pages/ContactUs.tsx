@@ -18,12 +18,23 @@ const CalEmbed = () => {
   }, []);
 
   return (
-    <Cal
-      namespace="30min"
-      calLink="ventusai/30min"
-      style={{ width: "100%", minHeight: "520px" }}
-      config={{ theme: "light", layout: "column_view", useSlotsViewOnSmallScreen: "true" }}
-    />
+    <div className="relative w-full overflow-hidden" style={{ minHeight: "380px" }}>
+      <div
+        style={{
+          transform: "scale(0.7)",
+          transformOrigin: "top left",
+          width: "142.857%",
+          minHeight: "543px",
+        }}
+      >
+        <Cal
+          namespace="30min"
+          calLink="ventusai/30min"
+          style={{ width: "100%", minHeight: "543px" }}
+          config={{ theme: "light", layout: "column_view", useSlotsViewOnSmallScreen: "true" }}
+        />
+      </div>
+    </div>
   );
 };
 
