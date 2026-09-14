@@ -34,11 +34,14 @@ const CalEmbed = () => {
 const ContactUs = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [sending, setSending] = useState(false);
-  const bookRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<"booking" | "message">("booking");
+  const contactRef = useRef<HTMLElement>(null);
 
-  const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) => {
-    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const openContactTab = (tab: "booking" | "message") => {
+    setActiveTab(tab);
+    window.requestAnimationFrame(() => {
+      contactRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
 
   const handleSend = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -115,14 +118,14 @@ const ContactUs = () => {
               style={{ animationDelay: '240ms', animationFillMode: 'backwards' }}
             >
               <Button
-                onClick={() => scrollTo(bookRef)}
+                onClick={() => openContactTab("booking")}
                 className="h-12 px-7 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base gap-2"
               >
                 <Calendar className="w-4 h-4" />
                 Book Meeting
               </Button>
               <Button
-                onClick={() => scrollTo(formRef)}
+                onClick={() => openContactTab("message")}
                 variant="outline"
                 className="h-12 px-7 rounded-full border-gray-300 text-gray-900 hover:bg-gray-50 font-semibold text-base gap-2"
               >
@@ -133,32 +136,62 @@ const ContactUs = () => {
           </div>
         </section>
 
-        {/* Book Meeting — Cal.com */}
-        <section ref={bookRef} className="py-8 md:py-12 bg-white border-t border-gray-100">
+        {/* Booking and contact tabs */}
+        <section ref={contactRef} className="py-8 md:py-12 bg-white border-t border-gray-100 scroll-mt-24">
           <div className="max-w-4xl mx-auto px-6 md:px-8">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">Book a Meeting</h2>
-              <p className="text-base text-gray-500">Select a time for our 30-minute discovery call.</p>
+            <div className="flex justify-center mb-6">
+              <div
+                role="tablist"
+                aria-label="Contact options"
+                className="inline-flex w-full sm:w-auto items-center rounded-lg border border-slate-200 bg-slate-50 p-1"
+              >
+                <Button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === "booking"}
+                  onClick={() => setActiveTab("booking")}
+                  variant="ghost"
+                  className={`h-10 flex-1 sm:flex-none rounded-md px-5 gap-2 font-semibold ${activeTab === "booking" ? "bg-white text-slate-900 border border-slate-200 shadow-sm hover:bg-white" : "text-slate-500 hover:text-slate-900 hover:bg-white/70"}`}
+                >
+                  <Calendar className="w-4 h-4" />
+                  Book Meeting
+                </Button>
+                <Button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === "message"}
+                  onClick={() => setActiveTab("message")}
+                  variant="ghost"
+                  className={`h-10 flex-1 sm:flex-none rounded-md px-5 gap-2 font-semibold ${activeTab === "message" ? "bg-white text-slate-900 border border-slate-200 shadow-sm hover:bg-white" : "text-slate-500 hover:text-slate-900 hover:bg-white/70"}`}
+                >
+                  <Mail className="w-4 h-4" />
+                  Message
+                </Button>
+              </div>
             </div>
-            <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[440px] h-[480px] md:h-[520px]">
-              <CalEmbed />
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent" />
-            </div>
-          </div>
-        </section>
 
-        {/* Contact Form */}
-        <section ref={formRef} className="py-8 md:py-12 bg-white border-t border-gray-100">
-          <div className="max-w-4xl mx-auto px-6 md:px-8">
-            <div className="text-center mb-6">
-              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">Send a message</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Prefer email?</h2>
-              <p className="text-base text-gray-500">Fill out the form below and we'll get back within one business day. You can also email us directly at info@ventusai.com.</p>
-            </div>
+            {activeTab === "booking" ? (
+              <div role="tabpanel" aria-label="Book Meeting">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">Book a Meeting</h2>
+                  <p className="text-base text-gray-500">Select a time for our 30-minute discovery call.</p>
+                </div>
+                <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[440px] h-[480px] md:h-[520px]">
+                  <CalEmbed />
+                  <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent" />
+                </div>
+              </div>
+            ) : (
+              <div role="tabpanel" aria-label="Message">
+                <div className="text-center mb-6">
+                  <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">Send a message</p>
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Prefer email?</h2>
+                  <p className="text-base text-gray-500">Fill out the form below and we'll get back within one business day. You can also email us directly at info@ventusai.com.</p>
+                </div>
 
-            <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
-              {showSuccess &&
-              <div className="absolute inset-0 z-10 bg-white rounded-2xl flex items-center justify-center p-6">
+                <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
+                  {showSuccess &&
+                  <div className="absolute inset-0 z-10 bg-white rounded-2xl flex items-center justify-center p-6">
                   <div className="text-center max-w-sm">
                     <CheckCircle className="w-14 h-14 text-blue-600 mx-auto mb-4" />
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">Message sent!</h3>
@@ -169,10 +202,10 @@ const ContactUs = () => {
                       Close
                     </Button>
                   </div>
-                </div>
-              }
+                    </div>
+                  }
 
-              <form className="space-y-4" onSubmit={handleSend}>
+                  <form className="space-y-4" onSubmit={handleSend}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-gray-900 font-medium mb-1.5 block text-sm">Full Name</label>
@@ -211,8 +244,10 @@ const ContactUs = () => {
                   className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base">
                   {sending ? "Sending…" : "Send Message"}
                 </Button>
-              </form>
-            </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </main>
