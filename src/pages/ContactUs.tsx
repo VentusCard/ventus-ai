@@ -21,7 +21,7 @@ const CalEmbed = () => {
     <Cal
       namespace="30min"
       calLink="ventusai/30min"
-      style={{ width: "100%", minHeight: "720px" }}
+      style={{ width: "100%", minHeight: "520px" }}
       config={{ theme: "light", layout: "column_view", useSlotsViewOnSmallScreen: "true" }}
     />
   );
