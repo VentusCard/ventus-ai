@@ -85,11 +85,11 @@ const ContactUs = () => {
       <SEO title="Contact Ventus AI — Schedule a Demo" description="Get in touch with the Ventus AI team to explore behavioral intelligence and personalization for your bank or credit union." path="/contact" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Contact", path: "/contact" }])} />
       <main className="pt-32 md:pt-36">
         {/* Hero with tabs */}
-        <section className="py-8 md:py-12 bg-white">
+        <section className="py-6 md:py-8 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
               {/* Left: text */}
-              <div className="lg:pt-8">
+              <div className="lg:pt-4">
                 <p
                   className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3 animate-fade-in-down"
                   style={{ animationDelay: '0ms', animationFillMode: 'backwards' }}
