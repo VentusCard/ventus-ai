@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import Cal, { getCalApi } from "@calcom/embed-react";
 
+// Booking embed uses Cal.com column_view with light theme for desktop and mobile slots.
 const CalEmbed = () => {
   useEffect(() => {
     (async function () {
