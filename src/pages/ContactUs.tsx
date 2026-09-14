@@ -100,7 +100,7 @@ const ContactUs = () => {
               style={{ animationDelay: '120ms', animationFillMode: 'backwards' }}
             >
               <CalEmbed />
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white to-transparent" />
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white via-white/95 to-transparent" />
             </div>
           </div>
         </section>
