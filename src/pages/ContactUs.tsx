@@ -96,14 +96,11 @@ const ContactUs = () => {
             </div>
 
             <div
-              className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[560px] h-[600px] md:h-[720px] animate-fade-in-down"
+              className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[460px] h-[500px] md:h-[540px] animate-fade-in-down"
               style={{ animationDelay: '120ms', animationFillMode: 'backwards' }}
             >
               <CalEmbed />
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-24">
-                <div className="absolute bottom-0 left-0 right-0 h-12 bg-white" />
-                <div className="absolute bottom-12 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" />
-              </div>
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white via-white to-transparent" />
             </div>
           </div>
         </section>
