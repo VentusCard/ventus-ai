@@ -13,7 +13,7 @@ const CalEmbed = () => {
   useEffect(() => {
     (async function () {
       const cal = await getCalApi({ namespace: "30min" });
-      cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
+      cal("ui", { hideEventTypeDetails: false, layout: "column_view" });
     })();
   }, []);
 
@@ -24,7 +24,7 @@ const CalEmbed = () => {
           namespace="30min"
           calLink="ventusai/30min"
           style={{ width: "100%", height: "100%" }}
-          config={{ theme: "light", layout: "month_view", useSlotsViewOnSmallScreen: "true" }}
+          config={{ theme: "light", layout: "column_view", useSlotsViewOnSmallScreen: "true" }}
         />
       </div>
     </div>
