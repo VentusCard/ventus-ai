@@ -112,7 +112,7 @@ const ContactUs = () => {
 
               {/* Right: tabbed card */}
               <div
-                className="animate-fade-in-down -mt-4 md:-mt-6"
+                className="animate-fade-in-down"
                 style={{ animationDelay: '240ms', animationFillMode: 'backwards' }}
               >
                 <div className="flex justify-center mb-4">
