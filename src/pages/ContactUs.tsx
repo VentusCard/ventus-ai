@@ -13,7 +13,7 @@ const CalEmbed = () => {
   useEffect(() => {
     (async function () {
       const cal = await getCalApi({ namespace: "30min" });
-      cal("ui", { hideEventTypeDetails: false, layout: "column_view" });
+      cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
     })();
   }, []);
 
@@ -21,8 +21,8 @@ const CalEmbed = () => {
     <Cal
       namespace="30min"
       calLink="ventusai/30min"
-      style={{ width: "100%", minHeight: "520px" }}
-      config={{ theme: "light", layout: "column_view", useSlotsViewOnSmallScreen: "true" }}
+      style={{ width: "100%", minHeight: "420px" }}
+      config={{ theme: "light", layout: "month_view" }}
     />
   );
 };
@@ -178,7 +178,7 @@ const ContactUs = () => {
 
                 {activeTab === "booking" ? (
                   <div role="tabpanel" aria-label="Book Meeting">
-                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[520px]">
+                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[420px]">
                       <CalEmbed />
                     </div>
                   </div>
