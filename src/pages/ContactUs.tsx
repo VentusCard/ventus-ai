@@ -103,11 +103,45 @@ const ContactUs = () => {
                   Let's talk.
                 </h1>
                 <p
-                  className="text-base md:text-lg text-gray-500 max-w-md leading-relaxed animate-fade-in-down"
+                  className="text-base md:text-lg text-gray-500 max-w-md leading-relaxed mb-8 animate-fade-in-down"
                   style={{ animationDelay: '160ms', animationFillMode: 'backwards' }}
                 >
                   Whether you're exploring a partnership or ready to see a demo, we'd love to hear from you.
                 </p>
+
+                <div
+                  className="mb-8 animate-fade-in-down"
+                  style={{ animationDelay: '240ms', animationFillMode: 'backwards' }}
+                >
+                  <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">What to expect</h2>
+                  <ul className="space-y-3 text-gray-600 text-sm leading-relaxed max-w-md">
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                      A live walkthrough of the product
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                      How we'd read your own transaction data, and what we'd expect to find in it.
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                      What integration actually involves and what we'd need from your team.
+                    </li>
+                  </ul>
+                </div>
+
+                <div
+                  className="animate-fade-in-down"
+                  style={{ animationDelay: '320ms', animationFillMode: 'backwards' }}
+                >
+                  <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-2">Prefer email?</h2>
+                  <a
+                    href="mailto:info@ventusai.com"
+                    className="text-base text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    info@ventusai.com
+                  </a>
+                </div>
               </div>
 
               {/* Right: tabbed card */}
