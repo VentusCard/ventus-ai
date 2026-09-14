@@ -13,17 +13,21 @@ const CalEmbed = () => {
   useEffect(() => {
     (async function () {
       const cal = await getCalApi({ namespace: "30min" });
-      cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
+      cal("ui", { hideEventTypeDetails: false, layout: "column_view" });
     })();
   }, []);
 
   return (
-    <Cal
-      namespace="30min"
-      calLink="ventusai/30min"
-      style={{ width: "100%", minHeight: "420px" }}
-      config={{ theme: "light", layout: "month_view" }}
-    />
+    <div className="relative w-full h-full overflow-hidden">
+      <div className="absolute inset-0 overflow-y-auto">
+        <Cal
+          namespace="30min"
+          calLink="ventusai/30min"
+          style={{ width: "100%", height: "100%", overflow: "scroll" }}
+          config={{ theme: "light", layout: "column_view", useSlotsViewOnSmallScreen: "true" }}
+        />
+      </div>
+    </div>
   );
 };
 
@@ -82,8 +86,8 @@ const ContactUs = () => {
       <main className="pt-32 md:pt-36">
         {/* Hero with tabs */}
         <section className="py-6 md:py-8 bg-white">
-          <div className="max-w-7xl mx-auto px-6 md:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-8 lg:gap-12 items-start">
+          <div className="max-w-6xl mx-auto px-6 md:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
               {/* Left: text */}
               <div className="lg:pt-4">
                 <p
@@ -178,7 +182,7 @@ const ContactUs = () => {
 
                 {activeTab === "booking" ? (
                   <div role="tabpanel" aria-label="Book Meeting">
-                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[420px]">
+                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[620px] h-[660px] md:h-[720px]">
                       <CalEmbed />
                     </div>
                   </div>
