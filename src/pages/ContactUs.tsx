@@ -19,11 +19,11 @@ const CalEmbed = () => {
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <div className="absolute -inset-x-0 -top-0 -bottom-12">
+      <div className="absolute inset-0 overflow-y-auto">
         <Cal
           namespace="30min"
           calLink="ventusai/30min"
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "100%", overflow: "scroll" }}
           config={{ theme: "light", layout: "column_view", useSlotsViewOnSmallScreen: "true" }}
         />
       </div>
