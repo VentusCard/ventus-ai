@@ -21,7 +21,7 @@ const CalEmbed = () => {
     <Cal
       namespace="30min"
       calLink="ventusai/30min"
-      style={{ width: "100%", minHeight: "720px" }}
+      style={{ width: "100%", minHeight: "520px" }}
       config={{ theme: "light", layout: "column_view", useSlotsViewOnSmallScreen: "true" }}
     />
   );
@@ -178,7 +178,7 @@ const ContactUs = () => {
 
                 {activeTab === "booking" ? (
                   <div role="tabpanel" aria-label="Book Meeting">
-                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[720px]">
+                    <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[520px]">
                       <CalEmbed />
                     </div>
                   </div>
