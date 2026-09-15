@@ -321,7 +321,7 @@ test('digest says nothing rather than padding when there is nothing to say', () 
   });
   const digest = buildAdvisorDigest({ provider: empty, advisorId: 'adv_empty' });
   assert.equal(digest.items.length, 0);
-  assert.match(digestSubject(digest), /nothing new worth your time/);
+  assert.match(digestSubject(digest), /nothing needs your attention/);
 });
 
 // --- outreach drafting -------------------------------------------------------
@@ -345,6 +345,52 @@ test('outreach falls back to a deterministic draft when the model is unavailable
     assert.ok(d.rationale.length > 0);
     assert.ok(d.subject.length > 0);
     assert.equal(d.validation.used_fallback, true);
+  }
+});
+
+test('every product carries a client-safe plain_benefit', () => {
+  // The tagline cannot be used in a client draft: "4% back on travel" is a
+  // percentage, and validateClientDraft rejects the whole draft for it. So
+  // plain_benefit has to exist on every product and has to stay figure-free,
+  // or outreach silently falls back to generic copy for that product.
+  for (const product of provider.getCatalog()) {
+    assert.ok(
+      product.plain_benefit,
+      `${product.id} has no plain_benefit, so its drafts cannot say what it does`
+    );
+    assert.doesNotMatch(product.plain_benefit, /\$\s?\d/, `${product.id} plain_benefit has a figure`);
+    assert.doesNotMatch(product.plain_benefit, /\d+(\.\d+)?\s?%/, `${product.id} plain_benefit has a rate`);
+    assert.doesNotMatch(product.plain_benefit, /[a-z0-9]+_[a-z0-9]+/, `${product.id} plain_benefit has an internal key`);
+  }
+});
+
+test('the product description survives the handoff into a draft', () => {
+  // buildAudience hands generateOutreach a reduced product object. plain_benefit
+  // was added to that projection precisely because tagline was not in it, and
+  // dropping it again would quietly make every draft generic.
+  const audience = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'travel-card' });
+  assert.ok(audience.product.plain_benefit, 'buildAudience dropped plain_benefit');
+});
+
+test('a draft names the specific thing the advisor noticed', async () => {
+  // A draft that says "a change in your spending habits" is true of every
+  // client alive, which makes it a form letter. The observation is the only
+  // part of the client half that could not have been written for someone else,
+  // so it has to survive into the body even on the deterministic path.
+  const audience = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'travel-card' });
+  const { drafts } = await generateOutreach({
+    gateway: DOWN_GATEWAY,
+    product: audience.product,
+    candidates: audience.candidates,
+  });
+  const traveler = drafts.find((d) => d.household_id === 'hh_whitfield') || drafts[0];
+  assert.match(traveler.client_body, /flights and hotels|card balance every month/);
+  for (const d of drafts) {
+    assert.doesNotMatch(d.client_body, /spending habits/i);
+    assert.doesNotMatch(d.client_body, /financial activity/i);
+    // "paid attention to that retirement is..." is what a clause-shaped
+    // observation produces. Every entry must be a noun phrase.
+    assert.doesNotMatch(d.client_body, /attention to that /i);
   }
 });
 

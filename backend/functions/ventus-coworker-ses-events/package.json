@@ -1,7 +1,7 @@
 {
-  "name": "ventus-coworker-digest",
+  "name": "ventus-coworker-ses-events",
   "version": "1.0.0",
-  "description": "Scheduled AI Coworker digest: proactive per-advisor opportunity emails.",
+  "description": "Turns SES bounces and complaints into Coworker mail suppressions.",
   "main": "index.mjs",
   "type": "module",
   "scripts": {
@@ -10,8 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.1053.0",
-    "@aws-sdk/client-secrets-manager": "3.1053.0",
-    "@aws-sdk/client-sesv2": "3.1053.0",
     "@aws-sdk/lib-dynamodb": "3.1053.0"
   }
 }

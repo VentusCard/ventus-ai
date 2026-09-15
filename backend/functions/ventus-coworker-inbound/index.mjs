@@ -15,6 +15,7 @@ import { createSecretsProvider, resolveSecretId } from '../../shared/platform/se
 import { createFixturePortfolioProvider } from '../../shared/coworker/portfolio-provider.mjs';
 import { createCoworkerStore, createDynamoBackend } from '../../shared/coworker/store.mjs';
 import { runCoworkerTurn } from '../../shared/coworker/core.mjs';
+import { friendlyFrom } from '../../shared/coworker/mail.mjs';
 
 const REGION = process.env.AWS_REGION || 'us-east-2';
 const LAMBDA_NAME = process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-coworker-inbound';
@@ -22,7 +23,10 @@ const LAMBDA_NAME = process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-coworker-inb
 const TABLE_NAME = process.env.COWORKER_TABLE || 'ventus-coworker';
 const INBOUND_BUCKET = process.env.COWORKER_INBOUND_BUCKET;
 const INBOUND_PREFIX = process.env.COWORKER_INBOUND_PREFIX || 'inbound/';
-const FROM_ADDRESS = process.env.COWORKER_FROM || 'coworker@ventusai.com';
+const FROM_ADDRESS = friendlyFrom(
+  process.env.COWORKER_FROM || 'coworker@ventusai.com',
+  process.env.COWORKER_FROM_NAME || 'Ventus AI Coworker'
+);
 // SES configuration set: routes bounces/complaints and tracks reputation. Sends
 // still succeed without it, so treat an empty value as "no config set".
 const CONFIG_SET = process.env.COWORKER_CONFIG_SET || undefined;
@@ -119,6 +123,18 @@ export const handler = async (event) => {
           subject: turn.reply.subject,
           html: turn.reply.html,
         });
+        continue;
+      }
+
+      // A recipient who only opted out of the digest still gets replies — they
+      // emailed us. Scope 'all' (hard bounce, spam complaint) stops everything,
+      // and replying into a dead mailbox just charges sending reputation again.
+      const { suppressed, record } = await store.isSuppressed(turn.reply.to, { kind: 'reply' });
+      if (suppressed) {
+        console.log(
+          `[${LAMBDA_NAME}] ${turn.reply.to} is suppressed (scope=${record?.scope} reason=${record?.reason}); no reply sent.`
+        );
+        results.push({ allowed: true, suppressed: true, threadId: turn.threadId });
         continue;
       }
 

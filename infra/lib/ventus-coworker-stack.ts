@@ -9,6 +9,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { SnsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as ses from 'aws-cdk-lib/aws-ses';
 import * as sesActions from 'aws-cdk-lib/aws-ses-actions';
 import * as sns from 'aws-cdk-lib/aws-sns';
@@ -100,6 +101,24 @@ export class VentusCoworkerStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    // ── Unsubscribe link signing key ─────────────────────────────────────────
+    // HMAC key for opt-out tokens. RETAIN and never rotate casually: every
+    // unsubscribe link in every digest already delivered is signed with this
+    // value, and replacing it turns all of them into "this link is not valid".
+    // CAN-SPAM expects the opt-out to keep working for at least 30 days after a
+    // send, so a rotation needs an overlap window before it is safe.
+    const unsubscribeSecret = new secretsmanager.Secret(this, 'CoworkerUnsubscribeSecret', {
+      secretName: 'ventus/coworker/unsubscribe-signing',
+      description: 'HMAC signing key for Ventus Coworker unsubscribe links.',
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({}),
+        generateStringKey: 'signing_key',
+        passwordLength: 48,
+        excludePunctuation: true,
+      },
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
     // ── Inbound MIME storage + notification fan-out ──────────────────────────
     const inboundBucket = new s3.Bucket(this, 'CoworkerInboundBucket', {
       // Region-scoped so the same account can host the stack in more than one
@@ -170,7 +189,55 @@ export class VentusCoworkerStack extends cdk.Stack {
       environment: { ...commonEnv, COWORKER_DIGEST_MAX_ITEMS: '5' },
     });
 
-    for (const fn of [inboundFn, digestFn]) {
+    // Public opt-out endpoint. Fronted by a Function URL with authType NONE:
+    // the recipient clicking the link in their mail client has no AWS identity,
+    // and RFC 8058 one-click has Gmail POSTing to it unauthenticated. The HMAC
+    // in the token is the authorization.
+    const unsubscribeFn = new lambda.Function(this, 'CoworkerUnsubscribeFn', {
+      functionName: 'ventus-coworker-unsubscribe',
+      description: 'Public Coworker opt-out endpoint: verify signed token -> record suppression.',
+      runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: lambda.Architecture.ARM_64,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('../backend/dist/lambda/ventus-coworker-unsubscribe.zip'),
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(10),
+      environment: {
+        COWORKER_TABLE: table.tableName,
+        COWORKER_UNSUBSCRIBE_SECRET_ID: unsubscribeSecret.secretName,
+      },
+    });
+    const unsubscribeUrl = unsubscribeFn.addFunctionUrl({
+      authType: lambda.FunctionUrlAuthType.NONE,
+    });
+
+    // Bounces and complaints -> suppressions. Dead-letters rather than drops:
+    // a lost complaint keeps us mailing someone who reported us as spam, and
+    // the complaint rate is enforced at the AWS account level.
+    const sesEventsDlq = new sqs.Queue(this, 'CoworkerSesEventsDlq', {
+      queueName: 'ventus-coworker-ses-events-dlq',
+      retentionPeriod: cdk.Duration.days(14),
+    });
+    const sesEventsFn = new lambda.Function(this, 'CoworkerSesEventsFn', {
+      functionName: 'ventus-coworker-ses-events',
+      description: 'Turns SES bounces and complaints into Coworker mail suppressions.',
+      runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: lambda.Architecture.ARM_64,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('../backend/dist/lambda/ventus-coworker-ses-events.zip'),
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+      environment: { COWORKER_TABLE: table.tableName },
+      deadLetterQueue: sesEventsDlq,
+      retryAttempts: 2,
+    });
+
+    // The digest signs one opt-out link per recipient, so it needs both the
+    // endpoint and the key. It refuses to send if either is missing.
+    digestFn.addEnvironment('COWORKER_UNSUBSCRIBE_URL', unsubscribeUrl.url);
+    digestFn.addEnvironment('COWORKER_UNSUBSCRIBE_SECRET_ID', unsubscribeSecret.secretName);
+
+    for (const fn of [inboundFn, digestFn, unsubscribeFn, sesEventsFn]) {
       new logs.LogRetention(this, `${fn.node.id}LogRetention`, {
         logGroupName: `/aws/lambda/${fn.functionName}`,
         retention: logs.RetentionDays.SIX_MONTHS,
@@ -181,7 +248,13 @@ export class VentusCoworkerStack extends cdk.Stack {
     // ── IAM (least privilege) ────────────────────────────────────────────────
     table.grantReadWriteData(inboundFn);
     table.grantReadWriteData(digestFn);
+    table.grantReadWriteData(unsubscribeFn);
+    table.grantReadWriteData(sesEventsFn);
     inboundBucket.grantRead(inboundFn);
+
+    // Only the two functions that sign or verify opt-out tokens can read the key.
+    unsubscribeSecret.grantRead(digestFn);
+    unsubscribeSecret.grantRead(unsubscribeFn);
 
     const modelSecretArn = cdk.Stack.of(this).formatArn({
       service: 'secretsmanager',
@@ -292,6 +365,26 @@ export class VentusCoworkerStack extends cdk.Stack {
       enabled: true,
     });
 
+    // The operator email subscription above is an alert, not a control: it tells
+    // a human a complaint happened and then mails the same address again
+    // tomorrow. This subscription is the control.
+    sesEventsFn.addEventSource(new SnsEventSource(sesEventTopic));
+
+    const sesEventsDlqAlarm = new cloudwatch.Alarm(this, 'CoworkerSesEventsDlqAlarm', {
+      alarmName: 'ventus-coworker-ses-events-dlq-not-empty',
+      alarmDescription:
+        'Bounce/complaint events are dead-lettering, so suppressions are not being recorded.',
+      metric: sesEventsDlq.metricApproximateNumberOfMessagesVisible({
+        period: cdk.Duration.minutes(5),
+        statistic: 'Maximum',
+      }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    sesEventsDlqAlarm.addAlarmAction(alarmAction);
+
     const bounceRateAlarm = new cloudwatch.Alarm(this, 'CoworkerSesBounceRateAlarm', {
       alarmName: 'ventus-coworker-ses-bounce-rate',
       alarmDescription: 'SES bounce rate for the coworker config set is approaching the AWS limit.',
@@ -364,6 +457,11 @@ export class VentusCoworkerStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'CoworkerAlarmTopicArn', { value: alarmTopic.topicArn });
     new cdk.CfnOutput(this, 'CoworkerSesEventsTopicArn', { value: sesEventTopic.topicArn });
     new cdk.CfnOutput(this, 'CoworkerConfigSetName', { value: configSetName });
+    new cdk.CfnOutput(this, 'CoworkerUnsubscribeUrl', { value: unsubscribeUrl.url });
+    new cdk.CfnOutput(this, 'CoworkerUnsubscribeSecretName', {
+      value: unsubscribeSecret.secretName,
+    });
+    new cdk.CfnOutput(this, 'CoworkerSesEventsDlqUrl', { value: sesEventsDlq.queueUrl });
   }
 }
 
