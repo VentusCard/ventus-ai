@@ -153,6 +153,10 @@ export default {
 					'0%': { transform: 'translateY(20px)', opacity: '0' },
 					'100%': { transform: 'translateY(0)', opacity: '1' }
 				},
+				'fade-in-down': {
+					'0%': { transform: 'translateY(-18px)', opacity: '0' },
+					'100%': { transform: 'translateY(0)', opacity: '1' }
+				},
 
 				// Brushstroke Animations
 				'brushstroke': {
@@ -313,6 +317,7 @@ export default {
 				// Entrance Animations
 				'unleashed': 'unleashed 1.2s ease-out',
 				'fadeUpSoft': 'fadeUpSoft 0.4s ease-out',
+				'fade-in-down': 'fade-in-down 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards',
 
 				// Brushstroke Animations
 				'brushstroke': 'brushstroke 1.5s ease-out',

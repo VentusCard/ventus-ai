@@ -41,11 +41,11 @@ const Insights = () => {
       {/* Hero — white, centered */}
       <section className="pt-48 pb-12 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4 animate-fade-in">Insights</p>
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight leading-[1.05] animate-fade-in" style={{ animationDelay: "0.1s", animationFillMode: "backwards" }}>
+          <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4 animate-fade-in-down">Insights</p>
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight leading-[1.05] animate-fade-in-down" style={{ animationDelay: "0.1s", animationFillMode: "backwards" }}>
             The Intelligence Brief
           </h1>
-          <p className="mt-6 text-base md:text-lg text-gray-500 leading-relaxed max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}>
+          <p className="mt-6 text-base md:text-lg text-gray-500 leading-relaxed max-w-2xl mx-auto animate-fade-in-down" style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}>
             Perspectives on behavioral intelligence, transaction data, and the future of personalized banking.
           </p>
         </div>
@@ -55,7 +55,7 @@ const Insights = () => {
       <section className="pb-28 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-16">
           {/* Sidebar */}
-          <aside className="space-y-10 animate-fade-in" style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}>
+          <aside className="space-y-10 animate-fade-in-down" style={{ animationDelay: "0.3s", animationFillMode: "backwards" }}>
             <div>
               <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-500 mb-3">Search</p>
               <div className="relative">
@@ -101,7 +101,7 @@ const Insights = () => {
             ) : (
               <ul className="divide-y divide-gray-200">
                 {filtered.map((post, i) => (
-                  <li key={post.slug} className="animate-fade-in" style={{ animationDelay: `${0.3 + Math.min(i, 6) * 0.08}s`, animationFillMode: "backwards" }}>
+                  <li key={post.slug} className="animate-fade-in-down" style={{ animationDelay: `${0.35 + Math.min(i, 8) * 0.07}s`, animationFillMode: "backwards" }}>
                     <Link
                       to={`/insights/${post.slug}`}
                       className="group block py-8"

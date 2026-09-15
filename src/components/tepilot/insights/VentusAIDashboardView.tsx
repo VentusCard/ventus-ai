@@ -69,7 +69,7 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
   const renderSliver = () => (
     <button
       type="button"
-      onClick={() => onOpenChat?.()}
+      onClick={() => onOpenChat?.(activeCard ? getPriorityPrompt(activeCard) : undefined)}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       className="group relative w-full text-left rounded-xl border border-indigo-200/70 bg-gradient-to-r from-sky-100/90 via-indigo-100/80 to-violet-100/70 shadow-sm hover:shadow-md hover:border-indigo-300 hover:from-sky-100 hover:via-indigo-100 hover:to-violet-100 transition-all overflow-hidden"

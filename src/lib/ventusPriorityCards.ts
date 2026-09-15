@@ -94,6 +94,6 @@ export const PRIORITY_ACTION: Record<
 };
 
 /** The question the chatbot answers when a priority is opened from a chip. */
-export function getPriorityPrompt(card: VentusPriorityCard): string {
-  return `Brief me on this priority: ${card.headline}. ${card.metric}. What did Ventus detect, who is in the segment, and what should we do next?`;
+export function getPriorityPrompt(_card: VentusPriorityCard): string {
+  return "What are the trends and opportunities for this past week?";
 }
