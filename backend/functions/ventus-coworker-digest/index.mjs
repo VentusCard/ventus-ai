@@ -15,23 +15,44 @@
 // in shared/coworker/render.mjs.
 
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
+import { createSecretsProvider } from '../../shared/platform/secrets.mjs';
 import { createFixturePortfolioProvider } from '../../shared/coworker/portfolio-provider.mjs';
 import { createCoworkerStore, createDynamoBackend } from '../../shared/coworker/store.mjs';
 import { buildAdvisorDigest, digestSubject } from '../../shared/coworker/tasks.mjs';
 import { renderDigestTable, renderShell } from '../../shared/coworker/render.mjs';
-import { buildThreadingHeaders, canReceiveProactiveMail } from '../../shared/coworker/mail.mjs';
+import {
+  buildThreadingHeaders,
+  canReceiveProactiveMail,
+  friendlyFrom,
+} from '../../shared/coworker/mail.mjs';
+import {
+  buildUnsubscribeHeaders,
+  buildUnsubscribeUrl,
+} from '../../shared/coworker/unsubscribe.mjs';
 import { pluralize, verbFor } from '../../shared/coworker/labels.mjs';
 
 const REGION = process.env.AWS_REGION || 'us-east-2';
 const LAMBDA_NAME = process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-coworker-digest';
 
 const TABLE_NAME = process.env.COWORKER_TABLE || 'ventus-coworker';
-const FROM_ADDRESS = process.env.COWORKER_FROM || 'coworker@ventusai.com';
+const FROM_ADDRESS = friendlyFrom(
+  process.env.COWORKER_FROM || 'coworker@ventusai.com',
+  process.env.COWORKER_FROM_NAME || 'Ventus AI Coworker'
+);
 const CONFIG_SET = process.env.COWORKER_CONFIG_SET || undefined;
 const MAX_ITEMS = Number(process.env.COWORKER_DIGEST_MAX_ITEMS || 5);
 
+// Opt-out wiring. The digest is mail we originate, so it does not go out
+// without a working unsubscribe path — see resolveUnsubscribeConfig.
+const UNSUBSCRIBE_URL = process.env.COWORKER_UNSUBSCRIBE_URL || '';
+const UNSUBSCRIBE_SECRET_ID = process.env.COWORKER_UNSUBSCRIBE_SECRET_ID || '';
+
 const ses = new SESv2Client({ region: REGION });
 const provider = createFixturePortfolioProvider();
+
+const getUnsubscribeSecrets = UNSUBSCRIBE_SECRET_ID
+  ? createSecretsProvider({ secretId: UNSUBSCRIBE_SECRET_ID, region: REGION })
+  : null;
 
 let storePromise;
 function getStore() {
@@ -43,7 +64,31 @@ function getStore() {
   return storePromise;
 }
 
+/**
+ * Resolve the opt-out base URL and signing key, or null if either is missing.
+ *
+ * Fail closed on purpose. Degrading to "send it anyway, just without the
+ * unsubscribe link" is exactly the state this function exists to prevent, and
+ * it fails silently — nobody notices a missing footer link, whereas a digest
+ * that stops arriving gets reported within a day.
+ */
+async function resolveUnsubscribeConfig() {
+  if (!UNSUBSCRIBE_URL || !getUnsubscribeSecrets) return null;
+  const secrets = await getUnsubscribeSecrets();
+  const signingKey = secrets?.signing_key || secrets?.key;
+  if (!signingKey) return null;
+  return { baseUrl: UNSUBSCRIBE_URL, signingKey };
+}
+
 export const handler = async () => {
+  const unsubscribe = await resolveUnsubscribeConfig();
+  if (!unsubscribe) {
+    console.error(
+      `[${LAMBDA_NAME}] COWORKER_UNSUBSCRIBE_URL / COWORKER_UNSUBSCRIBE_SECRET_ID are not both resolvable; refusing to send proactive mail without a working opt-out.`
+    );
+    return { sent: 0, advisors: [], skipped: 'unsubscribe_not_configured' };
+  }
+
   const store = await getStore();
   const institution = provider.getInstitution();
   const domain = institution?.domain || 'ventusai.com';
@@ -56,6 +101,14 @@ export const handler = async () => {
       continue;
     }
 
+    const { suppressed, record } = await store.isSuppressed(advisor.email, { kind: 'proactive' });
+    if (suppressed) {
+      console.log(
+        `[${LAMBDA_NAME}] ${advisor.email} is suppressed (scope=${record?.scope} reason=${record?.reason}); not mailing.`
+      );
+      continue;
+    }
+
     const digest = buildAdvisorDigest({ provider, advisorId: advisor.id, maxItems: MAX_ITEMS });
     if (!digest.items.length) {
       console.log(`[${LAMBDA_NAME}] No opportunities for ${advisor.id}; skipping.`);
@@ -63,7 +116,15 @@ export const handler = async () => {
     }
 
     const threadId = `digest_${advisor.id}_${nowIso.slice(0, 10)}`;
-    const headers = buildThreadingHeaders({ threadId, turn: 1, domain });
+    const unsubscribeUrl = buildUnsubscribeUrl({
+      baseUrl: unsubscribe.baseUrl,
+      email: advisor.email,
+      secret: unsubscribe.signingKey,
+    });
+    const headers = {
+      ...buildThreadingHeaders({ threadId, turn: 1, domain }),
+      ...buildUnsubscribeHeaders({ url: unsubscribeUrl }),
+    };
     const subject = digestSubject(digest);
     const html = renderShell({
       greeting: `Hi ${firstName(advisor.name)},`,
@@ -72,6 +133,7 @@ export const handler = async () => {
       ],
       sections: [{ heading: 'Today', html: renderDigestTable(digest.items) }],
       forwardMove: 'Reply with a product name and I will screen the whole book against it.',
+      unsubscribeUrl,
     });
 
     try {

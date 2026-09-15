@@ -1,7 +1,7 @@
 {
-  "name": "ventus-coworker-digest",
+  "name": "ventus-coworker-unsubscribe",
   "version": "1.0.0",
-  "description": "Scheduled AI Coworker digest: proactive per-advisor opportunity emails.",
+  "description": "Public opt-out endpoint for Coworker mail: verifies a signed token and records a suppression.",
   "main": "index.mjs",
   "type": "module",
   "scripts": {
@@ -11,7 +11,6 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1053.0",
     "@aws-sdk/client-secrets-manager": "^3.1002.0",
-    "@aws-sdk/client-sesv2": "^3.1053.0",
     "@aws-sdk/lib-dynamodb": "^3.1053.0"
   }
 }

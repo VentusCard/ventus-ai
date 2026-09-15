@@ -10,10 +10,13 @@
 //   Memory   PK=ADVISOR#<advisorId> SK=MEM#<scope>#<key>  (+ ttl epoch seconds)
 //   AdvPrefs PK=ADVISOR#<advisorId> SK=PREFS
 //   Inst     PK=INST#<instId>       SK=CATALOG
+//   Suppress PK=SUPPRESS#<email>    SK=META               (no ttl, on purpose)
 //
 // A "backend" is the low-level KV: { put, get, query, del }. The store wraps it
 // with domain methods. Swap createInMemoryBackend() for createDynamoBackend() in
 // the Lambda; nothing else changes.
+
+import { SUPPRESSION_SCOPES, normalizeEmail, scopeBlocks } from './unsubscribe.mjs';
 
 export const keys = {
   thread: (threadId) => ({ PK: `THREAD#${threadId}`, SK: 'META' }),
@@ -28,6 +31,9 @@ export const keys = {
   prefs: (advisorId) => ({ PK: `ADVISOR#${advisorId}`, SK: 'PREFS' }),
   rate: (sender) => ({ PK: `RATE#${sender}`, SK: 'WINDOW' }),
   processed: (messageId) => ({ PK: `MSG#${messageId}`, SK: 'PROCESSED' }),
+  // Keyed on the address rather than an advisor id: the same store has to hold
+  // client addresses once client-facing mail exists, and those have no advisor.
+  suppression: (email) => ({ PK: `SUPPRESS#${normalizeEmail(email)}`, SK: 'META' }),
 };
 
 const nowEpoch = () => Math.floor(Date.now() / 1000);
@@ -225,6 +231,82 @@ export function createCoworkerStore(backend) {
         ttl: Math.floor(Date.now() / 1000) + ttlDays * 86400,
       });
       return { firstTime: true, claimedAt };
+    },
+
+    /**
+     * Record an opt-out. Idempotent, and scope only ever widens: a spam
+     * complaint after an unsubscribe must not be narrowed back down by a
+     * replayed one-click POST, and Gmail will replay it.
+     *
+     * Deliberately no ttl. An opt-out that expires is an opt-out that starts
+     * mailing someone again on its own.
+     *
+     * @param {{email:string, scope?:'proactive'|'all', reason?:string, source?:string, now?:Date}} opts
+     */
+    async suppress({ email, scope = 'proactive', reason = null, source = null, now = new Date() }) {
+      const address = normalizeEmail(email);
+      if (!address) throw new Error('suppress requires an email');
+      if (!SUPPRESSION_SCOPES.includes(scope)) {
+        throw new Error(`suppress got unknown scope "${scope}"`);
+      }
+
+      const { PK, SK } = keys.suppression(address);
+      const existing = await backend.get(PK, SK);
+      const widest =
+        existing && SUPPRESSION_SCOPES.indexOf(existing.scope) > SUPPRESSION_SCOPES.indexOf(scope)
+          ? existing.scope
+          : scope;
+      const nowIso = now.toISOString();
+
+      const record = {
+        PK,
+        SK,
+        entity: 'suppression',
+        email: address,
+        scope: widest,
+        reason,
+        source,
+        first_suppressed_at: existing?.first_suppressed_at || nowIso,
+        updated_at: nowIso,
+        // Kept for the audit trail: "we stopped mailing them, here is every
+        // event that said so" is the question an advisor complaint raises.
+        events: [...(existing?.events || []), { at: nowIso, scope, reason, source }].slice(-20),
+      };
+      await backend.put(record);
+      return record;
+    },
+
+    async getSuppression(email) {
+      const address = normalizeEmail(email);
+      if (!address) return null;
+      const { PK, SK } = keys.suppression(address);
+      return backend.get(PK, SK);
+    },
+
+    /**
+     * Gate for a send site. `kind` is what we are about to send, not what the
+     * recipient asked to stop: a 'proactive' digest is blocked by any opt-out,
+     * a 'reply' only by a bounce or complaint.
+     *
+     * @returns {Promise<{suppressed:boolean, record:object|null}>}
+     */
+    async isSuppressed(email, { kind = 'proactive' } = {}) {
+      const address = normalizeEmail(email);
+      if (!address) return { suppressed: false, record: null };
+      const { PK, SK } = keys.suppression(address);
+      const record = (await backend.get(PK, SK)) || null;
+      return { suppressed: scopeBlocks(record, kind), record };
+    },
+
+    /** Clear an opt-out. Operator action only; never called by a send path. */
+    async unsuppress(email) {
+      const address = normalizeEmail(email);
+      if (!address) return false;
+      const { PK, SK } = keys.suppression(address);
+      const existing = await backend.get(PK, SK);
+      if (!existing) return false;
+      await backend.del(PK, SK);
+      return true;
     },
 
     async putMemory({ advisorId, scope, key, value, ttlEpoch }) {

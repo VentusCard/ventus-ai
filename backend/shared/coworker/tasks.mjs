@@ -535,7 +535,15 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
 
   const considered = advisor.household_ids.length;
   return {
-    product: { id: product.id, name: product.name, category: product.category },
+    // plain_benefit travels with the product because generateOutreach is handed
+    // this object rather than the catalog entry, and a draft cannot say what the
+    // product does differently unless the words come along.
+    product: {
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      plain_benefit: product.plain_benefit || null,
+    },
     candidates,
     excluded,
     no_signal: noSignal,
@@ -673,8 +681,9 @@ function beatsForDigest(candidate, incumbent) {
  * number an advisor cannot calibrate against.
  */
 export function digestSubject({ items = [], considered = 0 }) {
-  if (!items.length) return 'Daily digest: nothing new worth your time today';
-  return `Daily digest: ${items.length} of ${pluralize(considered, 'household')} worth a look`;
+  if (!items.length) return 'Your Daily Digest: nothing needs your attention today';
+  const needs = items.length === 1 ? 'needs' : 'need';
+  return `Your Daily Digest: ${items.length} of ${pluralize(considered, 'household')} ${needs} attention`;
 }
 
 // ---------------------------------------------------------------------------
@@ -741,6 +750,88 @@ const TONE_GUIDANCE = {
   analytical:
     'Lead with the mechanism in plain terms. Minimal relationship language. Explain what changes and why.',
 };
+
+/**
+ * What the advisor noticed, in the words a client would use about their own
+ * life. The signal name itself is banned from client text, so a draft can only
+ * be specific if it is handed a translation: "Travel-heavy spend" is an
+ * internal label, "how much of your spending goes to flights and hotels" is the
+ * same fact in a sentence an advisor could say out loud.
+ *
+ * Without this the model has nothing concrete to write about and produces
+ * "a change in your spending habits", which is true of every client alive.
+ *
+ * Every entry must be a noun phrase in the second person, because the
+ * deterministic fallback drops it straight into "I ... paid attention to X".
+ * A clause starting with "that" reads as broken English there.
+ */
+const CLIENT_OBSERVATIONS = {
+  'Travel-heavy spend': 'how much of your spending goes to flights and hotels',
+  'Dining-led discretionary': 'how much of your everyday spending goes to restaurants',
+  'Idle cash accumulation': 'the balance that has been building up in your checking account',
+  'Idle cash spike': 'the cash that has landed in your checking account recently',
+  'Accelerating savings velocity': 'how much more you have been setting aside lately',
+  'Building emergency fund': 'the reserve you have been building',
+  'Recurring savings transfers': 'the transfer you make to savings every month',
+  'Automated investing': 'the investing you have set up to run on its own',
+  'Avoids liquidating investments':
+    'how you have left your investments alone even in the months when cash was tight',
+  'Pays card in full': 'the way you clear your card balance every month',
+  'Large discretionary outlays': 'a few sizeable purchases over the past year',
+  'Rising family spend': 'how much household costs have grown for you',
+  'Steady student-loan servicing': 'the student loan payments you have kept up without fail',
+  'Volatile income': 'how much your income varies from month to month',
+  home_renovation: 'the work you have been having done on the house',
+  home_purchase_intent: 'the groundwork you seem to be laying for a home purchase',
+  relocation: 'the signs that a move may be coming for you',
+  retirement_horizon: 'how close you are getting to retirement',
+  estate_inflow: 'the funds that recently came to you',
+};
+
+/**
+ * How the advisor accounts for knowing this, per tone.
+ *
+ * "I was going through your accounts this week" makes an advisor sound like
+ * they were rummaging. A periodic review is a thing the client already pays
+ * for and expects, so naming it as one makes the same sentence routine instead
+ * of intrusive. Each opener ends ready for a noun-phrase observation.
+ */
+const TONE_OPENERS = {
+  formal_reserved: 'As part of my regular review of your accounts, one item stood out:',
+  direct_professional: 'In my regular review of your accounts this quarter, one thing stood out:',
+  analytical: 'In reviewing your accounts this quarter, one thing stands out:',
+  warm_personal: 'I was doing my regular review of your accounts, and one thing stood out:',
+};
+
+/** The ask, per tone. Same request, different register. */
+const TONE_CLOSERS = {
+  formal_reserved: 'Would twenty minutes this week or early next be convenient?',
+  direct_professional: 'Do you have twenty minutes this week or early next?',
+  analytical: 'Do you have twenty minutes this week or early next to go through it?',
+  warm_personal: 'Any chance you have twenty minutes this week or early next?',
+};
+
+/** Last resort when the lead signal has no client translation. */
+const CATEGORY_OBSERVATIONS = {
+  Cards: 'where most of your card spending actually goes',
+  Deposits: 'how much you are holding in cash',
+  Wealth: 'how your accounts are currently put together',
+  Lending: 'what you are currently paying to borrow',
+  Insurance: 'what your current coverage does and does not cover',
+};
+
+/**
+ * The client-safe observation for a candidate. Never returns a signal name, so
+ * whatever the model does with it cannot trip validateClientDraft.
+ */
+function clientObservation(candidate, product) {
+  const lead = candidate.lead_signal?.type || candidate.lead_signal?.label;
+  return (
+    CLIENT_OBSERVATIONS[lead] ||
+    CATEGORY_OBSERVATIONS[product?.category] ||
+    'where their money has been going lately'
+  );
+}
 
 /**
  * Subject lines, deterministic per tone and product category, all under 40
@@ -839,7 +930,13 @@ function advisorRationale(candidate) {
   return parts.join(' ');
 }
 
-/** Deterministic client body, used as the fallback and when validation fails. */
+/**
+ * Deterministic client body, used as the fallback and when validation fails.
+ *
+ * Carries the same observation the model is given, so a rejected model draft
+ * degrades to a plainer sentence rather than a vaguer one. The observation is
+ * the whole reason the email is worth opening.
+ */
 function fallbackClientBody({ candidate, product }) {
   const name = clientFirstName(candidate);
   const outcome = candidate.benefit_qualifier === 'outcome';
@@ -847,14 +944,25 @@ function fallbackClientBody({ candidate, product }) {
     candidate.tone === 'formal_reserved'
       ? `Dear ${candidate.primary_contact || name},`
       : `Hi ${name},`;
-  const middle = outcome
-    ? `I was going through your accounts this week and there is a conversation worth having about ${product.name.toLowerCase()}.`
-    : `I was going through your accounts this week, and based on how you have actually been spending, ${product.name} looks like it would work better for you than what you have now.`;
+  const noticed = clientObservation(candidate, product);
+  const opener = TONE_OPENERS[candidate.tone] || TONE_OPENERS.warm_personal;
+  const closer = TONE_CLOSERS[candidate.tone] || TONE_CLOSERS.warm_personal;
+  // Describes the product rather than naming it. Product names vary in whether
+  // they take an article ("the Travel Cash Rewards Card" but "High-Yield
+  // Savings") and no field records which, whereas plain_benefit always slots
+  // in after "an option that". The advisor names the product when they edit;
+  // the subject line already carries the category.
+  const benefit = product?.plain_benefit
+    ? `There is an option that ${product.plain_benefit}, and I believe it would suit you better than your current arrangement.`
+    : 'I believe there is an arrangement that would suit you better than your current one.';
+  const closing = outcome
+    ? 'It is worth a conversation, and I would rather have it properly than over email.'
+    : 'I have worked through what the difference would be worth, and I would rather go over it with you directly than put it in an email.';
   return `${opening}
 
-${middle} I have run the numbers and would rather walk you through them than put them in an email.
+${opener} ${noticed}. ${benefit} ${closing}
 
-Do you have twenty minutes this week or next?`;
+${closer}`;
 }
 
 function clientFirstName(candidate) {
@@ -886,14 +994,27 @@ export async function generateOutreach({ gateway, product, candidates = [] }) {
   // model gets the relationship facts it needs to write in the right voice and
   // nothing it could leak.
   const context = {
-    product: { name: product.name, category: product.category, what_it_does: product.tagline },
+    // Never product.tagline: taglines quote rates ("4% back on travel"), and a
+    // draft that echoes one is rejected by validateClientDraft for carrying a
+    // percentage. plain_benefit is the same claim with no figures in it.
+    product: {
+      name: product.name,
+      category: product.category,
+      what_it_does: product.plain_benefit || null,
+    },
     households: selected.map((c) => ({
       household_id: c.household_id,
       client_first_name: clientFirstName(c),
       client_full_name: c.primary_contact || c.household_name,
       tone: c.tone,
       tone_guidance: TONE_GUIDANCE[c.tone] || TONE_GUIDANCE.warm_personal,
-      reason_to_reach_out: c.benefit_qualifier === 'outcome' ? 'a planning conversation' : 'their recent spending pattern',
+      // Already phrased in the second person, so it can be used close to
+      // verbatim in the client's first sentence.
+      what_the_advisor_noticed: clientObservation(c, product),
+      // Whether there is a number to withhold at all. An 'outcome' candidate
+      // has no computed figure, so promising to walk through numbers would be
+      // a promise the advisor cannot keep in the meeting.
+      has_figures_to_discuss: c.benefit_qualifier !== 'outcome',
     })),
   };
 
@@ -910,13 +1031,25 @@ export async function generateOutreach({ gateway, product, candidates = [] }) {
           role: 'system',
           content:
             'You write the client-facing half of an outreach email that a wealth advisor will review and send under their own name. ' +
-            'Write in the advisor\'s first person: the advisor is the one who reviewed the accounts and noticed something. ' +
+            'Write in the advisor\'s first person, and account for how the advisor knows this by referring to their regular or periodic review of the client\'s accounts. ' +
+            'That review is a service the client already pays for, so it is routine. Phrasing it as a one-off look, such as "I was going through your accounts", makes the advisor sound as though they were rummaging. ' +
             'Never write as a system, a model, or an analysis. Never say the client was identified, flagged, selected, or matched. ' +
-            'Follow each household\'s tone_guidance exactly. Three to five sentences. End with a request for a short conversation. ' +
-            'Hard rules you must not break: include no dollar amounts, no percentages, and no numbers of any kind. ' +
-            'Do not describe how the advisor knows what they know beyond having looked at the account. ' +
+            'This is a professional letter from someone who manages the client\'s money, so keep the register formal even for a warm tone. No slang, no exclamation points, no salesy enthusiasm. ' +
+            'Follow each household\'s tone_guidance exactly. Three to five sentences. ' +
+            '\n\nSTRUCTURE. Sentence one names what_the_advisor_noticed as a specific thing about this client, in the second person. ' +
+            'Sentence two says plainly what their current arrangement does with that, and why it is not the best fit. ' +
+            'Sentence three says what the named product does differently, in concrete terms, using what_it_does. ' +
+            'If has_figures_to_discuss is true, say the advisor has worked out what the difference is worth and would rather go through it together than put it in an email. ' +
+            'Close by asking for a short conversation and proposing a specific window such as this week or early next week. ' +
+            '\n\nHARD RULES. No dollar amounts, no percentages, no numbers of any kind, not even spelled out as words. ' +
+            'Do not describe how the advisor knows what they know beyond having gone through the account. ' +
             'Do not mention data, signals, patterns being detected, or any internal terminology. ' +
-            'Return a JSON object: {"drafts":[{"household_id":"...","body":"..."}]} and nothing else.',
+            '\n\nBANNED PHRASING, because it is vague enough to be true of any client and reads as a form letter: ' +
+            '"reviewed your financial activity", "your spending habits", "a change in your spending", "I noticed some changes", ' +
+            '"there might be a way", "enhance the value", "maximize your benefits", "explore this possibility", ' +
+            '"bring this to your attention", "I wanted to reach out", "optimize", "solutions", "opportunity". ' +
+            'Write the specific thing instead. A sentence that would be equally true of a different client is a failed sentence. ' +
+            '\n\nReturn a JSON object: {"drafts":[{"household_id":"...","body":"..."}]} and nothing else.',
         },
         { role: 'user', content: JSON.stringify(context) },
       ],
@@ -989,7 +1122,7 @@ export function summarizeSpend(transactions = [], { exclude = NON_CONSUMPTION_SU
 }
 
 export const QA_SYSTEM =
-  'You are Ventus Coworker, an AI teammate for a wealth advisor, replying by email in a warm, concise, peer tone. ' +
+  'You are Ventus AI Coworker, an AI teammate for a wealth advisor, replying by email in a warm, concise, peer tone. ' +
   "Answer the advisor's question using ONLY the JSON context provided (household signals, observed spend, catalog, book, and recent conversation). " +
   'Rules you must follow: ' +
   '(1) Never invent facts, dollar figures, rates, names, or attributes that are not in the context. ' +

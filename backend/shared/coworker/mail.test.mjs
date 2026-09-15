@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { canReceiveProactiveMail, checkAllowlist, isAutomatedMessage, parseInboundEmail } from './mail.mjs';
+import {
+  canReceiveProactiveMail,
+  checkAllowlist,
+  friendlyFrom,
+  isAutomatedMessage,
+  parseInboundEmail,
+} from './mail.mjs';
 import { createFixturePortfolioProvider } from './portfolio-provider.mjs';
 
 function msg(headers, { from = 'dana.okoro@ventusai.com', body = 'hello' } = {}) {
@@ -81,4 +87,19 @@ test('the demo book mails only addresses with a mailbox behind them', () => {
   assert.ok(!mailed.includes('dana.okoro@ventusai.com'));
   assert.ok(!mailed.includes('marcus.reyes@ventusai.com'));
   assert.ok(mailed.length >= 1, 'someone real has to receive the digest');
+});
+
+// --- sender display name -----------------------------------------------------
+
+test('friendlyFrom attaches a display name without double-wrapping', () => {
+  assert.equal(
+    friendlyFrom('coworker@ventusai.com', 'Ventus AI Coworker'),
+    '"Ventus AI Coworker" <coworker@ventusai.com>'
+  );
+  // A configured COWORKER_FROM may already carry a display name; wrapping it
+  // again would produce a From header no client can parse.
+  assert.equal(friendlyFrom('"X" <a@b.com>', 'Ventus AI Coworker'), '"X" <a@b.com>');
+  assert.equal(friendlyFrom('a@b.com', ''), 'a@b.com');
+  assert.equal(friendlyFrom('', 'Ventus AI Coworker'), '');
+  assert.equal(friendlyFrom('a@b.com', 'Ventus "AI" Coworker'), '"Ventus \\"AI\\" Coworker" <a@b.com>');
 });

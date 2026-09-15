@@ -86,14 +86,17 @@ export function formatBenefit(row = {}) {
  * @param {string} opts.forwardMove       the single concrete next step
  * @param {string} [opts.signoff]
  * @param {string} [opts.disclaimer]
+ * @param {string} [opts.unsubscribeUrl]  one-click opt-out target. Required on
+ *   mail we originate; omitted on replies, which are transactional.
  */
 export function renderShell({
   greeting,
   paragraphs = [],
   sections = [],
   forwardMove,
-  signoff = 'Ventus Coworker',
+  signoff = 'Ventus AI Coworker',
   disclaimer = DEFAULT_DISCLAIMER,
+  unsubscribeUrl,
 }) {
   const paras = paragraphs.map((p) => `<p style="margin:0 0 12px;">${esc(p)}</p>`).join('');
   const secs = sections
@@ -105,6 +108,12 @@ export function renderShell({
   const forward = forwardMove
     ? `<p style="margin:16px 0 0;"><strong>Next:</strong> ${esc(forwardMove)}</p>`
     : '';
+  // A visible link as well as the List-Unsubscribe header: the header is only
+  // surfaced by some clients, and the ones that hide it are the ones where a
+  // reader who cannot find the opt-out reports the mail as spam instead.
+  const optOut = unsubscribeUrl
+    ? `<p style="font-size:11px;color:#888;margin:6px 0 0;">You are receiving this because you asked the Ventus AI Coworker to screen your book each morning. <a href="${esc(unsubscribeUrl)}" style="color:#888;text-decoration:underline;">Stop the daily digest</a>.</p>`
+    : '';
   return `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#1a1a1a;line-height:1.5;max-width:640px;">
 <p style="margin:0 0 12px;">${esc(greeting)}</p>
 ${paras}
@@ -113,6 +122,7 @@ ${forward}
 <p style="margin:16px 0 0;">${esc(signoff)}</p>
 <hr style="border:none;border-top:1px solid #e5e5e5;margin:20px 0 8px;" />
 <p style="font-size:11px;color:#888;margin:0;">${esc(disclaimer)}</p>
+${optOut}
 </div>`;
 }
 
