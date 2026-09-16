@@ -12,9 +12,10 @@ interface Props {
   bullets?: string[];
   tagline?: string;
   allowDemoBypass?: boolean;
+  showSettings?: boolean;
 }
 
-export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true }: Props) {
+export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true, showSettings = true }: Props) {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
@@ -62,7 +63,7 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
 
   return (
     <div className="relative h-screen w-screen flex items-center justify-center bg-white px-6" style={{ fontFamily: "Manrope, sans-serif" }}>
-      {/* Gear in top-right */}
+      {showSettings && (
       <button
         onClick={() => { setSettingsOpen(true); setSettingsUnlocked(false); setSettingsPwd(""); setSettingsErr(false); }}
         className="absolute top-5 right-5 w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-slate-800 hover:border-slate-300 flex items-center justify-center transition-colors"
@@ -71,6 +72,7 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
       >
         <Settings className="w-4 h-4" />
       </button>
+      )}
 
       <div className="flex flex-col items-center gap-8 w-full max-w-5xl">
         <div className="flex flex-col items-center gap-4">
@@ -189,6 +191,7 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
         </form>
       </div>
 
+      {showSettings && (
       <SettingsLauncher
         open={settingsOpen}
         setOpen={setSettingsOpen}
@@ -203,6 +206,7 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
         savedFlash={savedFlash}
         setSavedFlash={setSavedFlash}
       />
+      )}
     </div>
   );
 }

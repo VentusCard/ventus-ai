@@ -12,6 +12,9 @@ export const DECKMO = {
     desktopTitle: "Desktop Required",
     desktopBody: "This conference experience is designed for screens at least 1024 pixels wide.",
     returnHome: "Return to Home",
+    phoneTime: "9:41",
+    phoneMenu: "•••",
+    stepUnit: "steps",
     gateTagline: "A scripted customer intelligence story for bank leaders",
     gateBullets: ["Customer intelligence", "Personalized experiences", "Bank-wide orchestration"],
   },
@@ -125,7 +128,7 @@ export const DECKMO = {
     phoneTitle: "Ricky's relationship",
     event: { label: "LIFE EVENT DETECTED", title: "Home purchase journey", body: "A sustained cluster of housing-related activity indicates Ricky may be preparing for a move." },
     advisor: { label: "NEXT CONVERSATION", title: "Talk through the new home plan", body: "A relationship manager receives the context, timing, and a concise conversation guide." },
-    outreach: { label: "FOLLOW-UP READY", title: "A personal note, already drafted", body: "Ricky receives relevant help without exposing sensitive or risk-related signals.", action: "Review draft" },
+    outreach: { label: "FOLLOW-UP READY", title: "A personal note, already drafted", body: "Ricky receives relevant help without exposing sensitive signals.", action: "Review draft" },
     popups: ["Detect the life moment", "Prepare the next conversation", "Coordinate thoughtful outreach"],
   },
   bankTools: {
