@@ -6,3 +6,5 @@
 - [x] Validate copy rules, navigation, network silence, responsive framing, and build health
 
 - [x] Remove the System beat from /deckmo
+- [x] Replace the simplified deck phones with static /bankdemo-inspired customer experiences
+- [x] Rebuild deck pages 22-24 from Intelligence Database, Automated Flows, and AI Coworker

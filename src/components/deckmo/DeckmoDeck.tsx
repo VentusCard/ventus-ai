@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DECKMO, DECKMO_STEPS, type DeckmoBeatId } from "@/lib/deckmoScript";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
+import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm } from "./DeckmoBankdemoScenes";
 
 const TONES = {
   blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700" },
@@ -120,7 +121,7 @@ function BankToolContent({step}:{step:number}){const s=DECKMO.bankTools.screens[
 
 function Close({step}:SceneProps){const d=DECKMO.close;return <div className="mx-auto flex h-full max-w-6xl flex-col items-center justify-center px-12 text-center"><img src={ventusLogo} alt="Ventus AI" className="mb-10 h-8 w-auto object-contain"/><Eyebrow>{d.eyebrow}</Eyebrow><div className="mt-6 space-y-5">{d.lines.map((line,index)=><Reveal key={line} show={step>=index}><p className={cn("font-bold tracking-normal text-slate-950",index===2?"text-[clamp(42px,5vw,72px)] text-blue-600":"text-[clamp(25px,2.8vw,42px)]")}>{line}</p></Reveal>)}</div><Reveal show={step>=3} className="mt-10"><div className="flex justify-center gap-3">{d.outcomes.map(o=><span key={o} className="rounded-full border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-bold text-blue-700">{o}</span>)}</div><div className="mt-8 flex items-center justify-center gap-5"><Button asChild><Link to={d.href}>{d.cta}<ArrowRight className="h-4 w-4"/></Link></Button><p className="text-sm font-semibold text-slate-500">{d.exhibit}</p></div></Reveal></div>}
 
-const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:Visibility,"living-view":LivingView,ricky:Ricky,immediate:Immediate,"mid-term":MidTerm,"long-term":LongTerm,"bank-tools":BankTools,close:Close};
+const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:Visibility,"living-view":LivingView,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,"bank-tools":BankdemoBankTools,close:Close};
 
 export function DeckmoDeck(){const [globalStep,setGlobalStep]=useState(0);const [presenterOpen,setPresenterOpen]=useState(false);const scroller=useRef<HTMLDivElement>(null);const sectionRefs=useRef<(HTMLElement|null)[]>([]);const current=DECKMO_STEPS[globalStep];const activeBeat=DECKMO.beats[current.section];
 const jump=useCallback((index:number)=>{const bounded=Math.max(0,Math.min(DECKMO_STEPS.length-1,index));setGlobalStep(bounded);const next=DECKMO_STEPS[bounded];sectionRefs.current[next.section]?.scrollIntoView({behavior:"smooth",block:"start"});},[]);
