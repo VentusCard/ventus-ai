@@ -1,4 +1,4 @@
-export type DeckmoBeatId = "opener" | "visibility" | "living-view" | "assembly" | "ricky" | "immediate" | "mid-term" | "long-term" | "bank-tools" | "close";
+export type DeckmoBeatId = "opener" | "visibility" | "living-view" | "ricky" | "immediate" | "mid-term" | "long-term" | "bank-tools" | "close";
 
 export const DECKMO = {
   chrome: {
@@ -22,7 +22,6 @@ export const DECKMO = {
     { id: "opener", nav: "Opening", steps: 3 },
     { id: "visibility", nav: "The visibility gap", steps: 2 },
     { id: "living-view", nav: "One customer view", steps: 2 },
-    { id: "assembly", nav: "System assembly", steps: 4 },
     { id: "ricky", nav: "Meet Ricky", steps: 2 },
     { id: "immediate", nav: "Immediate value", steps: 4 },
     { id: "mid-term", nav: "Mid-term value", steps: 5 },
@@ -52,20 +51,6 @@ export const DECKMO = {
     inside: { header: "INSIDE THE WALLS", title: "Rail-agnostic transaction enrichment", chips: ["Checks", "Wires", "Zelle", "Card swipes", "P2P", "Digital telemetry"] },
     outside: { header: "OUTSIDE THE WALLS", title: "Source-agnostic behavioral intelligence", chips: ["Credit bureaus", "Data compilers", "National databases"], note: "For marketing and personalization only" },
     result: { header: "ONE LIVING CUSTOMER VIEW", body: "What they do, and what do they need next?" },
-  },
-  assembly: {
-    eyebrow: "THE SYSTEM",
-    title: "From understanding to action",
-    subtitle: "One intelligence layer orchestrates personalized experiences across the bank.",
-    columns: ["TRANSACTIONS", "MODULAR PLATFORM", "FEATURE ORCHESTRATION", "NEXT-GEN BANKING EXPERIENCE"],
-    engine: "Ventus AI Module Suites",
-    sources: ["Internal enrichment", "External intelligence", "Living profile"],
-    modules: ["Customer Intelligence", "AI & UX", "Rewards", "Relationship"],
-    rows: [
-      { name: "Experience", question: "Make every transaction easier to understand", capabilities: ["Lifestyle pillars", "Outflow insights", "Financial guidance"], result: "Personalized AI & UX" },
-      { name: "Rewards", question: "Anticipate what matters next", capabilities: ["Next-purchase intelligence", "Local experiences", "Deal personalization"], result: "Personalized Rewards" },
-      { name: "Relationship", question: "Show up for the next life moment", capabilities: ["Life-event detection", "Product automation", "Advisor intelligence"], result: "Personalized Relationship" },
-    ],
   },
   ricky: {
     eyebrow: "ONE CUSTOMER, FIVE SIGNAL FAMILIES",
