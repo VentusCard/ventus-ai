@@ -75,6 +75,7 @@ export default {
 				deck: {
 					navy: 'hsl(var(--deck-navy))',
 					blue: 'hsl(var(--deck-blue))',
+					gold: 'hsl(var(--deck-gold))',
 					surface: 'hsl(var(--deck-surface))',
 					rule: 'hsl(var(--deck-rule))',
 					muted: 'hsl(var(--deck-muted))',
