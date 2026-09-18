@@ -23,6 +23,8 @@ export default {
 		fontFamily: {
 			sans: ['"Manrope"', 'system-ui', '-apple-system', 'sans-serif'],
 				display: ['"Manrope"', 'system-ui', 'sans-serif'],
+				deck: ['"Work Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+				'deck-serif': ['"Instrument Serif"', 'Georgia', 'serif'],
 				mono: ['"DM Mono"', 'SF Mono', 'Monaco', 'monospace'],
 			},
 
@@ -69,6 +71,13 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				deck: {
+					navy: 'hsl(var(--deck-navy))',
+					blue: 'hsl(var(--deck-blue))',
+					surface: 'hsl(var(--deck-surface))',
+					rule: 'hsl(var(--deck-rule))',
+					muted: 'hsl(var(--deck-muted))',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
