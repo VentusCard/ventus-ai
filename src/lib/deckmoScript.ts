@@ -35,8 +35,8 @@ export const DECKMO = {
    { id: "close", nav: "The Ask", steps: 4 },
   ],
   opener: {
-    eyebrow: "VENTUS AI",
     lines: [
+
       "Banking is personal. Or at least, it used to be.",
       "We cannot speak to millions of digital customers. And if we cannot see the person, we cannot personalize.",
       "Your personalization is your differentiation.",

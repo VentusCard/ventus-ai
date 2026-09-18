@@ -41,8 +41,8 @@ function Opener({ step }: SceneProps) {
   return (
     <div className="mx-auto flex h-full max-w-[1480px] flex-col justify-center px-12">
       <img src={ventusLogo} alt="Ventus AI" className="mb-14 h-9 w-auto self-start object-contain" />
-      <Eyebrow>{DECKMO.opener.eyebrow}</Eyebrow>
       <div className="mt-6 max-w-[1280px] space-y-8">
+
         {DECKMO.opener.lines.map((line, index) => (
           <Reveal key={line} show={step >= index}>
             <p className={cn("text-balance font-bold tracking-normal text-slate-950", index === 0 ? "text-[clamp(44px,5vw,76px)] leading-[1.03]" : "max-w-[1120px] text-[clamp(23px,2.3vw,35px)] leading-tight", index === 2 && "text-blue-600")}>{line}</p>
