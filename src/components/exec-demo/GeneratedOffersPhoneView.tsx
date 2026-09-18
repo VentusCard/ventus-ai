@@ -352,7 +352,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         </button>
 
         <div className="h-[110px] w-full overflow-hidden">
-          <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={handleImageError} />
+          <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
         <div className="px-3 pt-2.5 pb-1">
@@ -619,7 +619,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               onClick={() => setExpandedGroup(active)}
             >
               <div className="h-[110px] w-full overflow-hidden">
-                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={handleImageError} />
+                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={presentationMode ? undefined : handleImageError} />
               </div>
               <div className="px-3 pt-2 pb-1.5 shrink-0">
                 <p className="text-[12px] font-semibold text-slate-800 leading-snug">
