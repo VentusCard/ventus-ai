@@ -50,20 +50,21 @@ function Opener({ step }: SceneProps) {
         </Reveal>
         <div className="mt-[clamp(40px,5vh,72px)] grid grid-cols-[auto_auto_auto_auto_auto] items-baseline gap-x-[clamp(14px,1.6vw,28px)] [@media(max-height:800px)]:mt-8">
           {comparison.map((row, index) => {
-            const show = step >= 2 + index;
             const blue = index === 1;
-            const reveal = show ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
+            // Today reveals as one block at step 2; With Ventus builds one segment per beat from step 3.
+            const revealFor = (segmentIndex: number) =>
+              (blue ? step >= 3 + segmentIndex : step >= 2) ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
             return (
               <Fragment key={row.label}>
-                <div className={cn("col-span-5 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(28px,3.4vh,48px)] [@media(max-height:800px)]:mt-6", reveal)}>
+                <div className={cn("col-span-5 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(28px,3.4vh,48px)] [@media(max-height:800px)]:mt-6", revealFor(0))}>
                   <p className={cn("text-[13px] font-bold uppercase tracking-[0.18em]", blue ? "text-blue-600" : "text-deck-muted")}>{row.label}</p>
                 </div>
                 {row.segments.map((segment, s) => (
                   <Fragment key={segment}>
                     {s > 0 && (
-                      <div className={cn("mt-2 px-1 text-[clamp(18px,1.7vw,30px)] font-bold transition-all duration-700 motion-reduce:transition-none", reveal, blue ? "text-blue-600" : "text-deck-muted")}>=</div>
+                      <div className={cn("mt-2 px-1 text-[clamp(18px,1.7vw,30px)] font-bold transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-deck-muted")}>=</div>
                     )}
-                    <div className={cn("mt-2 whitespace-nowrap text-[clamp(18px,1.7vw,30px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", reveal, blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
+                    <div className={cn("mt-2 whitespace-nowrap text-[clamp(18px,1.7vw,30px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
                   </Fragment>
                 ))}
               </Fragment>
