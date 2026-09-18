@@ -128,9 +128,67 @@
     --ring: 217 91% 60%;
     --deck-navy: 212 65% 17%;
     --deck-blue: 217 91% 60%;
+    --deck-gold: 39 80% 47%;
     --deck-surface: 210 40% 98%;
     --deck-rule: 214 32% 91%;
     --deck-muted: 215 16% 47%;
+  }
+}
+
+@keyframes deck-breathe {
+  0%, 18%, 100% { opacity: 0; transform: scale(0.78); }
+  46% { opacity: 0.42; }
+  72% { opacity: 0; transform: scale(1.12); }
+}
+
+@keyframes deck-node-breathe {
+  0%, 18%, 100% { box-shadow: 0 8px 24px hsl(var(--deck-navy) / 0.08); transform: scale(1); }
+  48% { box-shadow: 0 14px 38px hsl(var(--deck-blue) / 0.2); transform: scale(1.025); }
+  72% { box-shadow: 0 8px 24px hsl(var(--deck-navy) / 0.08); transform: scale(1); }
+}
+
+@keyframes deck-signal-left {
+  0%, 18% { left: 0; opacity: 0; }
+  30% { opacity: 1; }
+  68% { left: calc(100% - 0.5rem); opacity: 1; }
+  78%, 100% { left: calc(100% - 0.5rem); opacity: 0; }
+}
+
+@keyframes deck-signal-right {
+  0%, 18% { right: 0; opacity: 0; }
+  30% { opacity: 1; }
+  68% { right: calc(100% - 0.5rem); opacity: 1; }
+  78%, 100% { right: calc(100% - 0.5rem); opacity: 0; }
+}
+
+.deck-breathe-ring {
+  animation: deck-breathe 4.8s ease-out infinite;
+}
+
+.deck-breathe-ring-delayed {
+  animation-delay: 0.9s;
+}
+
+.deck-node-breathe {
+  animation: deck-node-breathe 4.8s ease-in-out infinite;
+}
+
+.deck-signal-left {
+  animation: deck-signal-left 4.8s ease-in-out infinite;
+}
+
+.deck-signal-right {
+  animation: deck-signal-right 4.8s ease-in-out infinite;
+  animation-delay: 0.35s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-breathe-ring,
+  .deck-breathe-ring-delayed,
+  .deck-node-breathe,
+  .deck-signal-left,
+  .deck-signal-right {
+    animation: none;
   }
 }
 
