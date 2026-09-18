@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Building2, Check, ChevronRight, CreditCard, ExternalLink, Gift, Grid2X2, Home, Mail, Monitor, Plane, Search, ShieldCheck, Sparkles, Target, UserRound, Wallet, X, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -38,28 +38,38 @@ function Reveal({ show, delay = 0, children, className }: { show: boolean; delay
 }
 
 function Opener({ step }: SceneProps) {
-  const { today, ventus } = DECKMO.opener.comparison;
-  const rows = [
-    { key: "l0", text: DECKMO.opener.lines[0] },
-    { key: "l1", text: DECKMO.opener.lines[1] },
-    { key: "today", label: today.label, body: today.text },
-    { key: "ventus", label: ventus.label, body: ventus.text },
-  ];
+  const comparison = [DECKMO.opener.comparison.today, DECKMO.opener.comparison.ventus];
   return (
     <div className="mx-auto flex h-full max-w-[1480px] flex-col justify-center px-12">
       <div className="max-w-[1280px] space-y-8">
-        {rows.map((row, index) => (
-          <Reveal key={row.key} show={step >= index}>
-            {row.text ? (
-              <p className={cn("text-balance font-bold tracking-normal text-slate-950", index === 0 ? "text-[clamp(44px,5vw,76px)] leading-[1.03]" : "text-[clamp(34px,3.9vw,58px)] leading-[1.06]")}>{row.text}</p>
-            ) : (
-              <p className={cn("max-w-[1120px] text-[clamp(23px,2.3vw,35px)] font-bold leading-tight", index === 3 ? "text-blue-600" : "text-slate-950")}>
-                <span className={cn("mr-3", index === 3 ? "text-blue-600" : "text-deck-muted")}>{row.label}:</span>
-                {row.body}
-              </p>
-            )}
-          </Reveal>
-        ))}
+        <Reveal show={step >= 0}>
+          <p className="text-balance text-[clamp(44px,5vw,76px)] font-bold leading-[1.03] tracking-normal text-slate-950">{DECKMO.opener.lines[0]}</p>
+        </Reveal>
+        <Reveal show={step >= 1}>
+          <p className="text-balance text-[clamp(34px,3.9vw,58px)] font-bold leading-[1.06] tracking-normal text-slate-950">{DECKMO.opener.lines[1]}</p>
+        </Reveal>
+        <div className="grid max-w-[1380px] grid-cols-[auto_auto_auto_auto_auto] items-baseline gap-x-5">
+          {comparison.map((row, index) => {
+            const show = step >= 2 + index;
+            const blue = index === 1;
+            const reveal = show ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
+            return (
+              <Fragment key={row.label}>
+                <div className={cn("col-span-5 mt-1 transition-all duration-700 motion-reduce:transition-none", reveal)}>
+                  <p className={cn("text-[13px] font-bold uppercase tracking-[0.18em]", blue ? "text-blue-600" : "text-deck-muted")}>{row.label}</p>
+                </div>
+                {row.segments.map((segment, s) => (
+                  <Fragment key={segment}>
+                    {s > 0 && (
+                      <div className={cn("px-1 text-[clamp(17px,1.6vw,28px)] font-bold transition-all duration-700 motion-reduce:transition-none", reveal, blue ? "text-blue-600" : "text-deck-muted")}>=</div>
+                    )}
+                    <div className={cn("whitespace-nowrap text-[clamp(17px,1.6vw,28px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", reveal, blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
+                  </Fragment>
+                ))}
+              </Fragment>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
