@@ -38,13 +38,26 @@ function Reveal({ show, delay = 0, children, className }: { show: boolean; delay
 }
 
 function Opener({ step }: SceneProps) {
+  const { today, ventus } = DECKMO.opener.comparison;
+  const rows = [
+    { key: "l0", text: DECKMO.opener.lines[0] },
+    { key: "l1", text: DECKMO.opener.lines[1] },
+    { key: "today", label: today.label, body: today.text },
+    { key: "ventus", label: ventus.label, body: ventus.text },
+  ];
   return (
     <div className="mx-auto flex h-full max-w-[1480px] flex-col justify-center px-12">
       <div className="max-w-[1280px] space-y-8">
-
-        {DECKMO.opener.lines.map((line, index) => (
-          <Reveal key={line} show={step >= index}>
-            <p className={cn("text-balance font-bold tracking-normal text-slate-950", index === 0 ? "text-[clamp(44px,5vw,76px)] leading-[1.03]" : index === 1 ? "text-[clamp(34px,3.9vw,58px)] leading-[1.06]" : "max-w-[1120px] text-[clamp(23px,2.3vw,35px)] leading-tight", index === 3 && "text-blue-600")}>{line}</p>
+        {rows.map((row, index) => (
+          <Reveal key={row.key} show={step >= index}>
+            {row.text ? (
+              <p className={cn("text-balance font-bold tracking-normal text-slate-950", index === 0 ? "text-[clamp(44px,5vw,76px)] leading-[1.03]" : "text-[clamp(34px,3.9vw,58px)] leading-[1.06]")}>{row.text}</p>
+            ) : (
+              <p className={cn("max-w-[1120px] text-[clamp(23px,2.3vw,35px)] font-bold leading-tight", index === 3 ? "text-blue-600" : "text-slate-950")}>
+                <span className={cn("mr-3", index === 3 ? "text-blue-600" : "text-deck-muted")}>{row.label}:</span>
+                {row.body}
+              </p>
+            )}
           </Reveal>
         ))}
       </div>
