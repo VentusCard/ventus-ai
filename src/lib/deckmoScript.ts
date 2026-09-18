@@ -38,9 +38,11 @@ export const DECKMO = {
     lines: [
       "Banking is personal.",
       "Or at least, it used to be.",
-      "We cannot speak to millions of digital customers. And if we cannot see the person, we cannot personalize.",
-      "Your personalization is your differentiation.",
     ],
+    comparison: {
+      today: { label: "Today", text: "Don't talk to or understand your customers = Commoditized banking = Easy to lose" },
+      ventus: { label: "With Ventus", text: "Understand and predict customer needs = Personalized banking = Differentiated banking" },
+    },
   },
   visibility: {
     eyebrow: "THE VISIBILITY GAP",
