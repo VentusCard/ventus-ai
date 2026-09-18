@@ -40,8 +40,7 @@ function Reveal({ show, delay = 0, children, className }: { show: boolean; delay
 function Opener({ step }: SceneProps) {
   return (
     <div className="mx-auto flex h-full max-w-[1480px] flex-col justify-center px-12">
-      <img src={ventusLogo} alt="Ventus AI" className="mb-14 h-9 w-auto self-start object-contain" />
-      <div className="mt-6 max-w-[1280px] space-y-8">
+      <div className="max-w-[1280px] space-y-8">
 
         {DECKMO.opener.lines.map((line, index) => (
           <Reveal key={line} show={step >= index}>
