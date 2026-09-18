@@ -40,30 +40,30 @@ function Reveal({ show, delay = 0, children, className }: { show: boolean; delay
 function Opener({ step }: SceneProps) {
   const comparison = [DECKMO.opener.comparison.today, DECKMO.opener.comparison.ventus];
   return (
-    <div className="mx-auto flex h-full max-w-[1480px] flex-col justify-center px-12">
-      <div className="max-w-[1280px] space-y-8">
+    <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col justify-center px-[clamp(32px,4vw,72px)] py-10 [@media(max-height:800px)]:py-6">
+      <div className="w-full">
         <Reveal show={step >= 0}>
           <p className="text-balance text-[clamp(44px,5vw,76px)] font-bold leading-[1.03] tracking-normal text-slate-950">{DECKMO.opener.lines[0]}</p>
         </Reveal>
-        <Reveal show={step >= 1}>
+        <Reveal show={step >= 1} className="mt-3 [@media(max-height:800px)]:mt-2">
           <p className="text-balance text-[clamp(34px,3.9vw,58px)] font-bold leading-[1.06] tracking-normal text-slate-950">{DECKMO.opener.lines[1]}</p>
         </Reveal>
-        <div className="grid max-w-[1380px] grid-cols-[auto_auto_auto_auto_auto] items-baseline gap-x-5">
+        <div className="mt-[clamp(40px,5vh,72px)] grid grid-cols-[auto_auto_auto_auto_auto] items-baseline gap-x-[clamp(14px,1.6vw,28px)] [@media(max-height:800px)]:mt-8">
           {comparison.map((row, index) => {
             const show = step >= 2 + index;
             const blue = index === 1;
             const reveal = show ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
             return (
               <Fragment key={row.label}>
-                <div className={cn("col-span-5 mt-1 transition-all duration-700 motion-reduce:transition-none", reveal)}>
+                <div className={cn("col-span-5 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(28px,3.4vh,48px)] [@media(max-height:800px)]:mt-6", reveal)}>
                   <p className={cn("text-[13px] font-bold uppercase tracking-[0.18em]", blue ? "text-blue-600" : "text-deck-muted")}>{row.label}</p>
                 </div>
                 {row.segments.map((segment, s) => (
                   <Fragment key={segment}>
                     {s > 0 && (
-                      <div className={cn("px-1 text-[clamp(17px,1.6vw,28px)] font-bold transition-all duration-700 motion-reduce:transition-none", reveal, blue ? "text-blue-600" : "text-deck-muted")}>=</div>
+                      <div className={cn("mt-2 px-1 text-[clamp(18px,1.7vw,30px)] font-bold transition-all duration-700 motion-reduce:transition-none", reveal, blue ? "text-blue-600" : "text-deck-muted")}>=</div>
                     )}
-                    <div className={cn("whitespace-nowrap text-[clamp(17px,1.6vw,28px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", reveal, blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
+                    <div className={cn("mt-2 whitespace-nowrap text-[clamp(18px,1.7vw,30px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", reveal, blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
                   </Fragment>
                 ))}
               </Fragment>
