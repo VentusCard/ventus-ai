@@ -40,8 +40,8 @@ export const DECKMO = {
       "Or at least, it used to be.",
     ],
     comparison: {
-      today: { label: "Today", text: "Don't talk to or understand your customers = Commoditized banking = Easy to lose" },
-      ventus: { label: "With Ventus", text: "Understand and predict customer needs = Personalized banking = Differentiated banking" },
+      today: { label: "Today", segments: ["Don't talk to or understand your customers", "Commoditized experiences", "Commoditization"] },
+      ventus: { label: "With Ventus", segments: ["Anticipate and fulfil customer needs", "Personalized experiences", "Differentiation"] },
     },
   },
   visibility: {
