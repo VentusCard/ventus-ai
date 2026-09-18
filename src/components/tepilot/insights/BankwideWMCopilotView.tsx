@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 type ViewMode = "inbox" | "userview" | "persona" | "stream";
 
-export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } = {}) {
+export function BankwideWMCopilotView({ hideHeader, presentationMode = false }: { hideHeader?: boolean; presentationMode?: boolean } = {}) {
   const [viewMode, setViewMode] = useState<ViewMode>("inbox");
 
   const toggles: { key: ViewMode; label: string; icon: React.ReactNode }[] = [
@@ -24,7 +24,7 @@ export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } =
 
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full", presentationMode && "pointer-events-none select-none")}>
       {!hideHeader && <TabHeader
         icon={<Briefcase className="w-4 h-4" />}
         title="Ventus AI Coworker"

@@ -170,9 +170,10 @@ interface Props {
   cards: ProductCard[];
   customerName?: string;
   compact?: boolean;
+  presentationMode?: boolean;
 }
 
-export default function ProductCardsPhoneView({ cards, compact = false }: Props) {
+export default function ProductCardsPhoneView({ cards, compact = false, presentationMode = false }: Props) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -181,12 +182,12 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
 
   // Auto-advance
   useEffect(() => {
-    if (paused || total <= 1) return;
+    if (presentationMode || paused || total <= 1) return;
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % total);
     }, 6000);
     return () => clearInterval(id);
-  }, [paused, total]);
+  }, [presentationMode, paused, total]);
 
   // Reset index if card list shrinks
   useEffect(() => {

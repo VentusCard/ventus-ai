@@ -16,6 +16,7 @@ interface Props {
   detectedLifeEvents?: LifeEvent[] | null;
   productCards?: ProductCard[] | null;
   onGoToAI: (message: string) => void;
+  presentationMode?: boolean;
 }
 
 const parseCurrency = (val: string): number => {
@@ -53,7 +54,7 @@ function getAdvisor(customerId: string) {
   return ADVISORS[Math.abs(hash) % ADVISORS.length];
 }
 
-export default function RelationshipPhoneView({ customer, detectedLifeEvents, productCards, onGoToAI }: Props) {
+export default function RelationshipPhoneView({ customer, detectedLifeEvents, productCards, onGoToAI, presentationMode = false }: Props) {
   const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
   const holdings = customer.profile.holdings ?? {};
   const eventName = detectedLifeEvents?.[0]?.event_name ?? "financial goals";
@@ -107,7 +108,7 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
           </div>
           {productCards && productCards.length > 0 ? (
             <div className="flex-1 min-h-0">
-              <ProductCardsPhoneView cards={productCards} compact />
+              <ProductCardsPhoneView cards={productCards} compact presentationMode={presentationMode} />
             </div>
           ) : (
             <div className="px-2 py-4 text-center">

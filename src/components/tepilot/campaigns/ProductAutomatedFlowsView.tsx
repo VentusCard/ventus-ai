@@ -633,12 +633,12 @@ function FlowRow({
 }
 
 
-export function ProductAutomatedFlowsView() {
+export function ProductAutomatedFlowsView({ presentationMode = false }: { presentationMode?: boolean } = {}) {
   const [category, setCategory] = useState<FlowCategory | "All">("All");
   const [active, setActive] = useState<Set<string>>(
     () => new Set(PRODUCT_FLOWS.filter((p) => p.defaultActive).map((p) => p.id)),
   );
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(() => presentationMode ? PRODUCT_FLOWS[0]?.id ?? null : null);
   const [signalState, setSignalState] = useState<Record<string, Set<string>>>({});
   const [filterState, setFilterState] = useState<Record<string, Set<string>>>({});
 
@@ -670,7 +670,7 @@ export function ProductAutomatedFlowsView() {
 
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", presentationMode && "pointer-events-none select-none")}>
       <TabHeader
         icon={<Zap className="w-4 h-4" />}
         title="Automated Flows"

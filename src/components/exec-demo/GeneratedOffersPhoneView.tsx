@@ -185,6 +185,8 @@ interface Props {
   focusMode?: boolean;
   activeRollupLabel?: string | null;
   activeRollupPillar?: string | null;
+  presentationMode?: boolean;
+  presentationImageUrl?: string;
 }
 
 // ── Fuzzy-match helpers (mirrors NextOfferRationale) ──
@@ -212,7 +214,7 @@ export function findGroupForLabel(label: string, pillar: string | null | undefin
   return hit || null;
 }
 
-export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar }: Props) {
+export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar, presentationMode = false, presentationImageUrl }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
@@ -323,20 +325,20 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   }, [current]);
 
   useEffect(() => {
-    if (allGroups.length <= 1 || expandedGroup || isSearchActive) return;
+    if (presentationMode || allGroups.length <= 1 || expandedGroup || isSearchActive) return;
     const timer = setInterval(() => {
       setDirection("right");
       setCurrent(prev => (prev + 1) % allGroups.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [allGroups.length, expandedGroup, isSearchActive]);
+  }, [presentationMode, allGroups.length, expandedGroup, isSearchActive]);
 
   if (offerGroups.length === 0) return null;
 
   // ── Deal Detail View ──
   if (expandedGroup && !isSearchActive) {
     const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
-    const imgSrc = getCollectionImage(expandedGroup);
+    const imgSrc = presentationImageUrl ?? getCollectionImage(expandedGroup);
     const c = getColor(expandedGroup.pillar || "");
 
     return (
@@ -350,7 +352,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         </button>
 
         <div className="h-[110px] w-full overflow-hidden">
-          <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={handleImageError} />
+          <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
         <div className="px-3 pt-2.5 pb-1">
@@ -477,7 +479,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   const safeIdx = current % Math.max(groups.length, 1);
   const active = groups[safeIdx];
   const activeDeals = active ? active.deals.filter(d => d.signal !== "suppress") : [];
-  const imgSrc = active ? getCollectionImage(active) : DEFAULT_IMAGE;
+  const imgSrc = presentationImageUrl ?? (active ? getCollectionImage(active) : DEFAULT_IMAGE);
 
   return (
     <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
@@ -617,7 +619,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               onClick={() => setExpandedGroup(active)}
             >
               <div className="h-[110px] w-full overflow-hidden">
-                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={handleImageError} />
+                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={presentationMode ? undefined : handleImageError} />
               </div>
               <div className="px-3 pt-2 pb-1.5 shrink-0">
                 <p className="text-[12px] font-semibold text-slate-800 leading-snug">
