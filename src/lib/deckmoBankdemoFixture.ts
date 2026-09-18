@@ -1,10 +1,10 @@
 import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
-import { EXAMPLE_CUSTOMERS } from "@/lib/personalizationExamples";
+import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { getPersonalizationSnapshot } from "@/lib/personalizationSnapshots";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 
-const customer = EXAMPLE_CUSTOMERS[0];
-const snapshot = customer ? getPersonalizationSnapshot(customer.id) : null;
+const customer = DEMO_CUSTOMERS[0];
+const snapshot = getPersonalizationSnapshot(customer.id);
 
 const PILLARS: Record<string, { pillar: string; category: string }> = {
   "4511": { pillar: "Travel & Transport", category: "Air Travel" },
@@ -46,17 +46,17 @@ function frozenTransactions(csv: string): EnrichedTransaction[] {
   });
 }
 
-const lifeEvents = (customer?.lifeEvents ?? []).map((event) => ({
-  event_name: event.label,
-  confidence: event.confidence === "Strong" ? 0.88 : event.confidence === "Likely" ? 0.72 : 0.55,
+const lifeEvents = customer.lifeEvents.map((event) => ({
+  event_name: event.name,
+  confidence: event.confidence / 100,
   talking_points: [event.evidence],
   evidence: [],
-})) as unknown as LifeEvent[];
+})) satisfies LifeEvent[];
 
 export const DECKMO_BANKDEMO_FIXTURE = {
-  customer: customer?.demo,
+  customer,
   offers: snapshot?.offers ?? [],
   productCards: snapshot?.productCards ?? [],
   lifeEvents,
-  enrichedTransactions: customer ? frozenTransactions(customer.demo.csv) : [],
+  enrichedTransactions: frozenTransactions(customer.csv),
 };
