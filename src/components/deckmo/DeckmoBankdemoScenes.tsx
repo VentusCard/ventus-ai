@@ -96,7 +96,7 @@ export function BankdemoSegmentCampaign() {
   const reachLabel = reach ? `~${(reach / 1_000).toFixed(1)}K` : "Qualified";
 
   return (
-    <div className="mx-auto flex h-full max-w-[1380px] flex-col justify-center px-12 py-8">
+    <div className="mx-auto flex h-full max-w-[1380px] flex-col justify-center px-12 py-8 [@media(max-height:800px)]:origin-top [@media(max-height:800px)]:scale-[0.88]">
       <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
 
       <div className="mt-7 grid min-h-0 flex-1 grid-cols-[340px_1fr] gap-8">
