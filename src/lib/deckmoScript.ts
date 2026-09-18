@@ -1,4 +1,4 @@
-export type DeckmoBeatId = "opener" | "visibility" | "living-view" | "ricky" | "immediate" | "mid-term" | "long-term" | "bank-tools" | "close";
+export type DeckmoBeatId = "opener" | "visibility" | "living-view" | "ricky" | "immediate" | "mid-term" | "segment-campaign" | "long-term" | "bank-tools" | "close";
 
 export const DECKMO = {
   chrome: {
@@ -29,6 +29,7 @@ export const DECKMO = {
     { id: "ricky", nav: "Meet Ricky", steps: 2 },
     { id: "immediate", nav: "Immediate value", steps: 4 },
     { id: "mid-term", nav: "Mid-term value", steps: 5 },
+    { id: "segment-campaign", nav: "Segment activation", steps: 1 },
     { id: "long-term", nav: "Long-term value", steps: 3 },
     { id: "bank-tools", nav: "Tools for the bank", steps: 3 },
     { id: "close", nav: "Close", steps: 4 },
@@ -111,6 +112,18 @@ export const DECKMO = {
     placement: { title: "One asset, placed everywhere", channels: ["Digital banking", "Email", "Relationship manager", "Marketing/CRM automation"] },
     delivery: { inbox: "Inbox", time: "just now", subject: "A home lending option selected for you", from: "Our Bank · to Ricky", label: "JUST FOR YOU", body: "Your relationship with us may qualify you for preferred home lending support." },
     popups: ["Top pick built from observed behavior", "Interests become browsable collections", "Every recommendation traces to a signal", "Benefits are made concrete", "The same experience travels across channels"],
+  },
+  segmentCampaign: {
+    eyebrow: "MID-TERM · SEGMENT ACTIVATION",
+    title: "One segment. One message built for how they live.",
+    subtitle: "Behavioral intelligence turns a broad card campaign into activation-ready copy for a specific customer mindset.",
+    productLabel: "Cashback (3/2/1)",
+    outputLabel: "Micro-Segment Personalized Campaign Output",
+    stages: [
+      { label: "Signal", value: "Food and dining routines" },
+      { label: "Segment", value: "Everyday foodie" },
+      { label: "Activation", value: "Tailored campaign copy" },
+    ],
   },
   longTerm: {
     eyebrow: "LONG-TERM",
