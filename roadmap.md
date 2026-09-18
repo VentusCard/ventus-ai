@@ -10,3 +10,4 @@
 - [x] Rebuild deck pages 22-24 from Intelligence Database, Automated Flows, and AI Coworker
 - [x] Reuse the exact /bankdemo phone and workspace components in /deckmo with frozen presentation data
 - [x] Add the Cashback (3/2/1) Everyday Foodie campaign as a new mid-term deck beat
+- [x] Redesign The Complete Picture around a centered customer and balanced data sources
