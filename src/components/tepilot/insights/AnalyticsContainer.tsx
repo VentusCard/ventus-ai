@@ -134,9 +134,10 @@ interface AnalyticsContainerProps {
   lifestyleSignals?: AIInsights | null;
   onBack?: () => void;
   enabledModules?: Set<ModuleKey>;
+  presentationMode?: boolean;
 }
 
-export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographics, lifestyleSignals, onBack, enabledModules, presentationMode = false }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -211,8 +212,9 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   // session as soon as the dashboard mounts, so his personalized surface is
   // cached before a banker opens a Personalization tab.
   useEffect(() => {
+    if (presentationMode) return;
     prewarmDefaultCustomer();
-  }, []);
+  }, [presentationMode]);
 
 
 
@@ -365,7 +367,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'ventus-ai-dashboard':
       case 'ventus-ai':
       case 'analytics-dashboard':
-        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
+        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} presentationMode={presentationMode} />;
       case 'capabilities': return <CapabilitiesView onNavigate={setActiveTab} />;
       case 'products': return <BankContextView />;
       // 'ventus-chat' is rendered as a persistent mount below so the thread survives tab switches.
@@ -395,13 +397,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'location-experience':
         return <PersonalizedDealsView onNavigate={setActiveTab} />;
       case 'targeting': return <PersonalizedProductView onNavigate={setActiveTab} />;
-      case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
+      case 'targeting-automated-flows': return <ProductAutomatedFlowsView presentationMode={presentationMode} />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       case 'growth-merchant-partnerships': return <MerchantPartnershipsView onLaunchCampaign={launchCampaignFor} />;
 
       
       case 'wallet-share': return <ProductCampaignBuilderView initialMode="outflow" />;
-      case 'wm-copilot': return <BankwideWMCopilotView />;
+      case 'wm-copilot': return <BankwideWMCopilotView presentationMode={presentationMode} />;
       case 'personalized-relationship':
       case 'customer-insights':
       case 'life-events':
@@ -432,7 +434,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   );
 
   return (
-    <div className="w-full h-full flex border border-slate-200 overflow-hidden bg-white">
+    <div className={cn("w-full h-full flex border border-slate-200 overflow-hidden bg-white", presentationMode && "pointer-events-none select-none")}>
       {/* Sidebar */}
       <div
         ref={sidebarRef}

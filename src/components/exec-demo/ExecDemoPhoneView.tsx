@@ -18,7 +18,7 @@ import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import type { SelectedSignal } from "./NextConversationRationale";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
-type ConsumerTab = "rewards" | "relationship" | "budget" | "ai";
+export type ConsumerTab = "rewards" | "relationship" | "budget" | "ai";
 
 const TAB_MAP: Record<TabKey, ConsumerTab> = {
   analytics: "rewards",
@@ -90,12 +90,15 @@ interface Props {
   onCloseWMCopilot?: () => void;
   /** Device frame chrome: "default" (chunky demo bezel) or "compact" (thin bezel for embedded workspaces). */
   frame?: "default" | "compact";
+  presentationMode?: boolean;
+  presentationTab?: ConsumerTab;
+  presentationImageUrl?: string;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default" }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
-  const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
+  const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
   const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
@@ -127,7 +130,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     switch (consumerTab) {
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
-          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={false} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} />;
+          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={false} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} presentationMode={presentationMode} presentationImageUrl={presentationImageUrl} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
@@ -141,7 +144,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         if (productDeliveryChannel === "sms") {
           return <SmsPreviewPhoneView cards={productCards ?? []} customerName={customer.profile?.name} bankLabel={bankLabel} />;
         }
-        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
+        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} presentationMode={presentationMode} onGoToAI={(msg) => { if (presentationMode) return; setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
       case "budget":
         return <BudgetPhoneView enrichedTxs={enrichedTxs} />;
       case "ai": {
@@ -257,7 +260,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
               return (
                 <button
                   key={tab.key}
-                  onClick={() => setConsumerTab(tab.key)}
+                  onClick={() => { if (!presentationMode) setConsumerTab(tab.key); }}
                   className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
                 >
                   <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : "#94a3b8" }} />

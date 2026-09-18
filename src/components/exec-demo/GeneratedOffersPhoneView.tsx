@@ -185,6 +185,8 @@ interface Props {
   focusMode?: boolean;
   activeRollupLabel?: string | null;
   activeRollupPillar?: string | null;
+  presentationMode?: boolean;
+  presentationImageUrl?: string;
 }
 
 // ── Fuzzy-match helpers (mirrors NextOfferRationale) ──
@@ -212,7 +214,7 @@ export function findGroupForLabel(label: string, pillar: string | null | undefin
   return hit || null;
 }
 
-export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar }: Props) {
+export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar, presentationMode = false, presentationImageUrl }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
@@ -323,20 +325,20 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   }, [current]);
 
   useEffect(() => {
-    if (allGroups.length <= 1 || expandedGroup || isSearchActive) return;
+    if (presentationMode || allGroups.length <= 1 || expandedGroup || isSearchActive) return;
     const timer = setInterval(() => {
       setDirection("right");
       setCurrent(prev => (prev + 1) % allGroups.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [allGroups.length, expandedGroup, isSearchActive]);
+  }, [presentationMode, allGroups.length, expandedGroup, isSearchActive]);
 
   if (offerGroups.length === 0) return null;
 
   // ── Deal Detail View ──
   if (expandedGroup && !isSearchActive) {
     const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
-    const imgSrc = getCollectionImage(expandedGroup);
+    const imgSrc = presentationImageUrl ?? getCollectionImage(expandedGroup);
     const c = getColor(expandedGroup.pillar || "");
 
     return (

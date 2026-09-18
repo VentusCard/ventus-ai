@@ -34,9 +34,10 @@ interface VentusAIDashboardViewProps {
   onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
   onOpenChat?: (prompt?: string) => void;
   initialSection?: "overview" | "customers" | "risk" | "reports" | "query" | "api";
+  presentationMode?: boolean;
 }
 
-export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInteractiveReport, onOpenChat, initialSection = "overview" }: VentusAIDashboardViewProps) {
+export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInteractiveReport, onOpenChat, initialSection = "overview", presentationMode = false }: VentusAIDashboardViewProps) {
 
   const [section, setSection] = useState<string>(initialSection);
   const [consoleQuery, setConsoleQuery] = useState<string | undefined>(undefined);
@@ -50,19 +51,20 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
 
   // Pre-warm Ventus so clicking a priority renders an answer instantly.
   useEffect(() => {
+    if (presentationMode) return;
     prewarmPrompts(priorityCards.map(getPriorityPrompt), LEADERSHIP_CONTEXT);
-  }, [priorityCards]);
+  }, [presentationMode, priorityCards]);
 
   const [priorityIndex, setPriorityIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (paused || priorityCards.length < 2) return;
+    if (presentationMode || paused || priorityCards.length < 2) return;
     const t = window.setInterval(() => {
       setPriorityIndex((i) => (i + 1) % priorityCards.length);
     }, 5000);
     return () => window.clearInterval(t);
-  }, [paused, priorityCards.length]);
+  }, [presentationMode, paused, priorityCards.length]);
 
   const activeCard = priorityCards[priorityIndex % Math.max(priorityCards.length, 1)];
 
