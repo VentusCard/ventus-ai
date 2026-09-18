@@ -13,10 +13,10 @@ type SceneProps = { step: number };
 
 function SceneHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
   return (
-    <header className="max-w-[520px]">
+    <header className="min-w-0 max-w-[680px]">
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{eyebrow}</p>
-      <h2 className="mt-3 text-[clamp(34px,3.5vw,58px)] font-bold leading-[1.04] text-slate-950">{title}</h2>
-      <p className="mt-4 text-[clamp(15px,1.2vw,19px)] leading-relaxed text-slate-600">{subtitle}</p>
+      <h2 className="mt-3 text-balance text-[clamp(30px,3.1vw,52px)] font-bold leading-[1.05] text-slate-950">{title}</h2>
+      <p className="mt-4 text-pretty text-[clamp(15px,1.15vw,19px)] leading-relaxed text-slate-600">{subtitle}</p>
     </header>
   );
 }
@@ -66,7 +66,7 @@ function ExactPhone({ tab }: { tab: ConsumerTab }) {
 
 function PhoneScene({ step, data, tab }: SceneProps & { data: typeof DECKMO.immediate | typeof DECKMO.midTerm | typeof DECKMO.longTerm; tab: ConsumerTab }) {
   return (
-    <div className="mx-auto grid h-full max-w-7xl grid-cols-[1fr_380px_360px] items-center gap-10 px-12 py-12">
+    <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_360px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-10">
       <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
       <ExactPhone tab={tab} />
       <CalloutRail items={data.popups} step={step} />
@@ -96,10 +96,10 @@ export function BankdemoSegmentCampaign() {
   const reachLabel = reach ? `~${(reach / 1_000).toFixed(1)}K` : "Qualified";
 
   return (
-    <div className="mx-auto flex h-full max-w-[1380px] flex-col justify-center px-12 py-8 [@media(max-height:800px)]:origin-top [@media(max-height:800px)]:scale-[0.78]">
+    <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8 [@media(max-height:800px)]:origin-top [@media(max-height:800px)]:scale-[0.78]">
       <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
 
-      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[340px_1fr] gap-8">
+      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(320px,380px)_minmax(0,1fr)] gap-10">
         <div className="flex flex-col justify-center border-r border-deck-rule pr-8">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">From intelligence to activation</p>
           <div className="mt-5 space-y-2">
@@ -182,7 +182,7 @@ const WORKSPACE_TABS: TabValue[] = ["ventus-ai", "targeting-automated-flows", "w
 
 function ExactWorkspace({ tab }: { tab: TabValue }) {
   return (
-    <div className="h-[552px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl">
+    <div className="mx-auto h-[552px] w-[1188px] max-w-full overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl">
       <div className="h-[900px] w-[1440px] origin-top-left scale-[0.825]">
         <AnalyticsContainer key={tab} defaultTab={tab} presentationMode />
       </div>
@@ -193,7 +193,7 @@ function ExactWorkspace({ tab }: { tab: TabValue }) {
 export function BankdemoBankTools({ step }: SceneProps) {
   const data = DECKMO.bankTools;
   return (
-    <div className="mx-auto flex h-full max-w-[1380px] flex-col justify-center px-12 py-8">
+    <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8">
       <div className="flex items-end justify-between gap-8">
         <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
         <div className="mb-1 flex gap-2">
