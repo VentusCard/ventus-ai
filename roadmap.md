@@ -13,3 +13,4 @@
 - [x] Redesign The Complete Picture around a centered customer and balanced data sources
 - [x] Add spacious kinetic signal and breathing motion to The Complete Picture
 - [x] Make Complete Picture motion persistent and prevent presentation text overflow
+- [x] Opener comparison: own-line labels, one line each, aligned equal signs
