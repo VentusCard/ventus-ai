@@ -12,3 +12,4 @@
 - [x] Add the Cashback (3/2/1) Everyday Foodie campaign as a new mid-term deck beat
 - [x] Redesign The Complete Picture around a centered customer and balanced data sources
 - [x] Add spacious kinetic signal and breathing motion to The Complete Picture
+- [x] Make Complete Picture motion persistent and prevent presentation text overflow
