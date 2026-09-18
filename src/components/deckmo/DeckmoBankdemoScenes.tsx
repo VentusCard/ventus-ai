@@ -3,6 +3,7 @@ import { DECKMO_BANKDEMO_FIXTURE } from "@/lib/deckmoBankdemoFixture";
 import ExecDemoPhoneView, { type ConsumerTab } from "@/components/exec-demo/ExecDemoPhoneView";
 import { AnalyticsContainer, type TabValue } from "@/components/tepilot/insights/AnalyticsContainer";
 import { cn } from "@/lib/utils";
+import tennisAsset from "@/assets/deckmo-tennis.jpg.asset.json";
 
 type SceneProps = { step: number };
 
@@ -52,6 +53,7 @@ function ExactPhone({ tab }: { tab: ConsumerTab }) {
         enrichedTxs={fixture.enrichedTransactions}
         presentationMode
         presentationTab={tab}
+        presentationImageUrl={tennisAsset.url}
         frame="compact"
       />
     </div>
