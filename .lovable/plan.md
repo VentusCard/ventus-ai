@@ -1,30 +1,45 @@
-# Opener: one line per comparison row, aligned equal signs
+# Opener: comparison lines with own-line labels and aligned equal signs
 
 ## Goal
 
-In the `/deckmo` Thesis opener, the Today / With Ventus comparison lines must each stay on a single line, and the three `=` signs must align vertically between the two rows. The Ventus row stays blue.
+In the `/deckmo` Thesis opener, restructure the Today / With Ventus comparison so:
+
+- "Today" and "With Ventus" each sit on their own line (a label line above its equation).
+- Each equation stays on a single line.
+- The three `=` signs align vertically between the two equation lines.
+- The With Ventus block (label + equation) stays blue.
+
+Target layout:
+
+```text
+Today
+Don't talk to or understand your customers = Commoditized banking = Easy to lose
+
+With Ventus
+Understand and predict customer needs = Personalized banking = Differentiated banking
+```
 
 ## Current state
 
 - `src/lib/deckmoScript.ts` (opener `comparison`): each row is a single text string with `=` signs embedded ("Don't talk to or understand your customers = Commoditized banking = Easy to lose").
-- `src/components/deckmo/DeckmoDeck.tsx` (`Opener`): renders each row as one `<p>` with the label span followed by the full text string, so the `=` positions are free-floating and cannot align between rows.
+- `src/components/deckmo/DeckmoDeck.tsx` (`Opener`): renders each row as one `<p>` with the label span inline followed by the full text string, so the `=` positions are free-floating and cannot align between rows.
 
 ## Change
 
-1. **`src/lib/deckmoScript.ts`** — restructure `opener.comparison` so each row is split into its three segments (no embedded `=`):
+1. **`src/lib/deckmoScript.ts`** — restructure `opener.comparison` so each row is `{ label, segments: [...] }` with the three segments split out (no embedded `=`):
    - `today`: label "Today", segments `["Don't talk to or understand your customers", "Commoditized banking", "Easy to lose"]`
    - `ventus`: label "With Ventus", segments `["Understand and predict customer needs", "Personalized banking", "Differentiated banking"]`
 
-2. **`src/components/deckmo/DeckmoDeck.tsx` (`Opener`)** — render the two comparison rows as one shared CSS grid so column widths are common to both rows and the `=` cells line up:
-   - Grid columns: label / statement / `=` / result / `=` / outcome (`grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]` style, refined at build time).
-   - The `=` signs live in their own grid cells; the shared grid guarantees vertical alignment.
-   - Keep the existing reveal behavior: "Today" row appears at step 2, Ventus row at step 3, Ventus row (including its `=` signs) in `text-blue-600`, Today row `text-slate-950` with muted label.
-   - Keep each row to one line: slightly smaller clamp for the comparison rows (e.g. `clamp(20px,1.9vw,30px)`) and `whitespace-nowrap` on segments with `min-w-0`/`truncate` safety, sized so the full rows fit inside the `max-w-[1280px]` block at 1024–1920px widths.
+2. **`src/components/deckmo/DeckmoDeck.tsx` (`Opener`)** — restructure the comparison block:
+   - Label lines: "Today" / "With Ventus" rendered as their own line above each equation (small, uppercase, tracking style matching the deck; muted for Today, blue for With Ventus).
+   - The two equation lines render inside one shared CSS grid so column widths are common to both rows and the `=` cells line up: segments and `=` signs as grid cells (`grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]` style, refined at build time).
+   - Keep the existing reveal behavior: Today block appears at step 2, Ventus block at step 3; Ventus block in `text-blue-600`, Today in `text-slate-950`.
+   - Keep each equation to one line: clamp sizing for the equation rows (e.g. `clamp(20px,1.9vw,30px)`) with `whitespace-nowrap` segments and `min-w-0`/`truncate` safety, sized to fit the `max-w-[1280px]` block at 1024–1920px widths.
 
 ## Verification
 
 - Playwright against `http://localhost:8080/deckmo?from=demo`, section `section[data-section='0']`:
-  - Each comparison row is a single line (row height ≈ one text line, no wrap).
-  - The bounding-box x-ranges of the two `=` cells in each row pair match (left edges equal within ~1px) for both `=` positions.
-  - Ventus row renders blue; reveal order unchanged.
+  - "Today" and "With Ventus" render as standalone label lines above their equations.
+  - Each equation is a single line (no wrap); the x-range of each `=` cell matches between the two rows (left edges equal within ~1px).
+  - Ventus block renders blue; reveal order unchanged.
 - Sweep at 1024×768 and 1440×900 for overflow; no external requests; build OK.
