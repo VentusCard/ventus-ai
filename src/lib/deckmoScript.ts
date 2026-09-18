@@ -23,7 +23,7 @@ export const DECKMO = {
     tabs: ["Activity", "Rewards", "Membership", "AI"],
   },
   beats: [
-   { id: "opener", nav: "Thesis", steps: 3 },
+   { id: "opener", nav: "Thesis", steps: 4 },
    { id: "visibility", nav: "The Gap", steps: 2 },
    { id: "living-view", nav: "The Insight", steps: 2 },
    { id: "ricky", nav: "Proof: Meet Ricky", steps: 2 },
@@ -36,8 +36,8 @@ export const DECKMO = {
   ],
   opener: {
     lines: [
-
-      "Banking is personal. Or at least, it used to be.",
+      "Banking is personal.",
+      "Or at least, it used to be.",
       "We cannot speak to millions of digital customers. And if we cannot see the person, we cannot personalize.",
       "Your personalization is your differentiation.",
     ],
