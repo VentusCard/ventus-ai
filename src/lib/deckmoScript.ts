@@ -26,7 +26,7 @@ export const DECKMO = {
    { id: "opener", nav: "Thesis", steps: 6 },
    { id: "visibility", nav: "The Gap", steps: 2 },
    { id: "living-view", nav: "The Insight", steps: 2 },
-   { id: "ricky", nav: "Proof: Meet Ricky", steps: 2 },
+   { id: "ricky", nav: "Example: Meet Ricky", steps: 2 },
    { id: "immediate", nav: "Value: Today", steps: 4 },
    { id: "mid-term", nav: "Value: This Year", steps: 5 },
    { id: "segment-campaign", nav: "Activation", steps: 1 },
