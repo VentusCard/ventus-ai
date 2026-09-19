@@ -15,3 +15,4 @@
 - [x] Make Complete Picture motion persistent and prevent presentation text overflow
 - [x] Opener comparison: own-line labels, one line each, aligned equal signs
 - [x] Extend the Visibility Gap into paired continuous rolling streams
+- [x] Redesign Inside the Walls as an anonymized multi-rail rolling ledger

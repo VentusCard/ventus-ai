@@ -48,7 +48,21 @@ export const DECKMO = {
     eyebrow: "THE VISIBILITY GAP",
     title: "You cannot personalize what you cannot see.",
     subtitle: "First-party transaction data is observed, but lagging and partial. It ends at the institution's walls.",
-    inside: { header: "INSIDE THE WALLS", caption: "What the ledger records", status: "visible", rows: ["Some checks", "Some wires", "Some card swipes with rough category codes", "Some transfers"] },
+    inside: {
+      header: "INSIDE THE WALLS",
+      caption: "Anonymized activity across every rail",
+      status: "live ledger",
+      rows: [
+        { id: "C•••1842", date: "SEP 18", rail: "CARD", description: "POS DEBIT 59382", amount: "−$184.26", mcc: "5712" },
+        { id: "C•••9071", date: "SEP 18", rail: "ACH", description: "ACH CREDIT EMPLOYER PAYROLL", amount: "+$4,280.15" },
+        { id: "C•••5218", date: "SEP 17", rail: "CHECK", description: "CHECK #••4821", amount: "−$2,145.00" },
+        { id: "C•••3364", date: "SEP 17", rail: "WIRE", description: "WIRE OUT TITLE CO ESCROW", amount: "−$25,000.00" },
+        { id: "C•••7480", date: "SEP 16", rail: "BILL PAY", description: "BILL PAY ELECTRIC UTILITY", amount: "−$142.63" },
+        { id: "C•••2195", date: "SEP 16", rail: "P2P", description: "P2P PAYMENT TO A••• R•••", amount: "−$75.00" },
+        { id: "C•••6632", date: "SEP 15", rail: "ATM", description: "ATM WITHDRAWAL 0042", amount: "−$400.00" },
+        { id: "C•••4059", date: "SEP 15", rail: "CARD", description: "TST*COURTSIDE NYC", amount: "−$86.40", mcc: "5812" },
+      ],
+    },
     outside: { header: "OUTSIDE THE WALLS", caption: "What else goes on", status: "not visible", empty: "The rest of the customer remains out of view", rows: ["Bought a house", "Changed to a new job", "Got married", "Started a business", "Took a trip overseas", "Children going to college", "And everything in between"] },
   },
   livingView: {
