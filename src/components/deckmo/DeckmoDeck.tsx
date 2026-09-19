@@ -90,6 +90,15 @@ function Visibility({ step }: SceneProps) {
   );
 }
 
+const RAIL_STYLES: Record<string, { badge: string; row: string }> = {
+  CARD: { badge: "border-blue-200 bg-blue-50 text-blue-700", row: "bg-blue-50/50" },
+  ACH: { badge: "border-violet-200 bg-violet-50 text-violet-700", row: "bg-violet-50/40" },
+  CHECK: { badge: "border-amber-200 bg-amber-50 text-amber-700", row: "bg-amber-50/40" },
+  WIRE: { badge: "border-teal-200 bg-teal-50 text-teal-700", row: "bg-teal-50/40" },
+  RTP: { badge: "border-cyan-200 bg-cyan-50 text-cyan-700", row: "bg-cyan-50/40" },
+  ATM: { badge: "border-slate-200 bg-slate-100 text-slate-600", row: "bg-slate-50/60" },
+};
+
 function InsideLedger({ data }: { data: typeof DECKMO.visibility.inside }) {
   const repeatedRows = [0, 1, 2];
   return (
@@ -111,9 +120,9 @@ function InsideLedger({ data }: { data: typeof DECKMO.visibility.inside }) {
             {repeatedRows.map((group) => (
               <div key={group} aria-hidden={group > 0 || undefined}>
                 {data.rows.map((row) => (
-                  <div key={`${group}-${row.id}-${row.description}`} className="grid min-h-[30px] grid-cols-[68px_78px_minmax(0,1fr)_84px] items-center gap-2 border-b border-deck-rule px-3 py-1 text-[10px] text-deck-muted even:bg-deck-surface/50">
+                  <div key={`${group}-${row.id}-${row.description}`} className={cn("grid min-h-[30px] grid-cols-[68px_78px_minmax(0,1fr)_84px] items-center gap-2 border-b border-deck-rule px-3 py-1 text-[10px] text-deck-muted", (RAIL_STYLES[row.rail] ?? RAIL_STYLES.CARD).row)}>
                     <span className="font-mono text-[9px] text-deck-muted">{row.id}</span>
-                    <span className="w-fit border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[8px] font-bold uppercase text-blue-700">{row.rail}</span>
+                    <span className={cn("w-fit border px-1.5 py-0.5 text-[8px] font-bold uppercase", (RAIL_STYLES[row.rail] ?? RAIL_STYLES.CARD).badge)}>{row.rail}</span>
                     <span className="min-w-0 truncate font-mono text-[10px] font-semibold text-deck-navy">{row.description}{"mcc" in row && <span className="ml-2 text-[8px] font-medium text-deck-muted">MCC {row.mcc} · {row.mccLabel}</span>}</span>
                     <span className={cn("text-right font-mono text-[10px] font-semibold tabular-nums", row.amount.startsWith("+") ? "text-emerald-700" : "text-deck-navy")}>{row.amount}</span>
 
