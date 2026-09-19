@@ -100,26 +100,28 @@ function InsideLedger({ data }: { data: typeof DECKMO.visibility.inside }) {
         </div>
         <p className="mt-1 text-sm text-deck-muted">{data.caption}</p>
       </div>
-      <div className="relative min-h-0 flex-1 overflow-hidden border-x border-t border-blue-200 bg-background">
-        <div className="grid grid-cols-[68px_78px_minmax(0,1fr)_84px] gap-2 border-b border-blue-200 bg-blue-50 px-3 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-blue-700">
+      <div className="flex min-h-0 flex-1 flex-col border-x border-t border-blue-200 bg-background">
+        <div className="grid shrink-0 grid-cols-[68px_78px_minmax(0,1fr)_84px] gap-2 border-b border-blue-200 bg-blue-50 px-3 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-blue-700">
           <span>Account</span><span>Rail</span><span>Raw description</span><span className="text-right">Amount</span>
         </div>
-        <div className="pointer-events-none absolute inset-x-0 top-[33px] z-10 h-10 bg-gradient-to-b from-background to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-background to-transparent" />
-        <div className="deckmo-visibility-ticker">
-          {repeatedRows.map((group) => (
-            <div key={group} aria-hidden={group > 0 || undefined}>
-              {data.rows.map((row) => (
-                <div key={`${group}-${row.id}-${row.description}`} className="grid min-h-[54px] grid-cols-[68px_78px_minmax(0,1fr)_84px] items-center gap-2 border-b border-deck-rule px-3 text-[10px] text-deck-muted even:bg-deck-surface/50">
-                  <span className="font-mono text-[9px] text-deck-muted">{row.id}</span>
-                  <span className="w-fit border border-blue-200 bg-blue-50 px-1.5 py-1 text-[8px] font-bold uppercase text-blue-700">{row.rail}</span>
-                  <span className="min-w-0 truncate font-mono text-[10px] font-semibold text-deck-navy">{row.description}{"mcc" in row && <span className="ml-2 text-[8px] font-medium text-deck-muted">MCC {row.mcc} · {row.mccLabel}</span>}</span>
-                  <span className={cn("text-right font-mono text-[10px] font-semibold tabular-nums", row.amount.startsWith("+") ? "text-emerald-700" : "text-deck-navy")}>{row.amount}</span>
+        <div className="relative min-h-0 flex-1 overflow-hidden">
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-background to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-background to-transparent" />
+          <div className="deckmo-visibility-ticker">
+            {repeatedRows.map((group) => (
+              <div key={group} aria-hidden={group > 0 || undefined}>
+                {data.rows.map((row) => (
+                  <div key={`${group}-${row.id}-${row.description}`} className="grid min-h-[54px] grid-cols-[68px_78px_minmax(0,1fr)_84px] items-center gap-2 border-b border-deck-rule px-3 text-[10px] text-deck-muted even:bg-deck-surface/50">
+                    <span className="font-mono text-[9px] text-deck-muted">{row.id}</span>
+                    <span className="w-fit border border-blue-200 bg-blue-50 px-1.5 py-1 text-[8px] font-bold uppercase text-blue-700">{row.rail}</span>
+                    <span className="min-w-0 truncate font-mono text-[10px] font-semibold text-deck-navy">{row.description}{"mcc" in row && <span className="ml-2 text-[8px] font-medium text-deck-muted">MCC {row.mcc} · {row.mccLabel}</span>}</span>
+                    <span className={cn("text-right font-mono text-[10px] font-semibold tabular-nums", row.amount.startsWith("+") ? "text-emerald-700" : "text-deck-navy")}>{row.amount}</span>
 
-                </div>
-              ))}
-            </div>
-          ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
