@@ -108,7 +108,7 @@ function InsideLedger({ data }: { data: typeof DECKMO.visibility.inside }) {
         <div className="grid grid-cols-[60px_66px_72px_minmax(0,1fr)_72px] gap-2 border-b border-blue-200 bg-blue-50 px-3 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-blue-700">
           <span>Account</span><span>Date</span><span>Rail</span><span>Raw description</span><span className="text-right">Amount</span>
         </div>
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-14 bg-gradient-to-b from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-[33px] z-10 h-10 bg-gradient-to-b from-background to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-background to-transparent" />
         <div className="deckmo-visibility-ticker">
           {repeatedRows.map((group) => (
