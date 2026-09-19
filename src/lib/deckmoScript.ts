@@ -51,7 +51,6 @@ export const DECKMO = {
     inside: {
       header: "INSIDE THE WALLS",
       caption: "Messy unstructured activity across payment rails",
-      status: "live ledger",
       rows: [
         { id: "C•••1842", rail: "CARD", description: "POS DEBIT 59382", amount: "−$184.26", mcc: "5712", mccLabel: "Home Furnishings" },
         { id: "C•••9071", rail: "ACH", description: "ACH CREDIT EMPLOYER PAYROLL", amount: "+$4,280.15" },
