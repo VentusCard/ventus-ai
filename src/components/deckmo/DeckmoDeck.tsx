@@ -78,13 +78,27 @@ function Opener({ step }: SceneProps) {
 
 function Visibility({ step }: SceneProps) {
   const d = DECKMO.visibility;
+  const moved = step > 0;
   return (
     <div className="mx-auto flex h-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
       <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
-      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[1fr_auto_1fr] gap-8 [@media(max-height:800px)]:mt-5">
-        <InsideLedger data={d.inside} />
-        <div className="border-l border-dashed border-deck-rule" />
-        <OutsideTicker data={d.outside} revealed={step > 0} />
+      <div className="relative mt-7 min-h-0 flex-1 [@media(max-height:800px)]:mt-5">
+        <div className={cn(
+          "absolute inset-y-0 transition-all duration-700 ease-in-out motion-reduce:transition-none",
+          moved ? "left-0 w-[calc(50%-24px)] translate-x-0" : "left-1/2 w-[900px] max-w-full -translate-x-1/2"
+        )}>
+          <InsideLedger data={d.inside} />
+        </div>
+        <div className={cn(
+          "absolute inset-y-0 right-0 w-[calc(50%-24px)] transition-all duration-700 ease-in-out motion-reduce:transition-none",
+          moved ? "opacity-100 blur-0" : "pointer-events-none opacity-0 blur-[5px]"
+        )}>
+          <OutsideTicker data={d.outside} revealed={moved} />
+        </div>
+        <div className={cn(
+          "absolute inset-y-0 left-1/2 w-px -translate-x-1/2 border-l border-dashed border-deck-rule transition-opacity duration-700 motion-reduce:transition-none",
+          moved ? "opacity-100" : "opacity-0"
+        )} />
       </div>
     </div>
   );
