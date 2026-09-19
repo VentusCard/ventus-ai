@@ -91,12 +91,12 @@ function Visibility({ step }: SceneProps) {
 }
 
 const RAIL_STYLES: Record<string, { badge: string; row: string }> = {
-  CARD: { badge: "border-blue-200 bg-blue-50 text-blue-700", row: "bg-blue-50/50" },
-  ACH: { badge: "border-violet-200 bg-violet-50 text-violet-700", row: "bg-violet-50/40" },
-  CHECK: { badge: "border-amber-200 bg-amber-50 text-amber-700", row: "bg-amber-50/40" },
-  WIRE: { badge: "border-teal-200 bg-teal-50 text-teal-700", row: "bg-teal-50/40" },
-  RTP: { badge: "border-cyan-200 bg-cyan-50 text-cyan-700", row: "bg-cyan-50/40" },
-  ATM: { badge: "border-slate-200 bg-slate-100 text-slate-600", row: "bg-slate-50/60" },
+  CARD: { badge: "border-blue-300 bg-blue-100 text-blue-800", row: "bg-blue-100/70" },
+  ACH: { badge: "border-violet-300 bg-violet-100 text-violet-800", row: "bg-violet-100/60" },
+  CHECK: { badge: "border-amber-300 bg-amber-100 text-amber-800", row: "bg-amber-100/60" },
+  WIRE: { badge: "border-teal-300 bg-teal-100 text-teal-800", row: "bg-teal-100/60" },
+  RTP: { badge: "border-cyan-300 bg-cyan-100 text-cyan-800", row: "bg-cyan-100/60" },
+  ATM: { badge: "border-slate-300 bg-slate-200 text-slate-700", row: "bg-slate-100" },
 };
 
 function InsideLedger({ data }: { data: typeof DECKMO.visibility.inside }) {
