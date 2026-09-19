@@ -69,7 +69,7 @@ export const DECKMO = {
     eyebrow: "THE COMPLETE PICTURE",
     title: "Ventus AI: Holistic AI Customer Intelligence",
     subtitle: "Combining and synthesizing internal and external data to gain a dynamic understanding of each customer",
-    inside: { header: "INSIDE THE WALLS", title: "Rail-agnostic transaction enrichment", chips: ["Checks", "Wires", "Zelle", "Card swipes", "P2P", "Digital telemetry"] },
+    inside: { header: "INSIDE THE WALLS", title: "Rail-agnostic behavioral enrichment", chips: ["Checks", "Wires", "Zelle", "Card swipes", "P2P", "Digital telemetry"] },
     outside: { header: "OUTSIDE THE WALLS", title: "Source-agnostic behavioral intelligence", chips: ["Credit bureaus", "Data compilers", "National databases", "SKU-level purchase data"] },
     result: { header: "ONE LIVING CUSTOMER VIEW", body: "Who they are, What they do\nwhat do they need next?" },
   },
