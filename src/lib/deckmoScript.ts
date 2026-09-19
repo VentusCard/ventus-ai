@@ -53,14 +53,14 @@ export const DECKMO = {
       caption: "Messy unstructured activity across payment rails",
       status: "live ledger",
       rows: [
-        { id: "C•••1842", rail: "CARD", description: "POS DEBIT 59382", amount: "−$184.26", mcc: "5712" },
+        { id: "C•••1842", rail: "CARD", description: "POS DEBIT 59382", amount: "−$184.26", mcc: "5712", mccLabel: "Home Furnishings" },
         { id: "C•••9071", rail: "ACH", description: "ACH CREDIT EMPLOYER PAYROLL", amount: "+$4,280.15" },
         { id: "C•••5218", rail: "CHECK", description: "CHECK #••4821", amount: "−$2,145.00" },
         { id: "C•••3364", rail: "WIRE", description: "WIRE OUT TITLE CO ESCROW", amount: "−$25,000.00" },
         { id: "C•••7480", rail: "ACH", description: "ACH DEBIT ELECTRIC UTILITY", amount: "−$142.63" },
         { id: "C•••2195", rail: "RTP", description: "RTP TRANSFER TO A••• R•••", amount: "−$75.00" },
         { id: "C•••6632", rail: "ATM", description: "ATM WITHDRAWAL 0042", amount: "−$400.00" },
-        { id: "C•••4059", rail: "CARD", description: "TST*COURTSIDE NYC", amount: "−$86.40", mcc: "5812" },
+        { id: "C•••4059", rail: "CARD", description: "TST*COURTSIDE NYC", amount: "−$86.40", mcc: "5812", mccLabel: "Restaurants & Dining" },
 
       ],
     },
