@@ -120,9 +120,9 @@ function InsideLedger({ data }: { data: typeof DECKMO.visibility.inside }) {
             {repeatedRows.map((group) => (
               <div key={group} aria-hidden={group > 0 || undefined}>
                 {data.rows.map((row) => (
-                  <div key={`${group}-${row.id}-${row.description}`} className="grid min-h-[30px] grid-cols-[68px_78px_minmax(0,1fr)_84px] items-center gap-2 border-b border-deck-rule px-3 py-1 text-[10px] text-deck-muted even:bg-deck-surface/50">
+                  <div key={`${group}-${row.id}-${row.description}`} className={cn("grid min-h-[30px] grid-cols-[68px_78px_minmax(0,1fr)_84px] items-center gap-2 border-b border-deck-rule px-3 py-1 text-[10px] text-deck-muted", (RAIL_STYLES[row.rail] ?? RAIL_STYLES.CARD).row)}>
                     <span className="font-mono text-[9px] text-deck-muted">{row.id}</span>
-                    <span className="w-fit border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[8px] font-bold uppercase text-blue-700">{row.rail}</span>
+                    <span className={cn("w-fit border px-1.5 py-0.5 text-[8px] font-bold uppercase", (RAIL_STYLES[row.rail] ?? RAIL_STYLES.CARD).badge)}>{row.rail}</span>
                     <span className="min-w-0 truncate font-mono text-[10px] font-semibold text-deck-navy">{row.description}{"mcc" in row && <span className="ml-2 text-[8px] font-medium text-deck-muted">MCC {row.mcc} · {row.mccLabel}</span>}</span>
                     <span className={cn("text-right font-mono text-[10px] font-semibold tabular-nums", row.amount.startsWith("+") ? "text-emerald-700" : "text-deck-navy")}>{row.amount}</span>
 
