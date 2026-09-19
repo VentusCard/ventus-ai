@@ -79,37 +79,60 @@ function Opener({ step }: SceneProps) {
 function Visibility({ step }: SceneProps) {
   const d = DECKMO.visibility;
   return (
-    <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-10 py-12 xl:px-14">
+    <div className="mx-auto flex h-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
       <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
-      <div className="mt-10 grid min-h-0 flex-1 grid-cols-[1fr_auto_1fr] gap-8">
-        <LedgerColumn data={d.inside} visible />
-        <div className="my-8 border-l border-dashed border-slate-300" />
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">{d.outside.header}</p>
-          <p className="mt-1 text-sm text-slate-400">{d.outside.caption}</p>
-          <div className="mt-4 flex min-h-[390px] flex-col justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 p-4">
-            {step === 0 ? <p className="text-center text-base font-medium text-slate-300">{d.outside.empty}</p> : (
-              <div className="space-y-2.5">
-                {d.outside.rows.map((row, index) => (
-                  <Reveal key={row} show delay={index * 90}>
-                    <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 opacity-60">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-100 text-slate-400"><ExternalLink className="h-3.5 w-3.5" /></span>
-                      <span className="flex-1 text-sm font-semibold text-slate-600">{row}</span>
-                      <span className="text-xs italic text-slate-400">{d.outside.status}</span>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[1fr_auto_1fr] gap-8 [@media(max-height:800px)]:mt-5">
+        <VisibilityTicker data={d.inside} kind="inside" revealed />
+        <div className="border-l border-dashed border-deck-rule" />
+        <VisibilityTicker data={d.outside} kind="outside" revealed={step > 0} />
       </div>
     </div>
   );
 }
 
-function LedgerColumn({ data, visible }: { data: typeof DECKMO.visibility.inside; visible: boolean }) {
-  return <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">{data.header}</p><p className="mt-1 text-sm text-slate-400">{data.caption}</p><div className="mt-4 space-y-3">{data.rows.map((row) => <div key={row} className="flex items-center gap-3 rounded-lg border border-slate-200 border-l-[3px] border-l-blue-400 bg-white px-4 py-4 shadow-sm"><span className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-50 text-blue-600"><CreditCard className="h-4 w-4" /></span><span className="flex-1 text-sm font-semibold text-slate-700">{row}</span>{visible && <Check className="h-4 w-4 text-emerald-600" />}</div>)}</div></div>;
+type VisibilityData = typeof DECKMO.visibility.inside | typeof DECKMO.visibility.outside;
+
+function VisibilityTicker({ data, kind, revealed }: { data: VisibilityData; kind: "inside" | "outside"; revealed: boolean }) {
+  const inside = kind === "inside";
+  const repeatedRows = [0, 1, 2];
+  return (
+    <div className="flex min-h-0 flex-col">
+      <div className="shrink-0 pb-4">
+        <div className="flex items-center justify-between gap-4">
+          <p className={cn("text-xs font-bold uppercase tracking-[0.16em]", inside ? "text-blue-700" : "text-deck-muted")}>{data.header}</p>
+          <span className={cn("flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em]", inside ? "text-emerald-700" : "text-deck-muted")}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", inside ? "bg-emerald-500" : "bg-deck-rule")} />
+            {inside ? "Observed" : "Beyond view"}
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-deck-muted">{data.caption}</p>
+      </div>
+      <div className={cn("relative min-h-0 flex-1 overflow-hidden border-x border-t bg-deck-surface/40", inside ? "border-blue-200" : "border-deck-rule border-dashed")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-14 bg-gradient-to-b from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-background to-transparent" />
+        <div className={cn("deckmo-visibility-ticker px-4 transition-all duration-700 motion-reduce:transition-none", !inside && "deckmo-visibility-ticker-slow", !inside && !revealed && "blur-[5px] opacity-20")}>
+          {repeatedRows.map((group) => (
+            <div key={group} className="space-y-3 py-3" aria-hidden={group > 0 || undefined}>
+              {data.rows.map((row, index) => (
+                <div key={`${group}-${row}`} className={cn("flex min-h-[64px] items-center gap-3 border bg-background px-4 py-3 shadow-sm", inside ? "border-blue-200 border-l-[3px] border-l-blue-500" : "border-deck-rule opacity-70")}>
+                  <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-sm", inside ? "bg-blue-50 text-blue-600" : "bg-deck-surface text-deck-muted")}>
+                    {inside ? <CreditCard className="h-4 w-4" /> : <ExternalLink className="h-3.5 w-3.5" />}
+                  </span>
+                  <span className={cn("min-w-0 flex-1 text-sm font-semibold", inside ? "text-deck-navy" : "text-deck-muted")}>{row}</span>
+                  {inside ? <Check className="h-4 w-4 shrink-0 text-emerald-600" /> : <span className="shrink-0 text-xs italic text-deck-muted">{data.status}</span>}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        {!inside && (
+          <div className={cn("pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-8 transition-all duration-700", revealed ? "translate-y-3 opacity-0" : "translate-y-0 opacity-100")}>
+            <p className="max-w-sm bg-background/90 px-6 py-4 text-center font-deck-serif text-xl text-deck-muted shadow-sm">{DECKMO.visibility.outside.empty}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function SourceCard({ source, tone, align }: { source: typeof DECKMO.livingView.inside | typeof DECKMO.livingView.outside; tone: "blue" | "amber"; align: "left" | "right" }) {

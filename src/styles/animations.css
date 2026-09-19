@@ -253,6 +253,29 @@
   }
 }
 
+/* Continuous paired streams on the Deckmo visibility-gap scene. */
+@keyframes deckmo-visibility-roll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-33.333333%); }
+}
+
+.deckmo-visibility-ticker {
+  animation: deckmo-visibility-roll 18s linear infinite;
+  will-change: transform;
+}
+
+.deckmo-visibility-ticker-slow {
+  animation-duration: 24s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deckmo-visibility-ticker,
+  .deckmo-visibility-ticker-slow {
+    animation: none;
+    transform: none;
+  }
+}
+
 /* Continuous subtle hue pulses for activation destination rows */
 @keyframes pulse-hue-bank {
   0%, 100% { background-position: 0% 50%; }
