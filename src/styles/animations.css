@@ -260,12 +260,12 @@
 }
 
 .deckmo-visibility-ticker {
-  animation: deckmo-visibility-roll 18s linear infinite;
+  animation: deckmo-visibility-roll 11s linear infinite;
   will-change: transform;
 }
 
 .deckmo-visibility-ticker-slow {
-  animation-duration: 24s;
+  animation-duration: 15s;
 }
 
 @media (prefers-reduced-motion: reduce) {
