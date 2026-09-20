@@ -17,7 +17,7 @@ const TONES = {
 
 type Tone = keyof typeof TONES;
 
-type SceneProps = { step: number };
+type SceneProps = { step: number; active?: boolean };
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-blue-600">{children}</p>;
@@ -76,7 +76,7 @@ function Opener({ step }: SceneProps) {
   );
 }
 
-function Visibility({ step }: SceneProps) {
+function Visibility({ step, active = false }: SceneProps) {
   const d = DECKMO.visibility;
   const moved = step > 0;
   return (
@@ -87,13 +87,13 @@ function Visibility({ step }: SceneProps) {
           "absolute inset-y-0 transition-all duration-700 ease-in-out motion-reduce:transition-none",
           moved ? "left-0 w-[calc(50%-24px)] translate-x-0" : "left-1/2 w-[900px] max-w-full -translate-x-1/2"
         )}>
-          <InsideLedger data={d.inside} />
+          <InsideLedger key={active ? "inside-active" : "inside-idle"} data={d.inside} active={active} />
         </div>
         <div className={cn(
           "absolute inset-y-0 right-0 w-[calc(50%-24px)] transition-all duration-700 ease-in-out motion-reduce:transition-none",
           moved ? "opacity-100 blur-0" : "pointer-events-none opacity-0 blur-[5px]"
         )}>
-          <OutsideTicker data={d.outside} revealed={moved} />
+          <OutsideTicker key={active ? "outside-active" : "outside-idle"} data={d.outside} revealed={moved} active={active} />
         </div>
         <div className={cn(
           "absolute inset-y-0 left-1/2 w-px -translate-x-1/2 border-l border-dashed border-deck-rule transition-opacity duration-700 motion-reduce:transition-none",
@@ -113,8 +113,9 @@ const RAIL_STYLES: Record<string, { badge: string; row: string }> = {
   ATM: { badge: "border-slate-300 bg-slate-200 text-slate-700", row: "bg-slate-100" },
 };
 
-function InsideLedger({ data }: { data: typeof DECKMO.visibility.inside }) {
-  const repeatedRows = [0, 1, 2];
+function InsideLedger({ data, active }: { data: typeof DECKMO.visibility.inside; active: boolean }) {
+  const trackRows = [0, 1, 2];
+  const tracks = [0, 1];
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="shrink-0 pb-4">
@@ -130,18 +131,17 @@ function InsideLedger({ data }: { data: typeof DECKMO.visibility.inside }) {
         <div className="relative min-h-0 flex-1 overflow-hidden">
           <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-background to-transparent" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-background to-transparent" />
-          <div className="deckmo-visibility-ticker">
-            {repeatedRows.map((group) => (
-              <div key={group} aria-hidden={group > 0 || undefined}>
-                {data.rows.map((row) => (
-                  <div key={`${group}-${row.id}-${row.description}`} className={cn("grid min-h-[30px] grid-cols-[68px_78px_minmax(0,1fr)_84px] items-center gap-2 border-b border-deck-rule px-3 py-1 text-[10px] text-deck-muted", (RAIL_STYLES[row.rail] ?? RAIL_STYLES.CARD).row)}>
+          <div className={cn("deckmo-visibility-ticker", active ? "deckmo-visibility-ticker-active" : "deckmo-visibility-ticker-idle")}>
+            {tracks.map((track) => (
+              <div key={track} className="deckmo-visibility-track" aria-hidden={track > 0 || undefined}>
+                {trackRows.map((group) => data.rows.map((row) => (
+                  <div key={`${track}-${group}-${row.id}-${row.description}`} className={cn("grid min-h-[30px] grid-cols-[68px_78px_minmax(0,1fr)_84px] items-center gap-2 border-b border-deck-rule px-3 py-1 text-[10px] text-deck-muted", (RAIL_STYLES[row.rail] ?? RAIL_STYLES.CARD).row)}>
                     <span className="font-mono text-[9px] text-deck-muted">{row.id}</span>
                     <span className={cn("w-fit border px-1.5 py-0.5 text-[8px] font-bold uppercase", (RAIL_STYLES[row.rail] ?? RAIL_STYLES.CARD).badge)}>{row.rail}</span>
                     <span className="min-w-0 truncate font-mono text-[10px] font-semibold text-deck-navy">{row.description}{"mcc" in row && <span className="ml-2 text-[8px] font-medium text-deck-muted">MCC {row.mcc} · {row.mccLabel}</span>}</span>
                     <span className={cn("text-right font-mono text-[10px] font-semibold tabular-nums", row.amount.startsWith("+") ? "text-emerald-700" : "text-deck-navy")}>{row.amount}</span>
-
                   </div>
-                ))}
+                )))}
               </div>
             ))}
           </div>
@@ -151,9 +151,9 @@ function InsideLedger({ data }: { data: typeof DECKMO.visibility.inside }) {
   );
 }
 
-function OutsideTicker({ data, revealed }: { data: typeof DECKMO.visibility.outside; revealed: boolean }) {
-  const repeatedRows = [0, 1, 2];
-  return <div className="flex h-full min-h-0 flex-col"><div className="shrink-0 pb-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-deck-muted">{data.header}</p><p className="mt-1 text-sm text-deck-muted">{data.caption}</p></div><div className="relative min-h-0 flex-1 overflow-hidden border-x border-t border-dashed border-deck-rule bg-deck-surface/40"><div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-14 bg-gradient-to-b from-background to-transparent" /><div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-background to-transparent" /><div className={cn("deckmo-visibility-ticker deckmo-visibility-ticker-slow px-4 transition-all duration-700 motion-reduce:transition-none", !revealed && "blur-[5px] opacity-20")}>{repeatedRows.map(group=><div key={group} className="space-y-3 py-3" aria-hidden={group>0||undefined}>{data.rows.map(row=><div key={`${group}-${row}`} className="flex min-h-[64px] items-center gap-3 border border-deck-rule bg-background px-4 py-3 opacity-70 shadow-sm"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-deck-surface text-deck-muted"><ExternalLink className="h-3.5 w-3.5" /></span><span className="min-w-0 flex-1 text-sm font-semibold text-deck-muted">{row}</span><span className="shrink-0 text-xs italic text-deck-muted">{data.status}</span></div>)}</div>)}</div><div className={cn("pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-8 transition-all duration-700",revealed?"translate-y-3 opacity-0":"translate-y-0 opacity-100")}><p className="max-w-sm bg-background/90 px-6 py-4 text-center font-deck-serif text-xl text-deck-muted shadow-sm">{data.empty}</p></div></div></div>;
+function OutsideTicker({ data, revealed, active }: { data: typeof DECKMO.visibility.outside; revealed: boolean; active: boolean }) {
+  const tracks = [0, 1];
+  return <div className="flex h-full min-h-0 flex-col"><div className="shrink-0 pb-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-deck-muted">{data.header}</p><p className="mt-1 text-sm text-deck-muted">{data.caption}</p></div><div className="relative min-h-0 flex-1 overflow-hidden border-x border-t border-dashed border-deck-rule bg-deck-surface/40"><div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-gradient-to-b from-background via-background/80 to-transparent" /><div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-gradient-to-t from-background via-background/80 to-transparent" /><div className={cn("deckmo-visibility-ticker deckmo-visibility-ticker-slow px-4 transition-[filter,opacity] duration-700 motion-reduce:transition-none", active ? "deckmo-visibility-ticker-active" : "deckmo-visibility-ticker-idle", !revealed && "blur-[5px] opacity-20")}>{tracks.map(track=><div key={track} className="deckmo-visibility-track space-y-3 py-3" aria-hidden={track>0||undefined}>{data.rows.map(row=><div key={`${track}-${row}`} className="flex min-h-[64px] items-center gap-3 border border-deck-rule bg-background px-4 py-3 opacity-70 shadow-sm"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-deck-surface text-deck-muted"><ExternalLink className="h-3.5 w-3.5" /></span><span className="min-w-0 flex-1 text-sm font-semibold text-deck-muted">{row}</span><span className="shrink-0 text-xs italic text-deck-muted">{data.status}</span></div>)}</div>)}</div><div className={cn("pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-8 transition-all duration-700",revealed?"translate-y-3 opacity-0":"translate-y-0 opacity-100")}><p className="max-w-sm bg-background/90 px-6 py-4 text-center font-deck-serif text-xl text-deck-muted shadow-sm">{data.empty}</p></div></div></div>;
 }
 
 function SourceCard({ source, tone, align }: { source: typeof DECKMO.livingView.inside | typeof DECKMO.livingView.outside; tone: "blue" | "amber"; align: "left" | "right" }) {
@@ -202,7 +202,7 @@ return <div className="demo-page relative h-screen w-screen overflow-hidden bg-b
     <div className="flex min-w-0 items-center gap-4"><img src={ventusLogo} alt="Ventus AI" className="h-7 w-auto shrink-0 object-contain"/><span className="h-6 w-px shrink-0 bg-deck-rule"/><span className="truncate font-deck-serif text-2xl text-deck-navy" aria-live="polite">{activeBeat.nav}</span></div>
      <div className="flex shrink-0 items-center gap-6 text-xs font-semibold uppercase tracking-wide text-deck-muted"><span>WWW.VENTUSAI.COM</span></div>
   </header>
-  <div ref={scroller} onClick={handleCanvasClick} className="h-full snap-y snap-mandatory overflow-y-auto scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const step=section===current.section?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step}/></div></section>})}</div>
+  <div ref={scroller} onClick={handleCanvasClick} className="h-full snap-y snap-mandatory overflow-y-auto scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const active=section===current.section;const step=active?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step} active={active}/></div></section>})}</div>
   <footer className="absolute inset-x-0 bottom-0 z-40 flex h-14 items-center justify-between border-t border-deck-rule bg-background px-12">
     <div className="flex items-center gap-6"><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-7 w-7 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" onClick={()=>jump(globalStep-1)} disabled={globalStep===0} aria-label={DECKMO.chrome.previous}><ArrowLeft className="h-3.5 w-3.5"/></Button><Button variant="outline" size="icon" className="h-7 w-7 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" onClick={()=>jump(globalStep+1)} disabled={globalStep===DECKMO_STEPS.length-1} aria-label={DECKMO.chrome.next}><ArrowRight className="h-3.5 w-3.5"/></Button></div><div className="text-[10px] font-medium uppercase text-deck-muted">Slide <span className="font-semibold text-deck-navy">{slideNumber}</span> / {slideTotal}</div></div>
     <div className="absolute inset-x-0 top-0 h-px bg-deck-surface"><div className="h-full bg-deck-blue transition-[width] duration-200 motion-reduce:transition-none" style={{width:`${((globalStep+1)/DECKMO_STEPS.length)*100}%`}}/></div>

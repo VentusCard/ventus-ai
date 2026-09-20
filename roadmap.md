@@ -16,3 +16,4 @@
 - [x] Opener comparison: own-line labels, one line each, aligned equal signs
 - [x] Extend the Visibility Gap into paired continuous rolling streams
 - [x] Redesign Inside the Walls as an anonymized multi-rail rolling ledger
+- [x] Rebuild Visibility Gap rollers as active, seamless full-height streams
