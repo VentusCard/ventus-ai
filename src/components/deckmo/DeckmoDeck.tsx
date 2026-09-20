@@ -9,11 +9,11 @@ import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoSegmentCampaign } from "./DeckmoBankdemoScenes";
 
 const TONES = {
-  blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-600", fullText: "text-white" },
-  amber: { dot: "bg-amber-500", border: "border-amber-200", bg: "bg-amber-50", text: "text-amber-700", fullBg: "bg-amber-500", fullText: "text-white" },
-  emerald: { dot: "bg-emerald-500", border: "border-emerald-200", bg: "bg-emerald-50", text: "text-emerald-700", fullBg: "bg-emerald-600", fullText: "text-white" },
-  violet: { dot: "bg-violet-500", border: "border-violet-200", bg: "bg-violet-50", text: "text-violet-700", fullBg: "bg-violet-600", fullText: "text-white" },
-  rose: { dot: "bg-rose-500", border: "border-rose-200", bg: "bg-rose-50", text: "text-rose-700", fullBg: "bg-rose-600", fullText: "text-white" },
+  blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-600", hoverBg: "hover:bg-blue-600", fullText: "text-white hover:text-white" },
+  amber: { dot: "bg-amber-500", border: "border-amber-200", bg: "bg-amber-50", text: "text-amber-700", fullBg: "bg-amber-500", hoverBg: "hover:bg-amber-500", fullText: "text-white hover:text-white" },
+  emerald: { dot: "bg-emerald-500", border: "border-emerald-200", bg: "bg-emerald-50", text: "text-emerald-700", fullBg: "bg-emerald-600", hoverBg: "hover:bg-emerald-600", fullText: "text-white hover:text-white" },
+  violet: { dot: "bg-violet-500", border: "border-violet-200", bg: "bg-violet-50", text: "text-violet-700", fullBg: "bg-violet-600", hoverBg: "hover:bg-violet-600", fullText: "text-white hover:text-white" },
+  rose: { dot: "bg-rose-500", border: "border-rose-200", bg: "bg-rose-50", text: "text-rose-700", fullBg: "bg-rose-600", hoverBg: "hover:bg-rose-600", fullText: "text-white hover:text-white" },
 } as const;
 
 type Tone = keyof typeof TONES;
