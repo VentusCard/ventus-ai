@@ -227,7 +227,7 @@ function LivingView({ step }: SceneProps) {
   return <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-8 py-8 xl:px-12 [@media(max-height:800px)]:py-4"><Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} /><div className="mt-8 grid min-h-0 flex-1 grid-cols-[minmax(190px,1fr)_clamp(40px,6vw,88px)_minmax(240px,300px)_clamp(40px,6vw,88px)_minmax(190px,1fr)] items-center [@media(max-height:800px)]:mt-5"><SourceCard source={d.inside} tone="blue" align="left" /><div className="relative h-px overflow-visible bg-blue-200"><div className={cn("absolute inset-y-0 left-0 bg-deck-blue transition-all duration-700 motion-reduce:transition-none", active ? "w-full" : "w-3/5")} /><span className={cn("deck-signal-left absolute -top-[3px] h-2 w-2 rounded-full bg-deck-blue shadow-[0_0_12px_hsl(var(--deck-blue)/0.65)]", !active && "opacity-75")} /><ChevronRight className="absolute -right-2.5 -top-2.5 h-5 w-5 text-deck-blue" /></div><div className="relative flex min-h-[310px] min-w-0 flex-col items-center justify-center text-center [@media(max-height:800px)]:min-h-[280px]"><div className={cn("absolute h-64 w-64 max-w-full rounded-full border bg-deck-surface/50 transition-all duration-700 motion-reduce:transition-none [@media(max-height:800px)]:h-56 [@media(max-height:800px)]:w-56", active ? "scale-100 border-deck-blue/25" : "scale-95 border-deck-blue/15")} /><div className="deck-breathe-ring absolute h-56 w-56 max-w-full rounded-full border border-deck-blue/45 motion-reduce:scale-100 motion-reduce:opacity-30 [@media(max-height:800px)]:h-48 [@media(max-height:800px)]:w-48"/><div className="deck-breathe-ring deck-breathe-ring-delayed absolute h-64 w-64 max-w-full rounded-full border border-deck-blue/30 motion-reduce:scale-100 motion-reduce:opacity-20 [@media(max-height:800px)]:h-56 [@media(max-height:800px)]:w-56"/><div className={cn("deck-node-breathe relative flex h-36 w-36 items-center justify-center rounded-full border bg-background transition-all duration-700 motion-reduce:transform-none [@media(max-height:800px)]:h-32 [@media(max-height:800px)]:w-32", active ? "border-deck-blue/70" : "border-deck-blue/35")}><div className="flex h-28 w-28 items-center justify-center rounded-full bg-deck-surface [@media(max-height:800px)]:h-24 [@media(max-height:800px)]:w-24"><UserRound className={cn("h-12 w-12 transition-colors duration-700", active ? "text-deck-blue" : "text-deck-muted")} /></div></div><p className={cn("relative mt-5 max-w-full break-words text-[10px] font-bold uppercase tracking-[0.16em] transition-colors duration-700", active ? "text-deck-blue" : "text-deck-muted")}>{d.result.header}</p><p className="relative mt-2 max-w-[320px] break-words text-[clamp(18px,1.55vw,23px)] font-bold leading-tight text-foreground">{d.result.body}</p></div><div className="relative h-px overflow-visible bg-amber-200"><div className={cn("absolute inset-y-0 right-0 bg-deck-gold transition-all duration-700 motion-reduce:transition-none", active ? "w-full" : "w-3/5")} /><span className={cn("deck-signal-right absolute -top-[3px] h-2 w-2 rounded-full bg-deck-gold shadow-[0_0_12px_hsl(var(--deck-gold)/0.65)]", !active && "opacity-75")} /><ChevronRight className="absolute -left-2.5 -top-2.5 h-5 w-5 rotate-180 text-deck-gold" /></div><SourceCard source={d.outside} tone="amber" align="right" /></div></div>;
 }
 
-function SignalFamilyCard({ signals, selectedLabel, onSelect }: { signals: (typeof DECKMO.ricky.signals[number])[]; selectedLabel: RickySignalLabel | null; onSelect: (label: RickySignalLabel) => void }) {
+function SignalFamilyCard({ signals, selectedLabel, onSelect }: { signals: (typeof DECKMO.ricky.signals[number])[]; selectedLabel: string | null; onSelect: (label: string) => void }) {
   const first = signals[0];
   if (!first) return null;
   const tone = TONES[first.tone];
@@ -240,7 +240,7 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect }: { signals: (type
       <div className="mt-2 flex flex-wrap gap-2">
         {signals.map((signal) => {
           const selected = selectedLabel === signal.label;
-          return <Button key={signal.label} type="button" variant="outline" aria-pressed={selected} onClick={() => onSelect(signal.label)} className={cn("h-auto min-h-9 max-w-full whitespace-normal rounded-full px-3 py-2 text-left text-[12px] font-semibold leading-tight shadow-none", tone.border, selected ? cn(tone.bg, tone.text, "ring-2 ring-current ring-offset-1") : "bg-background text-slate-700 hover:bg-slate-50")}>{signal.label}</Button>;
+          return <Button key={signal.label} type="button" variant="outline" aria-pressed={selected} onClick={() => onSelect(signal.label)} className={cn("h-auto min-h-9 max-w-full whitespace-normal rounded-full px-3 py-2 text-left text-[12px] font-semibold leading-tight shadow-none", tone.border, signal.source === "external" && "border-violet-300", selected ? cn(signal.source === "external" ? "bg-violet-50 text-violet-700" : cn(tone.bg, tone.text), "ring-2 ring-current ring-offset-1") : "bg-background text-slate-700 hover:bg-slate-50")}><span>{signal.label}</span>{signal.source === "external" && <span className="ml-2 inline-flex shrink-0 items-center gap-1 text-[8px] font-bold uppercase text-violet-600"><Sparkles className="h-2.5 w-2.5" />External</span>}</Button>;
         })}
       </div>
     </div>
@@ -249,12 +249,13 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect }: { signals: (type
 
 function Ricky({ step }: SceneProps) {
   const d = DECKMO.ricky;
-  const [selectedLabel, setSelectedLabel] = useState<RickySignalLabel | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const selectedSignal = d.signals.find((signal) => signal.label === selectedLabel);
-  const displayedTransactions = selectedLabel
-    ? RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.includes(selectedLabel))
+  const selectedExternalEvidence = selectedSignal && "externalEvidence" in selectedSignal ? selectedSignal.externalEvidence : null;
+  const displayedTransactions = selectedLabel && selectedSignal?.source === "internal"
+    ? RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((signal) => signal === selectedLabel))
     : RICKY_TRANSACTIONS;
-  const selectSignal = (label: RickySignalLabel) => setSelectedLabel((current) => current === label ? null : label);
+  const selectSignal = (label: string) => setSelectedLabel((current) => current === label ? null : label);
   const families = d.signals.reduce<Record<string, (typeof d.signals[number])[]>>((grouped, signal) => {
     (grouped[signal.family] ??= []).push(signal);
     return grouped;
@@ -266,10 +267,15 @@ function Ricky({ step }: SceneProps) {
       <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] overflow-hidden border border-slate-200 bg-background [@media(max-height:800px)]:mt-5">
         <section className="flex min-h-0 flex-col border-r border-slate-200 bg-slate-50/50">
           <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-background px-5 py-3">
-            <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{d.rawLabel}</p><p className="mt-1 text-sm font-bold text-slate-900">{selectedSignal?.label ?? "All transactions"}</p></div>
-            <Button type="button" variant="outline" onClick={(event) => { event.stopPropagation(); setSelectedLabel(null); }} className={cn("h-7 shrink-0 rounded-full px-3 text-[10px] font-bold uppercase shadow-none", selectedLabel ? "border-slate-300 bg-background text-slate-600" : "border-blue-300 bg-blue-50 text-blue-700")}>{displayedTransactions.length} transactions</Button>
+            <div><p className={cn("text-[10px] font-bold uppercase tracking-[0.16em]", selectedExternalEvidence ? "text-violet-600" : "text-slate-500")}>{selectedExternalEvidence ? "EXTERNAL INTELLIGENCE" : d.rawLabel}</p><p className="mt-1 text-sm font-bold text-slate-900">{selectedSignal?.label ?? "All transactions"}</p></div>
+            <Button type="button" variant="outline" onClick={(event) => { event.stopPropagation(); setSelectedLabel(null); }} className={cn("h-7 shrink-0 rounded-full px-3 text-[10px] font-bold uppercase shadow-none", selectedExternalEvidence ? "border-violet-300 bg-violet-50 text-violet-700" : selectedLabel ? "border-slate-300 bg-background text-slate-600" : "border-blue-300 bg-blue-50 text-blue-700")}>{selectedExternalEvidence ? "External signal" : `${displayedTransactions.length} transactions`}</Button>
           </div>
-          <div key={selectedLabel ?? "all"} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
+          {selectedExternalEvidence ? <div key={selectedLabel} className="flex min-h-0 flex-1 items-start p-5 animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
+            <div className="w-full border border-violet-200 bg-violet-50/50 p-5">
+              <div className="flex items-start gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-violet-200 bg-background text-violet-600"><Sparkles className="h-5 w-5" /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-base font-bold text-slate-900">{selectedSignal?.label}</p><span className="rounded-full border border-violet-200 bg-background px-2.5 py-1 text-[10px] font-bold uppercase text-violet-700">{selectedExternalEvidence.confidence}</span></div><p className="mt-2 text-sm leading-relaxed text-slate-600">{selectedExternalEvidence.detail}</p></div></div>
+              <div className="mt-5 grid grid-cols-2 border-t border-violet-200 pt-4"><div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600">Source</p><p className="mt-1 text-sm font-semibold text-slate-800">{selectedExternalEvidence.provider}</p></div><div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600">Timing</p><p className="mt-1 text-sm font-semibold text-slate-800">{selectedExternalEvidence.timing}</p></div></div>
+            </div>
+          </div> : <div key={selectedLabel ?? "all"} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
             {displayedTransactions.map((transaction) => (
               <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-slate-200/80 py-2">
@@ -279,7 +285,7 @@ function Ricky({ step }: SceneProps) {
                 <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
               </div>
             ))}
-          </div>
+          </div>}
         </section>
 
         <section className="flex min-h-0 flex-col bg-background px-7 py-5 [@media(max-height:800px)]:px-6 [@media(max-height:800px)]:py-4">

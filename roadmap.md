@@ -23,3 +23,4 @@
 - [x] Make Ricky's signal pills filter their supporting transaction evidence
 - [x] Replace Ricky's curated evidence with a complete 76-row static transaction ledger
 - [x] Replace Ricky ledger sub-descriptions with audited statement-style descriptions
+- [x] Add Ricky external-data signal pills and evidence views from /bankdemo
