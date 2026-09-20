@@ -67,7 +67,7 @@ export const MIN_DAYS_BETWEEN_SAME_PRODUCT = 30;
  * rather than an oversight.
  */
 const DECAY_POLICY = {
-  life_event: { mode: 'windowed', floor: 0 },
+  life_event: { mode: 'windowed', halfLifeDays: 120, floor: 0.5 },
   behavioral: { mode: 'standing', halfLifeDays: 90, floor: 0.5 },
   financial: { mode: 'standing', halfLifeDays: 60, floor: 0.4 },
   // Risk signals gate rows out rather than rank them in, so they never decay:
@@ -80,14 +80,22 @@ const DEFAULT_POLICY = { mode: 'standing', halfLifeDays: 90, floor: 0.5 };
 /**
  * How much weight a signal still carries at a given age.
  *
+ * `mode` is supplied by the signal's window bucket and overrides the family
+ * default, because the families are not internally consistent: an inheritance
+ * and a retirement horizon are both life events, but one is a moment that
+ * closes and the other is a state that persists for years. Falling back to the
+ * family default keeps the function usable on its own.
+ *
  * @param {object} args
  * @param {string} args.kind      signal family (life_event | behavioral | financial | risk)
  * @param {number} args.ageDays   days since first observed
  * @param {number} args.windowDays  the outreach window, used by windowed signals
+ * @param {string} [args.mode]    'windowed' | 'standing', from the window bucket
  * @returns {{decay:number, mode:string, expired:boolean}}
  */
-export function signalDecay({ kind, ageDays, windowDays }) {
-  const policy = DECAY_POLICY[kind] || DEFAULT_POLICY;
+export function signalDecay({ kind, ageDays, windowDays, mode }) {
+  const family = DECAY_POLICY[kind] || DEFAULT_POLICY;
+  const policy = { ...family, mode: mode || family.mode };
   const age = Math.max(0, Number(ageDays) || 0);
 
   if (policy.mode === 'windowed') {
@@ -150,7 +158,12 @@ export function outreachTiming({ leadSignal, signal = null, now = new Date() }) 
     ? signal.age_days
     : Math.max(0, Math.floor((now.getTime() - Date.parse(signal.first_seen_at)) / 86_400_000));
 
-  const { decay, mode, expired } = signalDecay({ kind: signal.kind, ageDays, windowDays: window.days });
+  const { decay, mode, expired } = signalDecay({
+    kind: signal.kind,
+    ageDays,
+    windowDays: window.days,
+    mode: window.mode,
+  });
   const daysRemaining = mode === 'windowed' ? window.days - ageDays : null;
   const novel = ageDays <= NOVELTY_WINDOW_DAYS && signal.status === 'new';
 

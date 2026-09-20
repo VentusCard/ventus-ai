@@ -118,53 +118,123 @@ export function isBalanceDerived(token) {
 // Outreach windows
 // ---------------------------------------------------------------------------
 
-// Three buckets, not per-signal half-lives. A window has to be defensible when
-// an advisor asks where the number came from, and a coarse bucket with a stated
-// basis survives that question in a way invented precision does not.
+// Named buckets, not a unique number per signal. A window has to be defensible
+// when an advisor asks where the number came from, and a bucket with a stated
+// basis survives that question in a way invented precision does not: "23 days"
+// implies a model we do not have.
+//
+// Five buckets rather than the original three, because three collapsed almost
+// everything into one. Every behavioral signal except an idle-cash spike landed
+// in the 45-day bucket, and behavioral signals lead most digest rows, so nearly
+// every row in the mail carried an identical window — which reads as a template
+// rather than a judgment. Thirty days was doing similar damage at the other
+// end, filing "relocating next month" and "approaching retirement" as equally
+// urgent.
+//
+// `mode` decides whether a signal runs out. Events describe a moment and expire
+// when their window closes; conditions describe an ongoing state and never do.
+// This belongs on the signal rather than on its family, because life events
+// contain both: an inheritance is a moment, a retirement horizon is a state
+// that persists for years.
 const WINDOW_BUCKETS = {
+  immediate: {
+    days: 7,
+    label: 'Next 7 days',
+    mode: 'windowed',
+    basis: 'The household is under active financial strain, and a conversation that arrives after the next cycle arrives too late to help.',
+  },
   fast: {
     days: 14,
     label: 'Next 14 days',
+    mode: 'windowed',
     basis: 'A one-time inflow gets deployed or spent within weeks, so the conversation has to happen while the money is still uncommitted.',
   },
-  standard: {
+  dated: {
     days: 30,
     label: 'Next 30 days',
+    mode: 'windowed',
     basis: 'The household is inside a decision window that stays open for about a month before choices get made elsewhere.',
   },
-  slow: {
-    days: 45,
-    label: 'Next 45 days',
-    basis: 'A standing balance or servicing pattern decays slowly, so timing matters less than getting the conversation right.',
+  seasonal: {
+    days: 60,
+    label: 'Worth raising this quarter',
+    mode: 'standing',
+    basis: 'A recurring pattern the household is unlikely to change on its own, so the conversation keeps its value for a quarter rather than expiring.',
+  },
+  standing: {
+    days: 90,
+    label: 'No fixed deadline',
+    mode: 'standing',
+    basis: 'A durable trait rather than an event, so nothing about it expires and timing matters far less than raising it well.',
   },
 };
 
-/** Signal types whose window is short because the money moves fast. */
-const FAST_SIGNALS = new Set(['estate_inflow', 'business_liquidity', 'Idle cash spike']);
+/**
+ * Bucket per signal, stated explicitly rather than inferred.
+ *
+ * Every signal the fixture book can produce appears here. A signal that falls
+ * through is a signal nobody assigned a window to, and the default below is
+ * written so that omission is safe rather than loud.
+ */
+const SIGNAL_WINDOWS = {
+  // Events: a moment, with money or a decision moving.
+  estate_inflow: 'fast',
+  business_liquidity: 'fast',
+  new_child: 'fast',
+  'Idle cash spike': 'fast',
+  new_child_expected: 'dated',
+  home_purchase_intent: 'dated',
+  relocation: 'dated',
+  home_renovation: 'dated',
+  elder_care: 'dated',
+  // Seasonal by nature: the decision is real but tied to a school year, not a week.
+  college_bound: 'seasonal',
+  // A state, not an event. Filing this at 30 days implied a deadline that does
+  // not exist and expired the row while the household was still years out.
+  retirement_horizon: 'standing',
 
-/** Signal types tied to a dated life decision. */
-const STANDARD_SIGNALS = new Set([
-  'new_child_expected',
-  'new_child',
-  'home_purchase_intent',
-  'relocation',
-  'home_renovation',
-  'retirement_horizon',
-  'college_bound',
-  'elder_care',
-]);
+  // Distress. The only signal short enough to warrant the immediate bucket,
+  // because the cost of arriving late is a fee the household already paid.
+  'Cash-advance / gambling spend': 'immediate',
+
+  // Conditions with some momentum behind them.
+  'Accelerating savings velocity': 'dated',
+  'Large discretionary outlays': 'dated',
+  'Rising family spend': 'dated',
+  'Volatile income': 'dated',
+
+  // Recurring patterns worth a conversation, with no deadline attached.
+  'Idle cash accumulation': 'seasonal',
+  'Building emergency fund': 'seasonal',
+  'Recurring savings transfers': 'seasonal',
+  'Steady student-loan servicing': 'seasonal',
+  'Travel-heavy spend': 'seasonal',
+  'Dining-led discretionary': 'seasonal',
+  idle_cash: 'seasonal',
+
+  // Durable traits. Useful context, never a reason to hurry.
+  'Pays card in full': 'standing',
+  'Automated investing': 'standing',
+  'Avoids liquidating investments': 'standing',
+  home_equity: 'standing',
+  student_loan_balance: 'standing',
+};
 
 /**
  * The outreach window for a lead signal, with the reason it is that long.
- * Anything unrecognized gets the slow bucket: never overstate urgency.
+ *
+ * Anything unmapped gets the standing bucket: no deadline, no expiry, no
+ * urgency. Defaulting the other way would manufacture pressure out of
+ * ignorance, and would also silently expire rows built on signals we have not
+ * classified yet.
+ *
  * @param {string} signalType
- * @returns {{days:number,label:string,basis:string,bucket:string}}
+ * @returns {{days:number,label:string,basis:string,bucket:string,mode:string}}
  */
 export function outreachWindow(signalType) {
   const key = String(signalType ?? '');
-  if (FAST_SIGNALS.has(key)) return { ...WINDOW_BUCKETS.fast, bucket: 'fast' };
-  if (STANDARD_SIGNALS.has(key)) return { ...WINDOW_BUCKETS.standard, bucket: 'standard' };
-  return { ...WINDOW_BUCKETS.slow, bucket: 'slow' };
+  const bucket = SIGNAL_WINDOWS[key] || 'standing';
+  return { ...WINDOW_BUCKETS[bucket], bucket };
 }
 
 /** All bucket definitions, for the runbook and for tests. */

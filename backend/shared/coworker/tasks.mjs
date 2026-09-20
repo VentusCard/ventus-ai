@@ -32,8 +32,14 @@ import {
   pluralize,
   signalLabel,
 } from './labels.mjs';
-import { ageContext, signalsByToken } from './context.mjs';
-import { contactCadence, outreachTiming, priorityScore } from './timing.mjs';
+import { ageContext, daysBetween, signalsByToken } from './context.mjs';
+import {
+  MIN_DAYS_BETWEEN_SAME_PRODUCT,
+  MIN_DAYS_BETWEEN_TOUCHES,
+  contactCadence,
+  outreachTiming,
+  priorityScore,
+} from './timing.mjs';
 
 // ---------------------------------------------------------------------------
 // Intent classification
@@ -638,6 +644,23 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1, cont
  * @param {Date} [args.now]
  * @returns {{ advisorId, items, considered, withOpportunity, scannedProducts, dropped, held, context_coverage }}
  */
+/**
+ * Granularity of the fairness term in digest ranking, in days.
+ *
+ * Tracks the cadence cap rather than sitting at a fixed week, because the
+ * bucket has to be smaller than the interval at which households recur or it
+ * cannot distinguish them. On the fixture book households return every two
+ * days, so a seven-day bucket put all of them in the same one, the term went
+ * inert, and coverage skewed hard: the two households holding a product nobody
+ * else matched took nine mornings out of fifteen while others took three.
+ *
+ * Capped at a week so a real book, where the same-product cap is measured in
+ * months, keeps the original behavior.
+ */
+function waitBucketDays(sameProductCap) {
+  return Math.max(1, Math.min(7, sameProductCap));
+}
+
 export function buildAdvisorDigest({
   provider,
   advisorId,
@@ -646,6 +669,7 @@ export function buildAdvisorDigest({
   touches = null,
   now = new Date(),
   cadence: cadenceOpts = {},
+  pace = true,
 }) {
   const catalog = provider.getCatalog() || [];
   const advisor = provider.getAdvisors().find((a) => a.id === advisorId);
@@ -699,6 +723,7 @@ export function buildAdvisorDigest({
     expired: expiredHouseholds.size,
     contacted_recently: 0,
     same_product_recently: 0,
+    paced: 0,
   };
   // Rows that were good enough to send but are being held back for cadence
   // reasons. Separated from `dropped` because these come back on their own,
@@ -741,16 +766,56 @@ export function buildAdvisorDigest({
     return true;
   });
 
-  // Breaking news first, then defensibility, then size.
+  // How long a household has gone unmentioned, for the fairness term below.
+  // Never contacted sorts ahead of everything, which is the right default: a
+  // household nobody has raised yet has waited longest by definition.
+  const nowIso = new Date(now).toISOString();
+  const waited = new Map(
+    qualityPassed.map((item) => {
+      const last = touches?.get(item.household_id)?.lastTouchAt;
+      return [item.household_id, last ? daysBetween(last, nowIso) : Infinity];
+    })
+  );
+  // Bucketed rather than compared day by day, which is what keeps this from
+  // turning into pure round-robin. Inside a bucket the term is inert and the
+  // better-evidenced opportunity wins, exactly as before.
+  const bucketDays = waitBucketDays(
+    cadenceOpts.minDaysBetweenSameProduct ?? MIN_DAYS_BETWEEN_SAME_PRODUCT
+  );
+  const waitBucket = (item) => {
+    const days = waited.get(item.household_id);
+    return days === Infinity ? Infinity : Math.floor(days / bucketDays);
+  };
+  const byWaited = (a, b) => {
+    const x = waitBucket(a);
+    const y = waitBucket(b);
+    return x === y ? 0 : y - x;
+  };
+
+  // Breaking news, then weeks waited, then defensibility, then size.
   //
-  // Only the first term is new, and it can only fire once a refresh has
-  // observed a signal appear, so an advisor never sees it move a row they
-  // cannot account for. Everything below it is the original ordering: among
-  // rows that are equally new (which, on most mornings, is all of them), the
-  // most defensible figure still leads.
+  // The fairness term exists because the product cap makes some slots scarce,
+  // and a scarce slot handed out by a stable ordering starves whoever is last
+  // in line — permanently, not occasionally. Seven households in the demo book
+  // best-match the travel card and only one row a day may carry it. Six of
+  // them price it from posted rates and rank a tier above the seventh, who
+  // prices it gross; six households cycling through one slot on a six-day cap
+  // fits exactly, so the seventh was never mentioned again. Its figure was the
+  // largest of the seven.
+  //
+  // Ranking above defensibility is deliberate and is why the term is bucketed.
+  // Within a week the more defensible figure always leads. Across weeks, the
+  // household nobody has raised in longer gets the slot, because a marginally
+  // better-evidenced number is worth less than an advisor hearing about a
+  // household at all. Never-contacted sorts above every bucket, so a book
+  // cycles through everyone before repeating anyone.
+  //
+  // On a first run no household has been contacted, every bucket is equal, and
+  // the ordering is the original one untouched.
   qualityPassed.sort(
     (a, b) =>
       newsRank(a) - newsRank(b) ||
+      byWaited(a, b) ||
       benefitRank(a.benefit_qualifier) - benefitRank(b.benefit_qualifier) ||
       b.priority - a.priority ||
       b.annual_benefit_usd - a.annual_benefit_usd ||
@@ -758,11 +823,61 @@ export function buildAdvisorDigest({
       (a.household_id < b.household_id ? -1 : 1)
   );
 
-  const perProductCap = Math.max(1, Math.floor(maxItems / 2));
+  // Pace the mail to what the book can sustain.
+  //
+  // maxItems is a ceiling, not a target, and treating it as a target is what
+  // makes a small book feel broken. Taking the best five every morning spends a
+  // twelve-household book in three days and then sends nothing for a week — the
+  // cadence caps are working exactly as designed and the advisor still sees a
+  // burst followed by silence. Loosening the caps does not fix it; it just
+  // makes the burst repeat more often.
+  //
+  // A book of N supports about N / cap rows a day indefinitely. Sizing to that
+  // trades a full first morning for a digest that has something to say every
+  // morning, which is the whole premise of a daily habit. A large book never
+  // reaches this limit and keeps the full five.
+  //
+  // The cap to divide by is the same-product one, because that is what binds: a
+  // household returns after `minDaysBetween` only if its best product changed,
+  // and otherwise waits out `minDaysBetweenSameProduct`. Dividing by the
+  // shorter of the two promises a rhythm the book cannot keep — two rows a day
+  // for a week, then three weeks of silence.
+  const cadenceDays = Math.max(
+    cadenceOpts.minDaysBetween ?? MIN_DAYS_BETWEEN_TOUCHES,
+    cadenceOpts.minDaysBetweenSameProduct ?? MIN_DAYS_BETWEEN_SAME_PRODUCT
+  );
+  const sustainable = Math.max(1, Math.ceil(withOpportunity / Math.max(1, cadenceDays)));
+  // Only ration when there is a contact log to ration against. Without one
+  // nothing is being held for another day — there are no other days — so a
+  // thinner mail buys nothing and simply loses rows. This also keeps the
+  // promise that a caller passing neither context nor touches sees exactly the
+  // pre-timing digest.
+  const pacedMax = pace && touches ? Math.min(maxItems, sustainable) : maxItems;
+
+  // "No more than half the digest" has to mean half of the digest being sent,
+  // not half of the ceiling. Sized against maxItems, the guard silently stopped
+  // guarding the moment pacing shrank the mail: a two-row digest with a cap of
+  // two is not capped at all, and the fixture book duly pitched the travel card
+  // in both rows on most mornings. The names rotated and the mail still read
+  // identically day to day, which is the complaint this was supposed to answer.
+  const newsCount = qualityPassed.reduce((n, item) => n + (newsRank(item) === 0 ? 1 : 0), 0);
+  const expectedRows = Math.min(maxItems, Math.max(pacedMax, newsCount));
+  const perProductCap = Math.max(1, Math.floor(expectedRows / 2));
   const perProduct = new Map();
   const items = [];
   for (const item of qualityPassed) {
-    if (items.length >= maxItems) break;
+    // News is never held back for pacing. Pacing exists to ration routine rows
+    // across the week; a signal that arrived overnight is the one thing that
+    // cannot wait for its turn.
+    const isNews = newsRank(item) === 0;
+    const limit = isNews ? maxItems : pacedMax;
+    if (items.length >= limit) {
+      // Only call it pacing when pacing is what cut it. A row that simply did
+      // not fit inside maxItems was not held for tomorrow, and counting it here
+      // would overstate how much the rationing is doing.
+      if (!isNews && pacedMax < maxItems) dropped.paced++;
+      continue;
+    }
     const used = perProduct.get(item.product.id) || 0;
     if (used >= perProductCap) {
       dropped.product_concentration++;
@@ -780,6 +895,10 @@ export function buildAdvisorDigest({
     scannedProducts: catalog.length,
     dropped,
     held,
+    // What the mail was actually sized to today, and why. A thin digest is the
+    // first thing questioned, and "the book only supports two a day" is a very
+    // different answer from "we ran out of opportunities".
+    pacing: { max_items: maxItems, paced_to: pacedMax, sustainable, cadence_days: cadenceDays },
     // How much of the book the refresh has actually observed. A digest built on
     // partial context is still worth sending, but the gap is the first thing to
     // look at when the ordering seems wrong.

@@ -68,9 +68,48 @@ test('a dated life decision gets the standard window', () => {
 
 test('an unrecognized signal never overstates urgency', () => {
   // Defaulting to the shortest window would manufacture pressure out of
-  // ignorance, so anything unknown falls to the slow bucket.
-  assert.equal(outreachWindow('something_unmapped').bucket, 'slow');
-  assert.equal(outreachWindow(undefined).days, 45);
+  // ignorance. It would also silently expire rows built on signals nobody has
+  // classified yet, so the default is both the longest and non-expiring.
+  const unknown = outreachWindow('something_unmapped');
+  assert.equal(unknown.bucket, 'standing');
+  assert.equal(unknown.mode, 'standing');
+  assert.equal(outreachWindow(undefined).days, 90);
+});
+
+test('signals of the same family get different windows when they deserve them', () => {
+  // The failure this replaces: every behavioral signal except an idle-cash
+  // spike shared one 45-day window, so nearly every row in the mail carried an
+  // identical deadline and the column stopped meaning anything.
+  const behavioral = [
+    'Cash-advance / gambling spend',
+    'Idle cash spike',
+    'Rising family spend',
+    'Travel-heavy spend',
+    'Pays card in full',
+  ].map((s) => outreachWindow(s).days);
+  assert.equal(new Set(behavioral).size, behavioral.length, 'each gets its own window');
+  assert.deepEqual(behavioral, [7, 14, 30, 60, 90]);
+});
+
+test('a life event that is really a long-running state does not expire', () => {
+  // Approaching retirement was filed as a 30-day decision, which invented a
+  // deadline and dropped the row while the household was still years out.
+  const retirement = outreachWindow('retirement_horizon');
+  assert.equal(retirement.mode, 'standing');
+  const inheritance = outreachWindow('estate_inflow');
+  assert.equal(inheritance.mode, 'windowed');
+});
+
+test('financial-distress signals are the only ones that get the shortest window', () => {
+  assert.equal(outreachWindow('Cash-advance / gambling spend').bucket, 'immediate');
+});
+
+test('every window states why it is that long and whether it expires', () => {
+  for (const [name, bucket] of Object.entries(outreachWindowBuckets())) {
+    assert.ok(bucket.basis.length > 40, `${name} needs a defensible basis`);
+    assert.ok(bucket.days > 0);
+    assert.ok(['windowed', 'standing'].includes(bucket.mode), `${name} needs a mode`);
+  }
 });
 
 test('every window states why it is that long', () => {

@@ -270,17 +270,142 @@ the same product is not re-pitched to it within 30 — unless the lead signal is
 new, which overrides both. Touches are written to `HH#<id>` / `TOUCH#<iso>`
 **after** a successful send, so a delivery failure never mutes a household.
 
+### Windows are per signal, not per family
+
+`outreachWindow()` maps every signal to one of five named buckets. Named rather
+than numeric: a window has to be defensible when an advisor asks where it came
+from, and "23 days" implies a model we do not have.
+
+| Bucket | Days | Expires? | For |
+| --- | --- | --- | --- |
+| `immediate` | 7 | yes | active financial strain |
+| `fast` | 14 | yes | a one-time inflow, money about to be committed |
+| `dated` | 30 | yes | a decision with a calendar behind it |
+| `seasonal` | 60 | no | a recurring pattern with no deadline |
+| `standing` | 90 | no | a durable trait |
+
+This replaced three buckets that collapsed almost everything into one. Every
+behavioral signal except an idle-cash spike landed in a 45-day bucket, and
+behavioral signals lead most digest rows, so nearly every row in the mail
+carried the same window — which reads as a template rather than a judgment.
+Thirty days was doing the same damage at the other end, filing "relocating next
+month" and "approaching retirement" as equally urgent.
+
+Expiry lives on the signal rather than its family because the families are not
+internally consistent: an inheritance and a retirement horizon are both life
+events, but one is a moment that closes and the other is a state that persists
+for years. `retirement_horizon` is now `standing` and no longer expires out of
+the digest while the household is still years away.
+
+An unmapped signal gets `standing`: no deadline, no expiry. Defaulting the other
+way would manufacture urgency out of ignorance and silently expire rows built on
+signals nobody has classified yet.
+
+### Pacing: why the mail is shorter than `COWORKER_DIGEST_MAX_ITEMS`
+
+`maxItems` is a ceiling, not a target, and treating it as a target is what makes
+a small book feel broken. Taking the best five every morning spends a
+twelve-household book in three days and then sends nothing for a week. The
+cadence caps are working exactly as designed and the advisor still sees a burst
+followed by silence; loosening the caps only makes the burst repeat more often.
+
+So the digest sizes itself to what the book sustains: roughly
+`households ÷ same-product cap` rows a day, floored at 1 and capped at
+`maxItems`. It divides by the same-product cap rather than the household cap
+because that is the one that binds — a household returns after
+`MIN_DAYS_BETWEEN_TOUCHES` only if its best product changed, and otherwise waits
+out `MIN_DAYS_BETWEEN_SAME_PRODUCT`. A book of a few hundred never reaches this
+limit and keeps the full five.
+
+Two things are deliberately exempt. News is never paced: a signal that arrived
+overnight goes out the same morning regardless. And pacing is skipped entirely
+when no contact log is passed, because without one no row is being saved for
+another day and a thinner mail just loses opportunities.
+
+`digest.pacing` reports `{ max_items, paced_to, sustainable, cadence_days }`, so
+a thin mail can be explained without re-deriving the arithmetic.
+
+### Rotation: weeks waited outranks the benefit tier
+
+Digest ranking is: breaking news, then weeks since the household was last
+raised, then benefit tier, then size.
+
+The fairness term is third-from-top because a scarce slot handed out by a stable
+ordering starves whoever is last in line permanently, not occasionally. Seven
+households in the demo book best-match the travel card and the concentration cap
+allows one row a day to carry it. Six of them price it from posted rates and rank
+a tier above the seventh, who prices it gross — and six households cycling
+through one slot on a six-day cap fits exactly, so the seventh went 21 mornings
+without a mention while holding the largest figure of the seven.
+
+It is bucketed by week rather than compared day by day, which is what bounds it.
+Inside a bucket the term is inert and the more defensible figure leads, exactly
+as before. Across buckets the household nobody has raised in longer takes the
+slot, on the view that a marginally better-evidenced number is worth less than an
+advisor hearing about a household at all. Never-contacted sorts above every
+bucket, so a book cycles through everyone before repeating anyone.
+
+On a first run nothing has been contacted, every bucket is equal and the ordering
+is the original one untouched.
+
+Measured over 21 mornings on the fixture book: 19 distinct line-ups, no
+back-to-back repeats, every eligible household surfaced three or four times.
+Before the fairness term the same six line-ups repeated on a six-day loop.
+
+Two exclusions in that run are correct and worth recognizing rather than
+debugging. The Oyelaran household never appears: it carries one supporting
+signal and fails the `supporting_signal_count < 2` gate. And the book cannot
+produce genuinely new content, because the fixtures are static — a real feed
+changes daily and breaks any residual periodicity on its own.
+
 ### Tuning cadence for a small book
 
-| Env var | Default |
-| --- | --- |
-| `COWORKER_MIN_DAYS_BETWEEN_TOUCHES` | 7 |
-| `COWORKER_MIN_DAYS_BETWEEN_SAME_PRODUCT` | 30 |
+| Env var | Fixture-book default | Real book |
+| --- | --- | --- |
+| `COWORKER_MIN_DAYS_BETWEEN_TOUCHES` | 2 | 7 |
+| `COWORKER_MIN_DAYS_BETWEEN_SAME_PRODUCT` | 2 | 30 |
 
-The defaults suit a real book of a few hundred households. The 12-household
-fixture book exhausts itself in about three mornings at five rows a day and then
-goes quiet, which is arithmetically correct and still the wrong demo. If a demo
-needs to show rows every day, lower both.
+The stack ships the fixture-book values (CDK context `coworkerCadenceDays` and
+`coworkerSameProductDays`). Pacing targets roughly `households ÷ same-product
+cap` rows, so on a book of eleven a 2-day cap is what reaches the five-row
+ceiling; it lands 4.2 rows per weekday. At the production values the same book
+supports one row every three days, which is honest arithmetic and a bad demo.
+
+Raise both to 7/30 when this points at a real book. Nothing else needs to
+change; pacing follows whatever the caps allow, and the fairness bucket tracks
+the same-product cap up to a maximum of a week.
+
+### The digest runs weekdays only
+
+`cron(0 12 ? * MON-FRI *)`. An advisor does not work a book on Saturday, so a
+weekend digest is an unread mail that still spends two households out of the
+rotation and leaves Monday starting on already-used opportunities. Five sends a
+week instead of seven is also what lets each morning carry four or five rows
+rather than two.
+
+The context refresh stays daily, `cron(0 11 * * ? *)`. Signal ages come from
+comparing each snapshot to the one before it, so skipping Saturday would make
+Monday read the weekend as one day and mis-date anything that moved across it.
+
+No alarm assumes a daily digest, so the weekend gap raises nothing. The only
+"not running" alarm watches the context refresh, which still runs every day.
+
+### What the fixture book cannot do
+
+Five rows a weekday over three weeks is 75 slots shared by 11 eligible
+households, so every household appears about seven times no matter how the
+ranking is arranged. Volume and freshness trade off directly against book size,
+and no amount of cadence tuning changes that.
+
+Coverage is also uneven for a structural reason: only four products ever win
+across the book. Seven households best-match the travel card and share the two
+slots the concentration cap allows, while the two high-yield-savings households
+are the only ones holding their product and so appear in nearly every mail.
+Measured over 15 weekdays: 14 distinct line-ups, no back-to-back repeats, but a
+spread from 9 appearances down to 3.
+
+A book of roughly 25 households would let each appear about once a week at five
+rows a day. Until then, more rows means more repetition.
 
 ### What ranking did not change
 

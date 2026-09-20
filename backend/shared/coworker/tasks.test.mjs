@@ -20,6 +20,7 @@ import {
   validateClientDraft,
 } from './tasks.mjs';
 import { findBannedVocabulary, findSnakeCase } from './labels.mjs';
+import { benefitRank } from './benefit.mjs';
 import { buildHouseholdContext } from './context.mjs';
 import { renderDigestTable } from './render.mjs';
 
@@ -817,14 +818,33 @@ test('the same household returns once the cadence window has passed', () => {
   const context = bookContext({ advisorId: DEMO_ADVISOR, now });
   const first = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now }).items[0];
 
-  const res = buildAdvisorDigest({
+  // Asserted on `held` rather than on `items`: the question here is whether
+  // cadence still gates the household, not whether it wins a slot. Once it is
+  // free it competes on rank like anything else, and a household contacted ten
+  // days ago sits behind ten that have never been raised at all.
+  const inside = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    touches: touchMap({ [first.household_id]: { lastTouchAt: dayAfter(19).toISOString() } }),
+  });
+  assert.ok(
+    inside.held.some((h) => h.household_id === first.household_id),
+    'held while still inside the window'
+  );
+
+  const after = buildAdvisorDigest({
     provider,
     advisorId: DEMO_ADVISOR,
     context,
     now,
     touches: touchMap({ [first.household_id]: { lastTouchAt: dayAfter(10).toISOString() } }),
   });
-  assert.ok(res.items.some((i) => i.household_id === first.household_id));
+  assert.ok(
+    !after.held.some((h) => h.household_id === first.household_id),
+    'free again once the window has passed'
+  );
 });
 
 test('a new signal pulls a recently-contacted household back into the digest', () => {
@@ -893,7 +913,7 @@ test('cadence thresholds can be loosened for a smaller book', () => {
   const touches = touchMap({ [first.household_id]: { lastTouchAt: dayAfter(2).toISOString() } });
 
   const strict = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now, touches });
-  assert.ok(!strict.items.some((i) => i.household_id === first.household_id));
+  assert.ok(strict.held.some((h) => h.household_id === first.household_id));
 
   const loose = buildAdvisorDigest({
     provider,
@@ -903,7 +923,77 @@ test('cadence thresholds can be loosened for a smaller book', () => {
     touches,
     cadence: { minDaysBetween: 1, minDaysBetweenSameProduct: 1 },
   });
-  assert.ok(loose.items.some((i) => i.household_id === first.household_id));
+  assert.ok(!loose.held.some((h) => h.household_id === first.household_id));
+});
+
+test('a scarce product slot rotates instead of starving the same household', () => {
+  // Seven households in the demo book want the travel card and the
+  // concentration cap allows one a day. Ordered by benefit alone that queue is
+  // stable, so the same winners take the slot forever and the household at the
+  // back is never mentioned again — the worst outcome available, since an
+  // advisor cannot act on a household they are never shown.
+  const now = dayAfter(10);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const baseline = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now });
+  const winner = baseline.items[0];
+
+  const afterContact = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    touches: touchMap({ [winner.household_id]: { lastTouchAt: dayAfter(9).toISOString() } }),
+  });
+  assert.ok(
+    afterContact.items.length && afterContact.items[0].household_id !== winner.household_id,
+    'yesterday\u2019s winner does not lead again today'
+  );
+});
+
+test('within a week the more defensible figure still leads', () => {
+  // The bound on the fairness term. It is bucketed by week precisely so that
+  // it stays inert among households in the same bucket; without that, "nobody
+  // called them lately" would beat a figure computed from a household's own
+  // ledger on any given morning.
+  const now = dayAfter(30);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const sameDay = dayAfter(21).toISOString();
+  const touches = touchMap(
+    Object.fromEntries(
+      provider.getHouseholds().map((h) => [h.id, { lastTouchAt: sameDay }])
+    )
+  );
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    touches,
+    maxItems: 20,
+    pace: false,
+  });
+  const ranks = res.items.map((i) => benefitRank(i.benefit_qualifier));
+  assert.deepEqual(ranks, [...ranks].sort((a, b) => a - b), 'benefit tiers stay in order');
+});
+
+test('a household waiting a week longer outranks a slightly better figure', () => {
+  // The demo book starved a household this way: six price the travel card from
+  // posted rates and rank a tier above the seventh, six fit exactly into a
+  // six-day cycle through one daily slot, and the seventh — holding the
+  // largest figure of the seven — was never mentioned again.
+  const now = dayAfter(30);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const recent = dayAfter(29).toISOString();
+  const touches = touchMap(
+    Object.fromEntries(
+      provider
+        .getHouseholds()
+        .filter((h) => h.id !== 'hh_lindqvist')
+        .map((h) => [h.id, { lastTouchAt: recent }])
+    )
+  );
+  const res = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now, touches });
+  assert.equal(res.items[0].household_id, 'hh_lindqvist');
 });
 
 test('breaking news wins a household row over a tidier figure', () => {
@@ -957,6 +1047,104 @@ test('breaking news wins a household row over a tidier figure', () => {
   // ranked by how defensible its figure is.
   const rest = digest.items.slice(1);
   for (const item of rest) assert.equal(Boolean(item.timing.novel), false);
+});
+
+test('the digest paces itself to what the book can sustain', () => {
+  // maxItems is a ceiling, not a target. Taking the best five every morning
+  // spends a twelve-household book in three days and then sends nothing for a
+  // week, which reads to an advisor as the product breaking.
+  const now = dayAfter(1);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    maxItems: 5,
+    touches: touchMap({}),
+  });
+
+  assert.ok(res.items.length < 5, 'a small book does not get a full mail');
+  assert.equal(res.pacing.paced_to, res.pacing.sustainable);
+  assert.ok(res.pacing.sustainable >= 1, 'but it always gets at least one row');
+  assert.ok(res.dropped.paced > 0, 'and the rationing is reported');
+});
+
+test('nothing is paced away when there is no contact log to ration against', () => {
+  // Without a contact log no row is being saved for another day, so a thinner
+  // mail buys nothing and just loses opportunities.
+  const now = dayAfter(1);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const res = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now, maxItems: 5 });
+  assert.equal(res.pacing.paced_to, 5);
+  assert.equal(res.dropped.paced, 0);
+});
+
+test('a book large enough for the full digest is not paced down', () => {
+  const now = dayAfter(1);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    maxItems: 5,
+    touches: touchMap({}),
+    // A tight same-product cap stands in for a large book: both raise the
+    // number of rows a day the book can support without repeating itself.
+    cadence: { minDaysBetween: 1, minDaysBetweenSameProduct: 1 },
+  });
+  assert.equal(res.pacing.paced_to, 5);
+  assert.equal(res.dropped.paced, 0);
+});
+
+test('pacing rations routine rows but never holds back news', () => {
+  const now = dayAfter(2);
+  const context = bookContext({
+    advisorId: DEMO_ADVISOR,
+    now,
+    newlyArrived: (householdId, type) => householdId === 'hh_nakamura' && type === 'home_renovation',
+  });
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    maxItems: 5,
+    touches: touchMap({}),
+  });
+  assert.ok(res.items.some((i) => i.household_id === 'hh_nakamura' && i.timing.novel));
+});
+
+test('pacing divides by the cap that actually binds', () => {
+  // A household returns after minDaysBetween only if its product changed;
+  // otherwise it waits out the same-product cap. Pacing off the shorter one
+  // promises a rhythm the book cannot keep.
+  const now = dayAfter(1);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    touches: touchMap({}),
+    cadence: { minDaysBetween: 2, minDaysBetweenSameProduct: 40 },
+  });
+  assert.equal(res.pacing.cadence_days, 40);
+});
+
+test('pacing can be turned off entirely', () => {
+  const now = dayAfter(1);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    touches: touchMap({}),
+    pace: false,
+  });
+  assert.equal(res.pacing.paced_to, 5);
 });
 
 test('the digest reports how much of the book the refresh has covered', () => {

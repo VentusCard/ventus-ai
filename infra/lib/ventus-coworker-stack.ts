@@ -51,6 +51,10 @@ export interface VentusCoworkerStackProps extends cdk.StackProps {
   digestSchedule?: events.Schedule;
   /** Cron/rate for the customer context refresh. Defaults to daily at 11:00 UTC. */
   contextRefreshSchedule?: events.Schedule;
+  /** Days before the digest may resurface a household. Defaults to 2 (fixture book). */
+  cadenceDays?: number;
+  /** Days before the digest may re-pitch the same product. Defaults to 2 (fixture book). */
+  sameProductDays?: number;
   /** Email address to notify when the inbound Lambda errors or the DLQ fills. */
   alertEmail?: string;
 }
@@ -82,15 +86,37 @@ export class VentusCoworkerStack extends cdk.Stack {
     // advisor plans their day. The row-quality rules in buildAdvisorDigest are
     // what make a daily cadence survivable: on a day with nothing worth saying
     // it sends nothing rather than padding the table.
+    //
+    // Weekdays only. An advisor does not work a book on Saturday, so a weekend
+    // digest is an unread mail that still spends two households out of the
+    // rotation and starts Monday with the freshest opportunities already used.
+    // Skipping both days concentrates the same book into five sends instead of
+    // seven, which is what lets each morning carry four or five rows.
     const digestSchedule =
-      props.digestSchedule ?? events.Schedule.cron({ hour: '12', minute: '0' });
+      props.digestSchedule ??
+      events.Schedule.cron({ hour: '12', minute: '0', weekDay: 'MON-FRI' });
     // One hour ahead of the digest. The gap is deliberate: the refresh is what
     // dates every signal the digest ranks on, so it has to have finished, and an
     // hour is enough slack for a retry without pushing into the send window.
     // Separate schedules rather than chaining them, because a refresh failure
     // should cost the digest its sharpest ordering, not its delivery.
+    //
+    // Stays daily even though the digest does not. Signal ages are derived by
+    // comparing each snapshot against the one before it, so a refresh skipped
+    // on Saturday makes Monday read the weekend as a single day and mis-dates
+    // every signal that moved during it.
     const contextRefreshSchedule =
       props.contextRefreshSchedule ?? events.Schedule.cron({ hour: '11', minute: '0' });
+    // How often the digest may resurface a household, and the same pitch to it.
+    // Defaults suit the fixture book; see the digest function's environment.
+    const cadenceDays = String(
+      props.cadenceDays ?? (this.node.tryGetContext('coworkerCadenceDays') as string | undefined) ?? 2
+    );
+    const sameProductDays = String(
+      props.sameProductDays ??
+        (this.node.tryGetContext('coworkerSameProductDays') as string | undefined) ??
+        2
+    );
 
     // ── State: single DynamoDB table ─────────────────────────────────────────
     const table = new dynamodb.Table(this, 'CoworkerTable', {
@@ -195,7 +221,22 @@ export class VentusCoworkerStack extends cdk.Stack {
       code: lambda.Code.fromAsset('../backend/dist/lambda/ventus-coworker-digest.zip'),
       memorySize: 512,
       timeout: cdk.Duration.minutes(2),
-      environment: { ...commonEnv, COWORKER_DIGEST_MAX_ITEMS: '5' },
+      environment: {
+        ...commonEnv,
+        COWORKER_DIGEST_MAX_ITEMS: '5',
+        // Sized for the 12-household fixture book, not for a real one.
+        //
+        // The digest paces itself to roughly `households / same-product cap`
+        // rows a day, so on a book of eleven these are what buy a full mail:
+        // at 2 days it targets the five-row ceiling and lands 4.2 rows per
+        // weekday. At the production defaults (7 and 30) the same book
+        // supports one row every three days — honest arithmetic, useless demo.
+        //
+        // Raise both to 7 / 30 when this points at a real book; pacing follows
+        // whatever the caps allow, so nothing else needs changing.
+        COWORKER_MIN_DAYS_BETWEEN_TOUCHES: cadenceDays,
+        COWORKER_MIN_DAYS_BETWEEN_SAME_PRODUCT: sameProductDays,
+      },
     });
 
     // Daily customer context refresh. Reads the whole book, compares each
@@ -495,7 +536,7 @@ export class VentusCoworkerStack extends cdk.Stack {
 
     new events.Rule(this, 'CoworkerDigestSchedule', {
       ruleName: 'ventus-coworker-digest-schedule',
-      description: 'Triggers the AI Coworker proactive digest, daily at 12:00 UTC.',
+      description: 'Triggers the AI Coworker proactive digest, weekdays at 12:00 UTC.',
       schedule: digestSchedule,
       targets: [new targets.LambdaFunction(digestFn)],
     });
