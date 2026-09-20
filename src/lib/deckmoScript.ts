@@ -84,7 +84,7 @@ export const DECKMO = {
     signals: [
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.tennis, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.hawaii, tone: "blue", source: "internal" },
-      { family: "Behavioral", label: "Annual tropical vacation in December", tone: "blue", source: "external", externalEvidence: { provider: "Outside travel booking history", detail: "Recurring tropical travel observed each December", timing: "Annual · December", confidence: "Likely" } },
+      { family: "Behavioral", label: "High pet expenditure", tone: "blue", source: "external", externalEvidence: { provider: "Outside SKU-level purchase data", detail: "Recurring high-value pet spending observed outside the bank", timing: "Monthly · ongoing", confidence: "Likely" } },
       { family: "Life Events", label: RICKY_SIGNAL_LABELS.home, tone: "amber", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
       { family: "Financial", label: "Car loan expiring in ~4 months", tone: "emerald", source: "external", externalEvidence: { provider: "Outside lender tradeline", detail: "Auto loan is nearing the end of its term", timing: "Maturity · ~4 months", confidence: "Likely" } },
