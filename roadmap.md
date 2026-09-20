@@ -19,3 +19,4 @@
 - [x] Rebuild Visibility Gap rollers as active, seamless full-height streams
 - [x] Replace Visibility Gap CSS tickers with measured frame-driven rollers
 - [x] Slow and synchronize both Visibility Gap rollers
+- [x] Rebuild Ricky as a transaction-left, customer-intelligence-right presentation
