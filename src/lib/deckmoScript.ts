@@ -40,8 +40,8 @@ export const DECKMO = {
       "Or at least, it used to be.",
     ],
     comparison: {
-      today: { label: "Today", segments: ["Don't talk to or understand your customers", "Generic experiences", "Commoditization"] },
-      ventus: { label: "With Ventus", segments: ["Anticipate and fulfil customer needs", "Personalized experiences", "Differentiation"] },
+      today: { label: "Today", segments: ["Don't talk to or understand your customers", "Generic banking", "Commoditization"] },
+      ventus: { label: "With Ventus", segments: ["Anticipate and fulfil customer needs", "Personalized banking", "Differentiation"] },
     },
   },
   visibility: {
