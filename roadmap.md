@@ -18,3 +18,4 @@
 - [x] Redesign Inside the Walls as an anonymized multi-rail rolling ledger
 - [x] Rebuild Visibility Gap rollers as active, seamless full-height streams
 - [x] Replace Visibility Gap CSS tickers with measured frame-driven rollers
+- [x] Slow and synchronize both Visibility Gap rollers
