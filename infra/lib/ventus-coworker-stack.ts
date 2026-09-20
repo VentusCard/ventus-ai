@@ -110,12 +110,12 @@ export class VentusCoworkerStack extends cdk.Stack {
     // How often the digest may resurface a household, and the same pitch to it.
     // Defaults suit the fixture book; see the digest function's environment.
     const cadenceDays = String(
-      props.cadenceDays ?? (this.node.tryGetContext('coworkerCadenceDays') as string | undefined) ?? 2
+      props.cadenceDays ?? (this.node.tryGetContext('coworkerCadenceDays') as string | undefined) ?? 5
     );
     const sameProductDays = String(
       props.sameProductDays ??
         (this.node.tryGetContext('coworkerSameProductDays') as string | undefined) ??
-        2
+        5
     );
 
     // ── State: single DynamoDB table ─────────────────────────────────────────
@@ -224,13 +224,13 @@ export class VentusCoworkerStack extends cdk.Stack {
       environment: {
         ...commonEnv,
         COWORKER_DIGEST_MAX_ITEMS: '5',
-        // Sized for the 12-household fixture book, not for a real one.
+        // Sized for the 28-household fixture book, not for a real one.
         //
         // The digest paces itself to roughly `households / same-product cap`
-        // rows a day, so on a book of eleven these are what buy a full mail:
-        // at 2 days it targets the five-row ceiling and lands 4.2 rows per
-        // weekday. At the production defaults (7 and 30) the same book
-        // supports one row every three days — honest arithmetic, useless demo.
+        // rows a day, which is what ties these numbers to the book's size. On
+        // the twelve-household book that arithmetic forced a 2-day cap just to
+        // half-fill a mail; at 27 live opportunities, 5 days fills every
+        // weekday and still leaves a household five days between mentions.
         //
         // Raise both to 7 / 30 when this points at a real book; pacing follows
         // whatever the caps allow, so nothing else needs changing.

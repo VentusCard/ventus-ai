@@ -251,7 +251,10 @@ test('audience_build turn replies with the ranked table and persists turns + tas
   assert.equal(res.task.task_type, 'audience_build');
   assert.match(res.reply.subject, /^Re: /);
   assert.match(res.reply.html, /Okafor Household/);
-  assert.match(res.reply.html, /Screened all 4 households/);
+  // Read the book size rather than pinning it: the claim under test is that
+  // the reply reconciles the whole book, which holds at any size.
+  const booked = provider.getAdvisors().find((a) => a.id === 'adv_okoro').household_ids.length;
+  assert.match(res.reply.html, new RegExp(`Screened all ${booked} households`));
   assert.match(res.reply.html, /Next:/);
   assert.ok(res.reply.headers['Message-ID']);
 

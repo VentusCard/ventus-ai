@@ -362,14 +362,15 @@ changes daily and breaks any residual periodicity on its own.
 
 | Env var | Fixture-book default | Real book |
 | --- | --- | --- |
-| `COWORKER_MIN_DAYS_BETWEEN_TOUCHES` | 2 | 7 |
-| `COWORKER_MIN_DAYS_BETWEEN_SAME_PRODUCT` | 2 | 30 |
+| `COWORKER_MIN_DAYS_BETWEEN_TOUCHES` | 5 | 7 |
+| `COWORKER_MIN_DAYS_BETWEEN_SAME_PRODUCT` | 5 | 30 |
 
 The stack ships the fixture-book values (CDK context `coworkerCadenceDays` and
 `coworkerSameProductDays`). Pacing targets roughly `households ÷ same-product
-cap` rows, so on a book of eleven a 2-day cap is what reaches the five-row
-ceiling; it lands 4.2 rows per weekday. At the production values the same book
-supports one row every three days, which is honest arithmetic and a bad demo.
+cap` rows a day, which is what ties these numbers to the size of the book. At
+27 live opportunities a 5-day cap fills all five rows every weekday while
+still leaving each household five days between mentions. The same caps on the
+old twelve-household book produced one row a day.
 
 Raise both to 7/30 when this points at a real book. Nothing else needs to
 change; pacing follows whatever the caps allow, and the fairness bucket tracks
@@ -390,22 +391,38 @@ Monday read the weekend as one day and mis-date anything that moved across it.
 No alarm assumes a daily digest, so the weekend gap raises nothing. The only
 "not running" alarm watches the context refresh, which still runs every day.
 
-### What the fixture book cannot do
+### Book size is what sets the volume
 
-Five rows a weekday over three weeks is 75 slots shared by 11 eligible
-households, so every household appears about seven times no matter how the
-ranking is arranged. Volume and freshness trade off directly against book size,
-and no amount of cadence tuning changes that.
+Rows per day and freshness both come out of the size of the book, and no
+amount of cadence tuning substitutes for it. Five rows a weekday is 25 rows a
+week; at 27 live opportunities that is roughly one appearance per household
+per week, which is why the digest can fill every morning without repeating
+itself.
 
-Coverage is also uneven for a structural reason: only four products ever win
-across the book. Seven households best-match the travel card and share the two
-slots the concentration cap allows, while the two high-yield-savings households
-are the only ones holding their product and so appear in nearly every mail.
-Measured over 15 weekdays: 14 distinct line-ups, no back-to-back repeats, but a
-spread from 9 appearances down to 3.
+The v2 book of twelve could not do this, and the arithmetic says why: 75 slots
+over three weeks shared by 11 eligible households is seven appearances each
+however the ranking is arranged. It was also concentrated — only four products
+ever won a row, seven households best-matched the travel card and shared the
+two slots the concentration cap allows, and the two high-yield-savings
+households were the only holders of their product, so they appeared in almost
+every mail. Coverage ran from 9 appearances down to 3.
 
-A book of roughly 25 households would let each appear about once a week at five
-rows a day. Until then, more rows means more repetition.
+v3 adds sixteen households written against the catalog's `target_signals`, so
+eleven products can now lead a row instead of four. Over 15 weekdays: five
+rows every morning, 14 distinct line-ups, no back-to-back repeats, and nearly
+every household on exactly 3 appearances.
+
+Two products still cannot lead: `trust-account` and `home-insurance` each
+target exactly one signal, and that signal is always shared with a product
+carrying more evidence, which wins the row. That is a property of the catalog,
+not of the book — adding households will not surface them, and the fixtures
+deliberately do not pretend otherwise.
+
+Households added in v3 carry no transactions. Only the card prices from a
+ledger; everything else prices from signals, so those households report
+estimates while the original twelve keep supplying the computed-benefit
+showpiece. `backend/scripts/expand-coworker-book.mjs` is the generator, kept
+for the reasoning in its header rather than for re-running.
 
 ### What ranking did not change
 

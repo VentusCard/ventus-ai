@@ -5,133 +5,751 @@
     "hh_okafor": {
       "life_events": [],
       "behavioral": [
-        { "name": "Travel-heavy spend", "level": "HIGH", "evidence": "9 flights and 7 lodging bookings over 12 months totaling about $18,400 in Travel & Exploration." },
-        { "name": "Pays card in full", "level": "HIGH", "evidence": "No revolving balance; cashback card cleared every cycle for 12 months." }
+        {
+          "name": "Travel-heavy spend",
+          "level": "HIGH",
+          "evidence": "9 flights and 7 lodging bookings over 12 months totaling about $18,400 in Travel & Exploration."
+        },
+        {
+          "name": "Pays card in full",
+          "level": "HIGH",
+          "evidence": "No revolving balance; cashback card cleared every cycle for 12 months."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 40000, "monthly_surplus_usd": 3200, "wallet_share": 0.42, "posture": "accumulator" }
+      "financial": {
+        "idle_cash_usd": 40000,
+        "monthly_surplus_usd": 3200,
+        "wallet_share": 0.42,
+        "posture": "accumulator"
+      }
     },
     "hh_bianchi": {
       "life_events": [
-        { "type": "new_child_expected", "confidence_band": "high", "evidence": "buybuy BABY, OB visits, Pottery Barn Kids, and a parenting course within one quarter." }
+        {
+          "type": "new_child_expected",
+          "confidence_band": "high",
+          "evidence": "buybuy BABY, OB visits, Pottery Barn Kids, and a parenting course within one quarter."
+        }
       ],
       "behavioral": [
-        { "name": "Rising family spend", "level": "MED", "evidence": "New Family & Community and Kids categories appeared this quarter." },
-        { "name": "Recurring savings transfers", "level": "HIGH", "evidence": "Automated $1,500/mo transfer to savings." }
+        {
+          "name": "Rising family spend",
+          "level": "MED",
+          "evidence": "New Family & Community and Kids categories appeared this quarter."
+        },
+        {
+          "name": "Recurring savings transfers",
+          "level": "HIGH",
+          "evidence": "Automated $1,500/mo transfer to savings."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 71600, "monthly_surplus_usd": 1400, "wallet_share": 0.55, "posture": "saver" }
+      "financial": {
+        "idle_cash_usd": 71600,
+        "monthly_surplus_usd": 1400,
+        "wallet_share": 0.55,
+        "posture": "saver"
+      }
     },
     "hh_nakamura": {
       "life_events": [
-        { "type": "home_renovation", "confidence_band": "high", "evidence": "$28k+ across Home Depot, Ferguson, a general contractor, and design/furniture retailers in 90 days." }
+        {
+          "type": "home_renovation",
+          "confidence_band": "high",
+          "evidence": "$28k+ across Home Depot, Ferguson, a general contractor, and design/furniture retailers in 90 days."
+        }
       ],
       "behavioral": [
-        { "name": "Large discretionary outlays", "level": "HIGH", "evidence": "Multiple five-figure home-improvement charges." },
-        { "name": "Avoids liquidating investments", "level": "MED", "evidence": "Funding renovation from checking, not portfolio; dividend income reinvested." }
+        {
+          "name": "Large discretionary outlays",
+          "level": "HIGH",
+          "evidence": "Multiple five-figure home-improvement charges."
+        },
+        {
+          "name": "Avoids liquidating investments",
+          "level": "MED",
+          "evidence": "Funding renovation from checking, not portfolio; dividend income reinvested."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 63000, "monthly_surplus_usd": 9000, "wallet_share": 0.71, "posture": "accumulator", "home_equity_usd": 1030000 }
+      "financial": {
+        "idle_cash_usd": 63000,
+        "monthly_surplus_usd": 9000,
+        "wallet_share": 0.71,
+        "posture": "accumulator",
+        "home_equity_usd": 1030000
+      }
     },
     "hh_alvarez": {
       "life_events": [],
       "behavioral": [
-        { "name": "Volatile income", "level": "HIGH", "evidence": "Gig payouts ranging $610-$2,010 with no fixed cadence." },
-        { "name": "Cash-advance / gambling spend", "level": "MED", "evidence": "DraftKings charge alongside a low checking buffer." }
+        {
+          "name": "Volatile income",
+          "level": "HIGH",
+          "evidence": "Gig payouts ranging $610-$2,010 with no fixed cadence."
+        },
+        {
+          "name": "Cash-advance / gambling spend",
+          "level": "MED",
+          "evidence": "DraftKings charge alongside a low checking buffer."
+        }
       ],
       "risk": [
-        { "type": "nsf_overdraft_cluster", "band": "high", "evidence": "Two overdraft fees plus one NSF returned item in 60 days." },
-        { "type": "low_liquidity_buffer", "band": "high", "evidence": "Checking buffer under $2k against irregular inflows." }
+        {
+          "type": "nsf_overdraft_cluster",
+          "band": "high",
+          "evidence": "Two overdraft fees plus one NSF returned item in 60 days."
+        },
+        {
+          "type": "low_liquidity_buffer",
+          "band": "high",
+          "evidence": "Checking buffer under $2k against irregular inflows."
+        }
       ],
-      "financial": { "idle_cash_usd": 0, "monthly_surplus_usd": -150, "wallet_share": 0.3, "posture": "juggler" }
+      "financial": {
+        "idle_cash_usd": 0,
+        "monthly_surplus_usd": -150,
+        "wallet_share": 0.3,
+        "posture": "juggler"
+      }
     },
     "hh_petrov": {
       "life_events": [
-        { "type": "relocation", "confidence_band": "high", "evidence": "U-Haul, out-of-state payroll switch, and rental/listing site activity (Zillow, Redfin)." },
-        { "type": "home_purchase_intent", "confidence_band": "medium", "evidence": "Redfin/Zillow activity plus accelerating down-payment transfers." }
+        {
+          "type": "relocation",
+          "confidence_band": "high",
+          "evidence": "U-Haul, out-of-state payroll switch, and rental/listing site activity (Zillow, Redfin)."
+        },
+        {
+          "type": "home_purchase_intent",
+          "confidence_band": "medium",
+          "evidence": "Redfin/Zillow activity plus accelerating down-payment transfers."
+        }
       ],
       "behavioral": [
-        { "name": "Accelerating savings velocity", "level": "HIGH", "evidence": "$3,000/mo into high-yield savings, up from prior cadence." },
-        { "name": "Pays card in full", "level": "HIGH", "evidence": "Cashback card cleared every cycle across 12 months, no interest charges." }
+        {
+          "name": "Accelerating savings velocity",
+          "level": "HIGH",
+          "evidence": "$3,000/mo into high-yield savings, up from prior cadence."
+        },
+        {
+          "name": "Pays card in full",
+          "level": "HIGH",
+          "evidence": "Cashback card cleared every cycle across 12 months, no interest charges."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 22100, "monthly_surplus_usd": 3400, "wallet_share": 0.6, "posture": "saver", "down_payment_fund_usd": 133900 }
+      "financial": {
+        "idle_cash_usd": 22100,
+        "monthly_surplus_usd": 3400,
+        "wallet_share": 0.6,
+        "posture": "saver",
+        "down_payment_fund_usd": 133900
+      }
     },
     "hh_sharma": {
       "life_events": [
-        { "type": "estate_inflow", "confidence_band": "high", "evidence": "$480k estate settlement wire plus estate-attorney fees." }
+        {
+          "type": "estate_inflow",
+          "confidence_band": "high",
+          "evidence": "$480k estate settlement wire plus estate-attorney fees."
+        }
       ],
       "behavioral": [
-        { "name": "Idle cash spike", "level": "HIGH", "evidence": "Checking balance jumped to $512k after the inflow, undeployed." },
-        { "name": "Travel-heavy spend", "level": "HIGH", "evidence": "First-class international itineraries and premium lodging across 12 months, about $41,200 in Travel & Exploration." },
-        { "name": "Pays card in full", "level": "HIGH", "evidence": "No revolving balance on the cashback card across 12 months." }
+        {
+          "name": "Idle cash spike",
+          "level": "HIGH",
+          "evidence": "Checking balance jumped to $512k after the inflow, undeployed."
+        },
+        {
+          "name": "Travel-heavy spend",
+          "level": "HIGH",
+          "evidence": "First-class international itineraries and premium lodging across 12 months, about $41,200 in Travel & Exploration."
+        },
+        {
+          "name": "Pays card in full",
+          "level": "HIGH",
+          "evidence": "No revolving balance on the cashback card across 12 months."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 512000, "monthly_surplus_usd": 20000, "wallet_share": 0.64, "posture": "accumulator" }
+      "financial": {
+        "idle_cash_usd": 512000,
+        "monthly_surplus_usd": 20000,
+        "wallet_share": 0.64,
+        "posture": "accumulator"
+      }
     },
     "hh_delgado": {
       "life_events": [],
       "behavioral": [
-        { "name": "Steady student-loan servicing", "level": "HIGH", "evidence": "$640/mo to Nelnet, consistently on time for 12 months." },
-        { "name": "Building emergency fund", "level": "MED", "evidence": "$500/mo to savings." }
+        {
+          "name": "Steady student-loan servicing",
+          "level": "HIGH",
+          "evidence": "$640/mo to Nelnet, consistently on time for 12 months."
+        },
+        {
+          "name": "Building emergency fund",
+          "level": "MED",
+          "evidence": "$500/mo to savings."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 37200, "monthly_surplus_usd": 900, "wallet_share": 0.51, "posture": "saver", "student_loan_balance_usd": 68000, "student_loan_rate_pct": 8.9 }
+      "financial": {
+        "idle_cash_usd": 37200,
+        "monthly_surplus_usd": 900,
+        "wallet_share": 0.51,
+        "posture": "saver",
+        "student_loan_balance_usd": 68000,
+        "student_loan_rate_pct": 8.9
+      }
     },
     "hh_kim": {
       "life_events": [
-        { "type": "retirement_horizon", "confidence_band": "medium", "evidence": "Age band 46-52 with maxed monthly investing cadence and a large idle-cash sweep." }
+        {
+          "type": "retirement_horizon",
+          "confidence_band": "medium",
+          "evidence": "Age band 46-52 with maxed monthly investing cadence and a large idle-cash sweep."
+        }
       ],
       "behavioral": [
-        { "name": "Automated investing", "level": "HIGH", "evidence": "Recurring $7,000/mo Vanguard buys." },
-        { "name": "Idle cash accumulation", "level": "MED", "evidence": "$40k cash sweep landed uninvested." },
-        { "name": "Pays card in full", "level": "HIGH", "evidence": "Cashback card cleared every cycle across 12 months." }
+        {
+          "name": "Automated investing",
+          "level": "HIGH",
+          "evidence": "Recurring $7,000/mo Vanguard buys."
+        },
+        {
+          "name": "Idle cash accumulation",
+          "level": "MED",
+          "evidence": "$40k cash sweep landed uninvested."
+        },
+        {
+          "name": "Pays card in full",
+          "level": "HIGH",
+          "evidence": "Cashback card cleared every cycle across 12 months."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 90000, "monthly_surplus_usd": 6500, "wallet_share": 0.58, "posture": "accumulator" }
+      "financial": {
+        "idle_cash_usd": 90000,
+        "monthly_surplus_usd": 6500,
+        "wallet_share": 0.58,
+        "posture": "accumulator"
+      }
     },
     "hh_whitfield": {
       "life_events": [
-        { "type": "retirement_horizon", "confidence_band": "medium", "evidence": "Age band 46-52 with a rising travel cadence and no new contribution schedule since the last review." }
+        {
+          "type": "retirement_horizon",
+          "confidence_band": "medium",
+          "evidence": "Age band 46-52 with a rising travel cadence and no new contribution schedule since the last review."
+        }
       ],
       "behavioral": [
-        { "name": "Travel-heavy spend", "level": "HIGH", "evidence": "14 international flight bookings and 11 lodging stays over 12 months, about $34,800 in Travel & Exploration." },
-        { "name": "Pays card in full", "level": "HIGH", "evidence": "No revolving balance across 12 months on a card earning a flat rate." },
-        { "name": "Dining-led discretionary", "level": "MED", "evidence": "About $14,600 in Dining Out and Coffee & Cafes over 12 months, the largest discretionary pillar after travel." }
+        {
+          "name": "Travel-heavy spend",
+          "level": "HIGH",
+          "evidence": "14 international flight bookings and 11 lodging stays over 12 months, about $34,800 in Travel & Exploration."
+        },
+        {
+          "name": "Pays card in full",
+          "level": "HIGH",
+          "evidence": "No revolving balance across 12 months on a card earning a flat rate."
+        },
+        {
+          "name": "Dining-led discretionary",
+          "level": "MED",
+          "evidence": "About $14,600 in Dining Out and Coffee & Cafes over 12 months, the largest discretionary pillar after travel."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 84000, "monthly_surplus_usd": 11000, "wallet_share": 0.49, "posture": "accumulator" }
+      "financial": {
+        "idle_cash_usd": 84000,
+        "monthly_surplus_usd": 11000,
+        "wallet_share": 0.49,
+        "posture": "accumulator"
+      }
     },
     "hh_castellanos": {
       "life_events": [],
       "behavioral": [
-        { "name": "Dining-led discretionary", "level": "HIGH", "evidence": "About $19,300 across Dining Out and Coffee & Cafes over 12 months, the single largest discretionary pillar." },
-        { "name": "Travel-heavy spend", "level": "MED", "evidence": "6 flights and 5 lodging stays over 12 months, about $11,900 in Travel & Exploration." },
-        { "name": "Pays card in full", "level": "HIGH", "evidence": "Cashback card cleared every cycle across 12 months." }
+        {
+          "name": "Dining-led discretionary",
+          "level": "HIGH",
+          "evidence": "About $19,300 across Dining Out and Coffee & Cafes over 12 months, the single largest discretionary pillar."
+        },
+        {
+          "name": "Travel-heavy spend",
+          "level": "MED",
+          "evidence": "6 flights and 5 lodging stays over 12 months, about $11,900 in Travel & Exploration."
+        },
+        {
+          "name": "Pays card in full",
+          "level": "HIGH",
+          "evidence": "Cashback card cleared every cycle across 12 months."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 39500, "monthly_surplus_usd": 4200, "wallet_share": 0.44, "posture": "accumulator" }
+      "financial": {
+        "idle_cash_usd": 39500,
+        "monthly_surplus_usd": 4200,
+        "wallet_share": 0.44,
+        "posture": "accumulator"
+      }
     },
     "hh_oyelaran": {
       "life_events": [],
       "behavioral": [
-        { "name": "Building emergency fund", "level": "HIGH", "evidence": "$900/mo to savings for 11 of the last 12 months." },
-        { "name": "Automated investing", "level": "MED", "evidence": "Recurring $250/mo brokerage buys started eight months ago." }
+        {
+          "name": "Building emergency fund",
+          "level": "HIGH",
+          "evidence": "$900/mo to savings for 11 of the last 12 months."
+        },
+        {
+          "name": "Automated investing",
+          "level": "MED",
+          "evidence": "Recurring $250/mo brokerage buys started eight months ago."
+        }
       ],
       "risk": [
-        { "type": "thin_credit_file", "band": "medium", "evidence": "First banking relationship opened 14 months ago; no revolving trade lines on file." }
+        {
+          "type": "thin_credit_file",
+          "band": "medium",
+          "evidence": "First banking relationship opened 14 months ago; no revolving trade lines on file."
+        }
       ],
-      "financial": { "idle_cash_usd": 25600, "monthly_surplus_usd": 1100, "wallet_share": 0.28, "posture": "saver" }
+      "financial": {
+        "idle_cash_usd": 25600,
+        "monthly_surplus_usd": 1100,
+        "wallet_share": 0.28,
+        "posture": "saver"
+      }
     },
     "hh_lindqvist": {
       "life_events": [],
       "behavioral": [
-        { "name": "Travel-heavy spend", "level": "HIGH", "evidence": "11 flights and 8 lodging stays over 12 months, about $22,700 in Travel & Exploration." },
-        { "name": "Dining-led discretionary", "level": "MED", "evidence": "About $12,100 across Dining Out and Coffee & Cafes over 12 months." },
-        { "name": "Pays card in full", "level": "HIGH", "evidence": "No revolving balance across 12 months; travel spend currently runs through a card held elsewhere." }
+        {
+          "name": "Travel-heavy spend",
+          "level": "HIGH",
+          "evidence": "11 flights and 8 lodging stays over 12 months, about $22,700 in Travel & Exploration."
+        },
+        {
+          "name": "Dining-led discretionary",
+          "level": "MED",
+          "evidence": "About $12,100 across Dining Out and Coffee & Cafes over 12 months."
+        },
+        {
+          "name": "Pays card in full",
+          "level": "HIGH",
+          "evidence": "No revolving balance across 12 months; travel spend currently runs through a card held elsewhere."
+        }
       ],
       "risk": [],
-      "financial": { "idle_cash_usd": 61700, "monthly_surplus_usd": 5200, "wallet_share": 0.53, "posture": "accumulator" }
+      "financial": {
+        "idle_cash_usd": 61700,
+        "monthly_surplus_usd": 5200,
+        "wallet_share": 0.53,
+        "posture": "accumulator"
+      }
+    },
+    "hh_rasmussen": {
+      "life_events": [
+        {
+          "type": "new_child_expected",
+          "confidence_band": "high",
+          "evidence": "Maternity-care copays and a nursery furniture order in the last two months."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Rising family spend",
+          "level": "HIGH",
+          "evidence": "Grocery and household spend up 34% over the trailing quarter."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 12400,
+        "monthly_surplus_usd": 1400,
+        "wallet_share": 0.38,
+        "posture": "accumulator"
+      }
+    },
+    "hh_villanueva": {
+      "life_events": [
+        {
+          "type": "new_child_expected",
+          "confidence_band": "medium",
+          "evidence": "Pediatric registration and a second car-seat purchase in the last 45 days."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Rising family spend",
+          "level": "MED",
+          "evidence": "Childcare debits began three months ago and now run $1,850 a month."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 13800,
+        "monthly_surplus_usd": 2100,
+        "wallet_share": 0.51,
+        "posture": "accumulator"
+      }
+    },
+    "hh_achebe": {
+      "life_events": [
+        {
+          "type": "new_child_expected",
+          "confidence_band": "high",
+          "evidence": "Obstetric billing across four consecutive months."
+        },
+        {
+          "type": "home_purchase_intent",
+          "confidence_band": "medium",
+          "evidence": "Two mortgage-application fees and an inspection payment in six weeks."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Building emergency fund",
+          "level": "HIGH",
+          "evidence": "Savings balance up $18,000 over ten months with no withdrawals."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 15200,
+        "monthly_surplus_usd": 1750,
+        "wallet_share": 0.29,
+        "posture": "accumulator"
+      }
+    },
+    "hh_montoya": {
+      "life_events": [
+        {
+          "type": "home_renovation",
+          "confidence_band": "high",
+          "evidence": "Contractor deposits of $12,000 and $9,400 to the same builder in eight weeks."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Large discretionary outlays",
+          "level": "HIGH",
+          "evidence": "Four single purchases above $3,000 in the trailing quarter."
+        },
+        {
+          "name": "Avoids liquidating investments",
+          "level": "MED",
+          "evidence": "No brokerage sales in 24 months despite two large cash outlays."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 22100,
+        "home_equity_usd": 412000,
+        "monthly_surplus_usd": 2600,
+        "wallet_share": 0.44,
+        "posture": "balanced"
+      }
+    },
+    "hh_lindgren": {
+      "life_events": [
+        {
+          "type": "home_renovation",
+          "confidence_band": "medium",
+          "evidence": "Permit fees to the city and an architect retainer inside the last month."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Large discretionary outlays",
+          "level": "MED",
+          "evidence": "Two payments above $8,000 to design and survey firms this quarter."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 19400,
+        "home_equity_usd": 548000,
+        "monthly_surplus_usd": 3900,
+        "wallet_share": 0.58,
+        "posture": "balanced"
+      }
+    },
+    "hh_barros": {
+      "life_events": [
+        {
+          "type": "estate_inflow",
+          "confidence_band": "high",
+          "evidence": "A $480,000 settlement credit posted from an estate administrator."
+        },
+        {
+          "type": "elder_care",
+          "confidence_band": "medium",
+          "evidence": "Recurring payments to a long-term care facility began four months ago."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Avoids liquidating investments",
+          "level": "HIGH",
+          "evidence": "No sales in 36 months; distributions taken in cash instead."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 18600,
+        "monthly_surplus_usd": 5200,
+        "wallet_share": 0.63,
+        "posture": "preservation"
+      }
+    },
+    "hh_tanaka": {
+      "life_events": [
+        {
+          "type": "retirement_horizon",
+          "confidence_band": "high",
+          "evidence": "Pension-estimate requests and a benefits-counseling appointment on file."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Automated investing",
+          "level": "HIGH",
+          "evidence": "Recurring $1,200 monthly brokerage purchases running for three years."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 16400,
+        "monthly_surplus_usd": 3100,
+        "wallet_share": 0.47,
+        "posture": "preservation"
+      }
+    },
+    "hh_osei": {
+      "life_events": [
+        {
+          "type": "retirement_horizon",
+          "confidence_band": "medium",
+          "evidence": "Retirement-calculator sessions and a catch-up contribution enquiry this quarter."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Automated investing",
+          "level": "MED",
+          "evidence": "Standing $450 monthly transfer to a brokerage account for 19 months."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 18900,
+        "monthly_surplus_usd": 1650,
+        "wallet_share": 0.33,
+        "posture": "accumulator"
+      }
+    },
+    "hh_novak": {
+      "life_events": [],
+      "behavioral": [
+        {
+          "name": "Idle cash accumulation",
+          "level": "HIGH",
+          "evidence": "Checking balance has grown every month for 11 months and never been swept."
+        },
+        {
+          "name": "Automated investing",
+          "level": "LOW",
+          "evidence": "A single $100 monthly transfer to an outside brokerage."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 21000,
+        "monthly_surplus_usd": 2300,
+        "wallet_share": 0.22,
+        "posture": "accumulator"
+      }
+    },
+    "hh_qureshi": {
+      "life_events": [],
+      "behavioral": [
+        {
+          "name": "Idle cash accumulation",
+          "level": "MED",
+          "evidence": "Combined balances up $22,000 across the year with no investment activity."
+        },
+        {
+          "name": "Automated investing",
+          "level": "LOW",
+          "evidence": "A $200 monthly transfer to an outside robo account, unchanged for a year."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 20400,
+        "monthly_surplus_usd": 1900,
+        "wallet_share": 0.36,
+        "posture": "accumulator"
+      }
+    },
+    "hh_ferreira": {
+      "life_events": [
+        {
+          "type": "home_purchase_intent",
+          "confidence_band": "high",
+          "evidence": "Earnest-money transfer and two appraisal fees in the last three weeks."
+        },
+        {
+          "type": "relocation",
+          "confidence_band": "medium",
+          "evidence": "Payroll deposit switched to a new employer in a different metro."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Building emergency fund",
+          "level": "HIGH",
+          "evidence": "Savings up $40,000 over 18 months, untouched."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 20800,
+        "monthly_surplus_usd": 2450,
+        "wallet_share": 0.31,
+        "posture": "accumulator"
+      }
+    },
+    "hh_haddad": {
+      "life_events": [
+        {
+          "type": "home_purchase_intent",
+          "confidence_band": "high",
+          "evidence": "Title-company payment and a homeowners quote debit inside two weeks."
+        },
+        {
+          "type": "relocation",
+          "confidence_band": "high",
+          "evidence": "A moving-company deposit and a utility transfer to a new service address."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Large discretionary outlays",
+          "level": "MED",
+          "evidence": "Three payments above $4,000 to moving and title services this quarter."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 24100,
+        "monthly_surplus_usd": 3050,
+        "wallet_share": 0.49,
+        "posture": "balanced"
+      }
+    },
+    "hh_sorensen": {
+      "life_events": [],
+      "behavioral": [
+        {
+          "name": "Accelerating savings velocity",
+          "level": "HIGH",
+          "evidence": "Deposits outpaced withdrawals in 11 of the last 12 months."
+        },
+        {
+          "name": "Recurring savings transfers",
+          "level": "MED",
+          "evidence": "A standing $1,500 monthly transfer running for two years."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 83500,
+        "monthly_surplus_usd": 2800,
+        "wallet_share": 0.34,
+        "posture": "accumulator"
+      }
+    },
+    "hh_iqbal": {
+      "life_events": [],
+      "behavioral": [
+        {
+          "name": "Steady student-loan servicing",
+          "level": "HIGH",
+          "evidence": "$740 paid to the same servicer on the same day for 24 consecutive months."
+        },
+        {
+          "name": "Volatile income",
+          "level": "LOW",
+          "evidence": "Contract income varied by about 20% month to month across the year."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 14700,
+        "student_loan_balance_usd": 61200,
+        "student_loan_rate_pct": 7.4,
+        "monthly_surplus_usd": 900,
+        "wallet_share": 0.24,
+        "posture": "deleveraging"
+      }
+    },
+    "hh_dubois": {
+      "life_events": [],
+      "behavioral": [
+        {
+          "name": "Volatile income",
+          "level": "HIGH",
+          "evidence": "Deposits ranged from $1,100 to $4,800 a month across the year."
+        }
+      ],
+      "risk": [
+        {
+          "type": "nsf_overdraft_cluster",
+          "band": "high",
+          "evidence": "Three overdraft and returned-item charges in the last 60 days."
+        }
+      ],
+      "financial": {
+        "idle_cash_usd": 7600,
+        "monthly_surplus_usd": 240,
+        "wallet_share": 0.19,
+        "posture": "stabilizing"
+      }
+    },
+    "hh_marchetti": {
+      "life_events": [
+        {
+          "type": "retirement_horizon",
+          "confidence_band": "high",
+          "evidence": "Social Security estimate requested and a partial-retirement date discussed on file."
+        }
+      ],
+      "behavioral": [
+        {
+          "name": "Idle cash spike",
+          "level": "HIGH",
+          "evidence": "A $96,000 distribution landed in checking three weeks ago and has not moved."
+        },
+        {
+          "name": "Idle cash accumulation",
+          "level": "MED",
+          "evidence": "Checking ran above $100,000 for six of the last nine months."
+        }
+      ],
+      "risk": [],
+      "financial": {
+        "idle_cash_usd": 22800,
+        "monthly_surplus_usd": 6400,
+        "wallet_share": 0.55,
+        "posture": "preservation"
+      }
     }
   }
 }

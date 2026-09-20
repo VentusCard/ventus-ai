@@ -942,7 +942,22 @@ function beatsForDigest(candidate, incumbent) {
   // product whose signal is still live. Without context the two are equal and
   // this is the original comparison.
   if (candidate.priority !== incumbent.priority) return candidate.priority > incumbent.priority;
-  return candidate.annual_benefit_usd > incumbent.annual_benefit_usd;
+  if (candidate.annual_benefit_usd !== incumbent.annual_benefit_usd) {
+    return candidate.annual_benefit_usd > incumbent.annual_benefit_usd;
+  }
+  // Everything above is equal, which for products valued as an outcome rather
+  // than a figure is the common case: several of them price to no dollar
+  // amount at all, so they reach here tied on every term. Falling through left
+  // catalog order to decide, so a product matching one of the household's
+  // signals could hold the row against one matching three. A household that
+  // has both told us it is moving and told us it is buying should be reading
+  // about a mortgage, not about the one product that noticed only the
+  // purchase; and where the thinly-matched product also lacked support, the
+  // household was dropped outright with a better opportunity sitting unused.
+  if (candidate.fit_score !== incumbent.fit_score) {
+    return candidate.fit_score > incumbent.fit_score;
+  }
+  return candidate.supporting_signal_count > incumbent.supporting_signal_count;
 }
 
 /**

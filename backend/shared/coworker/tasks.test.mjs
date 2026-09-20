@@ -30,11 +30,22 @@ const provider = createFixturePortfolioProvider();
 // the original four, which several assertions below deliberately pin.
 const DEMO_ADVISOR = 'adv_zoheb';
 
+/**
+ * Size of an advisor's book, read rather than written down.
+ *
+ * These assertions are about the screen reconciling every household it was
+ * given, which is true at any book size. Pinning the literal count made a
+ * fixture expansion look like six logic regressions.
+ */
+function bookSize(advisorId) {
+  return provider.getAdvisors().find((a) => a.id === advisorId).household_ids.length;
+}
+
 // --- deterministic audience build --------------------------------------------
 
 test('travel-card audience fits the traveler and excludes the overdraft household', () => {
   const res = buildAudience({ provider, advisorId: 'adv_okoro', productId: 'travel-card' });
-  assert.equal(res.considered, 4);
+  assert.equal(res.considered, bookSize('adv_okoro'), 'the whole book is reconciled');
   assert.deepEqual(
     res.candidates.map((c) => c.household_id),
     ['hh_okafor']
@@ -77,8 +88,23 @@ test('every household in the book is accounted for in exactly one bucket', () =>
 
 test('high-yield-savings audience ranks by fit then benefit', () => {
   const res = buildAudience({ provider, advisorId: 'adv_okoro', productId: 'high-yield-savings' });
-  assert.equal(res.candidates[0].household_id, 'hh_bianchi');
-  assert.equal(res.candidates[0].fit_score, 2);
+  // The ordering is the claim, not which household happens to hold the top
+  // slot: fit first, and among equal fit the larger benefit. Pinning an id
+  // meant that adding a household with more idle cash read as a regression.
+  assert.ok(res.candidates.length > 1, 'more than one household to rank');
+  for (let i = 1; i < res.candidates.length; i++) {
+    const [prev, cur] = [res.candidates[i - 1], res.candidates[i]];
+    assert.ok(
+      prev.fit_score > cur.fit_score ||
+        (prev.fit_score === cur.fit_score && prev.annual_benefit_usd >= cur.annual_benefit_usd),
+      `${prev.household_id} should outrank ${cur.household_id}`
+    );
+  }
+  assert.equal(
+    res.candidates[0].fit_score,
+    Math.max(...res.candidates.map((c) => c.fit_score)),
+    'the best-fitting household leads'
+  );
   const held = res.excluded.find((s) => s.household_id === 'hh_alvarez');
   assert.ok(held);
   assert.equal(held.reason, 'low_liquidity_buffer');
@@ -261,8 +287,9 @@ test('digest keeps one opportunity per household and states the denominator', ()
   assert.ok(digest.items.length >= 1);
   const ids = digest.items.map((i) => i.household_id);
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(digest.considered, 12);
-  assert.match(digestSubject(digest), /of 12 households/);
+  const size = bookSize(DEMO_ADVISOR);
+  assert.equal(digest.considered, size);
+  assert.match(digestSubject(digest), new RegExp(`of ${size} households`));
 });
 
 test('digest leads with figures that survive being questioned', () => {
@@ -1154,7 +1181,7 @@ test('the digest reports how much of the book the refresh has covered', () => {
 
   const res = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context: partial, now });
   assert.equal(res.context_coverage.covered, 3);
-  assert.equal(res.context_coverage.of, 12);
+  assert.equal(res.context_coverage.of, bookSize(DEMO_ADVISOR));
 });
 
 test('the digest email shows signal age and marks what is new', () => {

@@ -39,11 +39,14 @@ test('every advisor household_id resolves; getHouseholds returns the advisor-own
   }
 });
 
-test('every household has transactions and a signals record', () => {
+test('every household has a signals record, and any transactions it has are well-formed', () => {
+  // Transactions are not required of every household. Only the card prices
+  // from a ledger; every other product prices from signals, and the v3
+  // households were added to give those products someone to lead with. A
+  // household without transactions screens as no-signal for the card, which is
+  // the honest answer rather than a gap.
   for (const hh of provider.getHouseholds()) {
-    const txns = provider.getTransactions(hh.id);
-    assert.ok(txns.length > 0, `${hh.id} has transactions`);
-    for (const t of txns) {
+    for (const t of provider.getTransactions(hh.id)) {
       assert.ok(t.transaction_id && t.date && t.pillar, `${hh.id} txn well-formed`);
       assert.ok(['debit', 'credit'].includes(t.direction), `${hh.id} txn has direction`);
     }
@@ -51,6 +54,16 @@ test('every household has transactions and a signals record', () => {
     assert.ok(sig && typeof sig.financial === 'object', `${hh.id} has financial posture`);
     assert.ok(Array.isArray(sig.life_events), `${hh.id} life_events is an array`);
   }
+});
+
+test('the households that price from a ledger still have one', () => {
+  // The guarantee the previous test was really protecting: a computed,
+  // defensible card figure needs transactions behind it, and losing those
+  // silently would downgrade the showpiece to an estimate.
+  const withLedger = provider
+    .getHouseholds()
+    .filter((hh) => provider.getTransactions(hh.id).length > 0);
+  assert.ok(withLedger.length >= 12, 'the original book still carries its ledgers');
 });
 
 test('unknown ids return null / empty without throwing', () => {

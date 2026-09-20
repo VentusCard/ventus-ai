@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "note": "Synthetic wealth-management portfolio for the AI Coworker. Deterministic, anonymized. No real customer data. Every household is built around a clear product-opportunity narrative so audience-building and prep tasks have material to reason over. As of v2 the book is 12 households so a single-product screen returns a real audience (the demoed card fits 7, excludes 2, and finds no signal on 3), and each household carries an advisor-entered communication_tone that drives outreach voice.",
+  "note": "Synthetic wealth-management portfolio for the AI Coworker. Deterministic, anonymized. No real customer data. Every household is built around a clear product-opportunity narrative so audience-building and prep tasks have material to reason over. As of v3 the book is 28 households. v2 was twelve, which was too thin for a daily digest: five rows a morning exhausted it in three days, and seven of the twelve best-matched the travel card, so the mail pitched one product in most rows. The households added in v3 are written against the catalog's target_signals so that every product able to lead a row has a household behind it. They carry no transactions, deliberately — the card is the only product needing a ledger to price, and the original twelve already provide the computed-benefit showpiece. Each household carries an advisor-entered communication_tone that drives outreach voice.",
   "institution": {
     "id": "inst_demo_growth_desk",
     "name": "Growth Desk (Demo)",
@@ -20,7 +20,20 @@
       "email": "dana.okoro@ventusai.com",
       "title": "Senior Wealth Advisor",
       "mailbox": "fictional",
-      "household_ids": ["hh_okafor", "hh_bianchi", "hh_nakamura", "hh_alvarez"]
+      "household_ids": [
+        "hh_okafor",
+        "hh_bianchi",
+        "hh_nakamura",
+        "hh_alvarez",
+        "hh_rasmussen",
+        "hh_achebe",
+        "hh_lindgren",
+        "hh_tanaka",
+        "hh_novak",
+        "hh_ferreira",
+        "hh_sorensen",
+        "hh_dubois"
+      ]
     },
     {
       "id": "adv_reyes",
@@ -36,7 +49,15 @@
         "hh_whitfield",
         "hh_castellanos",
         "hh_oyelaran",
-        "hh_lindqvist"
+        "hh_lindqvist",
+        "hh_villanueva",
+        "hh_montoya",
+        "hh_barros",
+        "hh_osei",
+        "hh_qureshi",
+        "hh_haddad",
+        "hh_iqbal",
+        "hh_marchetti"
       ]
     },
     {
@@ -56,7 +77,23 @@
         "hh_whitfield",
         "hh_castellanos",
         "hh_oyelaran",
-        "hh_lindqvist"
+        "hh_lindqvist",
+        "hh_rasmussen",
+        "hh_villanueva",
+        "hh_achebe",
+        "hh_montoya",
+        "hh_lindgren",
+        "hh_barros",
+        "hh_tanaka",
+        "hh_osei",
+        "hh_novak",
+        "hh_qureshi",
+        "hh_ferreira",
+        "hh_haddad",
+        "hh_sorensen",
+        "hh_iqbal",
+        "hh_dubois",
+        "hh_marchetti"
       ]
     },
     {
@@ -76,7 +113,23 @@
         "hh_whitfield",
         "hh_castellanos",
         "hh_oyelaran",
-        "hh_lindqvist"
+        "hh_lindqvist",
+        "hh_rasmussen",
+        "hh_villanueva",
+        "hh_achebe",
+        "hh_montoya",
+        "hh_lindgren",
+        "hh_barros",
+        "hh_tanaka",
+        "hh_osei",
+        "hh_novak",
+        "hh_qureshi",
+        "hh_ferreira",
+        "hh_haddad",
+        "hh_sorensen",
+        "hh_iqbal",
+        "hh_dubois",
+        "hh_marchetti"
       ]
     },
     {
@@ -96,7 +149,23 @@
         "hh_whitfield",
         "hh_castellanos",
         "hh_oyelaran",
-        "hh_lindqvist"
+        "hh_lindqvist",
+        "hh_rasmussen",
+        "hh_villanueva",
+        "hh_achebe",
+        "hh_montoya",
+        "hh_lindgren",
+        "hh_barros",
+        "hh_tanaka",
+        "hh_osei",
+        "hh_novak",
+        "hh_qureshi",
+        "hh_ferreira",
+        "hh_haddad",
+        "hh_sorensen",
+        "hh_iqbal",
+        "hh_dubois",
+        "hh_marchetti"
       ]
     },
     {
@@ -117,7 +186,23 @@
         "hh_whitfield",
         "hh_castellanos",
         "hh_oyelaran",
-        "hh_lindqvist"
+        "hh_lindqvist",
+        "hh_rasmussen",
+        "hh_villanueva",
+        "hh_achebe",
+        "hh_montoya",
+        "hh_lindgren",
+        "hh_barros",
+        "hh_tanaka",
+        "hh_osei",
+        "hh_novak",
+        "hh_qureshi",
+        "hh_ferreira",
+        "hh_haddad",
+        "hh_sorensen",
+        "hh_iqbal",
+        "hh_dubois",
+        "hh_marchetti"
       ]
     }
   ],
@@ -131,18 +216,35 @@
       "age_band": "38-45",
       "communication_tone": "warm_personal",
       "communication_tone_source": "advisor",
-      "region": { "city": "Austin", "state": "TX", "zip": "78704", "cost_of_living": "high" },
+      "region": {
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78704",
+        "cost_of_living": "high"
+      },
       "relationship": {
         "tenure_years": 6,
-        "products_held": ["everyday-checking", "flat-cashback-card"],
+        "products_held": [
+          "everyday-checking",
+          "flat-cashback-card"
+        ],
         "aum_usd": 210000,
         "wallet_share": 0.42
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 48200 },
-        { "type": "brokerage", "balance_usd": 161800 }
+        {
+          "type": "checking",
+          "balance_usd": 48200
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 161800
+        }
       ],
-      "goals": ["Travel more without carrying balances", "Put idle cash to work"]
+      "goals": [
+        "Travel more without carrying balances",
+        "Put idle cash to work"
+      ]
     },
     {
       "id": "hh_bianchi",
@@ -153,18 +255,35 @@
       "age_band": "31-37",
       "communication_tone": "warm_personal",
       "communication_tone_source": "advisor",
-      "region": { "city": "Denver", "state": "CO", "zip": "80206", "cost_of_living": "average" },
+      "region": {
+        "city": "Denver",
+        "state": "CO",
+        "zip": "80206",
+        "cost_of_living": "average"
+      },
       "relationship": {
         "tenure_years": 3,
-        "products_held": ["everyday-checking", "core-savings"],
+        "products_held": [
+          "everyday-checking",
+          "core-savings"
+        ],
         "aum_usd": 84000,
         "wallet_share": 0.55
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 12400 },
-        { "type": "savings", "balance_usd": 71600 }
+        {
+          "type": "checking",
+          "balance_usd": 12400
+        },
+        {
+          "type": "savings",
+          "balance_usd": 71600
+        }
       ],
-      "goals": ["Get ready for a first child", "Start saving for education"]
+      "goals": [
+        "Get ready for a first child",
+        "Start saving for education"
+      ]
     },
     {
       "id": "hh_nakamura",
@@ -175,19 +294,41 @@
       "age_band": "52-60",
       "communication_tone": "formal_reserved",
       "communication_tone_source": "advisor",
-      "region": { "city": "Seattle", "state": "WA", "zip": "98112", "cost_of_living": "high" },
+      "region": {
+        "city": "Seattle",
+        "state": "WA",
+        "zip": "98112",
+        "cost_of_living": "high"
+      },
       "relationship": {
         "tenure_years": 12,
-        "products_held": ["relationship-checking", "mortgage", "managed-portfolio"],
+        "products_held": [
+          "relationship-checking",
+          "mortgage",
+          "managed-portfolio"
+        ],
         "aum_usd": 1850000,
         "wallet_share": 0.71
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 63000 },
-        { "type": "managed_portfolio", "balance_usd": 1787000 },
-        { "type": "mortgage", "balance_usd": -420000, "home_value_usd": 1450000 }
+        {
+          "type": "checking",
+          "balance_usd": 63000
+        },
+        {
+          "type": "managed_portfolio",
+          "balance_usd": 1787000
+        },
+        {
+          "type": "mortgage",
+          "balance_usd": -420000,
+          "home_value_usd": 1450000
+        }
       ],
-      "goals": ["Fund a major home renovation", "Avoid selling appreciated positions"]
+      "goals": [
+        "Fund a major home renovation",
+        "Avoid selling appreciated positions"
+      ]
     },
     {
       "id": "hh_alvarez",
@@ -198,18 +339,34 @@
       "age_band": "27-33",
       "communication_tone": "direct_professional",
       "communication_tone_source": "advisor",
-      "region": { "city": "Miami", "state": "FL", "zip": "33137", "cost_of_living": "high" },
+      "region": {
+        "city": "Miami",
+        "state": "FL",
+        "zip": "33137",
+        "cost_of_living": "high"
+      },
       "relationship": {
         "tenure_years": 2,
-        "products_held": ["everyday-checking"],
+        "products_held": [
+          "everyday-checking"
+        ],
         "aum_usd": 21000,
         "wallet_share": 0.3
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 1850 },
-        { "type": "brokerage", "balance_usd": 19150 }
+        {
+          "type": "checking",
+          "balance_usd": 1850
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 19150
+        }
       ],
-      "goals": ["Smooth out irregular income", "Stop overdrafting"]
+      "goals": [
+        "Smooth out irregular income",
+        "Stop overdrafting"
+      ]
     },
     {
       "id": "hh_petrov",
@@ -220,18 +377,36 @@
       "age_band": "34-40",
       "communication_tone": "direct_professional",
       "communication_tone_source": "advisor",
-      "region": { "city": "Raleigh", "state": "NC", "zip": "27607", "cost_of_living": "average" },
+      "region": {
+        "city": "Raleigh",
+        "state": "NC",
+        "zip": "27607",
+        "cost_of_living": "average"
+      },
       "relationship": {
         "tenure_years": 4,
-        "products_held": ["everyday-checking", "high-yield-savings", "flat-cashback-card"],
+        "products_held": [
+          "everyday-checking",
+          "high-yield-savings",
+          "flat-cashback-card"
+        ],
         "aum_usd": 156000,
         "wallet_share": 0.6
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 22100 },
-        { "type": "savings", "balance_usd": 133900 }
+        {
+          "type": "checking",
+          "balance_usd": 22100
+        },
+        {
+          "type": "savings",
+          "balance_usd": 133900
+        }
       ],
-      "goals": ["Buy a first home after relocating", "Keep the down-payment fund earning"]
+      "goals": [
+        "Buy a first home after relocating",
+        "Keep the down-payment fund earning"
+      ]
     },
     {
       "id": "hh_sharma",
@@ -242,18 +417,36 @@
       "age_band": "58-65",
       "communication_tone": "formal_reserved",
       "communication_tone_source": "advisor",
-      "region": { "city": "Chicago", "state": "IL", "zip": "60614", "cost_of_living": "high" },
+      "region": {
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60614",
+        "cost_of_living": "high"
+      },
       "relationship": {
         "tenure_years": 15,
-        "products_held": ["relationship-checking", "managed-portfolio", "flat-cashback-card"],
+        "products_held": [
+          "relationship-checking",
+          "managed-portfolio",
+          "flat-cashback-card"
+        ],
         "aum_usd": 3200000,
         "wallet_share": 0.64
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 512000 },
-        { "type": "managed_portfolio", "balance_usd": 2688000 }
+        {
+          "type": "checking",
+          "balance_usd": 512000
+        },
+        {
+          "type": "managed_portfolio",
+          "balance_usd": 2688000
+        }
       ],
-      "goals": ["Deploy a recent estate inflow", "Set up a legacy structure"]
+      "goals": [
+        "Deploy a recent estate inflow",
+        "Set up a legacy structure"
+      ]
     },
     {
       "id": "hh_delgado",
@@ -264,19 +457,39 @@
       "age_band": "29-35",
       "communication_tone": "warm_personal",
       "communication_tone_source": "advisor",
-      "region": { "city": "Columbus", "state": "OH", "zip": "43215", "cost_of_living": "low" },
+      "region": {
+        "city": "Columbus",
+        "state": "OH",
+        "zip": "43215",
+        "cost_of_living": "low"
+      },
       "relationship": {
         "tenure_years": 3,
-        "products_held": ["everyday-checking", "core-savings"],
+        "products_held": [
+          "everyday-checking",
+          "core-savings"
+        ],
         "aum_usd": 47000,
         "wallet_share": 0.51
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 9800 },
-        { "type": "savings", "balance_usd": 37200 },
-        { "type": "student_loan", "balance_usd": -68000 }
+        {
+          "type": "checking",
+          "balance_usd": 9800
+        },
+        {
+          "type": "savings",
+          "balance_usd": 37200
+        },
+        {
+          "type": "student_loan",
+          "balance_usd": -68000
+        }
       ],
-      "goals": ["Lower monthly student-loan cost", "Build an emergency fund"]
+      "goals": [
+        "Lower monthly student-loan cost",
+        "Build an emergency fund"
+      ]
     },
     {
       "id": "hh_kim",
@@ -287,19 +500,41 @@
       "age_band": "46-52",
       "communication_tone": "analytical",
       "communication_tone_source": "advisor",
-      "region": { "city": "San Jose", "state": "CA", "zip": "95125", "cost_of_living": "high" },
+      "region": {
+        "city": "San Jose",
+        "state": "CA",
+        "zip": "95125",
+        "cost_of_living": "high"
+      },
       "relationship": {
         "tenure_years": 9,
-        "products_held": ["everyday-checking", "high-yield-savings", "brokerage", "flat-cashback-card"],
+        "products_held": [
+          "everyday-checking",
+          "high-yield-savings",
+          "brokerage",
+          "flat-cashback-card"
+        ],
         "aum_usd": 640000,
         "wallet_share": 0.58
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 31000 },
-        { "type": "savings", "balance_usd": 90000 },
-        { "type": "brokerage", "balance_usd": 519000 }
+        {
+          "type": "checking",
+          "balance_usd": 31000
+        },
+        {
+          "type": "savings",
+          "balance_usd": 90000
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 519000
+        }
       ],
-      "goals": ["Maximize retirement runway", "Automate long-horizon investing"]
+      "goals": [
+        "Maximize retirement runway",
+        "Automate long-horizon investing"
+      ]
     },
     {
       "id": "hh_whitfield",
@@ -310,18 +545,36 @@
       "age_band": "46-52",
       "communication_tone": "formal_reserved",
       "communication_tone_source": "advisor",
-      "region": { "city": "Boston", "state": "MA", "zip": "02116", "cost_of_living": "high" },
+      "region": {
+        "city": "Boston",
+        "state": "MA",
+        "zip": "02116",
+        "cost_of_living": "high"
+      },
       "relationship": {
         "tenure_years": 11,
-        "products_held": ["relationship-checking", "brokerage", "flat-cashback-card"],
+        "products_held": [
+          "relationship-checking",
+          "brokerage",
+          "flat-cashback-card"
+        ],
         "aum_usd": 1240000,
         "wallet_share": 0.49
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 84000 },
-        { "type": "brokerage", "balance_usd": 1156000 }
+        {
+          "type": "checking",
+          "balance_usd": 84000
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 1156000
+        }
       ],
-      "goals": ["Travel extensively before retiring", "Consolidate accounts held elsewhere"]
+      "goals": [
+        "Travel extensively before retiring",
+        "Consolidate accounts held elsewhere"
+      ]
     },
     {
       "id": "hh_castellanos",
@@ -332,18 +585,35 @@
       "age_band": "34-40",
       "communication_tone": "warm_personal",
       "communication_tone_source": "advisor",
-      "region": { "city": "Los Angeles", "state": "CA", "zip": "90026", "cost_of_living": "high" },
+      "region": {
+        "city": "Los Angeles",
+        "state": "CA",
+        "zip": "90026",
+        "cost_of_living": "high"
+      },
       "relationship": {
         "tenure_years": 5,
-        "products_held": ["everyday-checking", "flat-cashback-card"],
+        "products_held": [
+          "everyday-checking",
+          "flat-cashback-card"
+        ],
         "aum_usd": 268000,
         "wallet_share": 0.44
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 39500 },
-        { "type": "brokerage", "balance_usd": 228500 }
+        {
+          "type": "checking",
+          "balance_usd": 39500
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 228500
+        }
       ],
-      "goals": ["Keep dining and travel rewards working harder", "Buy a first investment property"]
+      "goals": [
+        "Keep dining and travel rewards working harder",
+        "Buy a first investment property"
+      ]
     },
     {
       "id": "hh_oyelaran",
@@ -354,18 +624,34 @@
       "age_band": "27-33",
       "communication_tone": "direct_professional",
       "communication_tone_source": "advisor",
-      "region": { "city": "Atlanta", "state": "GA", "zip": "30308", "cost_of_living": "average" },
+      "region": {
+        "city": "Atlanta",
+        "state": "GA",
+        "zip": "30308",
+        "cost_of_living": "average"
+      },
       "relationship": {
         "tenure_years": 1,
-        "products_held": ["everyday-checking"],
+        "products_held": [
+          "everyday-checking"
+        ],
         "aum_usd": 34000,
         "wallet_share": 0.28
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 8400 },
-        { "type": "savings", "balance_usd": 25600 }
+        {
+          "type": "checking",
+          "balance_usd": 8400
+        },
+        {
+          "type": "savings",
+          "balance_usd": 25600
+        }
       ],
-      "goals": ["Build a credit history", "Start investing consistently"]
+      "goals": [
+        "Build a credit history",
+        "Start investing consistently"
+      ]
     },
     {
       "id": "hh_lindqvist",
@@ -376,19 +662,645 @@
       "age_band": "41-47",
       "communication_tone": "analytical",
       "communication_tone_source": "advisor",
-      "region": { "city": "Minneapolis", "state": "MN", "zip": "55408", "cost_of_living": "average" },
+      "region": {
+        "city": "Minneapolis",
+        "state": "MN",
+        "zip": "55408",
+        "cost_of_living": "average"
+      },
       "relationship": {
         "tenure_years": 7,
-        "products_held": ["everyday-checking", "core-savings"],
+        "products_held": [
+          "everyday-checking",
+          "core-savings"
+        ],
         "aum_usd": 315000,
         "wallet_share": 0.53
       },
       "accounts": [
-        { "type": "checking", "balance_usd": 27300 },
-        { "type": "savings", "balance_usd": 61700 },
-        { "type": "brokerage", "balance_usd": 226000 }
+        {
+          "type": "checking",
+          "balance_usd": 27300
+        },
+        {
+          "type": "savings",
+          "balance_usd": 61700
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 226000
+        }
       ],
-      "goals": ["Consolidate travel spend onto one card", "Keep fees predictable"]
+      "goals": [
+        "Consolidate travel spend onto one card",
+        "Keep fees predictable"
+      ]
+    },
+    {
+      "id": "hh_rasmussen",
+      "advisor_id": "adv_okoro",
+      "name": "Rasmussen Household",
+      "primary_contact": "Ingrid Rasmussen",
+      "segment": "mass affluent",
+      "age_band": "31-37",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Minneapolis",
+        "state": "MN",
+        "zip": "55408",
+        "cost_of_living": "medium"
+      },
+      "relationship": {
+        "tenure_years": 4,
+        "products_held": [
+          "everyday-checking",
+          "high-yield-savings"
+        ],
+        "aum_usd": 96000,
+        "wallet_share": 0.38
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 12400
+        },
+        {
+          "type": "savings",
+          "balance_usd": 9800
+        }
+      ],
+      "goals": [
+        "Get ahead of childcare costs",
+        "Start saving for school early"
+      ]
+    },
+    {
+      "id": "hh_villanueva",
+      "advisor_id": "adv_reyes",
+      "name": "Villanueva Household",
+      "primary_contact": "Rosa Villanueva",
+      "segment": "affluent",
+      "age_band": "38-45",
+      "communication_tone": "direct_concise",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "San Diego",
+        "state": "CA",
+        "zip": "92103",
+        "cost_of_living": "high"
+      },
+      "relationship": {
+        "tenure_years": 9,
+        "products_held": [
+          "everyday-checking",
+          "travel-card",
+          "mortgage"
+        ],
+        "aum_usd": 288000,
+        "wallet_share": 0.51
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 13800
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 274200
+        }
+      ],
+      "goals": [
+        "Two children through college without loans"
+      ]
+    },
+    {
+      "id": "hh_achebe",
+      "advisor_id": "adv_okoro",
+      "name": "Achebe Household",
+      "primary_contact": "Nneka Achebe",
+      "segment": "mass affluent",
+      "age_band": "31-37",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28203",
+        "cost_of_living": "medium"
+      },
+      "relationship": {
+        "tenure_years": 3,
+        "products_held": [
+          "everyday-checking"
+        ],
+        "aum_usd": 64000,
+        "wallet_share": 0.29
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 15200
+        },
+        {
+          "type": "savings",
+          "balance_usd": 48800
+        }
+      ],
+      "goals": [
+        "Protect the family before the house closes"
+      ]
+    },
+    {
+      "id": "hh_montoya",
+      "advisor_id": "adv_reyes",
+      "name": "Montoya Household",
+      "primary_contact": "Elena Montoya",
+      "segment": "affluent",
+      "age_band": "46-55",
+      "communication_tone": "direct_concise",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Denver",
+        "state": "CO",
+        "zip": "80206",
+        "cost_of_living": "high"
+      },
+      "relationship": {
+        "tenure_years": 12,
+        "products_held": [
+          "everyday-checking",
+          "mortgage",
+          "flat-cashback-card"
+        ],
+        "aum_usd": 154000,
+        "wallet_share": 0.44
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 22100
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 131900
+        }
+      ],
+      "goals": [
+        "Finish the kitchen without touching investments"
+      ]
+    },
+    {
+      "id": "hh_lindgren",
+      "advisor_id": "adv_okoro",
+      "name": "Lindgren Household",
+      "primary_contact": "Marcus Lindgren",
+      "segment": "affluent",
+      "age_band": "46-55",
+      "communication_tone": "formal_precise",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Seattle",
+        "state": "WA",
+        "zip": "98112",
+        "cost_of_living": "high"
+      },
+      "relationship": {
+        "tenure_years": 15,
+        "products_held": [
+          "everyday-checking",
+          "mortgage"
+        ],
+        "aum_usd": 402000,
+        "wallet_share": 0.58
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 19400
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 382600
+        }
+      ],
+      "goals": [
+        "Add a rental unit above the garage"
+      ]
+    },
+    {
+      "id": "hh_barros",
+      "advisor_id": "adv_reyes",
+      "name": "Barros Household",
+      "primary_contact": "Teresa Barros",
+      "segment": "high net worth",
+      "age_band": "56-65",
+      "communication_tone": "formal_precise",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Boston",
+        "state": "MA",
+        "zip": "02116",
+        "cost_of_living": "high"
+      },
+      "relationship": {
+        "tenure_years": 18,
+        "products_held": [
+          "everyday-checking",
+          "managed-portfolio"
+        ],
+        "aum_usd": 1240000,
+        "wallet_share": 0.63
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 18600
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 1221400
+        }
+      ],
+      "goals": [
+        "Pass the estate on without probate"
+      ]
+    },
+    {
+      "id": "hh_tanaka",
+      "advisor_id": "adv_okoro",
+      "name": "Tanaka Household",
+      "primary_contact": "Hiro Tanaka",
+      "segment": "affluent",
+      "age_band": "56-65",
+      "communication_tone": "formal_precise",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Portland",
+        "state": "OR",
+        "zip": "97210",
+        "cost_of_living": "medium"
+      },
+      "relationship": {
+        "tenure_years": 21,
+        "products_held": [
+          "everyday-checking",
+          "high-yield-savings"
+        ],
+        "aum_usd": 486000,
+        "wallet_share": 0.47
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 16400
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 469600
+        }
+      ],
+      "goals": [
+        "Consolidate three old employer plans"
+      ]
+    },
+    {
+      "id": "hh_osei",
+      "advisor_id": "adv_reyes",
+      "name": "Osei Household",
+      "primary_contact": "Kwame Osei",
+      "segment": "mass affluent",
+      "age_band": "46-55",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Atlanta",
+        "state": "GA",
+        "zip": "30309",
+        "cost_of_living": "medium"
+      },
+      "relationship": {
+        "tenure_years": 7,
+        "products_held": [
+          "everyday-checking"
+        ],
+        "aum_usd": 132000,
+        "wallet_share": 0.33
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 18900
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 113100
+        }
+      ],
+      "goals": [
+        "Retire at 62 with the mortgage cleared"
+      ]
+    },
+    {
+      "id": "hh_novak",
+      "advisor_id": "adv_okoro",
+      "name": "Novak Household",
+      "primary_contact": "Petra Novak",
+      "segment": "mass affluent",
+      "age_band": "25-30",
+      "communication_tone": "direct_concise",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60614",
+        "cost_of_living": "high"
+      },
+      "relationship": {
+        "tenure_years": 2,
+        "products_held": [
+          "everyday-checking"
+        ],
+        "aum_usd": 38000,
+        "wallet_share": 0.22
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 20800
+        },
+        {
+          "type": "savings",
+          "balance_usd": 200
+        }
+      ],
+      "goals": [
+        "Stop leaving everything in checking"
+      ]
+    },
+    {
+      "id": "hh_qureshi",
+      "advisor_id": "adv_reyes",
+      "name": "Qureshi Household",
+      "primary_contact": "Sana Qureshi",
+      "segment": "mass affluent",
+      "age_band": "31-37",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Houston",
+        "state": "TX",
+        "zip": "77006",
+        "cost_of_living": "medium"
+      },
+      "relationship": {
+        "tenure_years": 5,
+        "products_held": [
+          "everyday-checking",
+          "flat-cashback-card"
+        ],
+        "aum_usd": 71000,
+        "wallet_share": 0.36
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 20400
+        },
+        {
+          "type": "savings",
+          "balance_usd": 50600
+        }
+      ],
+      "goals": [
+        "Put the savings balance to work without picking stocks"
+      ]
+    },
+    {
+      "id": "hh_ferreira",
+      "advisor_id": "adv_okoro",
+      "name": "Ferreira Household",
+      "primary_contact": "Paulo Ferreira",
+      "segment": "mass affluent",
+      "age_band": "31-37",
+      "communication_tone": "direct_concise",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Tampa",
+        "state": "FL",
+        "zip": "33606",
+        "cost_of_living": "medium"
+      },
+      "relationship": {
+        "tenure_years": 3,
+        "products_held": [
+          "everyday-checking",
+          "high-yield-savings"
+        ],
+        "aum_usd": 88000,
+        "wallet_share": 0.31
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 20800
+        },
+        {
+          "type": "savings",
+          "balance_usd": 67200
+        }
+      ],
+      "goals": [
+        "Buy before the lease ends in the spring"
+      ]
+    },
+    {
+      "id": "hh_haddad",
+      "advisor_id": "adv_reyes",
+      "name": "Haddad Household",
+      "primary_contact": "Rami Haddad",
+      "segment": "affluent",
+      "age_band": "38-45",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Phoenix",
+        "state": "AZ",
+        "zip": "85018",
+        "cost_of_living": "medium"
+      },
+      "relationship": {
+        "tenure_years": 8,
+        "products_held": [
+          "everyday-checking",
+          "mortgage",
+          "flat-cashback-card"
+        ],
+        "aum_usd": 176000,
+        "wallet_share": 0.49
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 24100
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 151900
+        }
+      ],
+      "goals": [
+        "Close on the second property cleanly"
+      ]
+    },
+    {
+      "id": "hh_sorensen",
+      "advisor_id": "adv_okoro",
+      "name": "Sorensen Household",
+      "primary_contact": "Lena Sorensen",
+      "segment": "affluent",
+      "age_band": "38-45",
+      "communication_tone": "direct_concise",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Nashville",
+        "state": "TN",
+        "zip": "37203",
+        "cost_of_living": "medium"
+      },
+      "relationship": {
+        "tenure_years": 6,
+        "products_held": [
+          "everyday-checking"
+        ],
+        "aum_usd": 119000,
+        "wallet_share": 0.34
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 83500
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 35500
+        }
+      ],
+      "goals": [
+        "Earn something on the operating cash"
+      ]
+    },
+    {
+      "id": "hh_iqbal",
+      "advisor_id": "adv_reyes",
+      "name": "Iqbal Household",
+      "primary_contact": "Omar Iqbal",
+      "segment": "mass affluent",
+      "age_band": "25-30",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "Philadelphia",
+        "state": "PA",
+        "zip": "19146",
+        "cost_of_living": "medium"
+      },
+      "relationship": {
+        "tenure_years": 2,
+        "products_held": [
+          "everyday-checking"
+        ],
+        "aum_usd": 27000,
+        "wallet_share": 0.24
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 12300
+        },
+        {
+          "type": "savings",
+          "balance_usd": 14700
+        }
+      ],
+      "goals": [
+        "Get the loan rate down before the next raise"
+      ]
+    },
+    {
+      "id": "hh_dubois",
+      "advisor_id": "adv_okoro",
+      "name": "Dubois Household",
+      "primary_contact": "Camille Dubois",
+      "segment": "mass market",
+      "age_band": "31-37",
+      "communication_tone": "warm_personal",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "New Orleans",
+        "state": "LA",
+        "zip": "70115",
+        "cost_of_living": "low"
+      },
+      "relationship": {
+        "tenure_years": 4,
+        "products_held": [
+          "everyday-checking"
+        ],
+        "aum_usd": 9400,
+        "wallet_share": 0.19
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 1800
+        },
+        {
+          "type": "savings",
+          "balance_usd": 7600
+        }
+      ],
+      "goals": [
+        "Stop paying overdraft fees on irregular pay weeks"
+      ]
+    },
+    {
+      "id": "hh_marchetti",
+      "advisor_id": "adv_reyes",
+      "name": "Marchetti Household",
+      "primary_contact": "Giulia Marchetti",
+      "segment": "high net worth",
+      "age_band": "56-65",
+      "communication_tone": "formal_precise",
+      "communication_tone_source": "advisor",
+      "region": {
+        "city": "New York",
+        "state": "NY",
+        "zip": "10023",
+        "cost_of_living": "high"
+      },
+      "relationship": {
+        "tenure_years": 16,
+        "products_held": [
+          "everyday-checking",
+          "high-yield-savings"
+        ],
+        "aum_usd": 870000,
+        "wallet_share": 0.55
+      },
+      "accounts": [
+        {
+          "type": "checking",
+          "balance_usd": 22800
+        },
+        {
+          "type": "brokerage",
+          "balance_usd": 847200
+        }
+      ],
+      "goals": [
+        "Hand the day-to-day management to someone else"
+      ]
     }
   ]
 }
