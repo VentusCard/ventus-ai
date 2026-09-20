@@ -243,7 +243,7 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect }: { signals: (type
 
 function Ricky({ step }: SceneProps) {
   const d = DECKMO.ricky;
-  const [selectedLabel, setSelectedLabel] = useState(d.signals[0].label);
+  const [selectedLabel, setSelectedLabel] = useState<string>(d.signals[0].label);
   const selectedSignal = d.signals.find((signal) => signal.label === selectedLabel) ?? d.signals[0];
   const families = d.signals.reduce<Record<string, (typeof d.signals[number])[]>>((grouped, signal) => {
     (grouped[signal.family] ??= []).push(signal);
@@ -264,7 +264,7 @@ function Ricky({ step }: SceneProps) {
             {selectedSignal.evidence.map((transaction) => (
               <div key={`${selectedSignal.label}-${transaction.date}-${transaction.merchant}`} className="grid grid-cols-[54px_64px_minmax(0,1fr)_90px] gap-3 border-b border-slate-200/80 py-4 [@media(max-height:800px)]:py-3">
                 <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
-                <span className={cn("h-fit rounded-sm border px-1.5 py-0.5 text-center text-[9px] font-bold", transaction.rail === "CARD" ? "border-blue-200 bg-blue-50 text-blue-700" : transaction.rail === "ACH" ? "border-violet-200 bg-violet-50 text-violet-700" : transaction.rail === "WIRE" ? "border-teal-200 bg-teal-50 text-teal-700" : "border-amber-200 bg-amber-50 text-amber-700")}>{transaction.rail}</span>
+                <span className={cn("h-fit rounded-sm border px-1.5 py-0.5 text-center text-[9px] font-bold", (RAIL_STYLES[transaction.rail] ?? RAIL_STYLES.CARD).badge)}>{transaction.rail}</span>
                 <div className="min-w-0"><p className="truncate font-mono text-[11px] font-bold text-slate-800">{transaction.merchant}</p><p className="mt-1 text-[10px] text-slate-500">{transaction.description}</p><p className="mt-1.5 text-[11px] leading-snug text-slate-600">{transaction.relevance}</p></div>
                 <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
               </div>
