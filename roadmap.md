@@ -20,3 +20,4 @@
 - [x] Replace Visibility Gap CSS tickers with measured frame-driven rollers
 - [x] Slow and synchronize both Visibility Gap rollers
 - [x] Rebuild Ricky as a transaction-left, customer-intelligence-right presentation
+- [x] Make Ricky's signal pills filter their supporting transaction evidence
