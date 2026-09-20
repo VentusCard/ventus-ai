@@ -240,7 +240,7 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect }: { signals: (type
       <div className="mt-2 flex flex-wrap gap-2">
         {signals.map((signal) => {
           const selected = selectedLabel === signal.label;
-          return <Button key={signal.label} type="button" variant="outline" aria-pressed={selected} onClick={() => onSelect(signal.label)} className={cn("h-auto min-h-9 max-w-full whitespace-normal rounded-full px-3 py-2 text-left text-[12px] font-semibold leading-tight shadow-none", tone.border, signal.source === "external" && "border-violet-300", selected ? cn(signal.source === "external" ? "bg-violet-50 text-violet-700" : cn(tone.bg, tone.text), "ring-2 ring-current ring-offset-1") : "bg-background text-slate-700 hover:bg-slate-50")}><span>{signal.label}</span>{signal.source === "external" && <span className="ml-2 inline-flex shrink-0 items-center gap-1 text-[8px] font-bold uppercase text-violet-600"><Sparkles className="h-2.5 w-2.5" />External</span>}</Button>;
+          return <Button key={signal.label} type="button" variant="outline" aria-pressed={selected} onClick={() => onSelect(signal.label)} className={cn("h-auto min-h-9 max-w-full whitespace-normal rounded-full border-transparent px-3 py-2 text-left text-[12px] font-semibold leading-tight shadow-none transition-[filter,box-shadow] hover:brightness-95", cn(tone.fullBg, tone.fullText), selected && "ring-2 ring-slate-900 ring-offset-1 shadow-md")}><span>{signal.label}</span>{signal.source === "external" && <span className="ml-2 inline-flex shrink-0 items-center gap-1 rounded-full bg-white/20 px-1.5 py-px text-[8px] font-bold uppercase text-white"><Sparkles className="h-2.5 w-2.5" />External</span>}</Button>;
         })}
       </div>
     </div>
