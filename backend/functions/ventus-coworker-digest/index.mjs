@@ -96,7 +96,22 @@ async function resolveUnsubscribeConfig() {
   return { baseUrl: UNSUBSCRIBE_URL, signingKey };
 }
 
-export const handler = async () => {
+/**
+ * @param {object} [event]
+ * @param {string|string[]} [event.only] Advisor id or email to mail, instead of
+ *   the whole roster. Manual invocation only — the schedule passes no event, so
+ *   a scheduled run is unaffected and cannot accidentally narrow itself.
+ *
+ *   Exists because verifying a change to the digest otherwise means mailing
+ *   every colleague on the roster to look at one message.
+ */
+export const handler = async (event = {}) => {
+  const only = [event?.only].flat().filter(Boolean).map((s) => String(s).toLowerCase());
+  const targeted = (advisor) =>
+    !only.length ||
+    only.includes(advisor.id.toLowerCase()) ||
+    only.includes((advisor.email || '').toLowerCase());
+
   const unsubscribe = await resolveUnsubscribeConfig();
   if (!unsubscribe) {
     console.error(
@@ -114,6 +129,11 @@ export const handler = async () => {
   for (const advisor of provider.getAdvisors()) {
     if (!canReceiveProactiveMail(advisor)) {
       console.log(`[${LAMBDA_NAME}] ${advisor.id} has no real mailbox; not mailing.`);
+      continue;
+    }
+
+    if (!targeted(advisor)) {
+      console.log(`[${LAMBDA_NAME}] ${advisor.id} not in the requested target set; not mailing.`);
       continue;
     }
 
