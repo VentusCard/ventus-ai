@@ -20,6 +20,8 @@ import {
   validateClientDraft,
 } from './tasks.mjs';
 import { findBannedVocabulary, findSnakeCase } from './labels.mjs';
+import { buildHouseholdContext } from './context.mjs';
+import { renderDigestTable } from './render.mjs';
 
 const provider = createFixturePortfolioProvider();
 
@@ -640,4 +642,353 @@ test('a household we cannot price net is still shown rather than dropped', () =>
   assert.equal(gross.benefit.baseline, 'unknown');
   assert.equal(gross.benefit.net_usd, null);
   assert.match(gross.benefit_basis, /We do not hold their day-to-day card/);
+});
+
+// --- timing: context-aware ordering, expiry, and cadence -----------------------
+
+const REFRESH_START = new Date('2026-03-01T11:00:00.000Z');
+const dayAfter = (n) => new Date(REFRESH_START.getTime() + n * 86400000);
+
+/**
+ * Simulate the refresh job having run twice over an advisor's book: once at
+ * REFRESH_START to establish first_seen_at, and once at `now`. Optionally hide
+ * some signals from the first run so they read as newly arrived on the second.
+ */
+function bookContext({ advisorId, now, newlyArrived = () => false }) {
+  const advisor = provider.getAdvisors().find((a) => a.id === advisorId);
+  const map = new Map();
+  for (const householdId of advisor.household_ids) {
+    const household = provider.getHousehold(householdId);
+    const signals = provider.getSignals(householdId);
+    const before = {
+      ...signals,
+      life_events: (signals.life_events || []).filter((e) => !newlyArrived(householdId, e.type)),
+    };
+    const first = buildHouseholdContext({ household, signals: before, previous: null, now: REFRESH_START });
+    map.set(
+      householdId,
+      buildHouseholdContext({ household, signals, previous: first, now })
+    );
+  }
+  return map;
+}
+
+function touchMap(entries) {
+  return new Map(
+    Object.entries(entries).map(([householdId, v]) => [
+      householdId,
+      { lastTouchAt: v.lastTouchAt || null, byProduct: new Map(Object.entries(v.byProduct || {})) },
+    ])
+  );
+}
+
+test('with no context the digest is byte-identical to the pre-timing behavior', () => {
+  // The guarantee that makes this safe to deploy: the first run after release,
+  // before any refresh has happened, changes nothing an advisor sees.
+  const withoutContext = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR });
+  const items = withoutContext.items;
+  assert.ok(items.length > 0);
+  for (const item of items) {
+    assert.equal(item.timing.status, 'undated');
+    assert.equal(item.timing.decay, 1);
+    assert.equal(item.priority, item.annual_benefit_usd);
+  }
+  assert.equal(withoutContext.context_coverage.covered, 0);
+});
+
+test('a life event past its window drops out of the audience and is reconciled', () => {
+  // hh_nakamura leads on a home renovation, which carries a 30-day window.
+  const early = buildAudience({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    productId: 'high-yield-savings',
+    context: bookContext({ advisorId: DEMO_ADVISOR, now: dayAfter(5) }),
+    now: dayAfter(5),
+  });
+  assert.ok(early.candidates.some((c) => c.household_id === 'hh_nakamura'));
+
+  const late = buildAudience({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    productId: 'high-yield-savings',
+    context: bookContext({ advisorId: DEMO_ADVISOR, now: dayAfter(45) }),
+    now: dayAfter(45),
+  });
+  assert.ok(!late.candidates.some((c) => c.household_id === 'hh_nakamura'));
+
+  const expired = late.expired.find((e) => e.household_id === 'hh_nakamura');
+  assert.ok(expired, 'the household is reported rather than silently vanishing');
+  assert.equal(expired.window_days, 30);
+  assert.match(expired.reason_label, /window on this signal closed/);
+
+  // Every household in the book still lands in exactly one bucket.
+  const r = late.reconciliation;
+  assert.equal(r.fits + r.excluded + r.no_signal + r.expired, r.considered);
+});
+
+test('a standing signal keeps its row no matter how long it has been true', () => {
+  // Travel-heavy spend is as real on day 400 as on day 1.
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now: dayAfter(400) });
+  const res = buildAudience({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    productId: 'travel-card',
+    context,
+    now: dayAfter(400),
+  });
+  const sharma = res.candidates.find((c) => c.household_id === 'hh_sharma');
+  assert.ok(sharma, 'a standing signal never expires');
+  assert.ok(sharma.timing.decay >= 0.5, 'but it does lose weight down to the floor');
+  assert.ok(sharma.priority < sharma.annual_benefit_usd);
+});
+
+test('an aged signal ranks below where it started without changing its dollar figure', () => {
+  const fresh = buildAudience({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    productId: 'travel-card',
+    context: bookContext({ advisorId: DEMO_ADVISOR, now: dayAfter(1) }),
+    now: dayAfter(1),
+  });
+  const aged = buildAudience({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    productId: 'travel-card',
+    context: bookContext({ advisorId: DEMO_ADVISOR, now: dayAfter(365) }),
+    now: dayAfter(365),
+  });
+
+  const freshSharma = fresh.candidates.find((c) => c.household_id === 'hh_sharma');
+  const agedSharma = aged.candidates.find((c) => c.household_id === 'hh_sharma');
+  assert.ok(agedSharma.priority < freshSharma.priority, 'rank weight falls');
+  assert.equal(
+    agedSharma.annual_benefit_usd,
+    freshSharma.annual_benefit_usd,
+    'the benefit shown to the advisor does not'
+  );
+});
+
+test('a signal that arrived overnight is flagged and promoted', () => {
+  const now = dayAfter(2);
+  const context = bookContext({
+    advisorId: DEMO_ADVISOR,
+    now,
+    newlyArrived: (householdId, type) => householdId === 'hh_nakamura' && type === 'home_renovation',
+  });
+  const res = buildAudience({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    productId: 'high-yield-savings',
+    context,
+    now,
+  });
+
+  const nakamura = res.candidates.find((c) => c.household_id === 'hh_nakamura');
+  assert.equal(nakamura.timing.novel, true);
+  assert.equal(nakamura.timing.status, 'new');
+  assert.ok(nakamura.priority > nakamura.annual_benefit_usd, 'novelty lifts the rank weight');
+});
+
+test('a household shown this week is held back, and the digest says so', () => {
+  const now = dayAfter(3);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const baseline = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now });
+  const first = baseline.items[0];
+
+  const withTouch = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    touches: touchMap({ [first.household_id]: { lastTouchAt: dayAfter(2).toISOString() } }),
+  });
+
+  assert.ok(!withTouch.items.some((i) => i.household_id === first.household_id));
+  assert.equal(withTouch.dropped.contacted_recently, 1);
+
+  const held = withTouch.held.find((h) => h.household_id === first.household_id);
+  assert.equal(held.reason, 'contacted_recently');
+  assert.equal(held.days_since, 1);
+  assert.ok(held.next_eligible_at, 'an operator can see when it comes back');
+});
+
+test('the same household returns once the cadence window has passed', () => {
+  const now = dayAfter(20);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const first = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now }).items[0];
+
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    touches: touchMap({ [first.household_id]: { lastTouchAt: dayAfter(10).toISOString() } }),
+  });
+  assert.ok(res.items.some((i) => i.household_id === first.household_id));
+});
+
+test('a new signal pulls a recently-contacted household back into the digest', () => {
+  // The clause the whole cadence design exists for: news overrides the cap.
+  const now = dayAfter(2);
+  const context = bookContext({
+    advisorId: DEMO_ADVISOR,
+    now,
+    newlyArrived: (householdId, type) => householdId === 'hh_nakamura' && type === 'home_renovation',
+  });
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    // Contacted yesterday, but about a different product.
+    touches: touchMap({
+      hh_nakamura: { lastTouchAt: dayAfter(1).toISOString(), byProduct: { 'travel-card': dayAfter(1).toISOString() } },
+    }),
+  });
+
+  const nakamura = res.items.find((i) => i.household_id === 'hh_nakamura');
+  assert.ok(nakamura, 'a genuinely new signal is not held by the weekly cap');
+  assert.equal(nakamura.cadence.reason, 'new_signal_override');
+});
+
+test('the same pitch for an unchanged reason is not repeated within the month', () => {
+  const now = dayAfter(3);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const first = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now }).items[0];
+
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    touches: touchMap({
+      [first.household_id]: {
+        lastTouchAt: dayAfter(1).toISOString(),
+        byProduct: { [first.product.id]: dayAfter(1).toISOString() },
+      },
+    }),
+  });
+
+  assert.ok(!res.items.some((i) => i.household_id === first.household_id));
+  assert.equal(res.dropped.same_product_recently, 1);
+});
+
+test('expiries are counted once per household, not once per product scanned', () => {
+  // The catalog is scanned product by product, so a naive sum reports the same
+  // closed window a dozen times and a book of 12 shows 22 expiries.
+  const now = dayAfter(60);
+  const res = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context: bookContext({ advisorId: DEMO_ADVISOR, now }),
+    now,
+  });
+  assert.ok(res.dropped.expired <= res.considered, `${res.dropped.expired} expiries on ${res.considered} households`);
+});
+
+test('cadence thresholds can be loosened for a smaller book', () => {
+  const now = dayAfter(3);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const first = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now }).items[0];
+  const touches = touchMap({ [first.household_id]: { lastTouchAt: dayAfter(2).toISOString() } });
+
+  const strict = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now, touches });
+  assert.ok(!strict.items.some((i) => i.household_id === first.household_id));
+
+  const loose = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    context,
+    now,
+    touches,
+    cadence: { minDaysBetween: 1, minDaysBetweenSameProduct: 1 },
+  });
+  assert.ok(loose.items.some((i) => i.household_id === first.household_id));
+});
+
+test('breaking news wins a household row over a tidier figure', () => {
+  // Petrov already earns a row for a travel card whose benefit is computed from
+  // their own ledger. An inheritance arrives. The card figure is still the more
+  // defensible one, and it is still the wrong thing to put in the mail.
+  const now = dayAfter(3);
+  const inheritance = {
+    type: 'estate_inflow',
+    confidence_band: 'high',
+    evidence: 'A $310,000 deposit landed from an estate settlement.',
+  };
+  const withInheritance = {
+    ...provider,
+    getSignals: (id) =>
+      id === 'hh_petrov'
+        ? { ...provider.getSignals(id), life_events: [...provider.getSignals(id).life_events, inheritance] }
+        : provider.getSignals(id),
+  };
+
+  const advisor = provider.getAdvisors().find((a) => a.id === DEMO_ADVISOR);
+  const context = new Map();
+  for (const householdId of advisor.household_ids) {
+    const household = provider.getHousehold(householdId);
+    const before = buildHouseholdContext({
+      household,
+      signals: provider.getSignals(householdId),
+      previous: null,
+      now: REFRESH_START,
+    });
+    context.set(
+      householdId,
+      buildHouseholdContext({
+        household,
+        signals: withInheritance.getSignals(householdId),
+        previous: before,
+        now,
+      })
+    );
+  }
+
+  const digest = buildAdvisorDigest({ provider: withInheritance, advisorId: DEMO_ADVISOR, context, now });
+  const petrov = digest.items.find((i) => i.household_id === 'hh_petrov');
+
+  assert.ok(petrov, 'the household earns a row');
+  assert.equal(petrov.lead_signal.type, 'estate_inflow', 'and the row is about the inheritance');
+  assert.notEqual(petrov.product.id, 'travel-card');
+  assert.equal(digest.items[0].household_id, 'hh_petrov', 'news leads the mail');
+
+  // The rest of the ordering is untouched: everything below the news is still
+  // ranked by how defensible its figure is.
+  const rest = digest.items.slice(1);
+  for (const item of rest) assert.equal(Boolean(item.timing.novel), false);
+});
+
+test('the digest reports how much of the book the refresh has covered', () => {
+  const now = dayAfter(1);
+  const full = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const partial = new Map([...full].slice(0, 3));
+
+  const res = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context: partial, now });
+  assert.equal(res.context_coverage.covered, 3);
+  assert.equal(res.context_coverage.of, 12);
+});
+
+test('the digest email shows signal age and marks what is new', () => {
+  const now = dayAfter(2);
+  const context = bookContext({
+    advisorId: DEMO_ADVISOR,
+    now,
+    newlyArrived: (householdId, type) => householdId === 'hh_nakamura' && type === 'home_renovation',
+  });
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now });
+  const html = renderDigestTable(digest.items);
+
+  assert.match(html, /NEW<\/span>/, 'the one row worth opening the mail for is marked');
+  assert.match(html, /First seen/);
+  assert.match(html, /days left/, 'windowed signals state their remaining time');
+  assert.deepEqual(findBannedVocabulary(html), []);
+  assert.deepEqual(findSnakeCase(html), []);
+});
+
+test('an undated row states no age rather than implying it is new', () => {
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR });
+  const html = renderDigestTable(digest.items);
+  assert.ok(!/First seen/.test(html));
+  assert.ok(!/NEW<\/span>/.test(html));
 });

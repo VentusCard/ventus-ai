@@ -214,10 +214,10 @@ export function renderDigestTable(items = []) {
     .map(
       (i) => `<tr>
 <td style="padding:6px 8px;border-bottom:1px solid #eee;">${esc(i.household_name || i.household_id)}</td>
-<td style="padding:6px 8px;border-bottom:1px solid #eee;">${esc(i.lead_signal?.label || '')}</td>
+<td style="padding:6px 8px;border-bottom:1px solid #eee;">${esc(i.lead_signal?.label || '')}${renderNewBadge(i.timing)}${renderSubline(formatSignalAge(i.timing))}</td>
 <td style="padding:6px 8px;border-bottom:1px solid #eee;">${esc(i.product?.name || '')}</td>
 <td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap;">${esc(formatBenefit(i))}</td>
-<td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap;">${esc(i.outreach_window?.label || '')}</td>
+<td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap;">${esc(i.outreach_window?.label || '')}${renderSubline(formatWindowRemaining(i.timing))}</td>
 </tr>`
     )
     .join('');
@@ -231,6 +231,55 @@ export function renderDigestTable(items = []) {
 </tr></thead>
 <tbody>${rows || '<tr><td colspan="5" style="padding:8px;color:#888;">No opportunities surfaced this cycle.</td></tr>'}</tbody>
 </table>`;
+}
+
+/**
+ * The "New" marker on a signal that arrived since the last refresh.
+ *
+ * This is the one thing in the digest an advisor should be able to spot without
+ * reading: on a morning when three of five rows are the same rows as yesterday,
+ * the new one is the reason to open the mail at all.
+ */
+function renderNewBadge(timing) {
+  if (!timing?.novel) return '';
+  return ' <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.04em;color:#0b6b3a;background:#e7f5ec;border-radius:3px;padding:1px 5px;vertical-align:1px;">NEW</span>';
+}
+
+/** Secondary line under a table cell, for context that should not compete with the value. */
+function renderSubline(text) {
+  if (!text) return '';
+  return `<div style="font-size:11px;color:#888;margin-top:2px;">${esc(text)}</div>`;
+}
+
+/**
+ * How long we have been observing a signal.
+ *
+ * Says nothing at all when the context refresh has not dated the signal yet.
+ * An undated signal is not a new one, and printing "first seen today" for
+ * something we simply have no history on would be the digest asserting a fact
+ * it does not hold.
+ */
+export function formatSignalAge(timing) {
+  if (!timing || timing.age_days == null) return '';
+  const days = Number(timing.age_days);
+  if (!Number.isFinite(days)) return '';
+  if (days <= 0) return 'First seen today';
+  if (days === 1) return 'First seen yesterday';
+  return `First seen ${days} days ago`;
+}
+
+/**
+ * Days left in the window, for signals that genuinely run out.
+ *
+ * Standing signals get nothing here: a travel-heavy spender has no deadline,
+ * and inventing one would make every other deadline in the mail less credible.
+ */
+export function formatWindowRemaining(timing) {
+  if (!timing || timing.days_remaining == null) return '';
+  const left = Number(timing.days_remaining);
+  if (!Number.isFinite(left) || left <= 0) return '';
+  if (left === 1) return '1 day left';
+  return `${left} days left`;
 }
 
 /**

@@ -42,6 +42,22 @@ const FROM_ADDRESS = friendlyFrom(
 const CONFIG_SET = process.env.COWORKER_CONFIG_SET || undefined;
 const MAX_ITEMS = Number(process.env.COWORKER_DIGEST_MAX_ITEMS || 5);
 
+// How often the same household, and the same pitch to it, may reappear.
+//
+// Tunable from the environment because the right values depend on the size of
+// the book, and getting them wrong is visible within a day. A book of 12 with
+// five rows a day exhausts itself in three mornings and then goes quiet, which
+// is arithmetically correct and still the wrong demo; a real book of a few
+// hundred never runs into the cap at all. Defaults live in timing.mjs.
+const CADENCE = {
+  ...(process.env.COWORKER_MIN_DAYS_BETWEEN_TOUCHES
+    ? { minDaysBetween: Number(process.env.COWORKER_MIN_DAYS_BETWEEN_TOUCHES) }
+    : {}),
+  ...(process.env.COWORKER_MIN_DAYS_BETWEEN_SAME_PRODUCT
+    ? { minDaysBetweenSameProduct: Number(process.env.COWORKER_MIN_DAYS_BETWEEN_SAME_PRODUCT) }
+    : {}),
+};
+
 // Opt-out wiring. The digest is mail we originate, so it does not go out
 // without a working unsubscribe path — see resolveUnsubscribeConfig.
 const UNSUBSCRIBE_URL = process.env.COWORKER_UNSUBSCRIBE_URL || '';
@@ -109,9 +125,40 @@ export const handler = async () => {
       continue;
     }
 
-    const digest = buildAdvisorDigest({ provider, advisorId: advisor.id, maxItems: MAX_ITEMS });
+    // Context and contact history are read per advisor rather than once up
+    // front: a book is tens of households, and loading only what this advisor
+    // needs keeps a failure for one advisor from touching the others.
+    const householdIds = advisor.household_ids || [];
+    const [context, touches] = await Promise.all([
+      store.getContexts(householdIds),
+      store.getTouchSummaries(householdIds),
+    ]);
+
+    const digest = buildAdvisorDigest({
+      provider,
+      advisorId: advisor.id,
+      maxItems: MAX_ITEMS,
+      context,
+      touches,
+      now: new Date(),
+      cadence: CADENCE,
+    });
+
+    if (digest.context_coverage.covered < digest.context_coverage.of) {
+      // Not fatal. Uncovered households fall back to undated timing, which is
+      // the pre-context behavior, so the digest is still correct — just less
+      // sharply ordered. Worth a line because a coverage gap that persists
+      // means the refresh job is not keeping up.
+      console.warn(
+        `[${LAMBDA_NAME}] ${advisor.id} has context for ${digest.context_coverage.covered}/${digest.context_coverage.of} households.`
+      );
+    }
+
     if (!digest.items.length) {
-      console.log(`[${LAMBDA_NAME}] No opportunities for ${advisor.id}; skipping.`);
+      console.log(
+        `[${LAMBDA_NAME}] No opportunities for ${advisor.id}; skipping. ` +
+          `(${digest.held.length} held for cadence, ${digest.dropped.expired} expired)`
+      );
       continue;
     }
 
@@ -144,6 +191,20 @@ export const handler = async () => {
     }
 
     await persistDigest({ store, advisor, threadId, headers, subject, digest, nowIso });
+
+    // Contact log written only after the send succeeded. Recording a touch for
+    // mail that never left would start the cadence clock on a household the
+    // advisor never saw, muting it for a week on the strength of a failure.
+    for (const item of digest.items) {
+      await store.recordTouch({
+        householdId: item.household_id,
+        advisorId: advisor.id,
+        productId: item.product.id,
+        channel: 'digest',
+        threadId,
+      });
+    }
+
     console.log(`[${LAMBDA_NAME}] Sent digest to ${advisor.email} (${digest.items.length} items).`);
     sent.push({ advisorId: advisor.id, items: digest.items.length });
   }

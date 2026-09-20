@@ -1,0 +1,15 @@
+{
+  "name": "ventus-coworker-context-refresh",
+  "version": "1.0.0",
+  "description": "Refreshes the daily customer context snapshot for every household in the book.",
+  "main": "index.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3.1053.0",
+    "@aws-sdk/lib-dynamodb": "3.1053.0"
+  }
+}

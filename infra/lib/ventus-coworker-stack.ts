@@ -49,6 +49,8 @@ export interface VentusCoworkerStackProps extends cdk.StackProps {
   enableSesInbound?: boolean;
   /** Cron/rate for the proactive digest. Defaults to daily at 12:00 UTC. */
   digestSchedule?: events.Schedule;
+  /** Cron/rate for the customer context refresh. Defaults to daily at 11:00 UTC. */
+  contextRefreshSchedule?: events.Schedule;
   /** Email address to notify when the inbound Lambda errors or the DLQ fills. */
   alertEmail?: string;
 }
@@ -82,6 +84,13 @@ export class VentusCoworkerStack extends cdk.Stack {
     // it sends nothing rather than padding the table.
     const digestSchedule =
       props.digestSchedule ?? events.Schedule.cron({ hour: '12', minute: '0' });
+    // One hour ahead of the digest. The gap is deliberate: the refresh is what
+    // dates every signal the digest ranks on, so it has to have finished, and an
+    // hour is enough slack for a retry without pushing into the send window.
+    // Separate schedules rather than chaining them, because a refresh failure
+    // should cost the digest its sharpest ordering, not its delivery.
+    const contextRefreshSchedule =
+      props.contextRefreshSchedule ?? events.Schedule.cron({ hour: '11', minute: '0' });
 
     // ── State: single DynamoDB table ─────────────────────────────────────────
     const table = new dynamodb.Table(this, 'CoworkerTable', {
@@ -189,6 +198,27 @@ export class VentusCoworkerStack extends cdk.Stack {
       environment: { ...commonEnv, COWORKER_DIGEST_MAX_ITEMS: '5' },
     });
 
+    // Daily customer context refresh. Reads the whole book, compares each
+    // household against yesterday's snapshot, and writes today's. No SES, no
+    // secrets, no network beyond DynamoDB — the least privileged function in
+    // the stack, and the one everything else's ordering depends on.
+    const contextRefreshFn = new lambda.Function(this, 'CoworkerContextRefreshFn', {
+      functionName: 'ventus-coworker-context-refresh',
+      description: 'Daily customer context refresh: snapshot every household and date its signals.',
+      runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: lambda.Architecture.ARM_64,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('../backend/dist/lambda/ventus-coworker-context-refresh.zip'),
+      memorySize: 512,
+      // Two writes per household and the book is small, but the timeout is sized
+      // for a book two orders of magnitude larger rather than for today's.
+      timeout: cdk.Duration.minutes(5),
+      environment: {
+        COWORKER_TABLE: table.tableName,
+        COWORKER_CONTEXT_HISTORY_DAYS: '90',
+      },
+    });
+
     // Public opt-out endpoint. Fronted by a Function URL with authType NONE:
     // the recipient clicking the link in their mail client has no AWS identity,
     // and RFC 8058 one-click has Gmail POSTing to it unauthenticated. The HMAC
@@ -237,7 +267,7 @@ export class VentusCoworkerStack extends cdk.Stack {
     digestFn.addEnvironment('COWORKER_UNSUBSCRIBE_URL', unsubscribeUrl.url);
     digestFn.addEnvironment('COWORKER_UNSUBSCRIBE_SECRET_ID', unsubscribeSecret.secretName);
 
-    for (const fn of [inboundFn, digestFn, unsubscribeFn, sesEventsFn]) {
+    for (const fn of [inboundFn, digestFn, contextRefreshFn, unsubscribeFn, sesEventsFn]) {
       new logs.LogRetention(this, `${fn.node.id}LogRetention`, {
         logGroupName: `/aws/lambda/${fn.functionName}`,
         retention: logs.RetentionDays.SIX_MONTHS,
@@ -248,6 +278,7 @@ export class VentusCoworkerStack extends cdk.Stack {
     // ── IAM (least privilege) ────────────────────────────────────────────────
     table.grantReadWriteData(inboundFn);
     table.grantReadWriteData(digestFn);
+    table.grantReadWriteData(contextRefreshFn);
     table.grantReadWriteData(unsubscribeFn);
     table.grantReadWriteData(sesEventsFn);
     inboundBucket.grantRead(inboundFn);
@@ -336,6 +367,39 @@ export class VentusCoworkerStack extends cdk.Stack {
     });
     errorAlarm.addAlarmAction(alarmAction);
 
+    const contextRefreshErrorAlarm = new cloudwatch.Alarm(this, 'CoworkerContextRefreshErrorAlarm', {
+      alarmName: 'ventus-coworker-context-refresh-errors',
+      alarmDescription: 'Customer context refresh is failing; digest ordering is running on stale signal ages.',
+      metric: contextRefreshFn.metricErrors({
+        period: cdk.Duration.hours(1),
+        statistic: 'Sum',
+      }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    });
+    contextRefreshErrorAlarm.addAlarmAction(alarmAction);
+
+    // The failure that matters more than an error: the job stops being invoked
+    // at all. An error alarm cannot see that, because a function that never
+    // runs emits no error metric — it emits nothing, which reads as healthy.
+    // 26 hours of no invocation covers the daily schedule plus slack.
+    const contextRefreshMissingAlarm = new cloudwatch.Alarm(this, 'CoworkerContextRefreshMissingAlarm', {
+      alarmName: 'ventus-coworker-context-refresh-not-running',
+      alarmDescription: 'Customer context refresh has not run in over a day.',
+      metric: contextRefreshFn.metricInvocations({
+        period: cdk.Duration.hours(26),
+        statistic: 'Sum',
+      }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+      // A missing datapoint here is the outage, not the absence of one.
+      treatMissingData: cloudwatch.TreatMissingData.BREACHING,
+    });
+    contextRefreshMissingAlarm.addAlarmAction(alarmAction);
+
     // ── SES bounce / complaint handling (required out of the SES sandbox) ─────
     // AWS expects a real process for bounces + complaints once you leave the
     // sandbox. Route every bounce/complaint/reject to a dedicated topic (so we
@@ -421,7 +485,14 @@ export class VentusCoworkerStack extends cdk.Stack {
     });
     complaintRateAlarm.addAlarmAction(alarmAction);
 
-    // ── Schedule the digest ──────────────────────────────────────────────────
+    // ── Schedule the context refresh, then the digest ────────────────────────
+    new events.Rule(this, 'CoworkerContextRefreshSchedule', {
+      ruleName: 'ventus-coworker-context-refresh-schedule',
+      description: 'Refreshes the customer context snapshot for every household, daily at 11:00 UTC.',
+      schedule: contextRefreshSchedule,
+      targets: [new targets.LambdaFunction(contextRefreshFn)],
+    });
+
     new events.Rule(this, 'CoworkerDigestSchedule', {
       ruleName: 'ventus-coworker-digest-schedule',
       description: 'Triggers the AI Coworker proactive digest, daily at 12:00 UTC.',
@@ -462,6 +533,9 @@ export class VentusCoworkerStack extends cdk.Stack {
       value: unsubscribeSecret.secretName,
     });
     new cdk.CfnOutput(this, 'CoworkerSesEventsDlqUrl', { value: sesEventsDlq.queueUrl });
+    new cdk.CfnOutput(this, 'CoworkerContextRefreshFunctionName', {
+      value: contextRefreshFn.functionName,
+    });
   }
 }
 

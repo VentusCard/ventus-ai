@@ -32,6 +32,8 @@ import {
   pluralize,
   signalLabel,
 } from './labels.mjs';
+import { ageContext, signalsByToken } from './context.mjs';
+import { contactCadence, outreachTiming, priorityScore } from './timing.mjs';
 
 // ---------------------------------------------------------------------------
 // Intent classification
@@ -437,9 +439,20 @@ function supportingSignals({ signals, matched = [] }) {
  *
  * Deterministic: fit score, then benefit, breaking ties by household id.
  *
- * @returns {{ product, candidates, excluded, no_signal, considered, reconciliation }}
+ * @param {object} args
+ * @param {object} args.provider
+ * @param {string} args.advisorId
+ * @param {string} args.productId
+ * @param {number} [args.minFit=1]
+ * @param {Map<string,object>|null} [args.context]  household id -> context snapshot.
+ *   Optional on purpose. Without it every candidate gets undated timing at full
+ *   weight, which is exactly the pre-context behavior, so the first digest after
+ *   deploy is unchanged and the second one — once a refresh has run — starts
+ *   accounting for age.
+ * @param {Date} [args.now]
+ * @returns {{ product, candidates, excluded, no_signal, expired, considered, reconciliation }}
  */
-export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
+export function buildAudience({ provider, advisorId, productId, minFit = 1, context = null, now = new Date() }) {
   const product = resolveProduct(provider.getCatalog() || [], productId);
   if (!product) throw new Error(`Unknown product: ${productId}`);
 
@@ -449,6 +462,7 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
   const candidates = [];
   const excluded = [];
   const noSignal = [];
+  const expired = [];
 
   for (const householdId of advisor.household_ids) {
     const household = provider.getHousehold(householdId);
@@ -490,6 +504,31 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
 
     const support = supportingSignals({ signals, matched });
     const lead = leadSignal({ signals, matched });
+
+    // Age the snapshot against read time rather than trusting the age it was
+    // written with: the refresh runs at 11:00 and a send can happen any time
+    // after, so a stored age_days is only ever correct at the moment of writing.
+    const snapshot = context?.get(householdId) ? ageContext(context.get(householdId), now) : null;
+    const tracked = snapshot ? signalsByToken(snapshot).get(lead?.type) || null : null;
+    const timing = outreachTiming({ leadSignal: lead, signal: tracked, now });
+
+    // A closed window is not a weak opportunity, it is a past one. Ranking it
+    // low would still eventually float it back to the top on a quiet day, so it
+    // has to leave the candidate set entirely — while still being reported, so
+    // the reconciliation continues to account for every household in the book.
+    if (timing.status === 'expired') {
+      expired.push({
+        household_id: householdId,
+        household_name: household.name,
+        lead_signal: lead,
+        age_days: timing.age_days,
+        window_days: timing.window.days,
+        reason_label: timing.basis,
+      });
+      continue;
+    }
+
+    const headlineUsd = headline ? Math.round(headline.usd) : 0;
     candidates.push({
       household_id: householdId,
       household_name: household.name,
@@ -504,9 +543,14 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
       supporting_signals: support,
       supporting_signal_count: support.length,
       lead_signal: lead,
-      outreach_window: outreachWindow(lead?.type),
+      outreach_window: timing.window,
+      timing,
+      // Rank key only. Never render this as a dollar figure — it is the benefit
+      // scaled by how live the signal still is, and presenting a discounted
+      // number as money would misstate what the household stands to gain.
+      priority: priorityScore({ benefitUsd: headlineUsd, decay: timing.decay, novel: timing.novel }),
       benefit,
-      annual_benefit_usd: headline ? Math.round(headline.usd) : 0,
+      annual_benefit_usd: headlineUsd,
       benefit_precision: headline?.precision || 'none',
       benefit_qualifier: headline?.qualifier || null,
       benefit_outcome: headline?.outcome || null,
@@ -525,9 +569,15 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
   // decide, then fit as the tiebreak. Leading with fit instead would scramble
   // the money column, and an advisor reading top to bottom would rightly ask
   // what the list is ranked by.
+  //
+  // Timing enters as `priority` rather than as its own sort term, and only
+  // inside a tier. With no context every priority equals its benefit exactly,
+  // so this ordering is identical to the pre-context one until a refresh has
+  // actually observed something.
   candidates.sort(
     (a, b) =>
       benefitRank(a.benefit_qualifier) - benefitRank(b.benefit_qualifier) ||
+      b.priority - a.priority ||
       b.annual_benefit_usd - a.annual_benefit_usd ||
       b.fit_score - a.fit_score ||
       (a.household_id < b.household_id ? -1 : 1)
@@ -547,12 +597,14 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
     candidates,
     excluded,
     no_signal: noSignal,
+    expired,
     considered,
     reconciliation: {
       considered,
       fits: candidates.length,
       excluded: excluded.length,
       no_signal: noSignal.length,
+      expired: expired.length,
     },
   };
 }
@@ -570,25 +622,48 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1 }) {
  *   3. No single product may occupy more than half the rows, so the digest
  *      cannot collapse into a campaign for whatever product happens to have
  *      the most generous arithmetic.
+ *   4. A household the advisor was already shown this week does not come back
+ *      unless something new arrived. Repetition is what makes a daily digest
+ *      stop being read, and the rules above cannot catch it because a row that
+ *      was worth sending yesterday is still worth sending today on every
+ *      measure except that it has already been sent.
  *
  * Ordering leads with rows whose figure is computed rather than estimated:
- * those are the ones that survive being questioned.
+ * those are the ones that survive being questioned. Within that, a signal that
+ * arrived overnight outranks one that has been sitting for a month.
  *
- * @returns {{ advisorId, items, considered, withOpportunity, scannedProducts, dropped }}
+ * @param {object} args
+ * @param {Map<string,object>|null} [args.context]  household id -> context snapshot
+ * @param {Map<string,{lastTouchAt:string|null,byProduct:Map<string,string>}>|null} [args.touches]
+ * @param {Date} [args.now]
+ * @returns {{ advisorId, items, considered, withOpportunity, scannedProducts, dropped, held, context_coverage }}
  */
-export function buildAdvisorDigest({ provider, advisorId, maxItems = 5 }) {
+export function buildAdvisorDigest({
+  provider,
+  advisorId,
+  maxItems = 5,
+  context = null,
+  touches = null,
+  now = new Date(),
+  cadence: cadenceOpts = {},
+}) {
   const catalog = provider.getCatalog() || [];
   const advisor = provider.getAdvisors().find((a) => a.id === advisorId);
   const considered = advisor?.household_ids?.length || 0;
   const bestByHousehold = new Map();
+  // Households, not household-product pairs. The catalog is scanned product by
+  // product, so the same closed window is reported once per product and a naive
+  // sum reads as 22 expiries on a book of 12.
+  const expiredHouseholds = new Set();
 
   for (const product of catalog) {
     let audience;
     try {
-      audience = buildAudience({ provider, advisorId, productId: product.id });
+      audience = buildAudience({ provider, advisorId, productId: product.id, context, now });
     } catch {
       continue;
     }
+    for (const e of audience.expired || []) expiredHouseholds.add(e.household_id);
     for (const c of audience.candidates) {
       const item = {
         household_id: c.household_id,
@@ -603,6 +678,8 @@ export function buildAdvisorDigest({ provider, advisorId, maxItems = 5 }) {
         benefit_outcome: c.benefit_outcome,
         lead_signal: c.lead_signal,
         outreach_window: c.outreach_window,
+        timing: c.timing,
+        priority: c.priority,
         supporting_signals: c.supporting_signals,
         supporting_signal_count: c.supporting_signal_count,
         rationale: c.rationale,
@@ -615,7 +692,18 @@ export function buildAdvisorDigest({ provider, advisorId, maxItems = 5 }) {
   }
 
   const withOpportunity = bestByHousehold.size;
-  const dropped = { thin_signal: 0, balance_only: 0, product_concentration: 0 };
+  const dropped = {
+    thin_signal: 0,
+    balance_only: 0,
+    product_concentration: 0,
+    expired: expiredHouseholds.size,
+    contacted_recently: 0,
+    same_product_recently: 0,
+  };
+  // Rows that were good enough to send but are being held back for cadence
+  // reasons. Separated from `dropped` because these come back on their own,
+  // and an operator looking at a thin digest needs to know which.
+  const held = [];
 
   const qualityPassed = [...bestByHousehold.values()].filter((item) => {
     if (item.supporting_signal_count < 2) {
@@ -626,12 +714,45 @@ export function buildAdvisorDigest({ provider, advisorId, maxItems = 5 }) {
       dropped.balance_only++;
       return false;
     }
+
+    const summary = touches?.get(item.household_id);
+    if (!summary) return true;
+
+    const cadence = contactCadence({
+      lastTouchAt: summary.lastTouchAt,
+      lastProductTouchAt: summary.byProduct?.get(item.product.id) || null,
+      novel: Boolean(item.timing?.novel),
+      now,
+      ...cadenceOpts,
+    });
+    if (!cadence.ready) {
+      dropped[cadence.reason] = (dropped[cadence.reason] || 0) + 1;
+      held.push({
+        household_id: item.household_id,
+        household_name: item.household_name,
+        product_id: item.product.id,
+        reason: cadence.reason,
+        days_since: cadence.days_since,
+        next_eligible_at: cadence.next_eligible_at,
+      });
+      return false;
+    }
+    item.cadence = cadence;
     return true;
   });
 
+  // Breaking news first, then defensibility, then size.
+  //
+  // Only the first term is new, and it can only fire once a refresh has
+  // observed a signal appear, so an advisor never sees it move a row they
+  // cannot account for. Everything below it is the original ordering: among
+  // rows that are equally new (which, on most mornings, is all of them), the
+  // most defensible figure still leads.
   qualityPassed.sort(
     (a, b) =>
+      newsRank(a) - newsRank(b) ||
       benefitRank(a.benefit_qualifier) - benefitRank(b.benefit_qualifier) ||
+      b.priority - a.priority ||
       b.annual_benefit_usd - a.annual_benefit_usd ||
       b.fit_score - a.fit_score ||
       (a.household_id < b.household_id ? -1 : 1)
@@ -658,7 +779,18 @@ export function buildAdvisorDigest({ provider, advisorId, maxItems = 5 }) {
     withOpportunity,
     scannedProducts: catalog.length,
     dropped,
+    held,
+    // How much of the book the refresh has actually observed. A digest built on
+    // partial context is still worth sending, but the gap is the first thing to
+    // look at when the ordering seems wrong.
+    context_coverage: context
+      ? { covered: countCovered(advisor, context), of: considered }
+      : { covered: 0, of: considered },
   };
+}
+
+function countCovered(advisor, context) {
+  return (advisor?.household_ids || []).filter((id) => context.has(id)).length;
 }
 
 /**
@@ -670,9 +802,39 @@ export function buildAdvisorDigest({ provider, advisorId, maxItems = 5 }) {
  * digest loses its credibility. Size only decides within the same tier.
  */
 function beatsForDigest(candidate, incumbent) {
+  // News wins the household's row, ahead of how defensible the figure is.
+  //
+  // This inverts the usual ordering deliberately, and only here. A household
+  // gets one row, and the question that row answers is "what is the most
+  // important conversation to have with these people right now" — not "which
+  // of our figures is tidiest". Without this, a household that came into
+  // $310,000 last night is represented in the mail by a $272-a-year card
+  // saving, purely because the card figure is computed from their ledger while
+  // the inheritance figure rests on an assumed return. That is the arithmetic
+  // winning an argument it was never asked to join.
+  //
+  // Cross-household ranking still leads with defensibility; see the digest sort.
+  const news = newsRank(candidate) - newsRank(incumbent);
+  if (news !== 0) return news < 0;
+
   const delta = benefitRank(candidate.benefit_qualifier) - benefitRank(incumbent.benefit_qualifier);
   if (delta !== 0) return delta < 0;
+  // Priority rather than raw benefit, so the household's one row goes to the
+  // product whose signal is still live. Without context the two are equal and
+  // this is the original comparison.
+  if (candidate.priority !== incumbent.priority) return candidate.priority > incumbent.priority;
   return candidate.annual_benefit_usd > incumbent.annual_benefit_usd;
+}
+
+/**
+ * 0 for a row whose lead signal arrived in the last few days, 1 otherwise.
+ *
+ * One bit, not a scale. Novelty either is or is not the reason to read the row,
+ * and a graded newsworthiness score would be unexplainable the first time an
+ * advisor asked why one row outranked another.
+ */
+function newsRank(item) {
+  return item?.timing?.novel ? 0 : 1;
 }
 
 /**

@@ -15,9 +15,14 @@ is synthetic — it comes from `backend/shared/coworker/fixtures/`, never Aurora
   product catalog, modeled signals, and transactions.
 - **Inbound Lambda** (`backend/functions/ventus-coworker-inbound/`): SES receipt
   → S3 → SNS → agent turn → SES reply.
+- **Customer context** (`backend/shared/coworker/context.mjs` +
+  `backend/functions/ventus-coworker-context-refresh/`): a daily snapshot per
+  household that dates every signal. See "Customer context refresh" below.
+- **Outreach timing** (`backend/shared/coworker/timing.mjs`): signal decay,
+  window expiry, and contact cadence. See "Outreach timing" below.
 - **Infra** (`infra/lib/ventus-coworker-stack.ts`): DynamoDB table, inbound S3
-  bucket, SNS topic + DLQ, inbound + digest Lambdas, SES receipt rule set, IAM,
-  log retention.
+  bucket, SNS topic + DLQ, inbound + digest + context-refresh Lambdas, SES
+  receipt rule set, IAM, log retention.
 
 ## Demo behaviour flags
 
@@ -180,6 +185,115 @@ aws dynamodb delete-item --table-name ventus-coworker \
   --region us-east-1
 ```
 
+## Customer context refresh
+
+`ventus-coworker-context-refresh` runs daily at **11:00 UTC**, one hour before
+the digest. For every household it reads what the provider currently reports,
+compares it against yesterday's stored snapshot, and writes today's.
+
+### Why it exists
+
+The provider returns a household's signals with no history: "expecting a child,
+travel-heavy spend, $40k idle" is true today and was true last month, and
+nothing in that shape says which. Without an age, the digest cannot tell an
+inheritance that landed overnight from one it has been mentioning since spring,
+so it ranks them identically and re-sends both every morning.
+
+Ages are **derived from the refresh history**, not read from the fixtures. A
+signal still present keeps the `first_seen_at` it already had; one that has
+appeared is stamped with now. After a week of running, every signal carries a
+real observed age.
+
+### What it writes
+
+| Record | Key | Retention |
+| --- | --- | --- |
+| Current snapshot | `HH#<householdId>` / `CTX#LATEST` | none |
+| Dated snapshot | `HH#<householdId>` / `CTXV#<YYYY-MM-DD>` | 90 days |
+| Run outcome | `RUN#context-refresh` / `<iso>` | 90 days |
+
+The dated copies are what make a claimed age auditable: when an advisor asks why
+we said a signal was 40 days old, the answer has to be a record rather than a
+recomputation.
+
+### Operational notes
+
+- **The grace period is 2 days.** A signal that disappears from the provider is
+  held as `fading` before being dropped, so a single bad upstream refresh cannot
+  reset a six-month-old signal's clock. Raising it hides genuinely resolved
+  signals for longer; lowering it to 0 makes every upstream flicker look like
+  news.
+- **One household's failure does not abort the book.** The run reports
+  `partial`; only a total failure throws and trips the error alarm.
+- **Two alarms, and the second is the one that matters.**
+  `ventus-coworker-context-refresh-errors` catches the job failing.
+  `ventus-coworker-context-refresh-not-running` catches it not being invoked at
+  all, which the error alarm structurally cannot see — a function that never
+  runs emits no error metric, and no metric reads as healthy.
+- **A failed refresh does not stop the digest.** Yesterday's context plus
+  today's mail is a slightly stale ordering; no mail is a broken product. Check
+  `context_coverage` in the digest logs.
+
+Run it by hand:
+
+```bash
+aws lambda invoke --function-name ventus-coworker-context-refresh \
+  --region us-east-1 /dev/stdout | jq
+```
+
+## Outreach timing
+
+Before this, `outreachWindow()` stamped every row with a window ("Next 14 days")
+that never moved: the same row carried the same window on day 1 and day 90, and
+the digest re-sent it at identical rank until the advisor stopped opening the
+mail. Now that signals have ages, four things act on them.
+
+**Decay splits on signal type.** Life events describe a moment — the money gets
+deployed, the decision gets made — so they decay linearly across their window
+and then **expire out of the audience entirely**. Standing signals (behavioral
+patterns, balances) describe a condition that is as true on day 200 as on day 1,
+so they decay on a half-life toward a floor (0.5 for behavioral, 0.4 for
+financial) and never expire.
+
+**Novelty promotes.** A signal first observed within 3 days is marked `NEW` in
+the mail and ranked above everything else. Three days rather than one, so a
+Friday signal is still news on Monday.
+
+**News wins a household's row.** A household gets one row, and it goes to its
+most newsworthy conversation rather than its tidiest figure. Without this, a
+household that came into $310,000 last night is represented by a $272-a-year
+card saving, purely because the card figure is computed from their ledger while
+the inheritance figure rests on an assumed return.
+
+**Cadence stops repetition.** A household is not shown twice within 7 days, and
+the same product is not re-pitched to it within 30 — unless the lead signal is
+new, which overrides both. Touches are written to `HH#<id>` / `TOUCH#<iso>`
+**after** a successful send, so a delivery failure never mutes a household.
+
+### Tuning cadence for a small book
+
+| Env var | Default |
+| --- | --- |
+| `COWORKER_MIN_DAYS_BETWEEN_TOUCHES` | 7 |
+| `COWORKER_MIN_DAYS_BETWEEN_SAME_PRODUCT` | 30 |
+
+The defaults suit a real book of a few hundred households. The 12-household
+fixture book exhausts itself in about three mornings at five rows a day and then
+goes quiet, which is arithmetically correct and still the wrong demo. If a demo
+needs to show rows every day, lower both.
+
+### What ranking did not change
+
+The benefit qualifier tier still leads for everything that is not breaking news:
+a computed net outranks a gross outranks an estimate. Timing reorders **within**
+a tier via an internal `priority` field, which is the benefit scaled by decay
+and novelty. `priority` is a sort key and is never rendered — the email always
+shows the real benefit figure.
+
+With no context stored, every priority equals its benefit exactly and the
+ordering is identical to the pre-timing behavior. The first digest after deploy,
+before any refresh has run, is unchanged.
+
 ## Production cutover to `coworker@ventusai.com`
 
 The demo runs on `coworker@demo.ventusai.com`. Moving to the real
@@ -278,6 +392,28 @@ aws ses set-active-receipt-rule-set --rule-set-name ventus-coworker-rules --regi
 - **Live:** flip `coworkerDryRun=false`, email `coworker@<domain>` with something
   like *"Build me an audience for the travel card"* or *"What do we know about the
   Bianchi household?"*, and confirm the reply lands.
+- **Context refresh:** invoke it by hand (command above) and confirm the run
+  returns `status: "ok"` with `refreshed` equal to the household count. The
+  first run reports every household under `first_run` and marks nothing new —
+  that is correct, not a bug. Ages only start accruing from the second run, so
+  the timing features are inert for the first 24 hours after deploy.
+
+Inspect a household's stored context:
+
+```bash
+aws dynamodb get-item --table-name ventus-coworker --region us-east-1 \
+  --key '{"PK":{"S":"HH#hh_nakamura"},"SK":{"S":"CTX#LATEST"}}' \
+  | jq '.Item.signals.L[].M | {key:.key.S, first_seen:.first_seen_at.S, status:.status.S}'
+```
+
+Read the last few refresh runs:
+
+```bash
+aws dynamodb query --table-name ventus-coworker --region us-east-1 \
+  --key-condition-expression 'PK = :pk' \
+  --expression-attribute-values '{":pk":{"S":"RUN#context-refresh"}}' \
+  --scan-index-forward false --max-items 5 | jq '.Items[] | {at:.at.S, status:.status.S}'
+```
 
 ## Demo prompts that exercise each task
 

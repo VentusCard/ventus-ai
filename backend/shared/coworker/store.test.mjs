@@ -194,3 +194,133 @@ test('suppress rejects a missing address or an unknown scope', async () => {
     /unknown scope/
   );
 });
+
+// --- customer context ---------------------------------------------------------
+
+test('a context write lands as both the latest and a dated version', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const snapshot = {
+    household_id: 'hh_a',
+    advisor_id: 'adv_a',
+    refreshed_at: '2026-03-04T11:00:00.000Z',
+    signals: [{ key: 'life_event:new_child', first_seen_at: '2026-02-01T11:00:00.000Z' }],
+  };
+  await store.putContext(snapshot);
+
+  const latest = await store.getContext('hh_a');
+  assert.equal(latest.household_id, 'hh_a');
+  assert.equal(latest.entity, 'context');
+
+  // The dated copy is what makes a claimed signal age auditable later.
+  const versions = await store.listContextVersions('hh_a');
+  assert.equal(versions.length, 1);
+  assert.equal(versions[0].SK, 'CTXV#2026-03-04');
+  assert.ok(versions[0].ttl > Math.floor(Date.now() / 1000));
+});
+
+test('two refreshes on the same day overwrite rather than accumulate', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const base = { household_id: 'hh_a', signals: [] };
+  await store.putContext({ ...base, refreshed_at: '2026-03-04T11:00:00.000Z', refresh_count: 1 });
+  await store.putContext({ ...base, refreshed_at: '2026-03-04T15:00:00.000Z', refresh_count: 2 });
+
+  const versions = await store.listContextVersions('hh_a');
+  assert.equal(versions.length, 1, 'a retry must not create a second history entry for the day');
+  assert.equal((await store.getContext('hh_a')).refresh_count, 2);
+});
+
+test('getContexts skips households that have never been refreshed', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await store.putContext({ household_id: 'hh_a', refreshed_at: '2026-03-04T11:00:00.000Z', signals: [] });
+  const map = await store.getContexts(['hh_a', 'hh_missing']);
+  assert.equal(map.size, 1);
+  assert.equal(map.has('hh_missing'), false);
+});
+
+test('putContext refuses a snapshot with no household', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await assert.rejects(() => store.putContext({ signals: [] }), /household_id/);
+});
+
+// --- contact log ---------------------------------------------------------------
+
+test('the touch summary reports the latest contact overall and per product', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await store.recordTouch({
+    householdId: 'hh_a',
+    advisorId: 'adv_a',
+    productId: 'travel-card',
+    now: new Date('2026-03-01T12:00:00.000Z'),
+  });
+  await store.recordTouch({
+    householdId: 'hh_a',
+    advisorId: 'adv_a',
+    productId: 'high-yield-savings',
+    now: new Date('2026-03-05T12:00:00.000Z'),
+  });
+  await store.recordTouch({
+    householdId: 'hh_a',
+    advisorId: 'adv_a',
+    productId: 'travel-card',
+    now: new Date('2026-03-09T12:00:00.000Z'),
+  });
+
+  const summary = await store.getTouchSummary('hh_a');
+  assert.equal(summary.lastTouchAt, '2026-03-09T12:00:00.000Z');
+  assert.equal(summary.byProduct.get('travel-card'), '2026-03-09T12:00:00.000Z', 'latest, not first');
+  assert.equal(summary.byProduct.get('high-yield-savings'), '2026-03-05T12:00:00.000Z');
+});
+
+test('a household never contacted has an empty summary rather than an error', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const summary = await store.getTouchSummary('hh_nobody');
+  assert.equal(summary.lastTouchAt, null);
+  assert.equal(summary.byProduct.size, 0);
+});
+
+test('touches expire so the table does not keep contact history forever', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const record = await store.recordTouch({ householdId: 'hh_a', advisorId: 'adv_a' });
+  assert.ok(record.ttl > Math.floor(Date.now() / 1000) + 300 * 86400);
+});
+
+test('recordTouch requires a household', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await assert.rejects(() => store.recordTouch({ advisorId: 'adv_a' }), /householdId/);
+});
+
+// --- job runs ------------------------------------------------------------------
+
+test('runs come back newest first so the last outcome is the first row', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await store.putRun({ kind: 'context-refresh', status: 'ok', now: new Date('2026-03-01T11:00:00.000Z') });
+  await store.putRun({ kind: 'context-refresh', status: 'partial', now: new Date('2026-03-02T11:00:00.000Z') });
+
+  const runs = await store.listRuns('context-refresh');
+  assert.equal(runs.length, 2);
+  assert.equal(runs[0].status, 'partial');
+  assert.equal(runs[0].at, '2026-03-02T11:00:00.000Z');
+});
+
+test('run history is capped on read', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  for (let i = 1; i <= 5; i += 1) {
+    await store.putRun({
+      kind: 'context-refresh',
+      status: 'ok',
+      now: new Date(`2026-03-0${i}T11:00:00.000Z`),
+    });
+  }
+  assert.equal((await store.listRuns('context-refresh', { limit: 2 })).length, 2);
+});
+
+test('store methods survive being destructured off the store', async () => {
+  // Callers routinely pull methods off the object; one that depended on its
+  // receiver would break silently at the call site rather than here.
+  const store = createCoworkerStore(createInMemoryBackend());
+  const { putContext, getContexts, getTouchSummaries, recordTouch } = store;
+  await putContext({ household_id: 'hh_a', refreshed_at: '2026-03-04T11:00:00.000Z', signals: [] });
+  await recordTouch({ householdId: 'hh_a', advisorId: 'adv_a', productId: 'travel-card' });
+  assert.equal((await getContexts(['hh_a'])).size, 1);
+  assert.equal((await getTouchSummaries(['hh_a'])).get('hh_a').byProduct.size, 1);
+});

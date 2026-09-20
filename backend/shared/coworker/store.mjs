@@ -11,6 +11,10 @@
 //   AdvPrefs PK=ADVISOR#<advisorId> SK=PREFS
 //   Inst     PK=INST#<instId>       SK=CATALOG
 //   Suppress PK=SUPPRESS#<email>    SK=META               (no ttl, on purpose)
+//   Context  PK=HH#<householdId>    SK=CTX#LATEST         (current snapshot)
+//   CtxVer   PK=HH#<householdId>    SK=CTXV#<isoDate>     (+ ttl, 90d history)
+//   Touch    PK=HH#<householdId>    SK=TOUCH#<isoTs>      (+ ttl, contact log)
+//   Run      PK=RUN#<kind>          SK=<isoTs>            (+ ttl, job history)
 //
 // A "backend" is the low-level KV: { put, get, query, del }. The store wraps it
 // with domain methods. Swap createInMemoryBackend() for createDynamoBackend() in
@@ -34,6 +38,15 @@ export const keys = {
   // Keyed on the address rather than an advisor id: the same store has to hold
   // client addresses once client-facing mail exists, and those have no advisor.
   suppression: (email) => ({ PK: `SUPPRESS#${normalizeEmail(email)}`, SK: 'META' }),
+  // Context lives under the household rather than the advisor because books get
+  // reassigned and the household's history has to survive that.
+  context: (householdId) => ({ PK: `HH#${householdId}`, SK: 'CTX#LATEST' }),
+  contextVersion: (householdId, isoDate) => ({ PK: `HH#${householdId}`, SK: `CTXV#${isoDate}` }),
+  contextVersionPrefix: (householdId) => ({ PK: `HH#${householdId}`, SKPrefix: 'CTXV#' }),
+  touch: (householdId, isoTs) => ({ PK: `HH#${householdId}`, SK: `TOUCH#${isoTs}` }),
+  touchPrefix: (householdId) => ({ PK: `HH#${householdId}`, SKPrefix: 'TOUCH#' }),
+  run: (kind, isoTs) => ({ PK: `RUN#${kind}`, SK: isoTs }),
+  runPrefix: (kind) => ({ PK: `RUN#${kind}` }),
 };
 
 const nowEpoch = () => Math.floor(Date.now() / 1000);
@@ -119,6 +132,33 @@ export async function createDynamoBackend({ tableName, documentClient }) {
  */
 export function createCoworkerStore(backend) {
   if (!backend) throw new Error('createCoworkerStore requires a backend');
+
+  // Free functions rather than `this` calls between methods. Callers routinely
+  // destructure the store, and a method that depends on its receiver breaks the
+  // moment somebody writes `const { getContexts } = store`.
+  async function readContext(householdId) {
+    if (!householdId) return null;
+    const { PK, SK } = keys.context(householdId);
+    return backend.get(PK, SK);
+  }
+
+  async function readTouches(householdId) {
+    const rows = await backend.query(keys.touchPrefix(householdId));
+    // SK is TOUCH#<iso>, so lexical sort is chronological; reverse for newest first.
+    return rows.reverse();
+  }
+
+  async function readTouchSummary(householdId) {
+    const rows = await readTouches(householdId);
+    const byProduct = new Map();
+    for (const row of rows) {
+      if (!row.product_id) continue;
+      // Rows arrive newest first, so the first sighting of a product is its latest.
+      if (!byProduct.has(row.product_id)) byProduct.set(row.product_id, row.at);
+    }
+    return { lastTouchAt: rows[0]?.at || null, byProduct };
+  }
+
   return {
     backend,
 
@@ -307,6 +347,151 @@ export function createCoworkerStore(backend) {
       if (!existing) return false;
       await backend.del(PK, SK);
       return true;
+    },
+
+    // -----------------------------------------------------------------------
+    // Customer context
+    // -----------------------------------------------------------------------
+
+    /**
+     * Write today's snapshot for a household.
+     *
+     * Two records per refresh: CTX#LATEST, which every reader hits, and a dated
+     * CTXV# copy. The dated copies are what make a signal's age auditable — when
+     * an advisor asks why we said a signal was 40 days old, the answer has to be
+     * a record rather than a recomputation. They carry a TTL because the value
+     * of that answer does not outlast a quarter.
+     *
+     * @param {object} snapshot  output of buildHouseholdContext()
+     * @param {object} [opts]
+     * @param {number} [opts.historyDays=90]
+     */
+    async putContext(snapshot, { historyDays = 90 } = {}) {
+      if (!snapshot?.household_id) throw new Error('putContext requires household_id');
+      const refreshedAt = snapshot.refreshed_at || new Date().toISOString();
+      const latest = keys.context(snapshot.household_id);
+      const record = { ...latest, entity: 'context', ...snapshot, refreshed_at: refreshedAt };
+      await backend.put(record);
+
+      const dated = keys.contextVersion(snapshot.household_id, refreshedAt.slice(0, 10));
+      await backend.put({
+        ...dated,
+        entity: 'context_version',
+        ...snapshot,
+        refreshed_at: refreshedAt,
+        ttl: Math.floor(Date.now() / 1000) + historyDays * 86400,
+      });
+
+      return record;
+    },
+
+    getContext: readContext,
+
+    /**
+     * Snapshots for many households in one call.
+     *
+     * A per-household get in a loop, not a batch: the digest reads one advisor's
+     * book, which is tens of households, and the clarity is worth more than the
+     * round trips at that size. Revisit if a book ever reaches the thousands.
+     *
+     * @returns {Promise<Map<string, object>>}
+     */
+    async getContexts(householdIds = []) {
+      const out = new Map();
+      for (const id of householdIds) {
+        const snapshot = await readContext(id);
+        if (snapshot) out.set(id, snapshot);
+      }
+      return out;
+    },
+
+    async listContextVersions(householdId) {
+      return backend.query(keys.contextVersionPrefix(householdId));
+    },
+
+    // -----------------------------------------------------------------------
+    // Contact log
+    // -----------------------------------------------------------------------
+
+    /**
+     * Record that a household was put in front of an advisor.
+     *
+     * Written at send time, not at build time. A row that was composed but
+     * never mailed (send failed, advisor suppressed) must not start a cadence
+     * clock, or a delivery failure would silently mute the household for a week.
+     *
+     * TTL is 400 days: longer than any cadence rule needs, short enough that the
+     * table does not accumulate contact history forever.
+     */
+    async recordTouch({ householdId, advisorId, productId = null, channel = 'digest', threadId = null, now = new Date() }) {
+      if (!householdId) throw new Error('recordTouch requires householdId');
+      const at = now.toISOString();
+      const { PK, SK } = keys.touch(householdId, at);
+      const record = {
+        PK,
+        SK,
+        entity: 'touch',
+        household_id: householdId,
+        advisor_id: advisorId || null,
+        product_id: productId,
+        channel,
+        thread_id: threadId,
+        at,
+        ttl: Math.floor(Date.now() / 1000) + 400 * 86400,
+      };
+      await backend.put(record);
+      return record;
+    },
+
+    listTouches: readTouches,
+
+    /**
+     * The cadence inputs for one household: when it was last surfaced at all,
+     * and when it was last surfaced for each product.
+     *
+     * @returns {Promise<{lastTouchAt:string|null, byProduct:Map<string,string>}>}
+     */
+    getTouchSummary: readTouchSummary,
+
+    async getTouchSummaries(householdIds = []) {
+      const out = new Map();
+      for (const id of householdIds) out.set(id, await readTouchSummary(id));
+      return out;
+    },
+
+    // -----------------------------------------------------------------------
+    // Job runs
+    // -----------------------------------------------------------------------
+
+    /**
+     * Record the outcome of a scheduled job.
+     *
+     * The failure this exists for is the silent one: a refresh that stops
+     * running looks exactly like a refresh that found nothing to change, and
+     * both produce a quiet morning. A run record makes the difference visible.
+     */
+    async putRun({ kind, status, summary = {}, error = null, now = new Date(), retentionDays = 90 }) {
+      if (!kind) throw new Error('putRun requires a kind');
+      const at = now.toISOString();
+      const { PK, SK } = keys.run(kind, at);
+      const record = {
+        PK,
+        SK,
+        entity: 'run',
+        kind,
+        status,
+        summary,
+        error,
+        at,
+        ttl: Math.floor(Date.now() / 1000) + retentionDays * 86400,
+      };
+      await backend.put(record);
+      return record;
+    },
+
+    async listRuns(kind, { limit = 30 } = {}) {
+      const rows = await backend.query(keys.runPrefix(kind));
+      return rows.reverse().slice(0, limit);
     },
 
     async putMemory({ advisorId, scope, key, value, ttlEpoch }) {
