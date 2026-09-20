@@ -485,21 +485,47 @@ Pick one (root MX stays on Proofpoint either way):
 
 ## Deploy
 
-From `infra/` (packages the Lambda zips first, then deploys):
+From `infra/` (packages the Lambda zips first, then deploys).
+
+**Pass the full flag set every time, including for `cdk diff`.** Context flags
+are the stack's entire configuration, not optional extras, and the defaults do
+not describe what is deployed. Two of them bite:
+
+- Omit `coworkerRegion` and the app targets **us-east-2**, where an abandoned
+  copy of this stack already lived once. A diff there reports the whole stack
+  as new, which looks alarming and means nothing.
+- Omit `coworkerEmailDomain` / `coworkerFrom` and the receipt rule's recipient
+  silently reverts from `coworker@demo.ventusai.com` to `coworker@ventusai.com`.
+  CDK flags that as *may be replaced*, and replacing it breaks inbound demo
+  mail. The live stack deliberately receives on the subdomain and replies from
+  the verified root address.
 
 ```bash
 # smoke test: no send, reply logged only
 npm run deploy -- VentusCoworkerStack \
+  -c account=373633008995 \
   -c coworkerRegion=us-east-1 \
+  -c coworkerEmailDomain=demo.ventusai.com \
+  -c coworkerFrom=coworker@ventusai.com \
   -c coworkerDryRun=true \
-  -c coworkerDemoOpen=true
+  -c coworkerDemoOpen=true \
+  -c coworkerAlertEmail=zoheb@ventuscard.com
 
 # live demo: actually email replies to anyone
 npm run deploy -- VentusCoworkerStack \
+  -c account=373633008995 \
   -c coworkerRegion=us-east-1 \
+  -c coworkerEmailDomain=demo.ventusai.com \
+  -c coworkerFrom=coworker@ventusai.com \
   -c coworkerDryRun=false \
-  -c coworkerDemoOpen=true
+  -c coworkerDemoOpen=true \
+  -c coworkerAlertEmail=zoheb@ventuscard.com
 ```
+
+A correct diff against the live stack shows only additive resources plus
+changed Lambda S3 keys. Any proposed change to `CoworkerReceiptRule`,
+`CoworkerTable` or `CoworkerInboundBucket` means a flag is missing — stop and
+fix the flags rather than the stack.
 
 After the first deploy, **activate the receipt rule set** (CDK provisions it but
 cannot set it active):
