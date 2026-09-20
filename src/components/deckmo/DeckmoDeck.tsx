@@ -195,6 +195,16 @@ function InsideLedger({ data, active }: { data: typeof DECKMO.visibility.inside;
   );
 }
 
+const OUTSIDE_ICONS: Record<string, LucideIcon> = {
+  "Bought a house": Home,
+  "Changed to a new job": BriefcaseBusiness,
+  "Got married": Heart,
+  "Started a business": Building2,
+  "Took a trip overseas": Plane,
+  "Children going to college": GraduationCap,
+  "And everything in between": Sparkles,
+};
+
 function OutsideTicker({ data, revealed, active }: { data: typeof DECKMO.visibility.outside; revealed: boolean; active: boolean }) {
   const trackRows = [0, 1, 2];
   return <div className="flex h-full min-h-0 flex-col"><div className="shrink-0 pb-4"><p className="text-xs font-bold uppercase tracking-[0.16em] text-deck-muted">{data.header}</p><p className="mt-1 text-sm text-deck-muted">{data.caption}</p></div><div className="relative min-h-0 flex-1 overflow-hidden border-x border-t border-dashed border-deck-rule bg-deck-surface/40"><div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-gradient-to-b from-background via-background/80 to-transparent" /><div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-gradient-to-t from-background via-background/80 to-transparent" /><VerticalRoller active={active} pixelsPerSecond={VISIBILITY_ROLLER_SPEED} className={cn("px-4 transition-[filter,opacity] duration-700 motion-reduce:transition-none", !revealed && "blur-[5px] opacity-20")}>{trackRows.map(group=><div key={group} className="space-y-3 py-3">{data.rows.map(row=><div key={`${group}-${row}`} className="flex min-h-[64px] items-center gap-3 border border-deck-rule bg-background px-4 py-3 opacity-70 shadow-sm"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-deck-surface text-deck-muted"><ExternalLink className="h-3.5 w-3.5" /></span><span className="min-w-0 flex-1 text-sm font-semibold text-deck-muted">{row}</span><span className="shrink-0 text-xs italic text-deck-muted">{data.status}</span></div>)}</div>)}</VerticalRoller><div className={cn("pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-8 transition-all duration-700",revealed?"translate-y-3 opacity-0":"translate-y-0 opacity-100")}><p className="max-w-sm bg-background/90 px-6 py-4 text-center font-deck-serif text-xl text-deck-muted shadow-sm">{data.empty}</p></div></div></div>;
