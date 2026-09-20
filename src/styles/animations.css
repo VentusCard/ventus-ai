@@ -256,16 +256,29 @@
 /* Continuous paired streams on the Deckmo visibility-gap scene. */
 @keyframes deckmo-visibility-roll {
   from { transform: translateY(0); }
-  to { transform: translateY(-33.333333%); }
+  to { transform: translateY(-50%); }
 }
 
 .deckmo-visibility-ticker {
-  animation: deckmo-visibility-roll 11s linear infinite;
+  animation: deckmo-visibility-roll 24s linear infinite;
+  animation-play-state: paused;
   will-change: transform;
 }
 
+.deckmo-visibility-track {
+  min-height: 100%;
+}
+
+.deckmo-visibility-ticker-active {
+  animation-play-state: running;
+}
+
+.deckmo-visibility-ticker-idle {
+  animation-play-state: paused;
+}
+
 .deckmo-visibility-ticker-slow {
-  animation-duration: 15s;
+  animation-duration: 30s;
 }
 
 @media (prefers-reduced-motion: reduce) {
