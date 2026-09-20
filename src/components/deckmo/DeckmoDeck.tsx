@@ -221,9 +221,74 @@ function LivingView({ step }: SceneProps) {
   return <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-8 py-8 xl:px-12 [@media(max-height:800px)]:py-4"><Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} /><div className="mt-8 grid min-h-0 flex-1 grid-cols-[minmax(190px,1fr)_clamp(40px,6vw,88px)_minmax(240px,300px)_clamp(40px,6vw,88px)_minmax(190px,1fr)] items-center [@media(max-height:800px)]:mt-5"><SourceCard source={d.inside} tone="blue" align="left" /><div className="relative h-px overflow-visible bg-blue-200"><div className={cn("absolute inset-y-0 left-0 bg-deck-blue transition-all duration-700 motion-reduce:transition-none", active ? "w-full" : "w-3/5")} /><span className={cn("deck-signal-left absolute -top-[3px] h-2 w-2 rounded-full bg-deck-blue shadow-[0_0_12px_hsl(var(--deck-blue)/0.65)]", !active && "opacity-75")} /><ChevronRight className="absolute -right-2.5 -top-2.5 h-5 w-5 text-deck-blue" /></div><div className="relative flex min-h-[310px] min-w-0 flex-col items-center justify-center text-center [@media(max-height:800px)]:min-h-[280px]"><div className={cn("absolute h-64 w-64 max-w-full rounded-full border bg-deck-surface/50 transition-all duration-700 motion-reduce:transition-none [@media(max-height:800px)]:h-56 [@media(max-height:800px)]:w-56", active ? "scale-100 border-deck-blue/25" : "scale-95 border-deck-blue/15")} /><div className="deck-breathe-ring absolute h-56 w-56 max-w-full rounded-full border border-deck-blue/45 motion-reduce:scale-100 motion-reduce:opacity-30 [@media(max-height:800px)]:h-48 [@media(max-height:800px)]:w-48"/><div className="deck-breathe-ring deck-breathe-ring-delayed absolute h-64 w-64 max-w-full rounded-full border border-deck-blue/30 motion-reduce:scale-100 motion-reduce:opacity-20 [@media(max-height:800px)]:h-56 [@media(max-height:800px)]:w-56"/><div className={cn("deck-node-breathe relative flex h-36 w-36 items-center justify-center rounded-full border bg-background transition-all duration-700 motion-reduce:transform-none [@media(max-height:800px)]:h-32 [@media(max-height:800px)]:w-32", active ? "border-deck-blue/70" : "border-deck-blue/35")}><div className="flex h-28 w-28 items-center justify-center rounded-full bg-deck-surface [@media(max-height:800px)]:h-24 [@media(max-height:800px)]:w-24"><UserRound className={cn("h-12 w-12 transition-colors duration-700", active ? "text-deck-blue" : "text-deck-muted")} /></div></div><p className={cn("relative mt-5 max-w-full break-words text-[10px] font-bold uppercase tracking-[0.16em] transition-colors duration-700", active ? "text-deck-blue" : "text-deck-muted")}>{d.result.header}</p><p className="relative mt-2 max-w-[320px] break-words text-[clamp(18px,1.55vw,23px)] font-bold leading-tight text-foreground">{d.result.body}</p></div><div className="relative h-px overflow-visible bg-amber-200"><div className={cn("absolute inset-y-0 right-0 bg-deck-gold transition-all duration-700 motion-reduce:transition-none", active ? "w-full" : "w-3/5")} /><span className={cn("deck-signal-right absolute -top-[3px] h-2 w-2 rounded-full bg-deck-gold shadow-[0_0_12px_hsl(var(--deck-gold)/0.65)]", !active && "opacity-75")} /><ChevronRight className="absolute -left-2.5 -top-2.5 h-5 w-5 rotate-180 text-deck-gold" /></div><SourceCard source={d.outside} tone="amber" align="right" /></div></div>;
 }
 
-function SignalPill({ signal }: { signal: typeof DECKMO.ricky.signals[number] }) { const t=TONES[signal.tone]; return <div className={cn("rounded-lg border p-3",t.border,t.bg)}><div className="flex items-center gap-2"><span className={cn("h-2 w-2 rounded-full",t.dot)}/><span className={cn("text-[10px] font-bold uppercase tracking-wider",t.text)}>{signal.family}</span></div><p className="mt-1 text-sm font-semibold text-slate-800">{signal.label}</p></div>; }
+function SignalFamilyCard({ signals }: { signals: (typeof DECKMO.ricky.signals[number])[] }) {
+  const first = signals[0];
+  if (!first) return null;
+  const tone = TONES[first.tone];
+  return (
+    <div className={cn("min-w-0 rounded-lg border px-4 py-3", tone.border, tone.bg)}>
+      <div className="flex items-center gap-2">
+        <span className={cn("h-2 w-2 shrink-0 rounded-full", tone.dot)} />
+        <span className={cn("text-[10px] font-bold uppercase tracking-[0.12em]", tone.text)}>{first.family}</span>
+      </div>
+      <div className="mt-1.5 space-y-1">
+        {signals.map((signal) => <p key={signal.label} className="text-[13px] font-semibold leading-snug text-slate-800">{signal.label}</p>)}
+      </div>
+    </div>
+  );
+}
 
-function Ricky({ step }: SceneProps) { const d=DECKMO.ricky; return <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-14"><Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle}/><div className="mt-8 grid flex-1 grid-cols-[1fr_120px_1fr] items-center gap-6"><div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{step===0?d.rawLabel:d.signalLabel}</p><div className="mt-4 min-h-[350px]">{step===0?<div className="space-y-3">{d.raw.map(x=><div key={x} className="border-b border-slate-100 py-3 font-mono text-sm text-slate-400">{x}</div>)}</div>:<div className="grid grid-cols-2 gap-3">{d.signals.map((s,i)=><Reveal key={s.label} show delay={i*90}><SignalPill signal={s}/></Reveal>)}</div>}</div></div><div className="relative h-px bg-slate-200"><div className={cn("absolute inset-y-0 left-0 bg-blue-500 transition-all duration-700",step>0?"w-full":"w-0")}/><ChevronRight className="absolute -right-3 -top-3 h-6 w-6 text-blue-500"/></div><Reveal show={step>0}><div className="rounded-2xl border-2 border-blue-300 bg-white p-7 shadow-[0_0_28px_rgba(147,197,253,0.3)]"><UserRound className="h-9 w-9 text-blue-600"/><h3 className="mt-5 text-2xl font-bold text-slate-900">{d.profileTitle}</h3><p className="mt-3 text-base leading-relaxed text-slate-600">{d.profileBody}</p></div></Reveal></div></div>; }
+function Ricky({ step }: SceneProps) {
+  const d = DECKMO.ricky;
+  const families = d.signals.reduce<Record<string, (typeof d.signals[number])[]>>((grouped, signal) => {
+    (grouped[signal.family] ??= []).push(signal);
+    return grouped;
+  }, {});
+
+  return (
+    <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
+      <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
+      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(300px,0.78fr)_minmax(520px,1.45fr)] overflow-hidden border border-slate-200 bg-background [@media(max-height:800px)]:mt-5">
+        <section className="flex min-h-0 flex-col border-r border-slate-200 bg-slate-50/50">
+          <div className="shrink-0 border-b border-slate-200 bg-background px-5 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{d.rawLabel}</p>
+          </div>
+          <div className="min-h-0 flex-1 overflow-hidden px-5 py-2">
+            {d.raw.map((transaction, index) => (
+              <div key={transaction} className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-3 border-b border-slate-200/80 py-3 [@media(max-height:800px)]:py-2">
+                <span className="font-mono text-[9px] tabular-nums text-slate-400">{String(index + 1).padStart(2, "0")}</span>
+                <span className="min-w-0 truncate font-mono text-[12px] font-semibold text-slate-700">{transaction}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="flex min-h-0 flex-col bg-background px-7 py-5 [@media(max-height:800px)]:px-6 [@media(max-height:800px)]:py-4">
+          <div className="flex shrink-0 items-start gap-4 border-b border-slate-200 pb-4 [@media(max-height:800px)]:pb-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+              <UserRound className="h-6 w-6" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-600">Ricky · Living customer view</p>
+              <h3 className="mt-1 text-[clamp(20px,1.8vw,28px)] font-bold leading-tight text-slate-950">{d.profileTitle}</h3>
+              <p className="mt-1.5 max-w-4xl text-[13px] leading-relaxed text-slate-600">{d.profileBody}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-3">
+            <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{d.signalLabel}</p>
+            <div className="mt-3 grid min-h-0 grid-cols-2 content-start gap-3 [@media(max-height:800px)]:mt-2 [@media(max-height:800px)]:gap-2">
+              {Object.values(families).map((signals, index) => (
+                <Reveal key={signals[0]?.family} show={step > 0} delay={index * 90} className={index === 0 ? "col-span-2" : undefined}>
+                  <SignalFamilyCard signals={signals} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
 
 function PhoneFrame({ title, children }: { title:string; children:React.ReactNode }) { return <div className="mx-auto flex h-[570px] w-[330px] flex-col overflow-hidden rounded-[30px] border-[8px] border-slate-300 bg-white shadow-2xl"><div className="flex h-7 shrink-0 items-center justify-center bg-white"><span className="h-2 w-2 rounded-full bg-slate-300"/></div><div className="flex items-center justify-between border-b border-slate-100 px-4 py-2"><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneTime}</span><span className="text-[11px] font-bold text-slate-700">{title}</span><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneMenu}</span></div><div className="min-h-0 flex-1 overflow-hidden">{children}</div><div className="flex h-7 shrink-0 items-center justify-center"><span className="h-1 w-24 rounded-full bg-slate-300"/></div></div>; }
 
