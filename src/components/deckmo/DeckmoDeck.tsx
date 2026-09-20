@@ -275,7 +275,7 @@ function Ricky({ step }: SceneProps) {
               <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-slate-200/80 py-2">
                 <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
                  <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
-                 <div className="min-w-0"><p className="truncate font-mono text-[10px] font-bold text-slate-800">{transaction.merchant}</p><p className="mt-0.5 truncate text-[9px] text-slate-500">{transaction.description}{transaction.mcc && <span className="ml-2">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p></div>
+                 <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
                 <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
               </div>
             ))}
