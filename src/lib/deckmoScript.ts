@@ -1,3 +1,5 @@
+import { RICKY_SIGNAL_LABELS } from "@/lib/deckmoRickyTransactions";
+
 export type DeckmoBeatId = "opener" | "visibility" | "living-view" | "ricky" | "immediate" | "mid-term" | "segment-campaign" | "long-term" | "bank-tools" | "close";
 
 export const DECKMO = {
@@ -79,38 +81,13 @@ export const DECKMO = {
     subtitle: "A handful of ledger entries become a living view of the person behind the account.",
     rawLabel: "SUPPORTING TRANSACTIONS",
     signalLabel: "SYNTHESIZED CUSTOMER SIGNALS",
-    raw: ["MCC 5941 SPORTING GOODS", "MCC 4722 TRAVEL AGENCIES", "MCC 5812 EATING PLACES", "WIRE", "CHECK", "ACH TRANSFER"],
     signals: [
-      { family: "Behavioral", label: "Bi-weekly advanced tennis", tone: "blue", evidence: [
-        { date: "AUG 28", rail: "CARD", merchant: "RACKET SPORTS CLUB", description: "MCC 5941 · Sporting Goods", amount: "−$186.40", relevance: "Recurring equipment purchase aligned with an advanced tennis routine." },
-        { date: "AUG 17", rail: "ACH", merchant: "CITY TENNIS CENTER", description: "Club membership", amount: "−$240.00", relevance: "Bi-weekly club activity confirms an established playing cadence." },
-        { date: "AUG 03", rail: "CARD", merchant: "COURTSIDE PRO SHOP", description: "MCC 5941 · Sporting Goods", amount: "−$94.75", relevance: "Repeat specialist-retail activity reinforces the tennis pattern." },
-      ] },
-      { family: "Behavioral", label: "Annual Hawaiian vacation", tone: "blue", evidence: [
-        { date: "JUL 22", rail: "CARD", merchant: "HAWAIIAN AIRLINES", description: "MCC 4511 · Air Carriers", amount: "−$1,842.16", relevance: "Seasonal airfare repeats the same island travel pattern." },
-        { date: "JUL 22", rail: "CARD", merchant: "WAILEA BEACH RESORT", description: "MCC 7011 · Lodging", amount: "−$2,960.00", relevance: "Resort booking corroborates the destination and travel window." },
-        { date: "JUL 18", rail: "CARD", merchant: "ISLAND CAR RENTAL", description: "MCC 7512 · Automobile Rental", amount: "−$614.28", relevance: "Ground transport completes the recurring vacation itinerary." },
-      ] },
-      { family: "Life Events", label: "Buying a house above $1.5M", tone: "amber", evidence: [
-        { date: "SEP 04", rail: "WIRE", merchant: "PACIFIC TITLE & ESCROW", description: "Earnest money deposit", amount: "−$75,000.00", relevance: "A substantial title payment indicates an active home purchase." },
-        { date: "SEP 02", rail: "CHECK", merchant: "PREMIER HOME INSPECTION", description: "Property inspection", amount: "−$1,275.00", relevance: "Inspection activity corroborates a property under contract." },
-        { date: "AUG 30", rail: "ACH", merchant: "NORTHSTAR MOVING", description: "Moving services deposit", amount: "−$3,850.00", relevance: "A moving deposit supports near-term relocation intent." },
-      ] },
-      { family: "Financial", label: "Recurring transfer to brokerage", tone: "emerald", evidence: [
-        { date: "SEP 01", rail: "ACH", merchant: "EXTERNAL BROKERAGE", description: "Recurring investment transfer", amount: "−$5,000.00", relevance: "A regular outbound transfer reveals investable assets held elsewhere." },
-        { date: "AUG 01", rail: "ACH", merchant: "EXTERNAL BROKERAGE", description: "Recurring investment transfer", amount: "−$5,000.00", relevance: "The same monthly amount confirms an established funding pattern." },
-        { date: "JUL 01", rail: "ACH", merchant: "EXTERNAL BROKERAGE", description: "Recurring investment transfer", amount: "−$5,000.00", relevance: "Three consecutive transfers establish relationship opportunity." },
-      ] },
-      { family: "Demographics", label: "Small business owner", tone: "violet", evidence: [
-        { date: "SEP 06", rail: "ACH", merchant: "MERCHANT SERVICES SETTLEMENT", description: "Card processor payout", amount: "+$12,480.55", relevance: "Regular processor settlements indicate operating revenue." },
-        { date: "SEP 03", rail: "ACH", merchant: "QUARTERLY TAX PAYMENT", description: "Estimated tax payment", amount: "−$8,750.00", relevance: "Estimated tax activity is consistent with owner income." },
-        { date: "AUG 29", rail: "WIRE", merchant: "COMMERCIAL SUPPLIER", description: "Inventory payment", amount: "−$6,340.20", relevance: "Supplier payments reinforce active business operations." },
-      ] },
-      { family: "Risk", label: "Increasing sports betting", tone: "rose", evidence: [
-        { date: "SEP 07", rail: "CARD", merchant: "ONLINE WAGERING", description: "MCC 7995 · Betting", amount: "−$480.00", relevance: "Recent wagering activity exceeds Ricky’s earlier pattern." },
-        { date: "SEP 05", rail: "ACH", merchant: "GAMING WALLET", description: "Wallet funding", amount: "−$350.00", relevance: "A second funding event increases recent frequency." },
-        { date: "AUG 31", rail: "CARD", merchant: "ONLINE WAGERING", description: "MCC 7995 · Betting", amount: "−$225.00", relevance: "The rising cadence warrants bank-facing awareness." },
-      ] },
+      { family: "Behavioral", label: RICKY_SIGNAL_LABELS.tennis, tone: "blue" },
+      { family: "Behavioral", label: RICKY_SIGNAL_LABELS.hawaii, tone: "blue" },
+      { family: "Life Events", label: RICKY_SIGNAL_LABELS.home, tone: "amber" },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald" },
+      { family: "Demographics", label: RICKY_SIGNAL_LABELS.business, tone: "violet" },
+      { family: "Risk", label: RICKY_SIGNAL_LABELS.betting, tone: "rose" },
     ],
     profileTitle: "Ricky's living profile",
     profileBody: "Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.",
