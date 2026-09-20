@@ -253,7 +253,7 @@ function Ricky({ step }: SceneProps) {
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
       <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
-      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(500px,1.08fr)_minmax(500px,0.92fr)] overflow-hidden border border-slate-200 bg-background [@media(max-height:800px)]:mt-5">
+      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] overflow-hidden border border-slate-200 bg-background [@media(max-height:800px)]:mt-5">
         <section className="flex min-h-0 flex-col border-r border-slate-200 bg-slate-50/50">
           <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-background px-5 py-3">
             <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{d.rawLabel}</p><p className="mt-1 text-sm font-bold text-slate-900">{selectedSignal.label}</p></div>
