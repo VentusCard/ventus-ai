@@ -221,18 +221,21 @@ function LivingView({ step }: SceneProps) {
   return <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-8 py-8 xl:px-12 [@media(max-height:800px)]:py-4"><Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} /><div className="mt-8 grid min-h-0 flex-1 grid-cols-[minmax(190px,1fr)_clamp(40px,6vw,88px)_minmax(240px,300px)_clamp(40px,6vw,88px)_minmax(190px,1fr)] items-center [@media(max-height:800px)]:mt-5"><SourceCard source={d.inside} tone="blue" align="left" /><div className="relative h-px overflow-visible bg-blue-200"><div className={cn("absolute inset-y-0 left-0 bg-deck-blue transition-all duration-700 motion-reduce:transition-none", active ? "w-full" : "w-3/5")} /><span className={cn("deck-signal-left absolute -top-[3px] h-2 w-2 rounded-full bg-deck-blue shadow-[0_0_12px_hsl(var(--deck-blue)/0.65)]", !active && "opacity-75")} /><ChevronRight className="absolute -right-2.5 -top-2.5 h-5 w-5 text-deck-blue" /></div><div className="relative flex min-h-[310px] min-w-0 flex-col items-center justify-center text-center [@media(max-height:800px)]:min-h-[280px]"><div className={cn("absolute h-64 w-64 max-w-full rounded-full border bg-deck-surface/50 transition-all duration-700 motion-reduce:transition-none [@media(max-height:800px)]:h-56 [@media(max-height:800px)]:w-56", active ? "scale-100 border-deck-blue/25" : "scale-95 border-deck-blue/15")} /><div className="deck-breathe-ring absolute h-56 w-56 max-w-full rounded-full border border-deck-blue/45 motion-reduce:scale-100 motion-reduce:opacity-30 [@media(max-height:800px)]:h-48 [@media(max-height:800px)]:w-48"/><div className="deck-breathe-ring deck-breathe-ring-delayed absolute h-64 w-64 max-w-full rounded-full border border-deck-blue/30 motion-reduce:scale-100 motion-reduce:opacity-20 [@media(max-height:800px)]:h-56 [@media(max-height:800px)]:w-56"/><div className={cn("deck-node-breathe relative flex h-36 w-36 items-center justify-center rounded-full border bg-background transition-all duration-700 motion-reduce:transform-none [@media(max-height:800px)]:h-32 [@media(max-height:800px)]:w-32", active ? "border-deck-blue/70" : "border-deck-blue/35")}><div className="flex h-28 w-28 items-center justify-center rounded-full bg-deck-surface [@media(max-height:800px)]:h-24 [@media(max-height:800px)]:w-24"><UserRound className={cn("h-12 w-12 transition-colors duration-700", active ? "text-deck-blue" : "text-deck-muted")} /></div></div><p className={cn("relative mt-5 max-w-full break-words text-[10px] font-bold uppercase tracking-[0.16em] transition-colors duration-700", active ? "text-deck-blue" : "text-deck-muted")}>{d.result.header}</p><p className="relative mt-2 max-w-[320px] break-words text-[clamp(18px,1.55vw,23px)] font-bold leading-tight text-foreground">{d.result.body}</p></div><div className="relative h-px overflow-visible bg-amber-200"><div className={cn("absolute inset-y-0 right-0 bg-deck-gold transition-all duration-700 motion-reduce:transition-none", active ? "w-full" : "w-3/5")} /><span className={cn("deck-signal-right absolute -top-[3px] h-2 w-2 rounded-full bg-deck-gold shadow-[0_0_12px_hsl(var(--deck-gold)/0.65)]", !active && "opacity-75")} /><ChevronRight className="absolute -left-2.5 -top-2.5 h-5 w-5 rotate-180 text-deck-gold" /></div><SourceCard source={d.outside} tone="amber" align="right" /></div></div>;
 }
 
-function SignalFamilyCard({ signals }: { signals: (typeof DECKMO.ricky.signals[number])[] }) {
+function SignalFamilyCard({ signals, selectedLabel, onSelect }: { signals: (typeof DECKMO.ricky.signals[number])[]; selectedLabel: string; onSelect: (label: string) => void }) {
   const first = signals[0];
   if (!first) return null;
   const tone = TONES[first.tone];
   return (
-    <div className={cn("min-w-0 rounded-lg border px-4 py-3", tone.border, tone.bg)}>
+    <div className="min-w-0">
       <div className="flex items-center gap-2">
         <span className={cn("h-2 w-2 shrink-0 rounded-full", tone.dot)} />
         <span className={cn("text-[10px] font-bold uppercase tracking-[0.12em]", tone.text)}>{first.family}</span>
       </div>
-      <div className="mt-1.5 space-y-1">
-        {signals.map((signal) => <p key={signal.label} className="text-[13px] font-semibold leading-snug text-slate-800">{signal.label}</p>)}
+      <div className="mt-2 flex flex-wrap gap-2">
+        {signals.map((signal) => {
+          const selected = selectedLabel === signal.label;
+          return <Button key={signal.label} type="button" variant="outline" aria-pressed={selected} onClick={() => onSelect(signal.label)} className={cn("h-auto min-h-9 max-w-full whitespace-normal rounded-full px-3 py-2 text-left text-[12px] font-semibold leading-tight shadow-none", tone.border, selected ? cn(tone.bg, tone.text, "ring-2 ring-current ring-offset-1") : "bg-background text-slate-700 hover:bg-slate-50")}>{signal.label}</Button>;
+        })}
       </div>
     </div>
   );
@@ -240,6 +243,8 @@ function SignalFamilyCard({ signals }: { signals: (typeof DECKMO.ricky.signals[n
 
 function Ricky({ step }: SceneProps) {
   const d = DECKMO.ricky;
+  const [selectedLabel, setSelectedLabel] = useState<string>(d.signals[0].label);
+  const selectedSignal = d.signals.find((signal) => signal.label === selectedLabel) ?? d.signals[0];
   const families = d.signals.reduce<Record<string, (typeof d.signals[number])[]>>((grouped, signal) => {
     (grouped[signal.family] ??= []).push(signal);
     return grouped;
@@ -248,16 +253,20 @@ function Ricky({ step }: SceneProps) {
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
       <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
-      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(300px,0.78fr)_minmax(520px,1.45fr)] overflow-hidden border border-slate-200 bg-background [@media(max-height:800px)]:mt-5">
+      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] overflow-hidden border border-slate-200 bg-background [@media(max-height:800px)]:mt-5">
         <section className="flex min-h-0 flex-col border-r border-slate-200 bg-slate-50/50">
-          <div className="shrink-0 border-b border-slate-200 bg-background px-5 py-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{d.rawLabel}</p>
+          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-background px-5 py-3">
+            <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{d.rawLabel}</p><p className="mt-1 text-sm font-bold text-slate-900">{selectedSignal.label}</p></div>
+            <span className={cn("shrink-0 rounded-full border px-3 py-1 text-[10px] font-bold uppercase", TONES[selectedSignal.tone].border, TONES[selectedSignal.tone].bg, TONES[selectedSignal.tone].text)}>{selectedSignal.evidence.length} matched</span>
           </div>
-          <div className="min-h-0 flex-1 overflow-hidden px-5 py-2">
-            {d.raw.map((transaction, index) => (
-              <div key={transaction} className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-3 border-b border-slate-200/80 py-3 [@media(max-height:800px)]:py-2">
-                <span className="font-mono text-[9px] tabular-nums text-slate-400">{String(index + 1).padStart(2, "0")}</span>
-                <span className="min-w-0 truncate font-mono text-[12px] font-semibold text-slate-700">{transaction}</span>
+          <div key={selectedSignal.label} className="min-h-0 flex-1 overflow-hidden px-5 py-2 animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
+            <div className="grid grid-cols-[54px_64px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Rail</span><span>Transaction</span><span className="text-right">Amount</span></div>
+            {selectedSignal.evidence.map((transaction) => (
+              <div key={`${selectedSignal.label}-${transaction.date}-${transaction.merchant}`} className="grid grid-cols-[54px_64px_minmax(0,1fr)_90px] gap-3 border-b border-slate-200/80 py-4 [@media(max-height:800px)]:py-3">
+                <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
+                <span className={cn("h-fit rounded-sm border px-1.5 py-0.5 text-center text-[9px] font-bold", (RAIL_STYLES[transaction.rail] ?? RAIL_STYLES.CARD).badge)}>{transaction.rail}</span>
+                <div className="min-w-0"><p className="truncate font-mono text-[11px] font-bold text-slate-800">{transaction.merchant}</p><p className="mt-1 text-[10px] text-slate-500">{transaction.description}</p><p className="mt-1.5 text-[11px] leading-snug text-slate-600">{transaction.relevance}</p></div>
+                <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
               </div>
             ))}
           </div>
@@ -276,10 +285,10 @@ function Ricky({ step }: SceneProps) {
           </div>
           <div className="mt-4 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-3">
             <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{d.signalLabel}</p>
-            <div className="mt-3 grid min-h-0 grid-cols-2 content-start gap-3 [@media(max-height:800px)]:mt-2 [@media(max-height:800px)]:gap-2">
+            <div className="mt-4 grid min-h-0 grid-cols-2 content-start gap-x-5 gap-y-4 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-3">
               {Object.values(families).map((signals, index) => (
                 <Reveal key={signals[0]?.family} show={step > 0} delay={index * 90} className={index === 0 ? "col-span-2" : undefined}>
-                  <SignalFamilyCard signals={signals} />
+                  <SignalFamilyCard signals={signals} selectedLabel={selectedLabel} onSelect={setSelectedLabel} />
                 </Reveal>
               ))}
             </div>
