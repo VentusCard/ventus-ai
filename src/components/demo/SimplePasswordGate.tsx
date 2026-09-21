@@ -77,15 +77,15 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
       </button>
       )}
 
-      <div className="flex flex-col items-center gap-8 w-full max-w-5xl">
+      <div className="flex flex-col items-center gap-14 w-full max-w-5xl">
         {minimal ? (
-          <div className="flex flex-col items-center gap-3">
-            <img src={ventusLogo} alt="Ventus AI" className="h-12 md:h-14 w-auto" />
-            <h1 className="text-[26px] md:text-[32px] font-bold text-slate-900 tracking-tight text-center">
+          <div className="flex flex-col items-center gap-5">
+            <img src={ventusLogo} alt="Ventus AI" className="h-16 md:h-20 w-auto" />
+            <h1 className="text-[28px] md:text-[34px] font-bold text-slate-900 tracking-tight text-center">
               {title ?? "Interactive Presentation"}
             </h1>
             {subtitle && (
-              <p className="text-[13px] md:text-[14px] font-medium text-slate-500 tracking-tight text-center whitespace-nowrap">
+              <p className="text-[15px] md:text-[16px] font-medium text-slate-500 tracking-tight text-center whitespace-nowrap">
                 {subtitle}
               </p>
             )}
@@ -188,19 +188,19 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
             </p>
           </div>
         </div>}
-        <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-72">
+        <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-80">
           <input
             type="password"
             autoFocus
             placeholder="Enter password"
             value={value}
             onChange={(e) => { setValue(e.target.value); setError(false); }}
-            className="w-full h-10 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
+            className="w-full h-11 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
           />
           {error && <p className="text-xs text-red-500 -mt-2">Incorrect password</p>}
           <button
             type="submit"
-            className="w-full h-10 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-colors"
+            className="w-full h-11 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-colors"
           >
             Enter Demo
           </button>
