@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   Banknote,
-  Battery,
+  BatteryFull,
   Bot,
   Check,
   ChevronLeft,
@@ -112,7 +112,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
             <span className="font-semibold text-[11px] text-slate-600">Our Bank · Ricky</span>
-            <Wifi className="h-3 w-3" /><Battery className="h-3.5 w-3.5" />
+            <Wifi className="h-3 w-3" /><BatteryFull className="h-3.5 w-3.5 text-emerald-500" />
           </div>
         </div>
 
