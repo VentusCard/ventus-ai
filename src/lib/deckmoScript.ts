@@ -80,7 +80,7 @@ export const DECKMO = {
     title: "Meet Ricky",
     subtitle: "A handful of ledger entries become a living view of the person behind the account.",
     rawLabel: "SUPPORTING TRANSACTIONS",
-    signalLabel: "SYNTHESIZED CUSTOMER SIGNALS",
+    signalLabel: "VENTUS CUSTOMER INTELLIGENCE",
     signals: [
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.tennis, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.hawaii, tone: "blue", source: "internal" },
