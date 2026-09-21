@@ -78,7 +78,6 @@ export const DECKMO = {
   ricky: {
     eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
     title: "Meet Ricky",
-    subtitle: "A handful of ledger entries become a living view of the person behind the account.",
     rawLabel: "SUPPORTING TRANSACTIONS",
     signalLabel: "VENTUS CUSTOMER INTELLIGENCE",
     signals: [
