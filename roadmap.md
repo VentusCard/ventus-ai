@@ -26,3 +26,4 @@
 - [x] Add Ricky external-data signal pills and evidence views from /bankdemo
 - [x] Unify Ricky's profile header across the transaction and signal sections
 - [x] Remove the Supporting Transactions header row from Ricky's ledger
+- [x] Trim Ricky's masthead to one row and add core bank-record facts (age, city, income, tier)
