@@ -206,6 +206,7 @@ export const DECKMO = {
         amount: "$86.00",
         pattern: "Recurring · every other week",
         explanation: "This matches your usual every-other-week tennis club visit.",
+        needsConfirmation: false,
       },
       {
         date: "Yesterday",
@@ -217,6 +218,7 @@ export const DECKMO = {
         amount: "$142.38",
         pattern: "Recurring · monthly autopay",
         explanation: "This is your usual monthly utility payment from checking.",
+        needsConfirmation: false,
       },
       {
         date: "Sep 19",
@@ -228,6 +230,7 @@ export const DECKMO = {
         amount: "$54.25",
         pattern: "Occasional person-to-person payment",
         explanation: "This appears to be a payment to Mia Chen for a shared expense.",
+        needsConfirmation: false,
       },
       {
         date: "Sep 18",
@@ -239,6 +242,7 @@ export const DECKMO = {
         amount: "$100.00",
         pattern: "Familiar location · near home",
         explanation: "This withdrawal was made at an ATM near your home address.",
+        needsConfirmation: false,
       },
       {
         date: "Sep 17",
@@ -250,6 +254,7 @@ export const DECKMO = {
         amount: "$320.00",
         pattern: "Recurring · quarterly service",
         explanation: "This check matches your regular landscaping service payment.",
+        needsConfirmation: false,
       },
       {
         date: "Sep 16",
@@ -261,6 +266,7 @@ export const DECKMO = {
         amount: "$2,500.00",
         pattern: "One-time transfer",
         explanation: "This wire was sent to the escrow account associated with your home closing.",
+        needsConfirmation: false,
       },
     ],
     popups: [
