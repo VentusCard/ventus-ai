@@ -310,7 +310,6 @@ function Ricky({ step }: SceneProps) {
           <div className="flex min-h-0 flex-1 flex-col">
             <div className="flex shrink-0 items-center justify-between gap-4 border-b border-deck-rule pb-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">{d.signalLabel}</p>
-              <span className="rounded-sm border border-deck-rule bg-deck-surface px-2 py-1 text-[9px] font-bold uppercase text-deck-muted">5 families · 8 signals</span>
             </div>
             <div className="mt-4 grid min-h-0 grid-cols-2 content-start gap-x-5 gap-y-4 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-3">
               {Object.values(families).map((signals, index) => (
