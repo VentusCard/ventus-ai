@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
-import { Gift, Users, Bot, Wallet, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, Wallet, ReceiptText, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
 
@@ -93,9 +93,11 @@ interface Props {
   presentationMode?: boolean;
   presentationTab?: ConsumerTab;
   presentationImageUrl?: string;
+  /** Optional relabel of the first consumer tab (Budget) for deck presentation usage. */
+  firstTabLabel?: string;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
@@ -254,7 +256,10 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         {/* Bottom Tab Bar — frame chrome, never scaled, hidden in WM CoPilot mode */}
         {!wmCopilotMode && (
           <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-            {CONSUMER_TABS.map((tab) => {
+            {(firstTabLabel
+              ? CONSUMER_TABS.map((t, i) => (i === 0 ? { ...t, label: firstTabLabel, icon: ReceiptText } : t))
+              : CONSUMER_TABS
+            ).map((tab) => {
               const Icon = tab.icon;
               const isActive = consumerTab === tab.key;
               return (
