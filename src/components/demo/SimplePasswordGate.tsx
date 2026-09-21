@@ -205,6 +205,7 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
             Enter Demo
           </button>
         </form>
+        )}
       </div>
 
       {showSettings && (
