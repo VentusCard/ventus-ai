@@ -13,9 +13,12 @@ interface Props {
   tagline?: string;
   allowDemoBypass?: boolean;
   showSettings?: boolean;
+  minimal?: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
-export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true, showSettings = true }: Props) {
+export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true, showSettings = true, minimal = false, title, subtitle }: Props) {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
