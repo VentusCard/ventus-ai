@@ -256,7 +256,7 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect, cascadeDelay = 0 }
   );
 }
 
-function Ricky({ step }: SceneProps) {
+function Ricky({ step, active = false }: SceneProps) {
   const d = DECKMO.ricky;
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const selectedSignal = d.signals.find((signal) => signal.label === selectedLabel);
@@ -292,14 +292,16 @@ function Ricky({ step }: SceneProps) {
             </div>
           </div> : <div key={selectedLabel ?? "all"} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
-            {displayedTransactions.map((transaction) => (
-              <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-slate-200/80 py-2">
-                <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
-                 <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
-                 <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
-                <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
-              </div>
-            ))}
+            <div className={cn(active && step === 0 && "deck-ricky-ledger-roll")}>
+              {displayedTransactions.map((transaction) => (
+                <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-slate-200/80 py-2">
+                  <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
+                   <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
+                   <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
+                  <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
+                </div>
+              ))}
+            </div>
           </div>}
         </section>
 
