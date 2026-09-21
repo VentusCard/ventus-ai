@@ -188,19 +188,19 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
             </p>
           </div>
         </div>}
-        <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-72">
+        <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-80">
           <input
             type="password"
             autoFocus
             placeholder="Enter password"
             value={value}
             onChange={(e) => { setValue(e.target.value); setError(false); }}
-            className="w-full h-10 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
+            className="w-full h-11 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
           />
           {error && <p className="text-xs text-red-500 -mt-2">Incorrect password</p>}
           <button
             type="submit"
-            className="w-full h-10 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-colors"
+            className="w-full h-11 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-colors"
           >
             Enter Demo
           </button>
