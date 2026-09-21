@@ -163,9 +163,9 @@
 }
 
 @keyframes deck-ricky-ledger-roll {
-  0% { opacity: 0.35; transform: translateY(260px); filter: blur(1.5px); }
-  55% { opacity: 1; filter: blur(0); }
-  88% { transform: translateY(36px); }
+  0% { opacity: 0.35; transform: translateY(-640px); filter: blur(2px); }
+  7% { opacity: 1; filter: blur(0); }
+  86% { transform: translateY(-72px); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
   100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
@@ -195,7 +195,7 @@
 }
 
 .deck-ricky-ledger-roll {
-  animation: deck-ricky-ledger-roll 2200ms cubic-bezier(0.2, 0.75, 0.15, 1) both;
+  animation: deck-ricky-ledger-roll 2200ms linear both;
   will-change: transform, opacity, filter;
 }
 
