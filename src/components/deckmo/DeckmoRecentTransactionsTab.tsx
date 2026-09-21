@@ -40,6 +40,7 @@ const PURCHASE_ICONS = {
   vending: CupSoda,
   streaming: Tv,
   music: Music,
+  business: Briefcase,
 } as const;
 
 export function DeckmoRecentTransactionsTab() {
