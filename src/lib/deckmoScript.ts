@@ -91,7 +91,7 @@ export const DECKMO = {
       { family: "Demographics", label: RICKY_SIGNAL_LABELS.business, tone: "violet", source: "internal" },
       { family: "Risk", label: RICKY_SIGNAL_LABELS.betting, tone: "rose", source: "internal" },
     ],
-    profileTitle: "Ricky's living profile",
+    profileTitle: "Ricky J #45275487",
     profileFacts: "Age 44 · San Francisco, CA 94123 · Est. household income $250K · Preferred tier",
     profileBody: "Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.",
   },
