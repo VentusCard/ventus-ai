@@ -3,8 +3,14 @@ import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { getPersonalizationSnapshot } from "@/lib/personalizationSnapshots";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 
-const customer = DEMO_CUSTOMERS[0];
-const snapshot = getPersonalizationSnapshot(customer.id);
+const sourceCustomer = DEMO_CUSTOMERS[0];
+const snapshot = getPersonalizationSnapshot(sourceCustomer.id);
+// The deck narrative is about Ricky J #45275487 — reuse Sarah's dataset
+// (tennis/Hawaii/pets themes match Ricky's signals) with Ricky's identity.
+const customer = {
+  ...sourceCustomer,
+  profile: { ...sourceCustomer.profile, name: "Ricky J" },
+};
 
 const PILLARS: Record<string, { pillar: string; category: string }> = {
   "4511": { pillar: "Travel & Transport", category: "Air Travel" },
