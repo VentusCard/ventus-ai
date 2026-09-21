@@ -9,11 +9,11 @@ import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoSegmentCampaign } from "./DeckmoBankdemoScenes";
 
 const TONES = {
-  blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-600", hoverBg: "hover:bg-blue-600", fullText: "text-white hover:text-white" },
-  amber: { dot: "bg-amber-500", border: "border-amber-200", bg: "bg-amber-50", text: "text-amber-700", fullBg: "bg-amber-500", hoverBg: "hover:bg-amber-500", fullText: "text-white hover:text-white" },
-  emerald: { dot: "bg-emerald-500", border: "border-emerald-200", bg: "bg-emerald-50", text: "text-emerald-700", fullBg: "bg-emerald-600", hoverBg: "hover:bg-emerald-600", fullText: "text-white hover:text-white" },
-  violet: { dot: "bg-violet-500", border: "border-violet-200", bg: "bg-violet-50", text: "text-violet-700", fullBg: "bg-violet-600", hoverBg: "hover:bg-violet-600", fullText: "text-white hover:text-white" },
-  rose: { dot: "bg-rose-500", border: "border-rose-200", bg: "bg-rose-50", text: "text-rose-700", fullBg: "bg-rose-600", hoverBg: "hover:bg-rose-600", fullText: "text-white hover:text-white" },
+  blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-100", hoverBg: "hover:bg-blue-200", fullText: "text-blue-900 hover:text-blue-900" },
+  amber: { dot: "bg-amber-500", border: "border-amber-200", bg: "bg-amber-50", text: "text-amber-700", fullBg: "bg-amber-100", hoverBg: "hover:bg-amber-200", fullText: "text-amber-900 hover:text-amber-900" },
+  emerald: { dot: "bg-emerald-500", border: "border-emerald-200", bg: "bg-emerald-50", text: "text-emerald-700", fullBg: "bg-emerald-100", hoverBg: "hover:bg-emerald-200", fullText: "text-emerald-900 hover:text-emerald-900" },
+  violet: { dot: "bg-violet-500", border: "border-violet-200", bg: "bg-violet-50", text: "text-violet-700", fullBg: "bg-violet-100", hoverBg: "hover:bg-violet-200", fullText: "text-violet-900 hover:text-violet-900" },
+  rose: { dot: "bg-rose-500", border: "border-rose-200", bg: "bg-rose-50", text: "text-rose-700", fullBg: "bg-rose-100", hoverBg: "hover:bg-rose-200", fullText: "text-rose-900 hover:text-rose-900" },
 } as const;
 
 type Tone = keyof typeof TONES;
@@ -240,7 +240,7 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect }: { signals: (type
       <div className="mt-2 flex flex-wrap gap-2">
         {signals.map((signal) => {
           const selected = selectedLabel === signal.label;
-          return <Button key={signal.label} type="button" variant="outline" aria-pressed={selected} onClick={() => onSelect(signal.label)} className={cn("h-auto min-h-9 max-w-full whitespace-normal rounded-full border-transparent px-3 py-2 text-left text-[12px] font-semibold leading-tight shadow-none transition-[filter,box-shadow] hover:brightness-95", cn(tone.fullBg, tone.hoverBg, tone.fullText), selected && "ring-2 ring-slate-900 ring-offset-1 shadow-md")}><span>{signal.label}</span>{signal.source === "external" && <span className="ml-2 inline-flex shrink-0 items-center gap-1 rounded-full bg-white/20 px-1.5 py-px text-[8px] font-bold uppercase text-white"><Sparkles className="h-2.5 w-2.5" />External</span>}</Button>;
+          return <Button key={signal.label} type="button" variant="outline" aria-pressed={selected} onClick={() => onSelect(signal.label)} className={cn("h-auto min-h-9 max-w-full whitespace-normal rounded-full border-transparent px-3 py-2 text-left text-[12px] font-semibold leading-tight shadow-none transition-[filter,box-shadow] hover:brightness-95", cn(tone.fullBg, tone.hoverBg, tone.fullText), selected && "ring-2 ring-slate-900 ring-offset-1 shadow-md")}><span>{signal.label}</span>{signal.source === "external" && <span className="ml-2 inline-flex shrink-0 items-center gap-1 rounded-full border border-white/70 bg-white/70 px-1.5 py-px text-[8px] font-bold uppercase text-slate-700"><Sparkles className="h-2.5 w-2.5" />External</span>}</Button>;
         })}
       </div>
     </div>
