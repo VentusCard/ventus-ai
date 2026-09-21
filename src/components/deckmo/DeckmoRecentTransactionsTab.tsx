@@ -67,23 +67,21 @@ export function DeckmoRecentTransactionsTab() {
               const tone = RAIL_TONES[tx.rail];
               const PurchaseIcon = PURCHASE_ICONS[tx.icon];
               return (
-                <div key={`${tx.rail}-${tx.raw}`} className="py-1.5">
+                <div key={`${tx.rail}-${tx.raw}`} className="py-1">
                   <Button
                     variant="ghost"
                     aria-expanded={isOpen}
                     onClick={(event) => { event.stopPropagation(); setExpanded(isOpen ? null : index); }}
-                    className="h-auto w-full rounded-md px-1.5 py-2 text-left hover:bg-slate-50"
+                    className="h-auto w-full rounded-md px-1.5 py-1.5 text-left hover:bg-slate-50"
                   >
                     <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-md", tone.icon)}>
                       <PurchaseIcon className="h-4 w-4" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="flex items-start justify-between gap-2">
+                      <span className="flex items-center gap-1.5">
+                        <span className="shrink-0 text-[9px] font-medium text-slate-400">{tx.date}</span>
                         <span className="truncate text-[12px] font-bold text-slate-900">{tx.clean}</span>
-                        <span className="shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
-                      </span>
-                      <span className="mt-0.5 flex items-center gap-1.5">
-                        <span className="truncate text-[9px] font-medium text-slate-500">{tx.date} · {tx.meta}</span>
+                        <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
                         <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
                       </span>
                     </span>
