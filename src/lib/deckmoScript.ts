@@ -27,8 +27,8 @@ export const DECKMO = {
     phoneTime: "9:41",
     phoneMenu: "•••",
     stepUnit: "steps",
-    gateTagline: "A scripted customer intelligence story for bank leaders",
-    gateBullets: ["Customer intelligence", "Personalized experiences", "Bank-wide orchestration"],
+    gateTitle: "Interactive Presentation",
+    gateSubtitle: "Hyper-personalized banking orchestration to identify and capture high value financial moments",
   },
   phoneNavigation: {
     bankLabel: "Our Bank · Ricky",

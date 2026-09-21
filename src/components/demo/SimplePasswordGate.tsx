@@ -13,9 +13,12 @@ interface Props {
   tagline?: string;
   allowDemoBypass?: boolean;
   showSettings?: boolean;
+  minimal?: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
-export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true, showSettings = true }: Props) {
+export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true, showSettings = true, minimal = false, title, subtitle }: Props) {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
@@ -75,6 +78,18 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
       )}
 
       <div className="flex flex-col items-center gap-8 w-full max-w-5xl">
+        {minimal ? (
+          <div className="flex flex-col items-center gap-3">
+            <h1 className="text-[26px] md:text-[32px] font-bold text-slate-900 tracking-tight text-center">
+              {title ?? "Interactive Presentation"}
+            </h1>
+            {subtitle && (
+              <p className="text-[14px] md:text-[15px] font-medium text-slate-500 tracking-tight text-center max-w-xl">
+                {subtitle}
+              </p>
+            )}
+          </div>
+        ) : (
         <div className="flex flex-col items-center gap-4">
           <img src={ventusLogo} alt="Ventus AI" className="h-16 md:h-20 w-auto" />
           {tagline && (
@@ -83,7 +98,8 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
             </p>
           )}
         </div>
-        {bullets && bullets.length === 3 && (
+        )}
+        {!minimal && bullets && bullets.length === 3 && (
           <div className="grid grid-cols-3 items-center gap-x-6 whitespace-nowrap w-full">
             <div className="flex items-center gap-2 justify-end">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
@@ -100,7 +116,7 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
           </div>
         )}
 
-        <div className="w-full max-w-5xl flex flex-col gap-4">
+        {!minimal && <div className="w-full max-w-5xl flex flex-col gap-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
             {[
               {
@@ -170,8 +186,7 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
               ].find((s) => s.title === expandedSection)?.text}
             </p>
           </div>
-        </div>
-
+        </div>}
         <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-72">
           <input
             type="password"

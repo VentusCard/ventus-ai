@@ -5,7 +5,13 @@ import { DECKMO } from "@/lib/deckmoScript";
 export default function DemoPage() {
   return (
     <DeckmoDesktopGuard>
-      <SimplePasswordGate tagline={DECKMO.chrome.gateTagline} bullets={[...DECKMO.chrome.gateBullets]} allowDemoBypass showSettings={false}>
+      <SimplePasswordGate
+        minimal
+        title={DECKMO.chrome.gateTitle}
+        subtitle={DECKMO.chrome.gateSubtitle}
+        allowDemoBypass
+        showSettings={false}
+      >
         <DeckmoDeck />
       </SimplePasswordGate>
     </DeckmoDesktopGuard>
