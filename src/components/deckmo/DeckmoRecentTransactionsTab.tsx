@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Banknote,
   Battery,
-  Check,
   ChevronDown,
   CupSoda,
   Dumbbell,
@@ -74,7 +73,7 @@ export function DeckmoRecentTransactionsTab() {
               const confirmState = confirmations[index];
               const confirmed = confirmState === "yes";
               return (
-                <div key={`${tx.rail}-${tx.raw}`} className="py-1">
+                <div key={`${tx.rail}-${tx.raw}`} className={cn("rounded-md py-1", isConfirm && !confirmed && "border border-amber-200 bg-amber-50")}>
                   <Button
                     variant="ghost"
                     aria-expanded={isOpen}
@@ -87,23 +86,12 @@ export function DeckmoRecentTransactionsTab() {
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-1.5">
                         <span className="shrink-0 text-[9px] font-medium text-slate-400">{tx.date}</span>
-                        <span className={cn("truncate text-[12px] font-bold text-slate-900", isConfirm && "text-[11.5px]")}>
+                        <span className="truncate text-[12px] font-bold text-slate-900">
                           {isConfirm && !confirmed ? `${tx.clean}?` : tx.clean}
                         </span>
-                        {!isConfirm && <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>}
-                        {!isConfirm && <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>}
+                        <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
+                        <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
                       </span>
-                      {isConfirm && (
-                        <span className="mt-0.5 flex items-center gap-1.5">
-                          {confirmed ? (
-                            <span className="flex shrink-0 items-center gap-0.5 rounded border border-emerald-200 bg-emerald-50 px-1 py-px text-[7px] font-bold text-emerald-700"><Check className="h-2 w-2" />Confirmed</span>
-                          ) : (
-                            <span className="shrink-0 rounded border border-amber-300 bg-amber-50 px-1 py-px text-[7px] font-bold text-amber-700">Confirm</span>
-                          )}
-                          <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
-                          <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
-                        </span>
-                      )}
                     </span>
                     <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-300 motion-reduce:transition-none", isOpen && "rotate-180")} />
                   </Button>
