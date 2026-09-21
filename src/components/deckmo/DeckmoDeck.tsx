@@ -232,7 +232,7 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect }: { signals: (type
   if (!first) return null;
   const tone = TONES[first.tone];
   return (
-    <div className="flex min-h-0 min-w-0 flex-col justify-center">
+    <div className="min-w-0">
       <div className="flex items-center gap-2">
         <span className={cn("h-2 w-2 shrink-0 rounded-full", tone.dot)} />
         <span className={cn("text-[11px] font-bold uppercase tracking-[0.12em]", tone.text)}>{first.family}</span>
