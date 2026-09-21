@@ -51,31 +51,37 @@ const PURCHASE_ICONS = {
 
 const stop = (event: { stopPropagation: () => void }) => event.stopPropagation();
 
-export function DeckmoRecentTransactionsTab({ step = 0 }: { step?: number }) {
-  const [selected, setSelected] = useState<number | null>(null);
+export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?: number; active?: boolean }) {
+  // undefined = follow the beat; number/null = explicit user choice (row tap / phone Back)
+  const [override, setOverride] = useState<number | null | undefined>(undefined);
   const [confirmations, setConfirmations] = useState<Record<number, "yes" | "no">>({});
   const [corrections, setCorrections] = useState<Record<number, string>>({});
   const [correctionOpen, setCorrectionOpen] = useState<number | null>(null);
   const [draft, setDraft] = useState("");
   const data = DECKMO.immediate;
+  const jfkIndex = data.activity.findIndex((row) => row.needsConfirmation === true);
+  const beatSelection = step >= 3 && jfkIndex >= 0 ? jfkIndex : null;
+  const selected = override !== undefined ? override : beatSelection;
   const tx = selected === null ? null : data.activity[selected];
 
-  const prevStep = useRef<number | null>(null);
+  const wasActive = useRef(active);
   useEffect(() => {
-    if (prevStep.current === step) return;
-    prevStep.current = step;
-    if (step >= 3) {
-      const jfk = data.activity.findIndex((row) => row.needsConfirmation === true);
-      if (jfk >= 0) setSelected(jfk);
-    } else {
-      setSelected(null);
+    // Re-arm beat-driven selection when the beat changes or the slide becomes active again
+    // (e.g. arrowing back from slide 6 lands on beat 5.4 with the JFK detail open).
+    const becameActive = active && !wasActive.current;
+    wasActive.current = active;
+    setOverride(undefined);
+    if (beatSelection === null || becameActive) {
       setCorrectionOpen(null);
       setDraft("");
     }
-  }, [step, data.activity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, active]);
+
+  const setSelected = (index: number | null) => setOverride(index);
 
   const closeDetail = () => {
-    setSelected(null);
+    setOverride(null);
     setCorrectionOpen(null);
     setDraft("");
   };

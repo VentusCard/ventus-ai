@@ -10,7 +10,7 @@ import { ArrowRight, Sparkles, Users } from "lucide-react";
 import tennisAsset from "@/assets/deckmo-tennis.jpg.asset.json";
 import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
-type SceneProps = { step: number };
+type SceneProps = { step: number; active?: boolean };
 
 function SceneHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
   return (
@@ -76,12 +76,12 @@ function PhoneScene({ step, data, tab }: SceneProps & { data: typeof DECKMO.imme
   );
 }
 
-export function BankdemoImmediate({ step }: SceneProps) {
+export function BankdemoImmediate({ step, active = true }: SceneProps) {
   const data = DECKMO.immediate;
   return (
     <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_480px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6">
       <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
-      <DeckmoRecentTransactionsTab step={step} />
+      <DeckmoRecentTransactionsTab step={step} active={active} />
       <CalloutRail items={data.popups} step={step} />
     </div>
   );
