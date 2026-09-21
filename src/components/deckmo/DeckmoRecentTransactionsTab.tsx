@@ -70,6 +70,9 @@ export function DeckmoRecentTransactionsTab() {
               const isOpen = expanded === index;
               const tone = RAIL_TONES[tx.rail];
               const PurchaseIcon = PURCHASE_ICONS[tx.icon];
+              const isConfirm = tx.needsConfirmation === true;
+              const confirmState = confirmations[index];
+              const confirmed = confirmState === "yes";
               return (
                 <div key={`${tx.rail}-${tx.raw}`} className="py-1">
                   <Button
