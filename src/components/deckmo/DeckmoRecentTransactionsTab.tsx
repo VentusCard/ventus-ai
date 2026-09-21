@@ -109,6 +109,7 @@ export function DeckmoRecentTransactionsTab() {
                 const PurchaseIcon = PURCHASE_ICONS[row.icon];
                 const isConfirm = row.needsConfirmation === true;
                 const confirmed = confirmations[index] === "yes";
+                const correction = corrections[index];
                 return (
                   <div
                     key={`${row.rail}-${row.raw}`}
