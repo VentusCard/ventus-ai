@@ -29,7 +29,7 @@ const listeners = new Set<() => void>();
 const inFlight = new Map<string, Set<PersonalizationNeed>>();
 
 /** True when what we already hold covers everything the requested surface renders. */
-function satisfies(entry: PersonalizationGenerationResult | null | undefined, need: PersonalizationNeed) {
+function satisfies(entry: Partial<PersonalizationGenerationResult> | null | undefined, need: PersonalizationNeed) {
   if (!entry) return false;
   const hasOffers = Boolean(entry.offers?.length);
   const hasCards = Boolean(entry.productCards?.length);
