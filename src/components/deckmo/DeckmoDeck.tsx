@@ -92,10 +92,10 @@ function Opener({ step }: SceneProps) {
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col justify-center px-[clamp(32px,4vw,72px)] py-10 [@media(max-height:800px)]:py-6">
       <div className="w-full">
-        <Reveal show={step >= 0}>
+        <Reveal show={step >= 1}>
           <p className="text-balance text-[clamp(44px,5vw,76px)] font-bold leading-[1.03] tracking-normal text-slate-950">{DECKMO.opener.lines[0]}</p>
         </Reveal>
-        <Reveal show={step >= 1} className="mt-3 [@media(max-height:800px)]:mt-2">
+        <Reveal show={step >= 2} className="mt-3 [@media(max-height:800px)]:mt-2">
           <p className="text-balance text-[clamp(34px,3.9vw,58px)] font-bold leading-[1.06] tracking-normal text-slate-950">{DECKMO.opener.lines[1]}</p>
         </Reveal>
         <div className="mt-[clamp(40px,5vh,72px)] grid grid-cols-[auto_auto_auto_auto_auto] items-baseline gap-x-[clamp(14px,1.6vw,28px)] [@media(max-height:800px)]:mt-8">
