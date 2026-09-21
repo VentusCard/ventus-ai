@@ -78,6 +78,18 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
       )}
 
       <div className="flex flex-col items-center gap-8 w-full max-w-5xl">
+        {minimal ? (
+          <div className="flex flex-col items-center gap-3">
+            <h1 className="text-[26px] md:text-[32px] font-bold text-slate-900 tracking-tight text-center">
+              {title ?? "Interactive Presentation"}
+            </h1>
+            {subtitle && (
+              <p className="text-[14px] md:text-[15px] font-medium text-slate-500 tracking-tight text-center max-w-xl">
+                {subtitle}
+              </p>
+            )}
+          </div>
+        ) : (
         <div className="flex flex-col items-center gap-4">
           <img src={ventusLogo} alt="Ventus AI" className="h-16 md:h-20 w-auto" />
           {tagline && (
@@ -86,7 +98,8 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
             </p>
           )}
         </div>
-        {bullets && bullets.length === 3 && (
+        )}
+        {!minimal && bullets && bullets.length === 3 && (
           <div className="grid grid-cols-3 items-center gap-x-6 whitespace-nowrap w-full">
             <div className="flex items-center gap-2 justify-end">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
