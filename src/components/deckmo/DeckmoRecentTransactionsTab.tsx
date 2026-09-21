@@ -2,7 +2,9 @@ import { useState } from "react";
 import {
   Banknote,
   Battery,
+  Check,
   ChevronDown,
+  CupSoda,
   Dumbbell,
   HandCoins,
   House,
@@ -34,10 +36,12 @@ const PURCHASE_ICONS = {
   cash: Banknote,
   landscaping: Trees,
   home: House,
+  vending: CupSoda,
 } as const;
 
 export function DeckmoRecentTransactionsTab() {
   const [expanded, setExpanded] = useState<number | null>(0);
+  const [confirmations, setConfirmations] = useState<Record<number, "yes" | "no">>({});
   const data = DECKMO.immediate;
 
   return (
