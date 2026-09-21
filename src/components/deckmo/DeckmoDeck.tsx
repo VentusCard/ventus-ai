@@ -292,7 +292,7 @@ function Ricky({ step, active = false }: SceneProps) {
             </div>
           </div> : <div key={selectedLabel ?? "all"} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
-            <div className={cn(active && step === 0 && "deck-ricky-ledger-roll")}>
+            <div className={cn(active && step === 1 && "deck-ricky-ledger-roll")}>
               {displayedTransactions.map((transaction) => (
                 <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-slate-200/80 py-2">
                   <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
