@@ -94,7 +94,7 @@ export function DeckmoRecentTransactionsTab() {
 
                   <div className={cn("grid transition-[grid-template-rows,opacity] duration-300 motion-reduce:transition-none", isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")}>
                     <div className="overflow-hidden">
-                      <div className="ml-12 mr-1 border-l-2 border-blue-200 pl-3 pb-2 pt-1">
+                      <div className="ml-11 mr-1 border-l-2 border-blue-200 pl-3 pb-2 pt-1">
                         <p className="text-[8px] font-bold uppercase text-slate-400">Original statement</p>
                         <p className="mt-0.5 font-mono text-[9px] text-slate-500 line-through decoration-slate-300">{tx.raw}</p>
                         {isConfirm && <p className="mt-1 text-[9px] text-slate-500">{tx.meta}</p>}
