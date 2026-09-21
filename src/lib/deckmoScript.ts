@@ -189,7 +189,7 @@ export const DECKMO = {
         icon: "vending",
         raw: "365 RETAIL MARKETS TROY MI",
         clean: "JFK Airport Vending Machine",
-        meta: "Vending · Miscellaneous retail",
+        meta: "Troy, MI · Merchant category: vending / miscellaneous retail",
         amount: "$4.75",
         pattern: "One-time · card purchase",
         explanation:
