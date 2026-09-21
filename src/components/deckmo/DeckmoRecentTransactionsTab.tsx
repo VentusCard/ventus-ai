@@ -83,8 +83,14 @@ export function DeckmoRecentTransactionsTab() {
         </div>
         <div className="flex shrink-0 items-center justify-between bg-background px-5 py-1 text-[10px] font-medium text-slate-400">
           <span>9:41 AM</span>
-          <span className="font-semibold text-[11px] text-slate-600">Our Bank · Ricky</span>
-          <div className="flex items-center gap-1.5"><Wifi className="h-3 w-3" /><Battery className="h-3.5 w-3.5" /></div>
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            </span>
+            <span className="font-semibold text-[11px] text-slate-600">Our Bank · Ricky</span>
+            <Wifi className="h-3 w-3" /><Battery className="h-3.5 w-3.5" />
+          </div>
         </div>
 
         <div className="relative min-h-0 flex-1 overflow-hidden bg-background">
@@ -307,10 +313,12 @@ export function DeckmoRecentTransactionsTab() {
         </div>
 
         <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-          <div className="relative flex flex-1 flex-col items-center gap-0.5 py-2 text-blue-600">
-            <ReceiptText className="h-4 w-4" /><span className="text-[10px] font-semibold">Activity</span><div className="absolute left-1/4 right-1/4 top-0 h-0.5 rounded-full bg-blue-500" />
+          <div className="relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[#0ea5e9]">
+            <ReceiptText className="h-4 w-4" /><span className="text-[10px] font-semibold">Activity</span><div className="absolute left-1/4 right-1/4 top-0 h-0.5 rounded-full bg-[#0ea5e9]" />
           </div>
-          {["Rewards", "Membership", "AI"].map((label) => <div key={label} className="flex flex-1 flex-col items-center gap-0.5 py-2 text-slate-400"><Landmark className="h-4 w-4" /><span className="text-[10px] font-semibold">{label}</span></div>)}
+          {[{ label: "Rewards", Icon: Gift }, { label: "Membership", Icon: Users }, { label: "AI", Icon: Bot }].map(({ label, Icon }) => (
+            <div key={label} className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[#94a3b8]"><Icon className="h-4 w-4" /><span className="text-[10px] font-semibold">{label}</span></div>
+          ))}
         </div>
       </div>
     </div>
