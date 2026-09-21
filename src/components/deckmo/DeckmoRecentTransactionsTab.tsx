@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   Banknote,
   Battery,
@@ -52,8 +52,28 @@ const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
 export function DeckmoRecentTransactionsTab() {
   const [selected, setSelected] = useState<number | null>(null);
   const [confirmations, setConfirmations] = useState<Record<number, "yes" | "no">>({});
+  const [corrections, setCorrections] = useState<Record<number, string>>({});
+  const [correctionOpen, setCorrectionOpen] = useState<number | null>(null);
+  const [draft, setDraft] = useState("");
   const data = DECKMO.immediate;
   const tx = selected === null ? null : data.activity[selected];
+
+  const closeDetail = () => {
+    setSelected(null);
+    setCorrectionOpen(null);
+    setDraft("");
+  };
+
+  const submitCorrection = (event: FormEvent, index: number, needsConfirm: boolean) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const suggestion = draft.trim().slice(0, 80);
+    if (!suggestion) return;
+    setCorrections((c) => ({ ...c, [index]: suggestion }));
+    if (needsConfirm) setConfirmations((c) => ({ ...c, [index]: "no" }));
+    setCorrectionOpen(null);
+    setDraft("");
+  };
 
   return (
     <div className="mx-auto h-[620px] w-[350px]">
