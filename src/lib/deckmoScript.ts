@@ -1,6 +1,16 @@
 import { RICKY_SIGNAL_LABELS } from "@/lib/deckmoRickyTransactions";
 
-export type DeckmoBeatId = "opener" | "visibility" | "living-view" | "ricky" | "immediate" | "mid-term" | "segment-campaign" | "long-term" | "bank-tools" | "close";
+export type DeckmoBeatId =
+  | "opener"
+  | "visibility"
+  | "living-view"
+  | "ricky"
+  | "immediate"
+  | "mid-term"
+  | "segment-campaign"
+  | "long-term"
+  | "bank-tools"
+  | "close";
 
 export const DECKMO = {
   chrome: {
@@ -25,25 +35,28 @@ export const DECKMO = {
     tabs: ["Activity", "Rewards", "Membership", "AI"],
   },
   beats: [
-   { id: "opener", nav: "Thesis", steps: 6 },
-   { id: "visibility", nav: "The Gap", steps: 2 },
-   { id: "living-view", nav: "The Insight", steps: 2 },
-   { id: "ricky", nav: "Example: Meet Ricky", steps: 2 },
-   { id: "immediate", nav: "Value: Today", steps: 4 },
-   { id: "mid-term", nav: "Value: This Year", steps: 5 },
-   { id: "segment-campaign", nav: "Activation", steps: 1 },
-   { id: "long-term", nav: "Value: The Relationship", steps: 3 },
-   { id: "bank-tools", nav: "For Your Teams", steps: 3 },
-   { id: "close", nav: "The Ask", steps: 4 },
+    { id: "opener", nav: "Thesis", steps: 6 },
+    { id: "visibility", nav: "The Gap", steps: 2 },
+    { id: "living-view", nav: "The Insight", steps: 2 },
+    { id: "ricky", nav: "Example: Meet Ricky", steps: 2 },
+    { id: "immediate", nav: "Value: Today", steps: 4 },
+    { id: "mid-term", nav: "Value: This Year", steps: 5 },
+    { id: "segment-campaign", nav: "Activation", steps: 1 },
+    { id: "long-term", nav: "Value: The Relationship", steps: 3 },
+    { id: "bank-tools", nav: "For Your Teams", steps: 3 },
+    { id: "close", nav: "The Ask", steps: 4 },
   ],
   opener: {
-    lines: [
-      "Banking is personal.",
-      "Or at least, it used to be.",
-    ],
+    lines: ["Banking is personal.", "Or at least, it used to be."],
     comparison: {
-      today: { label: "Today", segments: ["Don't talk to or understand your customers", "Generic banking", "Commoditization"] },
-      ventus: { label: "With Ventus", segments: ["Anticipate and fulfil customer needs", "Personalized banking", "Differentiation"] },
+      today: {
+        label: "Today",
+        segments: ["Don't talk to or understand your customers", "Generic banking", "Commoditization"],
+      },
+      ventus: {
+        label: "With Ventus",
+        segments: ["Anticipate and fulfil customer needs", "Personalized banking", "Differentiation"],
+      },
     },
   },
   visibility: {
@@ -54,33 +67,68 @@ export const DECKMO = {
       header: "INSIDE THE WALLS",
       caption: "Messy unstructured activity across payment rails",
       rows: [
-        { id: "C•••1842", rail: "CARD", description: "POS DEBIT 59382", amount: "−$184.26", mcc: "5712", mccLabel: "Home Furnishings" },
+        {
+          id: "C•••1842",
+          rail: "CARD",
+          description: "POS DEBIT 59382",
+          amount: "−$184.26",
+          mcc: "5712",
+          mccLabel: "Home Furnishings",
+        },
         { id: "C•••9071", rail: "ACH", description: "ACH CREDIT EMPLOYER PAYROLL", amount: "+$4,280.15" },
         { id: "C•••5218", rail: "CHECK", description: "CHECK #••4821", amount: "−$2,145.00" },
         { id: "C•••3364", rail: "WIRE", description: "WIRE OUT TITLE CO ESCROW", amount: "−$25,000.00" },
         { id: "C•••7480", rail: "ACH", description: "ACH DEBIT ELECTRIC UTILITY", amount: "−$142.63" },
         { id: "C•••2195", rail: "RTP", description: "RTP TRANSFER TO A••• R•••", amount: "−$75.00" },
         { id: "C•••6632", rail: "ATM", description: "ATM WITHDRAWAL 0042", amount: "−$400.00" },
-        { id: "C•••4059", rail: "CARD", description: "TST*COURTSIDE NYC", amount: "−$86.40", mcc: "5812", mccLabel: "Restaurants & Dining" },
-
+        {
+          id: "C•••4059",
+          rail: "CARD",
+          description: "TST*COURTSIDE NYC",
+          amount: "−$86.40",
+          mcc: "5812",
+          mccLabel: "Restaurants & Dining",
+        },
       ],
     },
-    outside: { header: "OUTSIDE THE WALLS", caption: "What else goes on", status: "not visible", empty: "The rest of the customer remains out of view", rows: ["Bought a house", "Changed to a new job", "Got married", "Started a business", "Took a trip overseas", "Children going to college", "And everything in between"] },
+    outside: {
+      header: "OUTSIDE THE WALLS",
+      caption: "What else goes on",
+      status: "not visible",
+      empty: "The rest of the customer remains out of view",
+      rows: [
+        "Bought a house",
+        "Changed to a new job",
+        "Got married",
+        "Started a business",
+        "Took a trip overseas",
+        "Children going to college",
+        "And everything in between",
+      ],
+    },
   },
   livingView: {
     eyebrow: "THE COMPLETE PICTURE",
     title: "Ventus AI: Holistic AI Customer Intelligence",
     subtitle: "Enriching internal and external data to gain a dynamic understanding of each customer",
-    inside: { header: "INSIDE THE WALLS", title: "Rail-agnostic behavioral enrichment", chips: ["Checks", "Wires", "Zelle", "Card swipes", "P2P", "Digital telemetry"] },
-    outside: { header: "OUTSIDE THE WALLS", title: "Source-agnostic behavioral intelligence", chips: ["Credit bureaus", "Data compilers", "National databases", "SKU-level purchase data"] },
+    inside: {
+      header: "INSIDE THE WALLS",
+      title: "Rail-agnostic behavioral enrichment",
+      chips: ["Checks", "Wires", "Zelle", "Card swipes", "P2P", "Digital telemetry"],
+    },
+    outside: {
+      header: "OUTSIDE THE WALLS",
+      title: "Source-agnostic behavioral intelligence",
+      chips: ["Credit bureaus", "Data compilers", "National databases", "SKU-level purchase data"],
+    },
     result: { header: "ONE LIVING CUSTOMER VIEW" },
     synthesis: {
       families: [
-        { name: "Spending Habits", tone: "blue" },
-        { name: "Life Events", tone: "amber" },
-        { name: "Financial Signals", tone: "emerald" },
-        { name: "Demographic", tone: "violet" },
-        { name: "Risk", tone: "rose" },
+        { name: "3000+ Spending Habits", tone: "blue" },
+        { name: "20+ Major Life Events", tone: "amber" },
+        { name: "50+ Financial Signals", tone: "emerald" },
+        { name: "100+ Demographic Labels", tone: "violet" },
+        { name: "Obfuscated Risky Transcations", tone: "rose" },
       ],
       question: "Who they are · What they do · What do they need next?",
     },
@@ -93,59 +141,144 @@ export const DECKMO = {
     signals: [
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.tennis, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.hawaii, tone: "blue", source: "internal" },
-      { family: "Behavioral", label: "High pet expenditure", tone: "blue", source: "external", externalEvidence: { provider: "Outside SKU-level purchase data", detail: "Recurring high-value pet spending observed outside the bank", timing: "Monthly · ongoing", confidence: "Likely" } },
+      {
+        family: "Behavioral",
+        label: "High pet expenditure",
+        tone: "blue",
+        source: "external",
+        externalEvidence: {
+          provider: "Outside SKU-level purchase data",
+          detail: "Recurring high-value pet spending observed outside the bank",
+          timing: "Monthly · ongoing",
+          confidence: "Likely",
+        },
+      },
       { family: "Life Events", label: RICKY_SIGNAL_LABELS.home, tone: "amber", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
-      { family: "Financial", label: "Car loan expiring in ~4 months", tone: "emerald", source: "external", externalEvidence: { provider: "Outside lender tradeline", detail: "Auto loan is nearing the end of its term", timing: "Maturity · ~4 months", confidence: "Likely" } },
+      {
+        family: "Financial",
+        label: "Car loan expiring in ~4 months",
+        tone: "emerald",
+        source: "external",
+        externalEvidence: {
+          provider: "Outside lender tradeline",
+          detail: "Auto loan is nearing the end of its term",
+          timing: "Maturity · ~4 months",
+          confidence: "Likely",
+        },
+      },
       { family: "Demographics", label: RICKY_SIGNAL_LABELS.business, tone: "violet", source: "internal" },
       { family: "Risk", label: RICKY_SIGNAL_LABELS.betting, tone: "rose", source: "internal" },
     ],
     profileTitle: "Ricky J #45275487",
     profileFacts: "Age 34 · San Francisco, CA 94123 · Est. household income $250K · Preferred tier",
-    profileBody: "Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.",
+    profileBody:
+      "Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.",
   },
   immediate: {
     eyebrow: "IMMEDIATE",
     title: "Make every transaction understandable",
-    subtitle: "Enriched transaction experiences that make charges easier to recognize and can reduce transaction-related service calls and inquiries.",
+    subtitle:
+      "Enriched transaction experiences that make charges easier to recognize and can reduce transaction-related service calls and inquiries.",
     phoneTitle: "Recent activity",
     account: "Our Bank checking",
     transactions: [
       { raw: "SQ *NORTHSTAR 4471", clean: "Northstar Market", meta: "Groceries · Food & Dining", badge: "Recurring" },
-      { raw: "TST*COURTSIDE NYC", clean: "Courtside Tennis Club", meta: "Fitness · Sports & Active Living", badge: "Every other week" },
-      { raw: "HNL AIR 006121", clean: "Hawaiian Airlines", meta: "Air travel · Travel & Exploration", badge: "Trip detected" },
-      { raw: "POS DEBIT 59382", clean: "Home Design Studio", meta: "Home improvement · Home & Living", badge: "New pattern" },
+      {
+        raw: "TST*COURTSIDE NYC",
+        clean: "Courtside Tennis Club",
+        meta: "Fitness · Sports & Active Living",
+        badge: "Every other week",
+      },
+      {
+        raw: "HNL AIR 006121",
+        clean: "Hawaiian Airlines",
+        meta: "Air travel · Travel & Exploration",
+        badge: "Trip detected",
+      },
+      {
+        raw: "POS DEBIT 59382",
+        clean: "Home Design Studio",
+        meta: "Home improvement · Home & Living",
+        badge: "New pattern",
+      },
     ],
     popups: [
-      { title: "A clean merchant identity", body: "A cryptic ledger string resolves into a recognizable merchant and location." },
+      {
+        title: "A clean merchant identity",
+        body: "A cryptic ledger string resolves into a recognizable merchant and location.",
+      },
       { title: "Lifestyle context", body: "Each charge receives a category and a broader lifestyle pillar." },
-      { title: "Patterns, not just purchases", body: "Recurring activity and subscriptions become visible automatically." },
-      { title: "A useful explanation", body: "A tap explains the charge in plain language, with context from the customer's own activity." },
+      {
+        title: "Patterns, not just purchases",
+        body: "Recurring activity and subscriptions become visible automatically.",
+      },
+      {
+        title: "A useful explanation",
+        body: "A tap explains the charge in plain language, with context from the customer's own activity.",
+      },
     ],
-    explainer: { title: "Recognize this charge?", body: "This appears to be your recurring tennis club visit. It matches your usual every-other-week pattern.", action: "Yes, that's mine" },
+    explainer: {
+      title: "Recognize this charge?",
+      body: "This appears to be your recurring tennis club visit. It matches your usual every-other-week pattern.",
+      action: "Yes, that's mine",
+    },
   },
   midTerm: {
     eyebrow: "MID-TERM",
     title: "Turn understanding into relevant growth",
-    subtitle: "Hyper-personalized card-linked offers and cross-sell programs create new revenue opportunities while helping identify the right banking product for each customer at the right moment.",
+    subtitle:
+      "Hyper-personalized card-linked offers and cross-sell programs create new revenue opportunities while helping identify the right banking product for each customer at the right moment.",
     phoneTitle: "Selected for Ricky",
     rewardsIntro: "Benefits built around how you live",
-    topPick: { label: "TOP PICK", title: "Your next island escape", body: "Travel benefits shaped around Ricky's annual vacation pattern.", benefit: "Roughly $150 in value on a similar trip", action: "View travel benefits", family: "Behavioral" },
+    topPick: {
+      label: "TOP PICK",
+      title: "Your next island escape",
+      body: "Travel benefits shaped around Ricky's annual vacation pattern.",
+      benefit: "Roughly $150 in value on a similar trip",
+      action: "View travel benefits",
+      family: "Behavioral",
+    },
     categories: ["For you", "Travel", "Tennis", "Dining", "Home"],
     deals: [
       { title: "Airport lounge access", detail: "Before the next Hawaii trip", family: "Behavioral" },
       { title: "Premium racquet fitting", detail: "For the next tennis season", family: "Behavioral" },
       { title: "Home design consultation", detail: "Timed to the home purchase journey", family: "Life Events" },
     ],
-    product: { title: "Home lending relationship", body: "A tailored home loan relationship can support the next move.", benefit: "0.5% lower APR", action: "Explore options", family: "Life Events", personalized: "Personalized for Ricky", benefits: ["Preferred relationship pricing", "Flexible closing support", "A specialist ready when needed"] },
-    placement: { title: "One asset, placed everywhere", channels: ["Digital banking", "Email", "Relationship manager", "Marketing/CRM automation"] },
-    delivery: { inbox: "Inbox", time: "just now", subject: "A home lending option selected for you", from: "Our Bank · to Ricky", label: "JUST FOR YOU", body: "Your relationship with us may qualify you for preferred home lending support." },
-    popups: ["Top pick built from observed behavior", "Interests become browsable collections", "Every recommendation traces to a signal", "Benefits are made concrete", "The same experience travels across channels"],
+    product: {
+      title: "Home lending relationship",
+      body: "A tailored home loan relationship can support the next move.",
+      benefit: "0.5% lower APR",
+      action: "Explore options",
+      family: "Life Events",
+      personalized: "Personalized for Ricky",
+      benefits: ["Preferred relationship pricing", "Flexible closing support", "A specialist ready when needed"],
+    },
+    placement: {
+      title: "One asset, placed everywhere",
+      channels: ["Digital banking", "Email", "Relationship manager", "Marketing/CRM automation"],
+    },
+    delivery: {
+      inbox: "Inbox",
+      time: "just now",
+      subject: "A home lending option selected for you",
+      from: "Our Bank · to Ricky",
+      label: "JUST FOR YOU",
+      body: "Your relationship with us may qualify you for preferred home lending support.",
+    },
+    popups: [
+      "Top pick built from observed behavior",
+      "Interests become browsable collections",
+      "Every recommendation traces to a signal",
+      "Benefits are made concrete",
+      "The same experience travels across channels",
+    ],
   },
   segmentCampaign: {
     eyebrow: "MID-TERM · SEGMENT ACTIVATION",
     title: "One segment. One message built for how they live.",
-    subtitle: "Behavioral intelligence turns a broad card campaign into activation-ready copy for a specific customer mindset.",
+    subtitle:
+      "Behavioral intelligence turns a broad card campaign into activation-ready copy for a specific customer mindset.",
     productLabel: "Cashback (3/2/1)",
     outputLabel: "Micro-Segment Personalized Campaign Output",
     stages: [
@@ -157,15 +290,35 @@ export const DECKMO = {
   longTerm: {
     eyebrow: "LONG-TERM",
     title: "Build a relationship that evolves",
-    subtitle: "A more personalized banking relationship can deepen engagement, improve retention and NPS, and help the bank grow primary banking relationships and share of wallet.",
+    subtitle:
+      "A more personalized banking relationship can deepen engagement, improve retention and NPS, and help the bank grow primary banking relationships and share of wallet.",
     phoneTitle: "Ricky's relationship",
     welcome: "Welcome, Ricky",
     memberStatus: "Private client · Member since 2018",
     snapshotTitle: "Your financial snapshot",
-    snapshot: [{ label: "Savings", value: "$148K" }, { label: "Credit", value: "$22K" }, { label: "Mortgage", value: "$610K" }, { label: "Investments", value: "$385K" }],
-    event: { label: "LIFE EVENT DETECTED", title: "Home purchase journey", body: "A sustained cluster of housing-related activity indicates Ricky may be preparing for a move." },
-    advisor: { label: "NEXT CONVERSATION", title: "Talk through the new home plan", body: "A relationship manager receives the context, timing, and a concise conversation guide.", actions: ["Review timeline", "Prepare outreach"] },
-    outreach: { label: "FOLLOW-UP READY", title: "A personal note, already drafted", body: "Ricky receives relevant help without exposing sensitive signals.", action: "Review draft" },
+    snapshot: [
+      { label: "Savings", value: "$148K" },
+      { label: "Credit", value: "$22K" },
+      { label: "Mortgage", value: "$610K" },
+      { label: "Investments", value: "$385K" },
+    ],
+    event: {
+      label: "LIFE EVENT DETECTED",
+      title: "Home purchase journey",
+      body: "A sustained cluster of housing-related activity indicates Ricky may be preparing for a move.",
+    },
+    advisor: {
+      label: "NEXT CONVERSATION",
+      title: "Talk through the new home plan",
+      body: "A relationship manager receives the context, timing, and a concise conversation guide.",
+      actions: ["Review timeline", "Prepare outreach"],
+    },
+    outreach: {
+      label: "FOLLOW-UP READY",
+      title: "A personal note, already drafted",
+      body: "Ricky receives relevant help without exposing sensitive signals.",
+      action: "Review draft",
+    },
     popups: ["Detect the life moment", "Prepare the next conversation", "Coordinate thoughtful outreach"],
   },
   bankTools: {
@@ -174,45 +327,116 @@ export const DECKMO = {
     subtitle: "The same intelligence becomes an operating system for teams across your bank.",
     screens: [
       {
-        id: "database", tab: "INTELLIGENCE DATABASE", title: "Every signal opens the segment behind it", description: "Explore customer groups, export audiences, automate reports, connect through APIs, or ask embedded AI a free-form question.",
+        id: "database",
+        tab: "INTELLIGENCE DATABASE",
+        title: "Every signal opens the segment behind it",
+        description:
+          "Explore customer groups, export audiences, automate reports, connect through APIs, or ask embedded AI a free-form question.",
         sections: ["Overview", "Segments", "Risk", "Reports", "Query", "API"],
-        priority: { title: "3 priorities in your book right now", body: "What are the trends and opportunities for this past week?", action: "Ask Ventus AI" },
+        priority: {
+          title: "3 priorities in your book right now",
+          body: "What are the trends and opportunities for this past week?",
+          action: "Ask Ventus AI",
+        },
         families: [
-          { label: "Behavioral", count: 11, tone: "blue", unit: "signal types" }, { label: "Life Event", count: 9, tone: "amber", unit: "signal types" }, { label: "Financial", count: 9, tone: "emerald", unit: "signal types" }, { label: "Demographic", count: 13, tone: "violet", unit: "signal types" }, { label: "Risk", count: 14, tone: "rose", unit: "signal types" },
+          { label: "Behavioral", count: 11, tone: "blue", unit: "signal types" },
+          { label: "Life Event", count: 9, tone: "amber", unit: "signal types" },
+          { label: "Financial", count: 9, tone: "emerald", unit: "signal types" },
+          { label: "Demographic", count: 13, tone: "violet", unit: "signal types" },
+          { label: "Risk", count: 14, tone: "rose", unit: "signal types" },
         ],
-        segment: { title: "Emerging opportunities", count: "View all segments", rows: [{ label: "Primary relationship opportunity", value: "Growing", dot: "bg-emerald-500" }, { label: "Home journey signals", value: "High intent", dot: "bg-amber-500" }, { label: "Premium travel affinity", value: "Active", dot: "bg-blue-500" }] },
+        segment: {
+          title: "Emerging opportunities",
+          count: "View all segments",
+          rows: [
+            { label: "Primary relationship opportunity", value: "Growing", dot: "bg-emerald-500" },
+            { label: "Home journey signals", value: "High intent", dot: "bg-amber-500" },
+            { label: "Premium travel affinity", value: "Active", dot: "bg-blue-500" },
+          ],
+        },
         accessTitle: "Put intelligence to work",
         actions: ["Open segment", "Export audience", "Ask Ventus AI"],
       },
       {
-        id: "flows", tab: "AUTOMATED FLOWS", title: "Products activated by the right signals", description: "Teams can edit each signal, define exclusions, and set guardrails before any experience reaches a customer.",
+        id: "flows",
+        tab: "AUTOMATED FLOWS",
+        title: "Products activated by the right signals",
+        description:
+          "Teams can edit each signal, define exclusions, and set guardrails before any experience reaches a customer.",
         workspaceTitle: "Automated Flows",
         workspaceSubtitle: "Connect customer signals to governed product actions",
         newFlow: "Create flow",
         productLabel: "Product flows",
         triggerLabel: "Trigger signals",
         flows: [
-          { name: "529 College Savings", status: "Active · 3 signals", triggers: ["New child", "College-bound child", "Tutoring spend spike"] },
-          { name: "Home Equity Line", status: "Draft · 3 signals", triggers: ["Homeowner", "Renovation", "Tuition or medical liquidity need"] },
+          {
+            name: "529 College Savings",
+            status: "Active · 3 signals",
+            triggers: ["New child", "College-bound child", "Tutoring spend spike"],
+          },
+          {
+            name: "Home Equity Line",
+            status: "Draft · 3 signals",
+            triggers: ["Homeowner", "Renovation", "Tuition or medical liquidity need"],
+          },
         ],
-        outcome: { title: "Review-ready audience", body: "Qualified households move forward only after exclusions and policy checks." },
+        outcome: {
+          title: "Review-ready audience",
+          body: "Qualified households move forward only after exclusions and policy checks.",
+        },
         controlsTitle: "Controls",
         controls: ["Edit signal logic", "Define exclusions", "Set approval rules"],
-        guardrail: { label: "POLICY GUARDRAIL", title: "Increasing sports betting", body: "Visible to authorized bank teams. Excluded from every customer-facing offer, product, and message." },
+        guardrail: {
+          label: "POLICY GUARDRAIL",
+          title: "Increasing sports betting",
+          body: "Visible to authorized bank teams. Excluded from every customer-facing offer, product, and message.",
+        },
       },
       {
-        id: "coworker", tab: "AI COWORKER", title: "Intelligence delivered like a teammate", description: "Daily digests, reply threads, drafted documents, and ready-to-review relationship tasks, tailored by role.",
+        id: "coworker",
+        tab: "AI COWORKER",
+        title: "Intelligence delivered like a teammate",
+        description:
+          "Daily digests, reply threads, drafted documents, and ready-to-review relationship tasks, tailored by role.",
         sections: ["Coworker Dashboard", "User View", "Persona Settings", "Live Work Stream"],
         inboxTitle: "Ventus AI Coworker",
         inboxSubtitle: "Role-specific intelligence delivered by email",
         inbox: [
-          { role: "Bank leadership", subject: "Weekly trends and emerging opportunities", preview: "The strongest patterns, customer needs, and actions to consider this week." },
-          { role: "Relationship manager", subject: "Three conversations worth having", preview: "Client A is buying a home. Client B is preparing for retirement. Client C fits the premium travel card." },
-          { role: "Product and growth", subject: "New high-fit segments ready for review", preview: "Product opportunities with signal rationale, exclusions, and draft activation plans." },
+          {
+            role: "Bank leadership",
+            subject: "Weekly trends and emerging opportunities",
+            preview: "The strongest patterns, customer needs, and actions to consider this week.",
+          },
+          {
+            role: "Relationship manager",
+            subject: "Three conversations worth having",
+            preview:
+              "Client A is buying a home. Client B is preparing for retirement. Client C fits the premium travel card.",
+          },
+          {
+            role: "Product and growth",
+            subject: "New high-fit segments ready for review",
+            preview: "Product opportunities with signal rationale, exclusions, and draft activation plans.",
+          },
         ],
         reply: "Reply to ask a follow-up, request a draft, or route the next action.",
         send: "Send",
-        message: { from: "Ventus AI Coworker", subject: "Weekly trends and emerging opportunities", status: "Ready to review", intro: "Here are the strongest customer patterns and actions for leadership this week.", priorities: [{ title: "Relationship growth", body: "More customers are showing signs of consolidating their financial lives." }, { title: "Home journeys", body: "Housing-related signals are creating timely lending conversations." }, { title: "Travel momentum", body: "Premium travel behavior is strengthening across valuable segments." }], readyTitle: "Work already prepared", outputs: ["Leadership brief", "Segment export", "Relationship tasks"] },
+        message: {
+          from: "Ventus AI Coworker",
+          subject: "Weekly trends and emerging opportunities",
+          status: "Ready to review",
+          intro: "Here are the strongest customer patterns and actions for leadership this week.",
+          priorities: [
+            {
+              title: "Relationship growth",
+              body: "More customers are showing signs of consolidating their financial lives.",
+            },
+            { title: "Home journeys", body: "Housing-related signals are creating timely lending conversations." },
+            { title: "Travel momentum", body: "Premium travel behavior is strengthening across valuable segments." },
+          ],
+          readyTitle: "Work already prepared",
+          outputs: ["Leadership brief", "Segment export", "Relationship tasks"],
+        },
       },
     ],
   },
