@@ -256,7 +256,7 @@ export const DECKMO = {
         needsConfirmation: false,
       },
       {
-        date: "Today",
+        date: "Sep 15",
         rail: "CARD",
         icon: "vending",
         raw: "365 RETAIL MARKETS TROY MI",
