@@ -28,3 +28,4 @@
 - [x] Remove the Supporting Transactions header row from Ricky's ledger
 - [x] Trim Ricky's masthead to one row and add core bank-record facts (age, city, income, tier)
 - [x] Living-view beat 2: two-line wide card (families row + question row)
+- [x] Rebuild Immediate Value as an enriched recent-transactions phone tab spanning payment rails
