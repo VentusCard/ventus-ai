@@ -77,15 +77,15 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
       </button>
       )}
 
-      <div className="flex flex-col items-center gap-8 w-full max-w-5xl">
+      <div className="flex flex-col items-center gap-14 w-full max-w-5xl">
         {minimal ? (
-          <div className="flex flex-col items-center gap-3">
-            <img src={ventusLogo} alt="Ventus AI" className="h-12 md:h-14 w-auto" />
-            <h1 className="text-[26px] md:text-[32px] font-bold text-slate-900 tracking-tight text-center">
+          <div className="flex flex-col items-center gap-5">
+            <img src={ventusLogo} alt="Ventus AI" className="h-16 md:h-20 w-auto" />
+            <h1 className="text-[28px] md:text-[34px] font-bold text-slate-900 tracking-tight text-center">
               {title ?? "Interactive Presentation"}
             </h1>
             {subtitle && (
-              <p className="text-[13px] md:text-[14px] font-medium text-slate-500 tracking-tight text-center whitespace-nowrap">
+              <p className="text-[15px] md:text-[16px] font-medium text-slate-500 tracking-tight text-center max-w-2xl">
                 {subtitle}
               </p>
             )}
