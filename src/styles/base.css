@@ -157,6 +157,11 @@
   86%, 100% { right: calc(100% - 0.5rem); opacity: 0; }
 }
 
+@keyframes deck-ricky-cascade {
+  0% { opacity: 0; transform: translateY(10px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .deck-breathe-ring {
   animation: deck-breathe 3.8s ease-in-out infinite;
 }
@@ -177,6 +182,11 @@
   animation: deck-signal-right 3.8s ease-in-out infinite;
 }
 
+.deck-ricky-cascade {
+  opacity: 0;
+  animation: deck-ricky-cascade 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .deck-breathe-ring,
   .deck-breathe-ring-delayed,
@@ -184,6 +194,12 @@
   .deck-signal-left,
   .deck-signal-right {
     animation: none;
+  }
+
+  .deck-ricky-cascade {
+    opacity: 1;
+    animation: none;
+    transform: none;
   }
 }
 
