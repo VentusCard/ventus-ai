@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
-import { Gift, Users, Bot, Wallet, ReceiptText, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, Wallet, ReceiptText, Wifi, Battery, BatteryFull } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
 
@@ -95,9 +95,11 @@ interface Props {
   presentationImageUrl?: string;
   /** Optional relabel of the first consumer tab (Budget) for deck presentation usage. */
   firstTabLabel?: string;
+  /** When true, the status bar battery renders as a green, fully charged battery (deck presentation usage). */
+  batteryFull?: boolean;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
@@ -222,7 +224,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           ) : (
             <div className="flex items-center gap-1.5">
               <Wifi className="w-3 h-3" />
-              <Battery className="w-3.5 h-3.5" />
+              {batteryFull ? <BatteryFull className="w-3.5 h-3.5 text-emerald-500" /> : <Battery className="w-3.5 h-3.5" />}
             </div>
           )}
         </div>
