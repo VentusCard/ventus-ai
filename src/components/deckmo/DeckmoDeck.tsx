@@ -265,14 +265,13 @@ function Ricky({ step }: SceneProps) {
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
       <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
       <div className="mt-7 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] [@media(max-height:800px)]:mt-5">
-        <div className="flex shrink-0 items-center gap-4 border-b border-deck-rule bg-gradient-to-b from-background to-deck-surface/60 px-6 py-2.5 [@media(max-height:800px)]:px-5 [@media(max-height:800px)]:py-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50 text-deck-blue shadow-sm [@media(max-height:800px)]:h-8 [@media(max-height:800px)]:w-8">
-            <UserRound className="h-5 w-5 [@media(max-height:800px)]:h-4 [@media(max-height:800px)]:w-4" />
+        <div className="flex shrink-0 items-center gap-3 border-b border-deck-rule bg-gradient-to-b from-background to-deck-surface/60 px-6 py-1.5 [@media(max-height:800px)]:px-5 [@media(max-height:800px)]:py-1.5">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50 text-deck-blue shadow-sm [@media(max-height:800px)]:h-6 [@media(max-height:800px)]:w-6">
+            <UserRound className="h-4 w-4 [@media(max-height:800px)]:h-3.5 [@media(max-height:800px)]:w-3.5" />
           </div>
-          <div className="min-w-0">
-            <h3 className="font-display text-[clamp(17px,1.3vw,21px)] font-bold leading-none text-deck-navy">{d.profileTitle}</h3>
-            <p className="mt-1.5 text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:mt-1 [@media(max-height:800px)]:text-[10px]">{d.profileFacts}</p>
-          </div>
+          <h3 className="shrink-0 font-display text-[clamp(15px,1.1vw,18px)] font-bold leading-none text-deck-navy">{d.profileTitle}</h3>
+          <span className="h-4 w-px shrink-0 bg-deck-rule" />
+          <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{d.profileFacts}</p>
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
