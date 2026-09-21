@@ -92,6 +92,7 @@ export const DECKMO = {
       { family: "Risk", label: RICKY_SIGNAL_LABELS.betting, tone: "rose", source: "internal" },
     ],
     profileTitle: "Ricky's living profile",
+    profileFacts: "Age 44 · San Francisco, CA 94123 · Est. household income $850K · Preferred tier",
     profileBody: "Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.",
   },
   immediate: {
