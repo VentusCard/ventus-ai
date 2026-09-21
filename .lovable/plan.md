@@ -2,13 +2,13 @@
 
 ## Goal
 
-Rebuild the phone content on the "Immediate Value" beat of /deckmo as a user-facing **Activity** tab: a clean, enriched transaction history with one transaction per payment rail. Tapping a row expands it through levels of detail — showing how Ventus turns messy ledger strings into transaction history customers actually understand.
+Rebuild the phone content on the "Immediate Value" beat of /deckmo as a user-facing **Recent transactions** tab: a normal chronological list of the customer's latest activity. For this presentation sample, the six most recent entries happen to span six different payment rails. Tapping a row reveals progressively richer detail — showing how Ventus turns messy ledger strings into transaction history customers actually understand.
 
 ## Design
 
-**Phone tab: "Activity"** (replaces the current budget-tab content on the Immediate Value beat only; mid-term and long-term beats keep their phone tabs)
+**Phone tab: "Recent transactions"** (replaces the current budget-tab content on the Immediate Value beat only; mid-term and long-term beats keep their phone tabs)
 
-- Account header line ("Our Bank checking") then a list of six enriched transactions, one per rail, reusing the deck's established rail set and colors: CARD (blue), ACH (violet), CHECK (amber), WIRE (teal), RTP (cyan), ATM (slate).
+- Account header line ("Our Bank checking") then a date-descending list of the six latest enriched transactions. The UI presents them as ordinary recent activity, not as a rail showcase; the selected sample simply includes CARD, ACH, CHECK, WIRE, RTP, and ATM.
 - Each row at rest shows the enriched state: clean merchant name, category · lifestyle pillar, amount, and a small color-coded rail chip — the "after" state. The raw ledger string appears only inside the expanded detail as the "before".
 - Rows are tappable. Tapping expands the row through detail tiers:
   - **Tier 1 — Recognized:** clean merchant name, logo-style initial, category/pillar, rail chip.
@@ -32,7 +32,7 @@ Rebuild the phone content on the "Immediate Value" beat of /deckmo as a user-fac
 
 ## Technical
 
-- New component `src/components/deckmo/DeckmoActivityTab.tsx`: static, deterministic, deck tokens + strict light theme; local `useState` for the expanded row; no live data or Supabase.
+- New component `src/components/deckmo/DeckmoRecentTransactionsTab.tsx`: static, deterministic, deck tokens + strict light theme; local `useState` for the expanded row; no live data or Supabase.
 - Data added to `DECKMO.immediate` in `src/lib/deckmoScript.ts` as an `activity` array (rail, raw, clean, meta, pattern, explanation, confirmation label).
 - `BankdemoImmediate` in `src/components/deckmo/DeckmoBankdemoScenes.tsx` swaps `ExactPhone tab="budget"` for a phone frame rendering `DeckmoActivityTab`; PhoneScene/ExactPhone stay for the other beats.
 - Scene copy (eyebrow/title/subtitle/callouts) and beat count (4) unchanged unless spacing requires a tweak.
