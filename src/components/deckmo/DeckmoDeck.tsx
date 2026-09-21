@@ -264,8 +264,26 @@ function Ricky({ step }: SceneProps) {
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
       <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
-      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] overflow-hidden border border-slate-200 bg-background [@media(max-height:800px)]:mt-5">
-        <section className="flex min-h-0 flex-col border-r border-slate-200 bg-slate-50/50">
+      <div className="mt-7 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] [@media(max-height:800px)]:mt-5">
+        <div className="flex shrink-0 items-center border-b border-deck-rule bg-gradient-to-b from-background to-deck-surface/60 px-6 py-4 [@media(max-height:800px)]:px-5 [@media(max-height:800px)]:py-3">
+          <div className="flex shrink-0 items-center gap-4 pr-7">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50 text-deck-blue shadow-sm [@media(max-height:800px)]:h-10 [@media(max-height:800px)]:w-10">
+              <UserRound className="h-6 w-6 [@media(max-height:800px)]:h-5 [@media(max-height:800px)]:w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-deck-blue">Ricky · Living customer view</p>
+              <h3 className="mt-1 font-display text-[clamp(19px,1.55vw,25px)] font-bold leading-none text-deck-navy">{d.profileTitle}</h3>
+            </div>
+          </div>
+          <span className="h-14 w-px shrink-0 bg-deck-rule [@media(max-height:800px)]:h-11" />
+          <div className="min-w-0 flex-1 pl-7">
+            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-deck-muted">Living profile intelligence summary</p>
+            <p className="mt-1.5 max-w-4xl text-[13px] font-medium leading-relaxed text-slate-600 [@media(max-height:800px)]:mt-1 [@media(max-height:800px)]:text-xs">{d.profileBody}</p>
+          </div>
+        </div>
+
+        <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+        <section className="flex min-h-0 flex-col border-r border-deck-rule bg-deck-surface/50">
           <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-background px-5 py-3">
             <div><p className={cn("text-[10px] font-bold uppercase tracking-[0.16em]", selectedExternalEvidence ? "text-violet-600" : "text-slate-500")}>{selectedExternalEvidence ? "EXTERNAL INTELLIGENCE" : d.rawLabel}</p><p className="mt-1 text-sm font-bold text-slate-900">{selectedSignal?.label ?? "All transactions"}</p></div>
             <Button type="button" variant="outline" onClick={(event) => { event.stopPropagation(); setSelectedLabel(null); }} className={cn("h-7 shrink-0 rounded-full px-3 text-[10px] font-bold uppercase shadow-none", selectedExternalEvidence ? "border-violet-300 bg-violet-50 text-violet-700" : selectedLabel ? "border-slate-300 bg-background text-slate-600" : "border-blue-300 bg-blue-50 text-blue-700")}>{selectedExternalEvidence ? "External signal" : `${displayedTransactions.length} transactions`}</Button>
@@ -289,18 +307,11 @@ function Ricky({ step }: SceneProps) {
         </section>
 
         <section className="flex min-h-0 flex-col bg-background px-7 py-5 [@media(max-height:800px)]:px-6 [@media(max-height:800px)]:py-4">
-          <div className="flex shrink-0 items-start gap-4 border-b border-slate-200 pb-4 [@media(max-height:800px)]:pb-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-              <UserRound className="h-6 w-6" />
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className="flex shrink-0 items-center justify-between gap-4 border-b border-deck-rule pb-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">{d.signalLabel}</p>
+              <span className="rounded-sm border border-deck-rule bg-deck-surface px-2 py-1 text-[9px] font-bold uppercase text-deck-muted">5 families · 8 signals</span>
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-blue-600">Ricky · Living customer view</p>
-              <h3 className="mt-1 text-[clamp(20px,1.8vw,28px)] font-bold leading-tight text-slate-950">{d.profileTitle}</h3>
-              <p className="mt-1.5 max-w-4xl text-[13px] leading-relaxed text-slate-600">{d.profileBody}</p>
-            </div>
-          </div>
-          <div className="mt-4 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-3">
-            <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{d.signalLabel}</p>
             <div className="mt-4 grid min-h-0 grid-cols-2 content-start gap-x-5 gap-y-4 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-3">
               {Object.values(families).map((signals, index) => (
                 <Reveal key={signals[0]?.family} show={step > 0} delay={index * 90} className={index === 0 ? "col-span-2" : undefined}>
@@ -310,6 +321,7 @@ function Ricky({ step }: SceneProps) {
             </div>
           </div>
         </section>
+        </div>
       </div>
     </div>
   );
