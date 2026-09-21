@@ -113,7 +113,7 @@ export function DeckmoRecentTransactionsTab() {
                 return (
                   <div
                     key={`${row.rail}-${row.raw}`}
-                    className={cn("rounded-md py-1", isConfirm && !confirmed && "border border-amber-200 bg-amber-50")}
+                    className={cn("rounded-md py-1", isConfirm && !confirmations[index] && "border border-amber-200 bg-amber-50")}
                   >
                     <Button
                       variant="ghost"
