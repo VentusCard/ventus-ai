@@ -54,7 +54,7 @@ export const DECKMO = {
         segments: ["Don't talk to or understand your customers", "Generic banking", "Commoditization"],
       },
       ventus: {
-        label: "With Ventus",
+        label: "with",
         segments: ["Anticipate and fulfil customer needs", "Personalized banking", "Differentiation"],
       },
     },
