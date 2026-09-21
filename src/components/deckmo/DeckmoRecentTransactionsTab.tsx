@@ -76,7 +76,7 @@ export function DeckmoRecentTransactionsTab() {
   };
 
   return (
-    <div className="mx-auto h-[700px] w-[384px] [@media(max-height:900px)]:h-[620px] [@media(max-height:900px)]:w-[340px] [@media(max-height:800px)]:h-[540px] [@media(max-height:800px)]:w-[300px]">
+    <div className="mx-auto h-[700px] w-[384px] [@media(max-height:900px)]:h-[620px] [@media(max-height:900px)]:w-[340px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
       <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[16px] border-[6px] border-slate-300 bg-background shadow-2xl">
         <div className="flex shrink-0 justify-center bg-background pb-0.5 pt-1">
           <div className="h-2 w-2 rounded-full bg-slate-300" />

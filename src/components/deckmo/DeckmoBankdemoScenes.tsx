@@ -46,7 +46,7 @@ const phoneTabs: ConsumerTab[] = ["budget", "rewards", "relationship"];
 function ExactPhone({ tab }: { tab: ConsumerTab }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
   return (
-    <div className="mx-auto h-[700px] w-[384px] [@media(max-height:900px)]:h-[620px] [@media(max-height:900px)]:w-[340px] [@media(max-height:800px)]:h-[540px] [@media(max-height:800px)]:w-[300px]">
+    <div className="mx-auto h-[700px] w-[384px] [@media(max-height:900px)]:h-[620px] [@media(max-height:900px)]:w-[340px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
       <ExecDemoPhoneView
         customer={fixture.customer}
         activeTab="analytics"
