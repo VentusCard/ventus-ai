@@ -46,7 +46,7 @@ const phoneTabs: ConsumerTab[] = ["budget", "rewards", "relationship"];
 function ExactPhone({ tab }: { tab: ConsumerTab }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
   return (
-    <div className="mx-auto h-[700px] w-[384px] [@media(max-height:900px)]:h-[620px] [@media(max-height:900px)]:w-[340px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
+    <div className="mx-auto h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
       <ExecDemoPhoneView
         customer={fixture.customer}
         activeTab="analytics"
@@ -68,7 +68,7 @@ function ExactPhone({ tab }: { tab: ConsumerTab }) {
 
 function PhoneScene({ step, data, tab }: SceneProps & { data: typeof DECKMO.immediate | typeof DECKMO.midTerm | typeof DECKMO.longTerm; tab: ConsumerTab }) {
   return (
-    <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_400px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-10">
+    <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_480px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6">
       <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
       <ExactPhone tab={tab} />
       <CalloutRail items={data.popups} step={step} />
@@ -79,7 +79,7 @@ function PhoneScene({ step, data, tab }: SceneProps & { data: typeof DECKMO.imme
 export function BankdemoImmediate({ step }: SceneProps) {
   const data = DECKMO.immediate;
   return (
-    <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_400px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-10">
+    <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_480px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6">
       <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
       <DeckmoRecentTransactionsTab />
       <CalloutRail items={data.popups} step={step} />
