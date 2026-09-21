@@ -7,6 +7,7 @@ import {
   HandCoins,
   House,
   Landmark,
+  Briefcase,
   Music,
   ReceiptText,
   Trees,
