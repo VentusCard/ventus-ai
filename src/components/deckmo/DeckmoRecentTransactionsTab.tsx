@@ -73,7 +73,7 @@ export function DeckmoRecentTransactionsTab() {
               const confirmState = confirmations[index];
               const confirmed = confirmState === "yes";
               return (
-                <div key={`${tx.rail}-${tx.raw}`} className={cn("rounded-md py-1", isConfirm && !confirmed && "border border-amber-200 bg-amber-50")}>
+                <div key={`${tx.rail}-${tx.raw}`} className={cn("rounded-md py-1", isConfirm && !confirmed && "border border-amber-300 bg-amber-100")}>
                   <Button
                     variant="ghost"
                     aria-expanded={isOpen}
