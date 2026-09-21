@@ -7,6 +7,7 @@ import {
   HandCoins,
   House,
   Landmark,
+  Briefcase,
   Music,
   ReceiptText,
   Trees,
@@ -39,6 +40,7 @@ const PURCHASE_ICONS = {
   vending: CupSoda,
   streaming: Tv,
   music: Music,
+  business: Briefcase,
 } as const;
 
 export function DeckmoRecentTransactionsTab() {
