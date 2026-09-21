@@ -116,7 +116,7 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
           </div>
         )}
 
-        <div className="w-full max-w-5xl flex flex-col gap-4">
+        {!minimal && <div className="w-full max-w-5xl flex flex-col gap-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
             {[
               {
@@ -186,8 +186,8 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
               ].find((s) => s.title === expandedSection)?.text}
             </p>
           </div>
-        </div>
-
+        </div>}
+        {!minimal && (
         <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-72">
           <input
             type="password"
