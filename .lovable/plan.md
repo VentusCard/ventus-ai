@@ -23,7 +23,7 @@ All in `src/components/deckmo/DeckmoRecentTransactionsTab.tsx`:
    - Keep the post-confirmation thank-you line.
    - Remove the now-unused `Check` import only if nothing else references it (the Confirmed chip is the only user).
 
-3. **No other changes**
+4. **No other changes**
    - No data or copy changes in `deckmoScript.ts` (the `needsConfirmation` flag stays — it drives the expanded buttons and the "?" suffix).
    - Row heights, icons, expand animation, reduced-motion behavior, and all other slides untouched.
 
