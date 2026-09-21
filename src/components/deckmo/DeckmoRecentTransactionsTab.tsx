@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   Banknote,
   Battery,
@@ -51,7 +51,7 @@ const PURCHASE_ICONS = {
 
 const stop = (event: { stopPropagation: () => void }) => event.stopPropagation();
 
-export function DeckmoRecentTransactionsTab() {
+export function DeckmoRecentTransactionsTab({ step = 0 }: { step?: number }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [confirmations, setConfirmations] = useState<Record<number, "yes" | "no">>({});
   const [corrections, setCorrections] = useState<Record<number, string>>({});
@@ -59,6 +59,20 @@ export function DeckmoRecentTransactionsTab() {
   const [draft, setDraft] = useState("");
   const data = DECKMO.immediate;
   const tx = selected === null ? null : data.activity[selected];
+
+  const prevStep = useRef<number | null>(null);
+  useEffect(() => {
+    if (prevStep.current === step) return;
+    prevStep.current = step;
+    if (step >= 3) {
+      const jfk = data.activity.findIndex((row) => row.needsConfirmation === true);
+      if (jfk >= 0) setSelected(jfk);
+    } else {
+      setSelected(null);
+      setCorrectionOpen(null);
+      setDraft("");
+    }
+  }, [step, data.activity]);
 
   const closeDetail = () => {
     setSelected(null);
