@@ -85,7 +85,7 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
               {title ?? "Interactive Presentation"}
             </h1>
             {subtitle && (
-              <p className="text-[15px] md:text-[16px] font-medium text-slate-500 tracking-tight text-center max-w-2xl">
+              <p className="text-[15px] md:text-[16px] font-medium text-slate-500 tracking-tight text-center whitespace-nowrap">
                 {subtitle}
               </p>
             )}
