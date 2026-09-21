@@ -187,7 +187,6 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
             </p>
           </div>
         </div>}
-        {!minimal && (
         <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-72">
           <input
             type="password"
