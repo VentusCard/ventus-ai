@@ -161,7 +161,7 @@ export function DeckmoRecentTransactionsTab() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={(event) => { stop(event); setSelected(null); }}
+                      onClick={(event) => { stop(event); closeDetail(); }}
                       className="h-7 gap-0.5 px-1.5 text-[10px] font-semibold text-slate-600 hover:bg-slate-50"
                     >
                       <ChevronLeft className="h-4 w-4" /> Back
