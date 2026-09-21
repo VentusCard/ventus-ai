@@ -18,6 +18,7 @@ import {
   Sparkles,
   Trees,
   Tv,
+  Undo2,
   Wifi,
   Zap,
 } from "lucide-react";
@@ -274,13 +275,37 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
 
                     <div className="mt-4">
                       {corrections[selected] || confirmState ? (
-                        <p className="text-[9px] font-semibold text-emerald-700">
-                          {corrections[selected]
-                            ? "Thanks — we'll review your suggestion."
-                            : confirmed
-                              ? "Thanks — this transaction is now labeled."
-                              : "Thanks — we'll take another look."}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[9px] font-semibold text-emerald-700">
+                            {corrections[selected]
+                              ? "Thanks — we'll review your suggestion."
+                              : confirmed
+                                ? "Thanks — this transaction is now labeled."
+                                : "Thanks — we'll take another look."}
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(event) => {
+                              stop(event);
+                              setConfirmations((c) => {
+                                const next = { ...c };
+                                delete next[selected];
+                                return next;
+                              });
+                              setCorrections((c) => {
+                                const next = { ...c };
+                                delete next[selected];
+                                return next;
+                              });
+                              setCorrectionOpen(null);
+                              setDraft("");
+                            }}
+                            className="ml-auto h-6 gap-1 border-slate-200 bg-background px-2 py-0.5 text-[9px] text-slate-600"
+                          >
+                            <Undo2 className="h-3 w-3" /> Undo
+                          </Button>
+                        </div>
                       ) : (
                         <div className="flex gap-1.5">
                           <Button
