@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   Banknote,
   Battery,
@@ -52,8 +52,28 @@ const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
 export function DeckmoRecentTransactionsTab() {
   const [selected, setSelected] = useState<number | null>(null);
   const [confirmations, setConfirmations] = useState<Record<number, "yes" | "no">>({});
+  const [corrections, setCorrections] = useState<Record<number, string>>({});
+  const [correctionOpen, setCorrectionOpen] = useState<number | null>(null);
+  const [draft, setDraft] = useState("");
   const data = DECKMO.immediate;
   const tx = selected === null ? null : data.activity[selected];
+
+  const closeDetail = () => {
+    setSelected(null);
+    setCorrectionOpen(null);
+    setDraft("");
+  };
+
+  const submitCorrection = (event: FormEvent, index: number, needsConfirm: boolean) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const suggestion = draft.trim().slice(0, 80);
+    if (!suggestion) return;
+    setCorrections((c) => ({ ...c, [index]: suggestion }));
+    if (needsConfirm) setConfirmations((c) => ({ ...c, [index]: "no" }));
+    setCorrectionOpen(null);
+    setDraft("");
+  };
 
   return (
     <div className="mx-auto h-[620px] w-[350px]">
@@ -89,10 +109,11 @@ export function DeckmoRecentTransactionsTab() {
                 const PurchaseIcon = PURCHASE_ICONS[row.icon];
                 const isConfirm = row.needsConfirmation === true;
                 const confirmed = confirmations[index] === "yes";
+                const correction = corrections[index];
                 return (
                   <div
                     key={`${row.rail}-${row.raw}`}
-                    className={cn("rounded-md py-1", isConfirm && !confirmed && "border border-amber-200 bg-amber-50")}
+                    className={cn("rounded-md py-1", isConfirm && !confirmations[index] && "border border-amber-200 bg-amber-50")}
                   >
                     <Button
                       variant="ghost"
@@ -105,8 +126,11 @@ export function DeckmoRecentTransactionsTab() {
                       <span className="flex min-w-0 flex-1 items-center gap-1.5">
                         <span className="shrink-0 text-[9px] font-medium text-slate-400">{row.date}</span>
                         <span className="truncate text-[12px] font-bold text-slate-900">
-                          {isConfirm && !confirmed ? `${row.clean}?` : row.clean}
+                          {correction ? correction : isConfirm && !confirmed ? `${row.clean}?` : row.clean}
                         </span>
+                        {correction && (
+                          <span className="shrink-0 rounded border border-amber-200 bg-amber-50 px-1 py-px text-[7px] font-bold text-amber-800">Review</span>
+                        )}
                         <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{row.amount}</span>
                         <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{row.rail}</span>
                       </span>
@@ -137,7 +161,7 @@ export function DeckmoRecentTransactionsTab() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={(event) => { stop(event); setSelected(null); }}
+                      onClick={(event) => { stop(event); closeDetail(); }}
                       className="h-7 gap-0.5 px-1.5 text-[10px] font-semibold text-slate-600 hover:bg-slate-50"
                     >
                       <ChevronLeft className="h-4 w-4" /> Back
@@ -221,34 +245,60 @@ export function DeckmoRecentTransactionsTab() {
                     </div>
 
                     <div className="mt-4">
-                      {isConfirm ? (
-                        confirmState ? (
-                          <p className="text-[9px] font-semibold text-emerald-700">
-                            {confirmed ? "Thanks — this transaction is now labeled." : "Thanks — we'll take another look."}
-                          </p>
-                        ) : (
-                          <div className="flex gap-1.5">
-                            <Button
-                              size="sm"
-                              onClick={(event) => { stop(event); setConfirmations((c) => ({ ...c, [selected]: "yes" })); }}
-                              className="h-7 px-3 py-1 text-[9px]"
-                            >
-                              Yes, that's right
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={(event) => { stop(event); setConfirmations((c) => ({ ...c, [selected]: "no" })); }}
-                              className="h-7 border-slate-200 bg-background px-3 py-1 text-[9px] text-slate-600"
-                            >
-                              No, something else
-                            </Button>
-                          </div>
-                        )
+                      {corrections[selected] || (isConfirm && confirmState) ? (
+                        <p className="text-[9px] font-semibold text-emerald-700">
+                          {corrections[selected]
+                            ? "Thanks — we'll review your suggestion."
+                            : confirmed
+                              ? "Thanks — this transaction is now labeled."
+                              : "Thanks — we'll take another look."}
+                        </p>
                       ) : (
-                        <Button size="sm" onClick={stop} className="h-7 px-3 py-1 text-[9px]">Yes, that's mine</Button>
+                        <div className="flex gap-1.5">
+                          <Button
+                            size="sm"
+                            onClick={(event) => {
+                              stop(event);
+                              if (isConfirm) setConfirmations((c) => ({ ...c, [selected]: "yes" }));
+                            }}
+                            className="h-7 px-3 py-1 text-[9px]"
+                          >
+                            {isConfirm ? "Yes, that's right" : "Yes, that's mine"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(event) => { stop(event); setCorrectionOpen(selected); }}
+                            className="h-7 border-slate-200 bg-background px-3 py-1 text-[9px] text-slate-600"
+                          >
+                            No, that's not right
+                          </Button>
+                        </div>
                       )}
                     </div>
+
+                    {correctionOpen === selected && !corrections[selected] && (
+                      <form
+                        onSubmit={(event) => submitCorrection(event, selected, isConfirm)}
+                        onClick={stop}
+                        className="mt-3 rounded-lg border border-slate-200 bg-slate-50/70 p-3"
+                      >
+                        <label className="text-[8px] font-bold uppercase tracking-wide text-slate-500" htmlFor="correction-input">
+                          What should this be?
+                        </label>
+                        <input
+                          id="correction-input"
+                          value={draft}
+                          onChange={(event) => setDraft(event.target.value)}
+                          maxLength={80}
+                          placeholder="e.g. JFK Vending Machine"
+                          className="mt-1.5 w-full rounded-md border border-slate-200 bg-background px-2 py-1.5 text-[10px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                        <Button type="submit" size="sm" disabled={!draft.trim()} className="mt-2 h-7 w-full px-3 py-1 text-[9px]">
+                          Send suggestion
+                        </Button>
+                      </form>
+                    )}
                   </div>
                 </div>
               );
