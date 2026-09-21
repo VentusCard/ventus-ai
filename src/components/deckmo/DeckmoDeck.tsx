@@ -300,7 +300,7 @@ function Ricky({ step }: SceneProps) {
               <div className="flex shrink-0 items-center justify-between gap-4 border-b border-deck-rule pb-3">
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">{d.signalLabel}</p>
               </div>
-              <div className="mt-4 grid min-h-0 flex-1 grid-cols-1 auto-rows-fr gap-y-3 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-2">
+              <div className="mt-4 flex min-h-0 flex-1 flex-col justify-between gap-y-2 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-1.5">
                 {Object.values(families).map((signals, index) => (
                   <Reveal key={signals[0]?.family} show delay={index * 90}>
                     <SignalFamilyCard signals={signals} selectedLabel={selectedLabel} onSelect={selectSignal} />
