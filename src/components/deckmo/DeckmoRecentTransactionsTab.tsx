@@ -108,9 +108,23 @@ export function DeckmoRecentTransactionsTab() {
                       <div className="ml-12 mr-1 border-l-2 border-blue-200 pl-3 pb-2 pt-1">
                         <p className="text-[8px] font-bold uppercase text-slate-400">Original statement</p>
                         <p className="mt-0.5 font-mono text-[9px] text-slate-500 line-through decoration-slate-300">{tx.raw}</p>
+                        {isConfirm && <p className="mt-1 text-[9px] text-slate-500">{tx.meta}</p>}
                         <p className="mt-2 text-[9px] font-semibold text-slate-700">{tx.pattern}</p>
                         <p className="mt-1 text-[9px] leading-relaxed text-slate-500">{tx.explanation}</p>
-                        <Button size="sm" onClick={(event) => event.stopPropagation()} className="mt-2 h-7 px-3 py-1 text-[9px]">Yes, that's mine</Button>
+                        {isConfirm ? (
+                          confirmState ? (
+                            <p className="mt-2 text-[9px] font-semibold text-emerald-700">
+                              {confirmed ? "Thanks — this transaction is now labeled." : "Thanks — we'll take another look."}
+                            </p>
+                          ) : (
+                            <div className="mt-2 flex gap-1.5">
+                              <Button size="sm" onClick={(event) => { event.stopPropagation(); setConfirmations((c) => ({ ...c, [index]: "yes" })); }} className="h-7 px-3 py-1 text-[9px]">Yes, that's right</Button>
+                              <Button size="sm" variant="outline" onClick={(event) => { event.stopPropagation(); setConfirmations((c) => ({ ...c, [index]: "no" })); }} className="h-7 border-slate-200 bg-background px-3 py-1 text-[9px] text-slate-600">No, something else</Button>
+                            </div>
+                          )
+                        ) : (
+                          <Button size="sm" onClick={(event) => event.stopPropagation()} className="mt-2 h-7 px-3 py-1 text-[9px]">Yes, that's mine</Button>
+                        )}
                       </div>
                     </div>
                   </div>
