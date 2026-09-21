@@ -76,7 +76,7 @@ export const DECKMO = {
     result: { header: "ONE LIVING CUSTOMER VIEW", body: "Who they are, What they do\nwhat do they need next?" },
   },
   ricky: {
-    eyebrow: "CUSTOMER INTELLIGENCE IN ACTION",
+    eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
     title: "Meet Ricky",
     subtitle: "A handful of ledger entries become a living view of the person behind the account.",
     rawLabel: "SUPPORTING TRANSACTIONS",
