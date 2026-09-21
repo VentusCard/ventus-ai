@@ -265,20 +265,13 @@ function Ricky({ step }: SceneProps) {
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
       <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
       <div className="mt-7 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] [@media(max-height:800px)]:mt-5">
-        <div className="flex shrink-0 items-center border-b border-deck-rule bg-gradient-to-b from-background to-deck-surface/60 px-6 py-4 [@media(max-height:800px)]:px-5 [@media(max-height:800px)]:py-3">
-          <div className="flex shrink-0 items-center gap-4 pr-7">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50 text-deck-blue shadow-sm [@media(max-height:800px)]:h-10 [@media(max-height:800px)]:w-10">
-              <UserRound className="h-6 w-6 [@media(max-height:800px)]:h-5 [@media(max-height:800px)]:w-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-deck-blue">Ricky · Living customer view</p>
-              <h3 className="mt-1 font-display text-[clamp(19px,1.55vw,25px)] font-bold leading-none text-deck-navy">{d.profileTitle}</h3>
-            </div>
+        <div className="flex shrink-0 items-center gap-4 border-b border-deck-rule bg-gradient-to-b from-background to-deck-surface/60 px-6 py-2.5 [@media(max-height:800px)]:px-5 [@media(max-height:800px)]:py-2">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50 text-deck-blue shadow-sm [@media(max-height:800px)]:h-8 [@media(max-height:800px)]:w-8">
+            <UserRound className="h-5 w-5 [@media(max-height:800px)]:h-4 [@media(max-height:800px)]:w-4" />
           </div>
-          <span className="h-14 w-px shrink-0 bg-deck-rule [@media(max-height:800px)]:h-11" />
-          <div className="min-w-0 flex-1 pl-7">
-            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-deck-muted">Living profile intelligence summary</p>
-            <p className="mt-1.5 max-w-4xl text-[13px] font-medium leading-relaxed text-slate-600 [@media(max-height:800px)]:mt-1 [@media(max-height:800px)]:text-xs">{d.profileBody}</p>
+          <div className="min-w-0">
+            <h3 className="font-display text-[clamp(17px,1.3vw,21px)] font-bold leading-none text-deck-navy">{d.profileTitle}</h3>
+            <p className="mt-1.5 text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:mt-1 [@media(max-height:800px)]:text-[10px]">{d.profileFacts}</p>
           </div>
         </div>
 
