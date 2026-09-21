@@ -25,7 +25,25 @@ const EMPTY: PersonalizationEntry = {
 
 let store: Record<string, PersonalizationEntry> = {};
 const listeners = new Set<() => void>();
-const inFlight = new Set<string>();
+/** Customer id → the needs currently being generated. */
+const inFlight = new Map<string, Set<PersonalizationNeed>>();
+
+/** True when what we already hold covers everything the requested surface renders. */
+function satisfies(entry: Partial<PersonalizationGenerationResult> | null | undefined, need: PersonalizationNeed) {
+  if (!entry) return false;
+  const hasOffers = Boolean(entry.offers?.length);
+  const hasCards = Boolean(entry.productCards?.length);
+  if (need === "offers") return hasOffers;
+  if (need === "cards") return hasCards;
+  return hasOffers && hasCards;
+}
+
+function inFlightCovers(customerId: string, need: PersonalizationNeed) {
+  const active = inFlight.get(customerId);
+  if (!active) return false;
+  if (active.has("all") || active.has(need)) return true;
+  return need === "all" && active.has("offers") && active.has("cards");
+}
 let hasPrewarmed = false;
 
 const CACHE_PREFIX = "ventus.personalization.v1";
@@ -81,9 +99,9 @@ function set(id: string, patch: Partial<PersonalizationEntry>) {
  * Custom bank → session cache, else live generation for what `need` renders.
  */
 export function ensurePersonalization(customerId: string, need: PersonalizationNeed = "all") {
-  if (inFlight.has(customerId)) return;
+  if (inFlightCovers(customerId, need)) return;
   const existing = store[customerId];
-  if (existing && (existing.status === "ready" || existing.status === "running")) return;
+  if (satisfies(existing, need)) return;
   const customer = EXAMPLE_CUSTOMERS.find((c) => c.id === customerId);
   if (!customer) return;
 
@@ -92,20 +110,28 @@ export function ensurePersonalization(customerId: string, need: PersonalizationN
 
   if (!isCustomBank) {
     const snap = getPersonalizationSnapshot(customerId);
-    if (snap && (snap.offers?.length || snap.productCards?.length)) {
+    if (satisfies(snap, need)) {
       set(customerId, { ...snap, lifeEvents, status: "ready" });
       return;
     }
   }
 
   const cached = readCache(customerId);
-  if (cached && (cached.offers?.length || cached.productCards?.length)) {
+  if (satisfies(cached, need)) {
     set(customerId, { ...cached, lifeEvents, status: "ready" });
     return;
   }
+  // A partial cached result still seeds the store while the missing half loads.
+  if (cached && (cached.offers?.length || cached.productCards?.length)) {
+    set(customerId, { ...cached, lifeEvents, status: "running" });
+  }
 
-  inFlight.add(customerId);
-  set(customerId, { status: "running", offers: null, productCards: null, lifeEvents: [] });
+  const active = inFlight.get(customerId) ?? new Set<PersonalizationNeed>();
+  active.add(need);
+  inFlight.set(customerId, active);
+  if (!existing || existing.status === "idle" || existing.status === "failed") {
+    set(customerId, { status: "running", lifeEvents: [] });
+  }
 
   generatePersonalizedExperience(
     customer,
@@ -122,15 +148,24 @@ export function ensurePersonalization(customerId: string, need: PersonalizationN
   )
     .then((res) => {
       const ok = Boolean(res.offers?.length || res.productCards?.length);
-      set(customerId, { ...res, status: ok ? "ready" : "failed" });
-      if (ok) writeCache(customerId, res);
+      // Keep whatever the other half already produced instead of overwriting it with null.
+      const prev = store[customerId];
+      const merged: PersonalizationGenerationResult = {
+        offers: res.offers?.length ? res.offers : prev?.offers ?? null,
+        productCards: res.productCards?.length ? res.productCards : prev?.productCards ?? null,
+        lifeEvents: res.lifeEvents?.length ? res.lifeEvents : prev?.lifeEvents ?? [],
+      };
+      set(customerId, { ...merged, status: ok ? "ready" : "failed" });
+      if (ok) writeCache(customerId, merged);
     })
     .catch((err) => {
       console.error("[PERSONALIZATION] generation failed", err);
       set(customerId, { status: "failed" });
     })
     .finally(() => {
-      inFlight.delete(customerId);
+      const running = inFlight.get(customerId);
+      running?.delete(need);
+      if (!running || running.size === 0) inFlight.delete(customerId);
     });
 }
 
