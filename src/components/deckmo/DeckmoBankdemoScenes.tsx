@@ -61,6 +61,7 @@ function ExactPhone({ tab }: { tab: ConsumerTab }) {
         presentationImageUrl={tennisAsset.url}
         frame="compact"
         firstTabLabel="Activity"
+        batteryFull
       />
     </div>
   );
