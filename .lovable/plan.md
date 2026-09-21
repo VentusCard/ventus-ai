@@ -12,13 +12,15 @@ The Ricky slide currently has three stacked layers of header text, and they repe
 Collapse the two-row masthead (lines ~268–283) into a single slim row:
 
 ```text
-[icon] Ricky's living profile   |   Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.
+[icon] Ricky's living profile                          Palo Alto, CA · Small business owner · Premium cardholder · Home buyer ($1.5M+)
+       Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.
 ```
 
 - Keep the small person icon (slightly smaller, e.g. h-9 w-9).
 - Keep `d.profileTitle` as the single display title — drop the "Ricky · Living customer view" eyebrow.
-- Keep `d.profileBody` to the right of a thin divider — drop the "Living profile intelligence summary" label.
-- Reduce vertical padding (py-4/py-3 → py-2.5) so the freed height goes to the ledger and pills.
+- Drop the "Living profile intelligence summary" label; keep `d.profileBody` as the one summary line.
+- Add a basic-profile facts line under the title (name + location, occupation, card relationship, home purchase), sourced from existing fixture data: Palo Alto CA transactions, "Small business owner" signal, Premium Card rails, "$1.5M+" home purchase. Add it as a new `profileFacts` field in `src/lib/deckmoScript.ts` so the copy lives with the rest of the script.
+- Thin divider stays between the identity block and the summary block; reduce vertical padding (py-4/py-3 → py-2.5) so the freed height goes to the ledger and pills.
 - Everything else unchanged: page header, transaction ledger, pill grid, external evidence card, filtering behavior.
 
 ## Verification
