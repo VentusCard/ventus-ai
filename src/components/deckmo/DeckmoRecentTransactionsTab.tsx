@@ -245,34 +245,60 @@ export function DeckmoRecentTransactionsTab() {
                     </div>
 
                     <div className="mt-4">
-                      {isConfirm ? (
-                        confirmState ? (
-                          <p className="text-[9px] font-semibold text-emerald-700">
-                            {confirmed ? "Thanks — this transaction is now labeled." : "Thanks — we'll take another look."}
-                          </p>
-                        ) : (
-                          <div className="flex gap-1.5">
-                            <Button
-                              size="sm"
-                              onClick={(event) => { stop(event); setConfirmations((c) => ({ ...c, [selected]: "yes" })); }}
-                              className="h-7 px-3 py-1 text-[9px]"
-                            >
-                              Yes, that's right
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={(event) => { stop(event); setConfirmations((c) => ({ ...c, [selected]: "no" })); }}
-                              className="h-7 border-slate-200 bg-background px-3 py-1 text-[9px] text-slate-600"
-                            >
-                              No, something else
-                            </Button>
-                          </div>
-                        )
+                      {corrections[selected] || (isConfirm && confirmState) ? (
+                        <p className="text-[9px] font-semibold text-emerald-700">
+                          {corrections[selected]
+                            ? "Thanks — we'll review your suggestion."
+                            : confirmed
+                              ? "Thanks — this transaction is now labeled."
+                              : "Thanks — we'll take another look."}
+                        </p>
                       ) : (
-                        <Button size="sm" onClick={stop} className="h-7 px-3 py-1 text-[9px]">Yes, that's mine</Button>
+                        <div className="flex gap-1.5">
+                          <Button
+                            size="sm"
+                            onClick={(event) => {
+                              stop(event);
+                              if (isConfirm) setConfirmations((c) => ({ ...c, [selected]: "yes" }));
+                            }}
+                            className="h-7 px-3 py-1 text-[9px]"
+                          >
+                            {isConfirm ? "Yes, that's right" : "Yes, that's mine"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(event) => { stop(event); setCorrectionOpen(selected); }}
+                            className="h-7 border-slate-200 bg-background px-3 py-1 text-[9px] text-slate-600"
+                          >
+                            No, that's not right
+                          </Button>
+                        </div>
                       )}
                     </div>
+
+                    {correctionOpen === selected && !corrections[selected] && (
+                      <form
+                        onSubmit={(event) => submitCorrection(event, selected, isConfirm)}
+                        onClick={stop}
+                        className="mt-3 rounded-lg border border-slate-200 bg-slate-50/70 p-3"
+                      >
+                        <label className="text-[8px] font-bold uppercase tracking-wide text-slate-500" htmlFor="correction-input">
+                          What should this be?
+                        </label>
+                        <input
+                          id="correction-input"
+                          value={draft}
+                          onChange={(event) => setDraft(event.target.value)}
+                          maxLength={80}
+                          placeholder="e.g. JFK Vending Machine"
+                          className="mt-1.5 w-full rounded-md border border-slate-200 bg-background px-2 py-1.5 text-[10px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                        <Button type="submit" size="sm" disabled={!draft.trim()} className="mt-2 h-7 w-full px-3 py-1 text-[9px]">
+                          Send suggestion
+                        </Button>
+                      </form>
+                    )}
                   </div>
                 </div>
               );
