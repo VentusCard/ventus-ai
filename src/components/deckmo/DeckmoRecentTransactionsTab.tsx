@@ -67,12 +67,12 @@ export function DeckmoRecentTransactionsTab() {
               const tone = RAIL_TONES[tx.rail];
               const PurchaseIcon = PURCHASE_ICONS[tx.icon];
               return (
-                <div key={`${tx.rail}-${tx.raw}`} className="py-1.5">
+                <div key={`${tx.rail}-${tx.raw}`} className="py-1">
                   <Button
                     variant="ghost"
                     aria-expanded={isOpen}
                     onClick={(event) => { event.stopPropagation(); setExpanded(isOpen ? null : index); }}
-                    className="h-auto w-full rounded-md px-1.5 py-2 text-left hover:bg-slate-50"
+                    className="h-auto w-full rounded-md px-1.5 py-1.5 text-left hover:bg-slate-50"
                   >
                     <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-md", tone.icon)}>
                       <PurchaseIcon className="h-4 w-4" />
