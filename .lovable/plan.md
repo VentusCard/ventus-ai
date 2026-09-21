@@ -26,6 +26,6 @@ The header shows exactly two lines:
 - `/demo` gate and all other `SimplePasswordGate` usages stay exactly as they are.
 
 ## Validation
-- Playwright: load /deckmo signed out, confirm the gate shows only "Interactive Presentation", the password input, and "Enter Demo"; enter the password and confirm the deck opens.
+- Playwright: load /deckmo signed out, confirm the gate shows only the two-line header, the password input, and "Enter Demo"; enter the password and confirm the deck opens.
 - Confirm /demo's gate still shows its full layout (logo, tagline, bullets, accordions).
 - Check build log and typecheck are clean.
