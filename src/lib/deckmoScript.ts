@@ -186,6 +186,7 @@ export const DECKMO = {
       {
         date: "Today",
         rail: "CARD",
+        icon: "sports",
         raw: "TST*COURTSIDE NYC",
         clean: "Courtside Tennis Club",
         meta: "Fitness · Sports & Active Living",
@@ -196,6 +197,7 @@ export const DECKMO = {
       {
         date: "Yesterday",
         rail: "ACH",
+        icon: "utilities",
         raw: "ACH DEBIT CITYUTIL 8841",
         clean: "City Utilities",
         meta: "Utilities · Home & Living",
@@ -206,6 +208,7 @@ export const DECKMO = {
       {
         date: "Sep 19",
         rail: "RTP",
+        icon: "shared-expense",
         raw: "ZELLE TO M. CHEN",
         clean: "Mia Chen",
         meta: "Shared expense · Money Movement",
@@ -216,6 +219,7 @@ export const DECKMO = {
       {
         date: "Sep 18",
         rail: "ATM",
+        icon: "cash",
         raw: "ATM WDL 500 FELL ST",
         clean: "Cash withdrawal — Fell St",
         meta: "Cash · Money Movement",
@@ -226,6 +230,7 @@ export const DECKMO = {
       {
         date: "Sep 17",
         rail: "CHECK",
+        icon: "landscaping",
         raw: "CHECK #1042",
         clean: "Greenfield Landscaping",
         meta: "Home services · Home & Living",
@@ -236,6 +241,7 @@ export const DECKMO = {
       {
         date: "Sep 16",
         rail: "WIRE",
+        icon: "home",
         raw: "WIRE OUT REF 88213",
         clean: "Escrow — Home Closing",
         meta: "Real estate · Financial Planning",

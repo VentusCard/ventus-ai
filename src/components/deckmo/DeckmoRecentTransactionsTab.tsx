@@ -1,5 +1,17 @@
 import { useState } from "react";
-import { Battery, ChevronDown, Landmark, ReceiptText, Wifi } from "lucide-react";
+import {
+  Banknote,
+  Battery,
+  ChevronDown,
+  Dumbbell,
+  HandCoins,
+  House,
+  Landmark,
+  ReceiptText,
+  Trees,
+  Wifi,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DECKMO } from "@/lib/deckmoScript";
@@ -14,6 +26,15 @@ const RAIL_TONES: Record<Rail, { chip: string; icon: string }> = {
   RTP: { chip: "border-cyan-200 bg-cyan-50 text-cyan-700", icon: "bg-cyan-100 text-cyan-700" },
   ATM: { chip: "border-slate-200 bg-slate-100 text-slate-700", icon: "bg-slate-100 text-slate-700" },
 };
+
+const PURCHASE_ICONS = {
+  sports: Dumbbell,
+  utilities: Zap,
+  "shared-expense": HandCoins,
+  cash: Banknote,
+  landscaping: Trees,
+  home: House,
+} as const;
 
 export function DeckmoRecentTransactionsTab() {
   const [expanded, setExpanded] = useState<number | null>(0);
@@ -44,6 +65,7 @@ export function DeckmoRecentTransactionsTab() {
             {data.activity.map((tx, index) => {
               const isOpen = expanded === index;
               const tone = RAIL_TONES[tx.rail];
+              const PurchaseIcon = PURCHASE_ICONS[tx.icon];
               return (
                 <div key={`${tx.rail}-${tx.raw}`} className="py-1.5">
                   <Button
@@ -53,7 +75,7 @@ export function DeckmoRecentTransactionsTab() {
                     className="h-auto w-full rounded-md px-1.5 py-2 text-left hover:bg-slate-50"
                   >
                     <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-md", tone.icon)}>
-                      {tx.rail === "CARD" ? <ReceiptText className="h-4 w-4" /> : <Landmark className="h-4 w-4" />}
+                      <PurchaseIcon className="h-4 w-4" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex items-start justify-between gap-2">
