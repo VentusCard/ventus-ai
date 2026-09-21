@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { DECKMO, DECKMO_STEPS, type DeckmoBeatId } from "@/lib/deckmoScript";
 import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTransactions";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
+import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoSegmentCampaign } from "./DeckmoBankdemoScenes";
 
 const TONES = {
@@ -352,7 +353,7 @@ useEffect(()=>{const root=scroller.current;if(!root)return;const observer=new In
 const handleCanvasClick=(e:React.MouseEvent)=>{if(presenterOpen)return;const target=e.target as HTMLElement;if(target.closest("button,a,input,select,textarea,[role='dialog'],[role='tab'],[contenteditable='true']"))return;jump(globalStep+1)};
 return <div className="demo-page relative h-screen w-screen overflow-hidden bg-background font-deck text-foreground">
   <header className="absolute inset-x-0 top-0 z-40 flex h-20 items-center justify-between border-b border-deck-rule bg-background px-12">
-    <div className="flex min-w-0 items-center gap-4"><img src={ventusLogo} alt="Ventus AI" className="h-7 w-auto shrink-0 object-contain"/><span className="h-6 w-px shrink-0 bg-deck-rule"/><span className="truncate font-deck-serif text-2xl text-deck-navy" aria-live="polite">{activeBeat.nav}</span></div>
+    <div className="flex min-w-0 items-center gap-4"><img src={ventusLogoBlue} alt="Ventus AI" className="h-7 w-auto shrink-0 object-contain"/><span className="h-6 w-px shrink-0 bg-deck-rule"/><span className="truncate font-deck-serif text-2xl text-deck-navy" aria-live="polite">{activeBeat.nav}</span></div>
       <div className="flex shrink-0 items-center gap-6 text-xs font-semibold uppercase tracking-wide text-deck-muted"><span>INTERACTIVE PRESENTATION</span></div>
   </header>
   <div ref={scroller} onClick={handleCanvasClick} className="h-full snap-y snap-mandatory overflow-y-auto scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const active=section===current.section;const step=active?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step} active={active}/></div></section>})}</div>
