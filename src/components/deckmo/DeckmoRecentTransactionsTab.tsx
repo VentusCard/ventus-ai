@@ -263,7 +263,7 @@ export function DeckmoRecentTransactionsTab() {
                             }}
                             className="h-7 px-3 py-1 text-[9px]"
                           >
-                            {isConfirm ? "Yes, that's right" : "Yes, that's mine"}
+                            {isConfirm ? "Yes, that's right" : "Looks Good"}
                           </Button>
                           <Button
                             size="sm"
