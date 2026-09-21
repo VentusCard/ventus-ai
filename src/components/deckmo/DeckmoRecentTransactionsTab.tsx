@@ -90,9 +90,10 @@ export function DeckmoRecentTransactionsTab() {
                         <span className={cn("truncate text-[12px] font-bold text-slate-900", isConfirm && "text-[11.5px]")}>
                           {isConfirm && !confirmed ? `${tx.clean}?` : tx.clean}
                         </span>
+                        {!isConfirm && <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>}
                         <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
                       </span>
-                      {isConfirm ? (
+                      {isConfirm && (
                         <span className="mt-0.5 flex items-center gap-1.5">
                           {confirmed ? (
                             <span className="flex shrink-0 items-center gap-0.5 rounded border border-emerald-200 bg-emerald-50 px-1 py-px text-[7px] font-bold text-emerald-700"><Check className="h-2 w-2" />Confirmed</span>
@@ -101,8 +102,6 @@ export function DeckmoRecentTransactionsTab() {
                           )}
                           <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
                         </span>
-                      ) : (
-                        <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
                       )}
                       </span>
                     </span>
