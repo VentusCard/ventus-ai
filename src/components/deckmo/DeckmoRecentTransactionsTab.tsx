@@ -49,7 +49,7 @@ export function DeckmoRecentTransactionsTab() {
                   <Button
                     variant="ghost"
                     aria-expanded={isOpen}
-                    onClick={() => setExpanded(isOpen ? null : index)}
+                    onClick={(event) => { event.stopPropagation(); setExpanded(isOpen ? null : index); }}
                     className="h-auto w-full rounded-md px-1.5 py-2 text-left hover:bg-slate-50"
                   >
                     <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-md", tone.icon)}>
@@ -75,7 +75,7 @@ export function DeckmoRecentTransactionsTab() {
                         <p className="mt-0.5 font-mono text-[9px] text-slate-500 line-through decoration-slate-300">{tx.raw}</p>
                         <p className="mt-2 text-[9px] font-semibold text-slate-700">{tx.pattern}</p>
                         <p className="mt-1 text-[9px] leading-relaxed text-slate-500">{tx.explanation}</p>
-                        <Button size="sm" className="mt-2 h-7 px-3 py-1 text-[9px]">Yes, that's mine</Button>
+                        <Button size="sm" onClick={(event) => event.stopPropagation()} className="mt-2 h-7 px-3 py-1 text-[9px]">Yes, that's mine</Button>
                       </div>
                     </div>
                   </div>
