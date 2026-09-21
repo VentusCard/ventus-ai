@@ -1,7 +1,11 @@
 # Minimal password gate for /deckmo
 
 ## Goal
-Strip the /deckmo password screen down to just an "Interactive Presentation" title and the password field. Remove the Ventus logo, tagline, three bullet points, and the Problem / Team / Vision accordion cards.
+Strip the /deckmo password screen down to a short two-line header and the password field. Remove the Ventus logo, old tagline, three bullet points, and the Problem / Team / Vision accordion cards.
+
+The header shows exactly two lines:
+1. "Interactive Presentation"
+2. "Hyper-personalized banking orchestration to identify and capture high value financial moments"
 
 ## Current state (confirmed)
 - `src/pages/DemoPage.tsx` wraps the deck in `SimplePasswordGate`, passing `tagline` ("A scripted customer intelligence story for bank leaders") and `gateBullets` from `src/lib/deckmoScript.ts` (lines 30-31), with `showSettings={false}` and `allowDemoBypass`.
