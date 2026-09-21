@@ -299,7 +299,7 @@ function Ricky({ step }: SceneProps) {
           <div className="flex min-h-0 flex-1 flex-col">
             {step > 0 && <>
               <div className="flex shrink-0 items-center justify-between gap-4 border-b border-deck-rule pb-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">{d.signalLabel}</p>
+                <p className="deck-ricky-cascade text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">{d.signalLabel}</p>
               </div>
               <div className="mt-4 flex min-h-0 flex-1 flex-col justify-between gap-y-2 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-1.5">
                 {Object.values(families).map((signals, index) => (
