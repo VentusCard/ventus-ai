@@ -101,9 +101,9 @@ function Opener({ step }: SceneProps) {
         <div className="mt-[clamp(40px,5vh,72px)] grid grid-cols-[auto_auto_auto_auto_auto] items-baseline gap-x-[clamp(14px,1.6vw,28px)] [@media(max-height:800px)]:mt-8">
           {comparison.map((row, index) => {
             const blue = index === 1;
-            // Today reveals as one block at step 2; With Ventus builds one segment per beat from step 3.
+            // Today reveals as one block at step 3; With Ventus builds one segment per beat from step 4.
             const revealFor = (segmentIndex: number) =>
-              (blue ? step >= 3 + segmentIndex : step >= 2) ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
+              (blue ? step >= 4 + segmentIndex : step >= 3) ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
             return (
               <Fragment key={row.label}>
                 <div className={cn("col-span-5 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(28px,3.4vh,48px)] [@media(max-height:800px)]:mt-6", revealFor(0))}>
