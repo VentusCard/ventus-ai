@@ -25,7 +25,25 @@ const EMPTY: PersonalizationEntry = {
 
 let store: Record<string, PersonalizationEntry> = {};
 const listeners = new Set<() => void>();
-const inFlight = new Set<string>();
+/** Customer id → the needs currently being generated. */
+const inFlight = new Map<string, Set<PersonalizationNeed>>();
+
+/** True when what we already hold covers everything the requested surface renders. */
+function satisfies(entry: PersonalizationGenerationResult | null | undefined, need: PersonalizationNeed) {
+  if (!entry) return false;
+  const hasOffers = Boolean(entry.offers?.length);
+  const hasCards = Boolean(entry.productCards?.length);
+  if (need === "offers") return hasOffers;
+  if (need === "cards") return hasCards;
+  return hasOffers && hasCards;
+}
+
+function inFlightCovers(customerId: string, need: PersonalizationNeed) {
+  const active = inFlight.get(customerId);
+  if (!active) return false;
+  if (active.has("all") || active.has(need)) return true;
+  return need === "all" && active.has("offers") && active.has("cards");
+}
 let hasPrewarmed = false;
 
 const CACHE_PREFIX = "ventus.personalization.v1";
