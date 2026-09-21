@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Banknote,
   Battery,
-  ChevronDown,
   CupSoda,
   Dumbbell,
   HandCoins,
@@ -80,25 +79,22 @@ export function DeckmoRecentTransactionsTab() {
                     onClick={(event) => { event.stopPropagation(); setExpanded(isOpen ? null : index); }}
                     className="h-auto w-full rounded-md px-1.5 py-1.5 text-left hover:bg-slate-50"
                   >
-                    <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-md", tone.icon)}>
+                    <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-md", tone.icon)}>
                       <PurchaseIcon className="h-4 w-4" />
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-1.5">
-                        <span className="shrink-0 text-[9px] font-medium text-slate-400">{tx.date}</span>
-                        <span className="truncate text-[12px] font-bold text-slate-900">
-                          {isConfirm && !confirmed ? `${tx.clean}?` : tx.clean}
-                        </span>
-                        <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
-                        <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
+                    <span className="flex min-w-0 flex-1 items-center gap-1.5">
+                      <span className="shrink-0 text-[9px] font-medium text-slate-400">{tx.date}</span>
+                      <span className="truncate text-[12px] font-bold text-slate-900">
+                        {isConfirm && !confirmed ? `${tx.clean}?` : tx.clean}
                       </span>
+                      <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
+                      <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
                     </span>
-                    <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-300 motion-reduce:transition-none", isOpen && "rotate-180")} />
                   </Button>
 
                   <div className={cn("grid transition-[grid-template-rows,opacity] duration-300 motion-reduce:transition-none", isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")}>
                     <div className="overflow-hidden">
-                      <div className="ml-12 mr-1 border-l-2 border-blue-200 pl-3 pb-2 pt-1">
+                      <div className="ml-11 mr-1 border-l-2 border-blue-200 pl-3 pb-2 pt-1">
                         <p className="text-[8px] font-bold uppercase text-slate-400">Original statement</p>
                         <p className="mt-0.5 font-mono text-[9px] text-slate-500 line-through decoration-slate-300">{tx.raw}</p>
                         {isConfirm && <p className="mt-1 text-[9px] text-slate-500">{tx.meta}</p>}
