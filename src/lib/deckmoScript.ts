@@ -268,6 +268,31 @@ export const DECKMO = {
           "The merchant descriptor lists Troy, MI, but this purchase matches a vending machine at JFK Airport. Please confirm so we label it correctly.",
         needsConfirmation: true,
       },
+      {
+        date: "Sep 14",
+        rail: "CARD",
+        icon: "streaming",
+        raw: "STREAMMAX*SUB 8881234",
+        clean: "StreamMax Premium",
+        meta: "Streaming · Entertainment",
+        amount: "$18.99",
+        pattern: "Recurring · monthly · price up $3.00 this month",
+        explanation:
+          "This monthly subscription went up $3.00 from your usual $15.99 — we wanted you to know before you spot it on a statement.",
+        needsConfirmation: false,
+      },
+      {
+        date: "Sep 12",
+        rail: "CARD",
+        icon: "music",
+        raw: "AUDIOPHILE MUSIC SUB RENEW",
+        clean: "Audiophile Music",
+        meta: "Music · Entertainment",
+        amount: "$99.00",
+        pattern: "Recurring · annual renewal",
+        explanation: "This is your yearly music subscription renewal — recognized and labeled automatically.",
+        needsConfirmation: false,
+      },
     ],
     popups: [
       {

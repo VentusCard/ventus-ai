@@ -7,8 +7,10 @@ import {
   HandCoins,
   House,
   Landmark,
+  Music,
   ReceiptText,
   Trees,
+  Tv,
   Wifi,
   Zap,
 } from "lucide-react";
@@ -35,6 +37,8 @@ const PURCHASE_ICONS = {
   landscaping: Trees,
   home: House,
   vending: CupSoda,
+  streaming: Tv,
+  music: Music,
 } as const;
 
 export function DeckmoRecentTransactionsTab() {
