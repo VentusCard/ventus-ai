@@ -15,12 +15,12 @@ The header shows exactly two lines:
 ## Changes
 1. `src/components/demo/SimplePasswordGate.tsx`
    - Add a `minimal?: boolean` prop.
-   - When `minimal` is true, render only a centered "Interactive Presentation" heading (Manrope, slate-800, matching the deck's presentation typography) plus the existing password form (input + "Enter Demo" button + error text). Skip logo, tagline, bullets, accordion, and settings gear.
+   - When `minimal` is true, render only the two-line header described above (Manrope, "Interactive Presentation" as the larger line, the orchestration line as a smaller slate subtitle) plus the existing password form (input + "Enter Demo" button + error text). Skip logo, old tagline, bullets, accordion, and settings gear.
    - Leave all auth behavior untouched: same password, same sessionStorage key, same `?from=demo` bypass.
 2. `src/pages/DemoPage.tsx`
    - Pass `minimal` to `SimplePasswordGate` and drop the `tagline`/`bullets` props (no longer used on this route).
 3. `src/lib/deckmoScript.ts`
-   - Remove the now-unused `gateTagline` and `gateBullets` fields from `DECKMO.chrome`.
+   - Replace `gateTagline` with the new orchestration line and remove `gateBullets`, so the gate text lives in the deck script like the rest of the chrome.
 
 ## Out of scope
 - `/demo` gate and all other `SimplePasswordGate` usages stay exactly as they are.
