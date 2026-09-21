@@ -165,7 +165,7 @@
 @keyframes deck-ricky-ledger-roll {
   0% { opacity: 0.35; transform: translateY(260px); filter: blur(1.5px); }
   55% { opacity: 1; filter: blur(0); }
-  88% { transform: translateY(-64px); }
+  88% { transform: translateY(36px); }
   100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
