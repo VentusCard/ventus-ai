@@ -39,7 +39,7 @@ const PURCHASE_ICONS = {
 } as const;
 
 export function DeckmoRecentTransactionsTab() {
-  const [expanded, setExpanded] = useState<number | null>(0);
+  const [expanded, setExpanded] = useState<number | null>(null);
   const [confirmations, setConfirmations] = useState<Record<number, "yes" | "no">>({});
   const data = DECKMO.immediate;
 
@@ -73,7 +73,7 @@ export function DeckmoRecentTransactionsTab() {
               const confirmState = confirmations[index];
               const confirmed = confirmState === "yes";
               return (
-                <div key={`${tx.rail}-${tx.raw}`} className={cn("rounded-md py-1", isConfirm && !confirmed && "border border-amber-300 bg-amber-100")}>
+                <div key={`${tx.rail}-${tx.raw}`} className={cn("rounded-md py-1", isConfirm && !confirmed && "border border-amber-200 bg-amber-50")}>
                   <Button
                     variant="ghost"
                     aria-expanded={isOpen}

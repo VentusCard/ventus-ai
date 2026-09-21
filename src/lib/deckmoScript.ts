@@ -186,19 +186,6 @@ export const DECKMO = {
       {
         date: "Today",
         rail: "CARD",
-        icon: "vending",
-        raw: "365 RETAIL MARKETS TROY MI",
-        clean: "JFK Vending Machine",
-        meta: "Troy, MI · Merchant category: vending / miscellaneous retail",
-        amount: "$4.75",
-        pattern: "One-time · card purchase",
-        explanation:
-          "The merchant descriptor lists Troy, MI, but this purchase matches a vending machine at JFK Airport. Please confirm so we label it correctly.",
-        needsConfirmation: true,
-      },
-      {
-        date: "Today",
-        rail: "CARD",
         icon: "sports",
         raw: "TST*COURTSIDE NYC",
         clean: "Courtside Tennis Club",
@@ -267,6 +254,19 @@ export const DECKMO = {
         pattern: "One-time transfer",
         explanation: "This wire was sent to the escrow account associated with your home closing.",
         needsConfirmation: false,
+      },
+      {
+        date: "Today",
+        rail: "CARD",
+        icon: "vending",
+        raw: "365 RETAIL MARKETS TROY MI",
+        clean: "JFK Vending Machine",
+        meta: "Troy, MI · Merchant category: vending / miscellaneous retail",
+        amount: "$4.75",
+        pattern: "One-time · card purchase",
+        explanation:
+          "The merchant descriptor lists Troy, MI, but this purchase matches a vending machine at JFK Airport. Please confirm so we label it correctly.",
+        needsConfirmation: true,
       },
     ],
     popups: [
