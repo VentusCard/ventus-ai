@@ -2,7 +2,9 @@ import { useState } from "react";
 import {
   Banknote,
   Battery,
+  Check,
   ChevronDown,
+  CupSoda,
   Dumbbell,
   HandCoins,
   House,
@@ -34,10 +36,12 @@ const PURCHASE_ICONS = {
   cash: Banknote,
   landscaping: Trees,
   home: House,
+  vending: CupSoda,
 } as const;
 
 export function DeckmoRecentTransactionsTab() {
   const [expanded, setExpanded] = useState<number | null>(0);
+  const [confirmations, setConfirmations] = useState<Record<number, "yes" | "no">>({});
   const data = DECKMO.immediate;
 
   return (
@@ -66,6 +70,9 @@ export function DeckmoRecentTransactionsTab() {
               const isOpen = expanded === index;
               const tone = RAIL_TONES[tx.rail];
               const PurchaseIcon = PURCHASE_ICONS[tx.icon];
+              const isConfirm = tx.needsConfirmation === true;
+              const confirmState = confirmations[index];
+              const confirmed = confirmState === "yes";
               return (
                 <div key={`${tx.rail}-${tx.raw}`} className="py-1">
                   <Button
@@ -80,10 +87,23 @@ export function DeckmoRecentTransactionsTab() {
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-1.5">
                         <span className="shrink-0 text-[9px] font-medium text-slate-400">{tx.date}</span>
-                        <span className="truncate text-[12px] font-bold text-slate-900">{tx.clean}</span>
-                        <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
-                        <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
+                        <span className={cn("truncate text-[12px] font-bold text-slate-900", isConfirm && "text-[11.5px]")}>
+                          {isConfirm && !confirmed ? `${tx.clean}?` : tx.clean}
+                        </span>
+                        {!isConfirm && <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>}
+                        {!isConfirm && <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>}
                       </span>
+                      {isConfirm && (
+                        <span className="mt-0.5 flex items-center gap-1.5">
+                          {confirmed ? (
+                            <span className="flex shrink-0 items-center gap-0.5 rounded border border-emerald-200 bg-emerald-50 px-1 py-px text-[7px] font-bold text-emerald-700"><Check className="h-2 w-2" />Confirmed</span>
+                          ) : (
+                            <span className="shrink-0 rounded border border-amber-300 bg-amber-50 px-1 py-px text-[7px] font-bold text-amber-700">Confirm</span>
+                          )}
+                          <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
+                          <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
+                        </span>
+                      )}
                     </span>
                     <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-300 motion-reduce:transition-none", isOpen && "rotate-180")} />
                   </Button>
@@ -93,9 +113,23 @@ export function DeckmoRecentTransactionsTab() {
                       <div className="ml-12 mr-1 border-l-2 border-blue-200 pl-3 pb-2 pt-1">
                         <p className="text-[8px] font-bold uppercase text-slate-400">Original statement</p>
                         <p className="mt-0.5 font-mono text-[9px] text-slate-500 line-through decoration-slate-300">{tx.raw}</p>
+                        {isConfirm && <p className="mt-1 text-[9px] text-slate-500">{tx.meta}</p>}
                         <p className="mt-2 text-[9px] font-semibold text-slate-700">{tx.pattern}</p>
                         <p className="mt-1 text-[9px] leading-relaxed text-slate-500">{tx.explanation}</p>
-                        <Button size="sm" onClick={(event) => event.stopPropagation()} className="mt-2 h-7 px-3 py-1 text-[9px]">Yes, that's mine</Button>
+                        {isConfirm ? (
+                          confirmState ? (
+                            <p className="mt-2 text-[9px] font-semibold text-emerald-700">
+                              {confirmed ? "Thanks — this transaction is now labeled." : "Thanks — we'll take another look."}
+                            </p>
+                          ) : (
+                            <div className="mt-2 flex gap-1.5">
+                              <Button size="sm" onClick={(event) => { event.stopPropagation(); setConfirmations((c) => ({ ...c, [index]: "yes" })); }} className="h-7 px-3 py-1 text-[9px]">Yes, that's right</Button>
+                              <Button size="sm" variant="outline" onClick={(event) => { event.stopPropagation(); setConfirmations((c) => ({ ...c, [index]: "no" })); }} className="h-7 border-slate-200 bg-background px-3 py-1 text-[9px] text-slate-600">No, something else</Button>
+                            </div>
+                          )
+                        ) : (
+                          <Button size="sm" onClick={(event) => event.stopPropagation()} className="mt-2 h-7 px-3 py-1 text-[9px]">Yes, that's mine</Button>
+                        )}
                       </div>
                     </div>
                   </div>
