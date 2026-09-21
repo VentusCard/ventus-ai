@@ -73,7 +73,17 @@ export const DECKMO = {
     subtitle: "Enriching internal and external data to gain a dynamic understanding of each customer",
     inside: { header: "INSIDE THE WALLS", title: "Rail-agnostic behavioral enrichment", chips: ["Checks", "Wires", "Zelle", "Card swipes", "P2P", "Digital telemetry"] },
     outside: { header: "OUTSIDE THE WALLS", title: "Source-agnostic behavioral intelligence", chips: ["Credit bureaus", "Data compilers", "National databases", "SKU-level purchase data"] },
-    result: { header: "ONE LIVING CUSTOMER VIEW", body: "Who they are, What they do\nwhat do they need next?" },
+    result: { header: "ONE LIVING CUSTOMER VIEW" },
+    synthesis: {
+      families: [
+        { name: "Spending Habits", tone: "blue" },
+        { name: "Life Events", tone: "amber" },
+        { name: "Financial Signals", tone: "emerald" },
+        { name: "Demographic", tone: "violet" },
+        { name: "Risk", tone: "rose" },
+      ],
+      question: "Who they are · What they do · What do they need next?",
+    },
   },
   ricky: {
     eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
