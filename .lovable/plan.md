@@ -1,15 +1,16 @@
-# Ricky: keep right panel empty on the first beat
-
-## Current behavior
-- In `src/components/deckmo/DeckmoDeck.tsx` the right section always renders the "VENTUS CUSTOMER INTELLIGENCE" eyebrow (`d.signalLabel`, line ~300). Only the signal pills animate in on the second step (`Reveal show={step > 0}`).
+# Rename Ricky page eyebrow (executive framing)
 
 ## Change
-- Hide the whole right-panel content on the first beat: render the label bar and pill grid only when `step > 0`.
-- On the first beat the right side stays a clean empty panel (same light background, no label, no pills).
-- On the second beat the label and pills appear as they do today (pills keep their staggered Reveal).
+Replace the Ricky page eyebrow in `src/lib/deckmoScript.ts`:
 
-## Scope
-- Only the Ricky scene in `DeckmoDeck.tsx`. No script/data changes, no other scenes touched.
+- Old: `eyebrow: "ONE CUSTOMER, FIVE SIGNAL FAMILIES"`
+- New: `eyebrow: "CUSTOMER INTELLIGENCE IN ACTION"`
+
+The title "Meet Ricky" and the masthead "Ricky's living profile" stay unchanged. The eyebrow pairs with the right-panel label "VENTUS CUSTOMER INTELLIGENCE" that appears on the second beat — the eyebrow states the capability, the panel shows it.
+
+## Steps
+1. Update `DECKMO.ricky.eyebrow` in `src/lib/deckmoScript.ts` (line ~79). Single string change; no component edits needed since `DeckmoDeck.tsx` renders `d.eyebrow` directly.
 
 ## Verification
-- Typecheck (`tsgo --noEmit`) clean; Playwright check at 1540x855 (plus 1024x768 and 1920x1080): first beat shows an empty right panel, second beat shows the label and pills.
+- `bunx tsgo --noEmit` clean.
+- Playwright: navigate the deck to Ricky's slide, confirm the new eyebrow renders above "Meet Ricky" and nothing else moved.
