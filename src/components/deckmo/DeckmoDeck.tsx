@@ -107,7 +107,14 @@ function Opener({ step }: SceneProps) {
             return (
               <Fragment key={row.label}>
                 <div className={cn("col-span-5 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(28px,3.4vh,48px)] [@media(max-height:800px)]:mt-6", revealFor(0))}>
-                  <p className={cn("text-[13px] font-bold uppercase tracking-[0.18em]", blue ? "text-blue-600" : "text-deck-muted")}>{row.label}</p>
+                  {blue ? (
+                    <p className="flex items-center gap-2.5 text-[13px] font-bold uppercase tracking-[0.18em] text-blue-600">
+                      <span>{row.label}</span>
+                      <img src="/ventus-ai-logo.png" alt="Ventus AI" className="h-[17px] w-auto object-contain" />
+                    </p>
+                  ) : (
+                    <p className="text-[13px] font-bold uppercase tracking-[0.18em] text-deck-muted">{row.label}</p>
+                  )}
                 </div>
                 {row.segments.map((segment, s) => (
                   <Fragment key={segment}>
