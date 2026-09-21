@@ -192,7 +192,7 @@ const WORKSPACE_TABS: TabValue[] = ["ventus-ai", "targeting-automated-flows", "w
 function ExactWorkspace({ tab }: { tab: TabValue }) {
   return (
     <div className="mx-auto h-[552px] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:max-w-[1110px]">
-      <div className="h-[900px] w-[1440px] origin-top-left scale-[0.825] [@media(max-width:1340px)]:scale-[0.77]">
+      <div className="h-[669px] w-[1440px] origin-top-left scale-[0.825] [@media(max-width:1340px)]:h-[717px] [@media(max-width:1340px)]:scale-[0.77]">
         <AnalyticsContainer key={tab} defaultTab={tab} presentationMode />
       </div>
     </div>

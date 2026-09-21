@@ -253,7 +253,7 @@ export function DeckmoRecentTransactionsTab() {
                     </div>
 
                     <div className="mt-4">
-                      {corrections[selected] || (isConfirm && confirmState) ? (
+                      {corrections[selected] || confirmState ? (
                         <p className="text-[9px] font-semibold text-emerald-700">
                           {corrections[selected]
                             ? "Thanks — we'll review your suggestion."
@@ -267,7 +267,7 @@ export function DeckmoRecentTransactionsTab() {
                             size="sm"
                             onClick={(event) => {
                               stop(event);
-                              if (isConfirm) setConfirmations((c) => ({ ...c, [selected]: "yes" }));
+                              setConfirmations((c) => ({ ...c, [selected]: "yes" }));
                             }}
                             className="h-7 px-3 py-1 text-[9px]"
                           >
