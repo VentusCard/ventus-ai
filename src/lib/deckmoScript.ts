@@ -186,6 +186,19 @@ export const DECKMO = {
       {
         date: "Today",
         rail: "CARD",
+        icon: "vending",
+        raw: "365 RETAIL MARKETS TROY MI",
+        clean: "JFK Airport Vending Machine",
+        meta: "Vending · Miscellaneous retail",
+        amount: "$4.75",
+        pattern: "One-time · card purchase",
+        explanation:
+          "The merchant descriptor lists Troy, MI, but this purchase matches a vending machine at JFK Airport. Please confirm so we label it correctly.",
+        needsConfirmation: true,
+      },
+      {
+        date: "Today",
+        rail: "CARD",
         icon: "sports",
         raw: "TST*COURTSIDE NYC",
         clean: "Courtside Tennis Club",
