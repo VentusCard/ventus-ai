@@ -8,11 +8,12 @@ The Ricky slide currently has three stacked layers of header text, and they repe
 
 "Ricky", "living", and "profile" each appear three times. The masthead eats vertical space the ledger needs.
 
-## Change (src/components/deckmo/DeckmoDeck.tsx only)
-Collapse the two-row masthead (lines ~268–283) into a single slim row:
+## Change
+Collapse the two-row masthead (DeckmoDeck.tsx lines ~268–283) into a single slim row:
 
 ```text
-[icon] Ricky's living profile                          Palo Alto, CA · Small business owner · Premium cardholder · Home buyer ($1.5M+)
+[icon] Ricky's living profile
+       Age 44 · San Francisco, CA 94123 · Est. household income $850K · Preferred tier
        Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.
 ```
 
