@@ -181,7 +181,7 @@ export const DECKMO = {
     subtitle:
       "Enriched transaction experiences that make charges easier to recognize and can reduce transaction-related service calls and inquiries.",
     phoneTitle: "Recent transactions",
-    account: "Our Bank checking",
+    account: "Our Bank Account #9905",
     activity: [
       {
         date: "Today",
