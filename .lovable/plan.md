@@ -18,7 +18,7 @@ All in `src/components/deckmo/DeckmoRecentTransactionsTab.tsx`:
    - The wrapper row of the confirmation transaction (unconfirmed) gets a soft yellow background — `bg-amber-50` with `border border-amber-200` (or rounded highlight consistent with the phone list) — so it stands out as "needs your look" without any label.
    - After confirming, the row returns to the standard white background (same rule as the "?" removal).
 
-2. **Expanded detail — unchanged behavior**
+3. **Expanded detail — unchanged behavior**
    - Keep the raw statement ("365 RETAIL MARKETS TROY MI", struck through), the Troy, MI merchant-category line, pattern, explanation, and the "Yes, that's right" / "No, something else" buttons.
    - Keep the post-confirmation thank-you line.
    - Remove the now-unused `Check` import only if nothing else references it (the Confirmed chip is the only user).
