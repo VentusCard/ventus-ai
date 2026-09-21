@@ -19,7 +19,13 @@ Collapse the two-row masthead (lines ~268–283) into a single slim row:
 - Keep the small person icon (slightly smaller, e.g. h-9 w-9).
 - Keep `d.profileTitle` as the single display title — drop the "Ricky · Living customer view" eyebrow.
 - Drop the "Living profile intelligence summary" label; keep `d.profileBody` as the one summary line.
-- Add a basic-profile facts line under the title (name + location, occupation, card relationship, home purchase), sourced from existing fixture data: Palo Alto CA transactions, "Small business owner" signal, Premium Card rails, "$1.5M+" home purchase. Add it as a new `profileFacts` field in `src/lib/deckmoScript.ts` so the copy lives with the rest of the script.
+- Add a basic customer-file facts line under the title with core bank-record facts that are NOT Ventus-derived — the kind a teller would see in the customer profile. Ricky's file has no age or income yet, so add new fixture values consistent with the existing persona ("Ricky J", San Francisco CA, affluent small-business owner with a $1.5M+ home):
+
+```text
+Age 44 · San Francisco, CA 94123 · Est. household income $850K · Preferred tier
+```
+
+  Store it as a new `profileFacts` field in `src/lib/deckmoScript.ts` so the copy lives with the rest of the script.
 - Thin divider stays between the identity block and the summary block; reduce vertical padding (py-4/py-3 → py-2.5) so the freed height goes to the ledger and pills.
 - Everything else unchanged: page header, transaction ledger, pill grid, external evidence card, filtering behavior.
 
