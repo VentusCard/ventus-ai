@@ -103,7 +103,6 @@ export function DeckmoRecentTransactionsTab() {
                           <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
                         </span>
                       )}
-                      </span>
                     </span>
                     <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-300 motion-reduce:transition-none", isOpen && "rotate-180")} />
                   </Button>
