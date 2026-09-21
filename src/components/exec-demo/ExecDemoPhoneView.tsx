@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
-import { Gift, Users, Bot, Wallet, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, Wallet, ReceiptText, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
 
@@ -93,6 +93,8 @@ interface Props {
   presentationMode?: boolean;
   presentationTab?: ConsumerTab;
   presentationImageUrl?: string;
+  /** Optional relabel of the first consumer tab (Budget) for deck presentation usage. */
+  firstTabLabel?: string;
 }
 
 export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl }: Props) {
