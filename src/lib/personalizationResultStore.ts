@@ -99,9 +99,9 @@ function set(id: string, patch: Partial<PersonalizationEntry>) {
  * Custom bank → session cache, else live generation for what `need` renders.
  */
 export function ensurePersonalization(customerId: string, need: PersonalizationNeed = "all") {
-  if (inFlight.has(customerId)) return;
+  if (inFlightCovers(customerId, need)) return;
   const existing = store[customerId];
-  if (existing && (existing.status === "ready" || existing.status === "running")) return;
+  if (satisfies(existing, need)) return;
   const customer = EXAMPLE_CUSTOMERS.find((c) => c.id === customerId);
   if (!customer) return;
 
@@ -110,20 +110,28 @@ export function ensurePersonalization(customerId: string, need: PersonalizationN
 
   if (!isCustomBank) {
     const snap = getPersonalizationSnapshot(customerId);
-    if (snap && (snap.offers?.length || snap.productCards?.length)) {
+    if (satisfies(snap, need)) {
       set(customerId, { ...snap, lifeEvents, status: "ready" });
       return;
     }
   }
 
   const cached = readCache(customerId);
-  if (cached && (cached.offers?.length || cached.productCards?.length)) {
+  if (satisfies(cached, need)) {
     set(customerId, { ...cached, lifeEvents, status: "ready" });
     return;
   }
+  // A partial cached result still seeds the store while the missing half loads.
+  if (cached && (cached.offers?.length || cached.productCards?.length)) {
+    set(customerId, { ...cached, lifeEvents, status: "running" });
+  }
 
-  inFlight.add(customerId);
-  set(customerId, { status: "running", offers: null, productCards: null, lifeEvents: [] });
+  const active = inFlight.get(customerId) ?? new Set<PersonalizationNeed>();
+  active.add(need);
+  inFlight.set(customerId, active);
+  if (!existing || existing.status === "idle" || existing.status === "failed") {
+    set(customerId, { status: "running", lifeEvents: [] });
+  }
 
   generatePersonalizedExperience(
     customer,
