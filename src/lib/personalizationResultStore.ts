@@ -148,15 +148,24 @@ export function ensurePersonalization(customerId: string, need: PersonalizationN
   )
     .then((res) => {
       const ok = Boolean(res.offers?.length || res.productCards?.length);
-      set(customerId, { ...res, status: ok ? "ready" : "failed" });
-      if (ok) writeCache(customerId, res);
+      // Keep whatever the other half already produced instead of overwriting it with null.
+      const prev = store[customerId];
+      const merged: PersonalizationGenerationResult = {
+        offers: res.offers?.length ? res.offers : prev?.offers ?? null,
+        productCards: res.productCards?.length ? res.productCards : prev?.productCards ?? null,
+        lifeEvents: res.lifeEvents?.length ? res.lifeEvents : prev?.lifeEvents ?? [],
+      };
+      set(customerId, { ...merged, status: ok ? "ready" : "failed" });
+      if (ok) writeCache(customerId, merged);
     })
     .catch((err) => {
       console.error("[PERSONALIZATION] generation failed", err);
       set(customerId, { status: "failed" });
     })
     .finally(() => {
-      inFlight.delete(customerId);
+      const running = inFlight.get(customerId);
+      running?.delete(need);
+      if (!running || running.size === 0) inFlight.delete(customerId);
     });
 }
 
