@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star, MapPin } from "lucide-react";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
@@ -343,34 +343,40 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
   if (offerGroups.length === 0) return null;
 
+  // ── Active view content ──
+  // The search bar (searchFooter) is rendered ONCE in the shared wrapper at the
+  // bottom, outside these views, so the input never unmounts when the view
+  // switches (main → results → detail) and typing never loses focus.
+  let viewContent: ReactNode = null;
+
   // ── Deal Detail View ──
   if (expandedGroup && !isSearchActive) {
     const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
     const imgSrc = presentationImageUrl ?? getCollectionImage(expandedGroup);
     const c = getColor(expandedGroup.pillar || "");
 
-    return (
-      <div className="px-0 py-0 flex flex-col h-full" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
+    viewContent = (
+      <div className="flex-1 min-h-0 flex flex-col" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
         <button
           onClick={() => setExpandedGroup(null)}
-          className="flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-slate-600 hover:text-slate-800 transition-colors"
+          className="shrink-0 flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-slate-600 hover:text-slate-800 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           <span className="text-[11px] font-medium">Back</span>
         </button>
 
-        <div className="h-[110px] w-full overflow-hidden">
+        <div className="h-[110px] w-full overflow-hidden shrink-0">
           <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
-        <div className="px-3 pt-2.5 pb-1">
+        <div className="px-3 pt-2.5 pb-1 shrink-0">
           {expandedGroup.collectionMessage && (
             <p className="text-[13px] font-bold text-slate-800 leading-snug">{expandedGroup.collectionMessage}</p>
           )}
           <p className="text-[10px] text-slate-500 mt-0.5">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2" style={{ scrollbarWidth: "none" }}>
+        <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-3 space-y-2" style={{ scrollbarWidth: "none" }}>
           {deals.map((deal) => (
             <div
               key={deal.id}
@@ -397,23 +403,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
             </div>
           ))}
         </div>
-
-        {searchFooter}
-
-        <style>{`
-          @keyframes detail-slide-in {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-          }
-        `}</style>
       </div>
     );
   }
 
   // ── Dedicated Search Results View ──
   if (isSearchActive) {
-    return (
-      <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+    viewContent = (
+      <div className="flex-1 min-h-0 flex flex-col" style={{ scrollbarWidth: "none" }}>
         <div className="shrink-0 px-3 pt-3 pb-2 flex items-center justify-between gap-2 border-b border-slate-100">
           <div className="min-w-0">
             <p className="text-[11px] font-bold text-slate-800 truncate">
@@ -479,8 +476,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
           )}
         </div>
-
-        {searchFooter}
       </div>
     );
   }
@@ -564,8 +559,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
     </div>
   ) : null;
 
-  return (
-    <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+  if (!viewContent) {
+    viewContent = (
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollbarWidth: "none" }}>
 
         {!focusMode && (
@@ -686,8 +681,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         {carouselBlock}
 
       </div>
+    );
+  }
 
-      {/* ── Semantic Search Bar (pinned bottom) ── */}
+  return (
+    <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+      {viewContent}
+
+      {/* ── Semantic Search Bar (pinned bottom) — single instance, stays mounted across view switches ── */}
       {searchFooter}
 
       <style>{`
