@@ -169,6 +169,12 @@
   100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
+@keyframes deck-ricky-row-highlight {
+  0% { opacity: 0.72; filter: saturate(0.4); }
+  55% { opacity: 1; filter: saturate(1.2); }
+  100% { opacity: 1; filter: saturate(1); }
+}
+
 .deck-breathe-ring {
   animation: deck-breathe 3.8s ease-in-out infinite;
 }
@@ -199,6 +205,10 @@
   will-change: transform, opacity, filter;
 }
 
+.deck-ricky-row-highlight {
+  animation: deck-ricky-row-highlight 520ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .deck-breathe-ring,
   .deck-breathe-ring-delayed,
@@ -218,6 +228,11 @@
     animation: none;
     filter: none;
     transform: none;
+  }
+
+  .deck-ricky-row-highlight {
+    animation: none;
+    filter: none;
   }
 }
 
