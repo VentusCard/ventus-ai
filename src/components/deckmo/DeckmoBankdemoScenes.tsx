@@ -92,7 +92,7 @@ export function BankdemoMidTerm({ step }: SceneProps) {
   return <PhoneScene step={step} data={DECKMO.midTerm} tab={phoneTabs[1]} />;
 }
 
-export function BankdemoSegmentCampaign() {
+export function SegmentCampaignContent() {
   const data = DECKMO.segmentCampaign;
   const product = PRODUCT_CATALOG.find((item) => item.name === data.productLabel);
   const variants = product ? getProductVariants(product) : undefined;
@@ -106,10 +106,9 @@ export function BankdemoSegmentCampaign() {
   const reachLabel = reach ? `~${(reach / 1_000).toFixed(1)}K` : "Qualified";
 
   return (
-    <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8 [@media(max-height:800px)]:origin-top [@media(max-height:800px)]:scale-[0.78]">
-      <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
-
-      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(320px,380px)_minmax(0,1fr)] gap-10">
+    <div className="flex h-full flex-col px-10 py-8">
+      <p className="shrink-0 text-xl font-semibold tracking-tight text-slate-900">{data.title}</p>
+      <div className="mt-5 grid min-h-0 flex-1 grid-cols-[minmax(320px,380px)_minmax(0,1fr)] gap-10">
         <div className="flex flex-col justify-center border-r border-deck-rule pr-8">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">From intelligence to activation</p>
           <div className="mt-5 space-y-2">
