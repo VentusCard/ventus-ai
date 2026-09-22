@@ -187,6 +187,8 @@ interface Props {
   activeRollupPillar?: string | null;
   presentationMode?: boolean;
   presentationImageUrl?: string;
+  /** When true, collections auto-rotate even in presentation mode (deck beat usage). */
+  autoRotate?: boolean;
 }
 
 // ── Fuzzy-match helpers (mirrors NextOfferRationale) ──
