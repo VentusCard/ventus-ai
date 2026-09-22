@@ -608,7 +608,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
         {/* ── Collection Carousel ── */}
         {!isSearchActive && groups.length > 0 && active && (
-          <>
+          <div className={cn("space-y-2.5", autoRotate && "order-first")}>
+
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span className="text-[12.5px] font-bold text-slate-700">
