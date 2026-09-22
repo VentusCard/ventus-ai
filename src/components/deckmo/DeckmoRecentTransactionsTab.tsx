@@ -58,6 +58,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
   const [confirmations, setConfirmations] = useState<Record<number, "yes" | "no">>({});
   const [corrections, setCorrections] = useState<Record<number, string>>({});
   const [correctionOpen, setCorrectionOpen] = useState<number | null>(null);
+  const [supportChats, setSupportChats] = useState<Record<number, boolean>>({});
   const [draft, setDraft] = useState("");
   const data = DECKMO.immediate;
   const jfkIndex = data.activity.findIndex((row) => row.needsConfirmation === true);
@@ -274,14 +275,16 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                     </div>
 
                     <div className="mt-4">
-                      {corrections[selected] || confirmState ? (
+                      {corrections[selected] || confirmState || supportChats[selected] ? (
                         <div className="flex items-center gap-2">
                           <p className="text-[9px] font-semibold text-emerald-700">
                             {corrections[selected]
                               ? "Thanks — we'll review your suggestion."
                               : confirmed
                                 ? "Thanks — this transaction is now labeled."
-                                : "Thanks — we'll take another look."}
+                                : supportChats[selected]
+                                  ? "Thanks — we've connected you with customer service."
+                                  : "Thanks — we'll take another look."}
                           </p>
                           <Button
                             size="sm"
@@ -294,6 +297,11 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                                 return next;
                               });
                               setCorrections((c) => {
+                                const next = { ...c };
+                                delete next[selected];
+                                return next;
+                              });
+                              setSupportChats((c) => {
                                 const next = { ...c };
                                 delete next[selected];
                                 return next;
@@ -349,9 +357,25 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                           placeholder="e.g. JFK Vending Machine"
                           className="mt-1.5 w-full rounded-md border border-slate-200 bg-background px-2 py-1.5 text-[10px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
-                        <Button type="submit" size="sm" disabled={!draft.trim()} className="mt-2 h-7 w-full px-3 py-1 text-[9px]">
-                          Send suggestion
-                        </Button>
+                        <div className="mt-2 flex gap-1.5">
+                          <Button type="submit" size="sm" disabled={!draft.trim()} className="h-7 flex-1 px-3 py-1 text-[9px]">
+                            Send suggestion
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={(event) => {
+                              stop(event);
+                              setSupportChats((c) => ({ ...c, [selected]: true }));
+                              setDraft("");
+                              setCorrectionOpen(null);
+                            }}
+                            className="h-7 flex-1 border-slate-200 bg-background px-3 py-1 text-[9px] text-slate-600"
+                          >
+                            Chat with support
+                          </Button>
+                        </div>
                       </form>
                     )}
                   </div>
