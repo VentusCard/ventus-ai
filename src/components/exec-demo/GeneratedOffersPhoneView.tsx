@@ -403,23 +403,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
             </div>
           ))}
         </div>
-
-        {searchFooter}
-
-        <style>{`
-          @keyframes detail-slide-in {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-          }
-        `}</style>
       </div>
     );
   }
 
   // ── Dedicated Search Results View ──
   if (isSearchActive) {
-    return (
-      <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+    viewContent = (
+      <div className="flex-1 min-h-0 flex flex-col" style={{ scrollbarWidth: "none" }}>
         <div className="shrink-0 px-3 pt-3 pb-2 flex items-center justify-between gap-2 border-b border-slate-100">
           <div className="min-w-0">
             <p className="text-[11px] font-bold text-slate-800 truncate">
