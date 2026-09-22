@@ -681,8 +681,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         {carouselBlock}
 
       </div>
+    );
+  }
 
-      {/* ── Semantic Search Bar (pinned bottom) ── */}
+  return (
+    <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+      {viewContent}
+
+      {/* ── Semantic Search Bar (pinned bottom) — single instance, stays mounted across view switches ── */}
       {searchFooter}
 
       <style>{`
