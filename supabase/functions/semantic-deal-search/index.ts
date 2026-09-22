@@ -238,6 +238,20 @@ interface SearchResult {
   reasoning: string;
 }
 
+interface RawMatch {
+  id: string;
+  confidence: number;
+  why?: string;
+}
+
+const VALID_DEAL_IDS = new Set(
+  Object.values(DEAL_CATALOG).flat().map((d) => d.id)
+);
+
+const CONFIDENCE_THRESHOLD = 0.9;
+const MAX_RESULTS = 10;
+
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
