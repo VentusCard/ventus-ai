@@ -19,6 +19,14 @@ const TONES = {
 
 type Tone = keyof typeof TONES;
 
+const RICKY_ROW_TONES: Record<Tone, string> = {
+  blue: "border-l-blue-500 bg-blue-50/80",
+  amber: "border-l-amber-500 bg-amber-50/80",
+  emerald: "border-l-emerald-500 bg-emerald-50/80",
+  violet: "border-l-violet-500 bg-violet-50/80",
+  rose: "border-l-rose-500 bg-rose-50/80",
+};
+
 type SceneProps = { step: number; active?: boolean };
 
 const VISIBILITY_ROLLER_SPEED = 40;
@@ -259,6 +267,7 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect, cascadeDelay = 0 }
 function Ricky({ step, active = false }: SceneProps) {
   const d = DECKMO.ricky;
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
+  const [rollComplete, setRollComplete] = useState(false);
   const selectedSignal = d.signals.find((signal) => signal.label === selectedLabel);
   const selectedExternalEvidence = selectedSignal && "externalEvidence" in selectedSignal ? selectedSignal.externalEvidence : null;
   const displayedTransactions = selectedLabel && selectedSignal?.source === "internal"
@@ -269,6 +278,22 @@ function Ricky({ step, active = false }: SceneProps) {
     (grouped[signal.family] ??= []).push(signal);
     return grouped;
   }, {});
+
+  useEffect(() => {
+    setRollComplete(false);
+    if (!active || step !== 1) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setRollComplete(true);
+      return;
+    }
+    const timer = window.setTimeout(() => setRollComplete(true), 2200);
+    return () => window.clearTimeout(timer);
+  }, [active, step]);
+
+  const signalTone = (labels: RickySignalLabel[]) => {
+    const matchingSignal = d.signals.find((candidate) => candidate.source === "internal" && labels.includes(candidate.label as RickySignalLabel));
+    return matchingSignal?.tone as Tone | undefined;
+  };
 
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
@@ -293,14 +318,17 @@ function Ricky({ step, active = false }: SceneProps) {
           </div> : <div key={selectedLabel ?? "all"} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
             <div className={cn(active && step === 1 && "deck-ricky-ledger-roll")}>
-              {displayedTransactions.map((transaction) => (
-                <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-slate-200/80 py-2">
+              {displayedTransactions.map((transaction) => {
+                const tone = signalTone(transaction.signals);
+                const highlighted = (rollComplete || selectedLabel !== null) && tone;
+                return (
+                <div key={transaction.id} className={cn("grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2 transition-colors duration-500", highlighted && "deck-ricky-row-highlight", highlighted && RICKY_ROW_TONES[tone])}>
                   <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
                    <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
                    <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
                   <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
                 </div>
-              ))}
+              );})}
             </div>
           </div>}
         </section>
