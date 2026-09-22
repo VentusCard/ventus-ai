@@ -7,7 +7,6 @@ import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
 import { getProductVariants } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards } from "@/components/tepilot/campaigns/sections/buildMessageCards";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
-import tennisAsset from "@/assets/deckmo-tennis.jpg.asset.json";
 import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
 type SceneProps = { step: number; active?: boolean };
@@ -58,7 +57,6 @@ function ExactPhone({ tab, cycleCollections = false }: { tab: ConsumerTab; cycle
         enrichedTxs={fixture.enrichedTransactions}
         presentationMode
         presentationTab={tab}
-        presentationImageUrl={cycleCollections ? undefined : tennisAsset.url}
         frame="compact"
         firstTabLabel="Activity"
         batteryFull
