@@ -271,7 +271,9 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       </div>
                       <p className="mt-1.5 text-[9px] font-semibold text-slate-800">{tx.pattern}</p>
                       <p className="mt-1 text-[9px] leading-relaxed text-slate-600">{tx.explanation}</p>
-                      {isConfirm && <p className="mt-1.5 text-[9px] leading-relaxed text-slate-600">{tx.meta}</p>}
+                      {isConfirm && "suggestionPrompt" in tx && (
+                        <p className="mt-1.5 text-[9px] leading-relaxed text-slate-600">{tx.suggestionPrompt}</p>
+                      )}
                     </div>
 
                     <div className="mt-4">
