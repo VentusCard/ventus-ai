@@ -676,7 +676,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                 </button>
               </div>
             )}
-          </>
+          </div>
         )}
 
       </div>
