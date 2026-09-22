@@ -621,7 +621,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               className="rounded-xl overflow-hidden border border-slate-100 flex flex-col min-h-[190px] cursor-pointer hover:shadow-md transition-shadow"
               style={{
                 background: "linear-gradient(145deg, #f8fafc, #ffffff)",
-                animation: `collection-slide-${direction} 0.35s ease-out`,
+                animation: `collection-slide-${direction} 0.45s cubic-bezier(0.22, 1, 0.36, 1)`,
               }}
               onClick={() => setExpandedGroup(active)}
             >
