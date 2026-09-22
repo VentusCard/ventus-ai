@@ -476,8 +476,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
           )}
         </div>
-
-        {searchFooter}
       </div>
     );
   }
