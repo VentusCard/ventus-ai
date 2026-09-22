@@ -336,7 +336,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
     const timer = setInterval(() => {
       setDirection("right");
       setCurrent(prev => (prev + 1) % allGroups.length);
-    }, 5000);
+    }, autoRotate ? 2000 : 5000);
     return () => clearInterval(timer);
   }, [presentationMode, autoRotate, allGroups.length, expandedGroup, isSearchActive]);
 
@@ -659,10 +659,10 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                     <button
                       key={i}
                       onClick={() => goTo(i)}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      className={`h-2 rounded-full transition-all duration-300 ${
                         i === safeIdx
-                          ? "bg-slate-700 scale-125"
-                          : "bg-slate-300 hover:bg-slate-400"
+                          ? "w-5 bg-blue-600 shadow-sm"
+                          : "w-2 bg-slate-300 hover:bg-slate-400"
                       }`}
                     />
                   ))}
@@ -685,12 +685,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
       <style>{`
         @keyframes collection-slide-right {
-          from { opacity: 0; transform: translateX(20px); }
-          to { opacity: 1; transform: translateX(0); }
+          from { opacity: 0; transform: translateX(64px) scale(0.97); }
+          60% { opacity: 1; }
+          to { opacity: 1; transform: translateX(0) scale(1); }
         }
         @keyframes collection-slide-left {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
+          from { opacity: 0; transform: translateX(-64px) scale(0.97); }
+          60% { opacity: 1; }
+          to { opacity: 1; transform: translateX(0) scale(1); }
         }
         @keyframes detail-slide-in {
           from { opacity: 0; transform: translateX(30px); }
