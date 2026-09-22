@@ -98,16 +98,27 @@ function Reveal({ show, delay = 0, children, className }: { show: boolean; delay
 
 function Opener({ step }: SceneProps) {
   const comparison = [DECKMO.opener.comparison.today, DECKMO.opener.comparison.ventus];
+  const comparisonStarted = step >= 2;
   return (
-    <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col justify-center px-[clamp(32px,4vw,72px)] py-10 [@media(max-height:800px)]:py-6">
-      <div className="w-full">
+    <div className="relative mx-auto h-full w-full max-w-[1560px] px-[clamp(32px,4vw,72px)]">
+      <div className={cn(
+        "absolute inset-x-[clamp(32px,4vw,72px)] transition-[top,transform] duration-700 ease-in-out motion-reduce:transition-none",
+        comparisonStarted
+          ? "top-[clamp(28px,7vh,64px)] translate-y-0"
+          : "top-1/2 -translate-y-1/2",
+      )}>
         <Reveal show={step >= 0}>
           <p className="text-balance text-[clamp(44px,5vw,76px)] font-bold leading-[1.03] tracking-normal text-slate-950">{DECKMO.opener.lines[0]}</p>
         </Reveal>
-        <Reveal show={step >= 1} className="mt-3 [@media(max-height:800px)]:mt-2">
+        <Reveal show={step >= 1} className="mt-2">
           <p className="text-balance text-[clamp(34px,3.9vw,58px)] font-bold leading-[1.06] tracking-normal text-slate-950">{DECKMO.opener.lines[1]}</p>
         </Reveal>
-        <div className="mt-[clamp(40px,5vh,72px)] grid grid-cols-[auto_auto_auto_auto_auto] items-baseline gap-x-[clamp(14px,1.6vw,28px)] [@media(max-height:800px)]:mt-8">
+      </div>
+
+      <div className={cn(
+        "absolute inset-x-[clamp(32px,4vw,72px)] top-[46%] grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-baseline gap-x-[clamp(10px,1.35vw,22px)] transition-opacity duration-500 motion-reduce:transition-none",
+        comparisonStarted ? "opacity-100" : "pointer-events-none opacity-0",
+      )}>
           {comparison.map((row, index) => {
             const blue = index === 1;
             // Today reveals as one block at step 2; With Ventus builds one segment per beat from step 3.
@@ -115,28 +126,27 @@ function Opener({ step }: SceneProps) {
               (blue ? step >= 3 + segmentIndex : step >= 2) ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
             return (
               <Fragment key={row.label}>
-                <div className={cn("col-span-5 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(28px,3.4vh,48px)] [@media(max-height:800px)]:mt-6", revealFor(0))}>
+                <div className={cn("col-span-5 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(24px,3vh,40px)]", revealFor(0))}>
                   {blue ? (
-                    <p className="flex items-center gap-2.5 text-[13px] font-bold uppercase tracking-[0.18em] text-blue-600">
+                    <p className="flex items-center gap-2.5 text-[12px] font-bold uppercase tracking-[0.18em] text-blue-600">
                       <span>{row.label}</span>
                       <img src="/ventus-ai-logo.png" alt="Ventus AI" className="h-[17px] w-auto object-contain" />
                     </p>
                   ) : (
-                    <p className="text-[13px] font-bold uppercase tracking-[0.18em] text-deck-muted">{row.label}</p>
+                    <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-deck-muted">{row.label}</p>
                   )}
                 </div>
                 {row.segments.map((segment, s) => (
                   <Fragment key={segment}>
                     {s > 0 && (
-                      <div className={cn("mt-2 px-1 text-[clamp(18px,1.7vw,30px)] font-bold transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-deck-muted")}>=</div>
+                      <div className={cn("mt-1 px-1 text-center text-[clamp(17px,1.55vw,27px)] font-bold transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-deck-muted")}>=</div>
                     )}
-                    <div className={cn("mt-2 whitespace-nowrap text-[clamp(18px,1.7vw,30px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
+                    <div className={cn("mt-1 min-w-0 text-balance text-[clamp(17px,1.55vw,27px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
                   </Fragment>
                 ))}
               </Fragment>
             );
           })}
-        </div>
       </div>
     </div>
   );
