@@ -375,12 +375,27 @@ Examples:
 
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (toolCall?.function?.arguments) {
-      const result: SearchResult = JSON.parse(toolCall.function.arguments);
-      console.log(`Found ${result.matchingDealIds.length} matches for "${query}": ${result.reasoning}`);
+      const raw = JSON.parse(toolCall.function.arguments) as { matches?: RawMatch[]; reasoning?: string };
+      const matches = Array.isArray(raw.matches) ? raw.matches : [];
+      const seen = new Set<string>();
+      const matchingDealIds = matches
+        .filter((m) => m && typeof m.id === 'string' && VALID_DEAL_IDS.has(m.id))
+        .filter((m) => typeof m.confidence === 'number' && m.confidence >= CONFIDENCE_THRESHOLD)
+        .sort((a, b) => b.confidence - a.confidence)
+        .filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true)))
+        .slice(0, MAX_RESULTS)
+        .map((m) => m.id);
+
+      const result: SearchResult = {
+        matchingDealIds,
+        reasoning: raw.reasoning ?? '',
+      };
+      console.log(`Found ${matchingDealIds.length}/${matches.length} confident matches for "${query}": ${result.reasoning}`);
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
 
     return new Response(JSON.stringify({ matchingDealIds: [], reasoning: 'No matches found' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
