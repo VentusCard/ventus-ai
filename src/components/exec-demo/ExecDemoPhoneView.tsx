@@ -136,7 +136,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     switch (consumerTab) {
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
-          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={autoRotateCollections} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} presentationMode={presentationMode} presentationImageUrl={presentationImageUrl} autoRotate={autoRotateCollections} />;
+          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={false} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} presentationMode={presentationMode} presentationImageUrl={presentationImageUrl} autoRotate={autoRotateCollections} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
