@@ -319,27 +319,37 @@ Examples:
             type: 'function',
             function: {
               name: 'return_matching_deals',
-              description: 'Return matching deal IDs',
+              description: 'Return high-confidence matching deals',
               parameters: {
                 type: 'object',
                 properties: {
-                  matchingDealIds: {
+                  matches: {
                     type: 'array',
-                    items: { type: 'string' },
-                    description: 'Array of matching deal IDs'
+                    description: 'Matching deals with a confidence score each',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', description: 'Deal ID from the catalog' },
+                        confidence: { type: 'number', description: '0 to 1 certainty that this merchant sells the queried item' },
+                        why: { type: 'string', description: 'Short reason this merchant sells it' }
+                      },
+                      required: ['id', 'confidence', 'why'],
+                      additionalProperties: false
+                    }
                   },
                   reasoning: {
                     type: 'string',
                     description: 'Brief explanation'
                   }
                 },
-                required: ['matchingDealIds', 'reasoning'],
+                required: ['matches', 'reasoning'],
                 additionalProperties: false
               }
             }
           }
         ],
         tool_choice: { type: 'function', function: { name: 'return_matching_deals' } }
+
       }),
     });
 
