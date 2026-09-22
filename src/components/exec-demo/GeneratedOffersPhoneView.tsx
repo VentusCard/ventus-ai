@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star, MapPin } from "lucide-react";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
@@ -343,14 +343,20 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
   if (offerGroups.length === 0) return null;
 
+  // ── Active view content ──
+  // The search bar (searchFooter) is rendered ONCE in the shared wrapper at the
+  // bottom, outside these views, so the input never unmounts when the view
+  // switches (main → results → detail) and typing never loses focus.
+  let viewContent: ReactNode = null;
+
   // ── Deal Detail View ──
   if (expandedGroup && !isSearchActive) {
     const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
     const imgSrc = presentationImageUrl ?? getCollectionImage(expandedGroup);
     const c = getColor(expandedGroup.pillar || "");
 
-    return (
-      <div className="px-0 py-0 flex flex-col h-full" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
+    viewContent = (
+      <div className="flex-1 min-h-0 flex flex-col" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
         <button
           onClick={() => setExpandedGroup(null)}
           className="flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-slate-600 hover:text-slate-800 transition-colors"
