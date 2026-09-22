@@ -275,25 +275,29 @@ serve(async (req) => {
       `${cat}:\n${deals.map(d => `  - ${d.id} | ${d.merchant} (${d.sub})`).join('\n')}`
     ).join('\n\n');
 
-    const systemPrompt = `You are a precision semantic deal search assistant. Given a query, return matching deal IDs where the merchant is a credible place to buy the item, service, accessory, or consumable implied by the query.
+    const systemPrompt = `You are a precision deal search assistant. Return only merchants where a shopper could actually buy the queried item, service, or consumable today.
 
-Match using PURCHASE INTENT first:
-1. DIRECT SELLERS: merchants that clearly sell the queried item or service category.
-2. RELEVANT GENERAL RETAILERS: Target, Walmart, Costco, Sam's Club, Amazon, Best Buy, and similar stores only when they plausibly stock the queried product.
-3. COMPLEMENTARY SELLERS: merchants that sell necessary accessories, refills, parts, or consumables for the queried product only when the connection is explicit in your reasoning.
+STRICT RULE: include a merchant only if you are certain the item is sold by that merchant. Brand adjacency is not a match — "makes appliances", "sells home stuff", "is a premium brand", or "is in the same category" are all reasons to EXCLUDE.
 
-Do NOT match by loose brand association. Exclude substitute-category merchants: places where a customer would consume the outcome instead of buying the product. Examples: cafes are substitutes for home coffee equipment; streaming services are substitutes for TVs; rideshare is a substitute for car ownership; restaurants are substitutes for cookware.
+Who qualifies:
+1. DIRECT SELLERS: the merchant's actual product line or service includes the queried item.
+2. GENERAL RETAILERS (Target, Walmart, Costco, Sam's Club, Amazon, Best Buy): only when the item is a normal shelf item at that store.
+3. CONSUMABLES / ACCESSORIES: only when the merchant clearly sells the specific refill, part, or accessory for the queried product.
 
-Return a focused set, usually 5-15 IDs. Prefer precision over breadth. If a merchant is only weakly related, omit it.
+Always exclude substitute-experience merchants — places where the customer consumes the outcome instead of buying the product: cafes for home coffee equipment, streaming services for TVs, rideshare for cars, restaurants for cookware, gyms for fitness equipment.
+
+Score every match with a confidence from 0 to 1. Use 0.9 or higher ONLY when it is obvious the merchant sells the item. Anything uncertain gets a lower score, and low-confidence matches will be discarded.
+
+Return a small, correct set — 3 to 10 merchants is normal. Returning nothing is a correct answer when no merchant clearly sells the item. Never pad the list.
 
 Examples:
-- "coffee machine" → Williams-Sonoma, Bed Bath & Beyond, Crate & Barrel, Dyson, Amazon, Target, Walmart, Costco, Best Buy. Exclude Starbucks and Dunkin' unless the query asks for coffee beans, pods, drinks, or cafe rewards; they are not coffee-machine sellers.
-- "new TV" → Best Buy, Amazon, Walmart, Target, Costco, Samsung, Sony. Exclude Netflix, Hulu, Disney+, HBO Max, and YouTube Premium because they are streaming substitutes, not TV sellers.
-- "running shoes" → Nike, Adidas, Under Armour, Foot Locker, Dick's Sporting Goods, REI, Nordstrom, Macys, Amazon, Target.
-- "birthday gift" → Target, Walmart, Amazon, Nordstrom, 1-800-Flowers, Hallmark, Party City, Disney Store, LEGO, Build-A-Bear.
-- "healthy food" → Whole Foods, Trader Joes, Sweetgreen, HelloFresh, Instacart. Add GNC/Vitamin Shoppe only when the query implies supplements or nutrition products.`;
+- "coffee machine" → Williams-Sonoma, Crate & Barrel, Bed Bath & Beyond, Best Buy, Amazon, Target, Walmart, Costco. EXCLUDE Dyson — Dyson sells vacuums, fans, and hair tools, not coffee machines. EXCLUDE Starbucks and Dunkin' — they sell drinks, not machines.
+- "new TV" → Best Buy, Amazon, Walmart, Target, Costco, Samsung. EXCLUDE Netflix, Hulu, Disney+, HBO Max, YouTube Premium — streaming substitutes, not TV sellers.
+- "running shoes" → Nike, Adidas, Under Armour, Foot Locker, Dick's Sporting Goods, REI.
+- "dog food" → The Farmer's Dog, Nom Nom, Chewy, Petco, PetSmart. EXCLUDE Rover and Wag — pet services, not food sellers.
+- "healthy food" → Whole Foods, Trader Joes, Sweetgreen, HelloFresh, Instacart.`;
 
-    const userPrompt = `Query: "${query}"\n\nDeals:\n${catalogPrompt}\n\nReturn matching deal IDs for "${query}".`;
+    const userPrompt = `Query: "${query}"\n\nDeals:\n${catalogPrompt}\n\nReturn only high-confidence matches for "${query}".`;
 
     console.log(`Semantic search for query: "${query}"`);
 
@@ -305,6 +309,7 @@ Examples:
       },
       body: JSON.stringify({
         model: 'google/gemini-3.1-flash-lite',
+
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
