@@ -359,24 +359,24 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
       <div className="flex-1 min-h-0 flex flex-col" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
         <button
           onClick={() => setExpandedGroup(null)}
-          className="flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-slate-600 hover:text-slate-800 transition-colors"
+          className="shrink-0 flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-slate-600 hover:text-slate-800 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           <span className="text-[11px] font-medium">Back</span>
         </button>
 
-        <div className="h-[110px] w-full overflow-hidden">
+        <div className="h-[110px] w-full overflow-hidden shrink-0">
           <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
-        <div className="px-3 pt-2.5 pb-1">
+        <div className="px-3 pt-2.5 pb-1 shrink-0">
           {expandedGroup.collectionMessage && (
             <p className="text-[13px] font-bold text-slate-800 leading-snug">{expandedGroup.collectionMessage}</p>
           )}
           <p className="text-[10px] text-slate-500 mt-0.5">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2" style={{ scrollbarWidth: "none" }}>
+        <div className="flex-1 min-h-0 overflow-y-auto px-3 pb-3 space-y-2" style={{ scrollbarWidth: "none" }}>
           {deals.map((deal) => (
             <div
               key={deal.id}
