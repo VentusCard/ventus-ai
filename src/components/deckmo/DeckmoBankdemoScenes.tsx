@@ -189,6 +189,9 @@ export function BankdemoLongTerm({ step }: SceneProps) {
 
 const WORKSPACE_TABS: TabValue[] = ["ventus-ai", "targeting-automated-flows", "wm-copilot"];
 
+// Flat beat index within the bank-tools slide -> workspace screen index.
+const BANK_TOOLS_BEAT_SCREENS = [0, 1, 1, 2];
+
 function ExactWorkspace({ tab }: { tab: TabValue }) {
   return (
     <div className="mx-auto h-[552px] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:max-w-[1110px]">
@@ -199,17 +202,29 @@ function ExactWorkspace({ tab }: { tab: TabValue }) {
   );
 }
 
+function ActivationWorkspace() {
+  return (
+    <div className="mx-auto h-[552px] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:max-w-[1110px]">
+      <div className="h-[669px] w-[1440px] origin-top-left scale-[0.825] [@media(max-width:1340px)]:h-[717px] [@media(max-width:1340px)]:scale-[0.77]">
+        <SegmentCampaignContent />
+      </div>
+    </div>
+  );
+}
+
 export function BankdemoBankTools({ step }: SceneProps) {
   const data = DECKMO.bankTools;
+  const screenIndex = BANK_TOOLS_BEAT_SCREENS[step] ?? 0;
+  const showActivation = step === 2;
   return (
     <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8">
       <div className="flex items-end justify-between gap-8">
         <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
         <div className="mb-1 flex gap-2">
-          {data.screens.map((item, index) => <span key={item.id} className={cn("rounded-full border px-4 py-2 text-[10px] font-bold", index === step ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-400")}>{item.tab}</span>)}
+          {data.screens.map((item, index) => <span key={item.id} className={cn("rounded-full border px-4 py-2 text-[10px] font-bold", index === screenIndex ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-400")}>{item.tab}</span>)}
         </div>
       </div>
-      <div className="mt-5"><ExactWorkspace tab={WORKSPACE_TABS[step] ?? WORKSPACE_TABS[0]} /></div>
+      <div className="mt-5">{showActivation ? <ActivationWorkspace /> : <ExactWorkspace tab={WORKSPACE_TABS[screenIndex] ?? WORKSPACE_TABS[0]} />}</div>
     </div>
   );
 }
