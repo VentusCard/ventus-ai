@@ -313,6 +313,8 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                             onClick={(event) => {
                               stop(event);
                               setConfirmations((c) => ({ ...c, [selected]: "yes" }));
+                              setCorrectionOpen(null);
+                              setDraft("");
                             }}
                             className="h-7 px-3 py-1 text-[9px]"
                           >
