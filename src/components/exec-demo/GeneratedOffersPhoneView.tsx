@@ -490,7 +490,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
   return (
     <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
-      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollbarWidth: "none" }}>
+      <div className={cn("flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5", autoRotate && "flex flex-col")} style={{ scrollbarWidth: "none" }}>
 
         {!focusMode && (
         <>
