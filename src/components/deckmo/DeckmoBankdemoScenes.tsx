@@ -1,4 +1,4 @@
-import { DECKMO } from "@/lib/deckmoScript";
+import { BANK_TOOLS_BEAT_SCREENS as DECKMO_BEAT_SCREENS, DECKMO } from "@/lib/deckmoScript";
 import { DECKMO_BANKDEMO_FIXTURE } from "@/lib/deckmoBankdemoFixture";
 import ExecDemoPhoneView, { type ConsumerTab } from "@/components/exec-demo/ExecDemoPhoneView";
 import { AnalyticsContainer, type TabValue } from "@/components/tepilot/insights/AnalyticsContainer";
@@ -92,7 +92,7 @@ export function BankdemoMidTerm({ step }: SceneProps) {
   return <PhoneScene step={step} data={DECKMO.midTerm} tab={phoneTabs[1]} />;
 }
 
-export function BankdemoSegmentCampaign() {
+export function SegmentCampaignContent() {
   const data = DECKMO.segmentCampaign;
   const product = PRODUCT_CATALOG.find((item) => item.name === data.productLabel);
   const variants = product ? getProductVariants(product) : undefined;
@@ -106,10 +106,9 @@ export function BankdemoSegmentCampaign() {
   const reachLabel = reach ? `~${(reach / 1_000).toFixed(1)}K` : "Qualified";
 
   return (
-    <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8 [@media(max-height:800px)]:origin-top [@media(max-height:800px)]:scale-[0.78]">
-      <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
-
-      <div className="mt-7 grid min-h-0 flex-1 grid-cols-[minmax(320px,380px)_minmax(0,1fr)] gap-10">
+    <div className="flex h-full flex-col px-10 py-8">
+      <p className="shrink-0 text-xl font-semibold tracking-tight text-slate-900">{data.title}</p>
+      <div className="mt-5 grid min-h-0 flex-1 grid-cols-[minmax(320px,380px)_minmax(0,1fr)] gap-10">
         <div className="flex flex-col justify-center border-r border-deck-rule pr-8">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">From intelligence to activation</p>
           <div className="mt-5 space-y-2">
@@ -190,6 +189,9 @@ export function BankdemoLongTerm({ step }: SceneProps) {
 
 const WORKSPACE_TABS: TabValue[] = ["ventus-ai", "targeting-automated-flows", "wm-copilot"];
 
+// Flat beat index within the bank-tools slide -> workspace screen index.
+const BANK_TOOLS_BEAT_SCREENS = DECKMO_BEAT_SCREENS;
+
 function ExactWorkspace({ tab }: { tab: TabValue }) {
   return (
     <div className="mx-auto h-[552px] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:max-w-[1110px]">
@@ -200,17 +202,29 @@ function ExactWorkspace({ tab }: { tab: TabValue }) {
   );
 }
 
+function ActivationWorkspace() {
+  return (
+    <div className="mx-auto h-[552px] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:max-w-[1110px]">
+      <div className="h-[669px] w-[1440px] origin-top-left scale-[0.825] [@media(max-width:1340px)]:h-[717px] [@media(max-width:1340px)]:scale-[0.77]">
+        <SegmentCampaignContent />
+      </div>
+    </div>
+  );
+}
+
 export function BankdemoBankTools({ step }: SceneProps) {
   const data = DECKMO.bankTools;
+  const screenIndex = BANK_TOOLS_BEAT_SCREENS[step] ?? 0;
+  const showActivation = step === 2;
   return (
     <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8">
       <div className="flex items-end justify-between gap-8">
         <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
         <div className="mb-1 flex gap-2">
-          {data.screens.map((item, index) => <span key={item.id} className={cn("rounded-full border px-4 py-2 text-[10px] font-bold", index === step ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-400")}>{item.tab}</span>)}
+          {data.screens.map((item, index) => <span key={item.id} className={cn("rounded-full border px-4 py-2 text-[10px] font-bold", index === screenIndex ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-400")}>{item.tab}</span>)}
         </div>
       </div>
-      <div className="mt-5"><ExactWorkspace tab={WORKSPACE_TABS[step] ?? WORKSPACE_TABS[0]} /></div>
+      <div className="mt-5">{showActivation ? <ActivationWorkspace /> : <ExactWorkspace tab={WORKSPACE_TABS[screenIndex] ?? WORKSPACE_TABS[0]} />}</div>
     </div>
   );
 }

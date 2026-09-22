@@ -7,10 +7,12 @@ export type DeckmoBeatId =
   | "ricky"
   | "immediate"
   | "mid-term"
-  | "segment-campaign"
   | "long-term"
   | "bank-tools"
   | "close";
+
+// Flat beat index within the "For Your Teams" slide -> workspace screen index.
+export const BANK_TOOLS_BEAT_SCREENS = [0, 1, 1, 2];
 
 export const DECKMO = {
   chrome: {
@@ -41,9 +43,8 @@ export const DECKMO = {
     { id: "ricky", nav: "Example: Meet Ricky", steps: 2 },
     { id: "immediate", nav: "Immediate Value: Decrease Customer Service Cost", steps: 4 },
     { id: "mid-term", nav: "Value: This Year", steps: 5 },
-    { id: "segment-campaign", nav: "Activation", steps: 1 },
     { id: "long-term", nav: "Value: The Relationship", steps: 3 },
-    { id: "bank-tools", nav: "For Your Teams", steps: 3 },
+    { id: "bank-tools", nav: "For Your Teams", steps: 4, subSteps: [null, null, 1, null], stepScreens: BANK_TOOLS_BEAT_SCREENS },
     { id: "close", nav: "The Ask", steps: 4 },
   ],
   opener: {
@@ -547,5 +548,9 @@ export const DECKMO = {
 } as const;
 
 export const DECKMO_STEPS = DECKMO.beats.flatMap((beat, section) =>
-  Array.from({ length: beat.steps }, (_, step) => ({ section, step, id: `${beat.id}-${step}` })),
+  Array.from({ length: beat.steps }, (_, step) => {
+    const sub = "subSteps" in beat ? beat.subSteps?.[step] : undefined;
+    const screen = "stepScreens" in beat ? beat.stepScreens[step] : step;
+    return { section, step, screen, id: `${beat.id}-${step}`, ...(sub ? { sub } : {}) };
+  }),
 );
