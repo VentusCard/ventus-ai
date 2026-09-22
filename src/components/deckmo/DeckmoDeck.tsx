@@ -116,7 +116,7 @@ function Opener({ step }: SceneProps) {
       </div>
 
       <div className={cn(
-        "absolute inset-x-[clamp(32px,4vw,72px)] top-[46%] grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-baseline gap-x-[clamp(10px,1.35vw,22px)] transition-opacity duration-500 motion-reduce:transition-none",
+        "absolute inset-x-[clamp(32px,4vw,72px)] top-[49%] grid grid-cols-[max-content_auto_max-content_auto_max-content] items-baseline justify-between gap-x-[clamp(8px,1vw,18px)] transition-opacity duration-500 motion-reduce:transition-none",
         comparisonStarted ? "opacity-100" : "pointer-events-none opacity-0",
       )}>
           {comparison.map((row, index) => {
@@ -126,7 +126,7 @@ function Opener({ step }: SceneProps) {
               (blue ? step >= 3 + segmentIndex : step >= 2) ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
             return (
               <Fragment key={row.label}>
-                <div className={cn("col-span-5 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(24px,3vh,40px)]", revealFor(0))}>
+                <div className={cn("col-span-5 mb-3 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(52px,7vh,78px)]", revealFor(0))}>
                   {blue ? (
                     <p className="flex items-center gap-2.5 text-[12px] font-bold uppercase tracking-[0.18em] text-blue-600">
                       <span>{row.label}</span>
@@ -139,9 +139,9 @@ function Opener({ step }: SceneProps) {
                 {row.segments.map((segment, s) => (
                   <Fragment key={segment}>
                     {s > 0 && (
-                      <div className={cn("mt-1 px-1 text-center text-[clamp(17px,1.55vw,27px)] font-bold transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-deck-muted")}>=</div>
+                      <div className={cn("px-1 text-center text-[clamp(13px,1.4vw,24px)] font-bold transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-deck-muted")}>=</div>
                     )}
-                    <div className={cn("mt-1 min-w-0 text-balance text-[clamp(17px,1.55vw,27px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
+                    <div className={cn("whitespace-nowrap text-[clamp(13px,1.4vw,24px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
                   </Fragment>
                 ))}
               </Fragment>

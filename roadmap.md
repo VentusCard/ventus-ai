@@ -29,3 +29,4 @@
 - [x] Trim Ricky's masthead to one row and add core bank-record facts (age, city, income, tier)
 - [x] Living-view beat 2: two-line wide card (families row + question row)
 - [x] Rebuild Immediate Value as an enriched recent-transactions phone tab spanning payment rails
+- [x] Space out the opener sections while keeping both comparison equations on one line
