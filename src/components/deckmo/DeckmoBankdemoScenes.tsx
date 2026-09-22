@@ -1,4 +1,4 @@
-import { DECKMO } from "@/lib/deckmoScript";
+import { BANK_TOOLS_BEAT_SCREENS as DECKMO_BEAT_SCREENS, DECKMO } from "@/lib/deckmoScript";
 import { DECKMO_BANKDEMO_FIXTURE } from "@/lib/deckmoBankdemoFixture";
 import ExecDemoPhoneView, { type ConsumerTab } from "@/components/exec-demo/ExecDemoPhoneView";
 import { AnalyticsContainer, type TabValue } from "@/components/tepilot/insights/AnalyticsContainer";
