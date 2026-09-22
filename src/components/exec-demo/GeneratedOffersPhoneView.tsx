@@ -607,78 +607,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         )}
 
 
-        {/* ── Collection Carousel ── */}
-        {!isSearchActive && groups.length > 0 && active && (
-          <div className={cn("space-y-2.5", autoRotate && "order-first")}>
-
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="text-[12.5px] font-bold text-slate-700">
-                Curated for {firstName}
-              </span>
-            </div>
-
-            <div
-              key={`${active.pillar}::${active.rollup}`}
-              className="rounded-xl overflow-hidden border border-slate-100 flex flex-col min-h-[190px] cursor-pointer hover:shadow-md transition-shadow"
-              style={{
-                background: "linear-gradient(145deg, #f8fafc, #ffffff)",
-                animation: `collection-slide-${direction} 0.45s cubic-bezier(0.22, 1, 0.36, 1)`,
-              }}
-              onClick={() => setExpandedGroup(active)}
-            >
-              <div className="h-[110px] w-full overflow-hidden">
-                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={presentationMode ? undefined : handleImageError} />
-              </div>
-              <div className="px-3 pt-2 pb-1.5 shrink-0">
-                <p className="text-[12px] font-semibold text-slate-800 leading-snug">
-                  {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-1.5 px-3 pb-2.5 overflow-hidden">
-                {activeDeals.map((deal) => (
-                  <span
-                    key={deal.id}
-                    className="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full border border-slate-100 bg-white text-slate-600 shadow-sm truncate shrink min-w-0"
-                  >
-                    {deal.merchant}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {groups.length > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-1">
-                <button
-                  onClick={() => goTo((safeIdx - 1 + groups.length) % groups.length)}
-                  className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
-                </button>
-                <div className="flex gap-1.5">
-                  {groups.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => goTo(i)}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        i === safeIdx
-                          ? "w-5 bg-blue-600 shadow-sm"
-                          : "w-2 bg-slate-300 hover:bg-slate-400"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <button
-                  onClick={() => goTo((safeIdx + 1) % groups.length)}
-                  className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
-                >
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+        {/* ── Collection Carousel (bottom placement) ── */}
+        {!autoRotate && carouselBlock}
 
       </div>
 
