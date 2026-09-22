@@ -110,7 +110,7 @@ function Opener({ step }: SceneProps) {
         <Reveal show={step >= 0}>
           <p className="text-balance text-[clamp(44px,5vw,76px)] font-bold leading-[1.03] tracking-normal text-slate-950">{DECKMO.opener.lines[0]}</p>
         </Reveal>
-        <Reveal show={step >= 1} className="mt-2">
+        <Reveal show={step >= 1} className="mt-7">
           <p className="text-balance text-[clamp(34px,3.9vw,58px)] font-bold leading-[1.06] tracking-normal text-slate-950">{DECKMO.opener.lines[1]}</p>
         </Reveal>
       </div>
