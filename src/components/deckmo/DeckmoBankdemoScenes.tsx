@@ -70,7 +70,7 @@ function PhoneScene({ step, data, tab }: SceneProps & { data: typeof DECKMO.imme
   return (
     <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_480px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6">
       <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
-      <ExactPhone tab={tab} cycleCollections={tab === "rewards" && step >= 4} />
+      <ExactPhone tab={tab} cycleCollections={tab === "rewards"} />
       <CalloutRail items={data.popups} step={step} />
     </div>
   );
