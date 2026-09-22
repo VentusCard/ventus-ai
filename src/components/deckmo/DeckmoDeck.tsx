@@ -20,11 +20,11 @@ const TONES = {
 type Tone = keyof typeof TONES;
 
 const RICKY_ROW_TONES: Record<Tone, string> = {
-  blue: "border-l-blue-500 bg-blue-50/80",
-  amber: "border-l-amber-500 bg-amber-50/80",
-  emerald: "border-l-emerald-500 bg-emerald-50/80",
-  violet: "border-l-violet-500 bg-violet-50/80",
-  rose: "border-l-rose-500 bg-rose-50/80",
+  blue: "border-l-[4px] border-l-blue-500 bg-blue-100/90",
+  amber: "border-l-[4px] border-l-amber-500 bg-amber-100/90",
+  emerald: "border-l-[4px] border-l-emerald-500 bg-emerald-100/90",
+  violet: "border-l-[4px] border-l-violet-500 bg-violet-100/90",
+  rose: "border-l-[4px] border-l-rose-500 bg-rose-100/90",
 };
 
 type SceneProps = { step: number; active?: boolean };
