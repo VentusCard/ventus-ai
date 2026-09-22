@@ -4,6 +4,7 @@ import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
 import { availableDeals as AVAILABLE_DEALS } from "@/lib/availableDealsData";
+import { cn } from "@/lib/utils";
 
 // ── Merchant lookup: dealId → merchant name (mirrors edge function catalog) ──
 const MERCHANT_LOOKUP: Record<string, string> = {
