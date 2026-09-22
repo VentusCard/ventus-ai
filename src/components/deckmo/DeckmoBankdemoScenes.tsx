@@ -190,7 +190,7 @@ export function BankdemoLongTerm({ step }: SceneProps) {
 const WORKSPACE_TABS: TabValue[] = ["ventus-ai", "targeting-automated-flows", "wm-copilot"];
 
 // Flat beat index within the bank-tools slide -> workspace screen index.
-const BANK_TOOLS_BEAT_SCREENS = [0, 1, 1, 2];
+const BANK_TOOLS_BEAT_SCREENS = DECKMO_BEAT_SCREENS;
 
 function ExactWorkspace({ tab }: { tab: TabValue }) {
   return (
