@@ -310,14 +310,14 @@ function Ricky({ step, active = false }: SceneProps) {
 
         <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
         <section className="flex min-h-0 flex-col border-r border-deck-rule bg-deck-surface/50">
-          {selectedExternalEvidence ? <div key={selectedLabel} className="flex min-h-0 flex-1 items-start p-5 animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
+          {selectedExternalEvidence ? <div className="flex min-h-0 flex-1 items-start p-5">
             <div className="w-full border border-violet-200 bg-violet-50/50 p-5">
               <div className="flex items-start gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-violet-200 bg-background text-violet-600"><Sparkles className="h-5 w-5" /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-base font-bold text-slate-900">{selectedSignal?.label}</p><span className="rounded-full border border-violet-200 bg-background px-2.5 py-1 text-[10px] font-bold uppercase text-violet-700">{selectedExternalEvidence.confidence}</span></div><p className="mt-2 text-sm leading-relaxed text-slate-600">{selectedExternalEvidence.detail}</p></div></div>
               <div className="mt-5 grid grid-cols-2 border-t border-violet-200 pt-4"><div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600">Source</p><p className="mt-1 text-sm font-semibold text-slate-800">{selectedExternalEvidence.provider}</p></div><div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600">Timing</p><p className="mt-1 text-sm font-semibold text-slate-800">{selectedExternalEvidence.timing}</p></div></div>
             </div>
-          </div> : <div key={selectedLabel ?? "all"} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
+          </div> : <div className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
-            <div className={cn(active && step === 1 && "deck-ricky-ledger-roll")}>
+            <div className={cn(active && step === 1 && !rollComplete && "deck-ricky-ledger-roll")}>
               {displayedTransactions.map((transaction) => {
                 const tone = signalTone(transaction.signals);
                 const highlighted = (rollComplete || selectedLabel !== null) && tone !== undefined;
