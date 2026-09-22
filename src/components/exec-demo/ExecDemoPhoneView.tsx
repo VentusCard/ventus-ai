@@ -97,9 +97,11 @@ interface Props {
   firstTabLabel?: string;
   /** When true, the status bar battery renders as a green, fully charged battery (deck presentation usage). */
   batteryFull?: boolean;
+  /** When true, rewards collections auto-rotate even in presentation mode (deck beat usage). */
+  autoRotateCollections?: boolean;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
@@ -134,7 +136,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     switch (consumerTab) {
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
-          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={false} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} presentationMode={presentationMode} presentationImageUrl={presentationImageUrl} />;
+          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={false} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} presentationMode={presentationMode} presentationImageUrl={presentationImageUrl} autoRotate={autoRotateCollections} />;
         }
         return (
           <div className="flex items-center justify-center h-full">

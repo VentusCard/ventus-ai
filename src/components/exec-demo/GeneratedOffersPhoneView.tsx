@@ -187,6 +187,8 @@ interface Props {
   activeRollupPillar?: string | null;
   presentationMode?: boolean;
   presentationImageUrl?: string;
+  /** When true, collections auto-rotate even in presentation mode (deck beat usage). */
+  autoRotate?: boolean;
 }
 
 // ── Fuzzy-match helpers (mirrors NextOfferRationale) ──
@@ -214,7 +216,7 @@ export function findGroupForLabel(label: string, pillar: string | null | undefin
   return hit || null;
 }
 
-export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar, presentationMode = false, presentationImageUrl }: Props) {
+export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar, presentationMode = false, presentationImageUrl, autoRotate = false }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
@@ -324,14 +326,19 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
     setCurrent(idx);
   }, [current]);
 
+  // Reset to the first collection whenever auto-rotation is off (static presentation beats).
   useEffect(() => {
-    if (presentationMode || allGroups.length <= 1 || expandedGroup || isSearchActive) return;
+    if (!autoRotate) setCurrent(0);
+  }, [autoRotate]);
+
+  useEffect(() => {
+    if ((presentationMode && !autoRotate) || allGroups.length <= 1 || expandedGroup || isSearchActive) return;
     const timer = setInterval(() => {
       setDirection("right");
       setCurrent(prev => (prev + 1) % allGroups.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [presentationMode, allGroups.length, expandedGroup, isSearchActive]);
+  }, [presentationMode, autoRotate, allGroups.length, expandedGroup, isSearchActive]);
 
   if (offerGroups.length === 0) return null;
 
