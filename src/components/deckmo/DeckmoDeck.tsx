@@ -101,18 +101,18 @@ function Opener({ step }: SceneProps) {
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col justify-center px-[clamp(32px,4vw,72px)] py-10 [@media(max-height:800px)]:py-6">
       <div className="w-full">
-        <Reveal show={step >= 1}>
+        <Reveal show={step >= 0}>
           <p className="text-balance text-[clamp(44px,5vw,76px)] font-bold leading-[1.03] tracking-normal text-slate-950">{DECKMO.opener.lines[0]}</p>
         </Reveal>
-        <Reveal show={step >= 2} className="mt-3 [@media(max-height:800px)]:mt-2">
+        <Reveal show={step >= 1} className="mt-3 [@media(max-height:800px)]:mt-2">
           <p className="text-balance text-[clamp(34px,3.9vw,58px)] font-bold leading-[1.06] tracking-normal text-slate-950">{DECKMO.opener.lines[1]}</p>
         </Reveal>
         <div className="mt-[clamp(40px,5vh,72px)] grid grid-cols-[auto_auto_auto_auto_auto] items-baseline gap-x-[clamp(14px,1.6vw,28px)] [@media(max-height:800px)]:mt-8">
           {comparison.map((row, index) => {
             const blue = index === 1;
-            // Today reveals as one block at step 3; With Ventus builds one segment per beat from step 4.
+            // Today reveals as one block at step 2; With Ventus builds one segment per beat from step 3.
             const revealFor = (segmentIndex: number) =>
-              (blue ? step >= 4 + segmentIndex : step >= 3) ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
+              (blue ? step >= 3 + segmentIndex : step >= 2) ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0";
             return (
               <Fragment key={row.label}>
                 <div className={cn("col-span-5 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(28px,3.4vh,48px)] [@media(max-height:800px)]:mt-6", revealFor(0))}>

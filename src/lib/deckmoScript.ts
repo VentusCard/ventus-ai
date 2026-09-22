@@ -37,7 +37,7 @@ export const DECKMO = {
     tabs: ["Activity", "Rewards", "Membership", "AI"],
   },
   beats: [
-    { id: "opener", nav: "Thesis", steps: 7 },
+    { id: "opener", nav: "Thesis", steps: 6 },
     { id: "visibility", nav: "The Gap", steps: 2 },
     { id: "living-view", nav: "The Insight", steps: 2 },
     { id: "ricky", nav: "Example: Meet Ricky", steps: 2 },
