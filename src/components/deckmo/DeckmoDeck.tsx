@@ -320,9 +320,10 @@ function Ricky({ step, active = false }: SceneProps) {
             <div className={cn(active && step === 1 && "deck-ricky-ledger-roll")}>
               {displayedTransactions.map((transaction) => {
                 const tone = signalTone(transaction.signals);
-                const highlighted = (rollComplete || selectedLabel !== null) && tone;
+                const highlighted = (rollComplete || selectedLabel !== null) && tone !== undefined;
+                const rowTone = tone ? RICKY_ROW_TONES[tone] : undefined;
                 return (
-                <div key={transaction.id} className={cn("grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2 transition-colors duration-500", highlighted && "deck-ricky-row-highlight", highlighted && RICKY_ROW_TONES[tone])}>
+                <div key={transaction.id} className={cn("grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2 transition-colors duration-500", highlighted && "deck-ricky-row-highlight", highlighted && rowTone)}>
                   <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
                    <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
                    <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
