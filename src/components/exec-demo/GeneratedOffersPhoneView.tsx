@@ -337,7 +337,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
     const timer = setInterval(() => {
       setDirection("right");
       setCurrent(prev => (prev + 1) % allGroups.length);
-    }, autoRotate ? 2000 : 5000);
+    }, autoRotate ? 4000 : 5000);
     return () => clearInterval(timer);
   }, [presentationMode, autoRotate, allGroups.length, expandedGroup, isSearchActive]);
 
@@ -564,9 +564,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
     <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollbarWidth: "none" }}>
 
-        {/* ── Collection Carousel (top placement while cycling) ── */}
-        {autoRotate && carouselBlock}
-
         {!focusMode && (
         <>
         {/* ── Savings Summary Bar ── */}
@@ -682,7 +679,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
 
         {/* ── Collection Carousel (bottom placement) ── */}
-        {!autoRotate && carouselBlock}
+        {carouselBlock}
 
       </div>
 
