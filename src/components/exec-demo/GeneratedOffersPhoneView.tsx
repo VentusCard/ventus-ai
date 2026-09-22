@@ -326,6 +326,11 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
     setCurrent(idx);
   }, [current]);
 
+  // Reset to the first collection whenever auto-rotation is off (static presentation beats).
+  useEffect(() => {
+    if (!autoRotate) setCurrent(0);
+  }, [autoRotate]);
+
   useEffect(() => {
     if ((presentationMode && !autoRotate) || allGroups.length <= 1 || expandedGroup || isSearchActive) return;
     const timer = setInterval(() => {
