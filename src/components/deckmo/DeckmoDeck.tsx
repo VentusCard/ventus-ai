@@ -116,7 +116,7 @@ function Opener({ step }: SceneProps) {
       </div>
 
       <div className={cn(
-        "absolute inset-x-[clamp(32px,4vw,72px)] top-[49%] grid grid-cols-[max-content_auto_max-content_auto_max-content] items-baseline justify-between gap-x-[clamp(8px,1vw,18px)] transition-opacity duration-500 motion-reduce:transition-none",
+        "absolute inset-x-[clamp(32px,4vw,72px)] top-[41%] grid grid-cols-[max-content_auto_max-content_auto_max-content] items-baseline justify-between gap-x-[clamp(8px,1vw,18px)] transition-opacity duration-500 motion-reduce:transition-none",
         comparisonStarted ? "opacity-100" : "pointer-events-none opacity-0",
       )}>
           {comparison.map((row, index) => {
@@ -139,9 +139,9 @@ function Opener({ step }: SceneProps) {
                 {row.segments.map((segment, s) => (
                   <Fragment key={segment}>
                     {s > 0 && (
-                      <div className={cn("px-1 text-center text-[clamp(13px,1.4vw,24px)] font-bold transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-deck-muted")}>=</div>
+                      <div className={cn("px-1 text-center text-[clamp(17px,2vw,34px)] font-bold transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-deck-muted")}>=</div>
                     )}
-                    <div className={cn("whitespace-nowrap text-[clamp(13px,1.4vw,24px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
+                    <div className={cn("whitespace-nowrap text-[clamp(17px,2vw,34px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", revealFor(s), blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
                   </Fragment>
                 ))}
               </Fragment>
