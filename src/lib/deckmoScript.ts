@@ -56,7 +56,7 @@ export const DECKMO = {
       },
       ventus: {
         label: "with",
-        segments: ["Anticipate and fulfil customer needs", "Personalized banking", "Differentiation"],
+        segments: ["Anticipate and fulfil every customer need", "Personalized banking", "Differentiation"],
       },
     },
   },
