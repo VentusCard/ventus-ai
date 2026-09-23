@@ -196,7 +196,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
           {/* Detail screen */}
           <div
             className={cn(
-              "absolute inset-0 overflow-y-auto bg-background exec-light-scroll transition-transform duration-300 motion-reduce:transition-none",
+              "absolute inset-0 bg-background transition-transform duration-300 motion-reduce:transition-none",
               tx ? "translate-x-0" : "translate-x-full",
             )}
             aria-hidden={!tx}
@@ -208,6 +208,8 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
               const confirmState = confirmations[selected];
               const confirmed = confirmState === "yes";
               return (
+                <div className="relative h-full">
+                  <div className="h-full overflow-y-auto exec-light-scroll">
                 <div className="flex min-h-full flex-col">
                   <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b border-slate-200 bg-background/95 px-2 py-1.5 [@media(max-height:800px)]:py-0.5 backdrop-blur">
                     <Button
