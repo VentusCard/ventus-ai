@@ -53,15 +53,20 @@ const PURCHASE_ICONS = {
 
 // Detail-screen type scale: larger by default, one step down on short viewports.
 const T = {
-  title: "text-[18px] [@media(max-height:800px)]:text-[15px]",
-  meta: "text-[11px] [@media(max-height:800px)]:text-[9.5px]",
+  title: "text-[18px] [@media(max-height:800px)]:text-[14px]",
+  meta: "text-[11px] [@media(max-height:800px)]:text-[9px]",
   chip: "text-[8px] [@media(max-height:800px)]:text-[7.5px]",
-  cardLabel: "text-[9px] [@media(max-height:800px)]:text-[8px]",
-  rowLabel: "text-[10px] [@media(max-height:800px)]:text-[9px]",
-  rowValue: "text-[10.5px] [@media(max-height:800px)]:text-[9.5px]",
-  mono: "text-[13px] [@media(max-height:800px)]:text-[11.5px]",
-  body: "text-[10.5px] [@media(max-height:800px)]:text-[9.5px]",
-  btn: "h-8 text-[10.5px] [@media(max-height:800px)]:h-7 [@media(max-height:800px)]:text-[9.5px]",
+  cardLabel: "text-[9px] [@media(max-height:800px)]:text-[7.5px]",
+  rowLabel: "text-[10px] [@media(max-height:800px)]:text-[8.5px]",
+  rowValue: "text-[10.5px] [@media(max-height:800px)]:text-[9px]",
+  mono: "text-[13px] [@media(max-height:800px)]:text-[10.5px]",
+  body: "text-[10.5px] [@media(max-height:800px)]:text-[9px]",
+  btn: "h-8 text-[10.5px] [@media(max-height:800px)]:h-7 [@media(max-height:800px)]:text-[9px]",
+  // Compact spacing helpers for short viewports
+  sectionGap: "mt-2.5 [@media(max-height:800px)]:mt-1.5",
+  cardPad: "p-2.5 [@media(max-height:800px)]:p-2",
+  listGap: "mt-1.5 [@media(max-height:800px)]:mt-1",
+  itemGap: "space-y-1 [@media(max-height:800px)]:space-y-0.5",
 };
 
 const stop = (event: { stopPropagation: () => void }) => event.stopPropagation();
