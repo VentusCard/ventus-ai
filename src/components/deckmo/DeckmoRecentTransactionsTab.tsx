@@ -15,6 +15,7 @@ import {
   Briefcase,
   Music,
   ReceiptText,
+  RefreshCw,
   Sparkles,
   Trees,
   Tv,
@@ -158,6 +159,9 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                         <span className="truncate text-[12px] font-bold text-slate-900">
                           {correction ? correction : isConfirm && !confirmed ? `${row.clean}?` : row.clean}
                         </span>
+                        {row.pattern?.startsWith("Recurring") && (
+                          <RefreshCw className="h-2.5 w-2.5 shrink-0 text-slate-400" />
+                        )}
                         {correction && (
                           <span className="shrink-0 rounded border border-amber-200 bg-amber-50 px-1 py-px text-[7px] font-bold text-amber-800">Review</span>
                         )}
