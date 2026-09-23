@@ -26,6 +26,7 @@ import {
 } from './benefit.mjs';
 import {
   exclusionLabel,
+  householdShortName,
   isBalanceDerived,
   lifeEventLabel,
   outreachWindow,
@@ -1099,7 +1100,7 @@ export function digestSubject({ items = [] }) {
  */
 export function digestActions(items = []) {
   if (!items.length) return [];
-  const name = (item) => String(item?.household_name || '').replace(/\s+Household$/i, '').trim();
+  const name = (item) => householdShortName(item?.household_name);
   const lead = name(items[0]) || 'a household';
   const second = name(items[1] || items[0]) || lead;
   const product = items[0]?.product?.name || 'a product';

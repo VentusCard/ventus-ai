@@ -12,6 +12,22 @@
 // Pure functions, no I/O. Kept separate from render.mjs because the same
 // vocabulary is needed by task logic (rationale strings) and by tests.
 
+/**
+ * A household's name with the word "Household" taken off the end.
+ *
+ * Under a column headed HOUSEHOLD, in a mail about households, every row
+ * repeating the word is five copies of something the reader already knows, and
+ * it costs the width that the product and benefit columns need. "Sharma" is
+ * how an advisor refers to them out loud anyway.
+ */
+export function householdShortName(name) {
+  return (
+    String(name || '')
+      .replace(/\s+Household$/i, '')
+      .trim() || String(name || '')
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Signal labels
 // ---------------------------------------------------------------------------

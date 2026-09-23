@@ -192,7 +192,11 @@ test('renderDigestTable renders the five columns an advisor needs', () => {
   ]) {
     assert.match(html, new RegExp(heading));
   }
-  assert.match(html, /A Household/);
+  // Named "A Household" in the fixture, shown as "A": the column heading
+  // already says what these are, so the suffix is repeated five times for
+  // nothing and costs width the product column needs.
+  assert.match(html, />A</);
+  assert.doesNotMatch(html, /A Household</);
   assert.match(html, /Inheritance received/);
   assert.match(html, /Next 14 days/);
   assert.match(html, /\$2,000 net/);

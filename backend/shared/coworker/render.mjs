@@ -20,7 +20,31 @@
 //    is eligible for credit.
 //  - Every reply ends with a single, concrete forward move.
 
-import { pluralize } from './labels.mjs';
+import { householdShortName, pluralize } from './labels.mjs';
+
+/** Sampled from the Ventus wordmark, so the mail and the deck agree. */
+const VENTUS_BLUE = '#3762E3';
+
+/**
+ * The Ventus AI Coworker wordmark, set as text rather than served as an image.
+ *
+ * Outlook and Apple Mail's privacy relay block remote images until the reader
+ * asks for them, so an <img> logo is a broken placeholder at the top of the
+ * message for exactly the audience we most want to impress. The mark is pure
+ * type, so type reproduces it, and it renders everywhere with no hosting, no
+ * tracking-pixel ambiguity and no weight on the message.
+ *
+ * Arial Black is the fallback that matters: it ships on Windows and macOS and
+ * is the closest ubiquitous face to the heavy geometric sans of the logo.
+ */
+function renderWordmark() {
+  const face =
+    "font-family:'Archivo Black','Helvetica Neue',Helvetica,'Arial Black',Arial,sans-serif;font-weight:900;";
+  return `<div style="margin:0 0 20px;">
+<div style="${face}font-size:27px;line-height:1.05;letter-spacing:-0.015em;color:${VENTUS_BLUE};">VENTUS AI</div>
+<div style="${face}font-size:27px;line-height:1.05;letter-spacing:-0.015em;color:${VENTUS_BLUE};font-style:italic;">COWORKER</div>
+</div>`;
+}
 
 /** HTML-escape a string for safe interpolation into the email body. */
 export function esc(value) {
@@ -91,6 +115,7 @@ export function formatBenefit(row = {}) {
  * @param {{example:string, does:string}[]} [opts.actions]  what the reader can
  *   reply with. Use instead of forwardMove where there is genuinely more than
  *   one useful move; see renderActions.
+ * @param {boolean} [opts.brand]  show the wordmark. On by default.
  */
 export function renderShell({
   greeting,
@@ -98,6 +123,7 @@ export function renderShell({
   sections = [],
   forwardMove,
   actions = [],
+  brand = true,
   signoff = 'Ventus AI Coworker',
   disclaimer = DEFAULT_DISCLAIMER,
   unsubscribeUrl,
@@ -120,6 +146,7 @@ export function renderShell({
     ? `<p style="font-size:11px;color:#888;margin:6px 0 0;">You are receiving this because you asked the Ventus AI Coworker to screen your book each morning. <a href="${esc(unsubscribeUrl)}" style="color:#888;text-decoration:underline;">Stop the daily digest</a>.</p>`
     : '';
   return `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#1a1a1a;line-height:1.5;max-width:720px;">
+${brand ? renderWordmark() : ''}
 <p style="margin:0 0 12px;">${esc(greeting)}</p>
 ${paras}
 ${secs}
@@ -249,11 +276,11 @@ export function renderDigestTable(items = []) {
   const rows = items
     .map((i, idx) => {
       const last = idx === items.length - 1;
-      const edge = last ? 'none' : '1px solid #eceff3';
-      const cell = `padding:13px 12px;border-bottom:${edge};vertical-align:top;`;
+      const edge = last ? 'none' : '1px solid #eff1f5';
+      const cell = `padding:18px 14px;border-bottom:${edge};vertical-align:top;line-height:1.45;`;
       return `<tr>
-<td style="${cell}font-weight:600;color:#101828;font-size:15px;">${esc(i.household_name || i.household_id)}</td>
-<td style="${cell}color:#344054;">${esc(i.lead_signal?.label || '')}${renderNewBadge(i.timing)}${renderLifeEventBadge(i.lead_signal)}${renderSubline(formatSignalAge(i.timing))}</td>
+<td style="${cell}font-weight:600;color:#101828;font-size:15px;">${esc(householdShortName(i.household_name) || i.household_id)}</td>
+<td style="${cell}color:#344054;">${esc(i.lead_signal?.label || '')}${renderNewBadge(i.timing)}${renderLifeEventBadge(i.lead_signal)}${renderSubline(agingNote(i.timing))}</td>
 <td style="${cell}color:#344054;">${esc(i.product?.name || '')}</td>
 <td style="${cell}${benefitEmphasis(i)}">${esc(formatBenefit(i))}</td>
 <td style="${cell}">${renderWindowBadge(i.outreach_window)}${renderSubline(formatWindowRemaining(i.timing))}</td>
@@ -261,18 +288,18 @@ export function renderDigestTable(items = []) {
     })
     .join('');
   const th = (label, radius = '') =>
-    `<th style="text-align:left;padding:9px 12px;background:#f7f8fa;border-bottom:1px solid #e4e7ec;font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#667085;${radius}">${label}</th>`;
+    `<th style="text-align:left;padding:12px 14px;background:#f8f9fb;border-bottom:1px solid #e9ecf2;font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#7a8699;${radius}">${label}</th>`;
   // Explicit widths because the browser's guess is wrong here: left to itself
   // it starves the product column, and "Travel Cash Rewards Card" breaks over
   // three lines while the benefit column sits half empty.
-  return `<table role="presentation" style="border-collapse:separate;border-spacing:0;width:100%;font-size:14px;border:1px solid #e4e7ec;border-radius:8px;overflow:hidden;table-layout:fixed;">
-<colgroup><col style="width:17%;"/><col style="width:20%;"/><col style="width:19%;"/><col style="width:25%;"/><col style="width:19%;"/></colgroup>
+  return `<table role="presentation" style="border-collapse:separate;border-spacing:0;width:100%;font-size:14px;border:1px solid #e9ecf2;border-radius:10px;overflow:hidden;table-layout:fixed;">
+<colgroup><col style="width:13%;"/><col style="width:22%;"/><col style="width:20%;"/><col style="width:24%;"/><col style="width:21%;"/></colgroup>
 <thead><tr>
-${th('Household', 'border-top-left-radius:8px;')}
+${th('Household', 'border-top-left-radius:10px;')}
 ${th('Signal')}
 ${th('Best-fit product')}
 ${th('Annual benefit')}
-${th('Outreach window', 'border-top-right-radius:8px;')}
+${th('Outreach window', 'border-top-right-radius:10px;')}
 </tr></thead>
 <tbody>${rows || '<tr><td colspan="5" style="padding:14px 12px;color:#98a2b3;">No opportunities surfaced this cycle.</td></tr>'}</tbody>
 </table>`;
@@ -343,6 +370,25 @@ function renderLifeEventBadge(leadSignal) {
 function renderSubline(text) {
   if (!text) return '';
   return `<div style="font-size:11px;color:#888;margin-top:2px;">${esc(text)}</div>`;
+}
+
+/**
+ * Age, but only once it is worth a line.
+ *
+ * Every row used to carry its age, and because the context refresh dates the
+ * whole book in one pass, that meant five copies of "First seen 3 days ago"
+ * under five different signals — the single biggest source of noise in the
+ * table, and no information at all. Age earns its line only once a signal has
+ * been sitting long enough that an advisor might reasonably wonder why it is
+ * still here. Below that, the NEW badge and the window column already answer
+ * both of the questions age was trying to answer.
+ */
+const AGE_WORTH_NOTING_DAYS = 14;
+
+function agingNote(timing) {
+  const days = Number(timing?.age_days);
+  if (!Number.isFinite(days) || days < AGE_WORTH_NOTING_DAYS) return '';
+  return formatSignalAge(timing);
 }
 
 /**

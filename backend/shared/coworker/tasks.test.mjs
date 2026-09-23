@@ -1323,7 +1323,7 @@ test('the digest reports how much of the book the refresh has covered', () => {
   assert.equal(res.context_coverage.of, bookSize(DEMO_ADVISOR));
 });
 
-test('the digest email shows signal age and marks what is new', () => {
+test('the digest email marks what is new without restating routine age', () => {
   const now = dayAfter(2);
   const context = bookContext({
     advisorId: DEMO_ADVISOR,
@@ -1334,10 +1334,22 @@ test('the digest email shows signal age and marks what is new', () => {
   const html = renderDigestTable(digest.items);
 
   assert.match(html, /NEW<\/span>/, 'the one row worth opening the mail for is marked');
-  assert.match(html, /First seen/);
+  assert.ok(
+    !/First seen/.test(html),
+    'a book refreshed in one pass would otherwise print the same age under every row'
+  );
   assert.match(html, /days left/, 'windowed signals state their remaining time');
   assert.deepEqual(findBannedVocabulary(html), []);
   assert.deepEqual(findSnakeCase(html), []);
+});
+
+test('a signal still on the list after weeks says how long it has been there', () => {
+  const now = dayAfter(21);
+  const context = bookContext({ advisorId: DEMO_ADVISOR, now });
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, context, now });
+  const html = renderDigestTable(digest.items);
+
+  assert.match(html, /First seen 21 days ago/, 'age is worth saying once it is unusual');
 });
 
 test('an undated row states no age rather than implying it is new', () => {
