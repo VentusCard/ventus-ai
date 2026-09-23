@@ -326,11 +326,22 @@ export function estimateBenefit({ product, signals }) {
       };
     }
     default:
+      // Six of the thirteen products have no defensible dollar model, and until
+      // now all six printed the same sentence. A digest where three of five
+      // rows read "Planning and protection conversation" tells an advisor
+      // nothing about which conversation to have, and reads as though the
+      // system ran out of things to say.
+      //
+      // The phrase belongs to the product, not to this function, so the catalog
+      // carries it. That keeps it editable by whoever owns the catalog, which
+      // at a bank is not us. Still no invented figure: these say what the
+      // product is for, which is a fact about the product.
       return {
         mode: 'estimated',
         usd: 0,
-        outcome: 'Planning and protection conversation',
+        outcome: terms.outcome || 'Planning and protection conversation',
         assumption:
+          terms.outcome_basis ||
           'The value here is planning or protection rather than a dollar figure, so we do not put a number on it.',
       };
   }

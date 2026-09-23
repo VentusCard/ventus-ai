@@ -283,14 +283,23 @@ test('summarizeSpend ranks Okafor spend with Travel & Exploration on top', () =>
 
 // --- advisor digest ----------------------------------------------------------
 
-test('digest keeps one opportunity per household and states the denominator', () => {
+test('digest keeps one opportunity per household and reconciles the whole book', () => {
   const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR });
   assert.ok(digest.items.length >= 1);
   const ids = digest.items.map((i) => i.household_id);
   assert.equal(new Set(ids).size, ids.length);
-  const size = bookSize(DEMO_ADVISOR);
-  assert.equal(digest.considered, size);
-  assert.match(digestSubject(digest), new RegExp(`of ${size} households`));
+  assert.equal(digest.considered, bookSize(DEMO_ADVISOR));
+});
+
+test('the subject counts what needs attention, not the size of the book', () => {
+  // A relationship manager carries hundreds of households and knows it. The
+  // denominator in the subject only ever told them something they knew, and in
+  // a demo book it says the book is small.
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR });
+  const subject = digestSubject(digest);
+  assert.match(subject, new RegExp(`${digest.items.length} households? needs? attention`));
+  assert.doesNotMatch(subject, new RegExp(String(bookSize(DEMO_ADVISOR))));
+  assert.equal(digestSubject({ items: [] }), 'Your Daily Digest: nothing needs your attention today');
 });
 
 test('digest leads with figures that survive being questioned', () => {
@@ -675,6 +684,19 @@ test('a household we cannot price net is still shown rather than dropped', () =>
 
 // --- timing: context-aware ordering, expiry, and cadence -----------------------
 
+const LIFE_EVENT_TYPES = new Set([
+  'estate_inflow',
+  'business_liquidity',
+  'new_child',
+  'new_child_expected',
+  'home_purchase_intent',
+  'relocation',
+  'elder_care',
+  'college_bound',
+  'home_renovation',
+  'retirement_horizon',
+]);
+
 const REFRESH_START = new Date('2026-03-01T11:00:00.000Z');
 const dayAfter = (n) => new Date(REFRESH_START.getTime() + n * 86400000);
 
@@ -1037,6 +1059,48 @@ test('a household already mailed is still held for the advisor who mailed it', a
     cadence: { minDaysBetween: 5, minDaysBetweenSameProduct: 5 },
   });
   assert.ok(digest.held.length > 0, 'yesterday\'s households are held for the advisor who saw them');
+});
+
+test('a life event reaches the mail even though we will not price it', () => {
+  // Ranking by how defensible the figure is put all 22 life events in the
+  // bottom half of the 28-household book, with "Inheritance received" 27th of
+  // 27 behind a $1,132 card saving, because we deliberately refuse to put a
+  // number on an inheritance.
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 5 });
+  const events = digest.items.filter((i) => LIFE_EVENT_TYPES.has(i.lead_signal?.type));
+  assert.ok(events.length >= 1, 'at least one life event is in the mail');
+
+  // The heaviest event in the book leads the reserved rows, not the nearest one.
+  assert.ok(
+    digest.items.some((i) => i.lead_signal?.type === 'estate_inflow'),
+    'an inheritance outranks a home renovation for a reserved row'
+  );
+});
+
+test('reserved rows do not take over the digest', () => {
+  // 22 of 28 households carry an event. Promoting rather than reserving would
+  // swap one monoculture for another.
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 5 });
+  const events = digest.items.filter((i) => LIFE_EVENT_TYPES.has(i.lead_signal?.type));
+  assert.ok(events.length <= 2, `expected at most 2 reserved rows, got ${events.length}`);
+  assert.ok(
+    digest.items.some((i) => i.benefit_qualifier === 'net'),
+    'the priced rows still hold the rest of the mail'
+  );
+});
+
+test('reservation can be turned off', () => {
+  const digest = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    maxItems: 5,
+    lifeEventSlots: 0,
+  });
+  assert.equal(
+    digest.items.filter((i) => LIFE_EVENT_TYPES.has(i.lead_signal?.type)).length,
+    0,
+    'without reservation the defensible figures sweep the mail again'
+  );
 });
 
 test('a scarce product slot rotates instead of starving the same household', () => {

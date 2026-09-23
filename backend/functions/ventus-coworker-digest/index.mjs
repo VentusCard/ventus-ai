@@ -18,7 +18,7 @@ import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import { createSecretsProvider } from '../../shared/platform/secrets.mjs';
 import { createFixturePortfolioProvider } from '../../shared/coworker/portfolio-provider.mjs';
 import { createCoworkerStore, createDynamoBackend } from '../../shared/coworker/store.mjs';
-import { buildAdvisorDigest, digestSubject } from '../../shared/coworker/tasks.mjs';
+import { buildAdvisorDigest, digestActions, digestSubject } from '../../shared/coworker/tasks.mjs';
 import { renderDigestTable, renderShell } from '../../shared/coworker/render.mjs';
 import {
   buildThreadingHeaders,
@@ -196,10 +196,10 @@ export const handler = async (event = {}) => {
     const html = renderShell({
       greeting: `Hi ${firstName(advisor.name)},`,
       paragraphs: [
-        `I went through all ${pluralize(digest.considered, 'household')} in your book against the product catalog this morning. ${pluralize(digest.items.length, 'household')} ${verbFor(digest.items.length)} worth your time today, one row each, strongest first.`,
+        `I went through your book against the product catalog this morning. ${pluralize(digest.items.length, 'household')} ${verbFor(digest.items.length)} worth your time today, one row each, strongest first.`,
       ],
       sections: [{ heading: 'Today', html: renderDigestTable(digest.items) }],
-      forwardMove: 'Reply with a product name and I will screen the whole book against it.',
+      actions: digestActions(digest.items),
       unsubscribeUrl,
     });
 

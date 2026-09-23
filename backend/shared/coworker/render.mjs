@@ -88,12 +88,16 @@ export function formatBenefit(row = {}) {
  * @param {string} [opts.disclaimer]
  * @param {string} [opts.unsubscribeUrl]  one-click opt-out target. Required on
  *   mail we originate; omitted on replies, which are transactional.
+ * @param {{example:string, does:string}[]} [opts.actions]  what the reader can
+ *   reply with. Use instead of forwardMove where there is genuinely more than
+ *   one useful move; see renderActions.
  */
 export function renderShell({
   greeting,
   paragraphs = [],
   sections = [],
   forwardMove,
+  actions = [],
   signoff = 'Ventus AI Coworker',
   disclaimer = DEFAULT_DISCLAIMER,
   unsubscribeUrl,
@@ -108,21 +112,53 @@ export function renderShell({
   const forward = forwardMove
     ? `<p style="margin:16px 0 0;"><strong>Next:</strong> ${esc(forwardMove)}</p>`
     : '';
+  const actionBlock = actions.length ? renderActions(actions) : '';
   // A visible link as well as the List-Unsubscribe header: the header is only
   // surfaced by some clients, and the ones that hide it are the ones where a
   // reader who cannot find the opt-out reports the mail as spam instead.
   const optOut = unsubscribeUrl
     ? `<p style="font-size:11px;color:#888;margin:6px 0 0;">You are receiving this because you asked the Ventus AI Coworker to screen your book each morning. <a href="${esc(unsubscribeUrl)}" style="color:#888;text-decoration:underline;">Stop the daily digest</a>.</p>`
     : '';
-  return `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#1a1a1a;line-height:1.5;max-width:640px;">
+  return `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#1a1a1a;line-height:1.5;max-width:720px;">
 <p style="margin:0 0 12px;">${esc(greeting)}</p>
 ${paras}
 ${secs}
 ${forward}
+${actionBlock}
 <p style="margin:16px 0 0;">${esc(signoff)}</p>
 <hr style="border:none;border-top:1px solid #e5e5e5;margin:20px 0 8px;" />
 <p style="font-size:11px;color:#888;margin:0;">${esc(disclaimer)}</p>
 ${optOut}
+</div>`;
+}
+
+/**
+ * What the reader can reply with, as worked examples rather than a menu.
+ *
+ * The digest used to end on one instruction — screen the book against a
+ * product — which is neither the most useful next move nor a fair picture of
+ * what the Coworker does. An advisor who has just read five households most
+ * likely wants a draft for one of them, and had no way to know they could ask.
+ *
+ * Examples name real households from the mail above, because "Draft the
+ * outreach for the Novaks" is self-evidently a thing you can type and
+ * "compose_outreach" is not. Every entry here must map to something the
+ * Coworker genuinely handles: the intent classifier recognizes drafting,
+ * screening, meeting prep and evidence lookup, and nothing else belongs in
+ * this list however good it would look.
+ */
+export function renderActions(actions = []) {
+  const rows = actions
+    .map(
+      (a) => `<tr>
+<td style="padding:4px 10px 4px 0;white-space:nowrap;vertical-align:top;"><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#101828;background:#f2f4f7;border-radius:4px;padding:2px 7px;">${esc(a.example)}</span></td>
+<td style="padding:4px 0;font-size:13px;color:#667085;vertical-align:top;">${esc(a.does)}</td>
+</tr>`
+    )
+    .join('');
+  return `<div style="margin:18px 0 0;">
+<div style="font-weight:600;margin:0 0 8px;">Just reply to this email</div>
+<table role="presentation" style="border-collapse:collapse;">${rows}</table>
 </div>`;
 }
 
@@ -211,26 +247,68 @@ export function renderAudienceTable({
  */
 export function renderDigestTable(items = []) {
   const rows = items
-    .map(
-      (i) => `<tr>
-<td style="padding:6px 8px;border-bottom:1px solid #eee;">${esc(i.household_name || i.household_id)}</td>
-<td style="padding:6px 8px;border-bottom:1px solid #eee;">${esc(i.lead_signal?.label || '')}${renderNewBadge(i.timing)}${renderSubline(formatSignalAge(i.timing))}</td>
-<td style="padding:6px 8px;border-bottom:1px solid #eee;">${esc(i.product?.name || '')}</td>
-<td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap;">${esc(formatBenefit(i))}</td>
-<td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap;">${esc(i.outreach_window?.label || '')}${renderSubline(formatWindowRemaining(i.timing))}</td>
-</tr>`
-    )
+    .map((i, idx) => {
+      const last = idx === items.length - 1;
+      const edge = last ? 'none' : '1px solid #eceff3';
+      const cell = `padding:13px 12px;border-bottom:${edge};vertical-align:top;`;
+      return `<tr>
+<td style="${cell}font-weight:600;color:#101828;font-size:15px;">${esc(i.household_name || i.household_id)}</td>
+<td style="${cell}color:#344054;">${esc(i.lead_signal?.label || '')}${renderNewBadge(i.timing)}${renderSubline(formatSignalAge(i.timing))}</td>
+<td style="${cell}color:#344054;">${esc(i.product?.name || '')}</td>
+<td style="${cell}${benefitEmphasis(i)}">${esc(formatBenefit(i))}</td>
+<td style="${cell}">${renderWindowBadge(i.outreach_window)}${renderSubline(formatWindowRemaining(i.timing))}</td>
+</tr>`;
+    })
     .join('');
-  return `<table style="border-collapse:collapse;width:100%;font-size:13px;">
+  const th = (label, radius = '') =>
+    `<th style="text-align:left;padding:9px 12px;background:#f7f8fa;border-bottom:1px solid #e4e7ec;font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#667085;${radius}">${label}</th>`;
+  // Explicit widths because the browser's guess is wrong here: left to itself
+  // it starves the product column, and "Travel Cash Rewards Card" breaks over
+  // three lines while the benefit column sits half empty.
+  return `<table role="presentation" style="border-collapse:separate;border-spacing:0;width:100%;font-size:14px;border:1px solid #e4e7ec;border-radius:8px;overflow:hidden;table-layout:fixed;">
+<colgroup><col style="width:17%;"/><col style="width:20%;"/><col style="width:19%;"/><col style="width:25%;"/><col style="width:19%;"/></colgroup>
 <thead><tr>
-<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #ddd;">Household</th>
-<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #ddd;">Signal</th>
-<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #ddd;">Best-fit product</th>
-<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #ddd;">Annual benefit</th>
-<th style="text-align:left;padding:6px 8px;border-bottom:2px solid #ddd;">Outreach window</th>
+${th('Household', 'border-top-left-radius:8px;')}
+${th('Signal')}
+${th('Best-fit product')}
+${th('Annual benefit')}
+${th('Outreach window', 'border-top-right-radius:8px;')}
 </tr></thead>
-<tbody>${rows || '<tr><td colspan="5" style="padding:8px;color:#888;">No opportunities surfaced this cycle.</td></tr>'}</tbody>
+<tbody>${rows || '<tr><td colspan="5" style="padding:14px 12px;color:#98a2b3;">No opportunities surfaced this cycle.</td></tr>'}</tbody>
 </table>`;
+}
+
+/**
+ * A dollar figure is the thing an advisor is scanning for, so it gets weight.
+ * An outcome phrase is a sentence, not a number, and setting it in the same
+ * bold ink made rows without a figure look like rows with one.
+ */
+function benefitEmphasis(row = {}) {
+  const priced = !(row.benefit_qualifier === 'outcome' || row.benefit_precision === 'none');
+  // No nowrap. A fixed-layout table clips rather than overflows, and a banded
+  // estimate ("$2,400 to $2,950 estimate") is long enough that nowrap cut the
+  // word "estimate" in half — which read as a precise figure.
+  return priced ? 'font-weight:600;color:#101828;' : 'color:#475467;';
+}
+
+// Urgency carried by color as well as words. An advisor skimming five rows at
+// 7am should be able to see which one has a clock on it without reading, and
+// the wording alone ("Next 7 days" vs "No fixed deadline") does not survive a
+// skim. Muted palette on purpose: red here means a fee the household is
+// already paying, and if everything is colored, nothing is.
+const WINDOW_TONE = {
+  immediate: { bg: '#fef3f2', fg: '#b42318' },
+  fast: { bg: '#fffaeb', fg: '#b54708' },
+  dated: { bg: '#eff8ff', fg: '#175cd3' },
+  seasonal: { bg: '#f2f4f7', fg: '#475467' },
+  standing: { bg: '#f9fafb', fg: '#667085' },
+};
+
+function renderWindowBadge(window) {
+  const label = window?.label;
+  if (!label) return '';
+  const tone = WINDOW_TONE[window?.bucket] || WINDOW_TONE.standing;
+  return `<span style="display:inline-block;font-size:12px;font-weight:500;color:${tone.fg};background:${tone.bg};border-radius:4px;padding:3px 8px;white-space:nowrap;">${esc(label)}</span>`;
 }
 
 /**

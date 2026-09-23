@@ -670,6 +670,7 @@ export function buildAdvisorDigest({
   now = new Date(),
   cadence: cadenceOpts = {},
   pace = true,
+  lifeEventSlots = DEFAULT_LIFE_EVENT_SLOTS,
 }) {
   const catalog = provider.getCatalog() || [];
   const advisor = provider.getAdvisors().find((a) => a.id === advisorId);
@@ -887,6 +888,8 @@ export function buildAdvisorDigest({
     items.push(item);
   }
 
+  reserveForLifeEvents({ items, ranked: qualityPassed, slots: lifeEventSlots });
+
   return {
     advisorId,
     items,
@@ -971,15 +974,121 @@ function newsRank(item) {
   return item?.timing?.novel ? 0 : 1;
 }
 
+// How much a life event changes a household's finances, roughly, and only
+// relative to each other. Money arriving or a dependant arriving outranks a
+// state the household has been in for years.
+const LIFE_EVENT_WEIGHT = {
+  estate_inflow: 100,
+  business_liquidity: 95,
+  new_child: 80,
+  new_child_expected: 75,
+  home_purchase_intent: 70,
+  relocation: 55,
+  elder_care: 50,
+  college_bound: 45,
+  home_renovation: 35,
+  // A horizon, not an event. Real, worth a conversation, not news.
+  retirement_horizon: 20,
+};
+
+export const DEFAULT_LIFE_EVENT_SLOTS = 2;
+
+function lifeEventWeight(item) {
+  return LIFE_EVENT_WEIGHT[item?.lead_signal?.type] ?? 0;
+}
+
 /**
- * Subject line for the scheduled digest. States the numerator and the
- * denominator, because "5 opportunities" out of an unstated book size is a
- * number an advisor cannot calibrate against.
+ * Keep room in the mail for the events that matter most to a household, even
+ * though we refuse to put a number on them.
+ *
+ * The digest orders by how defensible the figure is, which is right when the
+ * figures are comparable. Life events have no defensible figure by design — we
+ * will not dollarize an inheritance on an assumed return — so they carry an
+ * outcome phrase, and an outcome phrase sorts below every computed one. On the
+ * 28-household book that put all 22 life events in the bottom half and ranked
+ * "Inheritance received" 27th of 27, behind a $1,132 card saving. The rule
+ * written to stop us overclaiming was quietly deciding what an advisor never
+ * hears about.
+ *
+ * So a couple of rows are reserved rather than competed for. Reserved, not
+ * promoted to the top: 22 of 28 households have an event of some kind, and a
+ * digest that led with all of them would be as uniform as the one that led
+ * with none. Weight decides which events earn the reserved rows, and the
+ * priced rows keep the rest of the mail.
+ *
+ * Mutates `items` in place, replacing the weakest non-event rows.
  */
-export function digestSubject({ items = [], considered = 0 }) {
+function reserveForLifeEvents({ items, ranked, slots = DEFAULT_LIFE_EVENT_SLOTS }) {
+  if (slots <= 0 || !items.length) return;
+  const present = new Set(items.map((i) => i.household_id));
+  const already = items.filter((i) => lifeEventWeight(i) > 0).length;
+  const room = Math.min(slots - already, items.length - already);
+  if (room <= 0) return;
+
+  const candidates = ranked
+    .filter((i) => lifeEventWeight(i) > 0 && !present.has(i.household_id))
+    .sort((a, b) => lifeEventWeight(b) - lifeEventWeight(a))
+    .slice(0, room);
+  if (!candidates.length) return;
+
+  // Drop from the bottom of the mail, and only rows carrying no event. Never
+  // displace news: something that arrived overnight is the reason the advisor
+  // opens this at all.
+  for (const candidate of candidates) {
+    for (let i = items.length - 1; i >= 0; i -= 1) {
+      if (lifeEventWeight(items[i]) === 0 && newsRank(items[i]) !== 0) {
+        items.splice(i, 1, candidate);
+        break;
+      }
+    }
+  }
+  items.sort(
+    (a, b) =>
+      newsRank(a) - newsRank(b) ||
+      benefitRank(a.benefit_qualifier) - benefitRank(b.benefit_qualifier) ||
+      b.priority - a.priority
+  );
+}
+
+/**
+ * Subject line for the scheduled digest.
+ *
+ * The denominator used to be here — "5 of 28 households" — on the reasoning
+ * that a shortlist without a book size cannot be calibrated. That reasoning
+ * holds for a screen an advisor asked for, where the denominator is the
+ * evidence the screen was thorough. It does not hold for the morning mail,
+ * where the book size is a constant the reader already knows and the only
+ * thing it adds is a chance to notice it is small. A relationship manager
+ * carries hundreds; the reconciliation line still states the denominator
+ * whenever an advisor actually screens for something.
+ */
+export function digestSubject({ items = [] }) {
   if (!items.length) return 'Your Daily Digest: nothing needs your attention today';
   const needs = items.length === 1 ? 'needs' : 'need';
-  return `Your Daily Digest: ${items.length} of ${pluralize(considered, 'household')} ${needs} attention`;
+  return `Your Daily Digest: ${pluralize(items.length, 'household')} ${needs} attention`;
+}
+
+/**
+ * The replies the digest invites, as examples built from the households in
+ * front of the reader.
+ *
+ * Only four, and only these four: drafting, screening, meeting prep and
+ * evidence lookup are what classifyIntent actually routes. Listing anything
+ * else would be advertising a capability the next reply cannot honor, which
+ * costs more trust than the extra line buys.
+ */
+export function digestActions(items = []) {
+  if (!items.length) return [];
+  const name = (item) => String(item?.household_name || '').replace(/\s+Household$/i, '').trim();
+  const lead = name(items[0]) || 'a household';
+  const second = name(items[1] || items[0]) || lead;
+  const product = items[0]?.product?.name || 'a product';
+  return [
+    { example: `Draft the outreach for ${lead}`, does: 'A client-ready email, with the reasoning kept separate' },
+    { example: `Screen the book for ${product}`, does: 'Every household ranked against one product' },
+    { example: `Prep me for a call with ${second}`, does: 'A short briefing to read beforehand' },
+    { example: `What do we know about ${lead}?`, does: 'The evidence behind the row' },
+  ];
 }
 
 // ---------------------------------------------------------------------------

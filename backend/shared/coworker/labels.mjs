@@ -157,7 +157,11 @@ const WINDOW_BUCKETS = {
   },
   seasonal: {
     days: 60,
-    label: 'Worth raising this quarter',
+    // Not "this quarter": the window is a rolling 60 days, and naming a quarter
+    // implies a calendar boundary the signal does not have. It is also the only
+    // label that has to carry urgency without a deadline, since the bucket does
+    // not expire — "soon" does that, where a date would be a fiction.
+    label: 'Worth raising soon',
     mode: 'standing',
     basis: 'A recurring pattern the household is unlikely to change on its own, so the conversation keeps its value for a quarter rather than expiring.',
   },
