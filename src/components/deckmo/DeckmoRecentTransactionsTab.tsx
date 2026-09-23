@@ -271,7 +271,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                     <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50/60 p-3">
                       <div className="flex items-center gap-1.5">
                         <Sparkles className="h-3 w-3 text-blue-600" />
-                        <p className="text-[8px] font-bold uppercase tracking-wide text-blue-700">Suggestions</p>
+                        <p className="text-[8px] font-bold uppercase tracking-wide text-blue-700">OUR BANK INSIGHTS</p>
                       </div>
                       <p className="mt-1.5 text-[9px] font-semibold text-slate-800">{tx.pattern}</p>
                       <p className="mt-1 text-[9px] leading-relaxed text-slate-600">{tx.explanation}</p>
