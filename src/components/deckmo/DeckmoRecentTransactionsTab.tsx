@@ -298,7 +298,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       )}
                     </div>
 
-                    <div className={cn("mt-3 [@media(max-height:800px)]:mt-2", )}>
+                    <div className="mt-3 [@media(max-height:800px)]:mt-2">
                       {corrections[selected] || confirmState || supportChats[selected] ? (
                         <div className="flex items-center gap-2">
                           <p className={cn("font-semibold text-emerald-700", T.body)}>
