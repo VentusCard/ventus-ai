@@ -225,7 +225,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       <dl className="mt-2 space-y-1.5">
                         <div className="flex flex-col gap-0.5">
                           <dt className="text-[9px] font-semibold text-slate-500">Original statement</dt>
-                          <dd className="break-all font-mono text-[11px] font-bold leading-snug text-slate-800 line-through decoration-slate-400">{tx.raw}</dd>
+                          <dd className="break-all font-mono text-[11px] font-bold leading-snug text-slate-800">{tx.raw}</dd>
                         </div>
                         <div className="flex items-start justify-between gap-3">
                           <dt className="text-[9px] font-semibold text-slate-500">Category</dt>
