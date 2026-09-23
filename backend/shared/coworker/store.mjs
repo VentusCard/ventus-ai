@@ -148,8 +148,23 @@ export function createCoworkerStore(backend) {
     return rows.reverse();
   }
 
-  async function readTouchSummary(householdId) {
-    const rows = await readTouches(householdId);
+  // Scoped to one advisor when an id is given, and this matters more than it
+  // looks. The digest does not contact anybody; it recommends a household to a
+  // colleague. So the cadence question is "have we already put these people in
+  // front of this advisor recently", not "has anyone heard from us".
+  //
+  // Unscoped, one advisor's mail mutes the household for every other advisor.
+  // In production that is close to invisible, because a household sits in one
+  // advisor's book. In the demo all four mailable advisors share the same 28
+  // households, so a single morning's run marked 20 of them contacted and the
+  // digest went silent within two days.
+  //
+  // Rows with no advisor_id are ignored by a scoped read. Only the digest
+  // writes touches today and it always attributes them, and an unattributed
+  // contact is not evidence that this advisor was told anything.
+  async function readTouchSummary(householdId, { advisorId = null } = {}) {
+    const all = await readTouches(householdId);
+    const rows = advisorId ? all.filter((row) => row.advisor_id === advisorId) : all;
     const byProduct = new Map();
     for (const row of rows) {
       if (!row.product_id) continue;
@@ -449,13 +464,19 @@ export function createCoworkerStore(backend) {
      * The cadence inputs for one household: when it was last surfaced at all,
      * and when it was last surfaced for each product.
      *
+     * Pass an advisorId to ask the question the digest actually cares about —
+     * what this advisor has already been shown. Omit it for the household's
+     * whole contact history across everyone.
+     *
+     * @param {string} householdId
+     * @param {{advisorId?: string|null}} [opts]
      * @returns {Promise<{lastTouchAt:string|null, byProduct:Map<string,string>}>}
      */
     getTouchSummary: readTouchSummary,
 
-    async getTouchSummaries(householdIds = []) {
+    async getTouchSummaries(householdIds = [], { advisorId = null } = {}) {
       const out = new Map();
-      for (const id of householdIds) out.set(id, await readTouchSummary(id));
+      for (const id of householdIds) out.set(id, await readTouchSummary(id, { advisorId }));
       return out;
     },
 

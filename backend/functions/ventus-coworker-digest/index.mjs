@@ -151,7 +151,7 @@ export const handler = async (event = {}) => {
     const householdIds = advisor.household_ids || [];
     const [context, touches] = await Promise.all([
       store.getContexts(householdIds),
-      store.getTouchSummaries(householdIds),
+      store.getTouchSummaries(householdIds, { advisorId: advisor.id }),
     ]);
 
     const digest = buildAdvisorDigest({

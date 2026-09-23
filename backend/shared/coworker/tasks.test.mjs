@@ -23,6 +23,7 @@ import { findBannedVocabulary, findSnakeCase } from './labels.mjs';
 import { benefitRank } from './benefit.mjs';
 import { buildHouseholdContext } from './context.mjs';
 import { renderDigestTable } from './render.mjs';
+import { createCoworkerStore, createInMemoryBackend } from './store.mjs';
 
 const provider = createFixturePortfolioProvider();
 
@@ -951,6 +952,91 @@ test('cadence thresholds can be loosened for a smaller book', () => {
     cadence: { minDaysBetween: 1, minDaysBetweenSameProduct: 1 },
   });
   assert.ok(!loose.held.some((h) => h.household_id === first.household_id));
+});
+
+/**
+ * The digest lambda's loop, reduced to the part that matters here: read this
+ * advisor's contact history, build, then log what was actually mailed.
+ */
+async function runDigestDay({ store, advisorIds, context, now }) {
+  const sent = new Map();
+  for (const advisorId of advisorIds) {
+    const householdIds = provider.getAdvisors().find((a) => a.id === advisorId).household_ids;
+    const digest = buildAdvisorDigest({
+      provider,
+      advisorId,
+      maxItems: 5,
+      context,
+      touches: await store.getTouchSummaries(householdIds, { advisorId }),
+      now,
+      cadence: { minDaysBetween: 5, minDaysBetweenSameProduct: 5 },
+    });
+    sent.set(advisorId, digest.items.length);
+    for (const item of digest.items) {
+      await store.recordTouch({
+        householdId: item.household_id,
+        advisorId,
+        productId: item.product.id,
+        channel: 'digest',
+        now,
+      });
+    }
+  }
+  return sent;
+}
+
+test('advisors sharing a book do not spend each other\'s cadence', async () => {
+  // The demo has four advisors holding the same 28 households, and the contact
+  // log is keyed by household. Read unscoped, the first advisor's mail marks
+  // those households contacted for everyone behind them in the loop, so one
+  // morning burned twenty of the twenty-eight and the digest went silent on
+  // day three. Live for two days in September before anyone noticed.
+  const store = createCoworkerStore(createInMemoryBackend());
+  const advisors = ['adv_zoheb', 'adv_marco', 'adv_yusheng'];
+
+  for (let day = 1; day <= 4; day += 1) {
+    const now = dayAfter(day);
+    const sent = await runDigestDay({
+      store,
+      advisorIds: advisors,
+      context: bookContext({ advisorId: advisors[0], now }),
+      now,
+    });
+    for (const advisorId of advisors) {
+      assert.ok(sent.get(advisorId) > 0, `${advisorId} got nothing on day ${day}`);
+    }
+  }
+});
+
+test('a household already mailed is still held for the advisor who mailed it', async () => {
+  // The other half of the same rule: scoping must not turn the cadence cap off.
+  const store = createCoworkerStore(createInMemoryBackend());
+  const now = dayAfter(1);
+  const context = bookContext({ advisorId: 'adv_zoheb', now });
+
+  const first = await runDigestDay({ store, advisorIds: ['adv_zoheb'], context, now });
+  assert.ok(first.get('adv_zoheb') > 0);
+
+  const mailed = (await store.listTouches(
+    buildAdvisorDigest({ provider, advisorId: 'adv_zoheb', maxItems: 5, context, now }).items[0]
+      .household_id
+  )).length;
+  assert.ok(mailed > 0, 'the send was logged');
+
+  const nextDay = dayAfter(2);
+  const digest = buildAdvisorDigest({
+    provider,
+    advisorId: 'adv_zoheb',
+    maxItems: 5,
+    context: bookContext({ advisorId: 'adv_zoheb', now: nextDay }),
+    touches: await store.getTouchSummaries(
+      provider.getAdvisors().find((a) => a.id === 'adv_zoheb').household_ids,
+      { advisorId: 'adv_zoheb' }
+    ),
+    now: nextDay,
+    cadence: { minDaysBetween: 5, minDaysBetweenSameProduct: 5 },
+  });
+  assert.ok(digest.held.length > 0, 'yesterday\'s households are held for the advisor who saw them');
 });
 
 test('a scarce product slot rotates instead of starving the same household', () => {

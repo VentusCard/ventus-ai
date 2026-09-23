@@ -278,6 +278,39 @@ test('a household never contacted has an empty summary rather than an error', as
   assert.equal(summary.byProduct.size, 0);
 });
 
+test('a scoped summary reports only what that advisor was shown', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await store.recordTouch({
+    householdId: 'hh_a',
+    advisorId: 'adv_a',
+    productId: 'travel-card',
+    now: new Date('2026-03-01T12:00:00.000Z'),
+  });
+  await store.recordTouch({
+    householdId: 'hh_a',
+    advisorId: 'adv_b',
+    productId: 'high-yield-savings',
+    now: new Date('2026-03-09T12:00:00.000Z'),
+  });
+
+  const a = await store.getTouchSummary('hh_a', { advisorId: 'adv_a' });
+  assert.equal(a.lastTouchAt, '2026-03-01T12:00:00.000Z', "adv_b's mail is not adv_a's cadence clock");
+  assert.equal(a.byProduct.has('high-yield-savings'), false);
+
+  const b = await store.getTouchSummary('hh_a', { advisorId: 'adv_b' });
+  assert.equal(b.lastTouchAt, '2026-03-09T12:00:00.000Z');
+
+  const everyone = await store.getTouchSummary('hh_a');
+  assert.equal(everyone.lastTouchAt, '2026-03-09T12:00:00.000Z', 'unscoped still sees the whole history');
+});
+
+test('a scoped summary ignores contacts nobody is named on', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await store.recordTouch({ householdId: 'hh_a', productId: 'travel-card' });
+  const scoped = await store.getTouchSummary('hh_a', { advisorId: 'adv_a' });
+  assert.equal(scoped.lastTouchAt, null);
+});
+
 test('touches expire so the table does not keep contact history forever', async () => {
   const store = createCoworkerStore(createInMemoryBackend());
   const record = await store.recordTouch({ householdId: 'hh_a', advisorId: 'adv_a' });
