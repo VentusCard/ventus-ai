@@ -402,6 +402,7 @@ export function leadSignal({ signals, matched = [] }) {
   if (matchedEvent) {
     return {
       type: matchedEvent.type,
+      kind: 'life_event',
       label: lifeEventLabel(matchedEvent.type),
       evidence: matchedEvent.evidence,
     };
@@ -410,18 +411,32 @@ export function leadSignal({ signals, matched = [] }) {
   if (matchedBehavioral) {
     return {
       type: matchedBehavioral.name,
+      kind: 'behavioral',
       label: matchedBehavioral.name,
       evidence: matchedBehavioral.evidence,
     };
   }
   if (events[0]) {
-    return { type: events[0].type, label: lifeEventLabel(events[0].type), evidence: events[0].evidence };
+    return {
+      type: events[0].type,
+      kind: 'life_event',
+      label: lifeEventLabel(events[0].type),
+      evidence: events[0].evidence,
+    };
   }
   if (behavioral[0]) {
-    return { type: behavioral[0].name, label: behavioral[0].name, evidence: behavioral[0].evidence };
+    return {
+      type: behavioral[0].name,
+      kind: 'behavioral',
+      label: behavioral[0].name,
+      evidence: behavioral[0].evidence,
+    };
   }
   const first = matched[0];
-  return first ? { type: first, label: signalLabel(first), evidence: null } : null;
+  // A bare targeting token like idle_cash or home_equity: a standing financial
+  // attribute, which is neither something that happened to the household nor a
+  // pattern in how they spend.
+  return first ? { type: first, kind: 'financial', label: signalLabel(first), evidence: null } : null;
 }
 
 /**
@@ -994,7 +1009,12 @@ const LIFE_EVENT_WEIGHT = {
 export const DEFAULT_LIFE_EVENT_SLOTS = 2;
 
 function lifeEventWeight(item) {
-  return LIFE_EVENT_WEIGHT[item?.lead_signal?.type] ?? 0;
+  // Gated on kind rather than on membership of the table, so a life event type
+  // added to the taxonomy later still competes for a reserved row instead of
+  // silently scoring zero and never being surfaced. The table orders the ones
+  // we have opinions about; anything new lands mid-pack until it gets one.
+  if (item?.lead_signal?.kind !== 'life_event') return 0;
+  return LIFE_EVENT_WEIGHT[item.lead_signal.type] ?? 40;
 }
 
 /**

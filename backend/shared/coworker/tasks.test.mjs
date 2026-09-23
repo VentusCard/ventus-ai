@@ -684,18 +684,7 @@ test('a household we cannot price net is still shown rather than dropped', () =>
 
 // --- timing: context-aware ordering, expiry, and cadence -----------------------
 
-const LIFE_EVENT_TYPES = new Set([
-  'estate_inflow',
-  'business_liquidity',
-  'new_child',
-  'new_child_expected',
-  'home_purchase_intent',
-  'relocation',
-  'elder_care',
-  'college_bound',
-  'home_renovation',
-  'retirement_horizon',
-]);
+const isLifeEvent = (item) => item.lead_signal?.kind === 'life_event';
 
 const REFRESH_START = new Date('2026-03-01T11:00:00.000Z');
 const dayAfter = (n) => new Date(REFRESH_START.getTime() + n * 86400000);
@@ -1067,7 +1056,7 @@ test('a life event reaches the mail even though we will not price it', () => {
   // 27 behind a $1,132 card saving, because we deliberately refuse to put a
   // number on an inheritance.
   const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 5 });
-  const events = digest.items.filter((i) => LIFE_EVENT_TYPES.has(i.lead_signal?.type));
+  const events = digest.items.filter(isLifeEvent);
   assert.ok(events.length >= 1, 'at least one life event is in the mail');
 
   // The heaviest event in the book leads the reserved rows, not the nearest one.
@@ -1081,7 +1070,7 @@ test('reserved rows do not take over the digest', () => {
   // 22 of 28 households carry an event. Promoting rather than reserving would
   // swap one monoculture for another.
   const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 5 });
-  const events = digest.items.filter((i) => LIFE_EVENT_TYPES.has(i.lead_signal?.type));
+  const events = digest.items.filter(isLifeEvent);
   assert.ok(events.length <= 2, `expected at most 2 reserved rows, got ${events.length}`);
   assert.ok(
     digest.items.some((i) => i.benefit_qualifier === 'net'),
@@ -1097,7 +1086,7 @@ test('reservation can be turned off', () => {
     lifeEventSlots: 0,
   });
   assert.equal(
-    digest.items.filter((i) => LIFE_EVENT_TYPES.has(i.lead_signal?.type)).length,
+    digest.items.filter(isLifeEvent).length,
     0,
     'without reservation the defensible figures sweep the mail again'
   );

@@ -253,7 +253,7 @@ export function renderDigestTable(items = []) {
       const cell = `padding:13px 12px;border-bottom:${edge};vertical-align:top;`;
       return `<tr>
 <td style="${cell}font-weight:600;color:#101828;font-size:15px;">${esc(i.household_name || i.household_id)}</td>
-<td style="${cell}color:#344054;">${esc(i.lead_signal?.label || '')}${renderNewBadge(i.timing)}${renderSubline(formatSignalAge(i.timing))}</td>
+<td style="${cell}color:#344054;">${esc(i.lead_signal?.label || '')}${renderNewBadge(i.timing)}${renderLifeEventBadge(i.lead_signal)}${renderSubline(formatSignalAge(i.timing))}</td>
 <td style="${cell}color:#344054;">${esc(i.product?.name || '')}</td>
 <td style="${cell}${benefitEmphasis(i)}">${esc(formatBenefit(i))}</td>
 <td style="${cell}">${renderWindowBadge(i.outreach_window)}${renderSubline(formatWindowRemaining(i.timing))}</td>
@@ -321,6 +321,22 @@ function renderWindowBadge(window) {
 function renderNewBadge(timing) {
   if (!timing?.novel) return '';
   return ' <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.04em;color:#0b6b3a;background:#e7f5ec;border-radius:3px;padding:1px 5px;vertical-align:1px;">NEW</span>';
+}
+
+/**
+ * Marks a row whose reason is something that happened to the household rather
+ * than a pattern in how they spend.
+ *
+ * "Inheritance received" and "Travel-heavy spend" rendered identically, so the
+ * distinction an advisor cares about most — did something happen to these
+ * people, or is this a habit we noticed — was carried entirely by reading the
+ * words. Brand blue rather than the green used for NEW: the two can appear on
+ * the same row and they answer different questions, one about recency and one
+ * about kind.
+ */
+function renderLifeEventBadge(leadSignal) {
+  if (leadSignal?.kind !== 'life_event') return '';
+  return ' <span style="display:inline-block;font-size:10px;font-weight:600;letter-spacing:0.04em;color:#1d4ed8;background:#eff4ff;border-radius:3px;padding:1px 5px;vertical-align:1px;">LIFE EVENT</span>';
 }
 
 /** Secondary line under a table cell, for context that should not compete with the value. */
