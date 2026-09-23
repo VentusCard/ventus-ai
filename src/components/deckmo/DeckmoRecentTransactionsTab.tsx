@@ -238,9 +238,9 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       <span className={cn("shrink-0 font-bold tabular-nums text-slate-900", T.title)}>{tx.amount}</span>
                     </div>
 
-                    <div className="mt-2.5 rounded-lg border border-slate-200 bg-slate-50/70 p-2.5">
+                    <div className={cn("rounded-lg border border-slate-200 bg-slate-50/70", T.sectionGap, T.cardPad)}>
                       <p className={cn("font-bold uppercase tracking-wide text-slate-400", T.cardLabel)}>Details</p>
-                      <dl className="mt-1.5 space-y-1">
+                      <dl className={cn(T.listGap, T.itemGap)}>
                         <div className="flex flex-col gap-0.5">
                           <dt className={cn("font-semibold text-slate-500", T.rowLabel)}>Original statement</dt>
                           <dd className={cn("break-all font-mono font-bold leading-snug text-slate-800", T.mono)}>{tx.raw}</dd>
@@ -260,9 +260,9 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       </dl>
                     </div>
 
-                    <div className="mt-2.5 rounded-lg border border-slate-200 p-2.5">
+                    <div className={cn("rounded-lg border border-slate-200", T.sectionGap, T.cardPad)}>
                       <p className={cn("font-bold uppercase tracking-wide text-slate-400", T.cardLabel)}>Checks</p>
-                      <ul className="mt-1.5 space-y-1">
+                      <ul className={cn(T.listGap, T.itemGap)}>
                         {(isConfirm && !confirmState
                           ? [
                               { ok: true, text: "Amount and date match your account activity." },
@@ -286,7 +286,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       </ul>
                     </div>
 
-                    <div className="mt-2.5 rounded-lg border border-blue-200 bg-blue-50/60 p-2.5">
+                    <div className={cn("rounded-lg border border-blue-200 bg-blue-50/60", T.sectionGap, T.cardPad)}>
                       <div className="flex items-center gap-1.5">
                         <Sparkles className="h-3.5 w-3.5 text-blue-600" />
                         <p className={cn("font-bold uppercase tracking-wide text-blue-700", T.cardLabel)}>OUR BANK INSIGHTS</p>
@@ -298,7 +298,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       )}
                     </div>
 
-                    <div className="mt-3">
+                    <div className={cn("mt-3 [@media(max-height:800px)]:mt-2", )}>
                       {corrections[selected] || confirmState || supportChats[selected] ? (
                         <div className="flex items-center gap-2">
                           <p className={cn("font-semibold text-emerald-700", T.body)}>
@@ -368,7 +368,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       <form
                         onSubmit={(event) => submitCorrection(event, selected, isConfirm)}
                         onClick={stop}
-                        className="mt-2.5 rounded-lg border border-slate-200 bg-slate-50/70 p-2.5"
+                        className={cn("rounded-lg border border-slate-200 bg-slate-50/70", T.sectionGap, T.cardPad)}
                       >
                         <label className={cn("font-bold uppercase tracking-wide text-slate-500", T.cardLabel)} htmlFor="correction-input">
                           What should this be?
