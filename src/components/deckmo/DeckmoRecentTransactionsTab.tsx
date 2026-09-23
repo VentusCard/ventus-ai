@@ -51,6 +51,24 @@ const PURCHASE_ICONS = {
   business: Briefcase,
 } as const;
 
+// Detail-screen type scale: larger by default, one step down on short viewports.
+const T = {
+  title: "text-[18px] [@media(max-height:800px)]:text-[14px]",
+  meta: "text-[11px] [@media(max-height:800px)]:text-[9px]",
+  chip: "text-[8px] [@media(max-height:800px)]:text-[7.5px]",
+  cardLabel: "text-[9px] [@media(max-height:800px)]:text-[7.5px]",
+  rowLabel: "text-[10px] [@media(max-height:800px)]:text-[8.5px]",
+  rowValue: "text-[10.5px] [@media(max-height:800px)]:text-[9px]",
+  mono: "text-[13px] [@media(max-height:800px)]:text-[10.5px]",
+  body: "text-[10.5px] [@media(max-height:800px)]:text-[9px]",
+  btn: "h-8 text-[10.5px] [@media(max-height:800px)]:h-7 [@media(max-height:800px)]:text-[9px]",
+  // Compact spacing helpers for short viewports
+  sectionGap: "mt-2.5 [@media(max-height:800px)]:mt-1",
+  cardPad: "p-2.5 [@media(max-height:800px)]:p-1.5",
+  listGap: "mt-1.5 [@media(max-height:800px)]:mt-0.5",
+  itemGap: "space-y-1 [@media(max-height:800px)]:space-y-0.5",
+};
+
 const stop = (event: { stopPropagation: () => void }) => event.stopPropagation();
 
 export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?: number; active?: boolean }) {
@@ -178,7 +196,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
           {/* Detail screen */}
           <div
             className={cn(
-              "absolute inset-0 overflow-y-auto bg-background exec-light-scroll transition-transform duration-300 motion-reduce:transition-none",
+              "absolute inset-0 bg-background transition-transform duration-300 motion-reduce:transition-none",
               tx ? "translate-x-0" : "translate-x-full",
             )}
             aria-hidden={!tx}
@@ -190,61 +208,63 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
               const confirmState = confirmations[selected];
               const confirmed = confirmState === "yes";
               return (
+                <div className="relative h-full">
+                  <div className="h-full overflow-y-auto exec-light-scroll">
                 <div className="flex min-h-full flex-col">
-                  <div className="sticky top-0 z-10 flex items-center gap-1 border-b border-slate-200 bg-background/95 px-2 py-2 backdrop-blur">
+                  <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b border-slate-200 bg-background/95 px-2 py-1.5 [@media(max-height:800px)]:py-0.5 backdrop-blur">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={(event) => { stop(event); closeDetail(); }}
-                      className="h-7 gap-0.5 px-1.5 text-[10px] font-semibold text-slate-600 hover:bg-slate-50"
+                      className={cn("h-7 gap-0.5 px-1.5 font-semibold text-slate-600 hover:bg-slate-50", T.meta)}
                     >
                       <ChevronLeft className="h-4 w-4" /> Back
                     </Button>
-                    <span className="text-[11px] font-bold text-slate-900">Transaction</span>
+                    <span className={cn("font-bold text-slate-900", T.meta)}>Transaction</span>
                   </div>
 
-                  <div className="px-4 pb-5 pt-4">
-                    <div className="flex items-start gap-3">
-                      <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", tone.icon)}>
-                        <PurchaseIcon className="h-5 w-5" />
+                  <div className="px-3.5 pb-3 pt-2.5 [@media(max-height:800px)]:pb-1.5 [@media(max-height:800px)]:pt-1">
+                    <div className="flex items-start gap-2.5">
+                      <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg [@media(max-height:800px)]:h-8 [@media(max-height:800px)]:w-8", tone.icon)}>
+                        <PurchaseIcon className="h-5 w-5 [@media(max-height:800px)]:h-4 [@media(max-height:800px)]:w-4" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <h3 className="text-[15px] font-bold leading-tight text-slate-950">
+                        <h3 className={cn("font-bold leading-tight text-slate-950", T.title)}>
                           {isConfirm && !confirmed ? `${tx.clean}?` : tx.clean}
                         </h3>
                         <div className="mt-1 flex items-center gap-1.5">
-                          <span className="text-[10px] font-medium text-slate-500">{tx.date}</span>
-                          <span className={cn("rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{tx.rail}</span>
+                          <span className={cn("font-medium text-slate-500", T.meta)}>{tx.date}</span>
+                          <span className={cn("rounded border px-1 py-px font-bold", T.chip, tone.chip)}>{tx.rail}</span>
                         </div>
                       </div>
-                      <span className="shrink-0 text-[15px] font-bold tabular-nums text-slate-900">{tx.amount}</span>
+                      <span className={cn("shrink-0 font-bold tabular-nums text-slate-900", T.title)}>{tx.amount}</span>
                     </div>
 
-                    <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
-                      <p className="text-[8px] font-bold uppercase tracking-wide text-slate-400">Details</p>
-                      <dl className="mt-2 space-y-1.5">
+                    <div className={cn("rounded-lg border border-slate-200 bg-slate-50/70", T.sectionGap, T.cardPad)}>
+                      <p className={cn("font-bold uppercase tracking-wide text-slate-400", T.cardLabel)}>Details</p>
+                      <dl className={cn(T.listGap, T.itemGap)}>
                         <div className="flex flex-col gap-0.5">
-                          <dt className="text-[9px] font-semibold text-slate-500">Original statement</dt>
-                          <dd className="break-all font-mono text-[11px] font-bold leading-snug text-slate-800">{tx.raw}</dd>
+                          <dt className={cn("font-semibold text-slate-500", T.rowLabel)}>Original statement</dt>
+                          <dd className={cn("break-all font-mono font-bold leading-snug text-slate-800", T.mono)}>{tx.raw}</dd>
                         </div>
                         <div className="flex items-start justify-between gap-3">
-                          <dt className="text-[9px] font-semibold text-slate-500">Category</dt>
-                          <dd className="text-right text-[9px] font-medium text-slate-700">{tx.meta}</dd>
+                          <dt className={cn("font-semibold text-slate-500", T.rowLabel)}>Category</dt>
+                          <dd className={cn("text-right font-medium text-slate-700", T.rowValue)}>{tx.meta}</dd>
                         </div>
                         <div className="flex items-start justify-between gap-3">
-                          <dt className="text-[9px] font-semibold text-slate-500">Payment rail</dt>
-                          <dd className="text-[9px] font-medium text-slate-700">{tx.rail}</dd>
+                          <dt className={cn("font-semibold text-slate-500", T.rowLabel)}>Payment rail</dt>
+                          <dd className={cn("text-right font-medium text-slate-700", T.rowValue)}>{tx.rail}</dd>
                         </div>
                         <div className="flex items-start justify-between gap-3">
-                          <dt className="text-[9px] font-semibold text-slate-500">Account</dt>
-                          <dd className="text-[9px] font-medium text-slate-700">{data.account}</dd>
+                          <dt className={cn("font-semibold text-slate-500", T.rowLabel)}>Account</dt>
+                          <dd className={cn("text-right font-medium text-slate-700", T.rowValue)}>{data.account}</dd>
                         </div>
                       </dl>
                     </div>
 
-                    <div className="mt-3 rounded-lg border border-slate-200 p-3">
-                      <p className="text-[8px] font-bold uppercase tracking-wide text-slate-400">Checks</p>
-                      <ul className="mt-2 space-y-1.5">
+                    <div className={cn("rounded-lg border border-slate-200", T.sectionGap, T.cardPad)}>
+                      <p className={cn("font-bold uppercase tracking-wide text-slate-400", T.cardLabel)}>Checks</p>
+                      <ul className={cn(T.listGap, T.itemGap)}>
                         {(isConfirm && !confirmState
                           ? [
                               { ok: true, text: "Amount and date match your account activity." },
@@ -258,32 +278,32 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                         ).map((check) => (
                           <li key={check.text} className="flex items-start gap-1.5">
                             {check.ok ? (
-                              <Check className="mt-px h-3 w-3 shrink-0 text-emerald-600" />
+                              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
                             ) : (
-                              <HelpCircle className="mt-px h-3 w-3 shrink-0 text-amber-600" />
+                              <HelpCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
                             )}
-                            <span className="text-[9px] leading-relaxed text-slate-600">{check.text}</span>
+                            <span className={cn("leading-snug text-slate-600", T.body)}>{check.text}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
 
-                    <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50/60 p-3">
+                    <div className={cn("rounded-lg border border-blue-200 bg-blue-50/60", T.sectionGap, T.cardPad)}>
                       <div className="flex items-center gap-1.5">
-                        <Sparkles className="h-3 w-3 text-blue-600" />
-                        <p className="text-[8px] font-bold uppercase tracking-wide text-blue-700">OUR BANK INSIGHTS</p>
+                        <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+                        <p className={cn("font-bold uppercase tracking-wide text-blue-700", T.cardLabel)}>OUR BANK INSIGHTS</p>
                       </div>
-                      <p className="mt-1.5 text-[9px] font-semibold text-slate-800">{tx.pattern}</p>
-                      <p className="mt-1 text-[9px] leading-relaxed text-slate-600">{tx.explanation}</p>
+                      <p className={cn("mt-1 font-semibold text-slate-800", T.body)}>{tx.pattern}</p>
+                      <p className={cn("mt-0.5 leading-snug text-slate-600", T.body)}>{tx.explanation}</p>
                       {isConfirm && "suggestionPrompt" in tx && (
-                        <p className="mt-1.5 text-[9px] leading-relaxed text-slate-600">{tx.suggestionPrompt}</p>
+                        <p className={cn("mt-1 leading-snug text-slate-600", T.body)}>{tx.suggestionPrompt}</p>
                       )}
                     </div>
 
-                    <div className="mt-4">
+                    <div className="mt-3 [@media(max-height:800px)]:mt-1">
                       {corrections[selected] || confirmState || supportChats[selected] ? (
                         <div className="flex items-center gap-2">
-                          <p className="text-[9px] font-semibold text-emerald-700">
+                          <p className={cn("font-semibold text-emerald-700", T.body)}>
                             {corrections[selected]
                               ? "Thanks — we'll review your suggestion."
                               : confirmed
@@ -315,12 +335,12 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                               setCorrectionOpen(null);
                               setDraft("");
                             }}
-                            className="ml-auto h-6 gap-1 border-slate-200 bg-background px-2 py-0.5 text-[9px] text-slate-600"
+                            className={cn("ml-auto gap-1 border-slate-200 bg-background px-2 py-0.5 text-slate-600", T.btn)}
                           >
                             <Undo2 className="h-3 w-3" /> Undo
                           </Button>
                         </div>
-                      ) : (
+                      ) : correctionOpen !== selected && (
                         <div className="flex gap-1.5">
                           <Button
                             size="sm"
@@ -330,7 +350,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                               setCorrectionOpen(null);
                               setDraft("");
                             }}
-                            className="h-7 px-3 py-1 text-[9px]"
+                            className={cn("px-3 py-1", T.btn)}
                           >
                             {isConfirm ? "Yes, that's right" : "Looks Good"}
                           </Button>
@@ -338,7 +358,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                             size="sm"
                             variant="outline"
                             onClick={(event) => { stop(event); setCorrectionOpen(selected); }}
-                            className="h-7 border-slate-200 bg-background px-3 py-1 text-[9px] text-slate-600"
+                            className={cn("border-slate-200 bg-background px-3 py-1 text-slate-600", T.btn)}
                           >
                             No, that's not right
                           </Button>
@@ -350,9 +370,9 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       <form
                         onSubmit={(event) => submitCorrection(event, selected, isConfirm)}
                         onClick={stop}
-                        className="mt-3 rounded-lg border border-slate-200 bg-slate-50/70 p-3"
+                        className="absolute inset-x-0 bottom-0 z-20 rounded-t-xl border-t border-slate-200 bg-background/95 p-2.5 shadow-[0_-10px_30px_rgba(15,23,42,0.10)] backdrop-blur"
                       >
-                        <label className="text-[8px] font-bold uppercase tracking-wide text-slate-500" htmlFor="correction-input">
+                        <label className={cn("font-bold uppercase tracking-wide text-slate-500", T.cardLabel)} htmlFor="correction-input">
                           What should this be?
                         </label>
                         <input
@@ -361,10 +381,13 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                           onChange={(event) => setDraft(event.target.value)}
                           maxLength={80}
                           placeholder="e.g. JFK Vending Machine"
-                          className="mt-1.5 w-full rounded-md border border-slate-200 bg-background px-2 py-1.5 text-[10px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className={cn(
+                            "mt-1 w-full rounded-md border border-slate-200 bg-background px-2 py-1 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500",
+                            T.rowValue,
+                          )}
                         />
-                        <div className="mt-2 flex gap-1.5">
-                          <Button type="submit" size="sm" disabled={!draft.trim()} className="h-7 flex-1 px-3 py-1 text-[9px]">
+                        <div className="mt-1.5 flex flex-wrap gap-1.5">
+                          <Button type="submit" size="sm" disabled={!draft.trim()} className={cn("flex-1 px-2 py-1", T.btn)}>
                             Send suggestion
                           </Button>
                           <Button
@@ -377,13 +400,29 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                               setDraft("");
                               setCorrectionOpen(null);
                             }}
-                            className="h-7 flex-1 border-slate-200 bg-background px-3 py-1 text-[9px] text-slate-600"
+                            className={cn("flex-1 border-slate-200 bg-background px-2 py-1 text-slate-600", T.btn)}
                           >
                             Chat with support
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={(event) => {
+                              stop(event);
+                              setConfirmations((c) => ({ ...c, [selected]: "yes" }));
+                              setCorrectionOpen(null);
+                              setDraft("");
+                            }}
+                            className={cn("flex-1 border-slate-200 bg-background px-2 py-1 text-slate-600", T.btn)}
+                          >
+                            {isConfirm ? "Yes, that's right" : "Looks Good"}
                           </Button>
                         </div>
                       </form>
                     )}
+                  </div>
+                  </div>
                   </div>
                 </div>
               );
