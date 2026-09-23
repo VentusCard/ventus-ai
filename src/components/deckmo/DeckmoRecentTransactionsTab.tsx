@@ -340,7 +340,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                             <Undo2 className="h-3 w-3" /> Undo
                           </Button>
                         </div>
-                      ) : (
+                      ) : correctionOpen !== selected && (
                         <div className="flex gap-1.5">
                           <Button
                             size="sm"
@@ -370,7 +370,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       <form
                         onSubmit={(event) => submitCorrection(event, selected, isConfirm)}
                         onClick={stop}
-                        className={cn("rounded-lg border border-slate-200 bg-slate-50/70", T.sectionGap, T.cardPad)}
+                        className="absolute inset-x-0 bottom-0 z-20 rounded-t-xl border-t border-slate-200 bg-background/95 p-2.5 shadow-[0_-10px_30px_rgba(15,23,42,0.10)] backdrop-blur"
                       >
                         <label className={cn("font-bold uppercase tracking-wide text-slate-500", T.cardLabel)} htmlFor="correction-input">
                           What should this be?
@@ -386,7 +386,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                             T.rowValue,
                           )}
                         />
-                        <div className="mt-2 flex gap-1.5">
+                        <div className="mt-1.5 flex flex-wrap gap-1.5">
                           <Button type="submit" size="sm" disabled={!draft.trim()} className={cn("flex-1 px-2 py-1", T.btn)}>
                             Send suggestion
                           </Button>
@@ -404,9 +404,24 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                           >
                             Chat with support
                           </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={(event) => {
+                              stop(event);
+                              setConfirmations((c) => ({ ...c, [selected]: "yes" }));
+                              setCorrectionOpen(null);
+                              setDraft("");
+                            }}
+                            className={cn("flex-1 border-slate-200 bg-background px-2 py-1 text-slate-600", T.btn)}
+                          >
+                            {isConfirm ? "Yes, that's right" : "Looks Good"}
+                          </Button>
                         </div>
                       </form>
                     )}
+                  </div>
                   </div>
                 </div>
               );
