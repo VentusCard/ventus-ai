@@ -270,6 +270,21 @@ the same product is not re-pitched to it within 30 — unless the lead signal is
 new, which overrides both. Touches are written to `HH#<id>` / `TOUCH#<iso>`
 **after** a successful send, so a delivery failure never mutes a household.
 
+**Cadence is per advisor, not per household.** The row key is the household, but
+`getTouchSummaries(ids, { advisorId })` filters on `advisor_id`, so the question
+asked is "have we already shown *this advisor* these people". The digest
+recommends a household to a colleague rather than contacting the customer, so
+advisor scoping is the rule that matches what the mail actually does.
+
+This is invisible in production, where a household sits in one advisor's book,
+and load-bearing in the demo, where all four mailable advisors hold the same 28
+households. Read unscoped, the first advisor's send marks those households
+contacted for everyone behind them in the loop: on 21 Sep one run consumed 20 of
+28 and the digest was silent by the 23rd, logging `27 held for cadence`. If the
+mail ever stops with a large `held` count and `0 expired`, suspect this seam
+first. Note that single-advisor tests cannot see it — `tasks.test.mjs` runs two
+advisors over four days for exactly this reason.
+
 ### Windows are per signal, not per family
 
 `outreachWindow()` maps every signal to one of five named buckets. Named rather
