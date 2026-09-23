@@ -265,6 +265,7 @@ export const DECKMO = {
         meta: "Music streaming · Entertainment",
         amount: "$13.99",
         pattern: "Recurring · monthly · price up $2.00 this month",
+        isSubscription: true,
         explanation:
           "This monthly subscription went up $2.00 from your usual $11.99 — we wanted you to know before you spot it on a statement.",
         needsConfirmation: false,

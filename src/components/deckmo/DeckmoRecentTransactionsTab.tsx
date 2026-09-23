@@ -159,7 +159,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                         <span className="truncate text-[12px] font-bold text-slate-900">
                           {correction ? correction : isConfirm && !confirmed ? `${row.clean}?` : row.clean}
                         </span>
-                        {row.pattern?.startsWith("Recurring") && (
+                        {row.isSubscription && (
                           <RefreshCw className="h-2.5 w-2.5 shrink-0 text-slate-400" />
                         )}
                         {correction && (
