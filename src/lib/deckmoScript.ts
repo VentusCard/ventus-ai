@@ -259,6 +259,19 @@ export const DECKMO = {
       {
         date: "Sep 15",
         rail: "CARD",
+        icon: "music",
+        raw: "SPOTIFY P3A1B2C3D4",
+        clean: "Spotify Premium",
+        meta: "Music streaming · Entertainment",
+        amount: "$13.99",
+        pattern: "Recurring · monthly · price up $2.00 this month",
+        explanation:
+          "This monthly subscription went up $2.00 from your usual $11.99 — we wanted you to know before you spot it on a statement.",
+        needsConfirmation: false,
+      },
+      {
+        date: "Sep 14",
+        rail: "CARD",
         icon: "vending",
         raw: "365 RETAIL MARKETS TROY MI",
         clean: "JFK Vending Machine",
@@ -269,19 +282,6 @@ export const DECKMO = {
         explanation:
           "The merchant descriptor lists Troy, MI, but this purchase resembles vending machine purchases at JFK Airport. Please confirm so we label it correctly.",
         needsConfirmation: true,
-      },
-      {
-        date: "Sep 14",
-        rail: "CARD",
-        icon: "music",
-        raw: "SPOTIFY P3A1B2C3D4",
-        clean: "Spotify Premium",
-        meta: "Music streaming · Entertainment",
-        amount: "$13.99",
-        pattern: "Recurring · monthly · price up $2.00 this month",
-        explanation:
-          "This monthly subscription went up $2.00 from your usual $11.99 — we wanted you to know before you spot it on a statement.",
-        needsConfirmation: false,
       },
       {
         date: "Sep 12",
