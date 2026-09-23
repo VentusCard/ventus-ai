@@ -423,6 +423,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                     )}
                   </div>
                   </div>
+                  </div>
                 </div>
               );
             })()}
