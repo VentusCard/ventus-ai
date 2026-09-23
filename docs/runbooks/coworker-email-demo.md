@@ -519,6 +519,19 @@ Pick one (root MX stays on Proofpoint either way):
 
 From `infra/` (packages the Lambda zips first, then deploys).
 
+After any deploy, and before any demo, check the reply path still works:
+
+```bash
+npm run --prefix backend smoke:coworker-replies
+```
+
+It sends the four replies the digest advertises and asserts each routes to the
+right task. Worth the ten seconds: a shadowed variable in the inbound handler
+broke every reply between Sep 14 and Sep 23 and nothing surfaced it, because a
+reply that fails does so silently — the sender simply never hears back, which
+looks exactly like a slow reply. The `functions/` tree is outside the `npm
+test` glob, so nothing else exercises that handler at all.
+
 **Pass the full flag set every time, including for `cdk diff`.** Context flags
 are the stack's entire configuration, not optional extras, and the defaults do
 not describe what is deployed. Two of them bite:

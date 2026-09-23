@@ -9,6 +9,7 @@
     "package:functions": "node ./scripts/package-functions.mjs",
     "package:monitors": "node ./scripts/package-monitors.mjs",
     "smoke:api": "node ./scripts/smoke-api.mjs",
+    "smoke:coworker-replies": "node ./scripts/smoke-coworker-replies.mjs",
     "plaid:sandbox:pull": "node ./eval/pull-plaid-sandbox-transactions.mjs",
     "plaid:benchmark:manifest": "node ./eval/generate-plaid-benchmark-manifest.mjs",
     "plaid:benchmark:synthetic": "node ./eval/generate-plaid-synthetic-benchmark.mjs",

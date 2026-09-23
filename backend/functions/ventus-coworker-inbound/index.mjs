@@ -129,10 +129,16 @@ export const handler = async (event) => {
       // A recipient who only opted out of the digest still gets replies — they
       // emailed us. Scope 'all' (hard bounce, spam complaint) stops everything,
       // and replying into a dead mailbox just charges sending reputation again.
-      const { suppressed, record } = await store.isSuppressed(turn.reply.to, { kind: 'reply' });
+      // Not destructured as `record`: that name belongs to the loop variable
+      // this block already reads at the top, and redeclaring it here puts the
+      // loop variable in the temporal dead zone for the whole iteration. Every
+      // inbound mail then dies on the first line of the try.
+      const { suppressed, record: suppression } = await store.isSuppressed(turn.reply.to, {
+        kind: 'reply',
+      });
       if (suppressed) {
         console.log(
-          `[${LAMBDA_NAME}] ${turn.reply.to} is suppressed (scope=${record?.scope} reason=${record?.reason}); no reply sent.`
+          `[${LAMBDA_NAME}] ${turn.reply.to} is suppressed (scope=${suppression?.scope} reason=${suppression?.reason}); no reply sent.`
         );
         results.push({ allowed: true, suppressed: true, threadId: turn.threadId });
         continue;
