@@ -209,7 +209,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
               const confirmed = confirmState === "yes";
               return (
                 <div className="flex min-h-full flex-col">
-                  <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b border-slate-200 bg-background/95 px-2 py-1.5 backdrop-blur">
+                  <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b border-slate-200 bg-background/95 px-2 py-1.5 [@media(max-height:800px)]:py-1 backdrop-blur">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -221,10 +221,10 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                     <span className={cn("font-bold text-slate-900", T.meta)}>Transaction</span>
                   </div>
 
-                  <div className="px-3.5 pb-3 pt-2.5">
+                  <div className="px-3.5 pb-3 pt-2.5 [@media(max-height:800px)]:pb-2 [@media(max-height:800px)]:pt-1.5">
                     <div className="flex items-start gap-2.5">
-                      <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", tone.icon)}>
-                        <PurchaseIcon className="h-5 w-5" />
+                      <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg [@media(max-height:800px)]:h-9 [@media(max-height:800px)]:w-9", tone.icon)}>
+                        <PurchaseIcon className="h-5 w-5 [@media(max-height:800px)]:h-4 [@media(max-height:800px)]:w-4" />
                       </span>
                       <div className="min-w-0 flex-1">
                         <h3 className={cn("font-bold leading-tight text-slate-950", T.title)}>
