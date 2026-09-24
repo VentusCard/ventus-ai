@@ -312,16 +312,15 @@ test('a digest survives being written to the table', () => {
   assert.equal(typeof digest.generatedAt, 'string');
 });
 
-test('the subject carries the date so each morning is its own thread', () => {
+test('the subject stays undated whatever the digest knows about today', () => {
+  // Dating it was an attempt to stop Gmail threading consecutive digests, and
+  // it was aimed at the wrong thing: same-subject mail a day apart never
+  // threaded, only a burst of sends minutes apart did. The subject keeps the
+  // count at the front, where it is read.
   const generatedAt = new Date('2026-09-25T11:00:00Z');
-  const subject = digestSubject({ items: [{}, {}], generatedAt });
-  assert.equal(subject, 'Your Daily Digest, Fri 25 Sep: 2 households need attention');
-
-  // Same run, a reader in Auckland: the date names the run, not their clock,
-  // or the same digest is filed under two different days.
-  assert.match(
-    digestSubject({ items: [{}], generatedAt: new Date('2026-09-25T23:30:00Z') }),
-    /Fri 25 Sep/
+  assert.equal(
+    digestSubject({ items: [{}, {}], generatedAt }),
+    'Your Daily Digest: 2 households need attention'
   );
   assert.equal(digestSubject({ items: [{}] }), 'Your Daily Digest: 1 household needs attention');
 });

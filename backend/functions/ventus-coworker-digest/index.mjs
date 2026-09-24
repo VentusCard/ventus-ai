@@ -196,7 +196,7 @@ export const handler = async (event = {}) => {
     const html = renderShell({
       greeting: `Hi ${firstName(advisor.name)},`,
       paragraphs: [
-        `I went through your book against the product catalog this morning. ${pluralize(digest.items.length, 'household')} ${verbFor(digest.items.length)} worth your time today, one row each, strongest first.`,
+        `I went through your book this morning. ${pluralize(digest.items.length, 'household')} ${verbFor(digest.items.length)} worth your time today.`,
       ],
       sections: [{ heading: 'Today', html: renderDigestTable(digest.items) }],
       actions: digestActions(digest.items),
