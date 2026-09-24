@@ -519,6 +519,38 @@ Pick one (root MX stays on Proofpoint either way):
 
 From `infra/` (packages the Lambda zips first, then deploys).
 
+## Mail from the root domain is quarantined by strict gateways
+
+`ventusai.com` publishes `p=quarantine` and an SPF record that does not list
+Amazon SES:
+
+```
+v=spf1 include:secureserver.net include:_spf-usg2.ppe-hosted.com ~all
+```
+
+We send `From: coworker@ventusai.com`, so SPF does not authorise us. DKIM is
+signed and aligned, so DMARC passes on DKIM alone and Gmail delivers normally.
+Proofpoint, which fronts `ventusai.com` itself, is stricter: it reads mail from
+its own domain arriving off an unlisted source as impersonation and quarantines
+it whatever DKIM says. Digests to `@ventusai.com` sat in that quarantine for
+days without anyone noticing.
+
+Expect the same from any bank or enterprise recipient — Proofpoint and
+Microsoft Defender both behave this way. Demoing to Gmail hides the problem.
+
+One line of DNS fixes it, on GoDaddy:
+
+```
+v=spf1 include:amazonses.com include:secureserver.net include:_spf-usg2.ppe-hosted.com ~all
+```
+
+Note `demo.ventusai.com` already has `include:amazonses.com`. It is only the
+root domain, the one in the From address, that is missing it. Setting a custom
+MAIL FROM domain on the SES identity would align SPF as well; today
+`MailFromDomain` is null, so the envelope sender is `amazonses.com`.
+
+DMARC aggregate reports go to marco@ventusai.com.
+
 After any deploy, and before any demo, check the reply path still works:
 
 ```bash
