@@ -3,7 +3,7 @@ import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Cl
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
-import { availableDeals as AVAILABLE_DEALS } from "@/lib/availableDealsData";
+import { availableDeals as AVAILABLE_DEALS, DEAL_CATEGORIES } from "@/lib/availableDealsData";
 import { cn } from "@/lib/utils";
 
 // ── Merchant lookup: dealId → merchant name (mirrors edge function catalog) ──
