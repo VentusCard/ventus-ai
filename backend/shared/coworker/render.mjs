@@ -22,30 +22,6 @@
 
 import { householdShortName, pluralize } from './labels.mjs';
 
-/** Sampled from the Ventus wordmark, so the mail and the deck agree. */
-const VENTUS_BLUE = '#3762E3';
-
-/**
- * The Ventus AI Coworker wordmark, set as text rather than served as an image.
- *
- * Outlook and Apple Mail's privacy relay block remote images until the reader
- * asks for them, so an <img> logo is a broken placeholder at the top of the
- * message for exactly the audience we most want to impress. The mark is pure
- * type, so type reproduces it, and it renders everywhere with no hosting, no
- * tracking-pixel ambiguity and no weight on the message.
- *
- * Arial Black is the fallback that matters: it ships on Windows and macOS and
- * is the closest ubiquitous face to the heavy geometric sans of the logo.
- */
-function renderWordmark() {
-  const face =
-    "font-family:'Archivo Black','Helvetica Neue',Helvetica,'Arial Black',Arial,sans-serif;font-weight:900;";
-  return `<div style="margin:0 0 20px;">
-<div style="${face}font-size:27px;line-height:1.05;letter-spacing:-0.015em;color:${VENTUS_BLUE};">VENTUS AI</div>
-<div style="${face}font-size:27px;line-height:1.05;letter-spacing:-0.015em;color:${VENTUS_BLUE};font-style:italic;">COWORKER</div>
-</div>`;
-}
-
 /** HTML-escape a string for safe interpolation into the email body. */
 export function esc(value) {
   return String(value ?? '')
@@ -115,7 +91,6 @@ export function formatBenefit(row = {}) {
  * @param {{example:string, does:string}[]} [opts.actions]  what the reader can
  *   reply with. Use instead of forwardMove where there is genuinely more than
  *   one useful move; see renderActions.
- * @param {boolean} [opts.brand]  show the wordmark. On by default.
  */
 export function renderShell({
   greeting,
@@ -123,7 +98,6 @@ export function renderShell({
   sections = [],
   forwardMove,
   actions = [],
-  brand = true,
   signoff = 'Ventus AI Coworker',
   disclaimer = DEFAULT_DISCLAIMER,
   unsubscribeUrl,
@@ -146,7 +120,6 @@ export function renderShell({
     ? `<p style="font-size:11px;color:#888;margin:6px 0 0;">You are receiving this because you asked the Ventus AI Coworker to screen your book each morning. <a href="${esc(unsubscribeUrl)}" style="color:#888;text-decoration:underline;">Stop the daily digest</a>.</p>`
     : '';
   return `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#1a1a1a;line-height:1.5;max-width:720px;">
-${brand ? renderWordmark() : ''}
 <p style="margin:0 0 12px;">${esc(greeting)}</p>
 ${paras}
 ${secs}

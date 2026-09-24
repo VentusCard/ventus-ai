@@ -909,6 +909,9 @@ export function buildAdvisorDigest({
   return {
     advisorId,
     items,
+    // The subject is dated from this. It has to be the digest's own notion of
+    // today rather than whenever the subject happens to be rendered.
+    generatedAt: now,
     considered,
     withOpportunity,
     scannedProducts: catalog.length,
@@ -1083,10 +1086,40 @@ function reserveForLifeEvents({ items, ranked, slots = DEFAULT_LIFE_EVENT_SLOTS 
  * carries hundreds; the reconciliation line still states the denominator
  * whenever an advisor actually screens for something.
  */
-export function digestSubject({ items = [] }) {
-  if (!items.length) return 'Your Daily Digest: nothing needs your attention today';
+export function digestSubject({ items = [], generatedAt = null } = {}) {
+  const day = formatDigestDate(generatedAt);
+  const dated = day ? `Your Daily Digest, ${day}` : 'Your Daily Digest';
+  if (!items.length) return `${dated}: nothing needs your attention today`;
   const needs = items.length === 1 ? 'needs' : 'need';
-  return `Your Daily Digest: ${pluralize(items.length, 'household')} ${needs} attention`;
+  return `${dated}: ${pluralize(items.length, 'household')} ${needs} attention`;
+}
+
+/**
+ * The date in the subject line, which exists to keep each morning's digest out
+ * of the previous one's thread.
+ *
+ * Gmail collapses consecutive messages that share a subject, so an undated
+ * "Your Daily Digest" builds one ever-growing conversation where yesterday's
+ * list is what the reader sees first. The threading headers were already dated
+ * and were not the cause.
+ *
+ * Formatted in UTC on purpose: the cron fires in UTC, and dating the mail by
+ * the reader's clock would label the same run differently for two advisors in
+ * different zones.
+ */
+function formatDigestDate(value) {
+  const date = value instanceof Date ? value : value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  // en-US, not en-GB: the latter abbreviates September to the four-letter
+  // "Sept", which is the only month that would sit differently in the list.
+  const parts = new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  }).formatToParts(date);
+  const part = (type) => parts.find((p) => p.type === type)?.value || '';
+  return `${part('weekday')} ${part('day')} ${part('month')}`;
 }
 
 /**

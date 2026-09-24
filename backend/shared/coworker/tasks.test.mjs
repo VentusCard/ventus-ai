@@ -302,6 +302,20 @@ test('the subject counts what needs attention, not the size of the book', () => 
   assert.equal(digestSubject({ items: [] }), 'Your Daily Digest: nothing needs your attention today');
 });
 
+test('the subject carries the date so each morning is its own thread', () => {
+  const generatedAt = new Date('2026-09-25T11:00:00Z');
+  const subject = digestSubject({ items: [{}, {}], generatedAt });
+  assert.equal(subject, 'Your Daily Digest, Fri 25 Sep: 2 households need attention');
+
+  // Same run, a reader in Auckland: the date names the run, not their clock,
+  // or the same digest is filed under two different days.
+  assert.match(
+    digestSubject({ items: [{}], generatedAt: new Date('2026-09-25T23:30:00Z') }),
+    /Fri 25 Sep/
+  );
+  assert.equal(digestSubject({ items: [{}] }), 'Your Daily Digest: 1 household needs attention');
+});
+
 test('digest leads with figures that survive being questioned', () => {
   const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR });
   // A computed net beats a larger estimate. Picking purely by size would put a

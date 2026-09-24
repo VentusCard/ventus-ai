@@ -526,11 +526,18 @@ npm run --prefix backend smoke:coworker-replies
 ```
 
 It sends the four replies the digest advertises and asserts each routes to the
-right task. Worth the ten seconds: a shadowed variable in the inbound handler
-broke every reply between Sep 14 and Sep 23 and nothing surfaced it, because a
-reply that fails does so silently — the sender simply never hears back, which
-looks exactly like a slow reply. The `functions/` tree is outside the `npm
-test` glob, so nothing else exercises that handler at all.
+right task. Each run really does mail four replies to `--from` unless the stack
+is deployed with `coworkerDryRun=true`, so run it once, not in a loop.
+
+Worth the ten seconds: a shadowed variable in the inbound handler broke every
+reply between Sep 14 and Sep 23. Monitoring was not the gap — the
+`ventus-coworker-inbound-errors` alarm fired within two minutes of the first
+real reply, and the message landed in the DLQ as designed. The gap was that
+nobody replied for nine days, so there was no traffic to alarm on, and nothing
+upstream of production would have caught it either: the `functions/` tree sits
+outside the `npm test` glob, so no test imports any handler, and there is no
+linter configured that would flag the shadowing. This script is the only thing
+that exercises that path before a reader does.
 
 **Pass the full flag set every time, including for `cdk diff`.** Context flags
 are the stack's entire configuration, not optional extras, and the defaults do
