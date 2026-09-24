@@ -30,12 +30,13 @@ export const useSemanticDealSearch = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/semantic-deal-search`,
+        `${SEARCH_BASE_URL}/functions/v1/semantic-deal-search`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${SEARCH_KEY}`,
+            apikey: SEARCH_KEY,
           },
           body: JSON.stringify({ query }),
           signal: controller.signal,
