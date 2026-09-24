@@ -333,11 +333,13 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
 
         if (error) throw error;
 
-        const actions: string[] | undefined = fixedActions
-          ? fixedActions
-          : Array.isArray(data?.actions) && data.actions.length > 0
-            ? data.actions.slice(0, 2)
-            : undefined;
+        const actions: string[] | undefined = hideQuickActions
+          ? undefined
+          : fixedActions
+            ? fixedActions
+            : Array.isArray(data?.actions) && data.actions.length > 0
+              ? data.actions.slice(0, 2)
+              : undefined;
 
         setMessages((prev) => [
           ...prev,
