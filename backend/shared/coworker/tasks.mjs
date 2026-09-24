@@ -911,7 +911,11 @@ export function buildAdvisorDigest({
     items,
     // The subject is dated from this. It has to be the digest's own notion of
     // today rather than whenever the subject happens to be rendered.
-    generatedAt: now,
+    //
+    // An ISO string, not the Date: the caller persists this whole object to
+    // DynamoDB, and the document client refuses to marshall a class instance.
+    // Every field that hangs off a digest has to survive JSON.
+    generatedAt: isoOrNull(now),
     considered,
     withOpportunity,
     scannedProducts: catalog.length,
@@ -1107,9 +1111,20 @@ export function digestSubject({ items = [], generatedAt = null } = {}) {
  * the reader's clock would label the same run differently for two advisors in
  * different zones.
  */
+function isoOrNull(value) {
+  const date = toDate(value);
+  return date ? date.toISOString() : null;
+}
+
+function toDate(value) {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function formatDigestDate(value) {
-  const date = value instanceof Date ? value : value ? new Date(value) : null;
-  if (!date || Number.isNaN(date.getTime())) return '';
+  const date = toDate(value);
+  if (!date) return '';
   // en-US, not en-GB: the latter abbreviates September to the four-letter
   // "Sept", which is the only month that would sit differently in the list.
   const parts = new Intl.DateTimeFormat('en-US', {

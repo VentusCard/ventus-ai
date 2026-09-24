@@ -302,6 +302,16 @@ test('the subject counts what needs attention, not the size of the book', () => 
   assert.equal(digestSubject({ items: [] }), 'Your Daily Digest: nothing needs your attention today');
 });
 
+test('a digest survives being written to the table', () => {
+  // The digest lambda persists this object as-is, and the DynamoDB document
+  // client throws on anything that is not JSON-native — a Date field cost a
+  // send its thread record and its contact log. Round-tripping through JSON
+  // only comes back deep-equal if every value is already a plain one.
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, now: new Date() });
+  assert.deepEqual(JSON.parse(JSON.stringify(digest)), digest);
+  assert.equal(typeof digest.generatedAt, 'string');
+});
+
 test('the subject carries the date so each morning is its own thread', () => {
   const generatedAt = new Date('2026-09-25T11:00:00Z');
   const subject = digestSubject({ items: [{}, {}], generatedAt });
