@@ -3,7 +3,7 @@ import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Cl
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
-import { availableDeals as AVAILABLE_DEALS } from "@/lib/availableDealsData";
+import { availableDeals as AVAILABLE_DEALS, DEAL_CATEGORIES } from "@/lib/availableDealsData";
 import { cn } from "@/lib/utils";
 
 // ── Merchant lookup: dealId → merchant name (mirrors edge function catalog) ──
@@ -438,22 +438,26 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               <p className="text-[11px] text-slate-400">No matching deals found</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {catalogSearchDeals.map((deal, i) => {
                 const c = getColor(deal.category || "");
+                const catMeta = DEAL_CATEGORIES[deal.category as keyof typeof DEAL_CATEGORIES];
                 return (
                   <div
                     key={deal.id}
-                    className="rounded-xl overflow-hidden border border-slate-100 bg-white flex animate-fade-in hover:shadow-md transition-shadow"
+                    className="rounded-lg overflow-hidden border border-slate-100 bg-white flex items-center gap-2.5 animate-fade-in hover:shadow-md transition-shadow"
                     style={{ animationDelay: `${i * 35}ms` }}
                   >
-                    <div className="w-1 shrink-0" style={{ background: c.dot ?? c.border }} />
-                    <div className="flex-1 min-w-0 px-3 py-2.5 flex flex-col gap-1.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-[12.5px] font-bold text-slate-800 truncate">{deal.merchantName}</p>
-                          <p className="text-[9px] text-slate-400 truncate">{deal.subcategory}</p>
-                        </div>
+                    <div className="w-1 self-stretch shrink-0" style={{ background: c.dot ?? c.border }} />
+                    <div
+                      className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[14px] leading-none"
+                      style={{ background: c.bg, border: `1px solid ${c.border}` }}
+                    >
+                      {catMeta?.icon ?? "🛍️"}
+                    </div>
+                    <div className="flex-1 min-w-0 py-1.5 pr-2.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[12px] font-bold text-slate-800 truncate">{deal.merchantName}</p>
                         <span
                           className="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0"
                           style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
@@ -461,13 +465,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                           {deal.rewardValue}
                         </span>
                       </div>
-                      <p className="text-[10px] leading-snug text-slate-500 line-clamp-1">{deal.dealDescription}</p>
-                      <button
-                        className="w-full text-[10px] font-semibold px-2 py-1.5 rounded-full border transition-colors"
-                        style={{ borderColor: c.border, color: c.text, background: c.bg }}
-                      >
-                        View Deal
-                      </button>
+                      <p className="text-[9.5px] leading-snug text-slate-500 line-clamp-1">{deal.dealDescription}</p>
                     </div>
                   </div>
                 );
