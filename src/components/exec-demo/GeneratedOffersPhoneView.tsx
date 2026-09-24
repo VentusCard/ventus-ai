@@ -1,10 +1,26 @@
 import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
-import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star, MapPin } from "lucide-react";
+import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star, MapPin, UtensilsCrossed, Plane, Shirt, House, Clapperboard, HeartPulse, Dumbbell, Laptop, Baby, Dog, Landmark, Car, ShoppingBag } from "lucide-react";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
 import { availableDeals as AVAILABLE_DEALS, DEAL_CATEGORIES } from "@/lib/availableDealsData";
 import { cn } from "@/lib/utils";
+
+// Simple line icons per deal category (matches the section 5 Activity list style).
+const CATEGORY_ICONS: Record<string, typeof ShoppingBag> = {
+  "Food & Dining": UtensilsCrossed,
+  "Travel & Exploration": Plane,
+  "Style & Beauty": Shirt,
+  "Home & Living": House,
+  "Entertainment & Culture": Clapperboard,
+  "Health & Wellness": HeartPulse,
+  "Sports & Active Living": Dumbbell,
+  "Technology & Digital Life": Laptop,
+  "Family & Community": Baby,
+  "Pets": Dog,
+  "Financial & Aspirational": Landmark,
+  "Automotive": Car,
+};
 
 // ── Merchant lookup: dealId → merchant name (mirrors edge function catalog) ──
 const MERCHANT_LOOKUP: Record<string, string> = {
