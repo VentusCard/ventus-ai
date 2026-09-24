@@ -40,7 +40,7 @@ export const DECKMO = {
   beats: [
     { id: "opener", nav: "Thesis", steps: 6 },
     { id: "visibility", nav: "The Gap", steps: 2 },
-    { id: "living-view", nav: "The Insight", steps: 2 },
+    { id: "living-view", nav: "The Insight", steps: 3 },
     { id: "ricky", nav: "Example: Meet Ricky", steps: 2 },
     { id: "immediate", nav: "Immediate Value: Decrease Customer Service Cost", steps: 4 },
     { id: "mid-term", nav: "Value: This Year", steps: 5 },
