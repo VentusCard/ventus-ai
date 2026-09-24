@@ -383,7 +383,7 @@ export const DECKMO = {
     ],
   },
   longTerm: {
-    eyebrow: "LONG-TERM",
+    eyebrow: "MID-TERM: GROWTH",
     title: "Build a relationship that evolves",
     subtitle:
       "A more personalized banking relationship can deepen engagement, improve retention and NPS, and help the bank grow primary banking relationships and share of wallet.",
