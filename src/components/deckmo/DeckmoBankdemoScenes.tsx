@@ -71,6 +71,16 @@ function ExactPhone({ tab, cycleCollections = false }: { tab: ConsumerTab; cycle
   );
 }
 
+const HAWAII_PATTERN = /HAWAII|KAUAI|MAUI|WAILEA|WAIKOLOA|LUAU|HNL|KONA|HONOLULU|MOLOKINI|POIPU/i;
+const HAWAII_ROWS = DECKMO_BANKDEMO_FIXTURE.enrichedTransactions.filter((t) => HAWAII_PATTERN.test(`${t.merchant_name} ${t.description ?? ""}`));
+const hawaiiGroup = (mcc?: string) => (mcc === "7011" ? "Lodging" : mcc === "4511" || mcc === "3058" ? "Air Travel" : "Dining & Experiences");
+const HAWAII_CHAT_CONTEXT = [
+  "The customer has a recurring pattern of Hawaiian trips. These are ALL of the customer's Hawaii trip transactions:",
+  ...HAWAII_ROWS.map((t) => `- ${t.merchant_name} | $${t.amount.toFixed(2)} | ${t.date} | ${hawaiiGroup(t.mcc)} | ${t.description ?? ""}`),
+  `Grand total across all of them: $${HAWAII_ROWS.reduce((s, t) => s + t.amount, 0).toFixed(2)}.`,
+  "When asked about Hawaii trip spending, group into exactly three categories: Lodging, Air Travel, and Dining & Experiences. Include restaurants, luaus and activities in Dining & Experiences as a full category in the main breakdown AND in the total — never as a footnote or side note. Show each category subtotal with its merchants, then the grand total.",
+].join("\n");
+
 function RetentionPhone({ active }: { active: boolean }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
   return (
@@ -90,7 +100,8 @@ function RetentionPhone({ active }: { active: boolean }) {
         firstTabLabel="Activity"
         batteryFull
         pendingAIPrompt={active ? RETENTION_OPENING_PROMPT : null}
-        chatSignalContext="The customer has a recurring pattern of Hawaiian travel. Use the enriched transaction history to total and explain the related vacation spending."
+        chatSignalContext={HAWAII_CHAT_CONTEXT}
+        hideQuickActions
       />
     </div>
   );
