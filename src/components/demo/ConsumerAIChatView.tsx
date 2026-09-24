@@ -403,7 +403,8 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                 <div className={cn("flex flex-col gap-1.5 max-w-[85%]", msg.role === "user" ? "items-end" : "items-start")}>
                   <div
                     className={cn(
-                      "rounded-2xl px-3 py-2 text-[13px] overflow-hidden break-words",
+                      "rounded-2xl text-[13px] overflow-hidden break-words",
+                      msg.role === "assistant" && relaxedAnswers ? "px-4 py-3" : "px-3 py-2",
                       msg.role === "user"
                         ? "bg-blue-600 text-white rounded-br-sm"
                         : "bg-slate-100 text-slate-800 rounded-bl-sm"
