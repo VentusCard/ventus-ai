@@ -51,7 +51,13 @@ function rawEmail({ name, body }) {
   return [
     `From: Coworker Smoke Test <${FROM}>`,
     'To: Ventus AI Coworker <coworker@demo.ventusai.com>',
-    'Subject: Re: Your Daily Digest: 5 households need attention',
+    // Deliberately not the real digest subject. Gmail groups by subject with
+    // the "Re:" stripped, so imitating it filed these synthetic replies in the
+    // same conversation as the genuine morning digests — and the conversation
+    // then displayed as "Re: Your Daily Digest", which looked like the product
+    // was replying to itself. The handler routes on the body and threads on
+    // References, so the subject here is free.
+    `Subject: Coworker smoke test (${name})`,
     `Message-ID: <smoke-${name}-${stamp}@ventuscard.com>`,
     // A distinct thread per case, so one run cannot be mistaken for a
     // conversation and rate-limited as one.
