@@ -411,10 +411,10 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                     )}
                   >
                     {msg.role === "assistant" ? (
-                      <div className={cn("prose prose-slate max-w-none text-[13px] [&_p]:text-[13px] [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h3]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]",
+                      <div className={cn("prose prose-slate max-w-none text-[13px] text-slate-900 [&_p]:text-[13px] [&_p]:text-slate-900 [&_h1]:text-[14px] [&_h1]:mt-1 [&_h1]:text-slate-900 [&_h2]:text-[13px] [&_h2]:text-slate-900 [&_h3]:text-[13px] [&_h3]:text-slate-900 [&_em]:text-[13px] [&_em]:text-slate-900 [&_li]:text-slate-900 [&_li]:marker:text-slate-700 [&_a]:text-blue-700 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]",
                         relaxedAnswers
-                          ? "leading-relaxed [&_p]:mb-2 [&_p]:leading-relaxed [&_p:last-child]:mb-0 [&_h2]:mt-1.5 [&_h3]:mt-1 [&_ul]:mt-2 [&_ul]:mb-2 [&_ol]:mt-2 [&_ol]:mb-2 [&_li]:text-[13px] [&_li]:leading-relaxed [&_li]:mb-1 [&_strong]:text-[13px] [&_strong]:font-bold"
-                          : "leading-snug [&_p]:mb-0.5 [&_p]:leading-snug [&_h2]:mt-1 [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px]"
+                          ? "leading-relaxed [&_p]:mb-2 [&_p]:leading-relaxed [&_p:last-child]:mb-0 [&_h2]:mt-1.5 [&_h3]:mt-1 [&_ul]:mt-2 [&_ul]:mb-2 [&_ol]:mt-2 [&_ol]:mb-2 [&_li]:text-[13px] [&_li]:leading-relaxed [&_li]:mb-1 [&_strong]:text-[13px] [&_strong]:font-bold [&_strong]:text-slate-950"
+                          : "leading-snug [&_p]:mb-0.5 [&_p]:leading-snug [&_h2]:mt-1 [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_strong]:text-slate-950"
                       )}>
                         <ReactMarkdown>{msg.content}</ReactMarkdown>
                       </div>
