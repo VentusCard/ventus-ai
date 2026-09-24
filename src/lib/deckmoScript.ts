@@ -131,7 +131,7 @@ export const DECKMO = {
         { name: "20+ Major Life Events", tone: "amber" },
         { name: "50+ Financial Signals", tone: "emerald" },
         { name: "100+ Demographic Labels", tone: "violet" },
-        { name: "Obfuscated Risky Transcations", tone: "rose" },
+        { name: "15+ Risk Patterns", tone: "rose" },
       ],
       question: "Who they are · What they do · What do they need next?",
     },
