@@ -1,26 +1,10 @@
 import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
-import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star, MapPin, UtensilsCrossed, Plane, Shirt, House, Clapperboard, HeartPulse, Dumbbell, Laptop, Baby, Dog, Landmark, Car, ShoppingBag } from "lucide-react";
+import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star, MapPin } from "lucide-react";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
 import { availableDeals as AVAILABLE_DEALS } from "@/lib/availableDealsData";
 import { cn } from "@/lib/utils";
-
-// Simple line icons per deal category (matches the section 5 Activity list style).
-const CATEGORY_ICONS: Record<string, typeof ShoppingBag> = {
-  "Food & Dining": UtensilsCrossed,
-  "Travel & Exploration": Plane,
-  "Style & Beauty": Shirt,
-  "Home & Living": House,
-  "Entertainment & Culture": Clapperboard,
-  "Health & Wellness": HeartPulse,
-  "Sports & Active Living": Dumbbell,
-  "Technology & Digital Life": Laptop,
-  "Family & Community": Baby,
-  "Pets": Dog,
-  "Financial & Aspirational": Landmark,
-  "Automotive": Car,
-};
 
 // ── Merchant lookup: dealId → merchant name (mirrors edge function catalog) ──
 const MERCHANT_LOOKUP: Record<string, string> = {
@@ -457,7 +441,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
             <div className="space-y-2">
               {catalogSearchDeals.map((deal, i) => {
                 const c = getColor(deal.category || "");
-                const CategoryIcon = CATEGORY_ICONS[deal.category] ?? ShoppingBag;
                 return (
                   <div
                     key={deal.id}
@@ -465,11 +448,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                     style={{ animationDelay: `${i * 35}ms` }}
                   >
                     <div className="w-1 self-stretch shrink-0" style={{ background: c.dot ?? c.border }} />
-                    <div
-                      className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center"
-                      style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text }}
-                    >
-                      <CategoryIcon className="h-4 w-4" />
+                    <div className="w-9 h-9 shrink-0 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center select-none">
+                      <span className="text-[6.5px] font-semibold text-slate-400 leading-none">[logo]</span>
                     </div>
                     <div className="flex-1 min-w-0 py-2.5 pr-3">
                       <div className="flex items-center justify-between gap-2">
