@@ -91,6 +91,17 @@ const HAWAII_CHAT_CONTEXT = [
   "Do NOT include any follow-up action buttons for this question.",
 ].join("\n");
 
+const HAWAII_CANNED: Record<string, string> = {
+  [DECKMO.retention.openingPrompt]: [
+    "Your Dec 2025 Hawaii trip spend breakdown:",
+    "**Lodging — $7,420** (Hilton Waikoloa Village, Grand Wailea Resort, Koa Kea Hotel Kauai)",
+    "**Air Travel — $2,705** (Hawaiian Airlines HNL)",
+    "**Dining — $801** (Luau Kalamaku Kauai, Beach House Restaurant Kauai, Mama's Fish House Maui)",
+    "**Experiences — $189** (Boss Frog Snorkel Tour)",
+    "**Total: $11,115**",
+  ].join("\n\n"),
+};
+
 function RetentionPhone({ active }: { active: boolean }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
   return (
@@ -112,6 +123,7 @@ function RetentionPhone({ active }: { active: boolean }) {
         pendingAIPrompt={active ? RETENTION_OPENING_PROMPT : null}
         chatSignalContext={HAWAII_CHAT_CONTEXT}
         hideQuickActions
+        cannedAIAnswers={HAWAII_CANNED}
         relaxedAIAnswers
       />
     </div>
