@@ -78,6 +78,10 @@ interface Props {
   /** Persistent grounding context appended to every consumer-chat request (demo mock-up mode). */
   chatSignalContext?: string;
   hideQuickActions?: boolean;
+  /** When set, every AI assistant answer shows exactly these action labels (deck presentation usage). */
+  fixedAIActions?: string[];
+  /** When true, AI assistant answers render with roomier spacing and stronger bolding (deck presentation usage). */
+  relaxedAIAnswers?: boolean;
   /** When true, the right phone panel renders the WM CoPilot view instead of the customer mockup. */
   wmCopilotMode?: boolean;
   /** Currently selected signal driving the WM CoPilot brief. */
@@ -102,7 +106,7 @@ interface Props {
   autoRotateCollections?: boolean;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
@@ -187,6 +191,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             initialMessageContext={pendingAIPrompt?.signalContext}
             baseSignalContext={chatSignalContext}
             hideQuickActions={hideQuickActions}
+            fixedActions={fixedAIActions}
+            relaxedAnswers={relaxedAIAnswers}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );
