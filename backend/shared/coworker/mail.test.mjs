@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  buildThreadingHeaders,
   canReceiveProactiveMail,
   checkAllowlist,
   friendlyFrom,
   isAutomatedMessage,
+  newMessageId,
   parseInboundEmail,
+  resolveThreadId,
 } from './mail.mjs';
 import { createFixturePortfolioProvider } from './portfolio-provider.mjs';
 
@@ -15,6 +18,28 @@ function msg(headers, { from = 'dana.okoro@ventusai.com', body = 'hello' } = {})
   lines.push('', body);
   return parseInboundEmail(lines.join('\n'));
 }
+
+test('two sends of the same digest are two messages, not one', () => {
+  // Same advisor, same day, same turn: the thread id is deliberately stable,
+  // so if the Message-ID were a pure function of it, a second send on a demo
+  // morning would carry an id the client has already filed and disappear into
+  // the first conversation.
+  const args = { threadId: 'digest_adv_zoheb_2026-09-25', turn: 1, domain: 'demo.ventusai.com' };
+  const first = buildThreadingHeaders(args)['Message-ID'];
+  const second = buildThreadingHeaders(args)['Message-ID'];
+  assert.notEqual(first, second);
+});
+
+test('a reply still chains back to its thread despite the unique id', () => {
+  const threadId = 'digest_adv_zoheb_2026-09-25';
+  const messageId = newMessageId(threadId, 1, 'demo.ventusai.com');
+  // Through the parser rather than hand-built: resolveThreadId is only ever
+  // handed headers that parseInboundEmail has already unwrapped, and a test
+  // that passes the angle brackets straight through is testing a shape that
+  // never occurs.
+  const reply = msg({ 'In-Reply-To': messageId, References: messageId });
+  assert.equal(resolveThreadId(reply), threadId);
+});
 
 test('a normal human message is not automated', () => {
   assert.equal(isAutomatedMessage(msg({})).automated, false);

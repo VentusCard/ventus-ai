@@ -132,7 +132,7 @@ export function resolveThreadId(message) {
   return null;
 }
 
-// Our outbound Message-IDs look like `<coworker.<threadId>.<turn>@domain>`.
+// Our outbound Message-IDs look like `<coworker.<threadId>.<turn>-<nonce>@domain>`.
 // Extract the threadId segment; for foreign ids, hash-free fall back to the
 // local-part so a thread is still stable per original message.
 function threadIdFromMessageId(messageId) {
@@ -144,9 +144,21 @@ function threadIdFromMessageId(messageId) {
 /**
  * Mint a new outbound Message-ID bound to a thread + turn so replies chain back
  * to the same thread deterministically.
+ *
+ * The nonce is not decoration. A Message-ID has to be unique per message, and
+ * this used to be a pure function of thread and turn — so two digests for the
+ * same advisor on the same day were minted with byte-identical ids, and Gmail
+ * correctly folded them into one conversation. During a demo, where the digest
+ * gets sent more than once in a morning, the second one appears to vanish into
+ * the first.
+ *
+ * Only the turn segment carries the nonce. The thread id stays the first
+ * dot-delimited field, which is the part threadIdFromMessageId reads, so
+ * replies still chain back to the right thread.
  */
 export function newMessageId(threadId, turn, domain) {
-  return `<coworker.${threadId}.${turn}@${domain}>`;
+  const nonce = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+  return `<coworker.${threadId}.${turn}-${nonce}@${domain}>`;
 }
 
 /**
