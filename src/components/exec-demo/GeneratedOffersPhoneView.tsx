@@ -454,24 +454,24 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               <p className="text-[11px] text-slate-400">No matching deals found</p>
             </div>
           ) : (
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {catalogSearchDeals.map((deal, i) => {
                 const c = getColor(deal.category || "");
-                const catMeta = DEAL_CATEGORIES[deal.category as keyof typeof DEAL_CATEGORIES];
+                const CategoryIcon = CATEGORY_ICONS[deal.category] ?? ShoppingBag;
                 return (
                   <div
                     key={deal.id}
-                    className="rounded-lg overflow-hidden border border-slate-100 bg-white flex items-center gap-2.5 animate-fade-in hover:shadow-md transition-shadow"
+                    className="rounded-xl overflow-hidden border border-slate-100 bg-white flex items-center gap-3 animate-fade-in hover:shadow-md transition-shadow"
                     style={{ animationDelay: `${i * 35}ms` }}
                   >
                     <div className="w-1 self-stretch shrink-0" style={{ background: c.dot ?? c.border }} />
                     <div
-                      className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-[14px] leading-none"
-                      style={{ background: c.bg, border: `1px solid ${c.border}` }}
+                      className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center"
+                      style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text }}
                     >
-                      {catMeta?.icon ?? "🛍️"}
+                      <CategoryIcon className="h-4 w-4" />
                     </div>
-                    <div className="flex-1 min-w-0 py-1.5 pr-2.5">
+                    <div className="flex-1 min-w-0 py-2.5 pr-3">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-[12px] font-bold text-slate-800 truncate">{deal.merchantName}</p>
                         <span
@@ -481,7 +481,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                           {deal.rewardValue}
                         </span>
                       </div>
-                      <p className="text-[9.5px] leading-snug text-slate-500 line-clamp-1">{deal.dealDescription}</p>
+                      <p className="text-[9.5px] leading-snug text-slate-500 line-clamp-2 mt-0.5">{deal.dealDescription}</p>
                     </div>
                   </div>
                 );
