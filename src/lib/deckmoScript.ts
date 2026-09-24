@@ -8,6 +8,7 @@ export type DeckmoBeatId =
   | "immediate"
   | "mid-term"
   | "long-term"
+  | "retention"
   | "bank-tools"
   | "close";
 
@@ -44,6 +45,7 @@ export const DECKMO = {
     { id: "immediate", nav: "Immediate Value: Decrease Customer Service Cost", steps: 4 },
     { id: "mid-term", nav: "Value: This Year", steps: 5 },
     { id: "long-term", nav: "Value: The Relationship", steps: 3 },
+    { id: "retention", nav: "Long-Term: Retention & NPS", steps: 3 },
     { id: "bank-tools", nav: "For Your Teams", steps: 4, subSteps: [null, null, 1, null], stepScreens: BANK_TOOLS_BEAT_SCREENS },
     { id: "close", nav: "The Ask", steps: 4 },
   ],
@@ -415,6 +417,27 @@ export const DECKMO = {
       action: "Review draft",
     },
     popups: ["Detect the life moment", "Prepare the next conversation", "Coordinate thoughtful outreach"],
+  },
+  retention: {
+    eyebrow: "LONG-TERM: RETENTION & NPS",
+    title: "Turn every answer into relationship equity",
+    subtitle:
+      "A banking assistant grounded in the customer’s complete financial story makes every interaction feel informed, useful, and personal.",
+    openingPrompt: "How much have I spent on Hawaiian vacation?",
+    popups: [
+      {
+        title: "Understand the full context",
+        body: "Answer from enriched activity across the customer’s relationship, not isolated transactions.",
+      },
+      {
+        title: "Remove everyday friction",
+        body: "Give customers useful answers without making them search, repeat themselves, or leave the experience.",
+      },
+      {
+        title: "Earn the next interaction",
+        body: "Consistently relevant help deepens engagement and creates the conditions for stronger retention and NPS.",
+      },
+    ],
   },
   bankTools: {
     eyebrow: "TOOLS FOR THE BANK",

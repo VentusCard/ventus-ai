@@ -30,3 +30,4 @@
 - [x] Living-view beat 2: two-line wide card (families row + question row)
 - [x] Rebuild Immediate Value as an enriched recent-transactions phone tab spanning payment rails
 - [x] Space out the opener sections while keeping both comparison equations on one line
+- [x] Add a live AI customer-assistant section for long-term retention and NPS
