@@ -74,10 +74,16 @@ function ExactPhone({ tab, cycleCollections = false }: { tab: ConsumerTab; cycle
 const HAWAII_PATTERN = /HAWAII|KAUAI|MAUI|WAILEA|WAIKOLOA|LUAU|HNL|KONA|HONOLULU|MOLOKINI|POIPU/i;
 const HAWAII_ROWS = DECKMO_BANKDEMO_FIXTURE.enrichedTransactions.filter((t) => HAWAII_PATTERN.test(`${t.merchant_name} ${t.description ?? ""}`));
 const hawaiiGroup = (mcc?: string) => (mcc === "7011" ? "Lodging" : mcc === "4511" || mcc === "3058" ? "Air Travel" : mcc === "5812" || mcc === "5814" ? "Dining" : "Experiences");
+const HAWAII_SUBTOTALS = ["Lodging", "Air Travel", "Dining", "Experiences"].map((g) => {
+  const rows = HAWAII_ROWS.filter((t) => hawaiiGroup(t.mcc) === g);
+  return `- ${g}: $${Math.round(rows.reduce((s, t) => s + t.amount, 0)).toLocaleString("en-US")} (${[...new Set(rows.map((t) => t.merchant_name))].join(", ")})`;
+});
 const HAWAII_CHAT_CONTEXT = [
-  "The customer has a recurring pattern of Hawaiian trips. These are ALL of the customer's Hawaii trip transactions:",
-  ...HAWAII_ROWS.map((t) => `- ${t.merchant_name} | $${t.amount.toFixed(2)} | ${t.date} | ${hawaiiGroup(t.mcc)} | ${t.description ?? ""}`),
-  `Grand total across all of them: $${HAWAII_ROWS.reduce((s, t) => s + t.amount, 0).toFixed(2)}.`,
+  "These are ALL purchases from the customer's last Hawaii trip (Dec 2025). Every one belongs to this single trip — include every one, never filter any out:",
+  ...HAWAII_ROWS.map((t) => `- ${t.merchant_name} | $${t.amount.toFixed(2)} | ${hawaiiGroup(t.mcc)} | ${t.description ?? ""}`),
+  "Use these EXACT category subtotals and merchants:",
+  ...HAWAII_SUBTOTALS,
+  `Use this EXACT grand total: $${Math.round(HAWAII_ROWS.reduce((s, t) => s + t.amount, 0)).toLocaleString("en-US")}.`,
   "When asked about Hawaii trip spending, group into exactly four categories: Lodging, Air Travel, Dining, and Experiences. Dining covers restaurants and meals (e.g. Beach House Restaurant, Mama's Fish House, Luau Kalamaku); Experiences covers tours and activities (e.g. Boss Frog Snorkel Tour). Show each category subtotal with its merchants as a full category in the main breakdown AND in the total — never as a footnote or side note. Then show the grand total.",
   "The answer's FIRST line must be exactly: Your Dec 2025 Hawaii trip spend breakdown: — no other opening text before it.",
   "Then format the rest for easy scanning: put each category on its own line as '**Category — $X,XXX** (merchant, merchant, merchant)' with the category name AND subtotal bold together, the merchant list in regular weight, and a blank line between each category line. End with '**Total: $X,XXX**' fully bold on its own line.",
