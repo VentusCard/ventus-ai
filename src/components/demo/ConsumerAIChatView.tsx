@@ -407,7 +407,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                       msg.role === "assistant" && relaxedAnswers ? "px-4 py-3" : "px-3 py-2",
                       msg.role === "user"
                         ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-slate-100 text-slate-800 rounded-bl-sm"
+                        : "bg-slate-100 text-slate-900 rounded-bl-sm"
                     )}
                   >
                     {msg.role === "assistant" ? (
