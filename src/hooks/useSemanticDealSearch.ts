@@ -1,5 +1,11 @@
 import { useState, useRef, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+
+// Public project values (safe to ship) used when build-time env vars are missing.
+const SEARCH_BASE_URL =
+  import.meta.env.VITE_SUPABASE_URL || "https://qopysdercrqgwcrawndl.supabase.co";
+const SEARCH_KEY =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvcHlzZGVyY3JxZ3djcmF3bmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNzU4NjMsImV4cCI6MjA4NDk1MTg2M30.ExuuRYhOiLumZ1MfDWV4O5h6jVVxwbdOJh57XcvHv5k";
 
 export const useSemanticDealSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,12 +36,13 @@ export const useSemanticDealSearch = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/semantic-deal-search`,
+        `${SEARCH_BASE_URL}/functions/v1/semantic-deal-search`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${SEARCH_KEY}`,
+            apikey: SEARCH_KEY,
           },
           body: JSON.stringify({ query }),
           signal: controller.signal,
