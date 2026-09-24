@@ -320,7 +320,7 @@ export const DECKMO = {
     },
   },
   midTerm: {
-    eyebrow: "MID-TERM",
+    eyebrow: "MID-TERM: PROFIT",
     title: "Turn understanding into relevant growth",
     subtitle:
       "Hyper-personalized card-linked offers and cross-sell programs create new revenue opportunities while helping identify the right banking product for each customer at the right moment.",
