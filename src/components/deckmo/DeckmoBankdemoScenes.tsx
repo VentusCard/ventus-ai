@@ -79,6 +79,8 @@ const HAWAII_CHAT_CONTEXT = [
   ...HAWAII_ROWS.map((t) => `- ${t.merchant_name} | $${t.amount.toFixed(2)} | ${t.date} | ${hawaiiGroup(t.mcc)} | ${t.description ?? ""}`),
   `Grand total across all of them: $${HAWAII_ROWS.reduce((s, t) => s + t.amount, 0).toFixed(2)}.`,
   "When asked about Hawaii trip spending, group into exactly four categories: Lodging, Air Travel, Dining, and Experiences. Dining covers restaurants and meals (e.g. Beach House Restaurant, Mama's Fish House, Luau Kalamaku); Experiences covers tours and activities (e.g. Boss Frog Snorkel Tour). Show each category subtotal with its merchants as a full category in the main breakdown AND in the total — never as a footnote or side note. Then show the grand total.",
+  "Format the answer for easy scanning: put each category on its own line as '**Category — $X,XXX** (merchant, merchant, merchant)' with the category name AND subtotal bold together, the merchant list in regular weight, and a blank line between each category line. End with '**Total: $X,XXX**' fully bold on its own line.",
+  "The two follow-up action button labels for this question MUST be exactly \"View Details\" and \"View Travel Deals\", in that order.",
 ].join("\n");
 
 function RetentionPhone({ active }: { active: boolean }) {
@@ -102,6 +104,8 @@ function RetentionPhone({ active }: { active: boolean }) {
         pendingAIPrompt={active ? RETENTION_OPENING_PROMPT : null}
         chatSignalContext={HAWAII_CHAT_CONTEXT}
         hideQuickActions
+        fixedAIActions={["View Details", "View Travel Deals"]}
+        relaxedAIAnswers
       />
     </div>
   );
