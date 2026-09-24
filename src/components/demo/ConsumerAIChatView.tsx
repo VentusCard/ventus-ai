@@ -59,6 +59,10 @@ interface Props {
   baseSignalContext?: string;
   onInitialMessageConsumed?: () => void;
   hideQuickActions?: boolean;
+  /** When set, every assistant answer shows exactly these action labels (deck presentation usage). */
+  fixedActions?: string[];
+  /** When true, assistant answers render with roomier line spacing and stronger bolding (deck presentation usage). */
+  relaxedAnswers?: boolean;
 }
 
 const QUICK_ACTIONS = [
