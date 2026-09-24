@@ -122,7 +122,7 @@ export const DECKMO = {
     outside: {
       header: "OUTSIDE THE WALLS",
       title: "Source-agnostic behavioral intelligence",
-      chips: ["Credit bureaus", "Data compilers", "National databases", "SKU-level purchase data"],
+      chips: ["Credit bureaus", "Data compilers", "National databases", "SKU-level insights"],
     },
     result: { header: "ONE LIVING CUSTOMER VIEW" },
     synthesis: {
