@@ -87,6 +87,7 @@ const HAWAII_CHAT_CONTEXT = [
   "When asked about Hawaii trip spending, group into exactly four categories: Lodging, Air Travel, Dining, and Experiences. Dining covers restaurants and meals (e.g. Beach House Restaurant, Mama's Fish House, Luau Kalamaku); Experiences covers tours and activities (e.g. Boss Frog Snorkel Tour). Show each category subtotal with its merchants as a full category in the main breakdown AND in the total — never as a footnote or side note. Then show the grand total.",
   "The answer's FIRST line must be exactly: Your Dec 2025 Hawaii trip spend breakdown: — no other opening text before it.",
   "Then format the rest for easy scanning: put each category on its own line as '**Category — $X,XXX** (merchant, merchant, merchant)' with the category name AND subtotal bold together, the merchant list in regular weight, and a blank line between each category line. End with '**Total: $X,XXX**' fully bold on its own line.",
+  "Write merchant names in Title Case (e.g. Koa Kea Hotel Kauai, Mama's Fish House Maui), never ALL CAPS.",
   "Do NOT include any follow-up action buttons for this question.",
 ].join("\n");
 
