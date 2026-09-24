@@ -59,6 +59,8 @@ interface Props {
   baseSignalContext?: string;
   onInitialMessageConsumed?: () => void;
   hideQuickActions?: boolean;
+  /** Exact-prompt → fixed answer, served without calling the assistant. */
+  cannedAnswers?: Record<string, string>;
   /** When set, every assistant answer shows exactly these action labels (deck presentation usage). */
   fixedActions?: string[];
   /** When true, assistant answers render with roomier line spacing and stronger bolding (deck presentation usage). */
@@ -209,7 +211,7 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -289,6 +291,15 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
     setIsLoading(true);
+
+    const canned = cannedAnswers?.[text.trim()];
+    if (canned) {
+      await new Promise((r) => setTimeout(r, 700));
+      setMessages((prev) => [...prev, { role: "assistant", content: canned }]);
+      setIsLoading(false);
+      return;
+    }
+
 
     const isRiskAction = text.toLowerCase().includes("risk factors");
     const effectiveKind = kind ?? "general";
