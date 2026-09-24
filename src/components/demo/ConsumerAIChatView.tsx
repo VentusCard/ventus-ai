@@ -58,6 +58,7 @@ interface Props {
   /** Persistent grounding sent with every message (demo mock-up mode). */
   baseSignalContext?: string;
   onInitialMessageConsumed?: () => void;
+  hideQuickActions?: boolean;
 }
 
 const QUICK_ACTIONS = [
@@ -204,7 +205,7 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -451,7 +452,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
       </div>
 
       {/* Quick actions after conversation started */}
-      {!showWelcome && !isLoading && (
+      {!showWelcome && !isLoading && !hideQuickActions && (
         <div className="px-3 pb-1 flex gap-1 overflow-hidden flex-wrap shrink-0">
           {QUICK_ACTIONS.slice(0, 3).map((action) => (
             <button

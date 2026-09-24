@@ -77,6 +77,7 @@ interface Props {
   pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null;
   /** Persistent grounding context appended to every consumer-chat request (demo mock-up mode). */
   chatSignalContext?: string;
+  hideQuickActions?: boolean;
   /** When true, the right phone panel renders the WM CoPilot view instead of the customer mockup. */
   wmCopilotMode?: boolean;
   /** Currently selected signal driving the WM CoPilot brief. */
@@ -101,7 +102,7 @@ interface Props {
   autoRotateCollections?: boolean;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
@@ -185,6 +186,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             initialMessageKind={pendingAIPrompt?.kind}
             initialMessageContext={pendingAIPrompt?.signalContext}
             baseSignalContext={chatSignalContext}
+            hideQuickActions={hideQuickActions}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );

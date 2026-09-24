@@ -423,7 +423,7 @@ export const DECKMO = {
     title: "Turn every answer into relationship equity",
     subtitle:
       "A banking assistant grounded in the customer’s complete financial story makes every interaction feel informed, useful, and personal.",
-    openingPrompt: "How much have I spent on Hawaiian vacation?",
+    openingPrompt: "How much have I spent on my trip to Hawaii?",
     popups: [
       {
         title: "Understand the full context",
