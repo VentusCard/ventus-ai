@@ -41,6 +41,11 @@ function CalloutRail({ items, step }: { items: readonly string[] | readonly { ti
 }
 
 const phoneTabs: ConsumerTab[] = ["budget", "rewards", "relationship"];
+const RETENTION_OPENING_PROMPT = {
+  text: DECKMO.retention.openingPrompt,
+  nonce: 1,
+  kind: "lifestyle" as const,
+};
 
 function ExactPhone({ tab, cycleCollections = false }: { tab: ConsumerTab; cycleCollections?: boolean }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
@@ -61,6 +66,31 @@ function ExactPhone({ tab, cycleCollections = false }: { tab: ConsumerTab; cycle
         firstTabLabel="Activity"
         batteryFull
         autoRotateCollections={cycleCollections}
+      />
+    </div>
+  );
+}
+
+function RetentionPhone({ active }: { active: boolean }) {
+  const fixture = DECKMO_BANKDEMO_FIXTURE;
+  return (
+    <div className="mx-auto h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
+      <ExecDemoPhoneView
+        customer={fixture.customer}
+        activeTab="relationship"
+        phase="complete"
+        showContent
+        generatedOffers={fixture.offers}
+        detectedLifeEvents={fixture.lifeEvents}
+        productCards={fixture.productCards}
+        enrichedTxs={fixture.enrichedTransactions}
+        presentationMode={false}
+        presentationTab="ai"
+        frame="compact"
+        firstTabLabel="Activity"
+        batteryFull
+        pendingAIPrompt={active ? RETENTION_OPENING_PROMPT : null}
+        chatSignalContext="The customer has a recurring pattern of Hawaiian travel. Use the enriched transaction history to total and explain the related vacation spending."
       />
     </div>
   );
@@ -184,6 +214,17 @@ export function SegmentCampaignContent() {
 
 export function BankdemoLongTerm({ step }: SceneProps) {
   return <PhoneScene step={step} data={DECKMO.longTerm} tab={phoneTabs[2]} />;
+}
+
+export function BankdemoRetention({ step, active = true }: SceneProps) {
+  const data = DECKMO.retention;
+  return (
+    <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(220px,1fr)_clamp(300px,30vw,480px)_clamp(250px,23vw,460px)] items-center gap-[clamp(16px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6">
+      <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
+      <RetentionPhone active={active} />
+      <CalloutRail items={data.popups} step={step} />
+    </div>
+  );
 }
 
 const WORKSPACE_TABS: TabValue[] = ["ventus-ai", "targeting-automated-flows", "wm-copilot"];
