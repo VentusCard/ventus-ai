@@ -59,6 +59,10 @@ interface Props {
   baseSignalContext?: string;
   onInitialMessageConsumed?: () => void;
   hideQuickActions?: boolean;
+  /** When set, every assistant answer shows exactly these action labels (deck presentation usage). */
+  fixedActions?: string[];
+  /** When true, assistant answers render with roomier line spacing and stronger bolding (deck presentation usage). */
+  relaxedAnswers?: boolean;
 }
 
 const QUICK_ACTIONS = [
@@ -205,7 +209,7 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -329,9 +333,11 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
 
         if (error) throw error;
 
-        const actions: string[] | undefined = Array.isArray(data?.actions) && data.actions.length > 0
-          ? data.actions.slice(0, 2)
-          : undefined;
+        const actions: string[] | undefined = fixedActions
+          ? fixedActions
+          : Array.isArray(data?.actions) && data.actions.length > 0
+            ? data.actions.slice(0, 2)
+            : undefined;
 
         setMessages((prev) => [
           ...prev,
@@ -397,14 +403,19 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                 <div className={cn("flex flex-col gap-1.5 max-w-[85%]", msg.role === "user" ? "items-end" : "items-start")}>
                   <div
                     className={cn(
-                      "rounded-2xl px-3 py-2 text-[13px] overflow-hidden break-words",
+                      "rounded-2xl text-[13px] overflow-hidden break-words",
+                      msg.role === "assistant" && relaxedAnswers ? "px-4 py-3" : "px-3 py-2",
                       msg.role === "user"
                         ? "bg-blue-600 text-white rounded-br-sm"
                         : "bg-slate-100 text-slate-800 rounded-bl-sm"
                     )}
                   >
                     {msg.role === "assistant" ? (
-                      <div className="prose prose-slate max-w-none text-[13px] leading-snug [&_p]:text-[13px] [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h2]:mt-1 [&_h3]:text-[13px] [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]">
+                      <div className={cn("prose prose-slate max-w-none text-[13px] [&_p]:text-[13px] [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h3]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]",
+                        relaxedAnswers
+                          ? "leading-relaxed [&_p]:mb-2 [&_p]:leading-relaxed [&_p:last-child]:mb-0 [&_h2]:mt-1.5 [&_h3]:mt-1 [&_ul]:mt-2 [&_ul]:mb-2 [&_ol]:mt-2 [&_ol]:mb-2 [&_li]:text-[13px] [&_li]:leading-relaxed [&_li]:mb-1 [&_strong]:text-[13px] [&_strong]:font-bold"
+                          : "leading-snug [&_p]:mb-0.5 [&_p]:leading-snug [&_h2]:mt-1 [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px]"
+                      )}>
                         <ReactMarkdown>{msg.content}</ReactMarkdown>
                       </div>
                     ) : (
