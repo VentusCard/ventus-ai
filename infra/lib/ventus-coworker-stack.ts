@@ -206,6 +206,15 @@ export class VentusCoworkerStack extends cdk.Stack {
         // synthetic advisor over the full demo book. Off by default; enable for a
         // public-facing demo with -c coworkerDemoOpen=true.
         COWORKER_DEMO_OPEN: String(booleanContext(this, 'coworkerDemoOpen', false)),
+        // Per-sender replies per hour. The handler defaults to 12, which is
+        // sized for an open inbox facing the internet and is low for a live
+        // demo: a run of the reply smoke test plus a few replies shown on
+        // screen reaches it, and a sender over the limit is dropped in
+        // silence by design, so it looks like the Coworker simply stopped
+        // answering. Raise it for a demo with -c coworkerRateLimit=60.
+        COWORKER_RATE_LIMIT: String(
+          (this.node.tryGetContext('coworkerRateLimit') as string | undefined) ?? 12
+        ),
       },
       deadLetterQueue: inboundDlq,
       retryAttempts: 2,
