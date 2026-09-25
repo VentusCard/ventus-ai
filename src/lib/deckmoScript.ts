@@ -462,7 +462,7 @@ export const DECKMO = {
           initiator: "ai",
           prompt: "I noticed your credit score changed this month. **It increased by 18 points**, helped by lower card utilization and consistent payments. Want me to show you what moved?",
           answer: "Show me what changed.",
-          reply: "Sure! Here is what I found: your score rose 18 points, driven mainly by lower card utilization and consistent on-time payments.",
+          reply: "Sure! Here is what I found…",
           items: [
             { title: "Score increased", detail: "Up 18 points this month" },
             { title: "Lower utilization", detail: "Primary positive driver" },
@@ -487,7 +487,7 @@ export const DECKMO = {
           initiator: "ai",
           prompt: "I noticed your utility payment arrived after its due date. **You may have been charged a late fee.** I can help review the charge and adjust the reminder before next month.",
           answer: "Help me prevent that next month.",
-          reply: "Yes, here's the plan: I'll set a reminder three days before your next bill and flag the fee for a courtesy review.",
+          reply: "Yes, here's the plan…",
           items: [
             { title: "Utility payment", detail: "Paid after due date" },
             { title: "Reminder available", detail: "Before next month’s bill" },
@@ -511,7 +511,7 @@ export const DECKMO = {
           initiator: "ai",
           prompt: "Your usual cash cushion looks tighter ahead of three recurring bills. **Moving one payment date could create more breathing room.** Would you like me to map the options?",
           answer: "Yes, show me the options.",
-          reply: "Yes, here are the options: shift the smallest bill a few days later, or split it across two pay periods — either keeps your cushion intact.",
+          reply: "Yes, here are the options…",
           items: [
             { title: "Tighter cash cushion", detail: "Ahead of recurring bills" },
             { title: "Timing options", detail: "Create more breathing room" },
