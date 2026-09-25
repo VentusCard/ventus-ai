@@ -5,3 +5,4 @@
 - [x] Shift beat 8.4 carousel down and enlarge phone header labels
 - [x] Add a staged, smooth 8.3-to-8.4 phone handoff
 - [x] Enlarge beat 5.2 transactions within the existing phone mockup
+- [ ] Enlarge beat 5 transaction details within the existing phone mockup
