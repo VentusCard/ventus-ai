@@ -140,19 +140,19 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
           {/* List screen */}
           <div
             className={cn(
-              "absolute inset-0 overflow-y-auto px-4 pb-4 pt-3 exec-light-scroll transition-transform duration-300 motion-reduce:transition-none",
+              "absolute inset-0 flex flex-col overflow-hidden px-4 pb-3 pt-3 transition-transform duration-300 motion-reduce:transition-none",
               tx ? "-translate-x-full" : "translate-x-0",
             )}
           >
-            <div className="flex items-end justify-between border-b border-slate-200 pb-3">
+            <div className="flex shrink-0 items-end justify-between border-b border-slate-200 pb-3">
               <div>
-                <p className="text-[10px] font-semibold text-slate-500">{data.account}</p>
-                <h3 className="mt-0.5 text-lg font-bold text-slate-950">{data.phoneTitle}</h3>
+                <p className="text-xs font-semibold text-slate-500 [@media(max-height:800px)]:text-[10px]">{data.account}</p>
+                <h3 className="mt-0.5 text-xl font-bold text-slate-950 [@media(max-height:800px)]:text-lg">{data.phoneTitle}</h3>
               </div>
-              <span className="text-[9px] font-medium text-slate-400">Latest first</span>
+              <span className="text-[10px] font-medium text-slate-400 [@media(max-height:800px)]:text-[9px]">Latest first</span>
             </div>
 
-            <div className="divide-y divide-slate-100">
+            <div className="flex min-h-0 flex-1 flex-col divide-y divide-slate-100">
               {data.activity.map((row, index) => {
                 const tone = RAIL_TONES[row.rail];
                 const PurchaseIcon = PURCHASE_ICONS[row.icon];
@@ -162,29 +162,29 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                 return (
                   <div
                     key={`${row.rail}-${row.raw}`}
-                    className={cn("rounded-md py-1", isConfirm && !confirmations[index] && "border border-amber-200 bg-amber-50")}
+                    className={cn("flex min-h-0 flex-1 rounded-md", isConfirm && !confirmations[index] && "border border-amber-200 bg-amber-50")}
                   >
                     <Button
                       variant="ghost"
                       onClick={(event) => { stop(event); setSelected(index); }}
-                      className="h-auto w-full rounded-md px-1.5 py-1.5 text-left hover:bg-slate-50"
+                      className="h-full min-h-0 w-full rounded-md px-1.5 py-2 text-left hover:bg-slate-50 [@media(max-height:800px)]:py-1"
                     >
-                      <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-md", tone.icon)}>
-                        <PurchaseIcon className="h-4 w-4" />
+                      <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-md [@media(max-height:800px)]:h-9 [@media(max-height:800px)]:w-9", tone.icon)}>
+                        <PurchaseIcon className="h-5 w-5 [@media(max-height:800px)]:h-4 [@media(max-height:800px)]:w-4" />
                       </span>
-                      <span className="flex min-w-0 flex-1 items-center gap-1.5">
-                        <span className="shrink-0 text-[9px] font-medium text-slate-400">{row.date}</span>
-                        <span className="truncate text-[12px] font-bold text-slate-900">
+                      <span className="flex min-w-0 flex-1 items-center gap-2 [@media(max-height:800px)]:gap-1.5">
+                        <span className="shrink-0 text-[11px] font-medium text-slate-400 [@media(max-height:800px)]:text-[9px]">{row.date}</span>
+                        <span className="truncate text-[15px] font-bold text-slate-900 [@media(max-height:800px)]:text-[12px]">
                           {correction ? correction : isConfirm && !confirmed ? `${row.clean}?` : row.clean}
                         </span>
                         {"isSubscription" in row && row.isSubscription && (
-                          <RefreshCw className="h-2.5 w-2.5 shrink-0 text-slate-400" />
+                          <RefreshCw className="h-3.5 w-3.5 shrink-0 text-slate-400 [@media(max-height:800px)]:h-2.5 [@media(max-height:800px)]:w-2.5" />
                         )}
                         {correction && (
                           <span className="shrink-0 rounded border border-amber-200 bg-amber-50 px-1 py-px text-[7px] font-bold text-amber-800">Review</span>
                         )}
-                        <span className="ml-auto shrink-0 text-[11px] font-bold tabular-nums text-slate-900">{row.amount}</span>
-                        <span className={cn("shrink-0 rounded border px-1 py-px text-[7px] font-bold", tone.chip)}>{row.rail}</span>
+                        <span className="ml-auto shrink-0 text-[13px] font-bold tabular-nums text-slate-900 [@media(max-height:800px)]:text-[11px]">{row.amount}</span>
+                        <span className={cn("shrink-0 rounded border px-1.5 py-0.5 text-[9px] font-bold [@media(max-height:800px)]:px-1 [@media(max-height:800px)]:py-px [@media(max-height:800px)]:text-[7px]", tone.chip)}>{row.rail}</span>
                       </span>
                     </Button>
                   </div>
