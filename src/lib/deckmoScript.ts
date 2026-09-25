@@ -453,7 +453,7 @@ export const DECKMO = {
     ],
     showcase: {
       eyebrow: "COUNTLESS SERVICE OPPORTUNITY",
-      title: "Every payment understood. Countless ways to help.",
+      title: "Every Customer, Inquiry and Opportunity",
       subtitle: "When Ventus understands every transaction and pattern, your assistant can show up for the customer in countless ways — today and for years to come.",
       phones: [
         {
