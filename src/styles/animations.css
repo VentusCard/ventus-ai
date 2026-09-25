@@ -282,6 +282,11 @@
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  .deckmo-carousel-viewport {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%);
+  }
+
   .deckmo-carousel-track {
     animation: deckmo-carousel-roll 55s linear infinite;
     will-change: transform;
