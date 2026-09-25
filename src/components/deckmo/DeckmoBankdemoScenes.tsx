@@ -351,7 +351,7 @@ export function BankdemoRetention({ step, active = true }: SceneProps) {
   const data = DECKMO.retention;
   return (
     <div className="relative h-full">
-      <div className={cn("mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(220px,1fr)_clamp(300px,30vw,480px)_clamp(250px,23vw,460px)] items-center gap-[clamp(16px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6", step === 3 && "invisible absolute inset-0")}>
+      <div className={cn("mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(220px,1fr)_clamp(300px,30vw,480px)_clamp(250px,23vw,460px)] items-center gap-[clamp(16px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6", step === 3 && "hidden")}>
         <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
         <RetentionPhone active={active && step < 3} />
         <CalloutRail items={data.popups} step={step} />
