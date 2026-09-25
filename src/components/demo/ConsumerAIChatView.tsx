@@ -58,6 +58,8 @@ interface Props {
   /** Persistent grounding sent with every message (demo mock-up mode). */
   baseSignalContext?: string;
   onInitialMessageConsumed?: () => void;
+  /** When set, messages and the initial-message guard persist across remounts. */
+  persistKey?: string;
   hideQuickActions?: boolean;
   /** Exact-prompt → fixed answer, served without calling the assistant. */
   cannedAnswers?: Record<string, string>;
@@ -211,12 +213,18 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers }: Props) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+const CHAT_PERSIST: Record<string, { messages: ChatMessage[]; sent: boolean }> = {};
+
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers, persistKey }: Props) {
+  const [messages, setMessages] = useState<ChatMessage[]>(() => (persistKey ? CHAT_PERSIST[persistKey]?.messages ?? [] : []));
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const initialMessageSentRef = useRef(false);
+  const initialMessageSentRef = useRef(persistKey ? !!CHAT_PERSIST[persistKey]?.sent : false);
+
+  useEffect(() => {
+    if (persistKey) CHAT_PERSIST[persistKey] = { messages, sent: CHAT_PERSIST[persistKey]?.sent ?? false };
+  }, [messages, persistKey]);
 
   const context = useMemo(
     () => buildContext(customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations),
@@ -232,12 +240,14 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   useEffect(() => {
     // Reset the "already sent" guard whenever the nonce changes so repeat
     // clicks of the same pill re-fire the message.
+    if (persistKey) return;
     initialMessageSentRef.current = false;
   }, [messageNonce]);
 
   useEffect(() => {
     if (initialMessage && !initialMessageSentRef.current) {
       initialMessageSentRef.current = true;
+      if (persistKey) CHAT_PERSIST[persistKey] = { messages: CHAT_PERSIST[persistKey]?.messages ?? [], sent: true };
       sendMessage(initialMessage, initialMessageKind, initialMessageContext);
       onInitialMessageConsumed?.();
     }

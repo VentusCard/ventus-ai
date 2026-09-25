@@ -102,8 +102,11 @@ const HAWAII_CANNED: Record<string, string> = {
   ].join("\n\n"),
 };
 
+let retentionPromptFired = false;
+
 function RetentionPhone({ active }: { active: boolean }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
+  if (active) retentionPromptFired = true;
   return (
     <div className="mx-auto h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
       <ExecDemoPhoneView
@@ -120,7 +123,8 @@ function RetentionPhone({ active }: { active: boolean }) {
         frame="compact"
         firstTabLabel="Activity"
         batteryFull
-        pendingAIPrompt={active ? RETENTION_OPENING_PROMPT : null}
+        pendingAIPrompt={active || retentionPromptFired ? RETENTION_OPENING_PROMPT : null}
+        chatPersistKey="deckmo-retention"
         chatSignalContext={HAWAII_CHAT_CONTEXT}
         hideQuickActions
         cannedAIAnswers={HAWAII_CANNED}
