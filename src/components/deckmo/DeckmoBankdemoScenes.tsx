@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
 import { getProductVariants } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards } from "@/components/tepilot/campaigns/sections/buildMessageCards";
-import { ArrowRight, BatteryFull, Bell, BriefcaseBusiness, Check, CircleDollarSign, CreditCard, Goal, Home, Plane, RefreshCw, Sparkles, TrendingUp, Users, Wifi } from "lucide-react";
+import { ArrowRight, Sparkles, Users } from "lucide-react";
 import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
 type SceneProps = { step: number; active?: boolean };
@@ -107,6 +107,12 @@ let retentionPromptFired = false;
 function RetentionPhone({ active, showcase = false }: { active: boolean; showcase?: boolean }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
   if (active) retentionPromptFired = true;
+  const showcaseMessages = showcase
+    ? [
+        { role: "user" as const, content: DECKMO.retention.openingPrompt },
+        { role: "assistant" as const, content: HAWAII_CANNED[DECKMO.retention.openingPrompt] },
+      ]
+    : undefined;
   return (
     <div className={cn("mx-auto", showcase ? "h-[clamp(420px,59vh,535px)] w-full max-w-[292px]" : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]")}>
       <ExecDemoPhoneView
@@ -125,6 +131,7 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
         batteryFull
         pendingAIPrompt={active || retentionPromptFired ? RETENTION_OPENING_PROMPT : null}
         chatPersistKey="deckmo-retention"
+        chatInitialMessages={showcaseMessages}
         chatSignalContext={HAWAII_CHAT_CONTEXT}
         hideQuickActions
         cannedAIAnswers={HAWAII_CANNED}
@@ -136,22 +143,12 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
 
 type ShowcasePhone = (typeof DECKMO.retention.showcase.phones)[number];
 
-const showcaseIcons = {
-  planning: Goal,
-  subscriptions: RefreshCw,
-  picture: Sparkles,
-} as const;
-
-const showcaseItemIcons = {
-  planning: [TrendingUp, CircleDollarSign],
-  subscriptions: [CreditCard, CreditCard, CreditCard],
-  picture: [Home, BriefcaseBusiness, Plane],
-} as const;
-
 function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }) {
-  const PhoneIcon = showcaseIcons[phone.id];
-  const itemIcons = showcaseItemIcons[phone.id];
-  const isPlanning = phone.id === "planning";
+  const fixture = DECKMO_BANKDEMO_FIXTURE;
+  const initialMessages = [
+    { role: "user" as const, content: phone.prompt },
+    { role: "assistant" as const, content: phone.answer },
+  ];
 
   return (
     <div
@@ -159,49 +156,25 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
       style={{ "--deckmo-phone-delay": `${420 + index * 210}ms` } as React.CSSProperties}
     >
       <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">{phone.label}</p>
-      <div className="mx-auto flex h-[clamp(420px,59vh,535px)] w-full max-w-[292px] flex-col overflow-hidden rounded-[28px] border-[7px] border-slate-300 bg-white shadow-2xl">
-        <div className="flex shrink-0 justify-center pb-0.5 pt-1"><span className="h-1.5 w-1.5 rounded-full bg-slate-300" /></div>
-        <div className="flex shrink-0 items-center justify-between px-4 py-1 text-[8px] font-medium text-slate-400">
-          <span>9:41 AM</span>
-          <span className="flex items-center gap-1 font-semibold text-slate-600"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Our Bank · Ricky</span>
-          <span className="flex items-center gap-1"><Wifi className="h-2.5 w-2.5" /><BatteryFull className="h-3 w-3 text-emerald-500" /></span>
-        </div>
-        <div className="min-h-0 flex-1 overflow-hidden border-t border-slate-100 bg-slate-50 px-3 py-3">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-700"><PhoneIcon className="h-4 w-4" /></span>
-            <div className="min-w-0"><p className="truncate text-[12px] font-bold text-slate-950">{phone.title}</p><p className="mt-0.5 text-[8px] leading-tight text-slate-500">{phone.lead}</p></div>
-          </div>
-
-          {isPlanning && "goal" in phone && (
-            <div className="mt-3 rounded-lg border border-blue-200 bg-white p-3">
-              <div className="flex items-center justify-between"><p className="text-[9px] font-bold text-slate-800">{phone.goal}</p><span className="text-[11px] font-bold text-blue-700">{phone.progress}</span></div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><span className="block h-full w-[68%] rounded-full bg-blue-600" /></div>
-              <p className="mt-2 text-[8px] text-slate-500">Target: Summer 2027</p>
-            </div>
-          )}
-
-          <div className="mt-3 space-y-2">
-            {phone.items.map((item, itemIndex) => {
-              const ItemIcon = itemIcons[itemIndex] ?? Check;
-              const isAlert = phone.id === "subscriptions" && itemIndex === 0;
-              return (
-                <div key={item.title} className={cn("rounded-lg border bg-white p-2.5", isAlert ? "border-amber-200" : "border-slate-200")}>
-                  <div className="flex items-start gap-2">
-                    <span className={cn("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full", isAlert ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600")}><ItemIcon className="h-3 w-3" /></span>
-                    <div className="min-w-0"><p className="text-[9px] font-bold leading-tight text-slate-900">{item.title}</p><p className="mt-1 text-[7.5px] leading-tight text-slate-500">{item.detail}</p></div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-3 rounded-lg bg-blue-600 px-3 py-2 text-center text-[8px] font-bold text-blue-50">
-            {phone.id === "planning" ? "View my plan" : phone.id === "subscriptions" ? "Manage subscriptions" : "Ask about my finances"}
-          </div>
-        </div>
-        <div className="grid h-10 shrink-0 grid-cols-4 border-t border-slate-200 bg-white px-2 text-slate-400">
-          {[CreditCard, Sparkles, Users, Bell].map((Icon, navIndex) => <span key={navIndex} className={cn("flex items-center justify-center", navIndex === 3 && "text-blue-600")}><Icon className="h-3.5 w-3.5" /></span>)}
-        </div>
+      <div className="mx-auto h-[clamp(420px,59vh,535px)] w-full max-w-[292px]">
+        <ExecDemoPhoneView
+          customer={fixture.customer}
+          activeTab="relationship"
+          phase="complete"
+          showContent
+          generatedOffers={fixture.offers}
+          detectedLifeEvents={fixture.lifeEvents}
+          productCards={fixture.productCards}
+          enrichedTxs={fixture.enrichedTransactions}
+          presentationMode={false}
+          presentationTab="ai"
+          frame="compact"
+          firstTabLabel="Activity"
+          batteryFull
+          chatPersistKey={`deckmo-retention-${phone.id}`}
+          chatInitialMessages={initialMessages}
+          hideQuickActions
+        />
       </div>
     </div>
   );

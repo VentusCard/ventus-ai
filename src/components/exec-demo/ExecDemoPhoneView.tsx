@@ -3,7 +3,7 @@ import { Gift, Users, Bot, Wallet, ReceiptText, Wifi, Battery, BatteryFull } fro
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
 
-import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
+import ConsumerAIChatView, { type ChatMessage } from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
 import RelationshipPhoneView from "./RelationshipPhoneView";
@@ -106,9 +106,10 @@ interface Props {
   /** When true, rewards collections auto-rotate even in presentation mode (deck beat usage). */
   autoRotateCollections?: boolean;
   chatPersistKey?: string;
+  chatInitialMessages?: ChatMessage[];
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, chatPersistKey }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, chatPersistKey, chatInitialMessages }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
@@ -197,6 +198,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             fixedActions={fixedAIActions}
             relaxedAnswers={relaxedAIAnswers}
             persistKey={chatPersistKey}
+            initialMessages={chatInitialMessages}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );

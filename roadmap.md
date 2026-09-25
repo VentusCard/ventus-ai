@@ -33,3 +33,4 @@
 - [x] Add a live AI customer-assistant section for long-term retention and NPS
 - [x] 3.2 signal families: redistributed (spread across card) and slightly bigger; 3.3 keeps current size
 - [x] Add Beat 8.4 as a four-phone life-aware banking assistant showcase
+- [x] Unify all Beat 8.4 phones as matching AI chatbot experiences

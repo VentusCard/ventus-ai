@@ -1,19 +1,20 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Bot, Send, User, Sparkles } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { getBankPromptContext } from "@/lib/demoBankConfig";
-import ReactMarkdown from "react-markdown";
+import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
+import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea, type PromptInputMessage } from "@/components/ai-elements/prompt-input";
+import { Shimmer } from "@/components/ai-elements/shimmer";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { DetectedLifeEventResult, PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
 import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 
-interface ChatMessage {
+export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   actions?: string[];
@@ -67,6 +68,8 @@ interface Props {
   fixedActions?: string[];
   /** When true, assistant answers render with roomier line spacing and stronger bolding (deck presentation usage). */
   relaxedAnswers?: boolean;
+  /** Seeded transcript for presentation phones. */
+  initialMessages?: ChatMessage[];
 }
 
 const QUICK_ACTIONS = [
@@ -215,11 +218,15 @@ function buildContext(
 
 const CHAT_PERSIST: Record<string, { messages: ChatMessage[]; sent: boolean }> = {};
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers, persistKey }: Props) {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => (persistKey ? CHAT_PERSIST[persistKey]?.messages ?? [] : []));
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers, persistKey, initialMessages = [] }: Props) {
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (!persistKey) return initialMessages;
+    const persisted = CHAT_PERSIST[persistKey]?.messages ?? [];
+    return persisted.length >= initialMessages.length ? persisted : initialMessages;
+  });
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const initialMessageSentRef = useRef(persistKey ? !!CHAT_PERSIST[persistKey]?.sent : false);
 
   useEffect(() => {
@@ -232,10 +239,8 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   );
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+    if (!isLoading) inputRef.current?.focus();
+  }, [isLoading]);
 
   useEffect(() => {
     // Reset the "already sent" guard whenever the nonce changes so repeat
@@ -386,8 +391,8 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
 
   return (
     <div className="flex-1 min-h-0 flex flex-col bg-white">
-      {/* Chat area */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 px-4 py-3 scrollbar-light">
+      <Conversation className="min-h-0 bg-white">
+        <ConversationContent className="gap-3 px-4 py-3">
         {showWelcome ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 shadow-lg">
@@ -414,37 +419,19 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
         ) : (
           <div className="space-y-3">
             {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={cn("flex gap-2", msg.role === "user" ? "justify-end" : "justify-start")}
-              >
-                {msg.role === "assistant" && (
-                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
-                    <Bot className="h-3 w-3 text-blue-600" />
-                  </div>
-                )}
-                <div className={cn("flex flex-col gap-1.5 max-w-[85%]", msg.role === "user" ? "items-end" : "items-start")}>
-                  <div
-                    className={cn(
-                      "rounded-2xl text-[13px] overflow-hidden break-words",
-                      msg.role === "assistant" && relaxedAnswers ? "px-4 py-3" : "px-3 py-2",
-                      msg.role === "user"
-                        ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-slate-100 text-slate-900 rounded-bl-sm"
-                    )}
-                  >
-                    {msg.role === "assistant" ? (
-                      <div className={cn("prose prose-slate max-w-none text-[13px] text-slate-900 [&_p]:text-[13px] [&_p]:text-slate-900 [&_h1]:text-[14px] [&_h1]:mt-1 [&_h1]:text-slate-900 [&_h2]:text-[13px] [&_h2]:text-slate-900 [&_h3]:text-[13px] [&_h3]:text-slate-900 [&_em]:text-[13px] [&_em]:text-slate-900 [&_li]:text-slate-900 [&_li]:marker:text-slate-700 [&_a]:text-blue-700 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]",
-                        relaxedAnswers
-                          ? "leading-relaxed [&_p]:mb-2 [&_p]:leading-relaxed [&_p:last-child]:mb-0 [&_h2]:mt-1.5 [&_h3]:mt-1 [&_ul]:mt-2 [&_ul]:mb-2 [&_ol]:mt-2 [&_ol]:mb-2 [&_li]:text-[13px] [&_li]:leading-relaxed [&_li]:mb-1 [&_strong]:text-[13px] [&_strong]:font-bold [&_strong]:text-slate-950"
-                          : "leading-snug [&_p]:mb-0.5 [&_p]:leading-snug [&_h2]:mt-1 [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_strong]:text-slate-950"
-                      )}>
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
-                    ) : (
-                      msg.content
-                    )}
-                  </div>
+              <Message key={`${msg.role}-${i}`} from={msg.role} className={msg.role === "assistant" ? "max-w-full" : "max-w-[86%]"}>
+                <MessageContent className={cn(
+                  "text-[13px] break-words",
+                  msg.role === "user"
+                    ? "rounded-2xl rounded-br-sm bg-blue-600 px-3 py-2 text-white"
+                    : "w-full bg-transparent p-0 text-slate-900"
+                )}>
+                  {msg.role === "assistant" ? (
+                    <div className="flex items-start gap-2">
+                      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100"><Bot className="h-3 w-3 text-blue-600" /></div>
+                      <MessageResponse className={cn("min-w-0 flex-1 text-[13px] text-slate-900 [&_p]:text-[13px] [&_strong]:font-bold [&_strong]:text-slate-950", relaxedAnswers ? "leading-relaxed [&_p]:mb-2" : "leading-snug [&_p]:mb-0.5")}>{msg.content}</MessageResponse>
+                    </div>
+                  ) : msg.content}
                   {msg.role === "assistant" && msg.actions && msg.actions.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {msg.actions.map((action, ai) => (
@@ -459,31 +446,17 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                       ))}
                     </div>
                   )}
-                </div>
-                {msg.role === "user" && (
-                  <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center shrink-0 mt-0.5">
-                    <User className="h-3 w-3 text-slate-600" />
-                  </div>
-                )}
-              </div>
+                </MessageContent>
+              </Message>
             ))}
             {isLoading && (
-              <div className="flex gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                  <Bot className="h-3 w-3 text-blue-600" />
-                </div>
-                <div className="bg-slate-100 rounded-2xl rounded-bl-sm px-3 py-2">
-                  <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </div>
-                </div>
-              </div>
+              <Message from="assistant" className="max-w-full"><MessageContent className="w-full bg-transparent p-0"><div className="flex items-center gap-2"><div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100"><Bot className="h-3 w-3 text-blue-600" /></div><Shimmer className="text-xs text-slate-500">Thinking...</Shimmer></div></MessageContent></Message>
             )}
           </div>
         )}
-      </div>
+        </ConversationContent>
+        <ConversationScrollButton className="bottom-2 h-8 w-8 bg-white text-slate-700" />
+      </Conversation>
 
       {/* Quick actions after conversation started */}
       {!showWelcome && !isLoading && !hideQuickActions && (
@@ -501,30 +474,23 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
       )}
 
       {/* Input */}
-      <div className="shrink-0 p-3 border-t border-slate-100 bg-white">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            sendMessage(inputValue);
-          }}
-          className="flex gap-2"
+      <div className="shrink-0 border-t border-slate-100 bg-white p-3">
+        <PromptInput
+          onSubmit={(message: PromptInputMessage) => sendMessage(message.text)}
+          className="rounded-xl border-slate-200 bg-slate-50 shadow-none"
         >
-          <Input
+          <PromptInputTextarea
+            ref={inputRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask about your spending..."
-            className="text-sm h-9 rounded-full bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400"
+            className="min-h-10 max-h-20 py-2 text-sm text-slate-900 placeholder:text-slate-400"
             disabled={isLoading}
           />
-          <Button
-            type="submit"
-            size="sm"
-            className="h-9 w-9 rounded-full p-0 shrink-0"
-            disabled={isLoading || !inputValue.trim()}
-          >
-            <Send className="h-3.5 w-3.5" />
-          </Button>
-        </form>
+          <PromptInputFooter className="justify-end px-2 pb-2 pt-0">
+            <PromptInputSubmit status={isLoading ? "submitted" : "ready"} disabled={isLoading || !inputValue.trim()} className="h-8 w-8 rounded-full" />
+          </PromptInputFooter>
+        </PromptInput>
       </div>
     </div>
   );
