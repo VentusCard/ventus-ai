@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { BANK_TOOLS_BEAT_SCREENS as DECKMO_BEAT_SCREENS, DECKMO } from "@/lib/deckmoScript";
 import { DECKMO_BANKDEMO_FIXTURE } from "@/lib/deckmoBankdemoFixture";
 import ExecDemoPhoneView, { type ConsumerTab } from "@/components/exec-demo/ExecDemoPhoneView";
@@ -175,7 +176,7 @@ function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
   );
 }
 
-function RetentionShowcase() {
+function RetentionShowcase({ leaving = false }: { leaving?: boolean }) {
   const data = DECKMO.retention.showcase;
   const carouselItems = [
     { id: "hawaii", label: "Intelligent Insights", kind: "hawaii" as const },
@@ -184,21 +185,21 @@ function RetentionShowcase() {
 
   const renderItem = (item: (typeof carouselItems)[number], copy: number) =>
     item.kind === "hawaii" ? (
-      <div key={`${item.id}-${copy}`} className="flex shrink-0 flex-col" aria-hidden={copy === 1}>
+      <div key={`${item.id}-${copy}`} className={cn("flex shrink-0 flex-col", copy === 0 && "deckmo-handoff-phone")} aria-hidden={copy === 1}>
         <p className="mb-3 text-center text-[clamp(16px,1.35vw,20px)] font-extrabold uppercase tracking-[0.12em] text-slate-800">{item.label}</p>
         <div className="mx-auto h-[clamp(470px,66vh,650px)] aspect-[11/20]">
           <RetentionPhone active={false} showcase />
         </div>
       </div>
     ) : (
-      <div key={`${item.id}-${copy}`} aria-hidden={copy === 1} className="shrink-0">
+      <div key={`${item.id}-${copy}`} aria-hidden={copy === 1} className={cn("shrink-0", copy === 0 && "deckmo-handoff-support")}>
         <ShowcasePhone phone={item} />
       </div>
     );
 
   return (
-    <div className="mx-auto flex h-full max-w-[1720px] flex-col px-[clamp(18px,2vw,38px)] py-[clamp(8px,1vh,14px)]">
-      <div className="flex shrink-0 items-end justify-between gap-10">
+    <div className={cn("deckmo-showcase-enter mx-auto flex h-full max-w-[1720px] flex-col px-[clamp(18px,2vw,38px)] py-[clamp(8px,1vh,14px)]", leaving && "deckmo-showcase-exit")}>
+      <div className="deckmo-showcase-header flex shrink-0 items-end justify-between gap-10">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{data.eyebrow}</p>
           <h2 className="mt-1 text-[clamp(26px,2.4vw,40px)] font-bold leading-tight text-slate-950">{data.title}</h2>
@@ -337,14 +338,34 @@ export function BankdemoLongTerm({ step }: SceneProps) {
 
 export function BankdemoRetention({ step, active = true }: SceneProps) {
   const data = DECKMO.retention;
+  const [showcaseMounted, setShowcaseMounted] = useState(step === 3);
+  const [showcaseLeaving, setShowcaseLeaving] = useState(false);
+
+  useEffect(() => {
+    let exitTimer: number | undefined;
+    if (step === 3) {
+      setShowcaseMounted(true);
+      setShowcaseLeaving(false);
+    } else if (showcaseMounted) {
+      setShowcaseLeaving(true);
+      exitTimer = window.setTimeout(() => {
+        setShowcaseMounted(false);
+        setShowcaseLeaving(false);
+      }, 700);
+    }
+    return () => {
+      if (exitTimer !== undefined) window.clearTimeout(exitTimer);
+    };
+  }, [step, showcaseMounted]);
+
   return (
     <div className="relative h-full">
-      <div className={cn("mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(220px,1fr)_clamp(300px,30vw,480px)_clamp(250px,23vw,460px)] items-center gap-[clamp(16px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6", step === 3 && "hidden")}>
+      <div className={cn("mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(220px,1fr)_clamp(300px,30vw,480px)_clamp(250px,23vw,460px)] items-center gap-[clamp(16px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6", showcaseMounted && "hidden")}>
         <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
         <RetentionPhone active={active && step < 3} />
         <CalloutRail items={data.popups} step={step} />
       </div>
-      {step === 3 && <RetentionShowcase />}
+      {showcaseMounted && <RetentionShowcase leaving={showcaseLeaving} />}
     </div>
   );
 }
