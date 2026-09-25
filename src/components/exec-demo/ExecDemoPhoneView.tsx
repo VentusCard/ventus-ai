@@ -109,6 +109,8 @@ interface Props {
   chatInitialMessages?: ChatMessage[];
   /** Larger phone chrome and chat typography for the deck carousel. */
   chatPresentationLarge?: boolean;
+  /** Start the AI chat scrolled to the top so the opening question is visible (deck presentation usage). */
+  chatStartAtTop?: boolean;
 }
 
 export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, chatPersistKey, chatInitialMessages, chatPresentationLarge = false }: Props) {

@@ -71,6 +71,8 @@ interface Props {
   initialMessages?: ChatMessage[];
   /** Enlarges chat UI for the three-phone deck carousel without affecting other demos. */
   presentationLarge?: boolean;
+  /** Start the conversation scrolled to the top instead of sticking to the bottom (deck presentation usage). */
+  startAtTop?: boolean;
 }
 
 const QUICK_ACTIONS = [
