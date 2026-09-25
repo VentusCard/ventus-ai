@@ -177,22 +177,24 @@ function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
 
 function RetentionShowcase() {
   const data = DECKMO.retention.showcase;
-  const [carouselIndex, setCarouselIndex] = useState(0);
-  const [isInteracting, setIsInteracting] = useState(false);
   const carouselItems = [
     { id: "hawaii", label: "AI assistant", kind: "hawaii" as const },
     ...data.phones.map((phone) => ({ ...phone, kind: "showcase" as const })),
   ];
 
-  useEffect(() => {
-    if (isInteracting) return;
-    const timer = window.setInterval(() => {
-      setCarouselIndex((current) => (current + 1) % carouselItems.length);
-    }, 6000);
-    return () => window.clearInterval(timer);
-  }, [carouselItems.length, isInteracting]);
-
-  const visibleItems = Array.from({ length: 3 }, (_, offset) => carouselItems[(carouselIndex + offset) % carouselItems.length]);
+  const renderItem = (item: (typeof carouselItems)[number], copy: number) =>
+    item.kind === "hawaii" ? (
+      <div key={`${item.id}-${copy}`} className="flex shrink-0 flex-col" aria-hidden={copy === 1}>
+        <p className="mb-3 text-center text-[clamp(16px,1.35vw,20px)] font-extrabold uppercase tracking-[0.12em] text-slate-800">{item.label}</p>
+        <div className="mx-auto h-[clamp(470px,66vh,650px)] aspect-[11/20]">
+          <RetentionPhone active={false} showcase />
+        </div>
+      </div>
+    ) : (
+      <div key={`${item.id}-${copy}`} aria-hidden={copy === 1} className="shrink-0">
+        <ShowcasePhone phone={item} />
+      </div>
+    );
 
   return (
     <div className="mx-auto flex h-full max-w-[1720px] flex-col px-[clamp(18px,2vw,38px)] py-[clamp(8px,1vh,14px)]">
@@ -203,24 +205,10 @@ function RetentionShowcase() {
         </div>
         <p className="max-w-[640px] text-right text-[clamp(13px,1vw,16px)] leading-snug text-slate-600">{data.subtitle}</p>
       </div>
-      <div
-        className="mt-[clamp(14px,3vh,42px)] min-h-0 flex-1"
-        onFocusCapture={() => setIsInteracting(true)}
-        onBlurCapture={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsInteracting(false);
-        }}
-      >
-        <div key={carouselIndex} className="deckmo-carousel-group grid h-full grid-cols-3 items-center gap-[clamp(18px,2.5vw,44px)] px-[clamp(16px,3vw,58px)]">
-          {visibleItems.map((item) => item.kind === "hawaii" ? (
-            <div key={item.id} className="flex min-w-0 flex-col">
-              <p className="mb-3 text-center text-[clamp(16px,1.35vw,20px)] font-extrabold uppercase tracking-[0.12em] text-slate-800">{item.label}</p>
-              <div className="mx-auto h-[clamp(470px,66vh,650px)] aspect-[11/20]">
-                <RetentionPhone active={false} showcase />
-              </div>
-            </div>
-          ) : (
-            <ShowcasePhone key={item.id} phone={item} />
-          ))}
+      <div className="deckmo-carousel-viewport mt-[clamp(14px,3vh,42px)] min-h-0 flex-1 overflow-hidden">
+        <div className="deckmo-carousel-track flex h-full w-max items-center gap-[clamp(18px,2.5vw,44px)] pr-[clamp(18px,2.5vw,44px)]">
+          {carouselItems.map((item) => renderItem(item, 0))}
+          {carouselItems.map((item) => renderItem(item, 1))}
         </div>
       </div>
     </div>
