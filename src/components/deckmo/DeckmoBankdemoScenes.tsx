@@ -156,7 +156,7 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
   );
 }
 
-type ShowcasePhone = (typeof DECKMO.retention.showcase.phones)[number];
+type ShowcasePhone = (typeof DECKMO.retention.showcase.phones)[number] & { reply?: string };
 
 function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
@@ -164,6 +164,7 @@ function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
     ? [
         { role: "assistant" as const, content: phone.prompt },
         { role: "user" as const, content: phone.answer },
+        ...(phone.reply ? [{ role: "assistant" as const, content: phone.reply }] : []),
       ]
     : [
         { role: "user" as const, content: phone.prompt },
