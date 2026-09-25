@@ -14,9 +14,9 @@ Per the user's decisions: rewrite only the header (eyebrow + title + subtitle). 
 
 ## New copy (human-centric)
 
-- Eyebrow: `EVERY TRANSACTION UNDERSTOOD`
+- Eyebrow: `Countless Service Opportunity`
 - Title: `Every payment understood. Countless ways to help.`
-- Subtitle: `When Ventus understands every transaction and payment, your assistant can show up for the customer in countless ways — today and for years to come.`
+- Subtitle: `When Ventus understands every transaction and pattern, your assistant can show up for the customer in countless ways — today and for years to come.`
 
 ## Changes
 
