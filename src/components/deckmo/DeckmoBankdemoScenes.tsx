@@ -105,7 +105,7 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
     { role: "assistant" as const, content: HAWAII_CANNED[DECKMO.retention.openingPrompt] },
   ];
   return (
-    <div className={cn("mx-auto", showcase ? "h-[clamp(420px,59vh,535px)] aspect-[11/20]" : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]")}>
+    <div className={cn("mx-auto", showcase ? "h-full aspect-[11/20]" : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]")}>
       <ExecDemoPhoneView
         customer={fixture.customer}
         activeTab="relationship"
@@ -135,18 +135,30 @@ type ShowcasePhone = (typeof DECKMO.retention.showcase.phones)[number];
 
 function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
-  const initialMessages = [
-    { role: "user" as const, content: phone.prompt },
-    { role: "assistant" as const, content: phone.answer },
-  ];
+  const gridPosition = index < 3
+    ? "row-start-1"
+    : index === 3
+      ? "col-start-2 row-start-2"
+      : index === 4
+        ? "col-start-4 row-start-2"
+        : "col-start-6 row-start-2";
+  const initialMessages = phone.initiator === "ai"
+    ? [
+        { role: "assistant" as const, content: phone.prompt },
+        { role: "user" as const, content: phone.answer },
+      ]
+    : [
+        { role: "user" as const, content: phone.prompt },
+        { role: "assistant" as const, content: phone.answer },
+      ];
 
   return (
     <div
-      className="deckmo-phone-roll-right flex min-w-0 flex-col"
+      className={cn("deckmo-phone-roll-right col-span-2 flex min-w-0 flex-col", gridPosition)}
       style={{ "--deckmo-phone-delay": `${420 + index * 210}ms` } as React.CSSProperties}
     >
-      <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">{phone.label}</p>
-      <div className="mx-auto h-[clamp(420px,59vh,535px)] aspect-[11/20]">
+      <p className="mb-1 text-center text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">{phone.label}</p>
+      <div className="mx-auto h-[clamp(230px,28vh,305px)] aspect-[11/20]">
         <ExecDemoPhoneView
           customer={fixture.customer}
           activeTab="relationship"
@@ -172,8 +184,10 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
 
 function RetentionShowcase() {
   const data = DECKMO.retention.showcase;
+  const topPhones = data.phones.slice(0, 3);
+  const bottomPhones = data.phones.slice(3);
   return (
-    <div className="mx-auto flex h-full max-w-[1560px] flex-col px-[clamp(24px,3vw,56px)] py-[clamp(18px,2.4vh,30px)]">
+    <div className="mx-auto flex h-full max-w-[1560px] flex-col px-[clamp(24px,3vw,56px)] py-[clamp(12px,1.6vh,20px)]">
       <div className="flex shrink-0 items-end justify-between gap-10">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600">{data.eyebrow}</p>
@@ -181,12 +195,15 @@ function RetentionShowcase() {
         </div>
         <p className="max-w-[650px] text-right text-[clamp(12px,1vw,16px)] leading-relaxed text-slate-600">{data.subtitle}</p>
       </div>
-      <div className="mt-[clamp(14px,2vh,24px)] grid min-h-0 flex-1 grid-cols-4 items-start gap-[clamp(10px,1.4vw,24px)]">
-        <div className="deckmo-retained-phone flex min-w-0 flex-col">
-          <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">AI assistant</p>
-          <RetentionPhone active={false} showcase />
+      <div className="mt-[clamp(8px,1vh,14px)] grid min-h-0 flex-1 grid-cols-8 grid-rows-2 items-start gap-x-[clamp(8px,1vw,18px)] gap-y-1">
+        <div className="deckmo-retained-phone col-span-2 flex min-w-0 flex-col">
+          <p className="mb-1 text-center text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">AI assistant</p>
+          <div className="mx-auto h-[clamp(230px,28vh,305px)] aspect-[11/20]">
+            <RetentionPhone active={false} showcase />
+          </div>
         </div>
-        {data.phones.map((phone, index) => <ShowcasePhone key={phone.id} phone={phone} index={index} />)}
+        {topPhones.map((phone, index) => <ShowcasePhone key={phone.id} phone={phone} index={index} />)}
+        {bottomPhones.map((phone, index) => <ShowcasePhone key={phone.id} phone={phone} index={index + topPhones.length} />)}
       </div>
     </div>
   );

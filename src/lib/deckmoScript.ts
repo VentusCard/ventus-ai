@@ -444,8 +444,20 @@ export const DECKMO = {
       subtitle: "Ventus gives the banking assistant the context to move from answering questions to anticipating what Ricky needs next.",
       phones: [
         {
+          id: "credit-score",
+          label: "Credit score update",
+          initiator: "ai",
+          prompt: "I noticed your credit score changed this month. **It increased by 18 points**, helped by lower card utilization and consistent payments. Want me to show you what moved?",
+          answer: "Show me what changed.",
+          items: [
+            { title: "Score increased", detail: "Up 18 points this month" },
+            { title: "Lower utilization", detail: "Primary positive driver" },
+          ],
+        },
+        {
           id: "planning",
           label: "Financial planning",
+          initiator: "customer",
           prompt: "Am I on track to buy a home?",
           answer: "**You’re 68% toward your home purchase fund.** At your current pace, you’re on track for Summer 2027. I’d keep travel savings separate so the home goal stays protected.",
           goal: "Home purchase fund",
@@ -456,8 +468,20 @@ export const DECKMO = {
           ],
         },
         {
+          id: "late-payment",
+          label: "Payment support",
+          initiator: "ai",
+          prompt: "I noticed your utility payment arrived after its due date. **You may have been charged a late fee.** I can help review the charge and adjust the reminder before next month.",
+          answer: "Help me prevent that next month.",
+          items: [
+            { title: "Utility payment", detail: "Paid after due date" },
+            { title: "Reminder available", detail: "Before next month’s bill" },
+          ],
+        },
+        {
           id: "subscriptions",
           label: "Subscription management",
+          initiator: "customer",
           prompt: "Can you review my subscriptions?",
           answer: "I found three recurring services. **Spotify Premium increased to $13.99 monthly.** Adobe Creative Cloud is $59.99 monthly, and your pet wellness plan is $42.00 monthly.",
           items: [
@@ -467,8 +491,20 @@ export const DECKMO = {
           ],
         },
         {
+          id: "cash-flow",
+          label: "Cash-flow support",
+          initiator: "ai",
+          prompt: "Your usual cash cushion looks tighter ahead of three recurring bills. **Moving one payment date could create more breathing room.** Would you like me to map the options?",
+          answer: "Yes, show me the options.",
+          items: [
+            { title: "Tighter cash cushion", detail: "Ahead of recurring bills" },
+            { title: "Timing options", detail: "Create more breathing room" },
+          ],
+        },
+        {
           id: "picture",
           label: "Complete financial picture",
+          initiator: "customer",
           prompt: "What should I focus on next?",
           answer: "Your clearest next priority is the **home purchase goal**. I’m balancing that with your growing business, frequent travel, tennis, and pet-care commitments so recommendations fit your whole life.",
           items: [
