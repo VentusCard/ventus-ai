@@ -71,6 +71,20 @@ const T = {
 
 const stop = (event: { stopPropagation: () => void }) => event.stopPropagation();
 
+// Bold the key insight sentence inside the plain explanation, preserving reading order.
+const renderWithInsight = (text: string, insight?: string) => {
+  if (!insight) return text;
+  const index = text.indexOf(insight);
+  if (index === -1) return text;
+  return (
+    <>
+      {text.slice(0, index)}
+      <strong className="font-bold text-slate-900">{text.slice(index, index + insight.length)}</strong>
+      {text.slice(index + insight.length)}
+    </>
+  );
+};
+
 export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?: number; active?: boolean }) {
   // undefined = follow the beat; number/null = explicit user choice (row tap / phone Back)
   const [override, setOverride] = useState<number | null | undefined>(undefined);
@@ -262,9 +276,9 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       </dl>
                     </div>
 
-                    <div className={cn("rounded-lg border border-slate-200", T.sectionGap, T.cardPad)}>
+                    <div className={cn("rounded-lg border border-slate-200", T.sectionGap, "px-3 py-2.5 [@media(max-height:900px)]:px-2.5 [@media(max-height:900px)]:py-2 [@media(max-height:800px)]:px-2 [@media(max-height:800px)]:py-1.5")}>
                       <p className={cn("font-bold uppercase tracking-wide text-slate-400", T.cardLabel)}>Checks</p>
-                      <ul className={cn(T.listGap, T.itemGap)}>
+                      <ul className={cn("mt-1.5 [@media(max-height:900px)]:mt-1 [@media(max-height:800px)]:mt-0.5", "space-y-1 [@media(max-height:900px)]:space-y-0.5")}>
                         {(isConfirm && !confirmState
                           ? [
                               { ok: true, text: "Amount and date match your account activity." },
@@ -273,7 +287,6 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                           : [
                               { ok: true, text: "Merchant recognized and cleaned up." },
                               { ok: true, text: "Amount and date match your account activity." },
-                              { ok: true, text: tx.pattern },
                             ]
                         ).map((check) => (
                           <li key={check.text} className="flex items-start gap-2">
@@ -294,7 +307,9 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                         <p className={cn("font-bold uppercase tracking-wide text-blue-700", T.cardLabel)}>OUR BANK INSIGHTS</p>
                       </div>
                       <p className={cn("mt-1 font-semibold text-slate-800", T.body)}>{tx.pattern}</p>
-                      <p className={cn("mt-0.5 leading-snug text-slate-600", T.body)}>{tx.explanation}</p>
+                      <p className={cn("mt-1 leading-snug text-slate-600", T.body)}>
+                        {renderWithInsight(tx.explanation, "insight" in tx ? tx.insight : undefined)}
+                      </p>
                       {isConfirm && "suggestionPrompt" in tx && (
                         <p className={cn("mt-1 leading-snug text-slate-600", T.body)}>{tx.suggestionPrompt}</p>
                       )}
