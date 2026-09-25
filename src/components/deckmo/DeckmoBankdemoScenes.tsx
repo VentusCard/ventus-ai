@@ -105,7 +105,7 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
     { role: "assistant" as const, content: HAWAII_CANNED[DECKMO.retention.openingPrompt] },
   ];
   return (
-    <div className={cn("mx-auto", showcase ? "h-[clamp(420px,59vh,535px)] aspect-[11/20]" : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]")}>
+    <div className={cn("mx-auto", showcase ? "h-full aspect-[11/20]" : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]")}>
       <ExecDemoPhoneView
         customer={fixture.customer}
         activeTab="relationship"
@@ -147,7 +147,7 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
 
   return (
     <div
-      className="deckmo-phone-roll-right flex min-w-0 flex-col"
+      className={cn("deckmo-phone-roll-right col-span-2 flex min-w-0 flex-col", index === 3 && "col-start-2")}
       style={{ "--deckmo-phone-delay": `${420 + index * 210}ms` } as React.CSSProperties}
     >
       <p className="mb-1 text-center text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">{phone.label}</p>
@@ -189,7 +189,7 @@ function RetentionShowcase() {
         <p className="max-w-[650px] text-right text-[clamp(12px,1vw,16px)] leading-relaxed text-slate-600">{data.subtitle}</p>
       </div>
       <div className="mt-[clamp(8px,1vh,14px)] grid min-h-0 flex-1 grid-cols-8 grid-rows-2 items-start gap-x-[clamp(8px,1vw,18px)] gap-y-1">
-        <div className="deckmo-retained-phone flex min-w-0 flex-col">
+        <div className="deckmo-retained-phone col-span-2 flex min-w-0 flex-col">
           <p className="mb-1 text-center text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">AI assistant</p>
           <div className="mx-auto h-[clamp(225px,27vh,300px)] aspect-[11/20]">
             <RetentionPhone active={false} showcase />
