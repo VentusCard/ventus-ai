@@ -15,7 +15,7 @@ function SceneHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: str
   return (
     <header className="min-w-0 max-w-[680px]">
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{eyebrow}</p>
-      <h2 className="mt-3 text-balance text-[clamp(30px,3.1vw,52px)] font-bold leading-[1.05] text-slate-950">{title}</h2>
+      <h2 className="mt-3 whitespace-pre-line text-[clamp(30px,3.1vw,52px)] font-bold leading-[1.05] text-slate-950">{title}</h2>
       <p className="mt-4 text-pretty text-[clamp(15px,1.15vw,19px)] leading-relaxed text-slate-600">{subtitle}</p>
     </header>
   );
