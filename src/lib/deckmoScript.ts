@@ -535,8 +535,7 @@ export const DECKMO = {
   bankTools: {
     eyebrow: "TOOLS FOR THE BANK",
     title: "Possible for Ricky because it is\npossible for every customer",
-    subtitle: "The same intelligence becomes an operating system for teams across your bank.",
-    stat: "45 Tools and Workflows",
+    subtitle: "An intuitive customer intelligence and personalization platform with 45 tools and workflows.",
     screens: [
       {
         id: "database",
