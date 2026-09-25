@@ -200,6 +200,7 @@ function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
 
 function RetentionShowcase({ leaving = false }: { leaving?: boolean }) {
   const data = DECKMO.retention.showcase;
+  const [hoverPaused, setHoverPaused] = useState(false);
   const carouselItems = [
     { id: "hawaii", label: "Intelligent Insights", kind: "hawaii" as const },
     ...data.phones.map((phone) => ({ ...phone, kind: "showcase" as const })),
@@ -229,7 +230,7 @@ function RetentionShowcase({ leaving = false }: { leaving?: boolean }) {
         </div>
         <p className="max-w-[640px] text-right text-[clamp(13px,1vw,16px)] leading-snug text-slate-600">{data.subtitle}</p>
       </div>
-      <div className="deckmo-carousel-viewport mt-[clamp(14px,3vh,42px)] min-h-0 flex-1 overflow-hidden">
+      <div data-paused={hoverPaused ? "true" : "false"} onPointerMove={() => !hoverPaused && setHoverPaused(true)} onPointerLeave={() => setHoverPaused(false)} className="deckmo-carousel-viewport mt-[clamp(14px,3vh,42px)] min-h-0 flex-1 overflow-hidden">
         <div className="deckmo-carousel-track flex h-full w-max items-center gap-[clamp(36px,4vw,72px)] pr-[clamp(36px,4vw,72px)]">
           {carouselItems.map((item) => renderItem(item, 0))}
           {carouselItems.map((item) => renderItem(item, 1))}

@@ -316,7 +316,7 @@
     animation-play-state: paused;
   }
 
-  .deckmo-carousel-viewport:hover .deckmo-carousel-track,
+  .deckmo-carousel-viewport[data-paused="true"] .deckmo-carousel-track,
   .deckmo-carousel-viewport:focus-within .deckmo-carousel-track {
     animation-play-state: paused;
   }
