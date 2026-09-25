@@ -69,6 +69,8 @@ interface Props {
   relaxedAnswers?: boolean;
   /** Seeded transcript for presentation phones. */
   initialMessages?: ChatMessage[];
+  /** Enlarges chat UI for the three-phone deck carousel without affecting other demos. */
+  presentationLarge?: boolean;
 }
 
 const QUICK_ACTIONS = [
@@ -217,7 +219,7 @@ function buildContext(
 
 const CHAT_PERSIST: Record<string, { messages: ChatMessage[]; sent: boolean }> = {};
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers, persistKey, initialMessages = [] }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers, persistKey, initialMessages = [], presentationLarge = false }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (!persistKey) return initialMessages;
     const persisted = CHAT_PERSIST[persistKey]?.messages ?? [];
@@ -391,7 +393,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   return (
     <div className="flex-1 min-h-0 flex flex-col bg-white">
       <Conversation className="min-h-0 bg-white">
-        <ConversationContent className="gap-3 px-4 py-3">
+        <ConversationContent className={cn("gap-3 px-4 py-3", presentationLarge && "gap-4 px-5 py-4")}>
         {showWelcome ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 shadow-lg">
@@ -416,20 +418,21 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className={cn("space-y-3", presentationLarge && "space-y-4")}>
             {messages.map((msg, i) => (
-              <Message key={`${msg.role}-${i}`} from={msg.role} className={cn("max-w-full flex-row items-start gap-2", msg.role === "user" && "justify-end")}>
+              <Message key={`${msg.role}-${i}`} from={msg.role} className={cn("max-w-full flex-row items-start gap-2", presentationLarge && "gap-2.5", msg.role === "user" && "justify-end")}>
                 {msg.role === "assistant" && (
-                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100"><Bot className="h-3 w-3 text-blue-600" /></div>
+                  <div className={cn("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100", presentationLarge && "h-8 w-8")}><Bot className={cn("h-3 w-3 text-blue-600", presentationLarge && "h-4 w-4")} /></div>
                 )}
                 <MessageContent className={cn(
                   "max-w-[85%] gap-1.5 rounded-2xl px-3 py-2 text-[13px] break-words",
+                  presentationLarge && "max-w-[88%] px-4 py-3 text-[15px]",
                   msg.role === "user"
-                    ? "ml-0 rounded-br-sm bg-blue-600 text-white group-[.is-user]:bg-blue-600 group-[.is-user]:px-3 group-[.is-user]:py-2 group-[.is-user]:text-white"
+                    ? cn("ml-0 rounded-br-sm bg-blue-600 text-white group-[.is-user]:bg-blue-600 group-[.is-user]:px-3 group-[.is-user]:py-2 group-[.is-user]:text-white", presentationLarge && "group-[.is-user]:px-4 group-[.is-user]:py-3")
                     : cn("rounded-bl-sm bg-slate-100 text-slate-900", relaxedAnswers && "px-4 py-3")
                 )}>
                   {msg.role === "assistant" ? (
-                    <MessageResponse className={cn("text-[13px] text-slate-900 [&_p]:text-[13px] [&_strong]:font-bold [&_strong]:text-slate-950", relaxedAnswers ? "leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0" : "leading-snug [&_p]:mb-0.5")}>{msg.content}</MessageResponse>
+                    <MessageResponse className={cn("text-[13px] text-slate-900 [&_p]:text-[13px] [&_strong]:font-bold [&_strong]:text-slate-950", presentationLarge && "text-[15px] [&_p]:text-[15px]", relaxedAnswers ? "leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0" : "leading-snug [&_p]:mb-0.5")}>{msg.content}</MessageResponse>
                   ) : msg.content}
                   {msg.role === "assistant" && msg.actions && msg.actions.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
@@ -447,7 +450,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                   )}
                 </MessageContent>
                 {msg.role === "user" && (
-                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200"><User className="h-3 w-3 text-slate-600" /></div>
+                  <div className={cn("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200", presentationLarge && "h-8 w-8")}><User className={cn("h-3 w-3 text-slate-600", presentationLarge && "h-4 w-4")} /></div>
                 )}
               </Message>
             ))}
@@ -481,10 +484,10 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
       )}
 
       {/* Input */}
-      <div className="shrink-0 border-t border-slate-100 bg-white p-3">
+      <div className={cn("shrink-0 border-t border-slate-100 bg-white p-3", presentationLarge && "p-4")}>
         <PromptInput
           onSubmit={(message: PromptInputMessage) => sendMessage(message.text)}
-          className="relative [&_[data-slot=input-group]]:!h-9 [&_[data-slot=input-group]]:!flex-row [&_[data-slot=input-group]]:rounded-full [&_[data-slot=input-group]]:border-slate-200 [&_[data-slot=input-group]]:bg-slate-50 [&_[data-slot=input-group]]:shadow-none"
+          className={cn("relative [&_[data-slot=input-group]]:!h-9 [&_[data-slot=input-group]]:!flex-row [&_[data-slot=input-group]]:rounded-full [&_[data-slot=input-group]]:border-slate-200 [&_[data-slot=input-group]]:bg-slate-50 [&_[data-slot=input-group]]:shadow-none", presentationLarge && "[&_[data-slot=input-group]]:!h-11")}
         >
           <PromptInputTextarea
             ref={inputRef}
@@ -492,12 +495,12 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask about your spending..."
             rows={1}
-            className="!h-9 min-h-0 resize-none overflow-hidden py-2 pl-3 pr-12 text-sm leading-5 text-slate-900 placeholder:text-slate-400"
+            className={cn("!h-9 min-h-0 resize-none overflow-hidden py-2 pl-3 pr-12 text-sm leading-5 text-slate-900 placeholder:text-slate-400", presentationLarge && "!h-11 py-2.5 pl-4 pr-14 text-[15px] leading-6")}
             disabled={isLoading}
           />
           <PromptInputFooter className="!absolute !right-0.5 !top-0.5 !order-none !w-auto !p-0">
-            <PromptInputSubmit status={isLoading ? "submitted" : "ready"} disabled={isLoading || !inputValue.trim()} className="h-8 w-8 rounded-full">
-              <Send className="h-3.5 w-3.5" />
+            <PromptInputSubmit status={isLoading ? "submitted" : "ready"} disabled={isLoading || !inputValue.trim()} className={cn("h-8 w-8 rounded-full", presentationLarge && "h-10 w-10")}>
+              <Send className={cn("h-3.5 w-3.5", presentationLarge && "h-4 w-4")} />
             </PromptInputSubmit>
           </PromptInputFooter>
         </PromptInput>
