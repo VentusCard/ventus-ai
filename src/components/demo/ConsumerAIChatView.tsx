@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Bot, User } from "lucide-react";
+import { Bot, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -425,7 +425,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                 <MessageContent className={cn(
                   "max-w-[85%] gap-1.5 rounded-2xl px-3 py-2 text-[13px] break-words",
                   msg.role === "user"
-                    ? "ml-0 rounded-br-sm bg-blue-600 text-white"
+                    ? "ml-0 rounded-br-sm bg-blue-600 text-white group-[.is-user]:bg-blue-600 group-[.is-user]:px-3 group-[.is-user]:py-2 group-[.is-user]:text-white"
                     : cn("rounded-bl-sm bg-slate-100 text-slate-900", relaxedAnswers && "px-4 py-3")
                 )}>
                   {msg.role === "assistant" ? (
@@ -496,7 +496,9 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             disabled={isLoading}
           />
           <PromptInputFooter className="!absolute !right-0.5 !top-0.5 !order-none !w-auto !p-0">
-            <PromptInputSubmit status={isLoading ? "submitted" : "ready"} disabled={isLoading || !inputValue.trim()} className="h-8 w-8 rounded-full" />
+            <PromptInputSubmit status={isLoading ? "submitted" : "ready"} disabled={isLoading || !inputValue.trim()} className="h-8 w-8 rounded-full">
+              <Send className="h-3.5 w-3.5" />
+            </PromptInputSubmit>
           </PromptInputFooter>
         </PromptInput>
       </div>
