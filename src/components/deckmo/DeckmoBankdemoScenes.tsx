@@ -149,7 +149,7 @@ function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
 
   return (
     <div className="flex min-w-0 flex-col">
-      <p className="mb-2 text-center text-xs font-bold uppercase tracking-[0.14em] text-slate-600">{phone.label}</p>
+      <p className="mb-3 text-center text-[clamp(16px,1.35vw,20px)] font-extrabold uppercase tracking-[0.12em] text-slate-800">{phone.label}</p>
       <div className="mx-auto h-[clamp(500px,68vh,650px)] aspect-[11/20]">
         <ExecDemoPhoneView
           customer={fixture.customer}
@@ -204,16 +204,16 @@ function RetentionShowcase() {
         <p className="max-w-[640px] text-right text-[clamp(13px,1vw,16px)] leading-snug text-slate-600">{data.subtitle}</p>
       </div>
       <div
-        className="mt-[clamp(6px,0.8vh,10px)] min-h-0 flex-1"
+        className="mt-[clamp(20px,4vh,48px)] min-h-0 flex-1"
         onFocusCapture={() => setIsInteracting(true)}
         onBlurCapture={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsInteracting(false);
         }}
       >
-        <div key={carouselIndex} className="deckmo-carousel-group grid h-full grid-cols-3 items-start gap-[clamp(18px,2.5vw,44px)] px-[clamp(16px,3vw,58px)]">
+        <div key={carouselIndex} className="deckmo-carousel-group grid h-full grid-cols-3 items-center gap-[clamp(18px,2.5vw,44px)] px-[clamp(16px,3vw,58px)]">
           {visibleItems.map((item) => item.kind === "hawaii" ? (
             <div key={item.id} className="flex min-w-0 flex-col">
-              <p className="mb-2 text-center text-xs font-bold uppercase tracking-[0.14em] text-slate-600">{item.label}</p>
+              <p className="mb-3 text-center text-[clamp(16px,1.35vw,20px)] font-extrabold uppercase tracking-[0.12em] text-slate-800">{item.label}</p>
               <div className="mx-auto h-[clamp(500px,68vh,650px)] aspect-[11/20]">
                 <RetentionPhone active={false} showcase />
               </div>
