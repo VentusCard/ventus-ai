@@ -107,6 +107,12 @@ let retentionPromptFired = false;
 function RetentionPhone({ active, showcase = false }: { active: boolean; showcase?: boolean }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
   if (active) retentionPromptFired = true;
+  const showcaseMessages = showcase
+    ? [
+        { role: "user" as const, content: DECKMO.retention.openingPrompt },
+        { role: "assistant" as const, content: HAWAII_CANNED[DECKMO.retention.openingPrompt] },
+      ]
+    : undefined;
   return (
     <div className={cn("mx-auto", showcase ? "h-[clamp(420px,59vh,535px)] w-full max-w-[292px]" : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]")}>
       <ExecDemoPhoneView
@@ -125,6 +131,7 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
         batteryFull
         pendingAIPrompt={active || retentionPromptFired ? RETENTION_OPENING_PROMPT : null}
         chatPersistKey="deckmo-retention"
+        chatInitialMessages={showcaseMessages}
         chatSignalContext={HAWAII_CHAT_CONTEXT}
         hideQuickActions
         cannedAIAnswers={HAWAII_CANNED}

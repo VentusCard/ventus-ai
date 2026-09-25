@@ -219,7 +219,11 @@ function buildContext(
 const CHAT_PERSIST: Record<string, { messages: ChatMessage[]; sent: boolean }> = {};
 
 export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers, persistKey, initialMessages = [] }: Props) {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => (persistKey ? CHAT_PERSIST[persistKey]?.messages ?? initialMessages : initialMessages));
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (!persistKey) return initialMessages;
+    const persisted = CHAT_PERSIST[persistKey]?.messages ?? [];
+    return persisted.length >= initialMessages.length ? persisted : initialMessages;
+  });
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
