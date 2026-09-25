@@ -446,8 +446,8 @@ export const DECKMO = {
         {
           id: "planning",
           label: "Financial planning",
-          title: "Your financial plan",
-          lead: "Built around the life you are living",
+          prompt: "Am I on track to buy a home?",
+          answer: "**You’re 68% toward your home purchase fund.** At your current pace, you’re on track for Summer 2027. I’d keep travel savings separate so the home goal stays protected.",
           goal: "Home purchase fund",
           progress: "68%",
           items: [
@@ -458,8 +458,8 @@ export const DECKMO = {
         {
           id: "subscriptions",
           label: "Subscription management",
-          title: "Recurring payments",
-          lead: "Subscriptions and memberships in one place",
+          prompt: "Can you review my subscriptions?",
+          answer: "I found three recurring services. **Spotify Premium increased to $13.99 monthly.** Adobe Creative Cloud is $59.99 monthly, and your pet wellness plan is $42.00 monthly.",
           items: [
             { title: "Spotify Premium", detail: "$13.99 monthly · Price changed" },
             { title: "Adobe Creative Cloud", detail: "$59.99 monthly" },
@@ -469,8 +469,8 @@ export const DECKMO = {
         {
           id: "picture",
           label: "Complete financial picture",
-          title: "What matters to Ricky",
-          lead: "One relationship, understood in context",
+          prompt: "What should I focus on next?",
+          answer: "Your clearest next priority is the **home purchase goal**. I’m balancing that with your growing business, frequent travel, tennis, and pet-care commitments so recommendations fit your whole life.",
           items: [
             { title: "Planning a home purchase", detail: "High-confidence life moment" },
             { title: "Runs a growing business", detail: "Business-owner signals" },
