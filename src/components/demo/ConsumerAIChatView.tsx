@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Bot } from "lucide-react";
+import { Bot, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +7,6 @@ import { getBankPromptContext } from "@/lib/demoBankConfig";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea, type PromptInputMessage } from "@/components/ai-elements/prompt-input";
-import { Shimmer } from "@/components/ai-elements/shimmer";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { DetectedLifeEventResult, PersonalizedDealData } from "@/hooks/useDemoEnrichment";
@@ -419,18 +418,18 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
         ) : (
           <div className="space-y-3">
             {messages.map((msg, i) => (
-              <Message key={`${msg.role}-${i}`} from={msg.role} className={msg.role === "assistant" ? "max-w-full" : "max-w-[86%]"}>
+              <Message key={`${msg.role}-${i}`} from={msg.role} className={cn("max-w-full flex-row items-start gap-2", msg.role === "user" && "justify-end")}>
+                {msg.role === "assistant" && (
+                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100"><Bot className="h-3 w-3 text-blue-600" /></div>
+                )}
                 <MessageContent className={cn(
-                  "text-[13px] break-words",
+                  "max-w-[85%] gap-1.5 rounded-2xl px-3 py-2 text-[13px] break-words",
                   msg.role === "user"
-                    ? "rounded-2xl rounded-br-sm bg-blue-600 px-3 py-2 text-white"
-                    : "w-full bg-transparent p-0 text-slate-900"
+                    ? "ml-0 rounded-br-sm bg-blue-600 text-white group-[.is-user]:bg-blue-600 group-[.is-user]:px-3 group-[.is-user]:py-2 group-[.is-user]:text-white"
+                    : cn("rounded-bl-sm bg-slate-100 text-slate-900", relaxedAnswers && "px-4 py-3")
                 )}>
                   {msg.role === "assistant" ? (
-                    <div className="flex items-start gap-2">
-                      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100"><Bot className="h-3 w-3 text-blue-600" /></div>
-                      <MessageResponse className={cn("min-w-0 flex-1 text-[13px] text-slate-900 [&_p]:text-[13px] [&_strong]:font-bold [&_strong]:text-slate-950", relaxedAnswers ? "leading-relaxed [&_p]:mb-2" : "leading-snug [&_p]:mb-0.5")}>{msg.content}</MessageResponse>
-                    </div>
+                    <MessageResponse className={cn("text-[13px] text-slate-900 [&_p]:text-[13px] [&_strong]:font-bold [&_strong]:text-slate-950", relaxedAnswers ? "leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0" : "leading-snug [&_p]:mb-0.5")}>{msg.content}</MessageResponse>
                   ) : msg.content}
                   {msg.role === "assistant" && msg.actions && msg.actions.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
@@ -447,10 +446,18 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                     </div>
                   )}
                 </MessageContent>
+                {msg.role === "user" && (
+                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200"><User className="h-3 w-3 text-slate-600" /></div>
+                )}
               </Message>
             ))}
             {isLoading && (
-              <Message from="assistant" className="max-w-full"><MessageContent className="w-full bg-transparent p-0"><div className="flex items-center gap-2"><div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100"><Bot className="h-3 w-3 text-blue-600" /></div><Shimmer className="text-xs text-slate-500">Thinking...</Shimmer></div></MessageContent></Message>
+              <Message from="assistant" className="max-w-full flex-row items-start gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100"><Bot className="h-3 w-3 text-blue-600" /></div>
+                <MessageContent className="flex-row gap-1 rounded-2xl rounded-bl-sm bg-slate-100 px-3 py-2">
+                  {[0, 150, 300].map((delay) => <span key={delay} className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: `${delay}ms` }} />)}
+                </MessageContent>
+              </Message>
             )}
           </div>
         )}
@@ -477,18 +484,21 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
       <div className="shrink-0 border-t border-slate-100 bg-white p-3">
         <PromptInput
           onSubmit={(message: PromptInputMessage) => sendMessage(message.text)}
-          className="rounded-xl border-slate-200 bg-slate-50 shadow-none"
+          className="relative [&_[data-slot=input-group]]:!h-9 [&_[data-slot=input-group]]:!flex-row [&_[data-slot=input-group]]:rounded-full [&_[data-slot=input-group]]:border-slate-200 [&_[data-slot=input-group]]:bg-slate-50 [&_[data-slot=input-group]]:shadow-none"
         >
           <PromptInputTextarea
             ref={inputRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask about your spending..."
-            className="min-h-10 max-h-20 py-2 text-sm text-slate-900 placeholder:text-slate-400"
+            rows={1}
+            className="!h-9 min-h-0 resize-none overflow-hidden py-2 pl-3 pr-12 text-sm leading-5 text-slate-900 placeholder:text-slate-400"
             disabled={isLoading}
           />
-          <PromptInputFooter className="justify-end px-2 pb-2 pt-0">
-            <PromptInputSubmit status={isLoading ? "submitted" : "ready"} disabled={isLoading || !inputValue.trim()} className="h-8 w-8 rounded-full" />
+          <PromptInputFooter className="!absolute !right-0.5 !top-0.5 !order-none !w-auto !p-0">
+            <PromptInputSubmit status={isLoading ? "submitted" : "ready"} disabled={isLoading || !inputValue.trim()} className="h-8 w-8 rounded-full">
+              <Send className="h-3.5 w-3.5" />
+            </PromptInputSubmit>
           </PromptInputFooter>
         </PromptInput>
       </div>
