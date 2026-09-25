@@ -53,20 +53,20 @@ const PURCHASE_ICONS = {
 
 // Detail-screen type scale: larger by default, one step down on short viewports.
 const T = {
-  title: "text-[18px] [@media(max-height:800px)]:text-[14px]",
-  meta: "text-[11px] [@media(max-height:800px)]:text-[9px]",
-  chip: "text-[8px] [@media(max-height:800px)]:text-[7.5px]",
-  cardLabel: "text-[9px] [@media(max-height:800px)]:text-[7.5px]",
-  rowLabel: "text-[10px] [@media(max-height:800px)]:text-[8.5px]",
-  rowValue: "text-[10.5px] [@media(max-height:800px)]:text-[9px]",
-  mono: "text-[13px] [@media(max-height:800px)]:text-[10.5px]",
-  body: "text-[10.5px] [@media(max-height:800px)]:text-[9px]",
-  btn: "h-8 text-[10.5px] [@media(max-height:800px)]:h-7 [@media(max-height:800px)]:text-[9px]",
+  title: "text-[22px] [@media(max-height:900px)]:text-[17px] [@media(max-height:800px)]:text-[15px]",
+  meta: "text-[13px] [@media(max-height:900px)]:text-[10px] [@media(max-height:800px)]:text-[9px]",
+  chip: "text-[10px] [@media(max-height:900px)]:text-[8px] [@media(max-height:800px)]:text-[7.5px]",
+  cardLabel: "text-[11px] [@media(max-height:900px)]:text-[9px] [@media(max-height:800px)]:text-[8px]",
+  rowLabel: "text-[13px] [@media(max-height:900px)]:text-[10px] [@media(max-height:800px)]:text-[9px]",
+  rowValue: "text-[13px] [@media(max-height:900px)]:text-[10.5px] [@media(max-height:800px)]:text-[9.5px]",
+  mono: "text-[16px] [@media(max-height:900px)]:text-[12px] [@media(max-height:800px)]:text-[11px]",
+  body: "text-[13px] [@media(max-height:900px)]:text-[10.5px] [@media(max-height:800px)]:text-[9.5px]",
+  btn: "h-10 text-[13px] [@media(max-height:900px)]:h-8 [@media(max-height:900px)]:text-[10px] [@media(max-height:800px)]:h-7 [@media(max-height:800px)]:text-[9px]",
   // Compact spacing helpers for short viewports
-  sectionGap: "mt-2.5 [@media(max-height:800px)]:mt-1",
-  cardPad: "p-2.5 [@media(max-height:800px)]:p-1.5",
-  listGap: "mt-1.5 [@media(max-height:800px)]:mt-0.5",
-  itemGap: "space-y-1 [@media(max-height:800px)]:space-y-0.5",
+  sectionGap: "mt-4 [@media(max-height:900px)]:mt-2 [@media(max-height:800px)]:mt-1",
+  cardPad: "p-4 [@media(max-height:900px)]:p-2.5 [@media(max-height:800px)]:p-1.5",
+  listGap: "mt-2.5 [@media(max-height:900px)]:mt-1.5 [@media(max-height:800px)]:mt-0.5",
+  itemGap: "space-y-2 [@media(max-height:900px)]:space-y-1 [@media(max-height:800px)]:space-y-0.5",
 };
 
 const stop = (event: { stopPropagation: () => void }) => event.stopPropagation();
@@ -211,22 +211,22 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                 <div className="relative h-full">
                   <div className="h-full overflow-y-auto exec-light-scroll">
                 <div className="flex min-h-full flex-col">
-                  <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b border-slate-200 bg-background/95 px-2 py-1.5 [@media(max-height:800px)]:py-0.5 backdrop-blur">
+                  <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-background/95 px-3 py-2.5 [@media(max-height:900px)]:py-1.5 [@media(max-height:800px)]:py-0.5 backdrop-blur">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={(event) => { stop(event); closeDetail(); }}
-                      className={cn("h-7 gap-0.5 px-1.5 font-semibold text-slate-600 hover:bg-slate-50", T.meta)}
+                      className={cn("h-9 gap-1 px-2 font-semibold text-slate-600 hover:bg-slate-50 [@media(max-height:900px)]:h-7", T.meta)}
                     >
-                      <ChevronLeft className="h-4 w-4" /> Back
+                      <ChevronLeft className="h-5 w-5 [@media(max-height:900px)]:h-4 [@media(max-height:900px)]:w-4" /> Back
                     </Button>
                     <span className={cn("font-bold text-slate-900", T.meta)}>Transaction</span>
                   </div>
 
-                  <div className="px-3.5 pb-3 pt-2.5 [@media(max-height:800px)]:pb-1.5 [@media(max-height:800px)]:pt-1">
-                    <div className="flex items-start gap-2.5">
-                      <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg [@media(max-height:800px)]:h-8 [@media(max-height:800px)]:w-8", tone.icon)}>
-                        <PurchaseIcon className="h-5 w-5 [@media(max-height:800px)]:h-4 [@media(max-height:800px)]:w-4" />
+                  <div className="px-5 pb-5 pt-4 [@media(max-height:900px)]:px-3.5 [@media(max-height:900px)]:pb-3 [@media(max-height:900px)]:pt-2.5 [@media(max-height:800px)]:pb-1.5 [@media(max-height:800px)]:pt-1">
+                    <div className="flex items-start gap-3.5 [@media(max-height:900px)]:gap-2.5">
+                      <span className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-lg [@media(max-height:900px)]:h-11 [@media(max-height:900px)]:w-11 [@media(max-height:800px)]:h-8 [@media(max-height:800px)]:w-8", tone.icon)}>
+                        <PurchaseIcon className="h-7 w-7 [@media(max-height:900px)]:h-5 [@media(max-height:900px)]:w-5 [@media(max-height:800px)]:h-4 [@media(max-height:800px)]:w-4" />
                       </span>
                       <div className="min-w-0 flex-1">
                         <h3 className={cn("font-bold leading-tight text-slate-950", T.title)}>
@@ -234,7 +234,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                         </h3>
                         <div className="mt-1 flex items-center gap-1.5">
                           <span className={cn("font-medium text-slate-500", T.meta)}>{tx.date}</span>
-                          <span className={cn("rounded border px-1 py-px font-bold", T.chip, tone.chip)}>{tx.rail}</span>
+                          <span className={cn("rounded border px-1.5 py-0.5 font-bold", T.chip, tone.chip)}>{tx.rail}</span>
                         </div>
                       </div>
                       <span className={cn("shrink-0 font-bold tabular-nums text-slate-900", T.title)}>{tx.amount}</span>
@@ -276,11 +276,11 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                               { ok: true, text: tx.pattern },
                             ]
                         ).map((check) => (
-                          <li key={check.text} className="flex items-start gap-1.5">
+                          <li key={check.text} className="flex items-start gap-2">
                             {check.ok ? (
-                              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                              <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 [@media(max-height:900px)]:h-3.5 [@media(max-height:900px)]:w-3.5" />
                             ) : (
-                              <HelpCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
+                              <HelpCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 [@media(max-height:900px)]:h-3.5 [@media(max-height:900px)]:w-3.5" />
                             )}
                             <span className={cn("leading-snug text-slate-600", T.body)}>{check.text}</span>
                           </li>
@@ -290,7 +290,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
 
                     <div className={cn("rounded-lg border border-blue-200 bg-blue-50/60", T.sectionGap, T.cardPad)}>
                       <div className="flex items-center gap-1.5">
-                        <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+                        <Sparkles className="h-4 w-4 text-blue-600 [@media(max-height:900px)]:h-3.5 [@media(max-height:900px)]:w-3.5" />
                         <p className={cn("font-bold uppercase tracking-wide text-blue-700", T.cardLabel)}>OUR BANK INSIGHTS</p>
                       </div>
                       <p className={cn("mt-1 font-semibold text-slate-800", T.body)}>{tx.pattern}</p>
@@ -300,7 +300,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                       )}
                     </div>
 
-                    <div className="mt-3 [@media(max-height:800px)]:mt-1">
+                    <div className="mt-4 [@media(max-height:900px)]:mt-3 [@media(max-height:800px)]:mt-1">
                       {corrections[selected] || confirmState || supportChats[selected] ? (
                         <div className="flex items-center gap-2">
                           <p className={cn("font-semibold text-emerald-700", T.body)}>
@@ -335,9 +335,9 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                               setCorrectionOpen(null);
                               setDraft("");
                             }}
-                            className={cn("ml-auto gap-1 border-slate-200 bg-background px-2 py-0.5 text-slate-600", T.btn)}
+                            className={cn("ml-auto gap-1.5 border-slate-200 bg-background px-3 py-1 text-slate-600", T.btn)}
                           >
-                            <Undo2 className="h-3 w-3" /> Undo
+                            <Undo2 className="h-4 w-4" /> Undo
                           </Button>
                         </div>
                       ) : correctionOpen !== selected && (
