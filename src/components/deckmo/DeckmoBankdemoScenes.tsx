@@ -7,6 +7,7 @@ import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
 import { getProductVariants } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards } from "@/components/tepilot/campaigns/sections/buildMessageCards";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
 type SceneProps = { step: number; active?: boolean };
@@ -133,15 +134,8 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
 
 type ShowcasePhone = (typeof DECKMO.retention.showcase.phones)[number];
 
-function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }) {
+function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
-  const gridPosition = index < 3
-    ? "row-start-1"
-    : index === 3
-      ? "col-start-2 row-start-2"
-      : index === 4
-        ? "col-start-4 row-start-2"
-        : "col-start-6 row-start-2";
   const initialMessages = phone.initiator === "ai"
     ? [
         { role: "assistant" as const, content: phone.prompt },
@@ -153,12 +147,9 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
       ];
 
   return (
-    <div
-      className={cn("deckmo-phone-roll-right col-span-2 flex min-w-0 flex-col", gridPosition)}
-      style={{ "--deckmo-phone-delay": `${420 + index * 210}ms` } as React.CSSProperties}
-    >
-      <p className="mb-1 text-center text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">{phone.label}</p>
-      <div className="mx-auto h-[clamp(230px,28vh,305px)] aspect-[11/20]">
+    <div className="flex min-w-0 flex-col">
+      <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">{phone.label}</p>
+      <div className="mx-auto h-[clamp(420px,57vh,535px)] aspect-[11/20]">
         <ExecDemoPhoneView
           customer={fixture.customer}
           activeTab="relationship"
@@ -184,8 +175,23 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
 
 function RetentionShowcase() {
   const data = DECKMO.retention.showcase;
-  const topPhones = data.phones.slice(0, 3);
-  const bottomPhones = data.phones.slice(3);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [isInteracting, setIsInteracting] = useState(false);
+  const carouselItems = [
+    { id: "hawaii", label: "AI assistant", kind: "hawaii" as const },
+    ...data.phones.map((phone) => ({ ...phone, kind: "showcase" as const })),
+  ];
+
+  useEffect(() => {
+    if (isInteracting) return;
+    const timer = window.setInterval(() => {
+      setCarouselIndex((current) => (current + 1) % carouselItems.length);
+    }, 6000);
+    return () => window.clearInterval(timer);
+  }, [carouselItems.length, isInteracting]);
+
+  const visibleItems = Array.from({ length: 3 }, (_, offset) => carouselItems[(carouselIndex + offset) % carouselItems.length]);
+
   return (
     <div className="mx-auto flex h-full max-w-[1560px] flex-col px-[clamp(24px,3vw,56px)] py-[clamp(12px,1.6vh,20px)]">
       <div className="flex shrink-0 items-end justify-between gap-10">
@@ -195,15 +201,25 @@ function RetentionShowcase() {
         </div>
         <p className="max-w-[650px] text-right text-[clamp(12px,1vw,16px)] leading-relaxed text-slate-600">{data.subtitle}</p>
       </div>
-      <div className="mt-[clamp(8px,1vh,14px)] grid min-h-0 flex-1 grid-cols-8 grid-rows-2 items-start gap-x-[clamp(8px,1vw,18px)] gap-y-1">
-        <div className="deckmo-retained-phone col-span-2 flex min-w-0 flex-col">
-          <p className="mb-1 text-center text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">AI assistant</p>
-          <div className="mx-auto h-[clamp(230px,28vh,305px)] aspect-[11/20]">
-            <RetentionPhone active={false} showcase />
-          </div>
+      <div
+        className="mt-[clamp(12px,1.5vh,20px)] min-h-0 flex-1"
+        onFocusCapture={() => setIsInteracting(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsInteracting(false);
+        }}
+      >
+        <div key={carouselIndex} className="deckmo-carousel-group grid h-full grid-cols-3 items-start gap-[clamp(28px,5vw,88px)] px-[clamp(48px,8vw,150px)]">
+          {visibleItems.map((item) => item.kind === "hawaii" ? (
+            <div key={item.id} className="flex min-w-0 flex-col">
+              <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">{item.label}</p>
+              <div className="mx-auto h-[clamp(420px,57vh,535px)] aspect-[11/20]">
+                <RetentionPhone active={false} showcase />
+              </div>
+            </div>
+          ) : (
+            <ShowcasePhone key={item.id} phone={item} />
+          ))}
         </div>
-        {topPhones.map((phone, index) => <ShowcasePhone key={phone.id} phone={phone} index={index} />)}
-        {bottomPhones.map((phone, index) => <ShowcasePhone key={phone.id} phone={phone} index={index + topPhones.length} />)}
       </div>
     </div>
   );
