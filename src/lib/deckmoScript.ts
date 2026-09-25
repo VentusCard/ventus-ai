@@ -444,17 +444,6 @@ export const DECKMO = {
       subtitle: "Ventus gives the banking assistant the context to move from answering questions to anticipating what Ricky needs next.",
       phones: [
         {
-          id: "nudges",
-          label: "Proactive nudges",
-          title: "Good morning, Ricky",
-          lead: "A few things worth knowing today",
-          items: [
-            { title: "Your Hawaii trip is fully categorized", detail: "8 purchases · $11,115 total" },
-            { title: "Spotify increased by $2 this month", detail: "Review recurring payment" },
-            { title: "Quarterly tax payment may be approaching", detail: "Based on your business activity" },
-          ],
-        },
-        {
           id: "planning",
           label: "Financial planning",
           title: "Your financial plan",
