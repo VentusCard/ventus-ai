@@ -105,7 +105,7 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
     { role: "assistant" as const, content: HAWAII_CANNED[DECKMO.retention.openingPrompt] },
   ];
   return (
-    <div className={cn("mx-auto", showcase ? "h-[clamp(420px,59vh,535px)] w-full max-w-[292px]" : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]")}>
+    <div className={cn("mx-auto", showcase ? "h-[clamp(420px,59vh,535px)] aspect-[11/20]" : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]")}>
       <ExecDemoPhoneView
         customer={fixture.customer}
         activeTab="relationship"
@@ -146,7 +146,7 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
       style={{ "--deckmo-phone-delay": `${420 + index * 210}ms` } as React.CSSProperties}
     >
       <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">{phone.label}</p>
-      <div className="mx-auto h-[clamp(420px,59vh,535px)] w-full max-w-[292px]">
+      <div className="mx-auto h-[clamp(420px,59vh,535px)] aspect-[11/20]">
         <ExecDemoPhoneView
           customer={fixture.customer}
           activeTab="relationship"
