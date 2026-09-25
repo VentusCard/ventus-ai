@@ -180,6 +180,7 @@ export const DECKMO = {
   },
   immediate: {
     eyebrow: "IMMEDIATE",
+    value: { metric: "-9%", label: "Customer Service inquiries" },
     title: "Make every transaction understandable",
     subtitle:
       "Enriched transaction experiences that make charges easier to recognize and can reduce transaction-related service calls and inquiries.",
@@ -332,6 +333,7 @@ export const DECKMO = {
   },
   midTerm: {
     eyebrow: "MID-TERM: PROFIT",
+    value: { metric: "8%", label: "yield for the bank" },
     title: "Turn understanding into relevant growth",
     subtitle:
       "Hyper-personalized card-linked offers and cross-sell programs create new revenue opportunities while helping identify the right banking product for each customer at the right moment.",
@@ -395,6 +397,7 @@ export const DECKMO = {
   },
   longTerm: {
     eyebrow: "MID-TERM: GROWTH",
+    value: { metric: "5.5%", label: "LTV boost" },
     title: "Build a relationship that evolves",
     subtitle:
       "A more personalized banking relationship can deepen engagement, improve retention and NPS, and help the bank grow primary banking relationships and share of wallet.",
@@ -429,6 +432,7 @@ export const DECKMO = {
   },
   retention: {
     eyebrow: "LONG-TERM: RETENTION & NPS",
+    value: { metric: "4.5%+", label: "In-app engagement and NPS score" },
     title: "Turn every answer into relationship equity",
     subtitle:
       "A banking assistant grounded in the customer’s complete financial story makes every interaction feel informed, useful, and personal.",

@@ -12,12 +12,25 @@ import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
 type SceneProps = { step: number; active?: boolean };
 
-function SceneHeader({ eyebrow, title, subtitle, wide = false }: { eyebrow: string; title: string; subtitle: string; wide?: boolean }) {
+type SceneValue = { metric: string; label: string };
+
+function SceneValueBlock({ value, compact = false }: { value: SceneValue; compact?: boolean }) {
+  return (
+    <div className={cn("inline-block border-l-2 border-blue-500 bg-blue-50", compact ? "mt-2 px-3 py-2" : "mt-6 px-4 py-3")}>
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-blue-700">Value for the bank</p>
+      <p className={cn("mt-1 font-bold tabular-nums text-deck-navy", compact ? "text-lg" : "text-2xl")}>{value.metric}</p>
+      <p className={cn("font-semibold text-slate-700", compact ? "text-xs" : "text-sm")}>{value.label}</p>
+    </div>
+  );
+}
+
+function SceneHeader({ eyebrow, title, subtitle, value, wide = false }: { eyebrow: string; title: string; subtitle: string; value?: SceneValue; wide?: boolean }) {
   return (
     <header className={cn("min-w-0", wide ? "max-w-[900px]" : "max-w-[680px]")}>
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{eyebrow}</p>
       <h2 className="mt-3 whitespace-pre-line text-[clamp(30px,3.1vw,52px)] font-bold leading-[1.05] text-slate-950">{title}</h2>
       <p className="mt-4 text-pretty text-[clamp(15px,1.15vw,19px)] leading-relaxed text-slate-600">{subtitle}</p>
+      {value && <SceneValueBlock value={value} />}
     </header>
   );
 }
