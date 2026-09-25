@@ -266,7 +266,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                           <dd className={cn("text-right font-medium text-slate-700", T.rowValue)}>{tx.meta}</dd>
                         </div>
                         <div className="flex items-start justify-between gap-3">
-                          <dt className={cn("font-semibold text-slate-500", T.rowLabel)}>Payment rail</dt>
+                          <dt className={cn("font-semibold text-slate-500", T.rowLabel)}>Paid with</dt>
                           <dd className={cn("text-right font-medium text-slate-700", T.rowValue)}>{tx.rail}</dd>
                         </div>
                         <div className="flex items-start justify-between gap-3">
