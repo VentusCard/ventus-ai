@@ -427,7 +427,16 @@ export function BankdemoBankTools({ step }: SceneProps) {
   return (
     <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8">
       <div className="flex items-end justify-between gap-8">
-        <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} wide />
+        <div>
+          <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} wide />
+          {step === 0 && (
+            <p className="mt-3 text-[clamp(14px,1.05vw,17px)] font-bold text-slate-900">
+              <span className="text-blue-600">{data.stat?.split(" ")[0]}</span>
+              {" "}
+              <span className="font-semibold text-slate-600">{data.stat?.split(" ").slice(1).join(" ")}</span>
+            </p>
+          )}
+        </div>
         <div className="mb-1 flex gap-2">
           {data.screens.map((item, index) => <span key={item.id} className={cn("rounded-full border px-4 py-2 text-[10px] font-bold", index === screenIndex ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-400")}>{item.tab}</span>)}
         </div>
