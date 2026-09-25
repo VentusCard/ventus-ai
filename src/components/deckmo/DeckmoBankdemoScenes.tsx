@@ -216,6 +216,7 @@ function RetentionShowcase({ leaving = false }: { leaving?: boolean }) {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{data.eyebrow}</p>
           <h2 className="mt-1 text-[clamp(26px,2.4vw,40px)] font-bold leading-tight text-slate-950">{data.title}</h2>
+          {DECKMO.retention.value && <SceneValueBlock value={DECKMO.retention.value} compact />}
         </div>
         <p className="max-w-[640px] text-right text-[clamp(13px,1vw,16px)] leading-snug text-slate-600">{data.subtitle}</p>
       </div>
@@ -232,7 +233,7 @@ function RetentionShowcase({ leaving = false }: { leaving?: boolean }) {
 function PhoneScene({ step, data, tab }: SceneProps & { data: typeof DECKMO.immediate | typeof DECKMO.midTerm | typeof DECKMO.longTerm; tab: ConsumerTab }) {
   return (
     <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_480px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6">
-      <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
+      <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} value={data.value} />
       <ExactPhone tab={tab} cycleCollections={tab === "rewards"} />
       <CalloutRail items={data.popups} step={step} />
     </div>
@@ -243,7 +244,7 @@ export function BankdemoImmediate({ step, active = true }: SceneProps) {
   const data = DECKMO.immediate;
   return (
     <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_480px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6">
-      <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
+      <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} value={data.value} />
       <DeckmoRecentTransactionsTab step={step} active={active} />
       <CalloutRail items={data.popups} step={step} />
     </div>
@@ -374,7 +375,7 @@ export function BankdemoRetention({ step, active = true }: SceneProps) {
   return (
     <div className="relative h-full">
       <div className={cn("mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(220px,1fr)_clamp(300px,30vw,480px)_clamp(250px,23vw,460px)] items-center gap-[clamp(16px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6", showcaseMounted && "hidden")}>
-        <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
+        <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} value={data.value} />
         <RetentionPhone active={active && step < 3} />
         <CalloutRail items={data.popups} step={step} />
       </div>
