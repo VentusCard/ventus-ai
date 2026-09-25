@@ -196,6 +196,7 @@ export const DECKMO = {
         amount: "$86.00",
         pattern: "Recurring · every other week",
         explanation: "This matches your usual every-other-week tennis club visit.",
+        insight: "matches your usual every-other-week tennis club visit",
         needsConfirmation: false,
       },
       {
@@ -208,6 +209,7 @@ export const DECKMO = {
         amount: "$142.38",
         pattern: "Recurring · monthly autopay",
         explanation: "This is your usual monthly utility payment from checking.",
+        insight: "your usual monthly utility payment",
         needsConfirmation: false,
       },
       {
@@ -220,6 +222,7 @@ export const DECKMO = {
         amount: "$54.25",
         pattern: "Occasional person-to-person payment",
         explanation: "This appears to be a payment to Mia Chen for a shared expense.",
+        insight: "payment to Mia Chen for a shared expense",
         needsConfirmation: false,
       },
       {
@@ -232,6 +235,7 @@ export const DECKMO = {
         amount: "$100.00",
         pattern: "Familiar location · near home",
         explanation: "This withdrawal was made at an ATM near your home address.",
+        insight: "an ATM near your home address",
         needsConfirmation: false,
       },
       {
@@ -244,6 +248,7 @@ export const DECKMO = {
         amount: "$320.00",
         pattern: "Recurring · quarterly service",
         explanation: "This check matches your regular landscaping service payment.",
+        insight: "matches your regular landscaping service payment",
         needsConfirmation: false,
       },
       {
@@ -256,6 +261,7 @@ export const DECKMO = {
         amount: "$2,500.00",
         pattern: "One-time transfer",
         explanation: "This wire was sent to the escrow account associated with your home closing.",
+        insight: "your home closing",
         needsConfirmation: false,
       },
       {
@@ -270,6 +276,7 @@ export const DECKMO = {
         isSubscription: true,
         explanation:
           "This monthly subscription went up $2.00 from your usual $11.99 — we wanted you to know before you spot it on a statement.",
+        insight: "went up $2.00 from your usual $11.99",
         needsConfirmation: false,
       },
       {
@@ -284,6 +291,7 @@ export const DECKMO = {
         pattern: "One-time · card purchase",
         explanation:
           "The merchant descriptor lists Troy, MI, but this purchase resembles vending machine purchases at JFK Airport. Please confirm so we label it correctly.",
+        insight: "this purchase resembles vending machine purchases at JFK Airport.",
         needsConfirmation: true,
       },
       {
@@ -297,6 +305,7 @@ export const DECKMO = {
         pattern: "Recurring · annual business renewal",
         explanation:
           "An annual business filing and registered-agent renewal — a small-business expense, not a personal one.",
+        insight: "a small-business expense, not a personal one",
         needsConfirmation: false,
       },
     ],
