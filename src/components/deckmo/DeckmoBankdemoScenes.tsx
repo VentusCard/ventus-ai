@@ -205,7 +205,7 @@ function RetentionShowcase() {
         <p className="max-w-[640px] text-right text-[clamp(13px,1vw,16px)] leading-snug text-slate-600">{data.subtitle}</p>
       </div>
       <div className="deckmo-carousel-viewport mt-[clamp(14px,3vh,42px)] min-h-0 flex-1 overflow-hidden">
-        <div className="deckmo-carousel-track flex h-full w-max items-center gap-[clamp(18px,2.5vw,44px)] pr-[clamp(18px,2.5vw,44px)]">
+        <div className="deckmo-carousel-track flex h-full w-max items-center gap-[clamp(36px,4vw,72px)] pr-[clamp(36px,4vw,72px)]">
           {carouselItems.map((item) => renderItem(item, 0))}
           {carouselItems.map((item) => renderItem(item, 1))}
         </div>
