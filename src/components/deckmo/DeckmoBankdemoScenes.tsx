@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
 import { getProductVariants } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards } from "@/components/tepilot/campaigns/sections/buildMessageCards";
-import { ArrowRight, BatteryFull, Bell, BriefcaseBusiness, CalendarDays, Check, CircleDollarSign, CreditCard, Goal, Home, Plane, RefreshCw, Sparkles, TrendingUp, Users, Wifi } from "lucide-react";
+import { ArrowRight, BatteryFull, Bell, BriefcaseBusiness, Check, CircleDollarSign, CreditCard, Goal, Home, Plane, RefreshCw, Sparkles, TrendingUp, Users, Wifi } from "lucide-react";
 import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
 type SceneProps = { step: number; active?: boolean };
@@ -104,11 +104,11 @@ const HAWAII_CANNED: Record<string, string> = {
 
 let retentionPromptFired = false;
 
-function RetentionPhone({ active }: { active: boolean }) {
+function RetentionPhone({ active, showcase = false }: { active: boolean; showcase?: boolean }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
   if (active) retentionPromptFired = true;
   return (
-    <div className="mx-auto h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
+    <div className={cn("mx-auto", showcase ? "h-[clamp(420px,59vh,535px)] w-full max-w-[292px]" : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]")}>
       <ExecDemoPhoneView
         customer={fixture.customer}
         activeTab="relationship"
@@ -137,14 +137,12 @@ function RetentionPhone({ active }: { active: boolean }) {
 type ShowcasePhone = (typeof DECKMO.retention.showcase.phones)[number];
 
 const showcaseIcons = {
-  nudges: Bell,
   planning: Goal,
   subscriptions: RefreshCw,
   picture: Sparkles,
 } as const;
 
 const showcaseItemIcons = {
-  nudges: [Plane, CreditCard, CalendarDays],
   planning: [TrendingUp, CircleDollarSign],
   subscriptions: [CreditCard, CreditCard, CreditCard],
   picture: [Home, BriefcaseBusiness, Plane],
@@ -157,8 +155,8 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
 
   return (
     <div
-      className={cn("deckmo-phone-fan flex min-w-0 flex-col", index % 2 === 0 ? "deckmo-phone-fan-left" : "deckmo-phone-fan-right")}
-      style={{ "--deckmo-phone-delay": `${index * 130}ms` } as React.CSSProperties}
+      className="deckmo-phone-roll-right flex min-w-0 flex-col"
+      style={{ "--deckmo-phone-delay": `${420 + index * 210}ms` } as React.CSSProperties}
     >
       <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">{phone.label}</p>
       <div className="mx-auto flex h-[clamp(420px,59vh,535px)] w-full max-w-[292px] flex-col overflow-hidden rounded-[28px] border-[7px] border-slate-300 bg-white shadow-2xl">
@@ -175,9 +173,9 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
           </div>
 
           {isPlanning && "goal" in phone && (
-            <div className="deckmo-phone-content mt-3 rounded-lg border border-blue-200 bg-white p-3">
+            <div className="mt-3 rounded-lg border border-blue-200 bg-white p-3">
               <div className="flex items-center justify-between"><p className="text-[9px] font-bold text-slate-800">{phone.goal}</p><span className="text-[11px] font-bold text-blue-700">{phone.progress}</span></div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><span className="deckmo-goal-progress block h-full rounded-full bg-blue-600" /></div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><span className="block h-full w-[68%] rounded-full bg-blue-600" /></div>
               <p className="mt-2 text-[8px] text-slate-500">Target: Summer 2027</p>
             </div>
           )}
@@ -187,7 +185,7 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
               const ItemIcon = itemIcons[itemIndex] ?? Check;
               const isAlert = phone.id === "subscriptions" && itemIndex === 0;
               return (
-                <div key={item.title} className={cn("deckmo-phone-content rounded-lg border bg-white p-2.5", isAlert ? "border-amber-200" : "border-slate-200")} style={{ "--deckmo-content-delay": `${720 + index * 130 + itemIndex * 110}ms` } as React.CSSProperties}>
+                <div key={item.title} className={cn("rounded-lg border bg-white p-2.5", isAlert ? "border-amber-200" : "border-slate-200")}>
                   <div className="flex items-start gap-2">
                     <span className={cn("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full", isAlert ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600")}><ItemIcon className="h-3 w-3" /></span>
                     <div className="min-w-0"><p className="text-[9px] font-bold leading-tight text-slate-900">{item.title}</p><p className="mt-1 text-[7.5px] leading-tight text-slate-500">{item.detail}</p></div>
@@ -197,8 +195,8 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
             })}
           </div>
 
-          <div className="deckmo-phone-content mt-3 rounded-lg bg-blue-600 px-3 py-2 text-center text-[8px] font-bold text-blue-50" style={{ "--deckmo-content-delay": `${1160 + index * 130}ms` } as React.CSSProperties}>
-            {phone.id === "nudges" ? "Review my day" : phone.id === "planning" ? "View my plan" : phone.id === "subscriptions" ? "Manage subscriptions" : "Ask about my finances"}
+          <div className="mt-3 rounded-lg bg-blue-600 px-3 py-2 text-center text-[8px] font-bold text-blue-50">
+            {phone.id === "planning" ? "View my plan" : phone.id === "subscriptions" ? "Manage subscriptions" : "Ask about my finances"}
           </div>
         </div>
         <div className="grid h-10 shrink-0 grid-cols-4 border-t border-slate-200 bg-white px-2 text-slate-400">
@@ -221,6 +219,10 @@ function RetentionShowcase() {
         <p className="max-w-[650px] text-right text-[clamp(12px,1vw,16px)] leading-relaxed text-slate-600">{data.subtitle}</p>
       </div>
       <div className="mt-[clamp(14px,2vh,24px)] grid min-h-0 flex-1 grid-cols-4 items-start gap-[clamp(10px,1.4vw,24px)]">
+        <div className="deckmo-retained-phone flex min-w-0 flex-col">
+          <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">AI assistant</p>
+          <RetentionPhone active={false} showcase />
+        </div>
         {data.phones.map((phone, index) => <ShowcasePhone key={phone.id} phone={phone} index={index} />)}
       </div>
     </div>
