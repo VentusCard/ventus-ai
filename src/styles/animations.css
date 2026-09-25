@@ -253,6 +253,59 @@
   }
 }
 
+/* Deckmo Beat 8.4: four life-aware assistant views settle into one system. */
+@keyframes deckmo-phone-fan-left {
+  from { opacity: 0; transform: translate3d(-56px, 46px, 0) rotate(-4deg) scale(0.9); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) rotate(0) scale(1); }
+}
+
+@keyframes deckmo-phone-fan-right {
+  from { opacity: 0; transform: translate3d(56px, 46px, 0) rotate(4deg) scale(0.9); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) rotate(0) scale(1); }
+}
+
+@keyframes deckmo-phone-content {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes deckmo-goal-progress {
+  from { width: 0; }
+  to { width: 68%; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .deckmo-phone-fan {
+    opacity: 0;
+    animation-duration: 680ms;
+    animation-delay: var(--deckmo-phone-delay, 0ms);
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .deckmo-phone-fan-left { animation-name: deckmo-phone-fan-left; }
+  .deckmo-phone-fan-right { animation-name: deckmo-phone-fan-right; }
+
+  .deckmo-phone-content {
+    opacity: 0;
+    animation: deckmo-phone-content 420ms cubic-bezier(0.16, 1, 0.3, 1) var(--deckmo-content-delay, 700ms) forwards;
+  }
+
+  .deckmo-goal-progress {
+    animation: deckmo-goal-progress 900ms cubic-bezier(0.16, 1, 0.3, 1) 1150ms both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deckmo-phone-fan,
+  .deckmo-phone-content {
+    opacity: 1;
+    transform: none;
+  }
+
+  .deckmo-goal-progress { width: 68%; }
+}
+
 /* Continuous subtle hue pulses for activation destination rows */
 @keyframes pulse-hue-bank {
   0%, 100% { background-position: 0% 50%; }
