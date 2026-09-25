@@ -15,18 +15,6 @@ export type DeckmoBeatId =
 // Flat beat index within the "For Your Teams" slide -> workspace screen index.
 export const BANK_TOOLS_BEAT_SCREENS = [0, 1, 1, 2];
 
-type RetentionShowcasePhone = {
-  id: string;
-  label: string;
-  initiator: "ai" | "customer";
-  prompt: string;
-  answer: string;
-  reply?: string;
-  goal?: string;
-  progress?: string;
-  items: { title: string; detail: string }[];
-};
-
 export const DECKMO = {
   chrome: {
     progress: "Story progress",
@@ -467,14 +455,13 @@ export const DECKMO = {
       eyebrow: "COUNTLESS SERVICE OPPORTUNITY",
       title: "Every Customer, Inquiry and Opportunity",
       subtitle: "When Ventus understands every transaction and pattern, your assistant can show up for the customer in countless ways — today and for years to come.",
-      phones: ([
+      phones: [
         {
           id: "credit-score",
           label: "Credit score update",
           initiator: "ai",
           prompt: "I noticed your credit score changed this month. **It increased by 18 points**, helped by lower card utilization and consistent payments. Want me to show you what moved?",
           answer: "Show me what changed.",
-          reply: "Sure! Here is what I found...",
           items: [
             { title: "Score increased", detail: "Up 18 points this month" },
             { title: "Lower utilization", detail: "Primary positive driver" },
@@ -499,7 +486,6 @@ export const DECKMO = {
           initiator: "ai",
           prompt: "I noticed your utility payment arrived after its due date. **You may have been charged a late fee.** I can help review the charge and adjust the reminder before next month.",
           answer: "Help me prevent that next month.",
-          reply: "Yes, I can set that up for you...",
           items: [
             { title: "Utility payment", detail: "Paid after due date" },
             { title: "Reminder available", detail: "Before next month’s bill" },
@@ -523,7 +509,6 @@ export const DECKMO = {
           initiator: "ai",
           prompt: "Your usual cash cushion looks tighter ahead of three recurring bills. **Moving one payment date could create more breathing room.** Would you like me to map the options?",
           answer: "Yes, show me the options.",
-          reply: "Yes, here are the options...",
           items: [
             { title: "Tighter cash cushion", detail: "Ahead of recurring bills" },
             { title: "Timing options", detail: "Create more breathing room" },
@@ -541,7 +526,7 @@ export const DECKMO = {
             { title: "Travel, tennis and pet care", detail: "Lifestyle preferences" },
           ],
         },
-      ] satisfies RetentionShowcasePhone[]),
+      ],
     },
   },
   bankTools: {
