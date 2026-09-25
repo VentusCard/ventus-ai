@@ -33,12 +33,17 @@ function SceneValueBlock({ value, compact = false }: { value: SceneValue; compac
   );
 }
 
-function SceneHeader({ eyebrow, title, subtitle, value, wide = false }: { eyebrow: string; title: string; subtitle: string; value?: SceneValue; wide?: boolean }) {
+function SceneHeader({ eyebrow, title, subtitle, highlight, value, wide = false }: { eyebrow: string; title: string; subtitle: string; highlight?: string; value?: SceneValue; wide?: boolean }) {
+  const subtitleParts = highlight && subtitle.includes(highlight)
+    ? [subtitle.slice(0, subtitle.indexOf(highlight)), highlight, subtitle.slice(subtitle.indexOf(highlight) + highlight.length)]
+    : null;
   return (
     <header className={cn("min-w-0", wide ? "max-w-[900px]" : "max-w-[680px]")}>
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{eyebrow}</p>
       <h2 className="mt-3 whitespace-pre-line text-[clamp(30px,3.1vw,52px)] font-bold leading-[1.05] text-slate-950">{title}</h2>
-      <p className="mt-4 text-pretty text-[clamp(15px,1.15vw,19px)] leading-relaxed text-slate-600">{subtitle}</p>
+      <p className="mt-4 text-pretty text-[clamp(15px,1.15vw,19px)] leading-relaxed text-slate-600">
+        {subtitleParts ? (<>{subtitleParts[0]}<span className="font-bold text-blue-600">{subtitleParts[1]}</span>{subtitleParts[2]}</>) : subtitle}
+      </p>
       {value && <SceneValueBlock value={value} />}
     </header>
   );
@@ -428,7 +433,7 @@ export function BankdemoBankTools({ step }: SceneProps) {
     <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8">
       <div className="flex items-end justify-between gap-8">
         <div>
-          <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} wide />
+          <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} highlight="45 tools and workflows" wide />
         </div>
         <div className="mb-1 flex gap-2">
           {data.screens.map((item, index) => <span key={item.id} className={cn("rounded-full border px-4 py-2 text-[10px] font-bold", index === screenIndex ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-400")}>{item.tab}</span>)}
