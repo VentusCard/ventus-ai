@@ -46,7 +46,7 @@ export const DECKMO = {
     { id: "mid-term", nav: "Value: This Year", steps: 5 },
     { id: "long-term", nav: "Value: The Relationship", steps: 3 },
     { id: "retention", nav: "Long-Term: Retention & NPS", steps: 4 },
-    { id: "bank-tools", nav: "For Your Teams", steps: 4, subSteps: [null, null, 1, null], stepScreens: BANK_TOOLS_BEAT_SCREENS },
+    { id: "bank-tools", nav: "The Platform", steps: 4, subSteps: [null, null, 1, null], stepScreens: BANK_TOOLS_BEAT_SCREENS },
     { id: "close", nav: "The Ask", steps: 4 },
   ],
   opener: {
