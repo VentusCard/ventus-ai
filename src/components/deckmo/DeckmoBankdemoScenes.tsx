@@ -214,7 +214,7 @@ function RetentionShowcase() {
           {visibleItems.map((item) => item.kind === "hawaii" ? (
             <div key={item.id} className="flex min-w-0 flex-col">
               <p className="mb-3 text-center text-[clamp(16px,1.35vw,20px)] font-extrabold uppercase tracking-[0.12em] text-slate-800">{item.label}</p>
-              <div className="mx-auto h-[clamp(500px,68vh,650px)] aspect-[11/20]">
+              <div className="mx-auto h-[clamp(470px,66vh,650px)] aspect-[11/20]">
                 <RetentionPhone active={false} showcase />
               </div>
             </div>
