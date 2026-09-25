@@ -244,8 +244,12 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   // Only refocus after a reply the user sent finishes — never on mount,
   // so presentation arrow keys and carousels are not hijacked.
   const wasLoadingRef = useRef(false);
+  const userTypedRef = useRef(false);
   useEffect(() => {
-    if (wasLoadingRef.current && !isLoading) inputRef.current?.focus({ preventScroll: true });
+    if (wasLoadingRef.current && !isLoading && userTypedRef.current) {
+      userTypedRef.current = false;
+      inputRef.current?.focus({ preventScroll: true });
+    }
     wasLoadingRef.current = isLoading;
   }, [isLoading]);
 
@@ -492,7 +496,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
       {/* Input */}
       <div className={cn("shrink-0 border-t border-slate-100 bg-white p-3", presentationLarge && "p-4")}>
         <PromptInput
-          onSubmit={(message: PromptInputMessage) => sendMessage(message.text)}
+          onSubmit={(message: PromptInputMessage) => { userTypedRef.current = true; sendMessage(message.text); }}
           className={cn("relative [&_[data-slot=input-group]]:!h-9 [&_[data-slot=input-group]]:!flex-row [&_[data-slot=input-group]]:rounded-full [&_[data-slot=input-group]]:border-slate-200 [&_[data-slot=input-group]]:bg-slate-50 [&_[data-slot=input-group]]:shadow-none", presentationLarge && "[&_[data-slot=input-group]]:!h-11")}
         >
           <PromptInputTextarea
