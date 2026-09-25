@@ -1,16 +1,16 @@
 # Enlarge beat 5.2 transaction experience
 
 ## Goal
-Make the transactions on beat 5.2 substantially larger and use the presentation canvas instead of confining them to the current narrow center column.
+Make the transactions inside beat 5.2's phone mockup substantially larger while keeping the mockup and surrounding slide structure intact.
 
 ## Changes
-- Give beat 5.2 a wide, page-filling transaction layout within the existing presentation header and footer.
+- Keep the phone mockup in place and enlarge only its internal transaction list.
 - Enlarge transaction rows, merchant names, dates, amounts, rail labels, and purchase icons for boardroom readability.
-- Increase row spacing and distribute the transaction list across the available height without introducing scrolling at standard deck sizes.
+- Use more of the mockup's available width and height, with larger spacing while keeping all transactions visible without scrolling at standard deck sizes.
 - Keep the existing transaction order, colors, click-to-open details, confirmation behavior, and arrow-only deck navigation unchanged.
-- Preserve the current three-column presentation for the other beats in section 5 unless their content needs the same shared sizing to prevent a visual jump.
+- Keep the surrounding section heading, callouts, phone dimensions, and other section 5 beats unchanged.
 
 ## Validation
 - Check beat 5.2 at 1540×855 and 1920×1080.
-- Confirm the transaction experience fills the slide cleanly, all rows remain visible, text does not wrap or clip, and transaction details still open correctly.
+- Confirm the transactions fill the phone mockup cleanly, all rows remain visible, text does not wrap or clip, and transaction details still open correctly.
 - Confirm adjacent beats and deck navigation remain unchanged and the preview builds cleanly.
