@@ -31,7 +31,7 @@ export const DECKMO = {
     phoneMenu: "•••",
     stepUnit: "steps",
     gateTitle: "Interactive Presentation",
-    gateSubtitle: "Hyper-personalized banking orchestration to identify and capture high value financial moments",
+    gateSubtitle: "Version Sept. 2026",
   },
   phoneNavigation: {
     bankLabel: "Our Bank · Ricky",
