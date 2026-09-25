@@ -45,7 +45,7 @@ export const DECKMO = {
     { id: "immediate", nav: "Immediate Value: Decrease Customer Service Cost", steps: 4 },
     { id: "mid-term", nav: "Value: This Year", steps: 5 },
     { id: "long-term", nav: "Value: The Relationship", steps: 3 },
-    { id: "retention", nav: "Long-Term: Retention & NPS", steps: 3 },
+    { id: "retention", nav: "Long-Term: Retention & NPS", steps: 4 },
     { id: "bank-tools", nav: "For Your Teams", steps: 4, subSteps: [null, null, 1, null], stepScreens: BANK_TOOLS_BEAT_SCREENS },
     { id: "close", nav: "The Ask", steps: 4 },
   ],
@@ -438,6 +438,58 @@ export const DECKMO = {
         body: "Consistently relevant help deepens engagement and creates the conditions for stronger retention and NPS.",
       },
     ],
+    showcase: {
+      eyebrow: "ONE ASSISTANT · COMPLETE CONTEXT",
+      title: "More useful in every financial moment",
+      subtitle: "Ventus gives the banking assistant the context to move from answering questions to anticipating what Ricky needs next.",
+      phones: [
+        {
+          id: "nudges",
+          label: "Proactive nudges",
+          title: "Good morning, Ricky",
+          lead: "A few things worth knowing today",
+          items: [
+            { title: "Your Hawaii trip is fully categorized", detail: "8 purchases · $11,115 total" },
+            { title: "Spotify increased by $2 this month", detail: "Review recurring payment" },
+            { title: "Quarterly tax payment may be approaching", detail: "Based on your business activity" },
+          ],
+        },
+        {
+          id: "planning",
+          label: "Financial planning",
+          title: "Your financial plan",
+          lead: "Built around the life you are living",
+          goal: "Home purchase fund",
+          progress: "68%",
+          items: [
+            { title: "On track for your target", detail: "At your current monthly pace" },
+            { title: "Keep travel funds separate", detail: "Protect your home goal" },
+          ],
+        },
+        {
+          id: "subscriptions",
+          label: "Subscription management",
+          title: "Recurring payments",
+          lead: "Subscriptions and memberships in one place",
+          items: [
+            { title: "Spotify Premium", detail: "$13.99 monthly · Price changed" },
+            { title: "Adobe Creative Cloud", detail: "$59.99 monthly" },
+            { title: "Pet wellness plan", detail: "$42.00 monthly" },
+          ],
+        },
+        {
+          id: "picture",
+          label: "Complete financial picture",
+          title: "What matters to Ricky",
+          lead: "One relationship, understood in context",
+          items: [
+            { title: "Planning a home purchase", detail: "High-confidence life moment" },
+            { title: "Runs a growing business", detail: "Business-owner signals" },
+            { title: "Travel, tennis and pet care", detail: "Lifestyle preferences" },
+          ],
+        },
+      ],
+    },
   },
   bankTools: {
     eyebrow: "TOOLS FOR THE BANK",

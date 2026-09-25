@@ -32,3 +32,4 @@
 - [x] Space out the opener sections while keeping both comparison equations on one line
 - [x] Add a live AI customer-assistant section for long-term retention and NPS
 - [x] 3.2 signal families: redistributed (spread across card) and slightly bigger; 3.3 keeps current size
+- [x] Add Beat 8.4 as a four-phone life-aware banking assistant showcase
