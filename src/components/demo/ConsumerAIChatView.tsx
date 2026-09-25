@@ -221,7 +221,7 @@ function buildContext(
 
 const CHAT_PERSIST: Record<string, { messages: ChatMessage[]; sent: boolean }> = {};
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers, persistKey, initialMessages = [], presentationLarge = false }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers, persistKey, initialMessages = [], presentationLarge = false, startAtTop = false }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (!persistKey) return initialMessages;
     const persisted = CHAT_PERSIST[persistKey]?.messages ?? [];
@@ -394,7 +394,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
 
   return (
     <div className="flex-1 min-h-0 flex flex-col bg-white">
-      <Conversation className="min-h-0 bg-white">
+      <Conversation className="min-h-0 bg-white" initial={startAtTop ? false : "smooth"}>
         <ConversationContent className={cn("gap-3 px-4 py-3", presentationLarge && "gap-4 px-5 py-4")}>
         {showWelcome ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">

@@ -113,7 +113,7 @@ interface Props {
   chatStartAtTop?: boolean;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, chatPersistKey, chatInitialMessages, chatPresentationLarge = false }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, chatPersistKey, chatInitialMessages, chatPresentationLarge = false, chatStartAtTop = false }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
@@ -204,6 +204,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             persistKey={chatPersistKey}
             initialMessages={chatInitialMessages}
             presentationLarge={chatPresentationLarge}
+            startAtTop={chatStartAtTop}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );
