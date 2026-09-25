@@ -166,7 +166,6 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
           batteryFull
           chatPersistKey={`deckmo-retention-${phone.id}`}
           chatInitialMessages={initialMessages}
-          chatSignalContext={HAWAII_CHAT_CONTEXT}
           hideQuickActions
         />
       </div>
