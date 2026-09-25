@@ -241,8 +241,12 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     [customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations]
   );
 
+  // Only refocus after a reply the user sent finishes — never on mount,
+  // so presentation arrow keys and carousels are not hijacked.
+  const wasLoadingRef = useRef(false);
   useEffect(() => {
-    if (!isLoading) inputRef.current?.focus();
+    if (wasLoadingRef.current && !isLoading) inputRef.current?.focus({ preventScroll: true });
+    wasLoadingRef.current = isLoading;
   }, [isLoading]);
 
   useEffect(() => {
