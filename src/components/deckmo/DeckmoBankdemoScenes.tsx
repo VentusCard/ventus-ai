@@ -127,6 +127,7 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
         cannedAIAnswers={HAWAII_CANNED}
         relaxedAIAnswers
         chatPresentationLarge={showcase}
+        chatStartAtTop
       />
     </div>
   );
@@ -177,7 +178,7 @@ function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
 function RetentionShowcase() {
   const data = DECKMO.retention.showcase;
   const carouselItems = [
-    { id: "hawaii", label: "AI assistant", kind: "hawaii" as const },
+    { id: "hawaii", label: "Intelligent Insights", kind: "hawaii" as const },
     ...data.phones.map((phone) => ({ ...phone, kind: "showcase" as const })),
   ];
 
