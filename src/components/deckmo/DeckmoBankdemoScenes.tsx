@@ -41,11 +41,6 @@ function CalloutRail({ items, step }: { items: readonly string[] | readonly { ti
 }
 
 const phoneTabs: ConsumerTab[] = ["budget", "rewards", "relationship"];
-const RETENTION_OPENING_PROMPT = {
-  text: DECKMO.retention.openingPrompt,
-  nonce: 1,
-  kind: "lifestyle" as const,
-};
 
 function ExactPhone({ tab, cycleCollections = false }: { tab: ConsumerTab; cycleCollections?: boolean }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
