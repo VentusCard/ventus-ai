@@ -150,7 +150,7 @@ function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
   return (
     <div className="flex min-w-0 flex-col">
       <p className="mb-3 text-center text-[clamp(16px,1.35vw,20px)] font-extrabold uppercase tracking-[0.12em] text-slate-800">{phone.label}</p>
-      <div className="mx-auto h-[clamp(500px,68vh,650px)] aspect-[11/20]">
+      <div className="mx-auto h-[clamp(470px,66vh,650px)] aspect-[11/20]">
         <ExecDemoPhoneView
           customer={fixture.customer}
           activeTab="relationship"
@@ -204,7 +204,7 @@ function RetentionShowcase() {
         <p className="max-w-[640px] text-right text-[clamp(13px,1vw,16px)] leading-snug text-slate-600">{data.subtitle}</p>
       </div>
       <div
-        className="mt-[clamp(20px,4vh,48px)] min-h-0 flex-1"
+        className="mt-[clamp(14px,3vh,42px)] min-h-0 flex-1"
         onFocusCapture={() => setIsInteracting(true)}
         onBlurCapture={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsInteracting(false);
