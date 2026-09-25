@@ -291,7 +291,7 @@ export const DECKMO = {
         pattern: "One-time · card purchase",
         explanation:
           "The merchant descriptor lists Troy, MI, but this purchase resembles vending machine purchases at JFK Airport. Please confirm so we label it correctly.",
-        insight: "This purchase resembles vending machine purchases at JFK Airport.",
+        insight: "this purchase resembles vending machine purchases at JFK Airport.",
         needsConfirmation: true,
       },
       {
