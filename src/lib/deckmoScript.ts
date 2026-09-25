@@ -452,9 +452,9 @@ export const DECKMO = {
       },
     ],
     showcase: {
-      eyebrow: "ONE ASSISTANT · COMPLETE CONTEXT",
-      title: "More useful in every financial moment",
-      subtitle: "Ventus gives the banking assistant the context to move from answering questions to anticipating what Ricky needs next.",
+      eyebrow: "COUNTLESS SERVICE OPPORTUNITY",
+      title: "Every payment understood. Countless ways to help.",
+      subtitle: "When Ventus understands every transaction and pattern, your assistant can show up for the customer in countless ways — today and for years to come.",
       phones: [
         {
           id: "credit-score",
