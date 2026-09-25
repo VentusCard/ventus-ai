@@ -135,6 +135,13 @@ type ShowcasePhone = (typeof DECKMO.retention.showcase.phones)[number];
 
 function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
+  const gridPosition = index < 3
+    ? "row-start-1"
+    : index === 3
+      ? "col-start-2 row-start-2"
+      : index === 4
+        ? "col-start-4 row-start-2"
+        : "col-start-6 row-start-2";
   const initialMessages = phone.initiator === "ai"
     ? [
         { role: "assistant" as const, content: phone.prompt },
@@ -147,11 +154,11 @@ function ShowcasePhone({ phone, index }: { phone: ShowcasePhone; index: number }
 
   return (
     <div
-      className={cn("deckmo-phone-roll-right col-span-2 flex min-w-0 flex-col", index === 3 && "col-start-2")}
+      className={cn("deckmo-phone-roll-right col-span-2 flex min-w-0 flex-col", gridPosition)}
       style={{ "--deckmo-phone-delay": `${420 + index * 210}ms` } as React.CSSProperties}
     >
       <p className="mb-1 text-center text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">{phone.label}</p>
-      <div className="mx-auto h-[clamp(225px,27vh,300px)] aspect-[11/20]">
+      <div className="mx-auto h-[clamp(230px,28vh,305px)] aspect-[11/20]">
         <ExecDemoPhoneView
           customer={fixture.customer}
           activeTab="relationship"
@@ -191,7 +198,7 @@ function RetentionShowcase() {
       <div className="mt-[clamp(8px,1vh,14px)] grid min-h-0 flex-1 grid-cols-8 grid-rows-2 items-start gap-x-[clamp(8px,1vw,18px)] gap-y-1">
         <div className="deckmo-retained-phone col-span-2 flex min-w-0 flex-col">
           <p className="mb-1 text-center text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">AI assistant</p>
-          <div className="mx-auto h-[clamp(225px,27vh,300px)] aspect-[11/20]">
+          <div className="mx-auto h-[clamp(230px,28vh,305px)] aspect-[11/20]">
             <RetentionPhone active={false} showcase />
           </div>
         </div>
