@@ -15,11 +15,20 @@ type SceneProps = { step: number; active?: boolean };
 type SceneValue = { metric: string; label: string };
 
 function SceneValueBlock({ value, compact = false }: { value: SceneValue; compact?: boolean }) {
+  if (compact) {
+    return (
+      <div className="mt-2 inline-flex flex-nowrap items-baseline gap-x-3 gap-y-0 border-l-2 border-blue-500 bg-blue-50 px-3 py-2">
+        <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-700">Value for the bank</p>
+        <p className="shrink-0 font-bold tabular-nums text-lg text-deck-navy">{value.metric}</p>
+        <p className="whitespace-nowrap font-semibold text-xs text-slate-700">{value.label}</p>
+      </div>
+    );
+  }
   return (
-    <div className={cn("inline-block border-l-2 border-blue-500 bg-blue-50", compact ? "mt-2 px-3 py-2" : "mt-6 px-4 py-3")}>
+    <div className="inline-block border-l-2 border-blue-500 bg-blue-50 px-4 py-3 mt-6">
       <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-blue-700">Value for the bank</p>
-      <p className={cn("mt-1 font-bold tabular-nums text-deck-navy", compact ? "text-lg" : "text-2xl")}>{value.metric}</p>
-      <p className={cn("font-semibold text-slate-700", compact ? "text-xs" : "text-sm")}>{value.label}</p>
+      <p className="mt-1 font-bold tabular-nums text-2xl text-deck-navy">{value.metric}</p>
+      <p className="font-semibold text-sm text-slate-700">{value.label}</p>
     </div>
   );
 }
