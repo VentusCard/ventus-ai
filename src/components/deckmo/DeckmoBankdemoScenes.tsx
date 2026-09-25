@@ -127,6 +127,7 @@ function RetentionPhone({ active, showcase = false }: { active: boolean; showcas
         hideQuickActions
         cannedAIAnswers={HAWAII_CANNED}
         relaxedAIAnswers
+        chatPresentationLarge={showcase}
       />
     </div>
   );
@@ -148,8 +149,8 @@ function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
 
   return (
     <div className="flex min-w-0 flex-col">
-      <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">{phone.label}</p>
-      <div className="mx-auto h-[clamp(420px,57vh,535px)] aspect-[11/20]">
+      <p className="mb-2 text-center text-xs font-bold uppercase tracking-[0.14em] text-slate-600">{phone.label}</p>
+      <div className="mx-auto h-[clamp(500px,68vh,650px)] aspect-[11/20]">
         <ExecDemoPhoneView
           customer={fixture.customer}
           activeTab="relationship"
@@ -167,6 +168,7 @@ function ShowcasePhone({ phone }: { phone: ShowcasePhone }) {
           chatPersistKey={`deckmo-retention-${phone.id}`}
           chatInitialMessages={initialMessages}
           hideQuickActions
+          chatPresentationLarge
         />
       </div>
     </div>
@@ -193,26 +195,26 @@ function RetentionShowcase() {
   const visibleItems = Array.from({ length: 3 }, (_, offset) => carouselItems[(carouselIndex + offset) % carouselItems.length]);
 
   return (
-    <div className="mx-auto flex h-full max-w-[1560px] flex-col px-[clamp(24px,3vw,56px)] py-[clamp(12px,1.6vh,20px)]">
+    <div className="mx-auto flex h-full max-w-[1720px] flex-col px-[clamp(18px,2vw,38px)] py-[clamp(8px,1vh,14px)]">
       <div className="flex shrink-0 items-end justify-between gap-10">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600">{data.eyebrow}</p>
-          <h2 className="mt-1.5 text-[clamp(25px,2.5vw,42px)] font-bold leading-tight text-slate-950">{data.title}</h2>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{data.eyebrow}</p>
+          <h2 className="mt-1 text-[clamp(26px,2.4vw,40px)] font-bold leading-tight text-slate-950">{data.title}</h2>
         </div>
-        <p className="max-w-[650px] text-right text-[clamp(12px,1vw,16px)] leading-relaxed text-slate-600">{data.subtitle}</p>
+        <p className="max-w-[640px] text-right text-[clamp(13px,1vw,16px)] leading-snug text-slate-600">{data.subtitle}</p>
       </div>
       <div
-        className="mt-[clamp(12px,1.5vh,20px)] min-h-0 flex-1"
+        className="mt-[clamp(6px,0.8vh,10px)] min-h-0 flex-1"
         onFocusCapture={() => setIsInteracting(true)}
         onBlurCapture={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsInteracting(false);
         }}
       >
-        <div key={carouselIndex} className="deckmo-carousel-group grid h-full grid-cols-3 items-start gap-[clamp(28px,5vw,88px)] px-[clamp(48px,8vw,150px)]">
+        <div key={carouselIndex} className="deckmo-carousel-group grid h-full grid-cols-3 items-start gap-[clamp(18px,2.5vw,44px)] px-[clamp(16px,3vw,58px)]">
           {visibleItems.map((item) => item.kind === "hawaii" ? (
             <div key={item.id} className="flex min-w-0 flex-col">
-              <p className="mb-2 text-center text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">{item.label}</p>
-              <div className="mx-auto h-[clamp(420px,57vh,535px)] aspect-[11/20]">
+              <p className="mb-2 text-center text-xs font-bold uppercase tracking-[0.14em] text-slate-600">{item.label}</p>
+              <div className="mx-auto h-[clamp(500px,68vh,650px)] aspect-[11/20]">
                 <RetentionPhone active={false} showcase />
               </div>
             </div>

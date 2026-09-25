@@ -107,9 +107,11 @@ interface Props {
   autoRotateCollections?: boolean;
   chatPersistKey?: string;
   chatInitialMessages?: ChatMessage[];
+  /** Larger phone chrome and chat typography for the deck carousel. */
+  chatPresentationLarge?: boolean;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, chatPersistKey, chatInitialMessages }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, chatPersistKey, chatInitialMessages, chatPresentationLarge = false }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
@@ -199,6 +201,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             relaxedAnswers={relaxedAIAnswers}
             persistKey={chatPersistKey}
             initialMessages={chatInitialMessages}
+            presentationLarge={chatPresentationLarge}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );
@@ -224,14 +227,14 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         </div>
 
         {/* Status bar — frame chrome, never scaled */}
-        <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
+        <div className={`flex items-center justify-between px-5 bg-white text-slate-400 font-medium shrink-0 ${chatPresentationLarge ? "py-1.5 text-[12px]" : "py-1 text-[10px]"}`}>
           {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
             </span>
-            <span className="font-semibold text-slate-600 text-[11px]">
+            <span className={`font-semibold text-slate-600 ${chatPresentationLarge ? "text-[13px]" : "text-[11px]"}`}>
               {wmCopilotMode ? `${bankLabel} · Advisor` : `${bankLabel} · ${firstName}`}
             </span>
           </div>
@@ -286,8 +289,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
                   onClick={() => { if (!presentationMode) setConsumerTab(tab.key); }}
                   className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
                 >
-                  <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : "#94a3b8" }} />
-                  <span className="text-[10px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                  <Icon className={chatPresentationLarge ? "h-5 w-5" : "h-4 w-4"} style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                  <span className={`${chatPresentationLarge ? "text-[12px]" : "text-[10px]"} font-semibold`} style={{ color: isActive ? tab.color : "#94a3b8" }}>
                     {tab.label}
                   </span>
                   {isActive && (
