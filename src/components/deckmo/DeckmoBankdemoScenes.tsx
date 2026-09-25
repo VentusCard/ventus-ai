@@ -7,7 +7,6 @@ import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
 import { getProductVariants } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards } from "@/components/tepilot/campaigns/sections/buildMessageCards";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
-import { useEffect, useState } from "react";
 import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
 type SceneProps = { step: number; active?: boolean };
