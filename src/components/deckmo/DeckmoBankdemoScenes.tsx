@@ -11,11 +11,11 @@ import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
 type SceneProps = { step: number; active?: boolean };
 
-function SceneHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
+function SceneHeader({ eyebrow, title, subtitle, wide = false }: { eyebrow: string; title: string; subtitle: string; wide?: boolean }) {
   return (
-    <header className="min-w-0 max-w-[680px]">
+    <header className={cn("min-w-0", wide ? "max-w-[900px]" : "max-w-[680px]")}>
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{eyebrow}</p>
-      <h2 className="mt-3 text-balance text-[clamp(30px,3.1vw,52px)] font-bold leading-[1.05] text-slate-950">{title}</h2>
+      <h2 className="mt-3 whitespace-pre-line text-[clamp(30px,3.1vw,52px)] font-bold leading-[1.05] text-slate-950">{title}</h2>
       <p className="mt-4 text-pretty text-[clamp(15px,1.15vw,19px)] leading-relaxed text-slate-600">{subtitle}</p>
     </header>
   );
@@ -381,7 +381,7 @@ export function BankdemoBankTools({ step }: SceneProps) {
   return (
     <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8">
       <div className="flex items-end justify-between gap-8">
-        <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
+        <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} wide />
         <div className="mb-1 flex gap-2">
           {data.screens.map((item, index) => <span key={item.id} className={cn("rounded-full border px-4 py-2 text-[10px] font-bold", index === screenIndex ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-400")}>{item.tab}</span>)}
         </div>
