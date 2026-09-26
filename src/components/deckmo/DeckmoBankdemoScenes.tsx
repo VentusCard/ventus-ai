@@ -321,8 +321,8 @@ const BANK_TOOLS_BEAT_SCREENS = DECKMO_BEAT_SCREENS;
 
 function ExactWorkspace({ tab }: { tab: TabValue }) {
   return (
-    <div data-deck-interactive onWheel={(e) => e.stopPropagation()} onTouchMove={(e) => e.stopPropagation()} className="mx-auto h-[clamp(500px,63vh,700px)] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:h-[clamp(480px,60vh,640px)] [@media(max-width:1340px)]:max-w-[1110px]">
-      <div className="h-[calc(clamp(500px,63vh,700px)/0.825)] w-[1440px] origin-top-left scale-[0.825] [@media(max-width:1340px)]:h-[calc(clamp(480px,60vh,640px)/0.77)] [@media(max-width:1340px)]:scale-[0.77]">
+    <div data-deck-interactive onWheel={(e) => e.stopPropagation()} onTouchMove={(e) => e.stopPropagation()} className="mx-auto h-[clamp(500px,63vh,700px)] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:h-[clamp(480px,60vh,640px)] [@media(max-width:1340px)]:max-w-[1110px] [@media(max-height:900px)]:h-[clamp(460px,58vh,560px)]">
+      <div className="h-[calc(clamp(500px,63vh,700px)/0.825)] w-[1440px] origin-top-left scale-[0.825] [@media(max-width:1340px)]:h-[calc(clamp(480px,60vh,640px)/0.77)] [@media(max-width:1340px)]:scale-[0.77] [@media(max-height:900px)]:h-[calc(clamp(460px,58vh,560px)/0.825)]">
         <AnalyticsContainer key={tab} defaultTab={tab} presentationMode interactive />
       </div>
     </div>
