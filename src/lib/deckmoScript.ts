@@ -456,7 +456,20 @@ export const DECKMO = {
       body: "Ricky receives relevant help without exposing sensitive signals.",
       action: "Review draft",
     },
-    popups: ["Detect the life moment", "Prepare the next conversation", "Coordinate thoughtful outreach"],
+    popups: [
+      {
+        title: "Anticipate the next life moment",
+        body: "A home-buying signal becomes a relevant relationship-rate mortgage recommendation.",
+      },
+      {
+        title: "Turn routines into relationship value",
+        body: "Ricky’s tennis routine becomes a rewards card aligned to how he spends.",
+      },
+      {
+        title: "Bring more of the relationship home",
+        body: "Outside brokerage transfers become a timely guided-investing opportunity.",
+      },
+    ],
   },
   retention: {
     eyebrow: "LONG-TERM: RETENTION & NPS",
