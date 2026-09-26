@@ -321,8 +321,8 @@ const BANK_TOOLS_BEAT_SCREENS = DECKMO_BEAT_SCREENS;
 
 function ExactWorkspace({ tab }: { tab: TabValue }) {
   return (
-    <div data-deck-interactive onWheel={(e) => e.stopPropagation()} onTouchMove={(e) => e.stopPropagation()} className="mx-auto h-[552px] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:max-w-[1110px]">
-      <div className="h-[669px] w-[1440px] origin-top-left scale-[0.825] [@media(max-width:1340px)]:h-[717px] [@media(max-width:1340px)]:scale-[0.77]">
+    <div data-deck-interactive onWheel={(e) => e.stopPropagation()} onTouchMove={(e) => e.stopPropagation()} className="mx-auto h-[clamp(500px,63vh,700px)] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:h-[clamp(480px,60vh,640px)] [@media(max-width:1340px)]:max-w-[1110px] [@media(max-height:900px)]:h-[clamp(460px,58vh,560px)]">
+      <div className="h-[calc(clamp(500px,63vh,700px)/0.825)] w-[1440px] origin-top-left scale-[0.825] [@media(max-width:1340px)]:h-[calc(clamp(480px,60vh,640px)/0.77)] [@media(max-width:1340px)]:scale-[0.77] [@media(max-height:900px)]:h-[calc(clamp(460px,58vh,560px)/0.825)]">
         <AnalyticsContainer key={tab} defaultTab={tab} presentationMode interactive />
       </div>
     </div>
@@ -334,7 +334,7 @@ export function BankdemoBankTools({ step }: SceneProps) {
   const data = DECKMO.bankTools;
   const screenIndex = BANK_TOOLS_BEAT_SCREENS[step] ?? 0;
   return (
-    <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-8">
+    <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-6">
       <div className="flex items-end justify-between gap-8">
         <div>
           <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} highlight="45 tools and workflows" wide />
@@ -343,7 +343,7 @@ export function BankdemoBankTools({ step }: SceneProps) {
           {data.screens.map((item, index) => <span key={item.id} className={cn("rounded-full border px-4 py-2 text-[10px] font-bold", index === screenIndex ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-400")}>{item.tab}</span>)}
         </div>
       </div>
-      <div className="mt-5"><ExactWorkspace tab={WORKSPACE_TABS[screenIndex] ?? WORKSPACE_TABS[0]} /></div>
+      <div className="mt-3"><ExactWorkspace tab={WORKSPACE_TABS[screenIndex] ?? WORKSPACE_TABS[0]} /></div>
     </div>
   );
 }
