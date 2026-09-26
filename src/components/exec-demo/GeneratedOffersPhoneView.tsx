@@ -365,36 +365,36 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           <span className="text-[11px] font-medium">Back</span>
         </button>
 
-        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[40px]" : "h-[110px]")}>
+        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[72px]" : "h-[110px]")}>
           <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
-        <div className={cn("px-3 shrink-0", presentationMode ? "pt-1 pb-0.5" : "pt-2.5 pb-1")}>
+        <div className={cn("px-3 shrink-0", presentationMode ? "pt-1 pb-1" : "pt-2.5 pb-1")}>
           {expandedGroup.collectionMessage && (
-            <p className={cn("font-bold text-slate-800 leading-snug", presentationMode ? "text-[11.5px]" : "text-[13px]")}>{expandedGroup.collectionMessage}</p>
+            <p className={cn("font-bold text-slate-800", presentationMode ? "text-[11.5px] leading-tight" : "text-[13px] leading-snug")}>{expandedGroup.collectionMessage}</p>
           )}
           {!presentationMode && <p className="text-[10px] text-slate-500 mt-0.5">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>}
         </div>
 
-        <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-2 space-y-1" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
+        <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-1.5 space-y-[3px]" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
           {deals.map((deal) => (
             <div
               key={deal.id}
-              className={cn("rounded-xl border border-slate-100 bg-white flex items-stretch justify-between gap-2", presentationMode ? "p-1.5" : "p-3")}
+              className={cn("rounded-xl border border-slate-100 bg-white flex items-stretch justify-between", presentationMode ? "px-2 py-1 gap-1.5" : "p-3 gap-2")}
             >
               <div className="flex-1 min-w-0">
-                <p className={cn("font-bold text-slate-800 leading-snug", presentationMode ? "text-[12px]" : "text-[13px]")}>{deal.merchant}</p>
-                {deal.product && <p className={cn("text-slate-500 leading-snug", presentationMode ? "text-[10.5px]" : "text-[12px]")}>{deal.product}</p>}
-                {deal.message && <p className={cn("text-slate-500 leading-snug", presentationMode ? "text-[10px] mt-0.5 truncate" : "text-[11.5px] mt-1")}>{deal.message}</p>}
+                <p className={cn("font-bold text-slate-800", presentationMode ? "text-[11.5px] leading-tight" : "text-[13px] leading-snug")}>{deal.merchant}</p>
+                {deal.product && <p className={cn("text-slate-500", presentationMode ? "text-[10px] leading-tight" : "text-[12px] leading-snug")}>{deal.product}</p>}
+                {deal.message && <p className={cn("text-slate-500", presentationMode ? "text-[9.5px] leading-tight mt-px" : "text-[11.5px] leading-snug mt-1")}>{deal.message}</p>}
               </div>
-              <div className={cn("flex flex-col items-end justify-between shrink-0", presentationMode ? "gap-1" : "gap-1.5")}>
+              <div className={cn("flex flex-col items-end shrink-0", presentationMode ? "justify-center gap-1" : "justify-between gap-1.5")}>
                 {deal.rewardValue ? (
-                  <span className={cn("font-bold rounded-full text-white", presentationMode ? "text-[9.5px] px-1.5 py-0.5" : "text-[10.5px] px-2 py-0.5")} style={{ background: c.dot }}>
+                  <span className={cn("font-bold rounded-full text-white whitespace-nowrap", presentationMode ? "text-[9px] px-1.5 py-px" : "text-[10.5px] px-2 py-0.5")} style={{ background: c.dot }}>
                     {deal.rewardValue}
                   </span>
                 ) : <span />}
                 <button
-                  className={cn("font-semibold rounded-full border transition-colors", presentationMode ? "text-[10px] px-2 py-0.5" : "text-[10.5px] px-2.5 py-1")}
+                  className={cn("font-semibold rounded-full border transition-colors", presentationMode ? "text-[9.5px] px-1.5 py-px" : "text-[10.5px] px-2.5 py-1")}
                   style={{ borderColor: c.dot, color: c.dot }}
                 >
                   {deal.cta || "Activate"}
