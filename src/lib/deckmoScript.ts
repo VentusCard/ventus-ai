@@ -473,7 +473,7 @@ export const DECKMO = {
   },
   retention: {
     eyebrow: "LONG-TERM: RETENTION & NPS",
-    value: { metric: "4.5%+", label: "In-app engagement and NPS score" },
+    value: { metric: "+4.5%", label: "In-app engagement and NPS score" },
     title: "Turn every answer into relationship equity",
     subtitle:
       "A banking assistant grounded in the customer’s complete financial story makes every interaction feel informed, useful, and personal.",
