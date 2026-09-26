@@ -387,14 +387,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                 {deal.product && <p className={cn("text-slate-500 leading-snug", presentationMode ? "text-[10.5px]" : "text-[12px]")}>{deal.product}</p>}
                 {deal.message && <p className={cn("text-slate-500 leading-snug", presentationMode ? "text-[10px] mt-0.5 truncate" : "text-[11.5px] mt-1")}>{deal.message}</p>}
               </div>
-              <div className="flex flex-col items-end justify-between gap-1.5 shrink-0">
+              <div className={cn("flex flex-col items-end justify-between shrink-0", presentationMode ? "gap-1" : "gap-1.5")}>
                 {deal.rewardValue ? (
-                  <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: c.dot }}>
+                  <span className={cn("font-bold rounded-full text-white", presentationMode ? "text-[9.5px] px-1.5 py-0.5" : "text-[10.5px] px-2 py-0.5")} style={{ background: c.dot }}>
                     {deal.rewardValue}
                   </span>
                 ) : <span />}
                 <button
-                  className="text-[10.5px] font-semibold px-2.5 py-1 rounded-full border transition-colors"
+                  className={cn("font-semibold rounded-full border transition-colors", presentationMode ? "text-[10px] px-2 py-0.5" : "text-[10.5px] px-2.5 py-1")}
                   style={{ borderColor: c.dot, color: c.dot }}
                 >
                   {deal.cta || "Activate"}
