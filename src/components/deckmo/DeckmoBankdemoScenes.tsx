@@ -72,16 +72,19 @@ const phoneTabs: ConsumerTab[] = ["budget", "rewards", "relationship"];
 
 const HOLIDAY_TRAVEL_ROLLUP = "Annual tropical vacation in December";
 
-function ExactPhone({ tab, cycleCollections = false }: { tab: ConsumerTab; cycleCollections?: boolean }) {
+function ExactPhone({ tab, cycleCollections = false, step = 0 }: { tab: ConsumerTab; cycleCollections?: boolean; step?: number }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
-  // On the rewards beat, let the carousel show briefly, then open the holiday
-  // travel collection so its individual deals are showcased.
+  // On beat 6.5 (step 4) open the holiday travel collection; close it on other beats.
   const [openCollection, setOpenCollection] = useState(false);
+  const shouldOpen = cycleCollections && step === 4;
   useEffect(() => {
-    if (!cycleCollections) return;
-    const t = window.setTimeout(() => setOpenCollection(true), 2600);
+    if (!shouldOpen) {
+      setOpenCollection(false);
+      return;
+    }
+    const t = window.setTimeout(() => setOpenCollection(true), 600);
     return () => window.clearTimeout(t);
-  }, [cycleCollections]);
+  }, [shouldOpen]);
   return (
     <div className="mx-auto h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
       <ExecDemoPhoneView
