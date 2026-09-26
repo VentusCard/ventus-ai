@@ -383,8 +383,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               className={cn("rounded-xl border border-slate-100 bg-white flex items-stretch justify-between", presentationMode ? "px-2 py-2 gap-1.5" : "p-3 gap-2")}
             >
               <div className="flex-1 min-w-0">
-                <p className={cn("font-bold text-slate-800", presentationMode ? "text-[12px] leading-tight" : "text-[13px] leading-snug")}>{deal.merchant}</p>
-                {deal.product && <p className={cn("text-slate-500", presentationMode ? "text-[10.5px] leading-tight" : "text-[12px] leading-snug")}>{deal.product}</p>}
+                <p className={cn("font-bold text-slate-800", presentationMode ? "text-[12px] leading-tight" : "text-[13px] leading-snug")}>{deal.cardTitle ? `${deal.merchant} ${deal.cardTitle}` : [deal.merchant, deal.product].filter(Boolean).join(" ")}</p>
                 {deal.message && <p className={cn("text-slate-500", presentationMode ? "text-[10px] leading-snug mt-0.5" : "text-[11.5px] leading-snug mt-1")}>{deal.message}</p>}
               </div>
               <div className={cn("flex flex-col items-end shrink-0", presentationMode ? "justify-center gap-1" : "justify-between gap-1.5")}>

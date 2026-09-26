@@ -184,6 +184,7 @@ const SNAPSHOTS = {
           {
             "id": "travel_deal_1",
             "merchant": "Sony",
+            "cardTitle": "Noise-Canceling Headphones",
             "product": "WH-1000XM5 Wireless Headphones",
             "rewardValue": "12% Cash Back",
             "message": "Noise-canceling over-ears that turn a long flight into quiet time.",
@@ -197,6 +198,7 @@ const SNAPSHOTS = {
           {
             "id": "travel_deal_2",
             "merchant": "REI",
+            "cardTitle": "Travel & Swim Essentials",
             "product": "Travel & Swim Essentials",
             "rewardValue": "10% Cash Back",
             "message": "Quick-dry layers, snorkel gear and sun protection for warm-water weeks.",
@@ -210,6 +212,7 @@ const SNAPSHOTS = {
           {
             "id": "travel_deal_3",
             "merchant": "Tommy Bahama",
+            "cardTitle": "Resort Wear",
             "product": "Resort Wear Collection",
             "rewardValue": "15% Off",
             "message": "Linen shirts and easy resort looks for December dinners by the water.",
@@ -223,6 +226,7 @@ const SNAPSHOTS = {
           {
             "id": "travel_deal_4",
             "merchant": "GoPro",
+            "cardTitle": "Waterproof Camera",
             "product": "HERO12 Waterproof Camera",
             "rewardValue": "8% Cash Back",
             "message": "Capture reef dives and beach days without worrying about the water.",
@@ -236,6 +240,7 @@ const SNAPSHOTS = {
           {
             "id": "travel_deal_5",
             "merchant": "Priority Pass",
+            "cardTitle": "Lounge Membership",
             "product": "Airport Lounge Membership",
             "rewardValue": "20% Off First Year",
             "message": "Start the vacation at the airport with lounge access on December departures.",
