@@ -210,22 +210,27 @@
    to the synthesis card at any presentation height (negative margin keeps the
    card in place). */
 .deck-living-link {
-  margin-top: -64px;
+  margin-top: -90px;
   height: 100px;
 }
 @media (min-height: 900px) {
   .deck-living-link {
-    margin-top: -96px;
+    margin-top: -120px;
+  }
+}
+@media (min-height: 925px) {
+  .deck-living-link {
+    margin-top: -160px;
   }
 }
 @media (min-height: 975px) {
   .deck-living-link {
-    margin-top: -128px;
+    margin-top: -205px;
   }
 }
-@media (min-height: 1050px) {
+@media (min-height: 1040px) {
   .deck-living-link {
-    margin-top: -145px;
+    margin-top: -250px;
   }
 }
 @media (max-height: 800px) {
