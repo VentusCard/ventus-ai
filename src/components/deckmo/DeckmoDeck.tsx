@@ -41,7 +41,7 @@ function VerticalRoller({ active, pixelsPerSecond, className, children }: { acti
     if (!roller || !firstCopy) return;
 
     roller.style.transform = "translate3d(0, 0, 0)";
-    if (!active || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!active) return;
 
     let frame = 0;
     let offset = 0;
@@ -293,10 +293,6 @@ function Ricky({ step, active = false }: SceneProps) {
   useEffect(() => {
     setRollComplete(false);
     if (!active || step !== 1) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setRollComplete(true);
-      return;
-    }
     const timer = window.setTimeout(() => setRollComplete(true), 2200);
     return () => window.clearTimeout(timer);
   }, [active, step]);
