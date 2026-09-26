@@ -377,7 +377,78 @@ function BankTools({step}:SceneProps){const d=DECKMO.bankTools;const s=d.screens
 
 function BankToolContent({step}:{step:number}){const s=DECKMO.bankTools.screens[step];if(s.id==="database")return <div className="grid grid-cols-5 gap-3 content-start">{s.families.map(f=>{const t=TONES[f.tone];return <div key={f.label} className={cn("rounded-lg border bg-white p-4",t.border)}><span className={cn("block h-1 w-8 rounded",t.dot)}/><p className="mt-5 text-sm font-bold text-slate-900">{f.label}</p><p className={cn("mt-2 text-3xl font-bold",t.text)}>{f.count}</p><p className="text-[10px] text-slate-400">{DECKMO.bankTools.screens[0].actions[0]}</p></div>})}<div className="col-span-5 mt-3 flex gap-3">{s.actions.map(a=><span key={a} className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-600">{a}</span>)}</div></div>;if(s.id==="flows")return <div className="grid grid-cols-2 gap-4 content-start">{s.flows.map(flow=><div key={flow.name} className="rounded-xl border border-slate-200 p-4"><div className="flex items-center gap-2"><Zap className="h-4 w-4 text-blue-600"/><p className="text-sm font-bold text-slate-900">{flow.name}</p></div><div className="mt-4 space-y-2">{flow.triggers.map(x=><div key={x} className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600"><Target className="h-3.5 w-3.5 text-slate-400"/>{x}</div>)}</div></div>)}<div className="col-span-2 rounded-xl border border-rose-200 bg-rose-50 p-4"><div className="flex items-center gap-3"><ShieldCheck className="h-6 w-6 text-rose-600"/><div><p className="text-[10px] font-bold tracking-wider text-rose-700">{s.guardrail.label}</p><p className="mt-1 text-sm font-bold text-slate-900">{s.guardrail.title}</p><p className="mt-1 text-xs text-slate-600">{s.guardrail.body}</p></div></div></div></div>;return <div className="grid grid-cols-[1fr_250px] gap-4"><div className="space-y-3">{s.inbox.map((mail,index)=><div key={mail.role} className={cn("rounded-xl border p-4",index===0?"border-blue-200 bg-blue-50":"border-slate-200 bg-white")}><div className="flex items-center gap-2"><Mail className="h-4 w-4 text-blue-600"/><p className="text-xs font-bold text-slate-500">{mail.role}</p></div><p className="mt-2 text-sm font-bold text-slate-900">{mail.subject}</p><p className="mt-1 text-xs text-slate-500">{mail.preview}</p></div>)}</div><div className="rounded-xl border border-slate-200 bg-slate-50 p-4"><Sparkles className="h-6 w-6 text-blue-600"/><p className="mt-4 text-sm font-bold text-slate-900">{s.reply}</p></div></div>}
 
-function Close({step}:SceneProps){const d=DECKMO.close;return <div className="mx-auto flex h-full max-w-6xl flex-col items-center justify-center px-12 text-center"><img src={ventusLogo} alt="Ventus AI" className="mb-10 h-8 w-auto object-contain"/><Eyebrow>{d.eyebrow}</Eyebrow><div className="mt-6 space-y-5">{d.lines.map((line,index)=><Reveal key={line} show={step>=index}><p className={cn("font-bold tracking-normal text-slate-950",index===2?"text-[clamp(42px,5vw,72px)] text-blue-600":"text-[clamp(25px,2.8vw,42px)]")}>{line}</p></Reveal>)}</div><Reveal show={step>=3} className="mt-10"><div className="flex justify-center gap-3">{d.outcomes.map(o=><span key={o} className="rounded-full border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-bold text-blue-700">{o}</span>)}</div><div className="mt-8 flex items-center justify-center gap-5"><Button asChild><Link to={d.href}>{d.cta}<ArrowRight className="h-4 w-4"/></Link></Button><p className="text-sm font-semibold text-slate-500">{d.exhibit}</p></div></Reveal></div>}
+function Close({ step }: SceneProps) {
+  const d = DECKMO.close;
+  const comparison = [DECKMO.opener.comparison.today, DECKMO.opener.comparison.ventus];
+  const comparisonStarted = step >= 2;
+  return (
+    <div className="relative mx-auto h-full w-full max-w-[1560px] px-[clamp(32px,4vw,72px)]">
+      <div className={cn(
+        "absolute inset-x-[clamp(32px,4vw,72px)] transition-[top,transform] duration-700 ease-in-out motion-reduce:transition-none",
+        comparisonStarted
+          ? "top-[clamp(28px,7vh,64px)] translate-y-0"
+          : "top-1/2 -translate-y-1/2",
+      )}>
+        <Reveal show={step >= 0}>
+          <p className="text-balance text-[clamp(40px,4.6vw,70px)] font-bold leading-[1.03] tracking-normal text-slate-950">{d.lines[0]}</p>
+        </Reveal>
+        <Reveal show={step >= 1} className="mt-6">
+          <p className="text-balance text-[clamp(30px,3.5vw,52px)] font-bold leading-[1.06] tracking-normal text-slate-950">{d.lines[1]}</p>
+        </Reveal>
+        <Reveal show={step >= 2} className="mt-6">
+          <p className="text-balance text-[clamp(34px,4vw,60px)] font-bold leading-[1.06] tracking-normal text-blue-600">{d.lines[2]}</p>
+        </Reveal>
+      </div>
+
+      <div className={cn(
+        "absolute inset-x-[clamp(32px,4vw,72px)] top-[46%] grid grid-cols-[max-content_auto_max-content_auto_max-content] items-baseline justify-between gap-x-[clamp(8px,1vw,18px)] transition-opacity duration-500 motion-reduce:transition-none",
+        comparisonStarted ? "opacity-100" : "pointer-events-none opacity-0",
+      )}>
+        {comparison.map((row, index) => {
+          const blue = index === 1;
+          const revealed = "translate-y-0 opacity-100";
+          return (
+            <Fragment key={row.label}>
+              <div className={cn("col-span-5 mb-3 transition-all duration-700 motion-reduce:transition-none", index === 1 && "mt-[clamp(28px,4vh,44px)]", revealed)}>
+                {blue ? (
+                  <p className="flex items-center gap-2.5 text-[12px] font-bold uppercase tracking-[0.18em] text-blue-600">
+                    <span>{row.label}</span>
+                    <img src="/ventus-ai-logo.png" alt="Ventus AI" className="h-[17px] w-auto object-contain" />
+                  </p>
+                ) : (
+                  <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-deck-muted">{row.label}</p>
+                )}
+              </div>
+              {row.segments.map((segment, s) => (
+                <Fragment key={segment}>
+                  {s > 0 && (
+                    <div className={cn("px-1 text-center text-[clamp(15px,1.7vw,28px)] font-bold transition-all duration-700 motion-reduce:transition-none", revealed, blue ? "text-blue-600" : "text-deck-muted")}>=</div>
+                  )}
+                  <div className={cn("whitespace-nowrap text-[clamp(15px,1.7vw,28px)] font-bold leading-snug transition-all duration-700 motion-reduce:transition-none", revealed, blue ? "text-blue-600" : "text-slate-950")}>{segment}</div>
+                </Fragment>
+              ))}
+            </Fragment>
+          );
+        })}
+      </div>
+
+      <div className={cn(
+        "absolute inset-x-[clamp(32px,4vw,72px)] bottom-[clamp(24px,5vh,48px)] transition-all duration-700 motion-reduce:transition-none",
+        step >= 3 ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-5 opacity-0",
+      )}>
+        <div className="flex justify-center gap-3">
+          {d.outcomes.map((o) => (
+            <span key={o} className="rounded-full border border-blue-200 bg-blue-50 px-5 py-2.5 text-sm font-bold text-blue-700">{o}</span>
+          ))}
+        </div>
+        <div className="mt-6 flex items-center justify-center gap-5">
+          <Button asChild><Link to={d.href}>{d.cta}<ArrowRight className="h-4 w-4" /></Link></Button>
+          <p className="text-sm font-semibold text-slate-500">{d.exhibit}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:Visibility,"living-view":LivingView,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,retention:BankdemoRetention,"bank-tools":BankdemoBankTools,close:Close};
 
