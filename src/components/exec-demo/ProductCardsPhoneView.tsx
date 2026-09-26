@@ -248,7 +248,7 @@ export default function ProductCardsPhoneView({ cards, compact = false, presenta
                     className={cn("flex h-full flex-col overflow-hidden", presentationLayout ? "rounded-xl border border-slate-100 shadow-sm" : "rounded-2xl shadow-md")}
                     style={{ background: fam.gradient, borderTop: `3px solid ${fam.accent}` }}
                   >
-                    <div className={cn("min-h-0 flex-1", compact ? "grid grid-rows-[auto_auto_minmax(0,1fr)_auto_auto]" : "flex flex-col gap-2.5 p-5", presentationLayout ? "gap-3 p-5" : compact && "gap-2 p-3.5")}>
+                    <div className={cn("min-h-0 flex-1", compact ? "grid grid-rows-[auto_auto_minmax(0,1fr)_auto_auto]" : "flex flex-col gap-2.5 p-5", presentationLayout ? "gap-2.5 p-4" : compact && "gap-2 p-3.5")}>
                       <div className="flex items-start gap-2.5">
                         <div
                           className={cn("flex shrink-0 items-center justify-center rounded-xl shadow-sm", presentationLayout ? "h-10 w-10" : "h-9 w-9")}
@@ -261,11 +261,11 @@ export default function ProductCardsPhoneView({ cards, compact = false, presenta
                         </div>
                       </div>
                       <p className={cn("shrink-0 leading-relaxed text-slate-700", presentationLayout ? "text-[13px]" : "text-[12.5px]")}>{fitQuote(card.quote)}</p>
-                      <div className={cn("flex min-h-0 flex-col border-t border-black/5", presentationLayout ? "justify-center gap-3 pt-3" : "justify-evenly gap-1.5 pt-2")}>
+                      <div className={cn("flex min-h-0 flex-col border-t border-black/5", presentationLayout ? "justify-center gap-2 pt-2.5" : "justify-evenly gap-1.5 pt-2")}>
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
                             <Check className="mt-0.5 shrink-0 w-3.5 h-3.5" style={{ color: fam.accent }} />
-                            <span className={cn("font-medium leading-snug text-slate-700", presentationLayout ? "text-[12.5px]" : "text-[12px]")}>{b}</span>
+                            <span className={cn("font-medium leading-snug text-slate-700", presentationLayout ? "text-[12px]" : "text-[12px]")}>{b}</span>
                           </div>
                         ))}
                       </div>
