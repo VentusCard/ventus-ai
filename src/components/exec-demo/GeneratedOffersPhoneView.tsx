@@ -365,7 +365,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           <span className="text-[11px] font-medium">Back</span>
         </button>
 
-        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[72px]" : "h-[110px]")}>
+        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[88px]" : "h-[110px]")}>
           <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
@@ -376,11 +376,11 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           {!presentationMode && <p className="text-[10px] text-slate-500 mt-0.5">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>}
         </div>
 
-        <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-1.5 space-y-[3px]" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
+        <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-1.5 space-y-1.5" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
           {deals.map((deal) => (
             <div
               key={deal.id}
-              className={cn("rounded-xl border border-slate-100 bg-white flex items-stretch justify-between", presentationMode ? "px-2 py-1 gap-1.5" : "p-3 gap-2")}
+              className={cn("rounded-xl border border-slate-100 bg-white flex items-stretch justify-between", presentationMode ? "px-2 py-1.5 gap-1.5" : "p-3 gap-2")}
             >
               <div className="flex-1 min-w-0">
                 <p className={cn("font-bold text-slate-800", presentationMode ? "text-[11.5px] leading-tight" : "text-[13px] leading-snug")}>{deal.merchant}</p>
