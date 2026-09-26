@@ -173,7 +173,7 @@ const SNAPSHOTS = {
       {
         "rollup": "Annual tropical vacation in December",
         "pillar": "Lifestyle",
-        "collectionMessage": "Get December-ready before the flights are booked.",
+        "collectionMessage": "Get tropical travel ready with these deals!",
         "imageCategory": "tropical",
         "imageQuery": "tropical beach resort",
         "suppressedCategories": [
