@@ -369,14 +369,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
-        <div className={cn("px-3 shrink-0", presentationMode ? "pt-1 pb-1" : "pt-2.5 pb-1")}>
+        <div className={cn("px-3 shrink-0", presentationMode ? "pt-1 pb-1 [@media(max-height:900px)]:pt-0.5 [@media(max-height:900px)]:pb-0.5" : "pt-2.5 pb-1")}>
           {expandedGroup.collectionMessage && (
             <p className={cn("font-bold text-slate-800", presentationMode ? "text-[11.5px] leading-tight" : "text-[13px] leading-snug")}>{expandedGroup.collectionMessage}</p>
           )}
           <p className={cn("text-slate-500 mt-0.5", presentationMode ? "text-[9.5px]" : "text-[10px]")}>{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
-        <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-1.5 space-y-2" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
+        <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-1.5 space-y-2 [@media(max-height:900px)]:pb-1 [@media(max-height:900px)]:space-y-1.5" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
           {deals.map((deal) => (
             <div
               key={deal.id}
