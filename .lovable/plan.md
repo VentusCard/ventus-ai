@@ -5,18 +5,18 @@
 - Section 7 shows three cards in rotation: 1) Our Bank Preferred Mortgage, 2) Our Bank Premium Rewards Card, 3) Our Bank Guided Investing. All three currently show "Est. Benefit".
 
 ## Change
-In `ProductCardsPhoneView.tsx` (the `<p>` at line 272-274), make the label index-aware:
+In `ProductCardsPhoneView.tsx` (the `<p>` at line 272-274), make the label theme-aware:
 
 ```tsx
-{i === 0 ? "Est. Benefit" : "Est."} {value}
+{card.theme === "fitness" ? "Est. Benefit" : "Est."} {value}
 ```
 
-Result:
-- Card 1 (Preferred Mortgage): "Est. Benefit Save $3,200+"
-- Card 2 (Premium Rewards Card): "Est. $450–$680/yr"
+Result (section 7 rotation):
+- Card 1 (Preferred Mortgage): "Est. Save $3,200+"
+- Card 2 (Premium Rewards Card): "Est. Benefit $450–$680/yr"
 - Card 3 (Guided Investing): "Est. Save $1,800+/yr"
 
-No other files change; layout, rotation, and all other card content are untouched.
+The Premium Rewards Card is the only fitness-theme card, so this labels exactly that card. No other files change; layout, rotation, and all other card content are untouched.
 
 ## Verification
 - `bunx tsgo --noEmit` and build log clean.
