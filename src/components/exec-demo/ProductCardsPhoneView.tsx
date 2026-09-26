@@ -261,7 +261,7 @@ export default function ProductCardsPhoneView({ cards, compact = false, presenta
                         </div>
                       </div>
                       <p className={cn("shrink-0 leading-relaxed text-slate-700", presentationLayout ? "text-[13px]" : "text-[12.5px]")}>{fitQuote(card.quote)}</p>
-                      <div className={cn("flex min-h-0 flex-col border-t border-black/5", presentationLayout ? "justify-center gap-2 pt-2.5" : "justify-evenly gap-1.5 pt-2")}>
+                      <div className={cn("flex min-h-0 flex-col border-t border-black/5", presentationLayout ? "justify-center gap-2 pb-2 pt-2.5" : "justify-evenly gap-1.5 pt-2")}>
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
                             <Check className="mt-0.5 shrink-0 w-3.5 h-3.5" style={{ color: fam.accent }} />
