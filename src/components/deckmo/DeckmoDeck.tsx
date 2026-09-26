@@ -389,18 +389,18 @@ function Close({ step }: SceneProps) {
           : "top-1/2 -translate-y-1/2",
       )}>
         <Reveal show={step >= 0}>
-          <p className="text-balance text-[clamp(40px,4.6vw,70px)] font-bold leading-[1.03] tracking-normal text-slate-950">{d.lines[0]}</p>
+          <p className="text-balance text-[clamp(40px,4.6vw,70px)] font-bold leading-[1.03] tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(30px,3.6vw,52px)]">{d.lines[0]}</p>
         </Reveal>
-        <Reveal show={step >= 1} className="mt-6">
-          <p className="text-balance text-[clamp(30px,3.5vw,52px)] font-bold leading-[1.06] tracking-normal text-slate-950">{d.lines[1]}</p>
+        <Reveal show={step >= 1} className="mt-6 [@media(max-height:900px)]:mt-4">
+          <p className="text-balance text-[clamp(30px,3.5vw,52px)] font-bold leading-[1.06] tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(24px,2.8vw,40px)]">{d.lines[1]}</p>
         </Reveal>
-        <Reveal show={step >= 2} className="mt-6">
-          <p className="text-balance text-[clamp(34px,4vw,60px)] font-bold leading-[1.06] tracking-normal text-blue-600">{d.lines[2]}</p>
+        <Reveal show={step >= 2} className="mt-6 [@media(max-height:900px)]:mt-4">
+          <p className="text-balance text-[clamp(34px,4vw,60px)] font-bold leading-[1.06] tracking-normal text-blue-600 [@media(max-height:900px)]:text-[clamp(26px,3vw,44px)]">{d.lines[2]}</p>
         </Reveal>
       </div>
 
       <div className={cn(
-        "absolute inset-x-[clamp(32px,4vw,72px)] top-[46%] grid grid-cols-[max-content_auto_max-content_auto_max-content] items-baseline justify-between gap-x-[clamp(8px,1vw,18px)] transition-opacity duration-500 motion-reduce:transition-none",
+        "absolute inset-x-[clamp(32px,4vw,72px)] top-[48%] grid grid-cols-[max-content_auto_max-content_auto_max-content] items-baseline justify-between gap-x-[clamp(8px,1vw,18px)] transition-opacity duration-500 motion-reduce:transition-none [@media(max-height:900px)]:top-[54%]",
         comparisonStarted ? "opacity-100" : "pointer-events-none opacity-0",
       )}>
         {comparison.map((row, index) => {
