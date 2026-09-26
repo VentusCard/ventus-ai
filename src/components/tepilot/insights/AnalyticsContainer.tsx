@@ -398,13 +398,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'location-experience':
         return <PersonalizedDealsView onNavigate={setActiveTab} />;
       case 'targeting': return <PersonalizedProductView onNavigate={setActiveTab} />;
-      case 'targeting-automated-flows': return <ProductAutomatedFlowsView presentationMode={presentationMode} />;
+      case 'targeting-automated-flows': return <ProductAutomatedFlowsView presentationMode={presentationMode} interactive={interactive} />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       case 'growth-merchant-partnerships': return <MerchantPartnershipsView onLaunchCampaign={launchCampaignFor} />;
 
       
       case 'wallet-share': return <ProductCampaignBuilderView initialMode="outflow" />;
-      case 'wm-copilot': return <BankwideWMCopilotView presentationMode={presentationMode} />;
+      case 'wm-copilot': return <BankwideWMCopilotView presentationMode={presentationMode} interactive={interactive} />;
       case 'personalized-relationship':
       case 'customer-insights':
       case 'life-events':
