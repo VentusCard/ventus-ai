@@ -94,6 +94,7 @@ function ExactPhone({ tab, cycleCollections = false, cycleProductCards = false, 
         batteryFull
         autoRotateCollections={cycleCollections}
         autoRotateProductCards={cycleProductCards}
+        relationshipPresentationLayout={cycleProductCards}
         activeRollupLabel={openCollection ? HOLIDAY_TRAVEL_ROLLUP : undefined}
         activeRollupPillar={openCollection ? "Lifestyle" : undefined}
       />

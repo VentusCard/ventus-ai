@@ -2,6 +2,7 @@ import { Landmark, CreditCard, Home, BarChart3, Calendar, MessageCircle, MapPin,
 import type { DemoCustomer } from "@/lib/demoData";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
+import { cn } from "@/lib/utils";
 import advisor1 from "@/assets/advisors/advisor-1.jpg";
 import advisor2 from "@/assets/advisors/advisor-2.jpg";
 import advisor3 from "@/assets/advisors/advisor-3.jpg";
@@ -18,6 +19,7 @@ interface Props {
   onGoToAI: (message: string) => void;
   presentationMode?: boolean;
   autoRotateProductCards?: boolean;
+  presentationLayout?: boolean;
 }
 
 const parseCurrency = (val: string): number => {
@@ -55,7 +57,7 @@ function getAdvisor(customerId: string) {
   return ADVISORS[Math.abs(hash) % ADVISORS.length];
 }
 
-export default function RelationshipPhoneView({ customer, detectedLifeEvents, productCards, onGoToAI, presentationMode = false, autoRotateProductCards = false }: Props) {
+export default function RelationshipPhoneView({ customer, detectedLifeEvents, productCards, onGoToAI, presentationMode = false, autoRotateProductCards = false, presentationLayout = false }: Props) {
   const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
   const holdings = customer.profile.holdings ?? {};
   const eventName = detectedLifeEvents?.[0]?.event_name ?? "financial goals";
@@ -65,10 +67,10 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="flex-1 min-h-0 px-3 py-2.5 flex flex-col gap-2">
+      <div className={cn("flex min-h-0 flex-1 flex-col", presentationLayout ? "gap-3 px-4 py-4" : "gap-2 px-3 py-2.5")}>
         {/* Header */}
         <div>
-          <p className="text-[13px] font-semibold text-slate-800">Welcome, {firstName}</p>
+          <p className={cn("font-semibold text-slate-800", presentationLayout ? "text-[15px]" : "text-[13px]")}>Welcome, {firstName}</p>
           <div className="flex items-center gap-1.5 mt-0.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span className="text-[9px] font-medium text-emerald-700 uppercase tracking-wider">
@@ -78,23 +80,23 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
         </div>
 
         {/* Your Financial Snapshot */}
-        <div className="shrink-0 rounded-xl bg-slate-50 border border-slate-100 px-3 py-2">
-          <div className="flex items-center gap-1.5 mb-1.5">
+        <div className={cn("shrink-0", presentationLayout ? "border-y border-slate-100 py-3" : "rounded-xl border border-slate-100 bg-slate-50 px-3 py-2")}>
+          <div className={cn("flex items-center gap-1.5", presentationLayout ? "mb-2.5" : "mb-1.5")}>
             <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
               <BarChart3 className="w-2.5 h-2.5 text-blue-600" />
             </div>
             <span className="text-[10px] font-semibold text-slate-700">Your Financial Snapshot</span>
           </div>
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className={cn("grid grid-cols-4", presentationLayout ? "gap-0" : "gap-1.5")}>
             {holdingValues.map(h => {
               const HIcon = h.icon;
               return (
-                <div key={h.key} className="flex flex-col items-center gap-1 rounded-lg bg-white border border-slate-100 py-2 px-1">
+                <div key={h.key} className={cn("flex flex-col items-center gap-1 py-2 px-1", presentationLayout ? "border-r border-slate-100 last:border-r-0" : "rounded-lg border border-slate-100 bg-white")}>
                   <div className="flex items-center gap-1">
                     <HIcon className="w-3 h-3" style={{ color: h.color }} />
-                    <span className="text-[7px] text-slate-500 font-medium">{h.label}</span>
+                    <span className={cn("font-medium text-slate-500", presentationLayout ? "text-[8px]" : "text-[7px]")}>{h.label}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-800">{formatCompact(h.value)}</span>
+                  <span className={cn("font-bold text-slate-800", presentationLayout ? "text-[12px]" : "text-[10px]")}>{formatCompact(h.value)}</span>
                 </div>
               );
             })}
@@ -102,14 +104,14 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
         </div>
 
         {/* Recommended for You — product slider */}
-        <div className="flex-1 min-h-[280px] flex flex-col">
-          <div className="flex items-center gap-1.5 mb-1.5 px-1">
-            <Sparkles className="w-3 h-3 text-indigo-500" />
-            <span className="text-[10px] font-bold text-slate-700">Recommended for You</span>
+        <div className={cn("flex min-h-[280px] flex-1 flex-col", presentationLayout && "min-h-0")}>
+          <div className={cn("flex items-center gap-1.5 px-1", presentationLayout ? "mb-3" : "mb-1.5")}>
+            <Sparkles className={cn("text-indigo-500", presentationLayout ? "h-3.5 w-3.5" : "h-3 w-3")} />
+            <span className={cn("font-bold text-slate-700", presentationLayout ? "text-[12px]" : "text-[10px]")}>Recommended for You</span>
           </div>
           {productCards && productCards.length > 0 ? (
             <div className="flex-1 min-h-0">
-              <ProductCardsPhoneView cards={productCards} compact presentationMode={presentationMode} autoRotate={autoRotateProductCards} />
+              <ProductCardsPhoneView cards={productCards} compact presentationMode={presentationMode} autoRotate={autoRotateProductCards} presentationLayout={presentationLayout} />
             </div>
           ) : (
             <div className="px-2 py-4 text-center">
