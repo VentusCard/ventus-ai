@@ -310,7 +310,7 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
                         <Sparkles className="h-4 w-4 text-blue-600 [@media(max-height:900px)]:h-3.5 [@media(max-height:900px)]:w-3.5" />
                         <p className={cn("font-bold uppercase tracking-wide text-blue-700", T.cardLabel)}>OUR BANK INSIGHTS</p>
                       </div>
-                      <p className={cn("mt-1 font-semibold text-slate-800", T.body)}>{tx.pattern}</p>
+                      <p className={cn("mt-1 font-medium text-slate-800", T.body)}>{tx.pattern}</p>
                       <p className={cn("mt-1 leading-snug text-slate-600", T.body)}>
                         {renderWithInsight(tx.explanation, "insight" in tx ? tx.insight : undefined)}
                       </p>
