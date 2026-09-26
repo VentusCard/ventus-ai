@@ -1,34 +1,24 @@
-# Beat captions audit — one line each, same information
+# Section 6 beats — two-line captions like section 5
 
 ## Goal
 
-Sections 5 and 8 still render each beat caption as a card with a bold title plus a wrapping body line (two text rows). Sections 6 and 7 already use single-line captions, which the user approved. Bring sections 5 and 8 to the same style: one line per beat, keeping the information from title + body, condensed rather than cut.
+Section 6's five beat captions are currently single-line strings. Section 5's beats render as cards with a bold title plus a second body line. Rework section 6's captions into that same two-line format, expanding each so the body line adds the supporting detail while keeping the current meaning.
 
-## Changes (data only — `src/lib/deckmoScript.ts`)
+## Changes (data only — `src/lib/deckmoScript.ts`, `midTerm.popups`)
 
-No component changes: `Callouts` already renders plain strings as a single bold line.
+No component changes: `CalloutRail` already renders `{ title, body }` objects exactly like section 5.
 
-### Section 5 (immediate) — 5 popups become one-liners
-
-| # | Today (title + body) | New one-liner |
-| - | --- | --- |
-| 1 | Every charge, instantly recognizable / Cryptic statement strings become clean merchant names and locations. | Cryptic charges instantly become clean merchant names |
-| 2 | Context behind every purchase / Each transaction carries a category and a lifestyle pillar, not just an amount. | Every purchase carries a category and a lifestyle pillar |
-| 3 | Recurring patterns surface automatically / Subscriptions and repeat activity are identified without the customer lifting a finger. | Subscriptions and repeat activity surface automatically |
-| 4 | Plain-language answers, self-served / A tap explains the charge from the customer's own activity — no call to the bank needed. | A tap explains any charge — no call to the bank needed |
-| 5 | Confirmed by the customer / One tap closes the loop. The answer improves every future explanation. | One tap confirms it and improves future explanations |
-
-### Section 8 (retention) — 3 popups become one-liners (same format, for consistency)
-
-| # | Today | New one-liner |
-| - | --- | --- |
-| 1 | Understand the full context / Answer from enriched activity across the customer's relationship… | Answers come from the customer's full financial context |
-| 2 | Remove everyday friction / Give customers useful answers without making them search, repeat themselves, or leave the experience. | Useful answers with no search, repeats, or detours |
-| 3 | Earn the next interaction / Consistently relevant help deepens engagement and creates the conditions for stronger retention and NPS. | Consistent relevance builds engagement, retention and NPS |
+| # | Today (one line) | New title | New body line |
+| - | --- | --- | --- |
+| 1 | Aggregated deals, rewards, perks in one place | Deals, rewards and perks in one place | Card-linked offers are aggregated into a single customer view. |
+| 2 | Curate from multiple deal aggregators | Curated from multiple deal aggregators | The best available offers are sourced across partners, not one catalog. |
+| 3 | Next-gen tools such as semantic search | Next-gen tools like semantic search | Customers find relevant offers by meaning, not exact keywords. |
+| 4 | A collection of deals for every major signal | A collection for every major signal | Trips, life events and routines each get their own deal collection. |
+| 5 | Behavioral-boosting hyper-personalized collections | Hyper-personalized collections | Behavioral signals shape which deals surface first for each customer. |
 
 Copy stays within the established tone rules (no stress/risk language, no specific counts).
 
 ## Verification
 
-- Playwright at 1691×1011 and 1540×855: open sections 5 and 8, confirm each caption renders as a single line (element height ≈ one text line, no wrap) and nothing else shifts.
+- Playwright at 1691×1011 and 1540×855: step through beats 6.1–6.5, confirm each caption card shows a bold title with a one-line body beneath it, matching section 5's card style, with no clipping or layout shift.
 - Build clean.
