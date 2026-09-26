@@ -688,14 +688,12 @@ export const DECKMO = {
   close: {
     eyebrow: "PERSONALIZATION BECOMES DIFFERENTIATION",
     lines: [
-      "Too many banking experiences are generic and replaceable.",
-      "With Ventus, the experience evolves with every customer.",
-      "Personalization becomes differentiation.",
+      "Today too many banking experiences are generic and replaceable.",
+      "With Ventus AI your bank can",
+      "Because your bank can anticipate and capture customer needs and deliver a differentiated banking experience.",
     ],
-    outcomes: ["More card spend", "More products", "More deposits"],
-    cta: "Schedule a conversation",
-    href: "/contact",
-    exhibit: "Come find us in the exhibit hall.",
+    ticker: ["grow deposits", "cross-sell more products", "increase card spend", "deepen engagement", "lift NPS"],
+    signature: { name: "Marco Ma", role: "CEO & Cofounder", email: "marco@ventusai.com" },
   },
 } as const;
 
