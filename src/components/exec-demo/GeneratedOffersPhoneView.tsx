@@ -359,13 +359,13 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
       <div className="flex-1 min-h-0 flex flex-col" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
         <button
           onClick={() => setExpandedGroup(null)}
-          className={cn("shrink-0 flex items-center gap-1.5 px-3 text-slate-600 hover:text-slate-800 transition-colors", presentationMode ? "pt-1 pb-0.5" : "pt-3 pb-1.5")}
+          className={cn("shrink-0 flex items-center gap-1.5 px-3 text-slate-600 hover:text-slate-800 transition-colors", presentationMode ? "pt-1 pb-0.5 [@media(max-height:900px)]:pt-0.5" : "pt-3 pb-1.5")}
         >
           <ChevronLeft className="w-4 h-4" />
           <span className="text-[11px] font-medium">Back</span>
         </button>
 
-        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[48px]" : "h-[110px]")}>
+        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[48px] [@media(max-height:900px)]:h-[40px]" : "h-[110px]")}>
           <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
