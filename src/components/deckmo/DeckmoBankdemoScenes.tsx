@@ -33,18 +33,18 @@ function SceneValueBlock({ value, compact = false }: { value: SceneValue; compac
   );
 }
 
-function SceneHeader({ eyebrow, title, subtitle, highlight, value, wide = false, balanced = false }: { eyebrow: string; title: string; subtitle: string; highlight?: string; value?: SceneValue; wide?: boolean; balanced?: boolean }) {
+function SceneHeader({ eyebrow, title, subtitle, highlight, value, wide = false }: { eyebrow: string; title: string; subtitle: string; highlight?: string; value?: SceneValue; wide?: boolean }) {
   const subtitleParts = highlight && subtitle.includes(highlight)
     ? [subtitle.slice(0, subtitle.indexOf(highlight)), highlight, subtitle.slice(subtitle.indexOf(highlight) + highlight.length)]
     : null;
   return (
-    <header className={cn("min-w-0", wide ? "max-w-[900px]" : balanced ? "max-w-[500px]" : "max-w-[680px]")}>
+    <header className={cn("min-w-0", wide ? "max-w-[900px]" : "max-w-[680px]")}>
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">{eyebrow}</p>
-      <h2 className={cn("whitespace-pre-line font-bold leading-[1.05] text-slate-950", balanced ? "mt-2 text-[clamp(32px,2.8vw,48px)]" : "mt-3 text-[clamp(30px,3.1vw,52px)]")}>{title}</h2>
-      <p className={cn("text-pretty text-[clamp(15px,1.15vw,19px)] leading-relaxed text-slate-600", balanced ? "mt-3" : "mt-4")}>
+      <h2 className="mt-3 whitespace-pre-line text-[clamp(30px,3.1vw,52px)] font-bold leading-[1.05] text-slate-950">{title}</h2>
+      <p className="mt-4 text-pretty text-[clamp(15px,1.15vw,19px)] leading-relaxed text-slate-600">
         {subtitleParts ? (<>{subtitleParts[0]}<span className="font-bold text-blue-600">{subtitleParts[1]}</span>{subtitleParts[2]}</>) : subtitle}
       </p>
-      {value && <div className={balanced ? "[&>div]:mt-4" : undefined}><SceneValueBlock value={value} /></div>}
+      {value && <SceneValueBlock value={value} />}
     </header>
   );
 }
@@ -72,17 +72,12 @@ const phoneTabs: ConsumerTab[] = ["budget", "rewards", "relationship"];
 
 const HOLIDAY_TRAVEL_ROLLUP = "Annual tropical vacation in December";
 
-function ExactPhone({ tab, cycleCollections = false, cycleProductCards = false, balanced = false, step = 0 }: { tab: ConsumerTab; cycleCollections?: boolean; cycleProductCards?: boolean; balanced?: boolean; step?: number }) {
+function ExactPhone({ tab, cycleCollections = false, cycleProductCards = false, step = 0 }: { tab: ConsumerTab; cycleCollections?: boolean; cycleProductCards?: boolean; step?: number }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
   // On beat 6.5 (step 4) open the holiday travel collection directly from the step (like 5.4).
   const openCollection = cycleCollections && step === 4;
   return (
-    <div className={cn(
-      "mx-auto",
-      balanced
-        ? "h-[720px] w-[396px] [@media(max-height:900px)]:h-[600px] [@media(max-height:900px)]:w-[330px] [@media(max-height:800px)]:!h-[530px] [@media(max-height:800px)]:!w-[292px]"
-        : "h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]"
-    )}>
+    <div className="mx-auto h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
       <ExecDemoPhoneView
         customer={fixture.customer}
         activeTab="analytics"
@@ -259,17 +254,11 @@ function RetentionShowcase({ leaving = false }: { leaving?: boolean }) {
 }
 
 function PhoneScene({ step, data, tab }: SceneProps & { data: typeof DECKMO.immediate | typeof DECKMO.midTerm | typeof DECKMO.longTerm; tab: ConsumerTab }) {
-  const balanced = tab === "relationship";
   return (
-    <div className={cn(
-      "mx-auto grid h-full items-center px-[clamp(24px,3vw,56px)]",
-      balanced
-        ? "max-w-[1480px] grid-cols-[minmax(340px,440px)_420px_minmax(290px,360px)] justify-center gap-[clamp(30px,3vw,56px)] py-10 [@media(max-height:900px)]:py-6"
-        : "max-w-[1560px] grid-cols-[minmax(240px,1fr)_480px_clamp(280px,23vw,460px)] gap-[clamp(20px,2.4vw,48px)] py-6"
-    )}>
-      <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} value={data.value} balanced={balanced} />
-      <ExactPhone tab={tab} cycleCollections={tab === "rewards"} cycleProductCards={balanced} balanced={balanced} step={step} />
-      <div className={balanced ? "max-w-[360px]" : undefined}><CalloutRail items={data.popups} step={step} /></div>
+    <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_480px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6">
+      <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} value={data.value} />
+      <ExactPhone tab={tab} cycleCollections={tab === "rewards"} cycleProductCards={tab === "relationship"} step={step} />
+      <CalloutRail items={data.popups} step={step} />
     </div>
   );
 }
