@@ -201,6 +201,10 @@
   animation: deck-signal-right 3.8s ease-in-out infinite;
 }
 
+.deck-signal-down {
+  animation: deck-signal-down 3.8s ease-in-out infinite;
+}
+
 .deck-ricky-cascade {
   opacity: 0;
   animation: deck-ricky-cascade 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
