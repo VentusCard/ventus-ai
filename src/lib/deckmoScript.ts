@@ -388,11 +388,26 @@ export const DECKMO = {
       body: "Your relationship with us may qualify you for preferred home lending support.",
     },
     popups: [
-      "Aggregated deals, rewards, perks in one place",
-      "Curate from multiple deal aggregators",
-      "Next-gen tools such as semantic search",
-      "A collection of deals for every major signal",
-      "Behavioral-boosting hyper-personalized collections",
+      {
+        title: "Deals, rewards and perks in one place",
+        body: "Merchant deals, bank products, museum perks, all in one place.",
+      },
+      {
+        title: "Curated from multiple deal aggregators",
+        body: "The best available offers are sourced across partners, not one catalog.",
+      },
+      {
+        title: "Next-gen tools like semantic search",
+        body: "Customers find relevant offers by meaning, not exact keywords.",
+      },
+      {
+        title: "A collection for every major signal",
+        body: "Habits, life events and routines each get their own deal collection.",
+      },
+      {
+        title: "Hyper-personalized collections",
+        body: "Multi-category collection that supports specific goals.",
+      },
     ],
   },
   segmentCampaign: {
