@@ -381,11 +381,11 @@ export const DECKMO = {
       body: "Your relationship with us may qualify you for preferred home lending support.",
     },
     popups: [
-      "Top pick built from observed behavior",
-      "Interests become browsable collections",
-      "Every recommendation traces to a signal",
-      "Benefits are made concrete",
-      "The same experience travels across channels",
+      "Aggregated deals, rewards, perks in one place",
+      "Curate from multiple deal aggregators",
+      "Next-gen tools such as semantic search",
+      "A collection of deals for every major signal",
+      "Behavioral-boosting hyper-personalized collections",
     ],
   },
   segmentCampaign: {
