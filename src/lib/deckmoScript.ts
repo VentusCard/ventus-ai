@@ -425,7 +425,7 @@ export const DECKMO = {
   },
   longTerm: {
     eyebrow: "MID-TERM: GROWTH",
-    value: { metric: "5.5%", label: "LTV boost" },
+    value: { metric: "+5.5%", label: "Cross-sell rate" },
     title: "Build a relationship that evolves",
     subtitle:
       "A more personalized banking relationship can deepen engagement, improve retention and NPS, and help the bank grow primary banking relationships and share of wallet.",
