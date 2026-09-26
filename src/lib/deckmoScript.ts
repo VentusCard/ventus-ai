@@ -13,7 +13,7 @@ export type DeckmoBeatId =
   | "close";
 
 // Flat beat index within the "For Your Teams" slide -> workspace screen index.
-export const BANK_TOOLS_BEAT_SCREENS = [0, 1, 1, 2];
+export const BANK_TOOLS_BEAT_SCREENS = [0, 1, 2];
 
 export const DECKMO = {
   chrome: {
@@ -49,8 +49,7 @@ export const DECKMO = {
     {
       id: "bank-tools",
       nav: "The Platform",
-      steps: 4,
-      subSteps: [null, null, 1, null],
+      steps: 3,
       stepScreens: BANK_TOOLS_BEAT_SCREENS,
     },
     { id: "close", nav: "The Ask", steps: 4 },
@@ -408,19 +407,6 @@ export const DECKMO = {
         title: "Hyper-personalized collections",
         body: "Multi-category collection that supports specific goals.",
       },
-    ],
-  },
-  segmentCampaign: {
-    eyebrow: "MID-TERM · SEGMENT ACTIVATION",
-    title: "One segment. One message built for how they live.",
-    subtitle:
-      "Behavioral intelligence turns a broad card campaign into activation-ready copy for a specific customer mindset.",
-    productLabel: "Cashback (3/2/1)",
-    outputLabel: "Micro-Segment Personalized Campaign Output",
-    stages: [
-      { label: "Signal", value: "Food and dining routines" },
-      { label: "Segment", value: "Everyday foodie" },
-      { label: "Activation", value: "Tailored campaign copy" },
     ],
   },
   longTerm: {

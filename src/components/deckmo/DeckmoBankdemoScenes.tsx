@@ -4,9 +4,6 @@ import { DECKMO_BANKDEMO_FIXTURE } from "@/lib/deckmoBankdemoFixture";
 import ExecDemoPhoneView, { type ConsumerTab } from "@/components/exec-demo/ExecDemoPhoneView";
 import { AnalyticsContainer, type TabValue } from "@/components/tepilot/insights/AnalyticsContainer";
 import { cn } from "@/lib/utils";
-import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
-import { getProductVariants } from "@/lib/campaignCatalogVariants";
-import { buildMessageCards } from "@/components/tepilot/campaigns/sections/buildMessageCards";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
 import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
