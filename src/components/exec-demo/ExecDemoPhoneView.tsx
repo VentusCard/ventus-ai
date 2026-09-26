@@ -105,6 +105,8 @@ interface Props {
   batteryFull?: boolean;
   /** When true, rewards collections auto-rotate even in presentation mode (deck beat usage). */
   autoRotateCollections?: boolean;
+  /** When true, product recommendations auto-rotate even in presentation mode (deck beat usage). */
+  autoRotateProductCards?: boolean;
   chatPersistKey?: string;
   chatInitialMessages?: ChatMessage[];
   /** Larger phone chrome and chat typography for the deck carousel. */
@@ -113,7 +115,7 @@ interface Props {
   chatStartAtTop?: boolean;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, chatPersistKey, chatInitialMessages, chatPresentationLarge = false, chatStartAtTop = false }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, autoRotateProductCards = false, chatPersistKey, chatInitialMessages, chatPresentationLarge = false, chatStartAtTop = false }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
   const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
@@ -162,7 +164,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         if (productDeliveryChannel === "sms") {
           return <SmsPreviewPhoneView cards={productCards ?? []} customerName={customer.profile?.name} bankLabel={bankLabel} />;
         }
-        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} presentationMode={presentationMode} onGoToAI={(msg) => { if (presentationMode) return; setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
+        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} presentationMode={presentationMode} autoRotateProductCards={autoRotateProductCards} onGoToAI={(msg) => { if (presentationMode) return; setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
       case "budget":
         return <BudgetPhoneView enrichedTxs={enrichedTxs} />;
       case "ai": {

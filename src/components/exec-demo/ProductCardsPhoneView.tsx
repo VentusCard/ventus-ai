@@ -171,9 +171,10 @@ interface Props {
   customerName?: string;
   compact?: boolean;
   presentationMode?: boolean;
+  autoRotate?: boolean;
 }
 
-export default function ProductCardsPhoneView({ cards, compact = false, presentationMode = false }: Props) {
+export default function ProductCardsPhoneView({ cards, compact = false, presentationMode = false, autoRotate = false }: Props) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -182,12 +183,12 @@ export default function ProductCardsPhoneView({ cards, compact = false, presenta
 
   // Auto-advance
   useEffect(() => {
-    if (presentationMode || paused || total <= 1) return;
+    if ((presentationMode && !autoRotate) || paused || total <= 1) return;
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % total);
-    }, 6000);
+    }, autoRotate ? 4000 : 6000);
     return () => clearInterval(id);
-  }, [presentationMode, paused, total]);
+  }, [presentationMode, autoRotate, paused, total]);
 
   // Reset index if card list shrinks
   useEffect(() => {

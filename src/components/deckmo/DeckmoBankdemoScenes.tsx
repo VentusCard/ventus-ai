@@ -72,7 +72,7 @@ const phoneTabs: ConsumerTab[] = ["budget", "rewards", "relationship"];
 
 const HOLIDAY_TRAVEL_ROLLUP = "Annual tropical vacation in December";
 
-function ExactPhone({ tab, cycleCollections = false, step = 0 }: { tab: ConsumerTab; cycleCollections?: boolean; step?: number }) {
+function ExactPhone({ tab, cycleCollections = false, cycleProductCards = false, step = 0 }: { tab: ConsumerTab; cycleCollections?: boolean; cycleProductCards?: boolean; step?: number }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
   // On beat 6.5 (step 4) open the holiday travel collection directly from the step (like 5.4).
   const openCollection = cycleCollections && step === 4;
@@ -93,6 +93,7 @@ function ExactPhone({ tab, cycleCollections = false, step = 0 }: { tab: Consumer
         firstTabLabel="Activity"
         batteryFull
         autoRotateCollections={cycleCollections}
+        autoRotateProductCards={cycleProductCards}
         activeRollupLabel={openCollection ? HOLIDAY_TRAVEL_ROLLUP : undefined}
         activeRollupPillar={openCollection ? "Lifestyle" : undefined}
       />
@@ -256,7 +257,7 @@ function PhoneScene({ step, data, tab }: SceneProps & { data: typeof DECKMO.imme
   return (
     <div className="mx-auto grid h-full max-w-[1560px] grid-cols-[minmax(240px,1fr)_480px_clamp(280px,23vw,460px)] items-center gap-[clamp(20px,2.4vw,48px)] px-[clamp(24px,3vw,56px)] py-6">
       <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} value={data.value} />
-      <ExactPhone tab={tab} cycleCollections={tab === "rewards"} step={step} />
+      <ExactPhone tab={tab} cycleCollections={tab === "rewards"} cycleProductCards={tab === "relationship"} step={step} />
       <CalloutRail items={data.popups} step={step} />
     </div>
   );
