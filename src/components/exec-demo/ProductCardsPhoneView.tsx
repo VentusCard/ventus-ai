@@ -270,7 +270,7 @@ export default function ProductCardsPhoneView({ cards, compact = false, presenta
                         ))}
                       </div>
                       <p className={cn("font-bold leading-tight", presentationLayout ? "rounded-lg border border-white/60 bg-white/55 px-3 py-2 text-[14px]" : "text-[13px]")} style={{ color: fam.accent }}>
-                        Est. {value}
+                        Est. Benefit {value}
                       </p>
                       <button
                         className={cn("flex w-full items-center justify-center gap-1.5 rounded-xl px-2 font-bold text-white shadow-sm", presentationLayout ? "py-3" : "py-2.5")}
