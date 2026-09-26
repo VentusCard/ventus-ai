@@ -1,21 +1,30 @@
-# Section 5 beat descriptions — audit and rewrite
+# Section 5 audit + new 5th beat: customer confirms the charge
 
-## Audit findings
+## Purpose of section 5
 
-Section 5 ("Make every transaction understandable", 4 beats) shows one caption per beat in the right-hand callout rail. Current captions vs. what the beat actually shows:
+Nav label: "Immediate Value: Decrease Customer Service Cost". Value block: "-9% Customer Service inquiries". The section's story is a closed loop: a cryptic charge becomes understandable, the customer self-serves the answer, and the service call never happens. The current four captions are factually correct but generic feature statements, and the loop is never closed on screen — the customer never confirms.
+
+## Audit of current beats
 
 | Beat | Phone shows | Current caption | Verdict |
 |------|-------------|-----------------|---------|
-| 5.1 | Transaction list, clean merchant names | "A clean merchant identity" | Aligned, but dry |
-| 5.2 | Same list, category + pillar context | "Lifestyle context" | Aligned, vague title |
-| 5.3 | Same list, recurring/subscription patterns | "Patterns, not just purchases" | Aligned, best of the four |
-| 5.4 | JFK vending detail page with checks + insights | "A useful explanation" | Aligned, undersells the service-call deflection |
+| 5.1 | Transaction list, clean merchant names | "A clean merchant identity" | Aligned, dry |
+| 5.2 | Same list, category + pillar context | "Lifestyle context" | Aligned, vague |
+| 5.3 | Same list, recurring/subscription patterns | "Patterns, not just purchases" | Aligned, strongest |
+| 5.4 | JFK vending detail page (checks + insights) | "A useful explanation" | Aligned, undersells deflection |
+| — | (missing) | — | The confirmation moment never appears |
 
-All four are factually correct but generic feature statements. Section 6 was rewritten into punchier, outcome-led lines; section 5 should match that tone.
+## Changes
 
-## Change
+### 1. Add beat 5.5 — "Yes, that's right"
 
-Rewrite the four `popups` entries in `immediate` in `src/lib/deckmoScript.ts` (titles + bodies), keeping the one-caption-per-beat order:
+- `src/lib/deckmoScript.ts`: section `immediate` nav entry `steps: 4` → `steps: 5`; add a 5th popup caption.
+- `src/components/deckmo/DeckmoRecentTransactionsTab.tsx`: when `step === 4`, keep the JFK detail open (existing `step >= 3` selection) and pre-set `confirmations[jfkIndex] = "yes"` so the phone shows the confirmed state — the "Looks Good" outcome, closing the loop visually.
+- Caption for 5.5: **"Confirmed by the customer"** — "One tap closes the loop. The answer improves every future explanation."
+
+### 2. Rewrite the four existing captions to match the section's purpose
+
+In `immediate.popups` (titles + bodies, order unchanged):
 
 1. **"Every charge, instantly recognizable"** — "Cryptic statement strings become clean merchant names and locations."
 2. **"Context behind every purchase"** — "Each transaction carries a category and a lifestyle pillar, not just an amount."
@@ -24,11 +33,12 @@ Rewrite the four `popups` entries in `immediate` in `src/lib/deckmoScript.ts` (t
 
 ## Out of scope
 
-- No change to the title, subtitle, "IMMEDIATE" eyebrow, or the "-9% Customer Service inquiries" value block.
-- No change to the phone content, JFK detail page, or beat navigation.
+- No change to the title, subtitle, "IMMEDIATE" eyebrow, or the "-9%" value block.
+- No change to the JFK detail layout, correction flow, or beat navigation mechanics.
 - `/demo` untouched.
 
 ## Verification
 
-- Load /deckmo at 1691×1011 and 1540×855, arrow through 5.1–5.4, screenshot each beat: correct caption per beat, no text overflow in the callout rail.
+- Load /deckmo at 1691×1011 and 1540×855, arrow through 5.1–5.5: correct caption per beat, 5.5 shows the JFK detail in the confirmed state, no overflow in the callout rail.
+- Arrow back 5.5 → 5.4 → 6.1 to confirm navigation still works both directions.
 - Confirm build is clean.
