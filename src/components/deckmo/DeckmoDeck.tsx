@@ -82,11 +82,11 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-blue-600">{children}</p>;
 }
 
-function Header({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
+function Header({ eyebrow, title, subtitle, wide }: { eyebrow: string; title: string; subtitle?: string; wide?: boolean }) {
   return (
-    <header className="max-w-[1180px]">
+    <header className={wide ? "max-w-[1560px]" : "max-w-[1180px]"}>
       <Eyebrow>{eyebrow}</Eyebrow>
-      <h2 className="mt-3 text-balance text-[clamp(34px,3.6vw,58px)] font-bold leading-[1.04] tracking-normal text-slate-950">{title}</h2>
+      <h2 className={cn("mt-3 text-balance font-bold leading-[1.04] tracking-normal text-slate-950", wide ? "whitespace-nowrap text-[clamp(34px,3.6vw,58px)]" : "text-[clamp(34px,3.6vw,58px)]")}>{title}</h2>
       {subtitle && <p className="mt-4 max-w-[1060px] text-[clamp(16px,1.35vw,21px)] leading-relaxed text-slate-600">{subtitle}</p>}
     </header>
   );
