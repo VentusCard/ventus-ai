@@ -74,17 +74,8 @@ const HOLIDAY_TRAVEL_ROLLUP = "Annual tropical vacation in December";
 
 function ExactPhone({ tab, cycleCollections = false, step = 0 }: { tab: ConsumerTab; cycleCollections?: boolean; step?: number }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
-  // On beat 6.5 (step 4) open the holiday travel collection; close it on other beats.
-  const [openCollection, setOpenCollection] = useState(false);
-  const shouldOpen = cycleCollections && step === 4;
-  useEffect(() => {
-    if (!shouldOpen) {
-      setOpenCollection(false);
-      return;
-    }
-    const t = window.setTimeout(() => setOpenCollection(true), 600);
-    return () => window.clearTimeout(t);
-  }, [shouldOpen]);
+  // On beat 6.5 (step 4) open the holiday travel collection directly from the step (like 5.4).
+  const openCollection = cycleCollections && step === 4;
   return (
     <div className="mx-auto h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
       <ExecDemoPhoneView
