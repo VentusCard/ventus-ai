@@ -400,7 +400,7 @@ function Close({ step }: SceneProps) {
       </div>
 
       <div className={cn(
-        "absolute inset-x-[clamp(32px,4vw,72px)] top-[48%] grid grid-cols-[max-content_auto_max-content_auto_max-content] items-baseline justify-between gap-x-[clamp(8px,1vw,18px)] transition-opacity duration-500 motion-reduce:transition-none [@media(max-height:900px)]:top-[54%]",
+        "absolute inset-x-[clamp(32px,4vw,72px)] top-[50%] grid grid-cols-[max-content_auto_max-content_auto_max-content] items-baseline justify-between gap-x-[clamp(8px,1vw,18px)] transition-opacity duration-500 motion-reduce:transition-none [@media(max-height:900px)]:top-[54%]",
         comparisonStarted ? "opacity-100" : "pointer-events-none opacity-0",
       )}>
         {comparison.map((row, index) => {
