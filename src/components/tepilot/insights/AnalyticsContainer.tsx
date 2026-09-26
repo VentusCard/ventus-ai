@@ -135,9 +135,10 @@ interface AnalyticsContainerProps {
   onBack?: () => void;
   enabledModules?: Set<ModuleKey>;
   presentationMode?: boolean;
+  interactive?: boolean;
 }
 
-export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographics, lifestyleSignals, onBack, enabledModules, presentationMode = false }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographics, lifestyleSignals, onBack, enabledModules, presentationMode = false, interactive = false }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -434,7 +435,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   );
 
   return (
-    <div className={cn("w-full h-full flex border border-slate-200 overflow-hidden bg-white", presentationMode && "pointer-events-none select-none")}>
+    <div className={cn("w-full h-full flex border border-slate-200 overflow-hidden bg-white", presentationMode && !interactive && "pointer-events-none select-none")}>
       {/* Sidebar */}
       <div
         ref={sidebarRef}
