@@ -359,21 +359,21 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
       <div className="flex-1 min-h-0 flex flex-col" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
         <button
           onClick={() => setExpandedGroup(null)}
-          className={cn("shrink-0 flex items-center gap-1.5 px-3 text-slate-600 hover:text-slate-800 transition-colors", presentationMode ? "pt-1 pb-0.5 [@media(max-height:900px)]:pt-0.5" : "pt-3 pb-1.5")}
+          className={cn("shrink-0 flex items-center gap-1.5 px-3 text-slate-600 hover:text-slate-800 transition-colors", presentationMode ? "py-1.5" : "pt-3 pb-1.5")}
         >
-          <ChevronLeft className="w-4 h-4" />
-          <span className="text-[11px] font-medium">Back</span>
+          <ChevronLeft className={presentationMode ? "w-[18px] h-[18px]" : "w-4 h-4"} />
+          <span className={cn("font-medium", presentationMode ? "text-[12px]" : "text-[11px]")}>Back</span>
         </button>
 
-        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "aspect-[2/1] max-h-[110px] [@media(max-height:900px)]:max-h-[100px]" : "h-[110px]")}>
-          <img src={imgSrc} alt="" className={cn("w-full h-full", presentationMode ? "object-contain bg-slate-100" : "object-cover")} onError={presentationMode ? undefined : handleImageError} />
+        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[100px] [@media(max-height:900px)]:h-[88px]" : "h-[110px]")}>
+          <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
-        <div className={cn("px-3 shrink-0", presentationMode ? "pt-1 pb-1 [@media(max-height:900px)]:pt-0.5 [@media(max-height:900px)]:pb-0.5" : "pt-2.5 pb-1")}>
+        <div className={cn("px-3 shrink-0", presentationMode ? "pt-1.5 pb-1.5" : "pt-2.5 pb-1")}>
           {expandedGroup.collectionMessage && (
-            <p className={cn("font-bold text-slate-800", presentationMode ? "text-[11.5px] leading-tight" : "text-[13px] leading-snug")}>{expandedGroup.collectionMessage}</p>
+            <p className={cn("font-bold text-slate-800", presentationMode ? "text-[13px] leading-tight" : "text-[13px] leading-snug")}>{expandedGroup.collectionMessage}</p>
           )}
-          <p className={cn("text-slate-500 mt-0.5", presentationMode ? "text-[9.5px]" : "text-[10px]")}>{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
+          <p className={cn("text-slate-500 mt-0.5", presentationMode ? "text-[10.5px]" : "text-[10px]")}>{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
         <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-0 space-y-2 [@media(max-height:900px)]:space-y-1.5" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
