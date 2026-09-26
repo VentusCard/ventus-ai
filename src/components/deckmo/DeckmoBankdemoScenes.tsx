@@ -70,8 +70,18 @@ function CalloutRail({ items, step }: { items: readonly string[] | readonly { ti
 
 const phoneTabs: ConsumerTab[] = ["budget", "rewards", "relationship"];
 
+const HOLIDAY_TRAVEL_ROLLUP = "Annual tropical vacation in December";
+
 function ExactPhone({ tab, cycleCollections = false }: { tab: ConsumerTab; cycleCollections?: boolean }) {
   const fixture = DECKMO_BANKDEMO_FIXTURE;
+  // On the rewards beat, let the carousel show briefly, then open the holiday
+  // travel collection so its individual deals are showcased.
+  const [openCollection, setOpenCollection] = useState(false);
+  useEffect(() => {
+    if (!cycleCollections) return;
+    const t = window.setTimeout(() => setOpenCollection(true), 2600);
+    return () => window.clearTimeout(t);
+  }, [cycleCollections]);
   return (
     <div className="mx-auto h-[840px] w-[462px] [@media(max-height:900px)]:h-[660px] [@media(max-height:900px)]:w-[364px] [@media(max-height:800px)]:!h-[540px] [@media(max-height:800px)]:!w-[300px]">
       <ExecDemoPhoneView
@@ -89,6 +99,8 @@ function ExactPhone({ tab, cycleCollections = false }: { tab: ConsumerTab; cycle
         firstTabLabel="Activity"
         batteryFull
         autoRotateCollections={cycleCollections}
+        activeRollupLabel={openCollection ? HOLIDAY_TRAVEL_ROLLUP : undefined}
+        activeRollupPillar={openCollection ? "Lifestyle" : undefined}
       />
     </div>
   );
