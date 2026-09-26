@@ -1,18 +1,19 @@
-# Beat 6.5: make the holiday travel collection actually open
+# Beat 6.5: open the holiday travel collection with the beat, like 5.3 → 5.4
 
 ## What I confirmed
-I played 6.4 → 6.5 in a test browser at your screen size. The counter reads 6.5 and callout 5 is highlighted, but the phone stays on the main Rewards page ("Curated for Ricky"). The collection never opens. The update from the last message builds fine and passes the slide step through to the phone, so the break is somewhere between the phone getting the step and the collection view reacting to it. I haven't found the exact cause yet.
+I played 6.4 → 6.5 in a test browser at your screen size. The counter reads 6.5, but the phone stays on the main Rewards page. The collection never opens. Beat 5.4 works differently: the JFK page opens straight from the slide step, with no timer. That's the behavior you want here.
 
-## Plan
-1. **Find the cause first.** On 6.5, inspect the running phone to see what it actually receives: the step number, whether it is told to open, and the collection name it gets. Also check whether the name lookup matches Ricky's "Annual tropical vacation in December" collection. Check whether something closes it again right away (the rotating collections, the search box, or the phone reloading when the slide changes).
-2. **Fix that specific cause.** Keep the intended behavior:
-   - 6.4 → 6.5: after a short pause (about 0.6s), the phone opens the holiday travel collection with all five offers.
-   - 6.5 → 6.4: it closes and goes back to the rotating collections.
-   - Forward again: it reopens every time.
-3. **Add a fallback if the lookup is fragile.** If the name match is the problem, open the collection directly by its known name/id for the deck only. /demo stays unchanged.
-4. **Verify in the browser.** Play 6.4 → 6.5 → 6.4 → 6.5 and take screenshots at 1376×1011 and 1920×1080. Confirm the collection opens and closes each time.
+## Change
+- 6.4 → 6.5: the holiday travel collection opens right away with the beat, showing all five offers. No pause.
+- 6.5 → 6.4: it closes and goes back to the rotating collections.
+- Forward again: it opens again every time.
+- /demo and beats 6.1–6.4 stay the same.
+
+## Steps
+1. Use the 5.4 approach. Work out "open" directly from the step (`step === 4`) and pass the collection name straight through, instead of setting it later with a timer.
+2. Find out why the collection doesn't open even when it gets the name. Check whether Ricky's "Annual tropical vacation in December" collection is matched, and whether something closes it right away (the rotating collections, the search box, or the phone reloading on slide change). Fix whichever one it is. If the name match turns out to be unreliable, open that collection directly by name on the deck only.
+3. Check it in the browser. Play 6.4 → 6.5 → 6.4 → 6.5 at 1376×1011 and 1920×1080 and take screenshots each time.
 
 ## Technical details
-- Chain: `DeckmoDeck` Scene (`step`) → `BankdemoMidTerm` → `PhoneScene` → `ExactPhone` (`step === 4` → 600ms → `openCollection`) → `ExecDemoPhoneView` `activeRollupLabel` → `GeneratedOffersPhoneView` effect → `findGroupForLabel` → `setExpandedGroup`.
-- Suspects to check: `findGroupForLabel` returning null for the label/pillar pair, `ExactPhone` remounting on step change and resetting the timer, or an effect in `GeneratedOffersPhoneView` clearing `expandedGroup`.
-- Files: `src/components/deckmo/DeckmoBankdemoScenes.tsx`, and possibly `src/components/exec-demo/GeneratedOffersPhoneView.tsx` (deck-only path).
+- `src/components/deckmo/DeckmoBankdemoScenes.tsx` `ExactPhone`: remove the `openCollection` state and the timer effect. Pass `activeRollupLabel={cycleCollections && step === 4 ? HOLIDAY_TRAVEL_ROLLUP : undefined}` and the matching pillar.
+- Chain to verify at runtime: `ExecDemoPhoneView` → `GeneratedOffersPhoneView` sync effect → `findGroupForLabel` → `setExpandedGroup`. Possibly adjust the deck-only path in `GeneratedOffersPhoneView.tsx`.
