@@ -376,7 +376,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           <p className={cn("text-slate-500 mt-0.5", presentationMode ? "text-[9.5px]" : "text-[10px]")}>{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
-        <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-1.5 space-y-2 [@media(max-height:900px)]:pb-1 [@media(max-height:900px)]:space-y-1.5" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
+        <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-0 space-y-2 [@media(max-height:900px)]:space-y-1.5" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
           {deals.map((deal) => (
             <div
               key={deal.id}
