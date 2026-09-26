@@ -183,16 +183,16 @@ const SNAPSHOTS = {
         "deals": [
           {
             "id": "travel_deal_1",
-            "merchant": "Away",
-            "product": "The Bigger Carry-On",
+            "merchant": "Sony",
+            "product": "WH-1000XM5 Wireless Headphones",
             "rewardValue": "12% Cash Back",
-            "message": "A lightweight hard-shell built for week-long island escapes.",
+            "message": "Noise-canceling over-ears that turn a long flight into quiet time.",
             "valueLine": "12% back saves $660 on your $5,500 annual travel spend.",
             "valueMath": "12% × $5,500 = $660",
-            "cta": "Pack Smarter",
+            "cta": "Fly in Quiet",
             "signal": "boost",
-            "signalReason": "A reliable December trip pattern makes quality luggage a timely upgrade.",
-            "boostCategory": "Luggage"
+            "signalReason": "A reliable December trip pattern makes quality travel headphones a timely upgrade.",
+            "boostCategory": "Travel Tech"
           },
           {
             "id": "travel_deal_2",
