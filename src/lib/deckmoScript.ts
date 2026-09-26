@@ -42,7 +42,7 @@ export const DECKMO = {
     { id: "visibility", nav: "The Gap", steps: 2 },
     { id: "living-view", nav: "The Insight", steps: 3 },
     { id: "ricky", nav: "Example: Meet Ricky", steps: 2 },
-    { id: "immediate", nav: "Immediate Value: Decrease Customer Service Cost", steps: 4 },
+    { id: "immediate", nav: "Immediate Value: Decrease Customer Service Cost", steps: 5 },
     { id: "mid-term", nav: "Value: This Year", steps: 5 },
     { id: "long-term", nav: "Value: The Relationship", steps: 3 },
     { id: "retention", nav: "Long-Term: Retention & NPS", steps: 4 },
@@ -318,17 +318,24 @@ export const DECKMO = {
     ],
     popups: [
       {
-        title: "A clean merchant identity",
-        body: "A cryptic ledger string resolves into a recognizable merchant and location.",
-      },
-      { title: "Lifestyle context", body: "Each charge receives a category and a broader lifestyle pillar." },
-      {
-        title: "Patterns, not just purchases",
-        body: "Recurring activity and subscriptions become visible automatically.",
+        title: "Every charge, instantly recognizable",
+        body: "Cryptic statement strings become clean merchant names and locations.",
       },
       {
-        title: "A useful explanation",
-        body: "A tap explains the charge in plain language, with context from the customer's own activity.",
+        title: "Context behind every purchase",
+        body: "Each transaction carries a category and a lifestyle pillar, not just an amount.",
+      },
+      {
+        title: "Recurring patterns surface automatically",
+        body: "Subscriptions and repeat activity are identified without the customer lifting a finger.",
+      },
+      {
+        title: "Plain-language answers, self-served",
+        body: "A tap explains the charge from the customer's own activity — no call to the bank needed.",
+      },
+      {
+        title: "Confirmed by the customer",
+        body: "One tap closes the loop. The answer improves every future explanation.",
       },
     ],
     explainer: {

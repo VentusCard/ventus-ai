@@ -110,6 +110,10 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
       setCorrectionOpen(null);
       setDraft("");
     }
+    // Beat 5.5: show the JFK detail in the customer-confirmed state ("Looks Good" tapped)
+    if (step >= 4 && jfkIndex >= 0) {
+      setConfirmations((c) => (c[jfkIndex] === "yes" ? c : { ...c, [jfkIndex]: "yes" }));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, active]);
 
