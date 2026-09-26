@@ -46,7 +46,13 @@ export const DECKMO = {
     { id: "mid-term", nav: "Value: This Year", steps: 5 },
     { id: "long-term", nav: "Value: The Relationship", steps: 3 },
     { id: "retention", nav: "Long-Term: Retention & NPS", steps: 4 },
-    { id: "bank-tools", nav: "The Platform", steps: 4, subSteps: [null, null, 1, null], stepScreens: BANK_TOOLS_BEAT_SCREENS },
+    {
+      id: "bank-tools",
+      nav: "The Platform",
+      steps: 4,
+      subSteps: [null, null, 1, null],
+      stepScreens: BANK_TOOLS_BEAT_SCREENS,
+    },
     { id: "close", nav: "The Ask", steps: 4 },
   ],
   opener: {
@@ -333,7 +339,7 @@ export const DECKMO = {
   },
   midTerm: {
     eyebrow: "MID-TERM: PROFIT",
-    value: { metric: "8%", label: "yield for the bank" },
+    value: { metric: "$20 User/Year", label: "yield for the bank" },
     title: "Turn understanding into relevant growth",
     subtitle:
       "Hyper-personalized card-linked offers and cross-sell programs create new revenue opportunities while helping identify the right banking product for each customer at the right moment.",
@@ -454,13 +460,15 @@ export const DECKMO = {
     showcase: {
       eyebrow: "COUNTLESS SERVICE OPPORTUNITY",
       title: "Every Customer, Inquiry and Opportunity",
-      subtitle: "When Ventus understands every transaction and pattern, your assistant can show up for the customer in countless ways — today and for years to come.",
+      subtitle:
+        "When Ventus understands every transaction and pattern, your assistant can show up for the customer in countless ways — today and for years to come.",
       phones: [
         {
           id: "credit-score",
           label: "Credit score update",
           initiator: "ai",
-          prompt: "I noticed your credit score changed this month. **It increased by 18 points**, helped by lower card utilization and consistent payments. Want me to show you what moved?",
+          prompt:
+            "I noticed your credit score changed this month. **It increased by 18 points**, helped by lower card utilization and consistent payments. Want me to show you what moved?",
           answer: "Show me what changed.",
           reply: "Sure! Here is what I found…",
           items: [
@@ -473,7 +481,8 @@ export const DECKMO = {
           label: "Financial planning",
           initiator: "customer",
           prompt: "Am I on track to buy a home?",
-          answer: "**You’re 68% toward your home purchase fund.** At your current pace, you’re on track for Summer 2027. I’d keep travel savings separate so the home goal stays protected.",
+          answer:
+            "**You’re 68% toward your home purchase fund.** At your current pace, you’re on track for Summer 2027. I’d keep travel savings separate so the home goal stays protected.",
           goal: "Home purchase fund",
           progress: "68%",
           items: [
@@ -485,7 +494,8 @@ export const DECKMO = {
           id: "late-payment",
           label: "Payment support",
           initiator: "ai",
-          prompt: "I noticed your utility payment arrived after its due date. **You may have been charged a late fee.** I can help review the charge and adjust the reminder before next month.",
+          prompt:
+            "I noticed your utility payment arrived after its due date. **You may have been charged a late fee.** I can help review the charge and adjust the reminder before next month.",
           answer: "Help me prevent that next month.",
           reply: "Yes, here's the plan…",
           items: [
@@ -498,7 +508,8 @@ export const DECKMO = {
           label: "Subscription management",
           initiator: "customer",
           prompt: "Can you review my subscriptions?",
-          answer: "I found three recurring services. **Spotify Premium increased to $13.99 monthly.** Adobe Creative Cloud is $59.99 monthly, and your pet wellness plan is $42.00 monthly.",
+          answer:
+            "I found three recurring services. **Spotify Premium increased to $13.99 monthly.** Adobe Creative Cloud is $59.99 monthly, and your pet wellness plan is $42.00 monthly.",
           items: [
             { title: "Spotify Premium", detail: "$13.99 monthly · Price changed" },
             { title: "Adobe Creative Cloud", detail: "$59.99 monthly" },
@@ -509,7 +520,8 @@ export const DECKMO = {
           id: "cash-flow",
           label: "Cash-flow support",
           initiator: "ai",
-          prompt: "Your usual cash cushion looks tighter ahead of three recurring bills. **Moving one payment date could create more breathing room.** Would you like me to map the options?",
+          prompt:
+            "Your usual cash cushion looks tighter ahead of three recurring bills. **Moving one payment date could create more breathing room.** Would you like me to map the options?",
           answer: "Yes, show me the options.",
           reply: "Yes, here are the options…",
           items: [
@@ -522,7 +534,8 @@ export const DECKMO = {
           label: "Complete financial picture",
           initiator: "customer",
           prompt: "What should I focus on next?",
-          answer: "Your clearest next priority is the **home purchase goal**. I’m balancing that with your growing business, frequent travel, tennis, and pet-care commitments so recommendations fit your whole life.",
+          answer:
+            "Your clearest next priority is the **home purchase goal**. I’m balancing that with your growing business, frequent travel, tennis, and pet-care commitments so recommendations fit your whole life.",
           items: [
             { title: "Planning a home purchase", detail: "High-confidence life moment" },
             { title: "Runs a growing business", detail: "Business-owner signals" },
