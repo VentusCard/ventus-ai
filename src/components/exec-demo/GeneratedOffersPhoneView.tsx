@@ -365,7 +365,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           <span className="text-[11px] font-medium">Back</span>
         </button>
 
-        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[88px]" : "h-[110px]")}>
+        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[64px]" : "h-[110px]")}>
           <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
