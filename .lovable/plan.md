@@ -2,10 +2,9 @@
 
 ## What changes
 
-The second closing beat becomes a single statement ending in the rolling ticker:
+The second closing beat becomes one row (a single paragraph, wrapping naturally) ending in the rolling ticker:
 
-- Row 1: "With Ventus AI your bank"
-- Row 2: "can anticipate customer needs and deliver a differentiated banking experience that" + [ticker phrase, blue, rolling]
+"With Ventus AI your bank can anticipate customer needs and deliver a differentiated banking experience that" + [ticker phrase, blue, rolling]
 
 The standalone blue line ("Anticipate customer needs. Deliver differentiated banking.") is removed — its content now lives inside the statement. The ticker phrases conjugate to match "that …": "lifts NPS", "grows deposits", "cross-sells more products", "increases card spend", "deepens engagement".
 
