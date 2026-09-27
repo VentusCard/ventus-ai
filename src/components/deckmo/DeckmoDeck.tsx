@@ -417,9 +417,12 @@ function Close({ step }: SceneProps) {
         "absolute inset-x-[clamp(32px,4vw,72px)] bottom-[clamp(48px,10vh,110px)] transition-all duration-700 motion-reduce:transition-none",
         step >= 3 ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-5 opacity-0",
       )}>
-        <p className="text-[clamp(22px,2.2vw,34px)] font-bold tracking-normal text-slate-950">{d.signature.name}</p>
-        <p className="mt-1 text-[clamp(14px,1.3vw,19px)] font-semibold text-slate-500">{d.signature.role}</p>
-        <p className="mt-1 text-[clamp(14px,1.3vw,19px)] font-semibold text-blue-600">{d.signature.email}</p>
+        <p className="text-[clamp(24px,2.4vw,36px)] font-bold tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(20px,2vw,28px)]">{d.signature.parting}</p>
+        <p className="mt-2 text-[clamp(18px,1.8vw,26px)] font-bold tracking-normal [@media(max-height:900px)]:text-[clamp(15px,1.5vw,21px)]">
+          <span className="text-slate-950">{d.signature.name}</span>
+          <span className="text-slate-500"> — {d.signature.role} — </span>
+          <span className="text-blue-600">{d.signature.email}</span>
+        </p>
       </div>
     </div>
   );
