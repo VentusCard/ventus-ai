@@ -6,6 +6,7 @@ import { getInstitutionMode, setInstitutionMode, type InstitutionMode } from "@/
 import { cn } from "@/lib/utils";
 
 const CORRECT_PASSWORD = "ventus2026";
+const CU_PASSWORD = "ventus2026cu";
 const SESSION_KEY = "demo_password_access";
 
 interface Props {
@@ -62,8 +63,10 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (value === CORRECT_PASSWORD) {
+    if (value === CORRECT_PASSWORD || value === CU_PASSWORD) {
       sessionStorage.setItem(SESSION_KEY, "true");
+      setInstitutionMode(value === CU_PASSWORD ? "credit-union" : "bank");
+      setInstMode(value === CU_PASSWORD ? "credit-union" : "bank");
       setAuthed(true);
     } else {
       setError(true);
