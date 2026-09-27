@@ -34,6 +34,10 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
   const [cfg, setCfg] = useState<DemoBankConfig>({ mode: "generic" });
   const [savedFlash, setSavedFlash] = useState(false);
 
+  // Institution terminology (bank vs credit union) dialog state
+  const [instOpen, setInstOpen] = useState(false);
+  const [instMode, setInstMode] = useState<InstitutionMode>(() => getInstitutionMode());
+
   useEffect(() => {
     setCfg(getDemoBankConfig());
     try {
@@ -74,6 +78,16 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
         className="absolute top-5 right-5 w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-slate-800 hover:border-slate-300 flex items-center justify-center transition-colors"
         aria-label="Customization settings"
         title="Customization settings"
+      >
+        <Settings className="w-4 h-4" />
+      </button>
+      )}
+      {showInstitutionSettings && (
+      <button
+        onClick={() => { setInstMode(getInstitutionMode()); setInstOpen(true); }}
+        className="absolute top-5 right-5 w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-slate-800 hover:border-slate-300 flex items-center justify-center transition-colors"
+        aria-label="Presentation settings"
+        title="Presentation settings"
       >
         <Settings className="w-4 h-4" />
       </button>
