@@ -52,7 +52,7 @@ export const DECKMO = {
       steps: 3,
       stepScreens: BANK_TOOLS_BEAT_SCREENS,
     },
-    { id: "close", nav: "The Ask", steps: 4 },
+    { id: "close", nav: "The Ask", steps: 3 },
   ],
   opener: {
     lines: ["Banking is personal.", "Or at least, it used to be."],
@@ -688,9 +688,9 @@ export const DECKMO = {
   close: {
     eyebrow: "PERSONALIZATION BECOMES DIFFERENTIATION",
     lines: [
-      "Today too many banking experiences are generic and replaceable.",
+      "Today, banking experiences are generic and replaceable.",
       "With Ventus AI your bank can",
-      "Because your bank can anticipate and capture customer needs and deliver a differentiated banking experience.",
+      "Anticipate customer needs. Deliver differentiated banking.",
     ],
     ticker: ["grow deposits", "cross-sell more products", "increase card spend", "deepen engagement", "lift NPS"],
     signature: { parting: "Let's do great things together", name: "Marco Ma", role: "CEO & Cofounder", email: "marco@ventusai.com" },
