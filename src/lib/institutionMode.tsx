@@ -68,7 +68,7 @@ export function useInstitution() {
  */
 export function useInstitutionDomSwap(ref: { current: HTMLElement | null }) {
   const { mode } = useInstitution();
-  const originalsRef = useRef(new Map<Text, string>());
+  const originalsRef = useRef(new Map<Text, { original: string; applied: string }>());
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
@@ -79,17 +79,18 @@ export function useInstitutionDomSwap(ref: { current: HTMLElement | null }) {
       let node = walker.nextNode() as Text | null;
       while (node) {
         const current = node.nodeValue ?? "";
-        let original = originals.get(node);
-        if (
-          original === undefined ||
-          (current !== original && current !== applyInstitutionTerms(original, mode))
-        ) {
-          // New or React-updated content — treat current value as the original.
-          original = current;
-          originals.set(node, original);
+        let entry = originals.get(node);
+        if (!entry || current !== entry.applied) {
+          // New node, or React re-rendered the text — treat current as the original.
+          entry = { original: current, applied: current };
+          originals.set(node, entry);
         }
-        const next = mode === "bank" ? original : applyInstitutionTerms(original, mode);
-        if (current !== next) node.nodeValue = next;
+        const next =
+          mode === "bank" ? entry.original : applyInstitutionTerms(entry.original, mode);
+        if (current !== next) {
+          node.nodeValue = next;
+          entry.applied = next;
+        }
         node = walker.nextNode() as Text | null;
       }
     };
