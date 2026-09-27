@@ -405,9 +405,10 @@ function Close({ step }: SceneProps) {
         </Reveal>
         <Reveal show={step >= 1} className="mt-10 [@media(max-height:900px)]:mt-7">
           <p className="text-balance text-[clamp(30px,4vw,64px)] font-bold leading-[1.06] tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(26px,3.2vw,44px)]">
-            {d.lines[1]} <CloseTicker phrases={d.ticker} />
+            {d.lines[1]}
+            <br />
+            {d.lines[2]} <CloseTicker phrases={d.ticker} />
           </p>
-          <p className="mt-5 text-balance text-[clamp(32px,4.2vw,68px)] font-bold leading-[1.06] tracking-normal text-blue-600 [@media(max-height:900px)]:text-[clamp(26px,3.2vw,46px)] [@media(max-height:900px)]:mt-4">{d.lines[2]}</p>
         </Reveal>
       </div>
 
