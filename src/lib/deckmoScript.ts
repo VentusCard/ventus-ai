@@ -687,13 +687,22 @@ export const DECKMO = {
   },
   close: {
     eyebrow: "PERSONALIZATION BECOMES DIFFERENTIATION",
-    lines: [
-      "No more commoditized banking.",
-      "\n",
-    ],
+    lines: ["No more commoditized banking.", "\n"],
     equation: ["anticipate customer needs", "differentiated banking"],
-    ticker: ["lifts NPS", "grows deposits", "cross-sells more products", "increases card spend", "deepens engagement"],
-    signature: { parting: "Let's do great things together", name: "Marco Ma", role: "CEO & Cofounder", email: "marco@ventusai.com" },
+    ticker: [
+      "lift LTV",
+      "grow deposits",
+      "cross-sell more products",
+      "increase card spend",
+      "deepen engagement",
+      "increase retention",
+    ],
+    signature: {
+      parting: "Let's do great things together",
+      name: "Marco Ma",
+      role: "CEO & Cofounder",
+      email: "marco@ventusai.com",
+    },
   },
 } as const;
 
