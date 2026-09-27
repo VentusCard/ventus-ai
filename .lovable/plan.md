@@ -13,11 +13,11 @@ Beat structure stays 3 beats: line 1 ("Today, banking experiences are generic an
 ## Implementation
 
 1. `src/lib/deckmoScript.ts` — `DECKMO.close`:
-   - `lines` → ["Today, banking experiences are generic and replaceable.", "With Ventus AI your bank", "can anticipate customer needs and deliver a differentiated banking experience that"]
+   - `lines` → ["Today, banking experiences are generic and replaceable.", "With Ventus AI your bank can anticipate customer needs and deliver a differentiated banking experience that"]
    - `ticker` → ["lifts NPS", "grows deposits", "cross-sells more products", "increases card spend", "deepens engagement"]
 2. `src/components/deckmo/DeckmoDeck.tsx` — `Close`:
-   - The step-1 Reveal renders `lines[1]` as its own row and `lines[2]` + `CloseTicker` as the second row (ticker stays blue inline).
-   - Delete the separate blue paragraph; keep margins/type sizes as tuned (large type, mt-10/mt-7 short-viewport spacing).
+   - The step-1 Reveal renders `lines[1]` + `CloseTicker` as one paragraph (`text-balance`, wraps naturally); ticker stays blue inline.
+   - Delete the separate blue paragraph; keep type sizes/margins as tuned.
 
 ## Verification
 
