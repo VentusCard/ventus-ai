@@ -2,6 +2,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import { Settings, X, ChevronDown } from "lucide-react";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { getDemoBankConfig, setDemoBankConfig, type DemoBankConfig } from "@/lib/demoBankConfig";
+import { getInstitutionMode, setInstitutionMode, type InstitutionMode } from "@/lib/institutionMode";
 import { cn } from "@/lib/utils";
 
 const CORRECT_PASSWORD = "ventus2026";
@@ -13,12 +14,13 @@ interface Props {
   tagline?: string;
   allowDemoBypass?: boolean;
   showSettings?: boolean;
+  showInstitutionSettings?: boolean;
   minimal?: boolean;
   title?: string;
   subtitle?: string;
 }
 
-export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true, showSettings = true, minimal = false, title, subtitle }: Props) {
+export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true, showSettings = true, showInstitutionSettings = false, minimal = false, title, subtitle }: Props) {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
@@ -31,6 +33,10 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
   const [settingsErr, setSettingsErr] = useState(false);
   const [cfg, setCfg] = useState<DemoBankConfig>({ mode: "generic" });
   const [savedFlash, setSavedFlash] = useState(false);
+
+  // Institution terminology (bank vs credit union) dialog state
+  const [instOpen, setInstOpen] = useState(false);
+  const [instMode, setInstMode] = useState<InstitutionMode>(() => getInstitutionMode());
 
   useEffect(() => {
     setCfg(getDemoBankConfig());
@@ -72,6 +78,16 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
         className="absolute top-5 right-5 w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-slate-800 hover:border-slate-300 flex items-center justify-center transition-colors"
         aria-label="Customization settings"
         title="Customization settings"
+      >
+        <Settings className="w-4 h-4" />
+      </button>
+      )}
+      {showInstitutionSettings && (
+      <button
+        onClick={() => { setInstMode(getInstitutionMode()); setInstOpen(true); }}
+        className="absolute top-5 right-5 w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-slate-800 hover:border-slate-300 flex items-center justify-center transition-colors"
+        aria-label="Presentation settings"
+        title="Presentation settings"
       >
         <Settings className="w-4 h-4" />
       </button>
@@ -222,6 +238,60 @@ export default function SimplePasswordGate({ children, bullets, tagline, allowDe
         savedFlash={savedFlash}
         setSavedFlash={setSavedFlash}
       />
+      )}
+
+      {showInstitutionSettings && instOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/30 backdrop-blur-sm px-4"
+          style={{ fontFamily: "Manrope, sans-serif" }}
+          onClick={() => setInstOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm bg-white rounded-2xl border border-slate-200 shadow-xl p-6 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setInstOpen(false)}
+              className="absolute top-3 right-3 w-7 h-7 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <h3 className="text-base font-semibold text-slate-800 tracking-tight">Presentation settings</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Tailor the presentation's terminology. Lasts for this session only.
+            </p>
+            <div className="mt-5 space-y-2">
+              {([
+                { value: "bank" as InstitutionMode, label: "Bank", hint: '"Bank" and "customer" wording throughout.' },
+                { value: "credit-union" as InstitutionMode, label: "Credit Union", hint: '"Credit union" and "member" wording throughout.' },
+              ]).map((opt) => (
+                <label
+                  key={opt.value}
+                  className="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 hover:border-slate-300 cursor-pointer transition-colors has-[:checked]:border-blue-400 has-[:checked]:bg-blue-50/40"
+                >
+                  <input
+                    type="radio"
+                    name="institution-mode"
+                    checked={instMode === opt.value}
+                    onChange={() => { setInstMode(opt.value); setInstitutionMode(opt.value); }}
+                    className="mt-0.5 accent-blue-600"
+                  />
+                  <div>
+                    <div className="text-sm font-medium text-slate-800">{opt.label}</div>
+                    <div className="text-xs text-slate-500">{opt.hint}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <button
+              onClick={() => setInstOpen(false)}
+              className="mt-5 w-full h-10 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
