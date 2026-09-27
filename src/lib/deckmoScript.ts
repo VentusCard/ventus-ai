@@ -688,7 +688,7 @@ export const DECKMO = {
   close: {
     eyebrow: "PERSONALIZATION BECOMES DIFFERENTIATION",
     lines: [
-      "Today, banking experiences are generic and replaceable.",
+      "No more commoditized banking.",
       "With Ventus AI your bank can anticipate customer needs",
       "to deliver a differentiated banking experience that",
     ],
