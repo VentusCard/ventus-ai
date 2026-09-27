@@ -693,7 +693,7 @@ export const DECKMO = {
       "Because your bank can anticipate and capture customer needs and deliver a differentiated banking experience.",
     ],
     ticker: ["grow deposits", "cross-sell more products", "increase card spend", "deepen engagement", "lift NPS"],
-    signature: { name: "Marco Ma", role: "CEO & Cofounder", email: "marco@ventusai.com" },
+    signature: { parting: "Let's do great things together", name: "Marco Ma", role: "CEO & Cofounder", email: "marco@ventusai.com" },
   },
 } as const;
 

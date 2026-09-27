@@ -376,7 +376,7 @@ function BankTools({step}:SceneProps){const d=DECKMO.bankTools;const s=d.screens
 
 function BankToolContent({step}:{step:number}){const s=DECKMO.bankTools.screens[step];if(s.id==="database")return <div className="grid grid-cols-5 gap-3 content-start">{s.families.map(f=>{const t=TONES[f.tone];return <div key={f.label} className={cn("rounded-lg border bg-white p-4",t.border)}><span className={cn("block h-1 w-8 rounded",t.dot)}/><p className="mt-5 text-sm font-bold text-slate-900">{f.label}</p><p className={cn("mt-2 text-3xl font-bold",t.text)}>{f.count}</p><p className="text-[10px] text-slate-400">{DECKMO.bankTools.screens[0].actions[0]}</p></div>})}<div className="col-span-5 mt-3 flex gap-3">{s.actions.map(a=><span key={a} className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-600">{a}</span>)}</div></div>;if(s.id==="flows")return <div className="grid grid-cols-2 gap-4 content-start">{s.flows.map(flow=><div key={flow.name} className="rounded-xl border border-slate-200 p-4"><div className="flex items-center gap-2"><Zap className="h-4 w-4 text-blue-600"/><p className="text-sm font-bold text-slate-900">{flow.name}</p></div><div className="mt-4 space-y-2">{flow.triggers.map(x=><div key={x} className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600"><Target className="h-3.5 w-3.5 text-slate-400"/>{x}</div>)}</div></div>)}<div className="col-span-2 rounded-xl border border-rose-200 bg-rose-50 p-4"><div className="flex items-center gap-3"><ShieldCheck className="h-6 w-6 text-rose-600"/><div><p className="text-[10px] font-bold tracking-wider text-rose-700">{s.guardrail.label}</p><p className="mt-1 text-sm font-bold text-slate-900">{s.guardrail.title}</p><p className="mt-1 text-xs text-slate-600">{s.guardrail.body}</p></div></div></div></div>;return <div className="grid grid-cols-[1fr_250px] gap-4"><div className="space-y-3">{s.inbox.map((mail,index)=><div key={mail.role} className={cn("rounded-xl border p-4",index===0?"border-blue-200 bg-blue-50":"border-slate-200 bg-white")}><div className="flex items-center gap-2"><Mail className="h-4 w-4 text-blue-600"/><p className="text-xs font-bold text-slate-500">{mail.role}</p></div><p className="mt-2 text-sm font-bold text-slate-900">{mail.subject}</p><p className="mt-1 text-xs text-slate-500">{mail.preview}</p></div>)}</div><div className="rounded-xl border border-slate-200 bg-slate-50 p-4"><Sparkles className="h-6 w-6 text-blue-600"/><p className="mt-4 text-sm font-bold text-slate-900">{s.reply}</p></div></div>}
 
-function CloseTicker({ phrases }: { phrases: string[] }) {
+function CloseTicker({ phrases }: { phrases: readonly string[] }) {
   const [index, setIndex] = useState(0);
   useEffect(() => {
     const id = window.setInterval(() => setIndex((i) => (i + 1) % phrases.length), 2200);
@@ -417,9 +417,12 @@ function Close({ step }: SceneProps) {
         "absolute inset-x-[clamp(32px,4vw,72px)] bottom-[clamp(48px,10vh,110px)] transition-all duration-700 motion-reduce:transition-none",
         step >= 3 ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-5 opacity-0",
       )}>
-        <p className="text-[clamp(22px,2.2vw,34px)] font-bold tracking-normal text-slate-950">{d.signature.name}</p>
-        <p className="mt-1 text-[clamp(14px,1.3vw,19px)] font-semibold text-slate-500">{d.signature.role}</p>
-        <p className="mt-1 text-[clamp(14px,1.3vw,19px)] font-semibold text-blue-600">{d.signature.email}</p>
+        <p className="text-[clamp(24px,2.4vw,36px)] font-bold tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(20px,2vw,28px)]">{d.signature.parting}</p>
+        <p className="mt-2 text-[clamp(18px,1.8vw,26px)] font-bold tracking-normal [@media(max-height:900px)]:text-[clamp(15px,1.5vw,21px)]">
+          <span className="text-slate-950">{d.signature.name}</span>
+          <span className="text-slate-500"> — {d.signature.role} — </span>
+          <span className="text-blue-600">{d.signature.email}</span>
+        </p>
       </div>
     </div>
   );
