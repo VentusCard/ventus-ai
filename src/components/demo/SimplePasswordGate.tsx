@@ -2,6 +2,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import { Settings, X, ChevronDown } from "lucide-react";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { getDemoBankConfig, setDemoBankConfig, type DemoBankConfig } from "@/lib/demoBankConfig";
+import { getInstitutionMode, setInstitutionMode, type InstitutionMode } from "@/lib/institutionMode";
 import { cn } from "@/lib/utils";
 
 const CORRECT_PASSWORD = "ventus2026";
@@ -13,12 +14,13 @@ interface Props {
   tagline?: string;
   allowDemoBypass?: boolean;
   showSettings?: boolean;
+  showInstitutionSettings?: boolean;
   minimal?: boolean;
   title?: string;
   subtitle?: string;
 }
 
-export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true, showSettings = true, minimal = false, title, subtitle }: Props) {
+export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true, showSettings = true, showInstitutionSettings = false, minimal = false, title, subtitle }: Props) {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
