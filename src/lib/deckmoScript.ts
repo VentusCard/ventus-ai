@@ -689,7 +689,7 @@ export const DECKMO = {
     eyebrow: "PERSONALIZATION BECOMES DIFFERENTIATION",
     lines: [
       "No more commoditized banking.",
-      "With Ventus AI your bank can anticipate customer needs",
+      "your bank can anticipate customer needs",
     ],
     equation: ["anticipate customer needs", "differentiated banking"],
     ticker: ["lifts NPS", "grows deposits", "cross-sells more products", "increases card spend", "deepens engagement"],
