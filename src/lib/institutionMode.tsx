@@ -1,4 +1,4 @@
-import { Children, cloneElement, createContext, isValidElement, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 export type InstitutionMode = "bank" | "credit-union";
 
@@ -60,24 +60,50 @@ export function useInstitution() {
   return useContext(InstitutionContext);
 }
 
-function mapStrings(node: ReactNode, mode: InstitutionMode): ReactNode {
-  return Children.map(node, (child) => {
-    if (typeof child === "string") return applyInstitutionTerms(child, mode);
-    if (isValidElement(child)) {
-      const kids = (child.props as { children?: ReactNode } | null)?.children;
-      if (kids == null) return child;
-      return cloneElement(child, undefined, mapStrings(kids, mode));
-    }
-    return child;
-  });
-}
-
 /**
- * Recursively swaps institution terminology in every rendered string child.
- * No-op in bank mode.
+ * Rewrites visible text nodes under the given root whenever the mode changes
+ * or new content renders. Works on the real DOM, so it catches text produced
+ * inside any child component. Originals are remembered so switching back to
+ * bank mode restores the exact original wording.
  */
-export function InstitutionTerms({ children }: { children: ReactNode }) {
+export function useInstitutionDomSwap(ref: { current: HTMLElement | null }) {
   const { mode } = useInstitution();
-  if (mode === "bank") return <>{children}</>;
-  return <>{mapStrings(children, mode)}</>;
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const originals = new Map<Text, string>();
+
+    const apply = () => {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let node = walker.nextNode() as Text | null;
+      while (node) {
+        const current = node.nodeValue ?? "";
+        let original = originals.get(node);
+        if (
+          original === undefined ||
+          (current !== original && current !== applyInstitutionTerms(original, mode))
+        ) {
+          // New or React-updated content — treat current value as the original.
+          original = current;
+          originals.set(node, original);
+        }
+        const next = mode === "bank" ? original : applyInstitutionTerms(original, mode);
+        if (current !== next) node.nodeValue = next;
+        node = walker.nextNode() as Text | null;
+      }
+    };
+
+    apply();
+    let scheduled = false;
+    const observer = new MutationObserver(() => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => {
+        scheduled = false;
+        apply();
+      });
+    });
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
+  }, [mode, ref]);
 }

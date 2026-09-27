@@ -1,7 +1,7 @@
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import { DeckmoDeck, DeckmoDesktopGuard } from "@/components/deckmo/DeckmoDeck";
 import { DECKMO } from "@/lib/deckmoScript";
-import { InstitutionProvider, InstitutionTerms } from "@/lib/institutionMode";
+import { InstitutionProvider } from "@/lib/institutionMode";
 
 export default function DemoPage() {
   return (
@@ -15,9 +15,7 @@ export default function DemoPage() {
           showSettings={false}
           showInstitutionSettings
         >
-          <InstitutionTerms>
-            <DeckmoDeck />
-          </InstitutionTerms>
+          <DeckmoDeck />
         </SimplePasswordGate>
       </InstitutionProvider>
     </DeckmoDesktopGuard>
