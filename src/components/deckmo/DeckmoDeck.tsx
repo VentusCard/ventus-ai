@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, BriefcaseBusiness, Building2, ChevronDown, ChevronRight, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, Home, Mail, Monitor, Plane, Search, ShieldCheck, Sparkles, Target, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, Building2, ChevronDown, ChevronRight, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, Home, LogOut, Mail, Monitor, Plane, Search, ShieldCheck, Sparkles, Target, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -451,7 +451,7 @@ useEffect(()=>{const root=scroller.current;if(!root)return;const observer=new In
 return <div className="demo-page relative h-screen w-screen overflow-hidden bg-background font-deck text-foreground">
   <header className="absolute inset-x-0 top-0 z-40 flex h-20 items-center justify-between border-b border-deck-rule bg-background px-12">
     <div className="flex min-w-0 items-center gap-4"><img src={ventusLogoBlue} alt="Ventus AI" className="h-7 w-auto shrink-0 object-contain"/><span className="h-6 w-px shrink-0 bg-deck-rule"/><span className="truncate font-deck-serif text-2xl text-deck-navy" aria-live="polite">{activeBeat.nav}</span></div>
-      <div className="flex shrink-0 items-center gap-6 text-xs font-semibold uppercase tracking-wide text-deck-muted"><span>INTERACTIVE PRESENTATION</span></div>
+      <div className="flex shrink-0 items-center gap-6 text-xs font-semibold uppercase tracking-wide text-deck-muted"><span>INTERACTIVE PRESENTATION</span><Button variant="outline" className="h-8 rounded-sm border-deck-rule px-3 text-deck-navy hover:bg-deck-surface" aria-label={DECKMO.chrome.exit} onClick={()=>{try{sessionStorage.removeItem("demo_password_access")}catch{}window.location.reload()}}><LogOut className="mr-2 h-3.5 w-3.5"/><span className="text-[10px] font-semibold uppercase">{DECKMO.chrome.exit}</span></Button></div>
   </header>
   <div ref={scroller} className="h-full snap-y snap-mandatory overflow-y-auto scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const active=section===current.section;const step=active?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step} active={active}/></div></section>})}</div>
   <footer className="absolute inset-x-0 bottom-0 z-40 flex h-14 items-center justify-between border-t border-deck-rule bg-background px-12">
