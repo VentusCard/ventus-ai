@@ -406,9 +406,19 @@ function Close({ step }: SceneProps) {
         <Reveal show={step >= 1} className="mt-10 [@media(max-height:900px)]:mt-7">
           <p className="text-balance text-[clamp(28px,3vw,48px)] font-bold leading-[1.12] tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(26px,3.2vw,44px)]">
             {d.lines[1]}
-            <br />
-            {d.lines[2]} <CloseTicker phrases={d.ticker} />
           </p>
+          <div className="mt-8 flex flex-wrap items-baseline justify-center gap-x-[clamp(8px,1vw,18px)] [@media(max-height:900px)]:mt-6">
+            {d.equation.map((segment, s) => (
+              <Fragment key={segment}>
+                {s > 0 && (
+                  <span className="px-1 text-center text-[clamp(17px,2vw,34px)] font-bold text-blue-600">=</span>
+                )}
+                <span className="whitespace-nowrap text-[clamp(17px,2vw,34px)] font-bold leading-snug text-blue-600">{segment}</span>
+              </Fragment>
+            ))}
+            <span className="px-1 text-center text-[clamp(17px,2vw,34px)] font-bold text-blue-600">=</span>
+            <span className="whitespace-nowrap text-[clamp(17px,2vw,34px)] font-bold leading-snug"><CloseTicker phrases={d.ticker} /></span>
+          </div>
         </Reveal>
       </div>
 

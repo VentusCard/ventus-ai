@@ -690,8 +690,8 @@ export const DECKMO = {
     lines: [
       "No more commoditized banking.",
       "With Ventus AI your bank can anticipate customer needs",
-      "to deliver a differentiated banking experience that",
     ],
+    equation: ["anticipate customer needs", "differentiated banking"],
     ticker: ["lifts NPS", "grows deposits", "cross-sells more products", "increases card spend", "deepens engagement"],
     signature: { parting: "Let's do great things together", name: "Marco Ma", role: "CEO & Cofounder", email: "marco@ventusai.com" },
   },
