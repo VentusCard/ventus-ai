@@ -5,6 +5,7 @@ import type { PersonaSynthesis } from "./ExecDemoIntelPanel";
 export interface GeneratedOffer {
   id: string;
   merchant: string;
+  cardTitle?: string;
   product: string;
   rewardValue: string;
   message: string;

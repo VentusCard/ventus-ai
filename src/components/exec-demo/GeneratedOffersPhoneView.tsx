@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Clock, Star, MapPin } from "lucide-react";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
 import { availableDeals as AVAILABLE_DEALS } from "@/lib/availableDealsData";
+import { cn } from "@/lib/utils";
 
 // ── Merchant lookup: dealId → merchant name (mirrors edge function catalog) ──
 const MERCHANT_LOOKUP: Record<string, string> = {
@@ -185,6 +186,10 @@ interface Props {
   focusMode?: boolean;
   activeRollupLabel?: string | null;
   activeRollupPillar?: string | null;
+  presentationMode?: boolean;
+  presentationImageUrl?: string;
+  /** When true, collections auto-rotate even in presentation mode (deck beat usage). */
+  autoRotate?: boolean;
 }
 
 // ── Fuzzy-match helpers (mirrors NextOfferRationale) ──
@@ -212,7 +217,7 @@ export function findGroupForLabel(label: string, pillar: string | null | undefin
   return hit || null;
 }
 
-export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar }: Props) {
+export default function GeneratedOffersPhoneView({ offerGroups, customerName, focusMode = true, activeRollupLabel, activeRollupPillar, presentationMode = false, presentationImageUrl, autoRotate = false }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
   const [expandedGroup, setExpandedGroup] = useState<RollupOfferGroup | null>(null);
@@ -322,63 +327,73 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
     setCurrent(idx);
   }, [current]);
 
+  // Reset to the first collection whenever auto-rotation is off (static presentation beats).
   useEffect(() => {
-    if (allGroups.length <= 1 || expandedGroup || isSearchActive) return;
+    if (!autoRotate) setCurrent(0);
+  }, [autoRotate]);
+
+  useEffect(() => {
+    if ((presentationMode && !autoRotate) || allGroups.length <= 1 || expandedGroup || isSearchActive) return;
     const timer = setInterval(() => {
       setDirection("right");
       setCurrent(prev => (prev + 1) % allGroups.length);
-    }, 5000);
+    }, autoRotate ? 4000 : 5000);
     return () => clearInterval(timer);
-  }, [allGroups.length, expandedGroup, isSearchActive]);
+  }, [presentationMode, autoRotate, allGroups.length, expandedGroup, isSearchActive]);
 
   if (offerGroups.length === 0) return null;
+
+  // ── Active view content ──
+  // The search bar (searchFooter) is rendered ONCE in the shared wrapper at the
+  // bottom, outside these views, so the input never unmounts when the view
+  // switches (main → results → detail) and typing never loses focus.
+  let viewContent: ReactNode = null;
 
   // ── Deal Detail View ──
   if (expandedGroup && !isSearchActive) {
     const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
-    const imgSrc = getCollectionImage(expandedGroup);
+    const imgSrc = presentationImageUrl ?? getCollectionImage(expandedGroup);
     const c = getColor(expandedGroup.pillar || "");
 
-    return (
-      <div className="px-0 py-0 flex flex-col h-full" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
+    viewContent = (
+      <div className="flex-1 min-h-0 flex flex-col" style={{ animation: "detail-slide-in 0.25s ease-out" }}>
         <button
           onClick={() => setExpandedGroup(null)}
-          className="flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-slate-600 hover:text-slate-800 transition-colors"
+          className={cn("shrink-0 flex items-center gap-1.5 px-3 text-slate-600 hover:text-slate-800 transition-colors", presentationMode ? "py-1.5" : "pt-3 pb-1.5")}
         >
-          <ChevronLeft className="w-4 h-4" />
-          <span className="text-[11px] font-medium">Back</span>
+          <ChevronLeft className={presentationMode ? "w-[18px] h-[18px]" : "w-4 h-4"} />
+          <span className={cn("font-medium", presentationMode ? "text-[12px]" : "text-[11px]")}>Back</span>
         </button>
 
-        <div className="h-[110px] w-full overflow-hidden">
-          <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={handleImageError} />
+        <div className={cn("w-full overflow-hidden shrink-0", presentationMode ? "h-[100px] [@media(max-height:900px)]:h-[88px]" : "h-[110px]")}>
+          <img src={imgSrc} alt="" className="w-full h-full object-cover" onError={presentationMode ? undefined : handleImageError} />
         </div>
 
-        <div className="px-3 pt-2.5 pb-1">
+        <div className={cn("px-3 shrink-0", presentationMode ? "pt-1.5 pb-1.5" : "pt-2.5 pb-1")}>
           {expandedGroup.collectionMessage && (
-            <p className="text-[13px] font-bold text-slate-800 leading-snug">{expandedGroup.collectionMessage}</p>
+            <p className={cn("font-bold text-slate-800", presentationMode ? "text-[13px] leading-tight" : "text-[13px] leading-snug")}>{expandedGroup.collectionMessage}</p>
           )}
-          <p className="text-[10px] text-slate-500 mt-0.5">{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
+          <p className={cn("text-slate-500 mt-0.5", presentationMode ? "text-[10.5px]" : "text-[10px]")}>{deals.length} offer{deals.length !== 1 ? "s" : ""} available</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2" style={{ scrollbarWidth: "none" }}>
+        <div className={cn("flex-1 min-h-0 overflow-y-auto px-3", presentationMode ? "pb-0 space-y-2 [@media(max-height:900px)]:space-y-1.5" : "pb-3 space-y-2")} style={{ scrollbarWidth: "none" }}>
           {deals.map((deal) => (
             <div
               key={deal.id}
-              className="rounded-xl border border-slate-100 bg-white p-3 flex items-stretch justify-between gap-2"
+              className={cn("rounded-xl border border-slate-100 bg-white flex items-stretch justify-between", presentationMode ? "px-2 py-2 gap-1.5" : "p-3 gap-2")}
             >
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-bold text-slate-800 leading-snug">{deal.merchant}</p>
-                {deal.product && <p className="text-[12px] text-slate-500 leading-snug">{deal.product}</p>}
-                {deal.message && <p className="text-[11.5px] text-slate-500 mt-1 leading-snug">{deal.message}</p>}
+                <p className={cn("font-bold text-slate-800", presentationMode ? "text-[12px] leading-tight" : "text-[13px] leading-snug")}>{deal.cardTitle ? `${deal.merchant} ${deal.cardTitle}` : [deal.merchant, deal.product].filter(Boolean).join(" ")}</p>
+                {deal.message && <p className={cn("text-slate-500", presentationMode ? "text-[10px] leading-snug mt-0.5" : "text-[11.5px] leading-snug mt-1")}>{deal.message}</p>}
               </div>
-              <div className="flex flex-col items-end justify-between gap-1.5 shrink-0">
+              <div className={cn("flex flex-col items-end shrink-0", presentationMode ? "justify-center gap-1" : "justify-between gap-1.5")}>
                 {deal.rewardValue ? (
-                  <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: c.dot }}>
+                  <span className={cn("font-bold rounded-full text-white whitespace-nowrap", presentationMode ? "text-[10px] px-1.5 py-0.5" : "text-[10.5px] px-2 py-0.5")} style={{ background: c.dot }}>
                     {deal.rewardValue}
                   </span>
                 ) : <span />}
                 <button
-                  className="text-[10.5px] font-semibold px-2.5 py-1 rounded-full border transition-colors"
+                  className={cn("font-semibold rounded-full border transition-colors", presentationMode ? "text-[10px] px-1.5 py-0.5" : "text-[10.5px] px-2.5 py-1")}
                   style={{ borderColor: c.dot, color: c.dot }}
                 >
                   {deal.cta || "Activate"}
@@ -387,23 +402,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
             </div>
           ))}
         </div>
-
-        {searchFooter}
-
-        <style>{`
-          @keyframes detail-slide-in {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-          }
-        `}</style>
       </div>
     );
   }
 
   // ── Dedicated Search Results View ──
   if (isSearchActive) {
-    return (
-      <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+    viewContent = (
+      <div className="flex-1 min-h-0 flex flex-col" style={{ scrollbarWidth: "none" }}>
         <div className="shrink-0 px-3 pt-3 pb-2 flex items-center justify-between gap-2 border-b border-slate-100">
           <div className="min-w-0">
             <p className="text-[11px] font-bold text-slate-800 truncate">
@@ -431,42 +437,38 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
               <p className="text-[11px] text-slate-400">No matching deals found</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="space-y-2">
               {catalogSearchDeals.map((deal, i) => {
                 const c = getColor(deal.category || "");
                 return (
                   <div
                     key={deal.id}
-                    className="rounded-xl border border-slate-100 bg-white p-2.5 flex flex-col gap-1.5 animate-fade-in"
+                    className="rounded-xl overflow-hidden border border-slate-100 bg-white flex items-center gap-3 animate-fade-in hover:shadow-md transition-shadow"
                     style={{ animationDelay: `${i * 35}ms` }}
                   >
-                    <div className="flex items-start justify-between gap-1.5">
-                      <div className="min-w-0">
-                        <p className="text-[11px] font-bold text-slate-800 truncate">{deal.merchantName}</p>
-                        <p className="text-[8px] text-slate-400 truncate">{deal.subcategory}</p>
-                      </div>
-                      <span
-                        className="text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-                        style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
-                      >
-                        {deal.rewardValue}
-                      </span>
+                    <div className="w-1 self-stretch shrink-0" style={{ background: c.dot ?? c.border }} />
+                    <div className="w-9 h-9 shrink-0 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center select-none">
+                      <span className="text-[6.5px] font-semibold text-slate-400 leading-none">[logo]</span>
                     </div>
-                    <p className="text-[9px] leading-snug text-slate-500 line-clamp-2">{deal.dealDescription}</p>
-                    <button
-                      className="mt-auto text-[9px] font-semibold px-2 py-1 rounded-full border transition-colors"
-                      style={{ borderColor: c.border, color: c.text, background: c.bg }}
-                    >
-                      View Deal
-                    </button>
+                    <div className="flex-1 min-w-0 py-2.5 pr-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[12px] font-bold text-slate-800 truncate">{deal.merchantName}</p>
+                        <span
+                          className="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                          style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
+                        >
+                          {deal.rewardValue}
+                        </span>
+                      </div>
+                      <p className="text-[9.5px] leading-snug text-slate-500 line-clamp-2 mt-0.5">{deal.dealDescription}</p>
+                    </div>
                   </div>
                 );
               })}
             </div>
+
           )}
         </div>
-
-        {searchFooter}
       </div>
     );
   }
@@ -477,10 +479,81 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   const safeIdx = current % Math.max(groups.length, 1);
   const active = groups[safeIdx];
   const activeDeals = active ? active.deals.filter(d => d.signal !== "suppress") : [];
-  const imgSrc = active ? getCollectionImage(active) : DEFAULT_IMAGE;
+  const imgSrc = presentationImageUrl ?? (active ? getCollectionImage(active) : DEFAULT_IMAGE);
 
-  return (
-    <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+  const carouselBlock = !isSearchActive && groups.length > 0 && active ? (
+    <div className="space-y-2.5">
+      <div className="flex items-center gap-1.5">
+        <Sparkles className="w-4 h-4 text-amber-500" />
+        <span className="text-[12.5px] font-bold text-slate-700">
+          Curated for {firstName}
+        </span>
+      </div>
+
+      <div
+        key={`${active.pillar}::${active.rollup}`}
+        className="rounded-xl overflow-hidden border border-slate-100 flex flex-col min-h-[190px] cursor-pointer hover:shadow-md transition-shadow"
+        style={{
+          background: "linear-gradient(145deg, #f8fafc, #ffffff)",
+          animation: `collection-slide-${direction} 0.45s cubic-bezier(0.22, 1, 0.36, 1)`,
+        }}
+        onClick={() => setExpandedGroup(active)}
+      >
+        <div className="h-[110px] w-full overflow-hidden">
+          <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={presentationMode ? undefined : handleImageError} />
+        </div>
+        <div className="px-3 pt-2 pb-1.5 shrink-0">
+          <p className="text-[12px] font-semibold text-slate-800 leading-snug">
+            {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-1.5 px-3 pb-2.5 overflow-hidden">
+          {activeDeals.map((deal) => (
+            <span
+              key={deal.id}
+              className="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full border border-slate-100 bg-white text-slate-600 shadow-sm truncate shrink min-w-0"
+            >
+              {deal.merchant}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {groups.length > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-1">
+          <button
+            onClick={() => goTo((safeIdx - 1 + groups.length) % groups.length)}
+            className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
+          >
+            <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
+          </button>
+          <div className="flex gap-1.5">
+            {groups.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === safeIdx
+                    ? "w-5 bg-blue-600 shadow-sm"
+                    : "w-2 bg-slate-300 hover:bg-slate-400"
+                }`}
+              />
+            ))}
+          </div>
+          <button
+            onClick={() => goTo((safeIdx + 1) % groups.length)}
+            className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
+          >
+            <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+          </button>
+        </div>
+      )}
+    </div>
+  ) : null;
+
+  if (!viewContent) {
+    viewContent = (
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollbarWidth: "none" }}>
 
         {!focusMode && (
@@ -597,91 +670,30 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         )}
 
 
-        {/* ── Collection Carousel ── */}
-        {!isSearchActive && groups.length > 0 && active && (
-          <>
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="text-[12.5px] font-bold text-slate-700">
-                Curated for {firstName}
-              </span>
-            </div>
-
-            <div
-              key={`${active.pillar}::${active.rollup}`}
-              className="rounded-xl overflow-hidden border border-slate-100 flex flex-col min-h-[190px] cursor-pointer hover:shadow-md transition-shadow"
-              style={{
-                background: "linear-gradient(145deg, #f8fafc, #ffffff)",
-                animation: `collection-slide-${direction} 0.35s ease-out`,
-              }}
-              onClick={() => setExpandedGroup(active)}
-            >
-              <div className="h-[110px] w-full overflow-hidden">
-                <img src={imgSrc} alt="" className="w-full h-full object-cover" loading="lazy" onError={handleImageError} />
-              </div>
-              <div className="px-3 pt-2 pb-1.5 shrink-0">
-                <p className="text-[12px] font-semibold text-slate-800 leading-snug">
-                  {active.collectionMessage || `Discover curated picks from ${active.rollup}`}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-1.5 px-3 pb-2.5 overflow-hidden">
-                {activeDeals.map((deal) => (
-                  <span
-                    key={deal.id}
-                    className="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full border border-slate-100 bg-white text-slate-600 shadow-sm truncate shrink min-w-0"
-                  >
-                    {deal.merchant}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {groups.length > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-1">
-                <button
-                  onClick={() => goTo((safeIdx - 1 + groups.length) % groups.length)}
-                  className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5 text-slate-500" />
-                </button>
-                <div className="flex gap-1.5">
-                  {groups.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => goTo(i)}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        i === safeIdx
-                          ? "bg-slate-700 scale-125"
-                          : "bg-slate-300 hover:bg-slate-400"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <button
-                  onClick={() => goTo((safeIdx + 1) % groups.length)}
-                  className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
-                >
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-                </button>
-              </div>
-            )}
-          </>
-        )}
+        {/* ── Collection Carousel (bottom placement) ── */}
+        {carouselBlock}
 
       </div>
+    );
+  }
 
-      {/* ── Semantic Search Bar (pinned bottom) ── */}
+  return (
+    <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+      {viewContent}
+
+      {/* ── Semantic Search Bar (pinned bottom) — single instance, stays mounted across view switches ── */}
       {searchFooter}
 
       <style>{`
         @keyframes collection-slide-right {
-          from { opacity: 0; transform: translateX(20px); }
-          to { opacity: 1; transform: translateX(0); }
+          from { opacity: 0; transform: translateX(64px) scale(0.97); }
+          60% { opacity: 1; }
+          to { opacity: 1; transform: translateX(0) scale(1); }
         }
         @keyframes collection-slide-left {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
+          from { opacity: 0; transform: translateX(-64px) scale(0.97); }
+          60% { opacity: 1; }
+          to { opacity: 1; transform: translateX(0) scale(1); }
         }
         @keyframes detail-slide-in {
           from { opacity: 0; transform: translateX(30px); }

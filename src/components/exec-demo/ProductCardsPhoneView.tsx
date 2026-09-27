@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, TouchEvent } from "react";
 import { ChevronRight, ChevronLeft, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface ProductCard {
   type: "behavioral" | "life_event" | "financial_signal";
@@ -170,9 +171,12 @@ interface Props {
   cards: ProductCard[];
   customerName?: string;
   compact?: boolean;
+  presentationMode?: boolean;
+  autoRotate?: boolean;
+  presentationLayout?: boolean;
 }
 
-export default function ProductCardsPhoneView({ cards, compact = false }: Props) {
+export default function ProductCardsPhoneView({ cards, compact = false, presentationMode = false, autoRotate = false, presentationLayout = false }: Props) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -181,12 +185,12 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
 
   // Auto-advance
   useEffect(() => {
-    if (paused || total <= 1) return;
+    if ((presentationMode && !autoRotate) || paused || total <= 1) return;
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % total);
-    }, 6000);
+    }, autoRotate ? 4000 : 6000);
     return () => clearInterval(id);
-  }, [paused, total]);
+  }, [presentationMode, autoRotate, paused, total]);
 
   // Reset index if card list shrinks
   useEffect(() => {
@@ -216,8 +220,8 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
   };
 
   return (
-    <div className={compact ? "h-full px-2 py-1 flex flex-col justify-center" : "px-2 py-3"}>
-      <div className={compact ? "relative h-full max-h-[85%] mx-auto w-full" : "relative"}>
+    <div className={compact ? cn("flex h-full flex-col", presentationLayout ? "px-0 py-0" : "justify-center px-2 py-1") : "px-2 py-3"}>
+      <div className={compact ? cn("relative mx-auto h-full w-full", !presentationLayout && "max-h-[85%]") : "relative"}>
         {/* Slider viewport */}
         <div
           className={compact ? "overflow-hidden h-full" : "overflow-hidden"}
@@ -239,37 +243,37 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
               const cta = fitCta(card.cta, card.theme);
 
               return (
-                <div key={i} className="w-full shrink-0 px-1 h-full">
+                <div key={i} className={cn("h-full w-full shrink-0", presentationLayout ? "px-3" : "px-1")}>
                   <div
-                    className="rounded-2xl shadow-md overflow-hidden h-full flex flex-col"
+                    className={cn("flex h-full flex-col overflow-hidden", presentationLayout ? "rounded-xl border border-slate-100 shadow-sm" : "rounded-2xl shadow-md")}
                     style={{ background: fam.gradient, borderTop: `3px solid ${fam.accent}` }}
                   >
-                    <div className={`${compact ? "p-3.5 grid grid-rows-[auto_auto_minmax(0,1fr)_auto_auto] gap-2" : "p-5 gap-2.5 flex flex-col"} flex-1 min-h-0`}>
+                    <div className={cn("min-h-0 flex-1", compact ? "grid grid-rows-[auto_auto_minmax(0,1fr)_auto_auto]" : "flex flex-col gap-2.5 p-5", presentationLayout ? "gap-2.5 p-4" : compact && "gap-2 p-3.5")}>
                       <div className="flex items-start gap-2.5">
                         <div
-                          className={`${compact ? "w-9 h-9" : "w-9 h-9"} rounded-xl flex items-center justify-center shrink-0 shadow-sm`}
+                          className={cn("flex shrink-0 items-center justify-center rounded-xl shadow-sm", presentationLayout ? "h-10 w-10" : "h-9 w-9")}
                           style={{ background: "rgba(255,255,255,0.75)", color: fam.accent }}
                         >
                           <ThemeIcon className={`${compact ? "w-4.5 h-4.5" : "w-5 h-5"}`} />
                         </div>
                         <div className="flex-1 min-w-0 flex items-center">
-                          <p className={`font-bold text-slate-800 leading-tight ${nameSizeClass(card.product_name, compact)}`}>{card.product_name}</p>
+                          <p className={cn("font-bold leading-tight text-slate-800", presentationLayout ? "text-[15px]" : nameSizeClass(card.product_name, compact))}>{card.product_name}</p>
                         </div>
                       </div>
-                      <p className="text-slate-700 leading-relaxed shrink-0 text-[12.5px]">{fitQuote(card.quote)}</p>
-                      <div className="flex flex-col justify-evenly gap-1.5 min-h-0 pt-2 border-t border-black/5">
+                      <p className={cn("shrink-0 leading-relaxed text-slate-700", presentationLayout ? "text-[13px]" : "text-[12.5px]")}>{fitQuote(card.quote)}</p>
+                      <div className={cn("flex min-h-0 flex-col border-t border-black/5", presentationLayout ? "justify-center gap-2 pb-2 pt-2.5" : "justify-evenly gap-1.5 pt-2")}>
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-2">
                             <Check className="mt-0.5 shrink-0 w-3.5 h-3.5" style={{ color: fam.accent }} />
-                            <span className="text-slate-700 leading-snug font-medium text-[12px]">{b}</span>
+                            <span className={cn("font-medium leading-snug text-slate-700", presentationLayout ? "text-[12px]" : "text-[12px]")}>{b}</span>
                           </div>
                         ))}
                       </div>
-                      <p className="font-bold leading-tight text-[13px]" style={{ color: fam.accent }}>
-                        Est. {value}
+                      <p className={cn("font-bold leading-tight", presentationLayout ? "rounded-lg border border-white/60 bg-white/55 px-3 py-2 text-[14px]" : "text-[13px]")} style={{ color: fam.accent }}>
+                        {card.theme === "fitness" ? "Est. Benefit" : "Est."} {value}
                       </p>
                       <button
-                        className="w-full rounded-xl font-bold text-white flex items-center justify-center gap-1.5 shadow-sm py-2.5 px-2"
+                        className={cn("flex w-full items-center justify-center gap-1.5 rounded-xl px-2 font-bold text-white shadow-sm", presentationLayout ? "py-3" : "py-2.5")}
                         style={{ background: fam.accent }}
                       >
                         <span className={`whitespace-nowrap ${ctaSizeClass(cta)}`}>{cta}</span>
@@ -290,14 +294,14 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
             <button
               onClick={prev}
               aria-label="Previous"
-              className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/90 border border-slate-200 shadow-sm flex items-center justify-center hover:bg-white"
+              className={cn("absolute left-0 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 shadow-sm hover:bg-white", presentationLayout ? "h-7 w-7" : "h-6 w-6")}
             >
               <ChevronLeft className="w-3.5 h-3.5 text-slate-600" />
             </button>
             <button
               onClick={next}
               aria-label="Next"
-              className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/90 border border-slate-200 shadow-sm flex items-center justify-center hover:bg-white"
+              className={cn("absolute right-0 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 shadow-sm hover:bg-white", presentationLayout ? "h-7 w-7" : "h-6 w-6")}
             >
               <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
             </button>

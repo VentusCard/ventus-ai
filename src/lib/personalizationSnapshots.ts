@@ -173,7 +173,7 @@ const SNAPSHOTS = {
       {
         "rollup": "Annual tropical vacation in December",
         "pillar": "Lifestyle",
-        "collectionMessage": "Get December-ready before the flights are booked.",
+        "collectionMessage": "Get tropical travel ready with these deals!",
         "imageCategory": "tropical",
         "imageQuery": "tropical beach resort",
         "suppressedCategories": [
@@ -183,20 +183,22 @@ const SNAPSHOTS = {
         "deals": [
           {
             "id": "travel_deal_1",
-            "merchant": "Away",
-            "product": "The Bigger Carry-On",
+            "merchant": "Sony",
+            "cardTitle": "Noise-Canceling Headphones",
+            "product": "WH-1000XM5 Wireless Headphones",
             "rewardValue": "12% Cash Back",
-            "message": "A lightweight hard-shell built for week-long island escapes.",
+            "message": "Noise-canceling over-ears that turn a long flight into quiet time.",
             "valueLine": "12% back saves $660 on your $5,500 annual travel spend.",
             "valueMath": "12% × $5,500 = $660",
-            "cta": "Pack Smarter",
+            "cta": "Fly in Quiet",
             "signal": "boost",
-            "signalReason": "A reliable December trip pattern makes quality luggage a timely upgrade.",
-            "boostCategory": "Luggage"
+            "signalReason": "A reliable December trip pattern makes quality travel headphones a timely upgrade.",
+            "boostCategory": "Travel Tech"
           },
           {
             "id": "travel_deal_2",
             "merchant": "REI",
+            "cardTitle": "Travel & Swim Essentials",
             "product": "Travel & Swim Essentials",
             "rewardValue": "10% Cash Back",
             "message": "Quick-dry layers, snorkel gear and sun protection for warm-water weeks.",
@@ -210,6 +212,7 @@ const SNAPSHOTS = {
           {
             "id": "travel_deal_3",
             "merchant": "Tommy Bahama",
+            "cardTitle": "Resort Wear",
             "product": "Resort Wear Collection",
             "rewardValue": "15% Off",
             "message": "Linen shirts and easy resort looks for December dinners by the water.",
@@ -223,6 +226,7 @@ const SNAPSHOTS = {
           {
             "id": "travel_deal_4",
             "merchant": "GoPro",
+            "cardTitle": "Waterproof Camera",
             "product": "HERO12 Waterproof Camera",
             "rewardValue": "8% Cash Back",
             "message": "Capture reef dives and beach days without worrying about the water.",
@@ -236,6 +240,7 @@ const SNAPSHOTS = {
           {
             "id": "travel_deal_5",
             "merchant": "Priority Pass",
+            "cardTitle": "Lounge Membership",
             "product": "Airport Lounge Membership",
             "rewardValue": "20% Off First Year",
             "message": "Start the vacation at the airport with lounge access on December departures.",

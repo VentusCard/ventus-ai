@@ -1,19 +1,19 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Bot, Send, User, Sparkles } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Bot, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { getBankPromptContext } from "@/lib/demoBankConfig";
-import ReactMarkdown from "react-markdown";
+import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation";
+import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea, type PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import type { DetectedLifeEventResult, PersonalizedDealData } from "@/hooks/useDemoEnrichment";
 import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
 import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 
-interface ChatMessage {
+export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   actions?: string[];
@@ -58,6 +58,21 @@ interface Props {
   /** Persistent grounding sent with every message (demo mock-up mode). */
   baseSignalContext?: string;
   onInitialMessageConsumed?: () => void;
+  /** When set, messages and the initial-message guard persist across remounts. */
+  persistKey?: string;
+  hideQuickActions?: boolean;
+  /** Exact-prompt → fixed answer, served without calling the assistant. */
+  cannedAnswers?: Record<string, string>;
+  /** When set, every assistant answer shows exactly these action labels (deck presentation usage). */
+  fixedActions?: string[];
+  /** When true, assistant answers render with roomier line spacing and stronger bolding (deck presentation usage). */
+  relaxedAnswers?: boolean;
+  /** Seeded transcript for presentation phones. */
+  initialMessages?: ChatMessage[];
+  /** Enlarges chat UI for the three-phone deck carousel without affecting other demos. */
+  presentationLarge?: boolean;
+  /** Start the conversation scrolled to the top instead of sticking to the bottom (deck presentation usage). */
+  startAtTop?: boolean;
 }
 
 const QUICK_ACTIONS = [
@@ -204,33 +219,51 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed }: Props) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+const CHAT_PERSIST: Record<string, { messages: ChatMessage[]; sent: boolean }> = {};
+
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, baseSignalContext, onInitialMessageConsumed, hideQuickActions = false, fixedActions, relaxedAnswers = false, cannedAnswers, persistKey, initialMessages = [], presentationLarge = false, startAtTop = false }: Props) {
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (!persistKey) return initialMessages;
+    const persisted = CHAT_PERSIST[persistKey]?.messages ?? [];
+    return persisted.length >= initialMessages.length ? persisted : initialMessages;
+  });
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const initialMessageSentRef = useRef(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const initialMessageSentRef = useRef(persistKey ? !!CHAT_PERSIST[persistKey]?.sent : false);
+
+  useEffect(() => {
+    if (persistKey) CHAT_PERSIST[persistKey] = { messages, sent: CHAT_PERSIST[persistKey]?.sent ?? false };
+  }, [messages, persistKey]);
 
   const context = useMemo(
     () => buildContext(customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations),
     [customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations]
   );
 
+  // Only refocus after a reply the user sent finishes — never on mount,
+  // so presentation arrow keys and carousels are not hijacked.
+  const wasLoadingRef = useRef(false);
+  const userTypedRef = useRef(false);
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (wasLoadingRef.current && !isLoading && userTypedRef.current) {
+      userTypedRef.current = false;
+      inputRef.current?.focus({ preventScroll: true });
     }
-  }, [messages]);
+    wasLoadingRef.current = isLoading;
+  }, [isLoading]);
 
   useEffect(() => {
     // Reset the "already sent" guard whenever the nonce changes so repeat
     // clicks of the same pill re-fire the message.
+    if (persistKey) return;
     initialMessageSentRef.current = false;
   }, [messageNonce]);
 
   useEffect(() => {
     if (initialMessage && !initialMessageSentRef.current) {
       initialMessageSentRef.current = true;
+      if (persistKey) CHAT_PERSIST[persistKey] = { messages: CHAT_PERSIST[persistKey]?.messages ?? [], sent: true };
       sendMessage(initialMessage, initialMessageKind, initialMessageContext);
       onInitialMessageConsumed?.();
     }
@@ -285,6 +318,15 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     setInputValue("");
     setIsLoading(true);
 
+    const canned = cannedAnswers?.[text.trim()];
+    if (canned) {
+      await new Promise((r) => setTimeout(r, 700));
+      setMessages((prev) => [...prev, { role: "assistant", content: canned }]);
+      setIsLoading(false);
+      return;
+    }
+
+
     const isRiskAction = text.toLowerCase().includes("risk factors");
     const effectiveKind = kind ?? "general";
 
@@ -328,9 +370,13 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
 
         if (error) throw error;
 
-        const actions: string[] | undefined = Array.isArray(data?.actions) && data.actions.length > 0
-          ? data.actions.slice(0, 2)
-          : undefined;
+        const actions: string[] | undefined = hideQuickActions
+          ? undefined
+          : fixedActions
+            ? fixedActions
+            : Array.isArray(data?.actions) && data.actions.length > 0
+              ? data.actions.slice(0, 2)
+              : undefined;
 
         setMessages((prev) => [
           ...prev,
@@ -356,8 +402,8 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
 
   return (
     <div className="flex-1 min-h-0 flex flex-col bg-white">
-      {/* Chat area */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 px-4 py-3 scrollbar-light">
+      <Conversation className="min-h-0 bg-white" initial={startAtTop ? false : "smooth"}>
+        <ConversationContent className={cn("gap-3 px-4 py-3", presentationLarge && "gap-4 px-5 py-4")}>
         {showWelcome ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 shadow-lg">
@@ -382,34 +428,22 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className={cn("space-y-3", presentationLarge && "space-y-4")}>
             {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={cn("flex gap-2", msg.role === "user" ? "justify-end" : "justify-start")}
-              >
+              <Message key={`${msg.role}-${i}`} from={msg.role} className={cn("max-w-full flex-row items-start gap-2", presentationLarge && "gap-2.5", msg.role === "user" && "justify-end")}>
                 {msg.role === "assistant" && (
-                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
-                    <Bot className="h-3 w-3 text-blue-600" />
-                  </div>
+                  <div className={cn("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100", presentationLarge && "h-8 w-8")}><Bot className={cn("h-3 w-3 text-blue-600", presentationLarge && "h-4 w-4")} /></div>
                 )}
-                <div className={cn("flex flex-col gap-1.5 max-w-[85%]", msg.role === "user" ? "items-end" : "items-start")}>
-                  <div
-                    className={cn(
-                      "rounded-2xl px-3 py-2 text-[13px] overflow-hidden break-words",
-                      msg.role === "user"
-                        ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-slate-100 text-slate-800 rounded-bl-sm"
-                    )}
-                  >
-                    {msg.role === "assistant" ? (
-                      <div className="prose prose-slate max-w-none text-[13px] leading-snug [&_p]:text-[13px] [&_p]:mb-0.5 [&_p]:leading-snug [&_h1]:text-[14px] [&_h1]:mt-1 [&_h2]:text-[13px] [&_h2]:mt-1 [&_h3]:text-[13px] [&_h3]:mt-0.5 [&_ul]:mt-0.5 [&_ul]:mb-0.5 [&_ol]:mt-0.5 [&_li]:text-[13px] [&_li]:leading-tight [&_strong]:text-[13px] [&_em]:text-[13px] [&_a]:text-blue-600 [&_pre]:overflow-x-auto [&_pre]:text-[11px] [&_table]:text-[11px]">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
-                    ) : (
-                      msg.content
-                    )}
-                  </div>
+                <MessageContent className={cn(
+                  "max-w-[85%] gap-1.5 rounded-2xl px-3 py-2 text-[13px] break-words",
+                  presentationLarge && "max-w-[88%] px-4 py-3 text-[15px]",
+                  msg.role === "user"
+                    ? cn("ml-0 rounded-br-sm bg-blue-600 text-white group-[.is-user]:bg-blue-600 group-[.is-user]:px-3 group-[.is-user]:py-2 group-[.is-user]:text-white", presentationLarge && "group-[.is-user]:px-4 group-[.is-user]:py-3")
+                    : cn("rounded-bl-sm bg-slate-100 text-slate-900", relaxedAnswers && "px-4 py-3")
+                )}>
+                  {msg.role === "assistant" ? (
+                    <MessageResponse className={cn("text-[13px] text-slate-900 [&_p]:text-[13px] [&_strong]:font-bold [&_strong]:text-slate-950", presentationLarge && "text-[15px] [&_p]:text-[15px]", relaxedAnswers ? "leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0" : "leading-snug [&_p]:mb-0.5")}>{msg.content}</MessageResponse>
+                  ) : msg.content}
                   {msg.role === "assistant" && msg.actions && msg.actions.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {msg.actions.map((action, ai) => (
@@ -424,34 +458,28 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                       ))}
                     </div>
                   )}
-                </div>
+                </MessageContent>
                 {msg.role === "user" && (
-                  <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center shrink-0 mt-0.5">
-                    <User className="h-3 w-3 text-slate-600" />
-                  </div>
+                  <div className={cn("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200", presentationLarge && "h-8 w-8")}><User className={cn("h-3 w-3 text-slate-600", presentationLarge && "h-4 w-4")} /></div>
                 )}
-              </div>
+              </Message>
             ))}
             {isLoading && (
-              <div className="flex gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                  <Bot className="h-3 w-3 text-blue-600" />
-                </div>
-                <div className="bg-slate-100 rounded-2xl rounded-bl-sm px-3 py-2">
-                  <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </div>
-                </div>
-              </div>
+              <Message from="assistant" className="max-w-full flex-row items-start gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100"><Bot className="h-3 w-3 text-blue-600" /></div>
+                <MessageContent className="flex-row gap-1 rounded-2xl rounded-bl-sm bg-slate-100 px-3 py-2">
+                  {[0, 150, 300].map((delay) => <span key={delay} className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" style={{ animationDelay: `${delay}ms` }} />)}
+                </MessageContent>
+              </Message>
             )}
           </div>
         )}
-      </div>
+        </ConversationContent>
+        <ConversationScrollButton className="bottom-2 h-8 w-8 bg-white text-slate-700" />
+      </Conversation>
 
       {/* Quick actions after conversation started */}
-      {!showWelcome && !isLoading && (
+      {!showWelcome && !isLoading && !hideQuickActions && (
         <div className="px-3 pb-1 flex gap-1 overflow-hidden flex-wrap shrink-0">
           {QUICK_ACTIONS.slice(0, 3).map((action) => (
             <button
@@ -466,30 +494,26 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
       )}
 
       {/* Input */}
-      <div className="shrink-0 p-3 border-t border-slate-100 bg-white">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            sendMessage(inputValue);
-          }}
-          className="flex gap-2"
+      <div className={cn("shrink-0 border-t border-slate-100 bg-white p-3", presentationLarge && "p-4")}>
+        <PromptInput
+          onSubmit={(message: PromptInputMessage) => { userTypedRef.current = true; sendMessage(message.text); }}
+          className={cn("relative [&_[data-slot=input-group]]:!h-9 [&_[data-slot=input-group]]:!flex-row [&_[data-slot=input-group]]:rounded-full [&_[data-slot=input-group]]:border-slate-200 [&_[data-slot=input-group]]:bg-slate-50 [&_[data-slot=input-group]]:shadow-none", presentationLarge && "[&_[data-slot=input-group]]:!h-11")}
         >
-          <Input
+          <PromptInputTextarea
+            ref={inputRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask about your spending..."
-            className="text-sm h-9 rounded-full bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400"
+            rows={1}
+            className={cn("!h-9 min-h-0 resize-none overflow-hidden py-2 pl-3 pr-12 text-sm leading-5 text-slate-900 placeholder:text-slate-400", presentationLarge && "!h-11 py-2.5 pl-4 pr-14 text-[15px] leading-6")}
             disabled={isLoading}
           />
-          <Button
-            type="submit"
-            size="sm"
-            className="h-9 w-9 rounded-full p-0 shrink-0"
-            disabled={isLoading || !inputValue.trim()}
-          >
-            <Send className="h-3.5 w-3.5" />
-          </Button>
-        </form>
+          <PromptInputFooter className="!absolute !right-0.5 !top-0.5 !order-none !w-auto !p-0">
+            <PromptInputSubmit status={isLoading ? "submitted" : "ready"} disabled={isLoading || !inputValue.trim()} className={cn("h-8 w-8 rounded-full", presentationLarge && "h-10 w-10")}>
+              <Send className={cn("h-3.5 w-3.5", presentationLarge && "h-4 w-4")} />
+            </PromptInputSubmit>
+          </PromptInputFooter>
+        </PromptInput>
       </div>
     </div>
   );

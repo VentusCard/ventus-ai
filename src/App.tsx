@@ -52,6 +52,7 @@ const AppLayout = () => {
     || location.pathname === "/demo";
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
+  const isHome = location.pathname === "/";
   const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics;
   const [showAnnouncement, setShowAnnouncement] = useState(true);
   const [barHeight, setBarHeight] = useState(40);
@@ -105,11 +106,13 @@ const AppLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#0A1628]">
-      <AnnouncementBar
-        onClose={() => setShowAnnouncement(false)}
-        onHeightChange={setBarHeight}
-      />
-      <Navbar offsetTop={showAnnouncement ? barHeight + 16 : 16} />
+      {!isHome && (
+        <AnnouncementBar
+          onClose={() => setShowAnnouncement(false)}
+          onHeightChange={setBarHeight}
+        />
+      )}
+      <Navbar offsetTop={!isHome && showAnnouncement ? barHeight + 16 : 16} />
       {/* Page content sits above the footer with a solid white bg, revealing the footer as you scroll */}
       <div className="relative z-10 bg-white">
         {routes}

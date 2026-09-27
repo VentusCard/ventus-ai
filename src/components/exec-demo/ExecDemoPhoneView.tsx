@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
-import { Gift, Users, Bot, Wallet, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, Wallet, ReceiptText, Wifi, Battery, BatteryFull } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
 
-import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
+import ConsumerAIChatView, { type ChatMessage } from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
 import RelationshipPhoneView from "./RelationshipPhoneView";
@@ -18,7 +18,7 @@ import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import type { SelectedSignal } from "./NextConversationRationale";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
-type ConsumerTab = "rewards" | "relationship" | "budget" | "ai";
+export type ConsumerTab = "rewards" | "relationship" | "budget" | "ai";
 
 const TAB_MAP: Record<TabKey, ConsumerTab> = {
   analytics: "rewards",
@@ -77,6 +77,12 @@ interface Props {
   pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null;
   /** Persistent grounding context appended to every consumer-chat request (demo mock-up mode). */
   chatSignalContext?: string;
+  hideQuickActions?: boolean;
+  cannedAIAnswers?: Record<string, string>;
+  /** When set, every AI assistant answer shows exactly these action labels (deck presentation usage). */
+  fixedAIActions?: string[];
+  /** When true, AI assistant answers render with roomier spacing and stronger bolding (deck presentation usage). */
+  relaxedAIAnswers?: boolean;
   /** When true, the right phone panel renders the WM CoPilot view instead of the customer mockup. */
   wmCopilotMode?: boolean;
   /** Currently selected signal driving the WM CoPilot brief. */
@@ -90,12 +96,31 @@ interface Props {
   onCloseWMCopilot?: () => void;
   /** Device frame chrome: "default" (chunky demo bezel) or "compact" (thin bezel for embedded workspaces). */
   frame?: "default" | "compact";
+  presentationMode?: boolean;
+  presentationTab?: ConsumerTab;
+  presentationImageUrl?: string;
+  /** Optional relabel of the first consumer tab (Budget) for deck presentation usage. */
+  firstTabLabel?: string;
+  /** When true, the status bar battery renders as a green, fully charged battery (deck presentation usage). */
+  batteryFull?: boolean;
+  /** When true, rewards collections auto-rotate even in presentation mode (deck beat usage). */
+  autoRotateCollections?: boolean;
+  /** When true, product recommendations auto-rotate even in presentation mode (deck beat usage). */
+  autoRotateProductCards?: boolean;
+  /** Applies the section 7 presentation proportions without changing shared relationship views. */
+  relationshipPresentationLayout?: boolean;
+  chatPersistKey?: string;
+  chatInitialMessages?: ChatMessage[];
+  /** Larger phone chrome and chat typography for the deck carousel. */
+  chatPresentationLarge?: boolean;
+  /** Start the AI chat scrolled to the top so the opening question is visible (deck presentation usage). */
+  chatStartAtTop?: boolean;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default" }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, chatSignalContext, hideQuickActions = false, cannedAIAnswers, fixedAIActions, relaxedAIAnswers = false, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile", frame = "default", presentationMode = false, presentationTab, presentationImageUrl, firstTabLabel, batteryFull = false, autoRotateCollections = false, autoRotateProductCards = false, relationshipPresentationLayout = false, chatPersistKey, chatInitialMessages, chatPresentationLarge = false, chatStartAtTop = false }: Props) {
   const isCompactFrame = frame === "compact";
   const { ref: scaleRef, scale, box } = useDesignScale<HTMLDivElement>();
-  const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
+  const mappedTab: ConsumerTab = presentationTab ?? (activeTab ? TAB_MAP[activeTab] : "rewards");
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
   const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
@@ -127,7 +152,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     switch (consumerTab) {
       case "rewards":
         if (generatedOffers && generatedOffers.length > 0) {
-          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={false} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} />;
+          return <GeneratedOffersPhoneView offerGroups={generatedOffers} customerName={customer.profile.name} focusMode={false} activeRollupLabel={activeRollupLabel} activeRollupPillar={activeRollupPillar} presentationMode={presentationMode} presentationImageUrl={presentationImageUrl} autoRotate={autoRotateCollections} />;
         }
         return (
           <div className="flex items-center justify-center h-full">
@@ -141,7 +166,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         if (productDeliveryChannel === "sms") {
           return <SmsPreviewPhoneView cards={productCards ?? []} customerName={customer.profile?.name} bankLabel={bankLabel} />;
         }
-        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
+        return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} presentationMode={presentationMode} autoRotateProductCards={autoRotateProductCards} presentationLayout={relationshipPresentationLayout} onGoToAI={(msg) => { if (presentationMode) return; setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
       case "budget":
         return <BudgetPhoneView enrichedTxs={enrichedTxs} />;
       case "ai": {
@@ -176,6 +201,14 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             initialMessageKind={pendingAIPrompt?.kind}
             initialMessageContext={pendingAIPrompt?.signalContext}
             baseSignalContext={chatSignalContext}
+            hideQuickActions={hideQuickActions}
+            cannedAnswers={cannedAIAnswers}
+            fixedActions={fixedAIActions}
+            relaxedAnswers={relaxedAIAnswers}
+            persistKey={chatPersistKey}
+            initialMessages={chatInitialMessages}
+            presentationLarge={chatPresentationLarge}
+            startAtTop={chatStartAtTop}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );
@@ -201,14 +234,14 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         </div>
 
         {/* Status bar — frame chrome, never scaled */}
-        <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
+        <div className={`flex items-center justify-between px-5 bg-white text-slate-400 font-medium shrink-0 ${chatPresentationLarge ? "py-1.5 text-[12px]" : "py-1 text-[10px]"}`}>
           {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
             </span>
-            <span className="font-semibold text-slate-600 text-[11px]">
+            <span className={`font-semibold text-slate-600 ${chatPresentationLarge ? "text-[13px]" : "text-[11px]"}`}>
               {wmCopilotMode ? `${bankLabel} · Advisor` : `${bankLabel} · ${firstName}`}
             </span>
           </div>
@@ -217,7 +250,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           ) : (
             <div className="flex items-center gap-1.5">
               <Wifi className="w-3 h-3" />
-              <Battery className="w-3.5 h-3.5" />
+              {batteryFull ? <BatteryFull className="w-3.5 h-3.5 text-emerald-500" /> : <Battery className="w-3.5 h-3.5" />}
             </div>
           )}
         </div>
@@ -251,17 +284,20 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         {/* Bottom Tab Bar — frame chrome, never scaled, hidden in WM CoPilot mode */}
         {!wmCopilotMode && (
           <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-            {CONSUMER_TABS.map((tab) => {
+            {(firstTabLabel
+              ? CONSUMER_TABS.map((t, i) => (i === 0 ? { ...t, label: firstTabLabel, icon: ReceiptText } : t))
+              : CONSUMER_TABS
+            ).map((tab) => {
               const Icon = tab.icon;
               const isActive = consumerTab === tab.key;
               return (
                 <button
                   key={tab.key}
-                  onClick={() => setConsumerTab(tab.key)}
+                  onClick={() => { if (!presentationMode) setConsumerTab(tab.key); }}
                   className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
                 >
-                  <Icon className="w-4 h-4" style={{ color: isActive ? tab.color : "#94a3b8" }} />
-                  <span className="text-[10px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                  <Icon className={chatPresentationLarge ? "h-5 w-5" : "h-4 w-4"} style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                  <span className={`${chatPresentationLarge ? "text-[12px]" : "text-[10px]"} font-semibold`} style={{ color: isActive ? tab.color : "#94a3b8" }}>
                     {tab.label}
                   </span>
                   {isActive && (

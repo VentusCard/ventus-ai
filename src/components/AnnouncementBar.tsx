@@ -14,8 +14,11 @@ const AnnouncementBar = ({ onClose, onHeightChange }: AnnouncementBarProps) => {
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const dismissed = sessionStorage.getItem(STORAGE_KEY);
-    setIsVisible(dismissed !== "true");
+    const dismissed = sessionStorage.getItem(STORAGE_KEY) === "true";
+    setIsVisible(!dismissed);
+    if (dismissed) onClose?.();
+    // Only runs on mount: restores the dismissed state for this session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

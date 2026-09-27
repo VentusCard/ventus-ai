@@ -991,8 +991,8 @@ const ARCHETYPE_ANGLE: Record<string, Angle> = {
   },
   savingCapacityHousehold: {
     title: "Room To Contribute",
-    subject: "You're already saving — this makes it count for school",
-    open: (n) => `Your household clears its commitments each month and keeps adding to savings. ${n} channels a slice of that into education without changing how you live.`,
+    subject: "You're already saving — this makes it work harder",
+    open: (n) => `Your household clears its commitments each month and keeps adding to savings. ${n} puts that surplus to work without changing how you live.`,
   },
 
   payroll: {
