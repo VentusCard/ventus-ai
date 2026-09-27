@@ -404,18 +404,23 @@ function Close({ step }: SceneProps) {
           <p className="text-balance text-[clamp(40px,5.6vw,92px)] font-bold leading-[1.03] tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(34px,4.4vw,64px)]">{d.lines[0]}</p>
         </Reveal>
         <Reveal show={step >= 1} className="mt-10 [@media(max-height:900px)]:mt-7">
-          <p className="flex flex-wrap items-center gap-x-[clamp(8px,1vw,18px)] text-[clamp(17px,2vw,34px)] font-bold leading-snug">
-            <span className="whitespace-nowrap text-slate-950">with</span>
-            <img src="/ventus-ai-logo.png" alt="Ventus AI" className="h-[clamp(22px,2.4vw,40px)] w-auto object-contain" />
+          <p className="flex flex-wrap items-center text-[clamp(34px,3.9vw,58px)] font-bold leading-[1.06] tracking-normal text-slate-950">
+            <span>with</span>
+            <img src="/ventus-ai-logo.png" alt="Ventus AI" className="mx-3 h-[clamp(26px,3vw,46px)] w-auto object-contain" />
+            <span>{d.lines[1]}</span>
+          </p>
+          <div className="mt-8 flex flex-wrap items-baseline gap-x-[clamp(8px,1vw,18px)] [@media(max-height:900px)]:mt-6">
             {d.equation.map((segment, s) => (
               <Fragment key={segment}>
-                <span className="px-1 text-center text-slate-950">=</span>
-                <span className="whitespace-nowrap text-slate-950">{segment}</span>
+                {s > 0 && (
+                  <span className="px-1 text-center text-[clamp(17px,2vw,34px)] font-bold text-slate-950">=</span>
+                )}
+                <span className="whitespace-nowrap text-[clamp(17px,2vw,34px)] font-bold leading-snug text-slate-950">{segment}</span>
               </Fragment>
             ))}
-            <span className="px-1 text-center text-slate-950">=</span>
-            <span className="whitespace-nowrap"><CloseTicker phrases={d.ticker} /></span>
-          </p>
+            <span className="px-1 text-center text-[clamp(17px,2vw,34px)] font-bold text-slate-950">=</span>
+            <span className="whitespace-nowrap text-[clamp(17px,2vw,34px)] font-bold leading-snug"><CloseTicker phrases={d.ticker} /></span>
+          </div>
         </Reveal>
       </div>
 
