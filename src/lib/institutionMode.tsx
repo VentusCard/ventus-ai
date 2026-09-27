@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 export type InstitutionMode = "bank" | "credit-union";
 
@@ -68,10 +68,11 @@ export function useInstitution() {
  */
 export function useInstitutionDomSwap(ref: { current: HTMLElement | null }) {
   const { mode } = useInstitution();
+  const originalsRef = useRef(new Map<Text, string>());
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
-    const originals = new Map<Text, string>();
+    const originals = originalsRef.current;
 
     const apply = () => {
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
