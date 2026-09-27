@@ -48,7 +48,7 @@ export const DECKMO = {
     { id: "retention", nav: "Long-Term: Retention & NPS", steps: 4 },
     {
       id: "bank-tools",
-      nav: "The Platform",
+      nav: "Tools for the Bank",
       steps: 3,
       stepScreens: BANK_TOOLS_BEAT_SCREENS,
     },
