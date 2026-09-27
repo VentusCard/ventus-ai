@@ -391,7 +391,7 @@ function CloseTicker({ phrases }: { phrases: readonly string[] }) {
 
 function Close({ step }: SceneProps) {
   const d = DECKMO.close;
-  const lifted = step >= 2;
+  const lifted = step >= 1;
   return (
     <div className="relative mx-auto h-full w-full max-w-[1560px] px-[clamp(32px,4vw,72px)]">
       <div className={cn(
@@ -401,21 +401,19 @@ function Close({ step }: SceneProps) {
           : "top-1/2 -translate-y-1/2",
       )}>
         <Reveal show={step >= 0}>
-          <p className="text-balance text-[clamp(40px,4.6vw,70px)] font-bold leading-[1.03] tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(30px,3.6vw,52px)]">{d.lines[0]}</p>
+          <p className="text-balance text-[clamp(40px,5.6vw,92px)] font-bold leading-[1.03] tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(34px,4.4vw,64px)]">{d.lines[0]}</p>
         </Reveal>
-        <Reveal show={step >= 1} className="mt-6 [@media(max-height:900px)]:mt-4">
-          <p className="text-balance text-[clamp(30px,3.5vw,52px)] font-bold leading-[1.06] tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(24px,2.8vw,40px)]">
+        <Reveal show={step >= 1} className="mt-10 [@media(max-height:900px)]:mt-7">
+          <p className="text-balance text-[clamp(30px,4vw,64px)] font-bold leading-[1.06] tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(26px,3.2vw,44px)]">
             {d.lines[1]} <CloseTicker phrases={d.ticker} />
           </p>
-        </Reveal>
-        <Reveal show={step >= 2} className="mt-6 [@media(max-height:900px)]:mt-4">
-          <p className="text-balance text-[clamp(34px,4vw,60px)] font-bold leading-[1.06] tracking-normal text-blue-600 [@media(max-height:900px)]:text-[clamp(26px,3vw,44px)]">{d.lines[2]}</p>
+          <p className="mt-5 text-balance text-[clamp(32px,4.2vw,68px)] font-bold leading-[1.06] tracking-normal text-blue-600 [@media(max-height:900px)]:text-[clamp(26px,3.2vw,46px)] [@media(max-height:900px)]:mt-4">{d.lines[2]}</p>
         </Reveal>
       </div>
 
       <div className={cn(
         "absolute inset-x-[clamp(32px,4vw,72px)] bottom-[clamp(48px,10vh,110px)] transition-all duration-700 motion-reduce:transition-none",
-        step >= 3 ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-5 opacity-0",
+        step >= 2 ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-5 opacity-0",
       )}>
         <p className="text-[clamp(24px,2.4vw,36px)] font-bold tracking-normal text-slate-950 [@media(max-height:900px)]:text-[clamp(20px,2vw,28px)]">{d.signature.parting}</p>
         <p className="mt-2 text-[clamp(18px,1.8vw,26px)] font-bold tracking-normal [@media(max-height:900px)]:text-[clamp(15px,1.5vw,21px)]">
