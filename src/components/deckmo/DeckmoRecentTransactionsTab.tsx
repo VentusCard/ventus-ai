@@ -110,9 +110,32 @@ export function DeckmoRecentTransactionsTab({ step = 0, active = true }: { step?
       setCorrectionOpen(null);
       setDraft("");
     }
-    // Beat 5.5: show the JFK detail in the customer-confirmed state ("Looks Good" tapped)
-    if (step >= 4 && jfkIndex >= 0) {
-      setConfirmations((c) => (c[jfkIndex] === "yes" ? c : { ...c, [jfkIndex]: "yes" }));
+    // Beat 5.5: show the JFK detail in the customer-confirmed state ("Looks Good" tapped).
+    // The confirmation follows the beat both directions: arrowing back to 5.4 reverts
+    // the JFK row to its unanswered state, and replaying forward confirms it again.
+    if (jfkIndex >= 0) {
+      if (step >= 4) {
+        setConfirmations((c) => (c[jfkIndex] === "yes" ? c : { ...c, [jfkIndex]: "yes" }));
+      } else {
+        setConfirmations((c) => {
+          if (!(jfkIndex in c)) return c;
+          const next = { ...c };
+          delete next[jfkIndex];
+          return next;
+        });
+        setCorrections((c) => {
+          if (!(jfkIndex in c)) return c;
+          const next = { ...c };
+          delete next[jfkIndex];
+          return next;
+        });
+        setSupportChats((c) => {
+          if (!(jfkIndex in c)) return c;
+          const next = { ...c };
+          delete next[jfkIndex];
+          return next;
+        });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, active]);
