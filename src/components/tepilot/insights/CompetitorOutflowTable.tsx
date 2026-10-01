@@ -124,7 +124,7 @@ export function CompetitorOutflowTable({ data, groupByType = false }: Props) {
                   {group.rows.map((row) => (
                     <OutflowRow key={row.institution} row={row} rank={++rank} />
                   ))}
-                </>
+                </Fragment>
               ))
             : data.map((row, i) => <OutflowRow key={row.institution} row={row} rank={i + 1} />)}
         </TableBody>
