@@ -104,7 +104,8 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
-      
+      { value: "outflow-analytics", label: "Analytics", icon: BarChart3 },
+
       
       { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
     ],
