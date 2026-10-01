@@ -10,9 +10,11 @@ import { TabHeader } from "./TabHeader";
 interface WalletShareViewProps {
   variant?: "outflow" | "growth";
   onLaunchCampaign?: (productName: string, offers: string[]) => void;
+  /** Group the outflow table by product type (HYSA, brokerage, etc.) with subtotals. */
+  groupOutflowsByType?: boolean;
 }
 
-export function WalletShareView({ variant = "outflow", onLaunchCampaign }: WalletShareViewProps = {}) {
+export function WalletShareView({ variant = "outflow", onLaunchCampaign, groupOutflowsByType = false }: WalletShareViewProps = {}) {
   const metrics = getWalletShareMetrics();
   const outflows = getCompetitorOutflows();
   const winBacks = getWinBackRecommendations();
@@ -50,7 +52,7 @@ export function WalletShareView({ variant = "outflow", onLaunchCampaign }: Walle
       </div>
 
       {/* Competitor table */}
-      <CompetitorOutflowTable data={outflows} />
+      <CompetitorOutflowTable data={outflows} groupByType={groupOutflowsByType} />
 
       {/* Win-back recommendations */}
       <WinBackRecommendations data={winBacks} onLaunchCampaign={onLaunchCampaign} />
