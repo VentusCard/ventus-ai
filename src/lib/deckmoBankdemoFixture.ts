@@ -77,7 +77,7 @@ const deckmoProductCards: ProductCard[] = (snapshot?.productCards ?? []).map((ca
         eligibility: "$35,000 qualifying deposit held for nine months",
         cta: "Start Saving for Your Next Trip",
         cta_sub: "Open an account and fund your travel goal",
-        estimated_label: "Est. Benefit",
+        estimated_label: "Est. Earnings",
         estimated_value: "$1,550",
       }
     : card,
