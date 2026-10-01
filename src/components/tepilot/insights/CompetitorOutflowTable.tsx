@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ArrowUpRight, ArrowRight, ArrowDownRight } from "lucide-react";
@@ -107,8 +108,8 @@ export function CompetitorOutflowTable({ data, groupByType = false }: Props) {
         <TableBody>
           {groups
             ? groups.map((group) => (
-                <>
-                  <TableRow key={group.category} className="border-border bg-muted/40 hover:bg-muted/40">
+                <Fragment key={group.category}>
+                  <TableRow className="border-border bg-muted/40 hover:bg-muted/40">
                     <TableCell colSpan={4} className="font-semibold text-foreground text-xs uppercase tracking-wide">
                       {group.category}
                     </TableCell>
