@@ -6,6 +6,8 @@ import type { CompetitorOutflow } from "@/types/bankwide";
 
 interface Props {
   data: CompetitorOutflow[];
+  /** Group rows by product type (e.g. High-Yield Savings) with type subtotal headers, largest leak first. */
+  groupByType?: boolean;
 }
 
 const trendIcons = {
@@ -36,7 +38,52 @@ const typeColors: Record<string, string> = {
   subscription: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
 };
 
-export function CompetitorOutflowTable({ data }: Props) {
+function OutflowRow({ row, rank }: { row: CompetitorOutflow; rank: number }) {
+  return (
+    <TableRow className="border-border">
+      <TableCell className="text-muted-foreground font-mono text-xs">{rank}</TableCell>
+      <TableCell className="font-medium text-foreground text-sm">{row.institution}</TableCell>
+      <TableCell>
+        <Badge variant="outline" className={`text-[10px] ${typeColors[row.type] || ''}`}>{row.type}</Badge>
+      </TableCell>
+      <TableCell className="text-muted-foreground text-xs">{row.productCategory}</TableCell>
+      <TableCell className="text-right font-mono text-sm text-foreground">{formatCurrency(row.estimatedOutflow)}</TableCell>
+      <TableCell className="text-right font-mono text-xs text-muted-foreground">{formatNumber(row.affectedCustomers)}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-1">
+          {trendIcons[row.trend]}
+          <span className="text-xs text-muted-foreground capitalize">{row.trend}</span>
+        </div>
+      </TableCell>
+      <TableCell className="text-xs text-muted-foreground">{row.detectionMethod}</TableCell>
+      <TableCell>
+        <Badge variant="outline" className={`text-[10px] ${riskColors[row.riskLevel]}`}>{row.riskLevel}</Badge>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export function CompetitorOutflowTable({ data, groupByType = false }: Props) {
+  const groups = groupByType
+    ? Object.values(
+        data.reduce<Record<string, { category: string; rows: CompetitorOutflow[]; total: number; customers: number }>>(
+          (acc, row) => {
+            const key = row.productCategory;
+            if (!acc[key]) acc[key] = { category: key, rows: [], total: 0, customers: 0 };
+            acc[key].rows.push(row);
+            acc[key].total += row.estimatedOutflow;
+            acc[key].customers += row.affectedCustomers;
+            return acc;
+          },
+          {},
+        ),
+      )
+        .map((g) => ({ ...g, rows: [...g.rows].sort((a, b) => b.estimatedOutflow - a.estimatedOutflow) }))
+        .sort((a, b) => b.total - a.total)
+    : null;
+
+  let rank = 0;
+
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="p-4 border-b border-border">
@@ -58,28 +105,27 @@ export function CompetitorOutflowTable({ data }: Props) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((row, i) => (
-            <TableRow key={row.institution} className="border-border">
-              <TableCell className="text-muted-foreground font-mono text-xs">{i + 1}</TableCell>
-              <TableCell className="font-medium text-foreground text-sm">{row.institution}</TableCell>
-              <TableCell>
-                <Badge variant="outline" className={`text-[10px] ${typeColors[row.type] || ''}`}>{row.type}</Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground text-xs">{row.productCategory}</TableCell>
-              <TableCell className="text-right font-mono text-sm text-foreground">{formatCurrency(row.estimatedOutflow)}</TableCell>
-              <TableCell className="text-right font-mono text-xs text-muted-foreground">{formatNumber(row.affectedCustomers)}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  {trendIcons[row.trend]}
-                  <span className="text-xs text-muted-foreground capitalize">{row.trend}</span>
-                </div>
-              </TableCell>
-              <TableCell className="text-xs text-muted-foreground">{row.detectionMethod}</TableCell>
-              <TableCell>
-                <Badge variant="outline" className={`text-[10px] ${riskColors[row.riskLevel]}`}>{row.riskLevel}</Badge>
-              </TableCell>
-            </TableRow>
-          ))}
+          {groups
+            ? groups.map((group) => (
+                <>
+                  <TableRow key={group.category} className="border-border bg-muted/40 hover:bg-muted/40">
+                    <TableCell colSpan={4} className="font-semibold text-foreground text-xs uppercase tracking-wide">
+                      {group.category}
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-xs font-semibold text-foreground">
+                      {formatCurrency(group.total)}
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-xs font-semibold text-muted-foreground">
+                      {formatNumber(group.customers)}
+                    </TableCell>
+                    <TableCell colSpan={3} />
+                  </TableRow>
+                  {group.rows.map((row) => (
+                    <OutflowRow key={row.institution} row={row} rank={++rank} />
+                  ))}
+                </>
+              ))
+            : data.map((row, i) => <OutflowRow key={row.institution} row={row} rank={i + 1} />)}
         </TableBody>
       </Table>
     </div>
