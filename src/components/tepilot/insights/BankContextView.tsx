@@ -78,7 +78,7 @@ export { BankContextView as ProductsCatalogView };
 
 // ---------- Products ----------
 
-function ProductsPanel() {
+export function ProductsPanel() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -190,7 +190,7 @@ const REGIONS = [
   { region: "Northwest",  states: "WA · OR · ID · MT",                          branches: 268, atms: 1340, weekday: "9a–5p", saturday: "9a–1p", sunday: "Closed" },
 ];
 
-function LocationsPanel() {
+export function LocationsPanel() {
   const totalBranches = REGIONS.reduce((n, r) => n + r.branches, 0);
   const totalATMs = REGIONS.reduce((n, r) => n + r.atms, 0);
   return (
@@ -296,7 +296,7 @@ const DEPARTMENTS = [
   },
 ];
 
-function DepartmentsPanel() {
+export function DepartmentsPanel() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
       {DEPARTMENTS.map((d) => {
@@ -347,7 +347,7 @@ const SEGMENTS = [
   { tier: "Diamond / Private Bank",   threshold: "$1M+ deposits · $10M+ investable", benefits: "Custom credit, trust, family office, concierge",   servicing: "Private Banker + specialists", accent: "bg-emerald-50 text-emerald-700 border-emerald-200" },
 ];
 
-function SegmentsPanel() {
+export function SegmentsPanel() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

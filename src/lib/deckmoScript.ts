@@ -452,8 +452,8 @@ export const DECKMO = {
         body: "Ricky’s tennis routine becomes a rewards card aligned to how he spends.",
       },
       {
-        title: "Bring more of the relationship home",
-        body: "Outside brokerage transfers become a timely guided-investing opportunity.",
+        title: "Turn travel plans into deposits",
+        body: "Ricky’s annual tropical trip becomes a high-yield savings goal that grows deposits.",
       },
     ],
   },
@@ -569,7 +569,7 @@ export const DECKMO = {
   bankTools: {
     eyebrow: "TOOLS FOR THE BANK",
     title: "Possible for Ricky because it is\npossible for every customer",
-    subtitle: "An intuitive, governed intelligence and personalization platform with 45 tools and workflows.",
+    subtitle: "A modular, governed intelligence and personalization platform with 45 tools and workflows.",
     screens: [
       {
         id: "database",
@@ -687,13 +687,22 @@ export const DECKMO = {
   },
   close: {
     eyebrow: "PERSONALIZATION BECOMES DIFFERENTIATION",
-    lines: [
-      "No more commoditized banking.",
-      "\n",
-    ],
+    lines: ["No more commoditized banking.", "\n"],
     equation: ["anticipate customer needs", "differentiated banking"],
-    ticker: ["lifts NPS", "grows deposits", "cross-sells more products", "increases card spend", "deepens engagement"],
-    signature: { parting: "Let's do great things together", name: "Marco Ma", role: "CEO & Cofounder", email: "marco@ventusai.com" },
+    ticker: [
+      "lift LTV",
+      "grow deposits",
+      "cross-sell more products",
+      "increase card spend",
+      "deepen engagement",
+      "increase retention",
+    ],
+    signature: {
+      parting: "Let's do great things together",
+      name: "Marco Ma",
+      role: "CEO & Cofounder",
+      email: "marco@ventusai.com",
+    },
   },
 } as const;
 
