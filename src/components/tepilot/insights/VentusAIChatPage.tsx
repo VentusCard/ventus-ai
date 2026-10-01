@@ -296,6 +296,7 @@ export function VentusAIChatPage({
               />
               <div className="flex items-center justify-between px-4 pb-2.5 pt-1">
                 <div className="flex items-center gap-3">
+                  <span className="text-[10.5px] text-slate-400">Scope: Bankwide book</span>
                   <span className="hidden text-[10.5px] text-slate-300 sm:inline">
                     Enter to send · Shift+Enter for a new line
                   </span>
