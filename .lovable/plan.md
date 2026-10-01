@@ -7,8 +7,8 @@ Replace the Guided Investing recommendation in section 7 with a standard high-yi
 - Replace the existing Guided Investing card with a deck-specific recommendation:
   - **Product:** Our Bank High-Yield Savings
   - **Behavior indicator:** Annual tropical vacation
-  - **Message:** Save for the next trip in a standard high-yield savings account while earning more on the balance.
-  - **Benefits:** competitive APY, automatic recurring transfers, and no monthly service fee.
+  - **Message:** Put $35,000 toward the next trip for nine months and earn $1,550 in combined interest and bonus value.
+  - **Benefits:** 4% annual rate, $500 deposit bonus, and no monthly service fee.
   - **CTA:** Start Saving for Your Next Trip
 - Keep the recommendation customer-centered while making the institutional outcome clear: new deposits and a deeper primary relationship.
 - Use the exact same card format as the mortgage and rewards recommendations: product icon and name, one-sentence rationale, three check-mark benefits, estimated-benefit row, and full-width CTA.
@@ -18,7 +18,8 @@ Replace the Guided Investing recommendation in section 7 with a standard high-yi
 
 ## Technical details
 - Replace the recommendation only in the frozen `/deckmo` fixture so normal `/bankdemo` recommendations remain unchanged.
-- Give the card an explicit estimated-benefit value suitable for the HYSA rather than inheriting an unrelated theme estimate.
+- Give the card an explicit **Est. Benefit $1,550** value rather than inheriting an unrelated theme estimate.
+- Base the value on transparent simple-interest math: `$35,000 × 4% × 9/12 = $1,050` interest, plus a `$500` bonus, totaling `$1,550` toward the next trip.
 - Reuse the existing card component and section-7 presentation layout without any card-specific markup, new controls, or changed phone proportions.
 
 ## Validation
