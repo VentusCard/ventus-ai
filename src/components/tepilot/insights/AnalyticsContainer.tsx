@@ -87,6 +87,8 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "capabilities", label: "System", icon: Layers },
       { value: "products", label: "Context", icon: Package },
+      { value: "outflow-analytics", label: "Analytics", icon: BarChart3 },
+      { value: "ventus-chat", label: "Ask Ventus AI", icon: MessagesSquare },
       
       { value: "governance", label: "Governance", icon: ShieldCheck },
     ],
@@ -103,8 +105,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
-      { value: "outflow-analytics", label: "Analytics", icon: BarChart3 },
-      { value: "ventus-chat", label: "Ask Ventus AI", icon: MessagesSquare },
       
       
       { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
