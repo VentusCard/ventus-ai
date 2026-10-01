@@ -502,8 +502,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               return (
                 <div key={group.label}>
                   {!collapsed && (
-                    <div className="px-3 py-1.5 text-[13px] font-semibold uppercase tracking-wider text-indigo-100/90">
-                      {group.label}
+                    <div className="px-3 py-1.5">
+                      <img
+                        src="/ventus-ai-logo.png"
+                        alt="VENTUS AI"
+                        aria-label="VENTUS AI"
+                        className="h-3.5 w-auto object-contain [filter:brightness-0_invert(1)]"
+                      />
                     </div>
                   )}
                   {renderItems()}
