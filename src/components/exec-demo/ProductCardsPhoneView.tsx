@@ -13,6 +13,8 @@ export interface ProductCard {
   eligibility?: string;
   cta?: string;
   cta_sub?: string;
+  estimated_value?: string;
+  estimated_label?: string;
 }
 
 /**
@@ -238,7 +240,7 @@ export default function ProductCardsPhoneView({ cards, compact = false, presenta
               const theme = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
               const fam = familyStyle(card.type);
               const benefits = (card.benefits?.length ? card.benefits : THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
-              const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
+              const value = card.estimated_value || THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
               const ThemeIcon = theme.icon;
               const cta = fitCta(card.cta, card.theme);
 
@@ -270,7 +272,7 @@ export default function ProductCardsPhoneView({ cards, compact = false, presenta
                         ))}
                       </div>
                       <p className={cn("font-bold leading-tight", presentationLayout ? "rounded-lg border border-white/60 bg-white/55 px-3 py-2 text-[14px]" : "text-[13px]")} style={{ color: fam.accent }}>
-                        {card.theme === "fitness" ? "Est. Benefit" : "Est."} {value}
+                        {card.estimated_label || (card.theme === "fitness" ? "Est. Benefit" : "Est.")} {value}
                       </p>
                       <button
                         className={cn("flex w-full items-center justify-center gap-1.5 rounded-xl px-2 font-bold text-white shadow-sm", presentationLayout ? "py-3" : "py-2.5")}
