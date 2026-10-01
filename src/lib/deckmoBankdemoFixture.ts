@@ -63,7 +63,8 @@ const lifeEvents = customer.lifeEvents.map((event) => ({
 const deckmoProductCards: ProductCard[] = (snapshot?.productCards ?? []).map((card) =>
   card.product_name === "Our Bank Guided Investing"
     ? {
-        type: "behavioral",
+        // financial_signal renders green (the "ranked first" recommendation).
+        type: "financial_signal",
         product_name: "Our Bank High-Yield Savings",
         quote: "Put $35,000 to work for nine months and earn $1,550 toward your next tropical trip.",
         signal_label: "Annual tropical vacation",
@@ -83,10 +84,16 @@ const deckmoProductCards: ProductCard[] = (snapshot?.productCards ?? []).map((ca
     : card,
 );
 
+// Rank the high-yield savings recommendation first in the rotation.
+const savingsFirst = (cards: ProductCard[]): ProductCard[] => [
+  ...cards.filter((card) => card.product_name === "Our Bank High-Yield Savings"),
+  ...cards.filter((card) => card.product_name !== "Our Bank High-Yield Savings"),
+];
+
 export const DECKMO_BANKDEMO_FIXTURE = {
   customer,
   offers: snapshot?.offers ?? [],
-  productCards: deckmoProductCards,
+  productCards: savingsFirst(deckmoProductCards),
   lifeEvents,
   enrichedTransactions: frozenTransactions(customer.csv),
 };
