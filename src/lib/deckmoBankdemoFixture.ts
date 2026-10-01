@@ -65,14 +65,14 @@ const deckmoProductCards: ProductCard[] = (snapshot?.productCards ?? []).map((ca
     ? {
         type: "behavioral",
         product_name: "Our Bank High-Yield Savings",
-        quote: "Your annual tropical trip could earn $1,550 toward the next getaway in nine months.",
+        quote: "Put $35,000 to work for nine months and earn $1,550 toward your next tropical trip.",
         signal_label: "Annual tropical vacation",
         theme: "travel",
         offer_headline: "Earn more while saving for your next tropical trip",
         benefits: [
-          "Earn $1,050 interest on $35,000 over nine months at 4% APR",
-          "Receive a $500 bonus for meeting the deposit requirement",
-          "Pay no monthly service fee while your trip fund grows",
+          "4% APR earns $1,050 over nine months",
+          "$500 bonus brings the total benefit to $1,550",
+          "No monthly service fee",
         ],
         eligibility: "$35,000 qualifying deposit held for nine months",
         cta: "Start Saving for Your Next Trip",
