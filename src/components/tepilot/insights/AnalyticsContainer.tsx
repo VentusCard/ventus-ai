@@ -87,10 +87,8 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "VENTUS AI",
     items: [
       { value: "capabilities", label: "System", icon: Layers },
-      { value: "products", label: "Context", icon: Package },
       { value: "ventus-chat", label: "Ask Ventus AI", icon: MessagesSquare },
-      
-      { value: "governance", label: "Governance", icon: ShieldCheck },
+      { value: "governance-context", label: "Governance & Context", icon: ShieldCheck },
     ],
   },
   {
@@ -375,6 +373,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'outflow-analytics': return <AnalyticsView />;
       case 'capabilities': return <CapabilitiesView onNavigate={setActiveTab} />;
       case 'products': return <BankContextView />;
+      case 'governance-context': return <GovernanceContextView />;
       // 'ventus-chat' is rendered as a persistent mount below so the thread survives tab switches.
       case 'ventus-chat': return null;
       case 'reports': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="reports" />;
