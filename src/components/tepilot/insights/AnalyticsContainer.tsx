@@ -507,7 +507,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                         src="/ventus-ai-logo.png"
                         alt="VENTUS AI"
                         aria-label="VENTUS AI"
-                        className="h-3.5 w-auto object-contain [filter:brightness-0_invert(1)]"
+                        className="h-3.5 w-auto object-contain"
+                        style={{ filter: "brightness(0) invert(1)" }}
                       />
                     </div>
                   )}
