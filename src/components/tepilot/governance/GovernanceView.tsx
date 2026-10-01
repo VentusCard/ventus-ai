@@ -12,7 +12,7 @@ import {
   type SignalFamilyId,
 } from "./personalizationLevels";
 
-export function GovernanceView() {
+export function GovernanceView({ hideHeader = false }: { hideHeader?: boolean }) {
   const [levelId, setLevelId] = useState<PersonalizationLevelId>("personalized");
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
 
@@ -20,13 +20,16 @@ export function GovernanceView() {
 
   return (
     <div className="space-y-4">
-      <TabHeader
-        icon={<ShieldCheck className="w-4 h-4" />}
-        title="Governance"
-        subtitle="Set how far personalization goes, and the policies it runs inside"
-        howItWorks="Choose a personalization level, enable the signal families your institution permits, upload the compliance and brand documents Ventus must respect, then set the operating guardrails."
-        whyItMatters="Personalization only scales when leadership can see and change its limits. Everything below the line runs autonomously inside these rails."
-      />
+      {!hideHeader && (
+        <TabHeader
+          icon={<ShieldCheck className="w-4 h-4" />}
+          title="Governance"
+          subtitle="Set how far personalization goes, and the policies it runs inside"
+          howItWorks="Choose a personalization level, enable the signal families your institution permits, upload the compliance and brand documents Ventus must respect, then set the operating guardrails."
+          whyItMatters="Personalization only scales when leadership can see and change its limits. Everything below the line runs autonomously inside these rails."
+        />
+      )}
+
 
       <PersonalizationDial value={levelId} onChange={setLevelId} level={level} />
 

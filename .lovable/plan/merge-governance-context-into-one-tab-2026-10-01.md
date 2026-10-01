@@ -5,9 +5,10 @@
 In /bankdemo (and therefore Slide 9 of /deckmo), the VENTUS AI sidebar section currently has four items: System, Context, Ask Ventus AI, Governance. The **Context** and **Governance** items merge into a single tab.
 
 New sidebar order in VENTUS AI section:
+
 - System
-- **Governance & Context** (new merged tab, ShieldCheck icon)
 - Ask Ventus AI
+- **Governance & Context** (new merged tab, ShieldCheck icon)
 
 ## How it works
 

@@ -16,6 +16,7 @@ import { CapabilitiesView } from "./CapabilitiesView";
 import { BankContextView } from "./BankContextView";
 import { SettingsContainer } from "./SettingsContainer";
 import { GovernanceView } from "../governance/GovernanceView";
+import { GovernanceContextView } from "../governance/GovernanceContextView";
 
 
 import { MerchantPartnershipsView } from "./MerchantPartnershipsView";
@@ -74,7 +75,7 @@ import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 import ventusLogoWhite from "@/assets/ventus-logo-transparent.png";
 
 
-export type TabValue = 'outflow-analytics' | 'ventus-ai-dashboard' | 'ventus-chat' | 'customers' | 'ventus-ai' | 'capabilities' | 'products' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'growth-merchant-partnerships' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
+export type TabValue = 'outflow-analytics' | 'ventus-ai-dashboard' | 'ventus-chat' | 'customers' | 'ventus-ai' | 'capabilities' | 'products' | 'governance-context' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'growth-merchant-partnerships' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
 
 interface NavItem {
   value: TabValue;
@@ -87,10 +88,8 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "VENTUS AI",
     items: [
       { value: "capabilities", label: "System", icon: Layers },
-      { value: "products", label: "Context", icon: Package },
       { value: "ventus-chat", label: "Ask Ventus AI", icon: MessagesSquare },
-      
-      { value: "governance", label: "Governance", icon: ShieldCheck },
+      { value: "governance-context", label: "Governance & Context", icon: ShieldCheck },
     ],
   },
   {
@@ -375,6 +374,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'outflow-analytics': return <AnalyticsView />;
       case 'capabilities': return <CapabilitiesView onNavigate={setActiveTab} />;
       case 'products': return <BankContextView />;
+      case 'governance-context': return <GovernanceContextView />;
       // 'ventus-chat' is rendered as a persistent mount below so the thread survives tab switches.
       case 'ventus-chat': return null;
       case 'reports': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="reports" />;
