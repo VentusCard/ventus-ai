@@ -1,4 +1,5 @@
 import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
+import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { getPersonalizationSnapshot } from "@/lib/personalizationSnapshots";
 import type { LifeEvent } from "@/types/lifestyle-signals";
@@ -59,10 +60,33 @@ const lifeEvents = customer.lifeEvents.map((event) => ({
   evidence: [],
 })) satisfies LifeEvent[];
 
+const deckmoProductCards: ProductCard[] = (snapshot?.productCards ?? []).map((card) =>
+  card.product_name === "Our Bank Guided Investing"
+    ? {
+        type: "behavioral",
+        product_name: "Our Bank High-Yield Savings",
+        quote: "Your annual tropical trip could earn $1,550 toward the next getaway in nine months.",
+        signal_label: "Annual tropical vacation",
+        theme: "travel",
+        offer_headline: "Earn more while saving for your next tropical trip",
+        benefits: [
+          "Earn $1,050 interest on $35,000 over nine months at 4% APR",
+          "Receive a $500 bonus for meeting the deposit requirement",
+          "Pay no monthly service fee while your trip fund grows",
+        ],
+        eligibility: "$35,000 qualifying deposit held for nine months",
+        cta: "Start Saving for Your Next Trip",
+        cta_sub: "Open an account and fund your travel goal",
+        estimated_label: "Est. Benefit",
+        estimated_value: "$1,550",
+      }
+    : card,
+);
+
 export const DECKMO_BANKDEMO_FIXTURE = {
   customer,
   offers: snapshot?.offers ?? [],
-  productCards: snapshot?.productCards ?? [],
+  productCards: deckmoProductCards,
   lifeEvents,
   enrichedTransactions: frozenTransactions(customer.csv),
 };

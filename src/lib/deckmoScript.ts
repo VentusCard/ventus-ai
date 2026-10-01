@@ -452,8 +452,8 @@ export const DECKMO = {
         body: "Ricky’s tennis routine becomes a rewards card aligned to how he spends.",
       },
       {
-        title: "Bring more of the relationship home",
-        body: "Outside brokerage transfers become a timely guided-investing opportunity.",
+        title: "Turn travel plans into deposits",
+        body: "Ricky’s annual tropical trip becomes a high-yield savings goal that grows deposits.",
       },
     ],
   },
