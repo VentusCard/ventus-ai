@@ -3,7 +3,6 @@ import { ArrowUp, Compass, FileText, LineChart, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import { PromptRail } from "./ventus-chat/PromptRail";
-import { ContextPanel } from "./ventus-chat/ContextPanel";
 import { ChatMessage } from "./ventus-chat/ChatMessage";
 import { PriorityBriefing } from "./ventus-chat/PriorityBriefing";
 import { getRevenueOpportunities } from "@/lib/mockBankwideData";
@@ -318,13 +317,6 @@ export function VentusAIChatPage({
           </div>
         </div>
       </div>
-
-
-      <ContextPanel
-        metrics={LEADERSHIP_CONTEXT.bankwideMetrics}
-        hotTrends={LEADERSHIP_CONTEXT.hotTrends}
-        onNavigate={onNavigate}
-      />
     </div>
   );
 }
