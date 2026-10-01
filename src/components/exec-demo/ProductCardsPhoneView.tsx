@@ -185,12 +185,12 @@ export default function ProductCardsPhoneView({ cards, compact = false, presenta
 
   const total = cards.length;
 
-  // Auto-advance
+  // Auto-advance (slower 6s cadence for the deck's product cards)
   useEffect(() => {
     if ((presentationMode && !autoRotate) || paused || total <= 1) return;
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % total);
-    }, autoRotate ? 4000 : 6000);
+    }, 6000);
     return () => clearInterval(id);
   }, [presentationMode, autoRotate, paused, total]);
 
