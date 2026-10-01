@@ -505,7 +505,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                   {!collapsed && (
                     <div className="px-3 py-1.5">
                       <img
-                        src="/ventus-ai-logo.png"
+                        src={ventusLogoWhite}
                         alt="VENTUS AI"
                         aria-label="VENTUS AI"
                         className="h-3.5 w-auto object-contain"
