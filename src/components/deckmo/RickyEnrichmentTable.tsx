@@ -50,7 +50,7 @@ export default function RickyEnrichmentTable({ railBadge }: { railBadge: (source
               <span className="deck-ricky-cascade truncate" style={delay}>
                 <span className="inline-block max-w-full truncate rounded-full border px-1.5 py-px text-[8.5px] font-semibold" style={{ backgroundColor: `${color}1a`, color, borderColor: `${color}40` }}>{x.pillar}</span>
               </span>
-              <span className="deck-ricky-cascade flex min-w-0 items-center gap-1" style={delay}>
+              <span className="deck-ricky-cascade flex min-w-0 items-center gap-1 overflow-hidden" style={delay}>
                 <span className="truncate text-[9.5px] font-semibold text-slate-700">{x.category}</span>
                 {x.subcategories.map((s) => <span key={s} className="shrink-0 rounded bg-slate-100 px-1 py-px text-[8.5px] text-slate-600">{s}</span>)}
               </span>
