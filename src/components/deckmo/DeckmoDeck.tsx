@@ -155,27 +155,39 @@ function Opener({ step }: SceneProps) {
 
 function Visibility({ step, active = false }: SceneProps) {
   const d = DECKMO.visibility;
+  const ricky = DECKMO.ricky;
   const moved = step > 0;
   return (
-    <div className="mx-auto flex h-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-      <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
-      <div className="relative mt-7 min-h-0 flex-1 [@media(max-height:800px)]:mt-5">
-        <div className={cn(
-          "absolute inset-y-0 transition-all duration-700 ease-in-out motion-reduce:transition-none",
-          moved ? "left-0 w-[calc(50%-24px)] translate-x-0" : "left-1/2 w-[900px] max-w-full -translate-x-1/2"
-        )}>
-          <InsideLedger data={d.inside} active={active} />
+    <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
+      <Header eyebrow={ricky.eyebrow} title={ricky.title} subtitle={d.subtitle} />
+      <div className={cn(
+        "mx-auto mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] transition-[width] duration-700 ease-in-out [@media(max-height:800px)]:mt-4",
+        moved ? "w-full" : "w-[54%]",
+      )}>
+        <div className="flex shrink-0 items-center gap-3 border-b border-deck-rule bg-gradient-to-b from-background to-deck-surface/60 px-6 py-2.5 [@media(max-height:800px)]:px-5 [@media(max-height:800px)]:py-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50 text-deck-blue shadow-sm [@media(max-height:800px)]:h-6 [@media(max-height:800px)]:w-6">
+            <UserRound className="h-4 w-4 [@media(max-height:800px)]:h-3.5 [@media(max-height:800px)]:w-3.5" />
+          </div>
+          <h3 className="shrink-0 font-display text-[clamp(15px,1.1vw,18px)] font-bold leading-none text-deck-navy">{ricky.profileTitle}</h3>
+          <span className="h-4 w-px shrink-0 bg-deck-rule" />
+          <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{ricky.profileFacts}</p>
         </div>
-        <div className={cn(
-          "absolute inset-y-0 right-0 w-[calc(50%-24px)] transition-all duration-700 ease-in-out motion-reduce:transition-none",
-          moved ? "opacity-100 blur-0" : "pointer-events-none opacity-0 blur-[5px]"
-        )}>
-          <OutsideTicker data={d.outside} revealed={moved} active={active} />
+        <div className={cn("grid min-h-0 flex-1 transition-[grid-template-columns] duration-700 ease-in-out", moved ? "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]" : "grid-cols-[minmax(0,1fr)_0fr]") }>
+          <section className="min-h-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 px-5 py-2 scrollbar-light">
+            <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
+            {RICKY_TRANSACTIONS.map((transaction) => (
+              <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2">
+                <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
+                <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
+                <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
+                <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
+              </div>
+            ))}
+          </section>
+          <section className={cn("min-h-0 min-w-0 overflow-hidden bg-background px-6 py-4 transition-opacity delay-200 duration-500", moved ? "opacity-100" : "pointer-events-none opacity-0")}>
+            <OutsideTicker data={d.outside} revealed={moved} active={active} />
+          </section>
         </div>
-        <div className={cn(
-          "absolute inset-y-0 left-1/2 w-px -translate-x-1/2 border-l border-dashed border-deck-rule transition-opacity duration-700 motion-reduce:transition-none",
-          moved ? "opacity-100" : "opacity-0"
-        )} />
       </div>
     </div>
   );
