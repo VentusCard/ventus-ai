@@ -1,4 +1,3 @@
-import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import { RICKY_TRANSACTIONS } from "@/lib/deckmoRickyTransactions";
@@ -19,32 +18,17 @@ const FREQ: Record<string, string> = {
 };
 const conf = (c: number) => c >= 0.8 ? "bg-green-50 text-green-700 border-green-200" : c >= 0.5 ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-red-50 text-red-700 border-red-200";
 
-/** Proportional tracks so the enrichment fits the right panel at any deck width. Literal for Tailwind. */
-const ENRICH_COLS = "grid-cols-[1.3fr_1.2fr_1.4fr_0.55fr_0.7fr_0.45fr]";
+/** Proportional tracks so the enrichment fits the right half at any deck width. Literal for Tailwind. */
+export const ENRICH_COLS = "grid-cols-[1.3fr_1.2fr_1.4fr_0.55fr_0.7fr_0.45fr]";
 
-/**
- * Slide 4.2 right panel. The 4.1 ledger on the left is left untouched; this
- * panel fills the (previously empty) right side with one enrichment row per
- * ledger row. It owns the visible scrollbar on slide 4.2 (far right edge) and
- * drives the ledger's scroll position; each row carries an invisible strut
- * identical to the ledger's source badge so row heights match the ledger exactly.
- */
-export const RickyEnrichmentPanel = forwardRef<HTMLDivElement, { onPanelScroll: () => void }>(
-  function RickyEnrichmentPanel({ onPanelScroll }, ref) {
-    return (
-      <div ref={ref} onScroll={onPanelScroll} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
-        <div className={cn("sticky top-0 z-10 grid gap-2.5 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400", ENRICH_COLS)}>
-          <span className="truncate">Merchant</span><span className="truncate">Pillar</span><span className="truncate">Category · Sub</span><span className="truncate">Tier</span><span className="truncate">Freq</span><span className="truncate">Conf</span>
-        </div>
-        {RICKY_TRANSACTIONS.map((t, i) => (
-          <div key={t.id} className={cn("grid items-center gap-2.5 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2", ENRICH_COLS)}>
-            <EnrichmentCells transactionId={t.id} index={i} />
-          </div>
-        ))}
-      </div>
-    );
-  },
-);
+/** Header labels for the slide 4.2 enrichment half of the shared Ricky table. */
+export function EnrichmentColumnHeaders() {
+  return (
+    <>
+      <span className="truncate">Merchant</span><span className="truncate">Pillar</span><span className="truncate">Category · Sub</span><span className="truncate">Tier</span><span className="truncate">Freq</span><span className="truncate">Conf</span>
+    </>
+  );
+}
 
 export function EnrichmentCells({ transactionId, index }: { transactionId: string; index: number }) {
   const t = RICKY_TRANSACTIONS.find((row) => row.id === transactionId);
