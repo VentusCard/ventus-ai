@@ -29,10 +29,10 @@ const ENRICH_COLS = "grid-cols-[1.3fr_1.2fr_1.4fr_0.55fr_0.7fr_0.45fr]";
  * drives the ledger's scroll position; each row carries an invisible strut
  * identical to the ledger's source badge so row heights match the ledger exactly.
  */
-export const RickyEnrichmentPanel = forwardRef<HTMLDivElement, { onWheelScroll: (deltaY: number) => void; onPanelScroll: () => void }>(
-  function RickyEnrichmentPanel({ onWheelScroll, onPanelScroll }, ref) {
+export const RickyEnrichmentPanel = forwardRef<HTMLDivElement, { onPanelScroll: () => void }>(
+  function RickyEnrichmentPanel({ onPanelScroll }, ref) {
     return (
-      <div ref={ref} onScroll={onPanelScroll} onWheel={(e) => onWheelScroll(e.deltaY)} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
+      <div ref={ref} onScroll={onPanelScroll} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
         <div className={cn("sticky top-0 z-10 grid gap-2.5 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400", ENRICH_COLS)}>
           <span className="truncate">Merchant</span><span className="truncate">Pillar</span><span className="truncate">Category · Sub</span><span className="truncate">Tier</span><span className="truncate">Freq</span><span className="truncate">Conf</span>
         </div>

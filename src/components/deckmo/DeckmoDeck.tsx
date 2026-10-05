@@ -354,7 +354,7 @@ function Ricky({ step, active = false }: SceneProps) {
         </section>
 
         {step === 1 ? <section className="flex min-h-0 flex-col bg-background">
-          <RickyEnrichmentPanel ref={enrichScrollRef} onPanelScroll={syncLedgerScroll} onWheelScroll={(deltaY) => ledgerScrollRef.current?.scrollBy({ top: deltaY })} />
+          <RickyEnrichmentPanel ref={enrichScrollRef} onPanelScroll={syncLedgerScroll} />
         </section> : <section className="flex min-h-0 flex-col bg-background px-7 py-5 [@media(max-height:800px)]:px-6 [@media(max-height:800px)]:py-4">
           <div className="flex min-h-0 flex-1 flex-col">
             {step > 1 && <>
