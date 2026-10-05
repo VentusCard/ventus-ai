@@ -287,10 +287,10 @@ function Ricky({ step, active = false }: SceneProps) {
     : RICKY_TRANSACTIONS;
   const selectSignal = (label: string) => setSelectedLabel((current) => current === label ? null : label);
   const visibleSignals = step === 2 ? d.signals.filter((signal) => signal.source === "internal") : d.signals;
-  const families = visibleSignals.reduce<Record<string, (typeof d.signals[number])[]>>((grouped, signal) => {
+  const families = visibleSignals.reduce((grouped, signal) => {
     (grouped[signal.family] ??= []).push(signal);
     return grouped;
-  }, {});
+  }, {} as Record<string, (typeof d.signals[number])[]>);
 
   useEffect(() => {
     setRollComplete(step > 2);
