@@ -286,14 +286,15 @@ function Ricky({ step, active = false }: SceneProps) {
     ? RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((signal) => signal === selectedLabel))
     : RICKY_TRANSACTIONS;
   const selectSignal = (label: string) => setSelectedLabel((current) => current === label ? null : label);
-  const families = d.signals.reduce<Record<string, (typeof d.signals[number])[]>>((grouped, signal) => {
+  const visibleSignals = step === 2 ? d.signals.filter((signal) => signal.source === "internal") : d.signals;
+  const families = visibleSignals.reduce<Record<string, (typeof d.signals[number])[]>>((grouped, signal) => {
     (grouped[signal.family] ??= []).push(signal);
     return grouped;
   }, {});
 
   useEffect(() => {
-    setRollComplete(false);
-    if (step !== 2) setSelectedLabel(null);
+    setRollComplete(step > 2);
+    if (step < 2) setSelectedLabel(null);
     if (!active || step !== 2) return;
     const timer = window.setTimeout(() => setRollComplete(true), 2200);
     return () => window.clearTimeout(timer);
@@ -321,7 +322,7 @@ function Ricky({ step, active = false }: SceneProps) {
         </div>
 
         {step < 2 ? <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden scrollbar-light">
-          {/* Slides 4.1 + 4.2 share one table. The frame expands while the ledger keeps its width. */}
+          {/* The ledger and enrichment view share one table so its columns and rows remain stable. */}
           <div className={cn("grid transition-[grid-template-columns] duration-500 ease-in-out", step === 0 ? "grid-cols-[minmax(0,1fr)_0fr]" : "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]")}>
             <div className="h-2 border-r border-deck-rule bg-deck-surface/50" /><div className="h-2 min-w-0 overflow-hidden" />
           </div>
@@ -392,6 +393,11 @@ function Ricky({ step, active = false }: SceneProps) {
       </div>
     </div>
   );
+}
+
+function VisibilityAndRicky({ step, active = false }: SceneProps) {
+  if (step < 2) return <Visibility step={step} active={active} />;
+  return <Ricky step={step - 1} active={active} />;
 }
 
 function PhoneFrame({ title, children }: { title:string; children:React.ReactNode }) { return <div className="mx-auto flex h-[570px] w-[330px] flex-col overflow-hidden rounded-[30px] border-[8px] border-slate-300 bg-white shadow-2xl"><div className="flex h-7 shrink-0 items-center justify-center bg-white"><span className="h-2 w-2 rounded-full bg-slate-300"/></div><div className="flex items-center justify-between border-b border-slate-100 px-4 py-2"><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneTime}</span><span className="text-[11px] font-bold text-slate-700">{title}</span><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneMenu}</span></div><div className="min-h-0 flex-1 overflow-hidden">{children}</div><div className="flex h-7 shrink-0 items-center justify-center"><span className="h-1 w-24 rounded-full bg-slate-300"/></div></div>; }
@@ -473,7 +479,7 @@ function Close({ step }: SceneProps) {
   );
 }
 
-const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:Visibility,"living-view":LivingView,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,retention:BankdemoRetention,"bank-tools":BankdemoBankTools,close:Close};
+const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:VisibilityAndRicky,"living-view":LivingView,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,retention:BankdemoRetention,"bank-tools":BankdemoBankTools,close:Close};
 
 export function DeckmoDeck(){const [globalStep,setGlobalStep]=useState(0);const [presenterOpen,setPresenterOpen]=useState(false);const scroller=useRef<HTMLDivElement>(null);const deckRootRef=useRef<HTMLDivElement>(null);useInstitutionDomSwap(deckRootRef);const sectionRefs=useRef<(HTMLElement|null)[]>([]);const current=DECKMO_STEPS[globalStep];const activeBeat=DECKMO.beats[current.section];const hasSub="sub" in current&&!!current.sub;const beatNum=current.screen+1;const slideNumber=hasSub?`${current.section+1}.${beatNum}.${current.sub}`:`${current.section+1}${activeBeat.steps>1?`.${beatNum}`:""}`;const slideTotal=String(DECKMO.beats.length);
 const navLock=useRef<number|null>(null);
