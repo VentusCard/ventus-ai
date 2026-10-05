@@ -334,7 +334,7 @@ function Ricky({ step, active = false }: SceneProps) {
               <div className="flex items-start gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-violet-200 bg-background text-violet-600"><Sparkles className="h-5 w-5" /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-base font-bold text-slate-900">{selectedSignal?.label}</p><span className="rounded-full border border-violet-200 bg-background px-2.5 py-1 text-[10px] font-bold uppercase text-violet-700">{selectedExternalEvidence.confidence}</span></div><p className="mt-2 text-sm leading-relaxed text-slate-600">{selectedExternalEvidence.detail}</p></div></div>
               <div className="mt-5 grid grid-cols-2 border-t border-violet-200 pt-4"><div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600">Source</p><p className="mt-1 text-sm font-semibold text-slate-800">{selectedExternalEvidence.provider}</p></div><div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600">Timing</p><p className="mt-1 text-sm font-semibold text-slate-800">{selectedExternalEvidence.timing}</p></div></div>
             </div>
-          </div> : <div ref={ledgerScrollRef} onScroll={syncEnrichScroll} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
+          </div> : <div ref={ledgerScrollRef} onScroll={syncEnrichScroll} className={cn("min-h-0 flex-1 overflow-y-auto px-5 py-2", step === 1 ? "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" : "scrollbar-light")}>
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
             <div className={cn(active && step === 2 && !rollComplete && "deck-ricky-ledger-roll")}>
               {displayedTransactions.map((transaction) => {
@@ -354,7 +354,7 @@ function Ricky({ step, active = false }: SceneProps) {
         </section>
 
         {step === 1 ? <section className="flex min-h-0 flex-col bg-background">
-          <RickyEnrichmentPanel ref={enrichScrollRef} onWheelScroll={(deltaY) => ledgerScrollRef.current?.scrollBy({ top: deltaY })} />
+          <RickyEnrichmentPanel ref={enrichScrollRef} onPanelScroll={syncLedgerScroll} onWheelScroll={(deltaY) => ledgerScrollRef.current?.scrollBy({ top: deltaY })} />
         </section> : <section className="flex min-h-0 flex-col bg-background px-7 py-5 [@media(max-height:800px)]:px-6 [@media(max-height:800px)]:py-4">
           <div className="flex min-h-0 flex-1 flex-col">
             {step > 1 && <>
