@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import { RICKY_TRANSACTIONS } from "@/lib/deckmoRickyTransactions";
@@ -18,37 +19,32 @@ const FREQ: Record<string, string> = {
 };
 const conf = (c: number) => c >= 0.8 ? "bg-green-50 text-green-700 border-green-200" : c >= 0.5 ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-red-50 text-red-700 border-red-200";
 
-/**
- * Ledger columns identical to 4.1 (54/94/1fr/90) + enrichment columns appended
- * on the right. The enrichment tracks sum to 595px so the flexible Transaction
- * column keeps the same width it has on 4.1 — the left side does not move.
- * Literal string so Tailwind compiles it.
- */
-const SPLIT_COLS = "grid-cols-[54px_94px_minmax(0,1fr)_90px_140px_124px_150px_64px_72px_45px]";
+/** Proportional tracks so the enrichment fits the right panel at any deck width. Literal for Tailwind. */
+const ENRICH_COLS = "grid-cols-[1.3fr_1.2fr_1.4fr_0.55fr_0.7fr_0.45fr]";
 
 /**
- * Slide 4.2 view: the exact 4.1 ledger table, extended to the right with
- * enrichment columns. Same header, same rows, same scroll container padding.
+ * Slide 4.2 right panel. The 4.1 ledger on the left is left untouched; this
+ * panel fills the (previously empty) right side with one enrichment row per
+ * ledger row. Its scroll position is driven by the ledger (no own scrollbar),
+ * and each row carries an invisible strut identical to the ledger's source
+ * badge so row heights match the ledger exactly.
  */
-export default function RickyEnrichmentTable({ railBadge }: { railBadge: (source: string) => string }) {
-  return (
-    <div className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
-      <div className={cn("sticky top-0 z-10 grid gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400", SPLIT_COLS)}>
-        <span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span>
-        <span>Merchant</span><span>Pillar</span><span>Category · Sub</span><span>Tier</span><span>Freq</span><span>Conf</span>
-      </div>
-      {RICKY_TRANSACTIONS.map((t, i) => (
-        <div key={t.id} className={cn("grid items-center gap-3 border-b border-slate-200/80 py-2 pl-2", SPLIT_COLS)}>
-          <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{t.date}</span>
-          <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", railBadge(t.source))}>{t.source}</span>
-          <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{t.description}{t.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {t.mcc} · {t.mccLabel}</span>}</p>
-          <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{t.amount}</span>
-          <EnrichmentCells transactionId={t.id} index={i} />
+export const RickyEnrichmentPanel = forwardRef<HTMLDivElement, { onWheelScroll: (deltaY: number) => void }>(
+  function RickyEnrichmentPanel({ onWheelScroll }, ref) {
+    return (
+      <div ref={ref} onWheel={(e) => onWheelScroll(e.deltaY)} className="min-h-0 flex-1 overflow-hidden px-5 py-2">
+        <div className={cn("sticky top-0 z-10 grid gap-2.5 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400", ENRICH_COLS)}>
+          <span className="truncate">Merchant</span><span className="truncate">Pillar</span><span className="truncate">Category · Sub</span><span className="truncate">Tier</span><span className="truncate">Freq</span><span className="truncate">Conf</span>
         </div>
-      ))}
-    </div>
-  );
-}
+        {RICKY_TRANSACTIONS.map((t, i) => (
+          <div key={t.id} className={cn("grid items-center gap-2.5 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2", ENRICH_COLS)}>
+            <EnrichmentCells transactionId={t.id} index={i} />
+          </div>
+        ))}
+      </div>
+    );
+  },
+);
 
 export function EnrichmentCells({ transactionId, index }: { transactionId: string; index: number }) {
   const t = RICKY_TRANSACTIONS.find((row) => row.id === transactionId);
@@ -56,19 +52,30 @@ export function EnrichmentCells({ transactionId, index }: { transactionId: strin
   const x = enrichRickyTransaction(t);
   const color = PILLAR_COLORS[x.pillar] ?? "#64748b";
   const delay = { animationDelay: `${Math.min(index, 18) * 60 + 250}ms` };
+  const sub = x.subcategories[0];
   return (
     <>
-      <span className="deck-ricky-cascade truncate text-[10.5px] font-bold text-slate-900" style={delay}>{x.merchant}</span>
-      <span className="deck-ricky-cascade truncate" style={delay}>
-        <span className="inline-block max-w-full truncate rounded-full border px-1.5 py-px text-[8.5px] font-semibold" style={{ backgroundColor: `${color}1a`, color, borderColor: `${color}40` }}>{x.pillar}</span>
+      <span className="deck-ricky-cascade flex min-w-0 items-center" style={delay}>
+        {/* Height strut: same box as the ledger's source badge, keeps row heights identical to 4.1 */}
+        <span aria-hidden className="invisible inline-block w-0 overflow-hidden rounded-sm border py-0.5 text-[8px] font-bold">x</span>
+        <span className="truncate text-[10.5px] font-bold leading-none text-slate-900">{x.merchant}</span>
       </span>
-      <span className="deck-ricky-cascade flex min-w-0 items-center gap-1 overflow-hidden" style={delay}>
-        <span className="truncate text-[9.5px] font-semibold text-slate-700">{x.category}</span>
-        {x.subcategories.map((s) => <span key={s} className="shrink-0 rounded bg-slate-100 px-1 py-px text-[8.5px] text-slate-600">{s}</span>)}
+      <span className="deck-ricky-cascade flex min-w-0 items-center leading-none" style={delay}>
+        <span className="truncate rounded-full border px-1.5 py-0.5 text-[8.5px] font-semibold leading-none" style={{ backgroundColor: `${color}1a`, color, borderColor: `${color}40` }}>{x.pillar}</span>
       </span>
-      <span className={cn("deck-ricky-cascade w-fit rounded border px-1.5 py-px text-[8.5px] font-semibold", TIER[x.tier])} style={delay}>{x.tier}</span>
-      <span className={cn("deck-ricky-cascade w-fit rounded border px-1.5 py-px text-[8.5px] font-semibold", FREQ[x.frequency])} style={delay}>{x.frequency}</span>
-      <span className={cn("deck-ricky-cascade w-fit rounded border px-1 py-px text-[8.5px] font-semibold tabular-nums", conf(x.confidence))} style={delay}>{Math.round(x.confidence * 100)}%</span>
+      <span className="deck-ricky-cascade flex min-w-0 items-center gap-1 overflow-hidden leading-none" style={delay}>
+        <span className="truncate text-[9.5px] font-semibold leading-none text-slate-700">{x.category}</span>
+        {sub && <span className="min-w-0 truncate rounded bg-slate-100 px-1 py-0.5 text-[8.5px] leading-none text-slate-600">{sub}</span>}
+      </span>
+      <span className="deck-ricky-cascade flex min-w-0 items-center leading-none" style={delay}>
+        <span className={cn("truncate rounded border px-1.5 py-0.5 text-[8.5px] font-semibold leading-none", TIER[x.tier])}>{x.tier}</span>
+      </span>
+      <span className="deck-ricky-cascade flex min-w-0 items-center leading-none" style={delay}>
+        <span className={cn("truncate rounded border px-1.5 py-0.5 text-[8.5px] font-semibold leading-none", FREQ[x.frequency])}>{x.frequency}</span>
+      </span>
+      <span className="deck-ricky-cascade flex min-w-0 items-center leading-none" style={delay}>
+        <span className={cn("truncate rounded border px-1 py-0.5 text-[8.5px] font-semibold tabular-nums leading-none", conf(x.confidence))}>{Math.round(x.confidence * 100)}%</span>
+      </span>
     </>
   );
 }
