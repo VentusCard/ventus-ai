@@ -8,6 +8,7 @@ import { useInstitutionDomSwap } from "@/lib/institutionMode";
 import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTransactions";
 import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoRetention } from "./DeckmoBankdemoScenes";
+import { ENRICH_COLS, EnrichmentCells, EnrichmentColumnHeaders } from "./RickyEnrichmentTable";
 
 const TONES = {
   blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-100", hoverBg: "hover:bg-blue-200", fullText: "text-blue-900 hover:text-blue-900", pillBorder: "border-blue-300" },
@@ -154,27 +155,39 @@ function Opener({ step }: SceneProps) {
 
 function Visibility({ step, active = false }: SceneProps) {
   const d = DECKMO.visibility;
+  const ricky = DECKMO.ricky;
   const moved = step > 0;
   return (
-    <div className="mx-auto flex h-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-      <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.subtitle} />
-      <div className="relative mt-7 min-h-0 flex-1 [@media(max-height:800px)]:mt-5">
-        <div className={cn(
-          "absolute inset-y-0 transition-all duration-700 ease-in-out motion-reduce:transition-none",
-          moved ? "left-0 w-[calc(50%-24px)] translate-x-0" : "left-1/2 w-[900px] max-w-full -translate-x-1/2"
-        )}>
-          <InsideLedger data={d.inside} active={active} />
+    <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
+      <Header eyebrow={ricky.eyebrow} title={ricky.title} subtitle={ricky.sectionSubtitles[step]} />
+      <div className={cn(
+        "mx-auto mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] transition-[width] duration-700 ease-in-out [@media(max-height:800px)]:mt-4",
+        moved ? "w-full" : "w-[54%]",
+      )}>
+        <div className="flex shrink-0 items-center gap-3 border-b border-deck-rule bg-gradient-to-b from-background to-deck-surface/60 px-6 py-2.5 [@media(max-height:800px)]:px-5 [@media(max-height:800px)]:py-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50 text-deck-blue shadow-sm [@media(max-height:800px)]:h-6 [@media(max-height:800px)]:w-6">
+            <UserRound className="h-4 w-4 [@media(max-height:800px)]:h-3.5 [@media(max-height:800px)]:w-3.5" />
+          </div>
+          <h3 className="shrink-0 font-display text-[clamp(15px,1.1vw,18px)] font-bold leading-none text-deck-navy">{ricky.profileTitle}</h3>
+          <span className="h-4 w-px shrink-0 bg-deck-rule" />
+          <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{ricky.profileFacts}</p>
         </div>
-        <div className={cn(
-          "absolute inset-y-0 right-0 w-[calc(50%-24px)] transition-all duration-700 ease-in-out motion-reduce:transition-none",
-          moved ? "opacity-100 blur-0" : "pointer-events-none opacity-0 blur-[5px]"
-        )}>
-          <OutsideTicker data={d.outside} revealed={moved} active={active} />
+        <div className={cn("grid min-h-0 flex-1 transition-[grid-template-columns] duration-700 ease-in-out", moved ? "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]" : "grid-cols-[minmax(0,1fr)_0fr]") }>
+          <section className="min-h-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 px-5 py-2 scrollbar-light">
+            <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
+            {RICKY_TRANSACTIONS.map((transaction) => (
+              <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2">
+                <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
+                <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
+                <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
+                <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
+              </div>
+            ))}
+          </section>
+          <section className={cn("min-h-0 min-w-0 overflow-hidden bg-background px-6 py-4 transition-opacity delay-200 duration-500", moved ? "opacity-100" : "pointer-events-none opacity-0")}>
+            <OutsideTicker data={d.outside} revealed={moved} active={active} />
+          </section>
         </div>
-        <div className={cn(
-          "absolute inset-y-0 left-1/2 w-px -translate-x-1/2 border-l border-dashed border-deck-rule transition-opacity duration-700 motion-reduce:transition-none",
-          moved ? "opacity-100" : "opacity-0"
-        )} />
       </div>
     </div>
   );
@@ -285,14 +298,19 @@ function Ricky({ step, active = false }: SceneProps) {
     ? RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((signal) => signal === selectedLabel))
     : RICKY_TRANSACTIONS;
   const selectSignal = (label: string) => setSelectedLabel((current) => current === label ? null : label);
-  const families = d.signals.reduce<Record<string, (typeof d.signals[number])[]>>((grouped, signal) => {
-    (grouped[signal.family] ??= []).push(signal);
-    return grouped;
-  }, {});
+  const visibleSignals = step === 2 ? d.signals.filter((signal) => signal.source === "internal") : d.signals;
+  type RickySignal = (typeof d.signals)[number];
+  const families: Record<string, RickySignal[]> = {};
+  visibleSignals.forEach((signal) => {
+    const family = families[signal.family];
+    if (family) family.push(signal);
+    else families[signal.family] = [signal];
+  });
 
   useEffect(() => {
-    setRollComplete(false);
-    if (!active || step !== 1) return;
+    setRollComplete(step > 2);
+    if (step < 2) setSelectedLabel(null);
+    if (!active || step !== 2) return;
     const timer = window.setTimeout(() => setRollComplete(true), 2200);
     return () => window.clearTimeout(timer);
   }, [active, step]);
@@ -304,8 +322,11 @@ function Ricky({ step, active = false }: SceneProps) {
 
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-      <Header eyebrow={d.eyebrow} title={d.title} />
-      <div className="mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] [@media(max-height:800px)]:mt-4">
+      <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.sectionSubtitles[step + 1]} />
+      <div className={cn(
+        "mx-auto mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] transition-[width] duration-500 ease-in-out [@media(max-height:800px)]:mt-4",
+        step === 0 ? "w-[54%]" : "w-full",
+      )}>
         <div className="flex shrink-0 items-center gap-3 border-b border-deck-rule bg-gradient-to-b from-background to-deck-surface/60 px-6 py-2.5 [@media(max-height:800px)]:px-5 [@media(max-height:800px)]:py-2">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50 text-deck-blue shadow-sm [@media(max-height:800px)]:h-6 [@media(max-height:800px)]:w-6">
             <UserRound className="h-4 w-4 [@media(max-height:800px)]:h-3.5 [@media(max-height:800px)]:w-3.5" />
@@ -315,6 +336,34 @@ function Ricky({ step, active = false }: SceneProps) {
           <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{d.profileFacts}</p>
         </div>
 
+        {step < 2 ? <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden scrollbar-light">
+          {/* The ledger and enrichment view share one table so its columns and rows remain stable. */}
+          <div className={cn("grid transition-[grid-template-columns] duration-500 ease-in-out", step === 0 ? "grid-cols-[minmax(0,1fr)_0fr]" : "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]")}>
+            <div className="h-2 border-r border-deck-rule bg-deck-surface/50" /><div className="h-2 min-w-0 overflow-hidden" />
+          </div>
+          <div className={cn("sticky top-0 z-10 grid transition-[grid-template-columns] duration-500 ease-in-out", step === 0 ? "grid-cols-[minmax(0,1fr)_0fr]" : "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]")}>
+            <div className="border-r border-deck-rule bg-background"><div className="bg-deck-surface/50 px-5"><div className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div></div></div>
+            <div className={cn("min-w-0 overflow-hidden bg-background transition-[opacity,padding] delay-200 duration-300", step === 1 ? "px-5 opacity-100" : "pointer-events-none px-0 opacity-0")}>{step === 1 && <div className={cn("grid gap-2.5 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400", ENRICH_COLS)}><EnrichmentColumnHeaders /></div>}</div>
+          </div>
+          {RICKY_TRANSACTIONS.map((transaction, index) => (
+            <div key={transaction.id} className={cn("grid transition-[grid-template-columns] duration-500 ease-in-out", step === 0 ? "grid-cols-[minmax(0,1fr)_0fr]" : "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]")}>
+              <div className="border-r border-deck-rule bg-deck-surface/50 px-5">
+                <div className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2">
+                  <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
+                  <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
+                  <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
+                  <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
+                </div>
+              </div>
+              <div className={cn("min-w-0 overflow-hidden transition-[opacity,padding] delay-200 duration-300", step === 1 ? "px-5 opacity-100" : "pointer-events-none px-0 opacity-0")}>
+                {step === 1 && <div className={cn("grid h-full items-center gap-2.5 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2", ENRICH_COLS)}><EnrichmentCells transactionId={transaction.id} index={index} /></div>}
+              </div>
+            </div>
+          ))}
+          <div className={cn("grid transition-[grid-template-columns] duration-500 ease-in-out", step === 0 ? "grid-cols-[minmax(0,1fr)_0fr]" : "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]")}>
+            <div className="h-2 border-r border-deck-rule bg-deck-surface/50" /><div className="h-2 min-w-0 overflow-hidden" />
+          </div>
+        </div> :
         <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
         <section className="flex min-h-0 flex-col border-r border-deck-rule bg-deck-surface/50">
           {selectedExternalEvidence ? <div className="flex min-h-0 flex-1 items-start p-5">
@@ -324,7 +373,7 @@ function Ricky({ step, active = false }: SceneProps) {
             </div>
           </div> : <div className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
-            <div className={cn(active && step === 1 && !rollComplete && "deck-ricky-ledger-roll")}>
+            <div className={cn(active && step === 2 && !rollComplete && "deck-ricky-ledger-roll")}>
               {displayedTransactions.map((transaction) => {
                 const tone = signalTone(transaction.signals);
                 const highlighted = (rollComplete || selectedLabel !== null) && tone !== undefined;
@@ -343,7 +392,7 @@ function Ricky({ step, active = false }: SceneProps) {
 
         <section className="flex min-h-0 flex-col bg-background px-7 py-5 [@media(max-height:800px)]:px-6 [@media(max-height:800px)]:py-4">
           <div className="flex min-h-0 flex-1 flex-col">
-            {step > 0 && <>
+            {step > 1 && <>
               <div className="flex shrink-0 items-center justify-between gap-4 border-b border-deck-rule pb-3">
                 <p className="deck-ricky-cascade text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">{d.signalLabel}</p>
               </div>
@@ -355,10 +404,15 @@ function Ricky({ step, active = false }: SceneProps) {
             </>}
           </div>
         </section>
-        </div>
+        </div>}
       </div>
     </div>
   );
+}
+
+function VisibilityAndRicky({ step, active = false }: SceneProps) {
+  if (step < 2) return <Visibility step={step} active={active} />;
+  return <Ricky step={step - 1} active={active} />;
 }
 
 function PhoneFrame({ title, children }: { title:string; children:React.ReactNode }) { return <div className="mx-auto flex h-[570px] w-[330px] flex-col overflow-hidden rounded-[30px] border-[8px] border-slate-300 bg-white shadow-2xl"><div className="flex h-7 shrink-0 items-center justify-center bg-white"><span className="h-2 w-2 rounded-full bg-slate-300"/></div><div className="flex items-center justify-between border-b border-slate-100 px-4 py-2"><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneTime}</span><span className="text-[11px] font-bold text-slate-700">{title}</span><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneMenu}</span></div><div className="min-h-0 flex-1 overflow-hidden">{children}</div><div className="flex h-7 shrink-0 items-center justify-center"><span className="h-1 w-24 rounded-full bg-slate-300"/></div></div>; }
@@ -440,7 +494,7 @@ function Close({ step }: SceneProps) {
   );
 }
 
-const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:Visibility,"living-view":LivingView,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,retention:BankdemoRetention,"bank-tools":BankdemoBankTools,close:Close};
+const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:VisibilityAndRicky,"living-view":LivingView,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,retention:BankdemoRetention,"bank-tools":BankdemoBankTools,close:Close};
 
 export function DeckmoDeck(){const [globalStep,setGlobalStep]=useState(0);const [presenterOpen,setPresenterOpen]=useState(false);const scroller=useRef<HTMLDivElement>(null);const deckRootRef=useRef<HTMLDivElement>(null);useInstitutionDomSwap(deckRootRef);const sectionRefs=useRef<(HTMLElement|null)[]>([]);const current=DECKMO_STEPS[globalStep];const activeBeat=DECKMO.beats[current.section];const hasSub="sub" in current&&!!current.sub;const beatNum=current.screen+1;const slideNumber=hasSub?`${current.section+1}.${beatNum}.${current.sub}`:`${current.section+1}${activeBeat.steps>1?`.${beatNum}`:""}`;const slideTotal=String(DECKMO.beats.length);
 const navLock=useRef<number|null>(null);

@@ -1,4 +1,5 @@
 import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
+import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { getPersonalizationSnapshot } from "@/lib/personalizationSnapshots";
 import type { LifeEvent } from "@/types/lifestyle-signals";
@@ -59,10 +60,40 @@ const lifeEvents = customer.lifeEvents.map((event) => ({
   evidence: [],
 })) satisfies LifeEvent[];
 
+const deckmoProductCards: ProductCard[] = (snapshot?.productCards ?? []).map((card) =>
+  card.product_name === "Our Bank Guided Investing"
+    ? {
+        // financial_signal renders green (the "ranked first" recommendation).
+        type: "financial_signal",
+        product_name: "Our Bank High-Yield Savings",
+        quote: "Put $35,000 to work for nine months and earn $1,550 toward your next tropical trip.",
+        signal_label: "Annual tropical vacation",
+        theme: "travel",
+        offer_headline: "Earn more while saving for your next tropical trip",
+        benefits: [
+          "4% APR earns $1,050 over nine months",
+          "$500 bonus brings the total benefit to $1,550",
+          "No monthly service fee",
+        ],
+        eligibility: "$35,000 qualifying deposit held for nine months",
+        cta: "Start Saving for Your Next Trip",
+        cta_sub: "Open an account and fund your travel goal",
+        estimated_label: "Est. Earnings",
+        estimated_value: "$1,550",
+      }
+    : card,
+);
+
+// Rank the high-yield savings recommendation first in the rotation.
+const savingsFirst = (cards: ProductCard[]): ProductCard[] => [
+  ...cards.filter((card) => card.product_name === "Our Bank High-Yield Savings"),
+  ...cards.filter((card) => card.product_name !== "Our Bank High-Yield Savings"),
+];
+
 export const DECKMO_BANKDEMO_FIXTURE = {
   customer,
   offers: snapshot?.offers ?? [],
-  productCards: snapshot?.productCards ?? [],
+  productCards: savingsFirst(deckmoProductCards),
   lifeEvents,
   enrichedTransactions: frozenTransactions(customer.csv),
 };

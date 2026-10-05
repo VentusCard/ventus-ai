@@ -39,9 +39,8 @@ export const DECKMO = {
   },
   beats: [
     { id: "opener", nav: "Thesis", steps: 6 },
-    { id: "visibility", nav: "The Visibility Gap", steps: 2 },
+    { id: "visibility", nav: "The Visibility Gap / Meet Ricky", steps: 5 },
     { id: "living-view", nav: "The Complete Picture", steps: 3 },
-    { id: "ricky", nav: "Meet Ricky", steps: 2 },
     { id: "immediate", nav: "Immediate: Lower Service Cost", steps: 5 },
     { id: "mid-term", nav: "Mid-Term: Profit", steps: 5 },
     { id: "long-term", nav: "Mid-Term: Growth", steps: 3 },
@@ -144,6 +143,13 @@ export const DECKMO = {
   ricky: {
     eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
     title: "Meet Ricky",
+    sectionSubtitles: [
+      "Start with the transactions the institution can see.",
+      "But transactions alone reveal only part of Ricky’s life.",
+      "Enrichment turns every transaction into structured customer intelligence.",
+      "Internal signals reveal Ricky’s behaviors, life events, financial needs, and opportunities.",
+      "External signals complete the picture beyond the institution’s walls.",
+    ],
     rawLabel: "SUPPORTING TRANSACTIONS",
     signalLabel: "VENTUS CUSTOMER INTELLIGENCE",
     signals: [
@@ -452,8 +458,8 @@ export const DECKMO = {
         body: "Ricky’s tennis routine becomes a rewards card aligned to how he spends.",
       },
       {
-        title: "Bring more of the relationship home",
-        body: "Outside brokerage transfers become a timely guided-investing opportunity.",
+        title: "Turn travel plans into deposits",
+        body: "Ricky’s annual tropical trip becomes a high-yield savings goal that grows deposits.",
       },
     ],
   },
@@ -569,7 +575,7 @@ export const DECKMO = {
   bankTools: {
     eyebrow: "TOOLS FOR THE BANK",
     title: "Possible for Ricky because it is\npossible for every customer",
-    subtitle: "An intuitive, governed intelligence and personalization platform with 45 tools and workflows.",
+    subtitle: "A modular, governed intelligence and personalization platform with 45 tools and workflows.",
     screens: [
       {
         id: "database",
@@ -687,13 +693,22 @@ export const DECKMO = {
   },
   close: {
     eyebrow: "PERSONALIZATION BECOMES DIFFERENTIATION",
-    lines: [
-      "No more commoditized banking.",
-      "\n",
-    ],
+    lines: ["No more commoditized banking.", "\n"],
     equation: ["anticipate customer needs", "differentiated banking"],
-    ticker: ["lifts NPS", "grows deposits", "cross-sells more products", "increases card spend", "deepens engagement"],
-    signature: { parting: "Let's do great things together", name: "Marco Ma", role: "CEO & Cofounder", email: "marco@ventusai.com" },
+    ticker: [
+      "lift LTV",
+      "grow deposits",
+      "cross-sell more products",
+      "increase card spend",
+      "deepen engagement",
+      "increase retention",
+    ],
+    signature: {
+      parting: "Let's do great things together",
+      name: "Marco Ma",
+      role: "CEO & Cofounder",
+      email: "marco@ventusai.com",
+    },
   },
 } as const;
 

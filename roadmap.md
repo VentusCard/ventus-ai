@@ -6,3 +6,6 @@
 - [x] Add a staged, smooth 8.3-to-8.4 phone handoff
 - [x] Enlarge beat 5.2 transactions within the existing phone mockup
 - [x] Enlarge beat 5 transaction details within the existing phone mockup
+- [x] Replace section 7 Guided Investing with a trip-triggered standard HYSA recommendation
+- [x] Combine sections 2 and 3 into the five-beat Visibility Gap / Meet Ricky sequence
+- [x] Keep section two stable by giving beats 2.1–2.5 consistent subheader wording
