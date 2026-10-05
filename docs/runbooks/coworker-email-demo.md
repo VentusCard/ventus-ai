@@ -129,6 +129,57 @@ Both alarm topics use email subscriptions, so after the first deploy **confirm
 the two SNS subscription emails** AWS sends (`ventus-coworker-alarms` and
 `ventus-coworker-ses-events`) or notifications won't arrive.
 
+## Opt-out and suppression
+
+The digest is mail we originate, so it carries a working opt-out. Three moving
+parts, all provisioned by the stack:
+
+- **`ventus-coworker-unsubscribe`** — a Lambda Function URL (`authType: NONE`)
+  that verifies an HMAC-signed token and records a suppression. `GET` renders a
+  confirmation page, `POST` performs the opt-out. The split matters: corporate
+  link scanners (Outlook Safe Links among them) issue `GET` against every URL in
+  a message, so a `GET` that unsubscribed would opt people out of mail they never
+  opened. The same `POST` serves RFC 8058 one-click, which Gmail and Yahoo send
+  with no human involved and will retry.
+- **`ventus-coworker-ses-events`** — subscribes to the `ventus-coworker-ses-events`
+  topic and suppresses on **complaints** and **permanent bounces**. Transient
+  bounces, rejects, and delivery delays are logged and deliberately do **not**
+  suppress. Dead-letters to `ventus-coworker-ses-events-dlq` with an alarm,
+  because a dropped complaint keeps us mailing someone who reported us as spam.
+- **`ventus/coworker/unsubscribe-signing`** — the HMAC key, generated on first
+  deploy. Read only by the digest (signs) and the unsubscribe endpoint (verifies).
+
+Suppression is keyed on the lowercased address (`SUPPRESS#<email>` / `META`) with
+**no TTL**, and carries a scope:
+
+| Scope | Set by | Blocks |
+| --- | --- | --- |
+| `proactive` | the unsubscribe link | the daily digest only |
+| `all` | complaints, permanent bounces | digest **and** replies |
+
+Scope only ever widens. An advisor who opted out of the digest still gets replies
+to mail they send, because they asked for less mail, not to be ignored.
+
+> **The digest fails closed.** If `COWORKER_UNSUBSCRIBE_URL` or
+> `COWORKER_UNSUBSCRIBE_SECRET_ID` can't be resolved, the handler logs and sends
+> **nothing**, returning `{ skipped: 'unsubscribe_not_configured' }`. Degrading to
+> "send it anyway, minus the link" is the exact state this replaces, and nobody
+> notices a missing footer link — whereas a digest that stops arriving gets
+> reported the same morning.
+
+**Do not rotate the signing key casually.** Every unsubscribe link in every
+digest already delivered is signed with the current value, and CAN-SPAM expects
+the opt-out to keep working for at least 30 days after a send. A rotation needs
+an overlap window where both keys verify.
+
+To put someone back on the digest, delete their suppression row:
+
+```bash
+aws dynamodb delete-item --table-name ventus-coworker \
+  --key '{"PK":{"S":"SUPPRESS#name@example.com"},"SK":{"S":"META"}}' \
+  --region us-east-1
+```
+
 ## Production cutover to `coworker@ventusai.com`
 
 The demo runs on `coworker@demo.ventusai.com`. Moving to the real

@@ -80,6 +80,28 @@ test('renderShell includes greeting, forward move, and disclaimer', () => {
   assert.match(html, /Prepared by Ventus for internal use/);
 });
 
+test('renderShell links the opt-out when given one, and omits it otherwise', () => {
+  const url = 'https://abc.lambda-url.us-east-1.on.aws/?token=a.b';
+  const withOptOut = renderShell({ greeting: 'Hi Dana,', forwardMove: 'Do it?', unsubscribeUrl: url });
+  assert.match(withOptOut, /<a href="https:\/\/abc\.lambda-url\.us-east-1\.on\.aws\/\?token=a\.b"/);
+  assert.match(withOptOut, /Stop the daily digest/);
+
+  // Replies are transactional and carry no opt-out; only mail we originate does.
+  const reply = renderShell({ greeting: 'Hi Dana,', forwardMove: 'Do it?' });
+  assert.doesNotMatch(reply, /Stop the daily digest/);
+  assert.doesNotMatch(reply, /<a href=/);
+});
+
+test('an opt-out url with ampersands is escaped into the href', () => {
+  // A raw & in an attribute is invalid HTML and some clients will truncate the
+  // link there, which silently breaks the opt-out.
+  const html = renderShell({
+    greeting: 'Hi,',
+    unsubscribeUrl: 'https://example.com/u?token=a&src=digest',
+  });
+  assert.match(html, /token=a&amp;src=digest/);
+});
+
 test('the disclaimer distinguishes a calculated figure from an assumed one', () => {
   assert.match(DEFAULT_DISCLAIMER, /net are calculated/i);
   assert.match(DEFAULT_DISCLAIMER, /estimate rest on the assumption/i);

@@ -98,6 +98,27 @@
         "hh_oyelaran",
         "hh_lindqvist"
       ]
+    },
+    {
+      "id": "adv_zoheb_vc",
+      "name": "Zoheb Akhtar",
+      "email": "zoheb@ventuscard.com",
+      "title": "Test Advisor",
+      "note": "Same person as adv_zoheb. Proofpoint holds SES mail addressed to @ventusai.com because the From is also @ventusai.com, so the ventuscard address is the one that reliably receives.",
+      "household_ids": [
+        "hh_okafor",
+        "hh_bianchi",
+        "hh_nakamura",
+        "hh_alvarez",
+        "hh_petrov",
+        "hh_sharma",
+        "hh_delgado",
+        "hh_kim",
+        "hh_whitfield",
+        "hh_castellanos",
+        "hh_oyelaran",
+        "hh_lindqvist"
+      ]
     }
   ],
   "households": [
