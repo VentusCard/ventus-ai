@@ -40,6 +40,33 @@ export function EnrichmentColumnHeaders() {
   );
 }
 
+/**
+ * Slide 4.2 view: the 4.1 raw ledger on the left, enrichment columns extending
+ * to the right, one shared scroll container so rows stay aligned. No signal column.
+ */
+export default function RickyEnrichmentTable({ railBadge }: { railBadge: (source: string) => string }) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <EnrichmentHeaderStrip />
+      <div className="min-h-0 flex-1 overflow-auto px-5 scrollbar-light">
+        <div className={cn("sticky top-0 z-10 grid min-w-[1180px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400", SPLIT_COLS)}>
+          <span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span>
+          <EnrichmentColumnHeaders />
+        </div>
+        {RICKY_TRANSACTIONS.map((t, i) => (
+          <div key={t.id} className={cn("grid min-w-[1180px] items-center gap-3 border-b border-slate-200/80 py-2", SPLIT_COLS)}>
+            <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{t.date}</span>
+            <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", railBadge(t.source))}>{t.source}</span>
+            <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{t.description}{t.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {t.mcc} · {t.mccLabel}</span>}</p>
+            <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{t.amount}</span>
+            <EnrichmentCells transactionId={t.id} index={i} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function EnrichmentCells({ transactionId, index }: { transactionId: string; index: number }) {
   const t = RICKY_TRANSACTIONS.find((row) => row.id === transactionId);
   if (!t) return null;
