@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
 
       - name: Validate Backend Helper Scripts
         run: |
@@ -112,7 +112,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
 
       - name: Install Infra Dependencies
         run: npm install
@@ -170,15 +170,59 @@ jobs:
     name: Frontend Build And Lint
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
+      # Checked out by branch rather than the PR merge ref so the lockfile sync
+      # below has somewhere to push.
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
+
+      # Runs before the lockfile sync below, so a rejected dependency set never
+      # gets a lockfile committed for it.
+      - name: Check Frontend Dependency Changes
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --depth=1 origin "${{ github.base_ref }}"
+          node scripts/check-frontend-deps.mjs "origin/${{ github.base_ref }}" \
+            "${{ contains(github.event.pull_request.labels.*.name, 'deps-approved') && 'approved' || 'review' }}"
+
+      # Lovable authors with bun, so it edits package.json and leaves
+      # package-lock.json behind. `npm ci` refuses to install when the two
+      # disagree, and amplify.yml deploys with `npm ci` as well — so an
+      # unsynced lockfile breaks production, not just this job.
+      - name: Sync package-lock.json
+        id: lockfile
+        run: |
+          npm install --package-lock-only --no-audit --no-fund
+          if git diff --quiet -- package-lock.json; then
+            echo "package-lock.json already in sync"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Fork PRs get the fixed lockfile for this run but cannot be pushed to,
+      # so the commit is skipped rather than failing the build.
+      - name: Commit synced lockfile
+        if: >-
+          steps.lockfile.outputs.changed == 'true'
+          && github.event_name == 'pull_request'
+          && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore: sync package-lock.json with package.json"
+          git push origin "HEAD:${{ github.head_ref }}"
 
       - name: Install Dependencies
         run: npm ci
