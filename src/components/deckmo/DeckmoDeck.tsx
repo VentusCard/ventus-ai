@@ -8,6 +8,7 @@ import { useInstitutionDomSwap } from "@/lib/institutionMode";
 import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTransactions";
 import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoRetention } from "./DeckmoBankdemoScenes";
+import RickyEnrichmentTable from "./RickyEnrichmentTable";
 
 const TONES = {
   blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-100", hoverBg: "hover:bg-blue-200", fullText: "text-blue-900 hover:text-blue-900", pillBorder: "border-blue-300" },
@@ -292,7 +293,7 @@ function Ricky({ step, active = false }: SceneProps) {
 
   useEffect(() => {
     setRollComplete(false);
-    if (!active || step !== 1) return;
+    if (!active || step !== 2) return;
     const timer = window.setTimeout(() => setRollComplete(true), 2200);
     return () => window.clearTimeout(timer);
   }, [active, step]);
@@ -315,7 +316,7 @@ function Ricky({ step, active = false }: SceneProps) {
           <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{d.profileFacts}</p>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+        {step === 1 ? <RickyEnrichmentTable railBadge={(source) => (RAIL_STYLES[source] ?? RAIL_STYLES.CARD).badge} /> : <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
         <section className="flex min-h-0 flex-col border-r border-deck-rule bg-deck-surface/50">
           {selectedExternalEvidence ? <div className="flex min-h-0 flex-1 items-start p-5">
             <div className="w-full border border-violet-200 bg-violet-50/50 p-5">
@@ -324,7 +325,7 @@ function Ricky({ step, active = false }: SceneProps) {
             </div>
           </div> : <div className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
-            <div className={cn(active && step === 1 && !rollComplete && "deck-ricky-ledger-roll")}>
+            <div className={cn(active && step === 2 && !rollComplete && "deck-ricky-ledger-roll")}>
               {displayedTransactions.map((transaction) => {
                 const tone = signalTone(transaction.signals);
                 const highlighted = (rollComplete || selectedLabel !== null) && tone !== undefined;
@@ -343,7 +344,7 @@ function Ricky({ step, active = false }: SceneProps) {
 
         <section className="flex min-h-0 flex-col bg-background px-7 py-5 [@media(max-height:800px)]:px-6 [@media(max-height:800px)]:py-4">
           <div className="flex min-h-0 flex-1 flex-col">
-            {step > 0 && <>
+            {step > 1 && <>
               <div className="flex shrink-0 items-center justify-between gap-4 border-b border-deck-rule pb-3">
                 <p className="deck-ricky-cascade text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">{d.signalLabel}</p>
               </div>
@@ -355,7 +356,7 @@ function Ricky({ step, active = false }: SceneProps) {
             </>}
           </div>
         </section>
-        </div>
+        </div>}
       </div>
     </div>
   );
