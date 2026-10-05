@@ -18,54 +18,34 @@ const FREQ: Record<string, string> = {
 };
 const conf = (c: number) => c >= 0.8 ? "bg-green-50 text-green-700 border-green-200" : c >= 0.5 ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-red-50 text-red-700 border-red-200";
 
-/** Grid template for the enriched columns (merchant, pillar, category·sub, tier, freq, conf). No signal column. */
-export const ENRICH_COLS = "minmax(0,1.1fr)_128px_minmax(0,1fr)_64px_72px_44px";
-
-/** Ledger columns (same as 4.1) + enrichment columns, one grid per row. Literal string so Tailwind compiles it. */
-const SPLIT_COLS = "grid-cols-[54px_94px_minmax(0,1fr)_90px_minmax(0,1.1fr)_128px_minmax(0,1fr)_64px_72px_44px]";
-
-export function EnrichmentHeaderStrip() {
-  const rails = new Set(RICKY_TRANSACTIONS.map((t) => t.source)).size;
-  return (
-    <div className="flex shrink-0 items-center gap-3 border-b border-deck-rule bg-background px-5 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
-      <span className="text-deck-blue">Enriched ledger</span>
-      <span className="h-3 w-px bg-deck-rule" />
-      <span>{RICKY_TRANSACTIONS.length} transactions · {rails} rails · 100% enriched</span>
-    </div>
-  );
-}
-
-export function EnrichmentColumnHeaders() {
-  return (
-    <>
-      <span>Merchant</span><span>Pillar</span><span>Category · Sub</span><span>Tier</span><span>Freq</span><span>Conf</span>
-    </>
-  );
-}
+/**
+ * Ledger columns identical to 4.1 (54/94/1fr/90) + enrichment columns appended
+ * on the right. The enrichment tracks sum to 595px so the flexible Transaction
+ * column keeps the same width it has on 4.1 — the left side does not move.
+ * Literal string so Tailwind compiles it.
+ */
+const SPLIT_COLS = "grid-cols-[54px_94px_minmax(0,1fr)_90px_140px_124px_150px_64px_72px_45px]";
 
 /**
- * Slide 4.2 view: the 4.1 raw ledger on the left, enrichment columns extending
- * to the right, one shared scroll container so rows stay aligned. No signal column.
+ * Slide 4.2 view: the exact 4.1 ledger table, extended to the right with
+ * enrichment columns. Same header, same rows, same scroll container padding.
  */
 export default function RickyEnrichmentTable({ railBadge }: { railBadge: (source: string) => string }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <EnrichmentHeaderStrip />
-      <div className="min-h-0 flex-1 overflow-auto px-5 scrollbar-light">
-        <div className={cn("sticky top-0 z-10 grid min-w-[1180px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400", SPLIT_COLS)}>
-          <span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span>
-          <EnrichmentColumnHeaders />
-        </div>
-        {RICKY_TRANSACTIONS.map((t, i) => (
-          <div key={t.id} className={cn("grid min-w-[1180px] items-center gap-3 border-b border-slate-200/80 py-2", SPLIT_COLS)}>
-            <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{t.date}</span>
-            <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", railBadge(t.source))}>{t.source}</span>
-            <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{t.description}{t.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {t.mcc} · {t.mccLabel}</span>}</p>
-            <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{t.amount}</span>
-            <EnrichmentCells transactionId={t.id} index={i} />
-          </div>
-        ))}
+    <div className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
+      <div className={cn("sticky top-0 z-10 grid gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400", SPLIT_COLS)}>
+        <span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span>
+        <span>Merchant</span><span>Pillar</span><span>Category · Sub</span><span>Tier</span><span>Freq</span><span>Conf</span>
       </div>
+      {RICKY_TRANSACTIONS.map((t, i) => (
+        <div key={t.id} className={cn("grid items-center gap-3 border-b border-slate-200/80 py-2", SPLIT_COLS)}>
+          <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{t.date}</span>
+          <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", railBadge(t.source))}>{t.source}</span>
+          <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{t.description}{t.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {t.mcc} · {t.mccLabel}</span>}</p>
+          <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{t.amount}</span>
+          <EnrichmentCells transactionId={t.id} index={i} />
+        </div>
+      ))}
     </div>
   );
 }
