@@ -106,3 +106,91 @@ test('checkAndBumpRate isolates senders', async () => {
   assert.equal(one.allowed, true);
   assert.equal(two.allowed, true);
 });
+
+test('suppress records an opt-out that matches regardless of address casing', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await store.suppress({ email: '  Dana.Okoro@VentusAI.com ', reason: 'recipient_request' });
+
+  const record = await store.getSuppression('dana.okoro@ventusai.com');
+  assert.equal(record.email, 'dana.okoro@ventusai.com');
+  assert.equal(record.scope, 'proactive');
+  assert.equal(record.entity, 'suppression');
+  assert.deepEqual(keys.suppression('DANA.OKORO@ventusai.com'), {
+    PK: 'SUPPRESS#dana.okoro@ventusai.com',
+    SK: 'META',
+  });
+});
+
+test('suppress carries no ttl, because an expiring opt-out resumes mailing on its own', async () => {
+  const backend = createInMemoryBackend();
+  const store = createCoworkerStore(backend);
+  await store.suppress({ email: 'a@bank.com' });
+  const [record] = backend._dump().filter((r) => r.entity === 'suppression');
+  assert.equal(record.ttl, undefined);
+});
+
+test('suppress is idempotent and widens scope but never narrows it', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const first = await store.suppress({
+    email: 'a@bank.com',
+    scope: 'proactive',
+    source: 'unsubscribe_link',
+    now: new Date('2026-01-01T00:00:00.000Z'),
+  });
+  const widened = await store.suppress({
+    email: 'a@bank.com',
+    scope: 'all',
+    reason: 'complaint:abuse',
+    source: 'ses_event',
+    now: new Date('2026-01-02T00:00:00.000Z'),
+  });
+  // Gmail replays one-click POSTs. A replay after a spam complaint must not
+  // narrow the suppression back to "digest only".
+  const replayed = await store.suppress({
+    email: 'a@bank.com',
+    scope: 'proactive',
+    source: 'unsubscribe_link',
+    now: new Date('2026-01-03T00:00:00.000Z'),
+  });
+
+  assert.equal(first.scope, 'proactive');
+  assert.equal(widened.scope, 'all');
+  assert.equal(replayed.scope, 'all');
+  assert.equal(replayed.first_suppressed_at, '2026-01-01T00:00:00.000Z');
+  assert.equal(replayed.updated_at, '2026-01-03T00:00:00.000Z');
+  assert.equal(replayed.events.length, 3, 'every event is kept for the audit trail');
+});
+
+test('isSuppressed gates proactive mail and replies separately', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await store.suppress({ email: 'digest-off@bank.com', scope: 'proactive' });
+  await store.suppress({ email: 'complained@bank.com', scope: 'all' });
+
+  assert.equal((await store.isSuppressed('digest-off@bank.com')).suppressed, true);
+  assert.equal(
+    (await store.isSuppressed('digest-off@bank.com', { kind: 'reply' })).suppressed,
+    false,
+    'they asked for no digest, not to be ignored when they email us'
+  );
+  assert.equal((await store.isSuppressed('complained@bank.com', { kind: 'reply' })).suppressed, true);
+  assert.equal((await store.isSuppressed('never-heard-of@bank.com')).suppressed, false);
+  assert.equal((await store.isSuppressed('')).suppressed, false);
+});
+
+test('unsuppress clears an opt-out and reports whether there was one', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await store.suppress({ email: 'a@bank.com' });
+  assert.equal(await store.unsuppress('a@bank.com'), true);
+  assert.equal(await store.getSuppression('a@bank.com'), null);
+  assert.equal(await store.unsuppress('a@bank.com'), false);
+  assert.equal(await store.unsuppress(''), false);
+});
+
+test('suppress rejects a missing address or an unknown scope', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  await assert.rejects(() => store.suppress({ email: '' }), /requires an email/);
+  await assert.rejects(
+    () => store.suppress({ email: 'a@bank.com', scope: 'sometimes' }),
+    /unknown scope/
+  );
+});

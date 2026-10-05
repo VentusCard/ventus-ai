@@ -203,6 +203,25 @@ export function replySubject(subject) {
   return `Re: ${base}`;
 }
 
+/**
+ * Attach a display name to a bare sending address, for both the SES
+ * FromEmailAddress and the raw MIME From header.
+ *
+ * Idempotent: a configured address that already carries a display name is
+ * returned untouched, so setting COWORKER_FROM to a full friendly-from string
+ * does not produce a double-wrapped header.
+ */
+export function friendlyFrom(address, displayName) {
+  const value = String(address || '').trim();
+  if (!value) return value;
+  if (value.includes('<')) return value;
+  const name = String(displayName || '').trim();
+  if (!name) return value;
+  // RFC 5322 quoted-string: escape backslash first, then the quote.
+  const quoted = name.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  return `"${quoted}" <${value}>`;
+}
+
 const AUTOMATED_FROM = /(^|<)\s*(mailer-daemon|postmaster|no-?reply|donotreply|do-not-reply|bounce[s]?)@/i;
 const BULK_PRECEDENCE = /^(bulk|junk|list|auto_reply)$/i;
 
