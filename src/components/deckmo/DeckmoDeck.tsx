@@ -159,7 +159,7 @@ function Visibility({ step, active = false }: SceneProps) {
   const moved = step > 0;
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-      <Header eyebrow={ricky.eyebrow} title={ricky.title} subtitle={d.subtitle} />
+      <Header eyebrow={ricky.eyebrow} title={ricky.title} subtitle={ricky.sectionSubtitles[step]} />
       <div className={cn(
         "mx-auto mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] transition-[width] duration-700 ease-in-out [@media(max-height:800px)]:mt-4",
         moved ? "w-full" : "w-[54%]",
@@ -322,7 +322,7 @@ function Ricky({ step, active = false }: SceneProps) {
 
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-      <Header eyebrow={d.eyebrow} title={d.title} />
+      <Header eyebrow={d.eyebrow} title={d.title} subtitle={d.sectionSubtitles[step + 1]} />
       <div className={cn(
         "mx-auto mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] transition-[width] duration-500 ease-in-out [@media(max-height:800px)]:mt-4",
         step === 0 ? "w-[54%]" : "w-full",
