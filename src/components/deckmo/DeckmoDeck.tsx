@@ -356,7 +356,7 @@ function Ricky({ step, active = false }: SceneProps) {
             </>}
           </div>
         </section>
-        </div>
+        </div>}
       </div>
     </div>
   );
