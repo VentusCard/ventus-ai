@@ -8,7 +8,7 @@ import { useInstitutionDomSwap } from "@/lib/institutionMode";
 import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTransactions";
 import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoRetention } from "./DeckmoBankdemoScenes";
-import RickyEnrichmentTable from "./RickyEnrichmentTable";
+import { RickyEnrichmentPanel } from "./RickyEnrichmentTable";
 
 const TONES = {
   blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-100", hoverBg: "hover:bg-blue-200", fullText: "text-blue-900 hover:text-blue-900", pillBorder: "border-blue-300" },
@@ -291,8 +291,16 @@ function Ricky({ step, active = false }: SceneProps) {
     return grouped;
   }, {});
 
+  const ledgerScrollRef = useRef<HTMLDivElement>(null);
+  const enrichScrollRef = useRef<HTMLDivElement>(null);
+  const syncEnrichScroll = () => {
+    if (ledgerScrollRef.current && enrichScrollRef.current) enrichScrollRef.current.scrollTop = ledgerScrollRef.current.scrollTop;
+  };
+
   useEffect(() => {
     setRollComplete(false);
+    if (step !== 2) setSelectedLabel(null);
+    if (step === 1) syncEnrichScroll();
     if (!active || step !== 2) return;
     const timer = window.setTimeout(() => setRollComplete(true), 2200);
     return () => window.clearTimeout(timer);
@@ -316,14 +324,14 @@ function Ricky({ step, active = false }: SceneProps) {
           <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{d.profileFacts}</p>
         </div>
 
-        {step === 1 ? <RickyEnrichmentTable railBadge={(source) => (RAIL_STYLES[source] ?? RAIL_STYLES.CARD).badge} /> : <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+        <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
         <section className="flex min-h-0 flex-col border-r border-deck-rule bg-deck-surface/50">
           {selectedExternalEvidence ? <div className="flex min-h-0 flex-1 items-start p-5">
             <div className="w-full border border-violet-200 bg-violet-50/50 p-5">
               <div className="flex items-start gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-violet-200 bg-background text-violet-600"><Sparkles className="h-5 w-5" /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-base font-bold text-slate-900">{selectedSignal?.label}</p><span className="rounded-full border border-violet-200 bg-background px-2.5 py-1 text-[10px] font-bold uppercase text-violet-700">{selectedExternalEvidence.confidence}</span></div><p className="mt-2 text-sm leading-relaxed text-slate-600">{selectedExternalEvidence.detail}</p></div></div>
               <div className="mt-5 grid grid-cols-2 border-t border-violet-200 pt-4"><div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600">Source</p><p className="mt-1 text-sm font-semibold text-slate-800">{selectedExternalEvidence.provider}</p></div><div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-violet-600">Timing</p><p className="mt-1 text-sm font-semibold text-slate-800">{selectedExternalEvidence.timing}</p></div></div>
             </div>
-          </div> : <div className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
+          </div> : <div ref={ledgerScrollRef} onScroll={syncEnrichScroll} className="min-h-0 flex-1 overflow-y-auto px-5 py-2 scrollbar-light">
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
             <div className={cn(active && step === 2 && !rollComplete && "deck-ricky-ledger-roll")}>
               {displayedTransactions.map((transaction) => {
@@ -342,7 +350,9 @@ function Ricky({ step, active = false }: SceneProps) {
           </div>}
         </section>
 
-        <section className="flex min-h-0 flex-col bg-background px-7 py-5 [@media(max-height:800px)]:px-6 [@media(max-height:800px)]:py-4">
+        {step === 1 ? <section className="flex min-h-0 flex-col bg-background">
+          <RickyEnrichmentPanel ref={enrichScrollRef} onWheelScroll={(deltaY) => ledgerScrollRef.current?.scrollBy({ top: deltaY })} />
+        </section> : <section className="flex min-h-0 flex-col bg-background px-7 py-5 [@media(max-height:800px)]:px-6 [@media(max-height:800px)]:py-4">
           <div className="flex min-h-0 flex-1 flex-col">
             {step > 1 && <>
               <div className="flex shrink-0 items-center justify-between gap-4 border-b border-deck-rule pb-3">
@@ -355,8 +365,8 @@ function Ricky({ step, active = false }: SceneProps) {
               </div>
             </>}
           </div>
-        </section>
-        </div>}
+        </section>}
+        </div>
       </div>
     </div>
   );
