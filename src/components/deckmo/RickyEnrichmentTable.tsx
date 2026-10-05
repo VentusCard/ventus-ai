@@ -25,9 +25,9 @@ const ENRICH_COLS = "grid-cols-[1.3fr_1.2fr_1.4fr_0.55fr_0.7fr_0.45fr]";
 /**
  * Slide 4.2 right panel. The 4.1 ledger on the left is left untouched; this
  * panel fills the (previously empty) right side with one enrichment row per
- * ledger row. Its scroll position is driven by the ledger (no own scrollbar),
- * and each row carries an invisible strut identical to the ledger's source
- * badge so row heights match the ledger exactly.
+ * ledger row. It owns the visible scrollbar on slide 4.2 (far right edge) and
+ * drives the ledger's scroll position; each row carries an invisible strut
+ * identical to the ledger's source badge so row heights match the ledger exactly.
  */
 export const RickyEnrichmentPanel = forwardRef<HTMLDivElement, { onWheelScroll: (deltaY: number) => void; onPanelScroll: () => void }>(
   function RickyEnrichmentPanel({ onWheelScroll, onPanelScroll }, ref) {
