@@ -38,7 +38,7 @@ export default function RickyEnrichmentTable({ railBadge }: { railBadge: (source
         <span>Merchant</span><span>Pillar</span><span>Category · Sub</span><span>Tier</span><span>Freq</span><span>Conf</span>
       </div>
       {RICKY_TRANSACTIONS.map((t, i) => (
-        <div key={t.id} className={cn("grid items-center gap-3 border-b border-slate-200/80 py-2", SPLIT_COLS)}>
+        <div key={t.id} className={cn("grid items-center gap-3 border-b border-slate-200/80 py-2 pl-2", SPLIT_COLS)}>
           <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{t.date}</span>
           <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", railBadge(t.source))}>{t.source}</span>
           <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{t.description}{t.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {t.mcc} · {t.mccLabel}</span>}</p>
