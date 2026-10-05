@@ -21,8 +21,8 @@ const conf = (c: number) => c >= 0.8 ? "bg-green-50 text-green-700 border-green-
 /** Grid template for the enriched columns (merchant, pillar, category·sub, tier, freq, conf). No signal column. */
 export const ENRICH_COLS = "minmax(0,1.1fr)_128px_minmax(0,1fr)_64px_72px_44px";
 
-/** Ledger columns (same as 4.1) + enrichment columns, one grid per row. */
-const SPLIT_COLS = `grid-cols-[54px_94px_minmax(0,1fr)_90px_${ENRICH_COLS}]`;
+/** Ledger columns (same as 4.1) + enrichment columns, one grid per row. Literal string so Tailwind compiles it. */
+const SPLIT_COLS = "grid-cols-[54px_94px_minmax(0,1fr)_90px_minmax(0,1.1fr)_128px_minmax(0,1fr)_64px_72px_44px]";
 
 export function EnrichmentHeaderStrip() {
   const rails = new Set(RICKY_TRANSACTIONS.map((t) => t.source)).size;
