@@ -143,6 +143,13 @@ export const DECKMO = {
   ricky: {
     eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
     title: "Meet Ricky",
+    sectionSubtitles: [
+      "Start with the transactions the institution can see.",
+      "But transactions alone reveal only part of Ricky’s life.",
+      "Enrichment turns every transaction into structured customer intelligence.",
+      "Internal signals reveal Ricky’s behaviors, life events, financial needs, and opportunities.",
+      "External signals complete the picture beyond the institution’s walls.",
+    ],
     rawLabel: "SUPPORTING TRANSACTIONS",
     signalLabel: "VENTUS CUSTOMER INTELLIGENCE",
     signals: [
