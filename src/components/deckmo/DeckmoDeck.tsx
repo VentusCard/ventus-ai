@@ -307,7 +307,10 @@ function Ricky({ step, active = false }: SceneProps) {
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
       <Header eyebrow={d.eyebrow} title={d.title} />
-      <div className="mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] [@media(max-height:800px)]:mt-4">
+      <div className={cn(
+        "mx-auto mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] transition-[width] duration-500 ease-in-out [@media(max-height:800px)]:mt-4",
+        step === 0 ? "w-[54%]" : "w-full",
+      )}>
         <div className="flex shrink-0 items-center gap-3 border-b border-deck-rule bg-gradient-to-b from-background to-deck-surface/60 px-6 py-2.5 [@media(max-height:800px)]:px-5 [@media(max-height:800px)]:py-2">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-blue-200 bg-blue-50 text-deck-blue shadow-sm [@media(max-height:800px)]:h-6 [@media(max-height:800px)]:w-6">
             <UserRound className="h-4 w-4 [@media(max-height:800px)]:h-3.5 [@media(max-height:800px)]:w-3.5" />
@@ -318,17 +321,17 @@ function Ricky({ step, active = false }: SceneProps) {
         </div>
 
         {step < 2 ? <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden scrollbar-light">
-          {/* Slides 4.1 + 4.2 share one table. The ledger keeps its width and shifts from center to left. */}
-          <div className="grid grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-            <div className={cn("h-2 border-r border-deck-rule bg-deck-surface/50 transition-transform duration-500 ease-in-out", step === 0 && "translate-x-[42.5926%]")} /><div className="h-2" />
+          {/* Slides 4.1 + 4.2 share one table. The frame expands while the ledger keeps its width. */}
+          <div className={cn("grid transition-[grid-template-columns] duration-500 ease-in-out", step === 0 ? "grid-cols-[minmax(0,1fr)_0fr]" : "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]")}>
+            <div className="h-2 border-r border-deck-rule bg-deck-surface/50" /><div className="h-2 min-w-0 overflow-hidden" />
           </div>
-          <div className="sticky top-0 z-10 grid grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-            <div className={cn("border-r border-deck-rule bg-background transition-transform duration-500 ease-in-out", step === 0 && "translate-x-[42.5926%]")}><div className="bg-deck-surface/50 px-5"><div className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div></div></div>
-            <div className={cn("bg-background px-5 transition-opacity delay-200 duration-300", step === 1 ? "opacity-100" : "pointer-events-none opacity-0")}>{step === 1 && <div className={cn("grid gap-2.5 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400", ENRICH_COLS)}><EnrichmentColumnHeaders /></div>}</div>
+          <div className={cn("sticky top-0 z-10 grid transition-[grid-template-columns] duration-500 ease-in-out", step === 0 ? "grid-cols-[minmax(0,1fr)_0fr]" : "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]")}>
+            <div className="border-r border-deck-rule bg-background"><div className="bg-deck-surface/50 px-5"><div className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div></div></div>
+            <div className={cn("min-w-0 overflow-hidden bg-background transition-[opacity,padding] delay-200 duration-300", step === 1 ? "px-5 opacity-100" : "pointer-events-none px-0 opacity-0")}>{step === 1 && <div className={cn("grid gap-2.5 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400", ENRICH_COLS)}><EnrichmentColumnHeaders /></div>}</div>
           </div>
           {RICKY_TRANSACTIONS.map((transaction, index) => (
-            <div key={transaction.id} className="grid grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-              <div className={cn("border-r border-deck-rule bg-deck-surface/50 px-5 transition-transform duration-500 ease-in-out", step === 0 && "translate-x-[42.5926%]")}>
+            <div key={transaction.id} className={cn("grid transition-[grid-template-columns] duration-500 ease-in-out", step === 0 ? "grid-cols-[minmax(0,1fr)_0fr]" : "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]")}>
+              <div className="border-r border-deck-rule bg-deck-surface/50 px-5">
                 <div className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2">
                   <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
                   <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
@@ -336,13 +339,13 @@ function Ricky({ step, active = false }: SceneProps) {
                   <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
                 </div>
               </div>
-              <div className={cn("px-5 transition-opacity delay-200 duration-300", step === 1 ? "opacity-100" : "pointer-events-none opacity-0")}>
+              <div className={cn("min-w-0 overflow-hidden transition-[opacity,padding] delay-200 duration-300", step === 1 ? "px-5 opacity-100" : "pointer-events-none px-0 opacity-0")}>
                 {step === 1 && <div className={cn("grid h-full items-center gap-2.5 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2", ENRICH_COLS)}><EnrichmentCells transactionId={transaction.id} index={index} /></div>}
               </div>
             </div>
           ))}
-          <div className="grid grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-            <div className={cn("h-2 border-r border-deck-rule bg-deck-surface/50 transition-transform duration-500 ease-in-out", step === 0 && "translate-x-[42.5926%]")} /><div className="h-2" />
+          <div className={cn("grid transition-[grid-template-columns] duration-500 ease-in-out", step === 0 ? "grid-cols-[minmax(0,1fr)_0fr]" : "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]")}>
+            <div className="h-2 border-r border-deck-rule bg-deck-surface/50" /><div className="h-2 min-w-0 overflow-hidden" />
           </div>
         </div> :
         <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
