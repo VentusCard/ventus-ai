@@ -296,6 +296,9 @@ function Ricky({ step, active = false }: SceneProps) {
   const syncEnrichScroll = () => {
     if (ledgerScrollRef.current && enrichScrollRef.current) enrichScrollRef.current.scrollTop = ledgerScrollRef.current.scrollTop;
   };
+  const syncLedgerScroll = () => {
+    if (ledgerScrollRef.current && enrichScrollRef.current) ledgerScrollRef.current.scrollTop = enrichScrollRef.current.scrollTop;
+  };
 
   useEffect(() => {
     setRollComplete(false);
