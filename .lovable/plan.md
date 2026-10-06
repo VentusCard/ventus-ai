@@ -1,49 +1,47 @@
-# More signal pills for Ricky (/deckmo) — internal only
+# Ricky transaction and signal refresh for `/deckmo`
 
 ## Goal
-Grow Ricky's "VENTUS CUSTOMER INTELLIGENCE" panel from 8 pills to 12 (~50% more), using only internal signals — things the bank can already see in Ricky's own transactions. No new external signals; the existing two (High pet expenditure, Car loan expiring) stay unchanged.
+Replace the current Ricky signal set with the supplied 14-pill matrix and rebuild the static ledger evidence behind it. Beats 2.1–2.3 continue to show one canonical transaction history; beat 2.4 reveals the 12 internal signals; beat 2.5 adds the two external signals.
 
-## New pills (4, all internal)
+## Signal matrix
 
-Each is backed by transactions already in Ricky's 91-row ledger (existing rows get an extra signal tag — no new rows, no count changes):
+### Behavioral
+- **Bi-weekly tennis** — keep and retag the City Tennis Center, CourtReserve, USTA NorCal, and Zelle coaching evidence.
+- **Annual pre-holiday Hawaii trip** — move the prior Maui trip to early December 2025, including Hawaiian Airlines, Wailea Beach Resort, and Allianz; add a September 2026 Hawaiian Airlines booking for December 2026.
+- **High pet expenditure** — retain the external SKU-level evidence unchanged.
+- **Media and entertainment spend** — add/tag Netflix, YouTube TV, recurring Spotify charges rising from $11.99 to $13.99, AMC Theatres, and Ticketmaster at Shoreline Amphitheatre.
 
-1. **Life Events (amber): "New pet in the household"**
-   - Tagged rows: Chewy (01/19), Mid-Peninsula Animal Hospital (03/11), Petco (05/10), Chewy (08/27).
-   - Pattern: pet spending began appearing this year and is now recurring — a classic first-pet life event.
-   - Bank opportunity: pet insurance, new-household products; pairs with the external "High pet expenditure" pill on beat 2.5.
+### Life Events
+- **Had a baby ~6 months ago** — add/tag Babylist, Pottery Barn Kids, Lucile Packard Children’s Hospital Stanford, The Honest Company, and Bright Horizons, with dates that support a birth around March 2026.
+- **Buying a $1.5M+ Palo Alto home** — keep the escrow wire, inspection, appraisal, moving deposit, and property-attorney evidence; remove unrelated rows from this signal.
+- **Rocket Mortgage loan in process** — rename the existing mortgage appraisal row from First Republic to Rocket Mortgage and give it its own signal instead of grouping it with the home-purchase pill.
+- **Started a small food business** — replace the generic business-owner evidence with May formation/permit rows and, from June onward, recurring Square payouts plus Urban Village Farmers’ Market vendor fees, Restaurant Depot, and FLIP food-liability insurance.
 
-2. **Financial (emerald): "Growing surplus cash position"**
-   - Tagged rows: the four Stripe payouts ($10,988–$13,206 monthly).
-   - Pattern: business income consistently exceeds spending — cash is accumulating faster than it's being deployed.
-   - Bank opportunity: deposit-gathering and wealth management (the brokerage transfers already show intent).
+### Financial
+- **Monthly investing at Fidelity** — retain the monthly Fidelity transfers under the revised label.
+- **Monthly transfers to Marcus savings** — add realistic monthly ACH transfers to Marcus by Goldman Sachs.
+- **BMW X5 loan ending in ~4 months** — replace the current external lender-tradeline wording with external vehicle-ownership evidence for the BMW X5.
+- **Monthly American Express payments** — add realistic monthly Amex ePayment rows.
 
-3. **Demographics (violet): "Premium lifestyle spending"**
-   - Tagged rows: Whole Foods (3), Nordstrom, Four Seasons.
-   - Pattern: consistently premium-tier merchants across grocery, retail, and dining.
-   - Bank opportunity: premium card and lifestyle benefits positioning.
+### Demographics and Risk
+- **Stable $11–13K monthly income** — add semi-monthly HP payroll direct deposits whose monthly totals stay within the stated range.
+- **Increasing DraftKings betting** — retain the existing increasing DraftKings pattern under the revised label.
 
-4. **Behavioral (blue): "Frequent rideshare usage"**
-   - Tagged rows: Uber (02/21), Uber (08/03).
-   - Pattern: rideshare is the visible mobility spend; no auto payments appear anywhere in the ledger.
-   - Bank opportunity: auto-financing window — Ricky may not own a car.
+## Ledger construction
+- Create plausible statement dates, amounts, rails, descriptors, and MCC metadata where applicable; keep all rows in descending date order.
+- Preserve ordinary non-signal activity so the ledger still reads as a complete account history rather than a list of authored evidence.
+- Allow a transaction to support more than one signal only when the evidence genuinely overlaps.
+- Update the deterministic enrichment rules for every added or renamed merchant so beat 2.3 shows useful merchant, pillar, category, subcategory, tier, frequency, and confidence values instead of falling back to “Unclassified.”
 
-Final family mix: Behavioral 4, Life Events 2, Financial 3, Demographics 2, Risk 1 — 12 pills total (10 internal, 2 external).
-
-## Files
-- `src/lib/deckmoRickyTransactions.ts` — add 4 keys to `RICKY_SIGNAL_LABELS`; add the signal tag to the listed transactions' `signals` arrays.
-- `src/lib/deckmoScript.ts` — add 4 signal objects to `DECKMO.ricky.signals` (internal, matching family tones).
-
-## Constraints preserved
-- The two external pills, their evidence cards, and the 2.4→2.5 reveal order unchanged.
-- Ledger roll, cascade animation, pill selection/filtering, and click-isolated navigation unchanged.
-- Strict light theme, five-family colors (red stays reserved for risk), 1560px canvas, desktop-only behavior.
-- Institution mode wording swap still applies to new labels.
-
-## Deferred (external follow-up, not in this change)
-External signals with real names (e.g., idle cash at Marcus by Goldman Sachs HYSA, mortgage financed elsewhere) can be added in a later pass.
+## Presentation updates
+- Replace `RICKY_SIGNAL_LABELS` and `DECKMO.ricky.signals` with the exact 14-pill taxonomy and existing family colors.
+- Keep the 2.4 internal-only reveal and 2.5 external reveal behavior; external pills remain non-ledger evidence cards.
+- Preserve filtering, selected states, ledger rolling/cascade behavior, slide navigation isolation, layout, strict light theme, and institution terminology swapping.
+- Do not change `/demo`, `/bankdemo`, production enrichment behavior, or live services; this remains a static `/deckmo` fixture.
 
 ## Validation
-- Playwright on /deckmo (sessionStorage password bypass): beats 2.3, 2.4, 2.5.
-- Verify all 12 pills render in the right families; each new pill filters to exactly its tagged rows; external pills unchanged; clicks don't advance the deck.
-- Check 1376×855 and 1590×1024 for right-panel overflow/truncation with 12 pills; tighten compact styles only if needed.
-- Confirm clean build.
+- Verify beats 2.1–2.5 end to end: full ledger continuity, enrichment coverage, 12 internal pills at 2.4, and all 14 pills at 2.5.
+- Select every internal pill and confirm it returns the intended evidence rows; confirm each external pill opens only its external evidence card and does not filter the ledger.
+- Confirm Hawaii chronology, six-month baby timeline, June business start, monthly Fidelity/Marcus/Amex cadence, semi-monthly HP payroll totals, and increasing DraftKings amounts.
+- Check 1376×855 and 1590×1024 for pill overflow, clipping, truncation, or panel movement; tighten only existing compact presentation styles if 14 pills require it.
+- Run the focused TypeScript check and confirm the preview build is clean.
