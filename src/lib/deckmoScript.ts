@@ -155,6 +155,7 @@ export const DECKMO = {
     signals: [
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.tennis, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.hawaii, tone: "blue", source: "internal" },
+      { family: "Behavioral", label: RICKY_SIGNAL_LABELS.media, tone: "blue", source: "internal" },
       {
         family: "Behavioral",
         label: "High pet expenditure",
@@ -167,11 +168,11 @@ export const DECKMO = {
           confidence: "Likely",
         },
       },
-      { family: "Behavioral", label: RICKY_SIGNAL_LABELS.media, tone: "blue", source: "internal" },
       { family: "Life Events", label: RICKY_SIGNAL_LABELS.baby, tone: "amber", source: "internal" },
       { family: "Life Events", label: RICKY_SIGNAL_LABELS.home, tone: "amber", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
       {
         family: "Financial",
         label: "BMW X5 loan ending in ~4 months",
@@ -184,7 +185,6 @@ export const DECKMO = {
           confidence: "Likely",
         },
       },
-      { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
       { family: "Demographics", label: RICKY_SIGNAL_LABELS.income, tone: "violet", source: "internal" },
       { family: "Demographics", label: RICKY_SIGNAL_LABELS.business, tone: "violet", source: "internal" },
       { family: "Risk", label: RICKY_SIGNAL_LABELS.betting, tone: "rose", source: "internal" },
