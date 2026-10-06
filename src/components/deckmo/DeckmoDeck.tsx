@@ -285,7 +285,7 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect, cascadeDelay = 0 }
         })}
       </div>
       {(() => { const sel = signals.find((s) => s.label === selectedLabel); const det = sel ? RICKY_SIGNAL_DETAILS[sel.label] : null; if (!sel || !det) return null; return (
-        <div key={sel.label} ref={(el) => { if (!el) return; let sc = el.parentElement; while (sc && !/(auto|scroll)/.test(getComputedStyle(sc).overflowY)) sc = sc.parentElement; if (!sc) return; const d = el.getBoundingClientRect().bottom - sc.getBoundingClientRect().bottom; if (d > 0) sc.scrollBy({ top: d + 8, behavior: "smooth" }); }} className={cn("mt-2 animate-fade-in rounded-lg border bg-background p-3 text-left shadow-sm", tone.border)}>
+        <div key={sel.label} className={cn("mt-2 animate-fade-in rounded-lg border bg-background p-3 text-left shadow-sm", tone.border)}>
           <div className="flex items-start justify-between gap-2"><p className={cn("text-[13px] font-bold leading-snug", tone.text)}>{det.summary}</p><span className="shrink-0 rounded-full border border-deck-rule bg-deck-surface px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-deck-muted">{sel.source === "external" ? "External" : "Internal ledger"}</span></div>
           <ul className="mt-1.5 space-y-0.5 text-[12px] leading-snug text-foreground">{det.facts.map((f) => <li key={f} className="flex gap-1.5"><span className={cn("mt-1.5 h-1 w-1 shrink-0 rounded-full", tone.dot)} />{f}</li>)}</ul>
           <p className="mt-1.5 text-[11px] text-deck-muted">{det.merchants.join(" · ")}</p>
