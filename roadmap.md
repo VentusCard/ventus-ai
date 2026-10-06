@@ -10,4 +10,4 @@
 - [x] Combine sections 2 and 3 into the five-beat Visibility Gap / Meet Ricky sequence
 - [x] Keep section two stable by giving beats 2.1–2.5 consistent subheader wording
 - [x] Refresh Ricky’s ledger and 13 signal pills while preserving all five pillar groups
-- [ ] Add Ricky’s external Cirrus co-ownership pill to Demographics
+- [x] Add Ricky’s external Cirrus co-ownership pill to Demographics
