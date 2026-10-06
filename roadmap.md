@@ -9,4 +9,4 @@
 - [x] Replace section 7 Guided Investing with a trip-triggered standard HYSA recommendation
 - [x] Combine sections 2 and 3 into the five-beat Visibility Gap / Meet Ricky sequence
 - [x] Keep section two stable by giving beats 2.1–2.5 consistent subheader wording
-- [ ] Refresh Ricky’s ledger and 13 signal pills while preserving all five pillar groups
+- [x] Refresh Ricky’s ledger and 13 signal pills while preserving all five pillar groups

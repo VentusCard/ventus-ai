@@ -72,6 +72,7 @@ const RULES: Rule[] = [
   ["PACIFIC TITLE ESCROW", e("Pacific Title & Escrow", HOME, "Home Purchase", ["Escrow Deposit"], "N/A", "One-Time", 0.97)],
   ["HOME INSPECTION", e("Premier Home Inspection", HOME, "Home Purchase", ["Inspection"], "Standard", "One-Time", 0.95)],
   ["MTG APPRAISAL", e("First Republic Mortgage", HOME, "Home Purchase", ["Appraisal"], "N/A", "One-Time", 0.95)],
+  ["PALO ALTO APPRAISAL", e("Palo Alto Appraisal", HOME, "Home Purchase", ["Appraisal"], "N/A", "One-Time", 0.96)],
   ["BAY AREA APPRAISAL", e("Bay Area Appraisal", HOME, "Home Purchase", ["Appraisal"], "N/A", "One-Time", 0.94)],
   ["ARCHITECTURAL REVIEW", e("Architectural Review", HOME, "Home Purchase", ["Design Review"], "Premium", "One-Time", 0.9)],
   ["PROPERTY ATTORNEY", e("Property Attorney", HOME, "Home Purchase", ["Legal"], "Premium", "One-Time", 0.92)],
