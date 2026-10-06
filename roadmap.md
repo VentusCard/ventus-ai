@@ -11,3 +11,4 @@
 - [x] Keep section two stable by giving beats 2.1–2.5 consistent subheader wording
 - [x] Refresh Ricky’s ledger and 13 signal pills while preserving all five pillar groups
 - [x] Add Ricky’s external Cirrus co-ownership pill to Demographics
+- [x] Tighten only the inner table gutters on Ricky’s first two beats
