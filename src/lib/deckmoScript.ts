@@ -187,6 +187,18 @@ export const DECKMO = {
       },
       { family: "Demographics", label: RICKY_SIGNAL_LABELS.income, tone: "violet", source: "internal" },
       { family: "Demographics", label: RICKY_SIGNAL_LABELS.business, tone: "violet", source: "internal" },
+      {
+        family: "Demographics",
+        label: "Small airplane co-owner",
+        tone: "violet",
+        source: "external",
+        externalEvidence: {
+          provider: "Outside aircraft ownership data",
+          detail: "Shared ownership interest in a Cirrus SR22",
+          timing: "Annual · recurring obligations",
+          confidence: "Likely",
+        },
+      },
       { family: "Risk", label: RICKY_SIGNAL_LABELS.betting, tone: "rose", source: "internal" },
     ],
     profileTitle: "Ricky J #45275487",
@@ -740,5 +752,6 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
   "BMW X5 loan ending in ~4 months": { summary: "Vehicle financing nears payoff, opening a next-car decision", facts: ["Loan maturity in about 4 months", "Financed outside the bank", "Growing family may favor a larger vehicle", "Confidence: likely"], merchants: ["Outside vehicle ownership data"] },
   [RICKY_SIGNAL_LABELS.income]: { summary: "Reliable salary with steady raises", facts: ["Cadence: semi-monthly on the 1st and 15th", "Monthly: $22.8K in Jan to $24.7K in Sep", "Employer: HP Inc. direct deposit", "Trend: small increases most months"], merchants: ["HP Inc. Payroll"] },
   [RICKY_SIGNAL_LABELS.business]: { summary: "New cottage food business with fast-growing weekly sales", facts: ["May: LLC formation and county cottage food permit", "From June: weekly Square payouts", "Payouts grew from $1,216 to $2,486", "Costs: market vendor fees, Restaurant Depot, liability insurance"], merchants: ["Square", "LegalZoom", "Urban Village Farmers' Market", "Restaurant Depot", "FLIP"] },
+  "Small airplane co-owner": { summary: "Shared aircraft ownership suggests an affluent aviation lifestyle", facts: ["Aircraft: Cirrus SR22", "Ownership: shared rather than sole ownership", "Pattern: recurring annual ownership and operating obligations", "Confidence: likely"], merchants: ["Outside aircraft ownership data"] },
   [RICKY_SIGNAL_LABELS.betting]: { summary: "Sportsbook activity rising steadily through the year", facts: ["Size: $65 in Jan to $480 in Sep", "Cadence: roughly monthly, now more frequent", "New in Sep: direct wallet funding by ACH", "Worth a gentle wellness check-in"], merchants: ["DraftKings"] },
 };
