@@ -184,7 +184,7 @@ function Visibility({ step, active = false }: SceneProps) {
               </div>
             ))}
           </section>
-          <section className={cn("min-h-0 min-w-0 overflow-hidden bg-background px-6 py-4 transition-opacity delay-200 duration-500", moved ? "opacity-100" : "pointer-events-none opacity-0")}>
+          <section className={cn("min-h-0 min-w-0 overflow-hidden bg-background transition-opacity delay-200 duration-500", moved ? "px-6 py-4 opacity-100" : "pointer-events-none p-0 opacity-0")}>
             <OutsideTicker data={d.outside} revealed={moved} active={active} />
           </section>
         </div>
