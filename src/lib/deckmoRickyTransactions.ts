@@ -1,7 +1,7 @@
 export const RICKY_SIGNAL_LABELS = {
   tennis: "Bi-weekly tennis",
   hawaii: "Annual pre-holiday Hawaii trip",
-  media: "Media and entertainment spend",
+  media: "Media, music and entertainment",
   baby: "Had a baby ~6 months ago",
   home: "Buying a $1.5M+ Palo Alto home",
   brokerage: "Investing at Fidelity",
