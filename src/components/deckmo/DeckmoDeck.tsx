@@ -173,7 +173,7 @@ function Visibility({ step, active = false }: SceneProps) {
           <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{ricky.profileFacts}</p>
         </div>
         <div className={cn("grid min-h-0 flex-1 transition-[grid-template-columns] duration-700 ease-in-out", moved ? "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]" : "grid-cols-[minmax(0,1fr)_0fr]") }>
-          <section className="min-h-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 px-5 py-2 scrollbar-light">
+          <section className="min-h-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 px-2 pb-2 scrollbar-light">
             <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
             {RICKY_TRANSACTIONS.map((transaction) => (
               <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2">
