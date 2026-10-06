@@ -25,9 +25,11 @@ const FIN = "Financial & Aspirational";
 const INCOME = "Income & Inflows";
 const ENT = "Entertainment & Culture";
 const TECH = "Technology & Digital Life";
+const FAMILY = "Family & Community";
 
 // Ordered: first match wins. Curated for Ricky's static deck ledger.
 const RULES: Rule[] = [
+  ["HAWAIIAN AIR FUTURE TRAVEL", e("Hawaiian Airlines", TRAVEL, "Air Travel", ["Future Booking", "Hawaii Trip"], "Premium", "Annually", 0.98)],
   ["HAWAIIAN AIR INFLIGHT", e("Hawaiian Airlines", TRAVEL, "Air Travel", ["In-flight", "Hawaii Trip"], "Standard", "Annually", 0.95)],
   ["HAWAIIAN AIR", e("Hawaiian Airlines", TRAVEL, "Air Travel", ["Airfare", "Hawaii Trip"], "Premium", "Annually", 0.98)],
   ["SFO INTL TERM LOUNGE", e("SFO Terminal Lounge", TRAVEL, "Airport", ["Lounge"], "Premium", "Occasional", 0.93)],
@@ -51,7 +53,16 @@ const RULES: Rule[] = [
   ["TENNIS WAREHOUSE", e("Tennis Warehouse", SPORT, "Apparel & Gear", ["Shoes", "Tennis"], "Standard", "Occasional", 0.96)],
   ["COACHING", e("Daniel K. Coaching", SPORT, "Lessons", ["Private Coaching", "Tennis"], "Premium", "Monthly", 0.9)],
   ["FID BKG", e("Fidelity Brokerage", FIN, "Investing", ["Brokerage Transfer"], "N/A", "Monthly", 0.97)],
+  ["MARCUS BY GOLDMAN SACHS", e("Marcus by Goldman Sachs", FIN, "Savings", ["Savings Transfer"], "N/A", "Monthly", 0.98)],
+  ["AMERICAN EXPRESS EPAYMENT", e("American Express", FIN, "Credit Card Payment", ["Monthly Payment"], "N/A", "Monthly", 0.98)],
+  ["HP INC PAYROLL", e("HP Inc.", INCOME, "Employment Income", ["Payroll", "Direct Deposit"], "N/A", "Monthly", 0.99)],
   ["STRIPE PAYOUT", e("Stripe", INCOME, "Business Income", ["Merchant Payout"], "N/A", "Weekly", 0.97)],
+  ["SQUARE PAYOUT", e("Square", INCOME, "Business Income", ["Merchant Payout", "Food Business"], "N/A", "Weekly", 0.97)],
+  ["LEGALZOOM LLC FORMATION", e("LegalZoom", FIN, "Business Formation", ["LLC Formation", "Food Business"], "Standard", "One-Time", 0.97)],
+  ["COTTAGE FOOD PERMIT", e("Santa Clara County", FIN, "Business Formation", ["Food Permit", "Food Business"], "N/A", "Annually", 0.98)],
+  ["URBAN VILLAGE FARMERS MKT", e("Urban Village Farmers’ Market", FIN, "Business Operations", ["Vendor Fee", "Food Business"], "Standard", "Occasional", 0.96)],
+  ["RESTAURANT DEPOT", e("Restaurant Depot", FIN, "Business Operations", ["Wholesale Supplies", "Food Business"], "Standard", "Occasional", 0.97)],
+  ["FLIP FOOD LIABILITY", e("FLIP", FIN, "Business Operations", ["Food Liability Insurance"], "N/A", "Annually", 0.96)],
   ["GUSTO", e("Gusto", FIN, "Business Operations", ["Payroll"], "N/A", "Monthly", 0.96)],
   ["BENCH ACCOUNTING", e("Bench Accounting", FIN, "Business Operations", ["Bookkeeping"], "Standard", "Monthly", 0.95)],
   ["PACIFIC OFFICE SUPPLY", e("Pacific Office Supply", FIN, "Business Operations", ["Office Supplies"], "Standard", "Occasional", 0.92)],
@@ -61,6 +72,7 @@ const RULES: Rule[] = [
   ["PACIFIC TITLE ESCROW", e("Pacific Title & Escrow", HOME, "Home Purchase", ["Escrow Deposit"], "N/A", "One-Time", 0.97)],
   ["HOME INSPECTION", e("Premier Home Inspection", HOME, "Home Purchase", ["Inspection"], "Standard", "One-Time", 0.95)],
   ["MTG APPRAISAL", e("First Republic Mortgage", HOME, "Home Purchase", ["Appraisal"], "N/A", "One-Time", 0.95)],
+  ["PALO ALTO APPRAISAL", e("Palo Alto Appraisal", HOME, "Home Purchase", ["Appraisal"], "N/A", "One-Time", 0.96)],
   ["BAY AREA APPRAISAL", e("Bay Area Appraisal", HOME, "Home Purchase", ["Appraisal"], "N/A", "One-Time", 0.94)],
   ["ARCHITECTURAL REVIEW", e("Architectural Review", HOME, "Home Purchase", ["Design Review"], "Premium", "One-Time", 0.9)],
   ["PROPERTY ATTORNEY", e("Property Attorney", HOME, "Home Purchase", ["Legal"], "Premium", "One-Time", 0.92)],
@@ -72,6 +84,15 @@ const RULES: Rule[] = [
   ["CHEWY", e("Chewy", "Pets", "Pet Supplies", ["Food & Supplies"], "Premium", "Monthly", 0.97)],
   ["PETCO", e("Petco", "Pets", "Pet Supplies", ["Food & Supplies"], "Standard", "Occasional", 0.96)],
   ["ANIMAL HOSP", e("Mid-Peninsula Animal Hospital", "Pets", "Pet Health", ["Veterinary"], "Premium", "Occasional", 0.95)],
+  ["NETFLIX", e("Netflix", ENT, "Streaming", ["Video"], "Standard", "Monthly", 0.99)],
+  ["YOUTUBE TV", e("YouTube TV", ENT, "Streaming", ["Live TV"], "Standard", "Monthly", 0.99)],
+  ["AMC THEATRES", e("AMC Theatres", ENT, "Movies", ["Cinema"], "Standard", "Occasional", 0.98)],
+  ["TICKETMASTER*SHORELINE", e("Ticketmaster", ENT, "Live Entertainment", ["Concert", "Shoreline Amphitheatre"], "Premium", "Occasional", 0.97)],
+  ["BABYLIST", e("Babylist", FAMILY, "New Child", ["Baby Registry"], "Standard", "One-Time", 0.97)],
+  ["POTTERY BARN KIDS", e("Pottery Barn Kids", HOME, "Nursery", ["Baby Furniture"], "Premium", "One-Time", 0.98)],
+  ["LUCILE PACKARD CHILDRENS HOSP", e("Lucile Packard Children’s Hospital Stanford", "Health & Wellness", "Hospital", ["Childbirth"], "N/A", "One-Time", 0.98)],
+  ["THE HONEST COMPANY", e("The Honest Company", FAMILY, "Baby Care", ["Diapers & Essentials"], "Standard", "Monthly", 0.97)],
+  ["BRIGHT HORIZONS", e("Bright Horizons", FAMILY, "Childcare", ["Daycare"], "Premium", "Monthly", 0.98)],
   ["WHOLEFDS", e("Whole Foods Market", FOOD, "Grocery", ["Natural & Organic"], "Premium", "Weekly", 0.98)],
   ["TRADER JOES", e("Trader Joe's", FOOD, "Grocery", ["Specialty Grocery"], "Standard", "Weekly", 0.98)],
   ["TARGET", e("Target", HOME, "General", ["Big-Box Retail"], "Standard", "Occasional", 0.94)],
