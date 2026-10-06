@@ -285,7 +285,7 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect, cascadeDelay = 0 }
         })}
       </div>
       {(() => { const sel = signals.find((s) => s.label === selectedLabel); const det = sel ? RICKY_SIGNAL_DETAILS[sel.label] : null; if (!sel || !det) return null; return (
-        <div key={sel.label} className={cn("mt-2 animate-fade-in rounded-lg border bg-background p-3 text-left shadow-sm", tone.border)}>
+        <div key={sel.label} ref={(el) => { const sc = el?.closest("[data-signal-scroller]"); if (!el || !sc) return; requestAnimationFrame(() => { const d = el.getBoundingClientRect().bottom - sc.getBoundingClientRect().bottom; if (d > 0) sc.scrollBy({ top: d + 8, behavior: "smooth" }); }); }} className={cn("mt-2 animate-fade-in rounded-lg border bg-background p-3 text-left shadow-sm", tone.border)}>
           <div className="flex items-start justify-between gap-2"><p className={cn("text-[13px] font-bold leading-snug", tone.text)}>{det.summary}</p><span className="shrink-0 rounded-full border border-deck-rule bg-deck-surface px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-deck-muted">{sel.source === "external" ? "External" : "Internal ledger"}</span></div>
           <ul className="mt-1.5 space-y-0.5 text-[12px] leading-snug text-foreground">{det.facts.map((f) => <li key={f} className="flex gap-1.5"><span className={cn("mt-1.5 h-1 w-1 shrink-0 rounded-full", tone.dot)} />{f}</li>)}</ul>
           <p className="mt-1.5 text-[11px] text-deck-muted">{det.merchants.join(" · ")}</p>
@@ -403,7 +403,7 @@ function Ricky({ step, active = false }: SceneProps) {
               <div className="flex shrink-0 items-center justify-between gap-4 border-b border-deck-rule pb-3">
                 <p className="deck-ricky-cascade text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">{d.signalLabel}</p>
               </div>
-              <div className="mt-4 flex min-h-0 flex-1 flex-col justify-between gap-y-2 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-1.5">
+              <div data-signal-scroller className="scrollbar-light mt-4 flex min-h-0 flex-1 flex-col justify-between gap-y-2 overflow-y-auto overscroll-contain pr-1 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-1.5">
                 {Object.values(families).map((signals, index) => (
                   <SignalFamilyCard key={signals[0]?.family} signals={signals} selectedLabel={selectedLabel} onSelect={selectSignal} cascadeDelay={180 + (index * 150)} />
                 ))}
