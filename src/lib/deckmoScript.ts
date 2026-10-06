@@ -190,7 +190,7 @@ export const DECKMO = {
       { family: "Risk", label: RICKY_SIGNAL_LABELS.betting, tone: "rose", source: "internal" },
     ],
     profileTitle: "Ricky J #45275487",
-    profileFacts: "Age 34 · San Francisco, CA 94123 · Est. household income $250K · Preferred tier",
+    profileFacts: "Age 34 · San Francisco, CA 94123 · Est. household income $500K · Preferred tier",
     profileBody:
       "Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.",
   },
@@ -738,7 +738,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
   [RICKY_SIGNAL_LABELS.marcus]: { summary: "Growing savings habit held at an outside high-yield account", facts: ["Cadence: monthly ACH on the 17th", "Size: $2,000 rising to $3,500", "About $24,000 moved year to date", "Step-ups every two months"], merchants: ["Marcus by Goldman Sachs"] },
   [RICKY_SIGNAL_LABELS.amex]: { summary: "Primary card spend runs through an outside card", facts: ["Cadence: monthly ePayment on the 4th", "Size: $3,300 rising to $4,860", "About $35,700 paid year to date", "Trend: steady growth across 9 months"], merchants: ["American Express"] },
   "BMW X5 loan ending in ~4 months": { summary: "Vehicle financing nears payoff, opening a next-car decision", facts: ["Loan maturity in about 4 months", "Financed outside the bank", "Growing family may favor a larger vehicle", "Confidence: likely"], merchants: ["Outside vehicle ownership data"] },
-  [RICKY_SIGNAL_LABELS.income]: { summary: "Reliable salary with steady raises", facts: ["Cadence: semi-monthly on the 1st and 15th", "Monthly: $11.4K in Jan to $12.4K in Sep", "Employer: HP Inc. direct deposit", "Trend: small increases most months"], merchants: ["HP Inc. Payroll"] },
+  [RICKY_SIGNAL_LABELS.income]: { summary: "Reliable salary with steady raises", facts: ["Cadence: semi-monthly on the 1st and 15th", "Monthly: $22.8K in Jan to $24.7K in Sep", "Employer: HP Inc. direct deposit", "Trend: small increases most months"], merchants: ["HP Inc. Payroll"] },
   [RICKY_SIGNAL_LABELS.business]: { summary: "New cottage food business with fast-growing weekly sales", facts: ["May: LLC formation and county cottage food permit", "From June: weekly Square payouts", "Payouts grew from $1,216 to $2,486", "Costs: market vendor fees, Restaurant Depot, liability insurance"], merchants: ["Square", "LegalZoom", "Urban Village Farmers' Market", "Restaurant Depot", "FLIP"] },
   [RICKY_SIGNAL_LABELS.betting]: { summary: "Sportsbook activity rising steadily through the year", facts: ["Size: $65 in Jan to $480 in Sep", "Cadence: roughly monthly, now more frequent", "New in Sep: direct wallet funding by ACH", "Worth a gentle wellness check-in"], merchants: ["DraftKings"] },
 };
