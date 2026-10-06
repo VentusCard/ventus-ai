@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, BriefcaseBusiness, Building2, ChevronDown, Chevr
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { DECKMO, DECKMO_STEPS, type DeckmoBeatId } from "@/lib/deckmoScript";
+import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_DETAILS, type DeckmoBeatId } from "@/lib/deckmoScript";
 import { useInstitutionDomSwap } from "@/lib/institutionMode";
 import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTransactions";
 import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
@@ -284,6 +284,13 @@ function SignalFamilyCard({ signals, selectedLabel, onSelect, cascadeDelay = 0 }
           return <Button key={signal.label} type="button" variant="outline" aria-pressed={selected} onClick={() => onSelect(signal.label)} style={{ animationDelay: `${cascadeDelay + ((index + 1) * 70)}ms` }} className={cn("deck-ricky-cascade h-auto min-h-11 max-w-full whitespace-normal rounded-full border px-4 py-2.5 text-left text-[14px] font-semibold leading-tight shadow-none transition-[filter,box-shadow] hover:brightness-95 [@media(max-height:800px)]:text-[13px] [@media(max-width:1200px)_and_(max-height:800px)]:min-h-9 [@media(max-width:1200px)_and_(max-height:800px)]:px-3 [@media(max-width:1200px)_and_(max-height:800px)]:py-1.5 [@media(max-width:1200px)_and_(max-height:800px)]:text-[11px]", tone.pillBorder, cn(tone.fullBg, tone.hoverBg, tone.fullText), selected && "ring-2 ring-slate-900 ring-offset-1 shadow-md")}><span>{signal.label}</span>{signal.source === "external" && <span className="ml-2 inline-flex shrink-0 items-center gap-1 rounded-full border border-white/70 bg-white/70 px-2 py-0.5 text-[9px] font-bold uppercase text-slate-700"><Sparkles className="h-3 w-3" />Ext</span>}</Button>;
         })}
       </div>
+      {(() => { const sel = signals.find((s) => s.label === selectedLabel); const det = sel ? RICKY_SIGNAL_DETAILS[sel.label] : null; if (!sel || !det) return null; return (
+        <div key={sel.label} ref={(el) => { const sc = el?.closest("[data-signal-scroller]"); if (!el || !sc) return; requestAnimationFrame(() => { const d = el.getBoundingClientRect().bottom - sc.getBoundingClientRect().bottom; if (d > 0) sc.scrollBy({ top: d + 8, behavior: "smooth" }); }); }} className={cn("mt-2 animate-fade-in rounded-lg border bg-background p-3 text-left shadow-sm", tone.border)}>
+          <div className="flex items-start justify-between gap-2"><p className={cn("text-[13px] font-bold leading-snug", tone.text)}>{det.summary}</p><span className="shrink-0 rounded-full border border-deck-rule bg-deck-surface px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-deck-muted">{sel.source === "external" ? "External" : "Internal ledger"}</span></div>
+          <ul className="mt-1.5 space-y-0.5 text-[12px] leading-snug text-foreground">{det.facts.map((f) => <li key={f} className="flex gap-1.5"><span className={cn("mt-1.5 h-1 w-1 shrink-0 rounded-full", tone.dot)} />{f}</li>)}</ul>
+          <p className="mt-1.5 text-[11px] text-deck-muted">{det.merchants.join(" · ")}</p>
+        </div>
+      ); })()}
     </div>
   );
 }
@@ -396,7 +403,7 @@ function Ricky({ step, active = false }: SceneProps) {
               <div className="flex shrink-0 items-center justify-between gap-4 border-b border-deck-rule pb-3">
                 <p className="deck-ricky-cascade text-[10px] font-bold uppercase tracking-[0.16em] text-deck-muted">{d.signalLabel}</p>
               </div>
-              <div className="mt-4 flex min-h-0 flex-1 flex-col justify-between gap-y-2 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-1.5">
+              <div data-signal-scroller className="scrollbar-light mt-4 flex min-h-0 flex-1 flex-col justify-between gap-y-2 overflow-y-auto overscroll-contain pr-1 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:gap-y-1.5">
                 {Object.values(families).map((signals, index) => (
                   <SignalFamilyCard key={signals[0]?.family} signals={signals} selectedLabel={selectedLabel} onSelect={selectSignal} cascadeDelay={180 + (index * 150)} />
                 ))}
