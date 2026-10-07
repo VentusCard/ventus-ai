@@ -563,9 +563,24 @@ function RuleGroup({
       <ul className="mt-2.5 space-y-1.5">
         {rules.map((rule) => {
           const on = locked ? true : isOn(rule);
+          const selectable = !!onSelect && !!rule.example;
+          const selected = selectable && rule.id === selectedRuleId;
           return (
             <li key={rule.id}>
               <div
+                role={selectable ? "button" : undefined}
+                tabIndex={selectable ? 0 : undefined}
+                onClick={selectable ? () => onSelect(rule) : undefined}
+                onKeyDown={
+                  selectable
+                    ? (e) => {
+                        if (e.key === "Enter" && e.target === e.currentTarget) {
+                          e.preventDefault();
+                          onSelect(rule);
+                        }
+                      }
+                    : undefined
+                }
                 className={cn(
                   "group relative w-full rounded-md border px-2.5 py-2 text-left transition-colors",
                   locked
@@ -573,6 +588,8 @@ function RuleGroup({
                     : on
                       ? styles.rowOn
                       : "border-slate-200 bg-slate-50",
+                  selectable && "cursor-pointer",
+                  selected && "ring-2 ring-slate-900/20 border-slate-400",
                 )}
               >
                 <div className="flex items-start gap-2">
