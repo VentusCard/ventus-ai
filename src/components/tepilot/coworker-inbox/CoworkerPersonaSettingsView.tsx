@@ -682,9 +682,13 @@ function RuleGroup({
 function ExamplesPanel({
   team,
   example,
+  ruleText,
+  onClearRule,
 }: {
   team: TeamDestination;
   example?: CoworkerExample;
+  ruleText?: string | null;
+  onClearRule?: () => void;
 }) {
   if (!example) return null;
   const role = team.name.replace("Coworker for ", "");
@@ -696,7 +700,18 @@ function ExamplesPanel({
           <Mail className="inline h-3 w-3 mr-1 -mt-px" />
           Examples
         </SectionLabel>
-        <span className="text-[11px] text-slate-500">First message it sends</span>
+        {ruleText ? (
+          <button
+            type="button"
+            onClick={onClearRule}
+            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10.5px] font-medium text-slate-600 hover:bg-slate-100"
+          >
+            Rule: {ruleText.length > 42 ? `${ruleText.slice(0, 42)}…` : ruleText}
+            <X className="h-3 w-3" />
+          </button>
+        ) : (
+          <span className="text-[11px] text-slate-500">First message it sends</span>
+        )}
       </div>
 
       <div className="p-3 space-y-3">
