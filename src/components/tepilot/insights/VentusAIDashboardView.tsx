@@ -13,7 +13,7 @@ import { prewarmPrompts } from "@/lib/ventusPrewarm";
 import { LEADERSHIP_CONTEXT } from "@/lib/ventusLeadershipContext";
 import { getRevenueOpportunities } from "@/lib/mockBankwideData";
 import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
-import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal, Users, Plug } from "lucide-react";
+import { ShieldAlert, LayoutDashboard, Terminal, Users, Plug } from "lucide-react";
 import type { TabValue } from "./AnalyticsContainer";
 
 const DASHBOARD_SECTIONS: SubTabItem[] = [
