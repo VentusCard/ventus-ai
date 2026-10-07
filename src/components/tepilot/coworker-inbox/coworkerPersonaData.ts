@@ -188,6 +188,7 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
       { id: "w2-a3", text: "Cite the transaction or external evidence behind every alert", on: true },
       { id: "w2-a4", text: "Prepare a complete next step: agenda, documents, and the specialist team", on: true },
       { id: "w2-a5", text: "Build a pre-meeting dossier and a post-meeting recap with follow-ups", on: true },
+      { id: "w2-a6", text: "Draft emails pairing rewards, perks, and experiences with the families whose lifestyle shows a strong fit", on: true },
     ],
     sometimes: [
       { id: "w2-s1", text: "Start an estate and beneficiary review", when: "a new dependent, marriage, or property change is detected", on: true },
