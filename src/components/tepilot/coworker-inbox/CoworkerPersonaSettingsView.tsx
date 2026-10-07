@@ -531,6 +531,8 @@ function RuleGroup({
   onEdit,
   onAdd,
   onRemove,
+  selectedRuleId,
+  onSelect,
 }: {
   title: string;
   hint: string;
@@ -541,6 +543,8 @@ function RuleGroup({
   onEdit: (id: string, patch: Partial<PlaybookRule>) => void;
   onAdd: () => void;
   onRemove: (id: string) => void;
+  selectedRuleId?: string | null;
+  onSelect?: (rule: PlaybookRule) => void;
 }) {
   const styles = TONE_STYLES[tone];
   const locked = tone === "never";
