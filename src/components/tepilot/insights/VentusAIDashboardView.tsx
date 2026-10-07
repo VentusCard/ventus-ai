@@ -6,7 +6,6 @@ import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
 import { SubTabBar, type SubTabItem } from "./SubTabBar";
-import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { QueryConsoleView } from "./QueryConsoleView";
 import { ApiAccessView } from "./api/ApiAccessView";
 import { getVentusPriorityCards, getPriorityPrompt } from "@/lib/ventusPriorityCards";
@@ -32,7 +31,7 @@ interface VentusAIDashboardViewProps {
   onOpenOpportunity?: (opportunityId: string) => void;
   onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
   onOpenChat?: (prompt?: string) => void;
-  initialSection?: "overview" | "customers" | "risk" | "reports" | "query" | "api";
+  initialSection?: "overview" | "customers" | "risk" | "query" | "api";
   presentationMode?: boolean;
 }
 
@@ -171,12 +170,6 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
         <CustomersDirectoryView
           segment={signalSegment}
           onClearSegment={() => setSignalSegment(null)}
-        />
-      )}
-      {section === "reports" && (
-        <ReportsAndQueryView
-          onOpenInteractiveReport={onOpenInteractiveReport}
-          onRunInConsole={(sql) => { setConsoleQuery(sql); setSection("query"); }}
         />
       )}
       {section === "query" && <QueryConsoleView initialQuery={consoleQuery} />}
