@@ -34,6 +34,7 @@ const ACCENT_DOT: Record<TeamDestination["accent"], string> = {
   rose: "bg-rose-500",
   violet: "bg-violet-500",
   sky: "bg-sky-500",
+  teal: "bg-teal-500",
 };
 
 const ALL_SIGNALS: SignalFamily[] = [
@@ -60,6 +61,7 @@ const newId = (teamId: string, group: RuleGroupKey) =>
 
 export function CoworkerPersonaSettingsView() {
   const [selectedId, setSelectedId] = useState(TEAM_DESTINATIONS[0].id);
+  const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, Playbook>>({});
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
   const save = useSaveSequence({ stages: PLAYBOOK_STAGES });
@@ -69,6 +71,7 @@ export function CoworkerPersonaSettingsView() {
     [selectedId],
   );
   const playbook = drafts[team.id] ?? COWORKER_PLAYBOOKS[team.id];
+  const selectedRule = playbook.always.find((r) => r.id === selectedRuleId) ?? null;
 
   const applyDraft = (mutate: (pb: Playbook) => void) =>
     setDrafts((prev) => {
@@ -148,7 +151,10 @@ export function CoworkerPersonaSettingsView() {
               <button
                 key={t.id}
                 type="button"
-                onClick={() => setSelectedId(t.id)}
+                onClick={() => {
+                  setSelectedId(t.id);
+                  setSelectedRuleId(null);
+                }}
                 className={cn(
                   "w-full text-left rounded-md px-2.5 py-2 transition-colors border",
                   active
@@ -233,7 +239,7 @@ export function CoworkerPersonaSettingsView() {
               {/* Three settings lines */}
               <RuleGroup
                 title="What it always does"
-                hint="Standing behavior, every cycle"
+                hint="Standing behavior, every cycle — click a rule to see an example"
                 tone="always"
                 rules={playbook.always}
                 isOn={isOn}
@@ -241,6 +247,10 @@ export function CoworkerPersonaSettingsView() {
                 onEdit={(id, patch) => editRule("always", id, patch)}
                 onAdd={() => addRule("always")}
                 onRemove={(id) => removeRule("always", id)}
+                selectedRuleId={selectedRuleId}
+                onSelect={(rule) =>
+                  setSelectedRuleId((prev) => (prev === rule.id ? null : rule.id))
+                }
               />
               <RuleGroup
                 title="What it sometimes does"
@@ -333,7 +343,12 @@ export function CoworkerPersonaSettingsView() {
 
             {/* Examples column */}
             <div className="min-w-0 lg:sticky lg:top-0">
-              <ExamplesPanel team={team} example={COWORKER_EXAMPLES[team.id]} />
+              <ExamplesPanel
+                team={team}
+                example={selectedRule?.example ?? COWORKER_EXAMPLES[team.id]}
+                ruleText={selectedRule?.text ?? null}
+                onClearRule={() => setSelectedRuleId(null)}
+              />
             </div>
           </div>
         </div>
@@ -379,12 +394,15 @@ function EditableText({
   multiline,
   className,
   placeholder,
+  activateOn = "click",
 }: {
   value: string;
   onCommit: (v: string) => void;
   multiline?: boolean;
   className?: string;
   placeholder?: string;
+  /** "dblclick" lets a single click bubble up (e.g. to select the parent row). */
+  activateOn?: "click" | "dblclick";
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -431,10 +449,22 @@ function EditableText({
     <span
       role="textbox"
       tabIndex={0}
-      onClick={(e) => {
-        e.stopPropagation();
-        start();
-      }}
+      onClick={
+        activateOn === "click"
+          ? (e) => {
+              e.stopPropagation();
+              start();
+            }
+          : undefined
+      }
+      onDoubleClick={
+        activateOn === "dblclick"
+          ? (e) => {
+              e.stopPropagation();
+              start();
+            }
+          : undefined
+      }
       onKeyDown={(e) => {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -516,6 +546,8 @@ function RuleGroup({
   onEdit,
   onAdd,
   onRemove,
+  selectedRuleId,
+  onSelect,
 }: {
   title: string;
   hint: string;
@@ -526,6 +558,8 @@ function RuleGroup({
   onEdit: (id: string, patch: Partial<PlaybookRule>) => void;
   onAdd: () => void;
   onRemove: (id: string) => void;
+  selectedRuleId?: string | null;
+  onSelect?: (rule: PlaybookRule) => void;
 }) {
   const styles = TONE_STYLES[tone];
   const locked = tone === "never";
@@ -544,9 +578,24 @@ function RuleGroup({
       <ul className="mt-2.5 space-y-1.5">
         {rules.map((rule) => {
           const on = locked ? true : isOn(rule);
+          const selectable = !!onSelect && !!rule.example;
+          const selected = selectable && rule.id === selectedRuleId;
           return (
             <li key={rule.id}>
               <div
+                role={selectable ? "button" : undefined}
+                tabIndex={selectable ? 0 : undefined}
+                onClick={selectable ? () => onSelect(rule) : undefined}
+                onKeyDown={
+                  selectable
+                    ? (e) => {
+                        if (e.key === "Enter" && e.target === e.currentTarget) {
+                          e.preventDefault();
+                          onSelect(rule);
+                        }
+                      }
+                    : undefined
+                }
                 className={cn(
                   "group relative w-full rounded-md border px-2.5 py-2 text-left transition-colors",
                   locked
@@ -554,6 +603,8 @@ function RuleGroup({
                     : on
                       ? styles.rowOn
                       : "border-slate-200 bg-slate-50",
+                  selectable && "cursor-pointer",
+                  selected && "ring-2 ring-slate-900/20 border-slate-400",
                 )}
               >
                 <div className="flex items-start gap-2">
@@ -562,7 +613,10 @@ function RuleGroup({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => onToggle(rule)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggle(rule);
+                      }}
                       aria-label={on ? "Turn rule off" : "Turn rule on"}
                       className="mt-0.5 flex-none"
                     >
@@ -583,6 +637,7 @@ function RuleGroup({
                       value={rule.text}
                       onCommit={(v) => onEdit(rule.id, { text: v })}
                       multiline
+                      activateOn={selectable ? "dblclick" : "click"}
                       className={cn(
                         "block text-[12.5px] leading-snug",
                         on ? "text-slate-800" : "text-slate-500",
@@ -612,7 +667,10 @@ function RuleGroup({
                   </div>
                   <button
                     type="button"
-                    onClick={() => onRemove(rule.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove(rule.id);
+                    }}
                     aria-label="Remove rule"
                     className="absolute right-1.5 top-1.5 rounded p-0.5 text-slate-300 opacity-0 transition-opacity hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100"
                   >
@@ -640,9 +698,13 @@ function RuleGroup({
 function ExamplesPanel({
   team,
   example,
+  ruleText,
+  onClearRule,
 }: {
   team: TeamDestination;
   example?: CoworkerExample;
+  ruleText?: string | null;
+  onClearRule?: () => void;
 }) {
   if (!example) return null;
   const role = team.name.replace("Coworker for ", "");
@@ -654,7 +716,18 @@ function ExamplesPanel({
           <Mail className="inline h-3 w-3 mr-1 -mt-px" />
           Examples
         </SectionLabel>
-        <span className="text-[11px] text-slate-500">First message it sends</span>
+        {ruleText ? (
+          <button
+            type="button"
+            onClick={onClearRule}
+            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10.5px] font-medium text-slate-600 hover:bg-slate-100"
+          >
+            Rule: {ruleText.length > 42 ? `${ruleText.slice(0, 42)}…` : ruleText}
+            <X className="h-3 w-3" />
+          </button>
+        ) : (
+          <span className="text-[11px] text-slate-500">First message it sends</span>
+        )}
       </div>
 
       <div className="p-3 space-y-3">

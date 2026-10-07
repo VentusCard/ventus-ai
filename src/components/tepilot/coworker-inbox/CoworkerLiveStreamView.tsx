@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Sparkles, ArrowUpRight, ArrowDownLeft, Radar,
-  Mail, MessageCircle, Workflow, Users,
+  ArrowUpRight, ArrowDownLeft, Radar, Mail, MessageCircle, Workflow, Users, Clock3, History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ROSTER, WEEKLY_STATS, type Person } from "./coworkerInboxData";
 import {
-  makeStreamEntry, seedStream, relativeTime,
+  makeStreamEntry, seedStream, relativeTime, clockTime, dayLabel, dayKey,
   type StreamEntry, type StreamKind,
 } from "./coworkerStreamData";
-import { PulseDot } from "@/components/tepilot/common/PulseDot";
 
-const MAX_ENTRIES = 60;
+const MAX_ENTRIES = 120;
+const TRICKLE_MIN_MS = 12000;
+const TRICKLE_JITTER_MS = 8000;
 
 const KIND_STYLES: Record<StreamKind, { dot: string; label: string; badge: string }> = {
   advisor:    { dot: "bg-purple-500",  label: "Advisor",    badge: "bg-purple-50 text-purple-700 border-purple-200" },
@@ -21,11 +21,11 @@ const KIND_STYLES: Record<StreamKind, { dot: string; label: string; badge: strin
   handoff:    { dot: "bg-sky-500",     label: "Hand-off",   badge: "bg-sky-50 text-sky-700 border-sky-200" },
 };
 
-type FilterKey = "all" | "sending" | "replies" | "signals" | "handoffs";
+type FilterKey = "all" | "sent" | "replies" | "signals" | "handoffs";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "sending", label: "Sending" },
+  { key: "sent", label: "Sent" },
   { key: "replies", label: "Replies" },
   { key: "signals", label: "Signals" },
   { key: "handoffs", label: "Hand-offs" },
@@ -33,14 +33,14 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 
 function matchesFilter(e: StreamEntry, f: FilterKey) {
   if (f === "all") return true;
-  if (f === "sending") return e.kind === "advisor" || e.kind === "leadership";
+  if (f === "sent") return e.kind === "advisor" || e.kind === "leadership";
   if (f === "replies") return e.kind === "reply";
   if (f === "signals") return e.kind === "signal";
   return e.kind === "handoff";
 }
 
 export function CoworkerLiveStreamView() {
-  const [entries, setEntries] = useState<StreamEntry[]>(() => seedStream(18));
+  const [entries, setEntries] = useState<StreamEntry[]>(() => seedStream(MAX_ENTRIES));
   const [filter, setFilter] = useState<FilterKey>("all");
   const [personFilter, setPersonFilter] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -52,11 +52,11 @@ export function CoworkerLiveStreamView() {
   }));
   const newestIdRef = useRef<string | null>(null);
 
-  // Rolling insertion
+  // Occasionally a new exchange is added to the log
   useEffect(() => {
     let timer: number;
     const schedule = () => {
-      const delay = 2500 + Math.random() * 2500;
+      const delay = TRICKLE_MIN_MS + Math.random() * TRICKLE_JITTER_MS;
       timer = window.setTimeout(() => {
         const entry = makeStreamEntry();
         newestIdRef.current = entry.id;
@@ -74,7 +74,7 @@ export function CoworkerLiveStreamView() {
     return () => window.clearTimeout(timer);
   }, []);
 
-  // Age the relative timestamps
+  // Age the "last exchange" readings in the side panel
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
@@ -90,6 +90,17 @@ export function CoworkerLiveStreamView() {
     (e) => matchesFilter(e, filter) && (!personFilter || e.personId === personFilter)
   );
 
+  const days = useMemo(() => {
+    const groups: { key: number; label: string; entries: StreamEntry[] }[] = [];
+    for (const e of visible) {
+      const key = dayKey(e.at);
+      const last = groups[groups.length - 1];
+      if (last && last.key === key) last.entries.push(e);
+      else groups.push({ key, label: dayLabel(e.at, now), entries: [e] });
+    }
+    return groups;
+  }, [visible, now]);
+
   const collaborators = useMemo(() => {
     return ROSTER.map((p) => {
       const theirs = entries.filter((e) => e.personId === p.id);
@@ -104,22 +115,20 @@ export function CoworkerLiveStreamView() {
   return (
     <div className="h-full overflow-y-auto pr-1">
       <div className="space-y-3 pb-6">
-        {/* Live header */}
+        {/* History header */}
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <span className="relative flex h-2.5 w-2.5">
-              <PulseDot colorClass="bg-emerald-500" sizeClass="h-2.5 w-2.5" />
-            </span>
-            <span className="text-[13px] font-semibold text-slate-900">Streaming live</span>
+            <History className="w-4 h-4 text-slate-500" />
+            <span className="text-[13px] font-semibold text-slate-900">Activity history</span>
             <span className="text-[12px] text-slate-500">
-              {counts.actions.toLocaleString()} actions today
+              Last 3 days · {counts.actions.toLocaleString()} logged actions
             </span>
           </div>
 
           <div className="flex items-center gap-4 text-[12px] text-slate-600">
             <span className="inline-flex items-center gap-1.5">
               <Mail className="w-3.5 h-3.5 text-purple-600" />
-              <span className="font-semibold text-slate-900 tabular-nums">{counts.emails.toLocaleString()}</span> sent
+              <span className="font-semibold text-slate-900 tabular-nums">{counts.emails.toLocaleString()}</span> sent this week
             </span>
             <span className="inline-flex items-center gap-1.5">
               <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
@@ -160,86 +169,103 @@ export function CoworkerLiveStreamView() {
           )}
         </div>
 
-        {/* Stream + collaborators */}
+        {/* Log + people */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           <div className="lg:col-span-2 rounded-lg border border-slate-200 bg-white">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-              <h3 className="text-[13px] font-semibold text-slate-900">What Ventus AI Coworker is working on</h3>
-              <span className="text-[11.5px] text-slate-500 ml-auto">
-                showing {visible.length} most recent
+              <Clock3 className="w-3.5 h-3.5 text-slate-500" />
+              <h3 className="text-[13px] font-semibold text-slate-900">What was sent and what came back</h3>
+              <span className="text-[11.5px] text-slate-500 ml-auto tabular-nums">
+                {visible.length} logged
               </span>
             </div>
-            <ul className="divide-y divide-slate-100">
-              {visible.map((e) => {
-                const s = KIND_STYLES[e.kind];
-                const person = e.personId ? peopleById[e.personId] : undefined;
-                const isNewest = e.id === newestIdRef.current;
-                return (
-                  <li
-                    key={e.id}
-                    className={cn(
-                      "px-4 py-2.5 flex items-start gap-3 transition-colors duration-700",
-                      isNewest ? "bg-emerald-50/70" : "hover:bg-slate-50/60"
-                    )}
-                    style={isNewest ? { animation: "fade-in 0.35s ease-out" } : undefined}
-                  >
-                    <PulseDot colorClass={s.dot} sizeClass="h-2 w-2" className="mt-2 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={cn("text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded", s.badge)}>
-                          {s.label}
-                        </span>
-                        {e.direction === "out" && <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />}
-                        {e.direction === "in" && <ArrowDownLeft className="w-3.5 h-3.5 text-emerald-500" />}
-                        {e.kind === "handoff" && <Workflow className="w-3.5 h-3.5 text-sky-500" />}
-                        <span className="text-[13px] text-slate-900 font-medium">{e.title}</span>
-                      </div>
-                      <div className="text-[12px] text-slate-600 mt-0.5">{e.detail}</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        {person && (
-                          <button
-                            type="button"
-                            onClick={() => setPersonFilter(person.id)}
-                            className="inline-flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-slate-800 transition-colors"
-                          >
-                            <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[8px] font-bold">
-                              {person.initials}
-                            </span>
-                            {person.name}
-                            <span className={cn(
-                              "text-[9px] font-semibold uppercase tracking-wider px-1 py-0.5 rounded border",
-                              person.role === "advisor"
-                                ? "bg-purple-50 text-purple-700 border-purple-200"
-                                : "bg-amber-50 text-amber-700 border-amber-200"
-                            )}>
-                              {person.role === "advisor" ? "ADV" : "LEAD"}
-                            </span>
-                          </button>
+
+            {days.map((g) => (
+              <section key={g.key} data-testid="activity-day-group">
+                <div className="px-4 py-2 bg-slate-50 border-y border-slate-100 flex items-center gap-2">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-600">{g.label}</h4>
+                  <span className="text-[11px] text-slate-400 ml-auto tabular-nums">
+                    {g.entries.length} logged
+                  </span>
+                </div>
+                <ul className="divide-y divide-slate-100">
+                  {g.entries.map((e) => {
+                    const s = KIND_STYLES[e.kind];
+                    const person = e.personId ? peopleById[e.personId] : undefined;
+                    const isNewest = e.id === newestIdRef.current;
+                    return (
+                      <li
+                        key={e.id}
+                        className={cn(
+                          "px-4 py-2 flex items-start gap-3 border-l-2 transition-colors duration-700",
+                          e.direction === "in"
+                            ? "border-l-emerald-300"
+                            : e.direction === "out"
+                              ? "border-l-slate-300"
+                              : "border-l-blue-200",
+                          isNewest ? "bg-emerald-50/70" : "hover:bg-slate-50/60"
                         )}
-                        <span className="text-[11px] text-slate-400">{relativeTime(e.at, now)}</span>
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-              {visible.length === 0 && (
-                <li className="px-4 py-8 text-center text-[12px] text-slate-500">
-                  No activity matches this filter yet — new entries arrive continuously.
-                </li>
-              )}
-            </ul>
+                        style={isNewest ? { animation: "fade-in 0.35s ease-out" } : undefined}
+                      >
+                        <span className="shrink-0 w-[58px] pt-0.5 text-[11px] tabular-nums text-slate-500">
+                          {clockTime(e.at)}
+                        </span>
+                        <span className={cn("shrink-0 mt-[7px] h-2 w-2 rounded-full", s.dot)} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={cn("text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded", s.badge)}>
+                              {s.label}
+                            </span>
+                            {e.direction === "out" && <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />}
+                            {e.direction === "in" && <ArrowDownLeft className="w-3.5 h-3.5 text-emerald-500" />}
+                            {e.kind === "handoff" && <Workflow className="w-3.5 h-3.5 text-sky-500" />}
+                            <span className="text-[13px] text-slate-900 font-medium">{e.title}</span>
+                          </div>
+                          <div className="text-[12px] text-slate-600 mt-0.5">{e.detail}</div>
+                          {person && (
+                            <button
+                              type="button"
+                              onClick={() => setPersonFilter(person.id)}
+                              className="mt-1 inline-flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-slate-800 transition-colors"
+                            >
+                              <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[8px] font-bold">
+                                {person.initials}
+                              </span>
+                              {person.name}
+                              <span className={cn(
+                                "text-[9px] font-semibold uppercase tracking-wider px-1 py-0.5 rounded border",
+                                person.role === "advisor"
+                                  ? "bg-purple-50 text-purple-700 border-purple-200"
+                                  : "bg-amber-50 text-amber-700 border-amber-200"
+                              )}>
+                                {person.role === "advisor" ? "ADV" : "LEAD"}
+                              </span>
+                            </button>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            ))}
+
+            {visible.length === 0 && (
+              <div className="px-4 py-8 text-center text-[12px] text-slate-500">
+                Nothing logged for this filter yet.
+              </div>
+            )}
           </div>
 
-          {/* Collaborators now */}
+          {/* Working with */}
           <div className="rounded-lg border border-slate-200 bg-white self-start">
             <div className="px-4 py-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <Users className="w-3.5 h-3.5 text-slate-500" />
-                <h3 className="text-[13px] font-semibold text-slate-900">Collaborators now</h3>
+                <h3 className="text-[13px] font-semibold text-slate-900">Working with</h3>
               </div>
               <p className="text-[11.5px] text-slate-500 mt-0.5">
-                Sample of {ROSTER.length} of {WEEKLY_STATS.collaboratorsTotal.toLocaleString()} people in an open thread
+                Sample of {ROSTER.length} of {WEEKLY_STATS.collaboratorsTotal.toLocaleString()} colleagues · exchanges on record
               </p>
             </div>
             <ul className="divide-y divide-slate-100">
@@ -273,7 +299,7 @@ export function CoworkerLiveStreamView() {
                     <div className="shrink-0 text-right">
                       <div className="text-[11px] font-semibold text-slate-800 tabular-nums">{exchanges}</div>
                       <div className="text-[9.5px] text-slate-500">
-                        {lastAt ? relativeTime(lastAt, now) : "idle"}
+                        {lastAt ? relativeTime(lastAt, now) : "none"}
                       </div>
                     </div>
                   </button>
@@ -284,7 +310,7 @@ export function CoworkerLiveStreamView() {
         </div>
 
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 pt-1">
-          <Sparkles className="w-3 h-3" />
+          <Clock3 className="w-3 h-3" />
           Static demo — activity, threads, and stats are illustrative.
         </div>
       </div>

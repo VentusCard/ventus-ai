@@ -371,13 +371,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'ventus-ai':
       case 'analytics-dashboard':
         return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} presentationMode={presentationMode} />;
-      case 'outflow-analytics': return <AnalyticsView />;
+      case 'outflow-analytics': return <AnalyticsView onOpenInteractiveReport={openInteractiveReport} />;
       case 'capabilities': return <CapabilitiesView onNavigate={setActiveTab} />;
       case 'products': return <BankContextView />;
       case 'governance-context': return <GovernanceContextView />;
       // 'ventus-chat' is rendered as a persistent mount below so the thread survives tab switches.
       case 'ventus-chat': return null;
-      case 'reports': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="reports" />;
+      case 'reports': return <AnalyticsView initialSubTab="reports" onOpenInteractiveReport={openInteractiveReport} />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
       case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
