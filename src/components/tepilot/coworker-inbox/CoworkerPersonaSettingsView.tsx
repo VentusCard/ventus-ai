@@ -637,6 +637,7 @@ function RuleGroup({
                       value={rule.text}
                       onCommit={(v) => onEdit(rule.id, { text: v })}
                       multiline
+                      activateOn={selectable ? "dblclick" : "click"}
                       className={cn(
                         "block text-[12.5px] leading-snug",
                         on ? "text-slate-800" : "text-slate-500",
