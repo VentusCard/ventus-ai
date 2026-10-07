@@ -598,7 +598,10 @@ function RuleGroup({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => onToggle(rule)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggle(rule);
+                      }}
                       aria-label={on ? "Turn rule off" : "Turn rule on"}
                       className="mt-0.5 flex-none"
                     >
@@ -648,7 +651,10 @@ function RuleGroup({
                   </div>
                   <button
                     type="button"
-                    onClick={() => onRemove(rule.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove(rule.id);
+                    }}
                     aria-label="Remove rule"
                     className="absolute right-1.5 top-1.5 rounded p-0.5 text-slate-300 opacity-0 transition-opacity hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100"
                   >
