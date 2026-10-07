@@ -7,6 +7,8 @@ export interface PlaybookRule {
   when?: string;
   /** Default toggle state (locked rules ignore this). */
   on?: boolean;
+  /** Illustrative message showing this rule in action ("always" rules). */
+  example?: CoworkerExample;
 }
 
 export interface Playbook {
@@ -36,10 +38,66 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     mission:
       "Give bank leadership one short weekly read on what moved across the book — momentum, concentration, and the few decisions worth their attention.",
     always: [
-      { id: "l-a1", text: "Send a weekly pulse summarizing institution-level movement", on: true },
-      { id: "l-a2", text: "Lead with the three shifts that changed most week-over-week", on: true },
-      { id: "l-a3", text: "Frame every trend as an opportunity, never as an alarm", on: true },
-      { id: "l-a4", text: "Attribute each number to the signal family that produced it", on: true },
+      {
+        id: "l-a1",
+        text: "Send a weekly pulse summarizing institution-level movement",
+        on: true,
+        example: {
+          subject: "Weekly pulse — [Week of]",
+          body: `One page on what moved across the institution in [Week of].
+
+- Deposits: momentum in [Region A], softening in [Region B].
+- Lending: [Product] applications trending up for the third week running.
+- Wealth: advisory flows steady; watch item noted below.
+
+Everything here is institution-level — no households named, no account detail. Detail lives with your LOB heads' own coworkers.`,
+          replyPrompts: ["Break this down by LOB", "Compare with last quarter", "What changed since Monday?"],
+        },
+      },
+      {
+        id: "l-a2",
+        text: "Lead with the three shifts that changed most week-over-week",
+        on: true,
+        example: {
+          subject: "The three shifts that moved most this week",
+          body: `Ranked by size of move, not by noise:
+
+1. Share-of-wallet drift in [Segment] — the largest week-over-week change on the book.
+2. [Product] gap widening in [Region] — now visible at institution level.
+3. Advisor response time improving in [Region] — a shift worth recognizing.
+
+Everything else moved within normal range and is omitted on purpose.`,
+          replyPrompts: ["Why is shift one ranked first?", "Show the runners-up", "Compare with the prior week"],
+        },
+      },
+      {
+        id: "l-a3",
+        text: "Frame every trend as an opportunity, never as an alarm",
+        on: true,
+        example: {
+          subject: "An opening in [Segment], not a warning",
+          body: `A growing share of [Segment] households is routing savings to outside institutions. Read as an opening: the behavior says these households are actively looking for a better yield home, and we have a credible answer in [Product].
+
+The window is measured in weeks, not quarters — but this is a positioning opportunity, not a fire drill. Suggested owner: [Owner].`,
+          replyPrompts: ["Size the opportunity", "Draft the positioning note", "Which regions lead the trend?"],
+        },
+      },
+      {
+        id: "l-a4",
+        text: "Attribute each number to the signal family that produced it",
+        on: true,
+        example: {
+          subject: "Where this week's numbers come from",
+          body: `Every figure in this pulse carries its source:
+
+- Share-of-wallet drift — Financial signals (outbound transfer patterns).
+- [Product] gap — Behavioral signals (recurring payments to outside providers).
+- Coverage pressure — Demographic signals (segment growth vs. advisor assignments).
+
+If a number can't be attributed to a signal family, it doesn't appear in this brief.`,
+          replyPrompts: ["Show the evidence behind figure one", "Which signal family is most active?", "Export the attribution table"],
+        },
+      },
     ],
     sometimes: [
       { id: "l-s1", text: "Propose a campaign brief for the marketing team", when: "a product gap covers 10+ households", on: true },
@@ -65,10 +123,69 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     mission:
       "Surface where the product set is missing real demand — the gaps, the rollover moments, and the next-product candidates hiding in behavior.",
     always: [
-      { id: "p-a1", text: "Send a daily brief on product-fit gaps by segment", on: true },
-      { id: "p-a2", text: "Rank opportunities by household count and behavioral fit score", on: true },
-      { id: "p-a3", text: "Show the behavioral evidence behind each product recommendation", on: true },
-      { id: "p-a4", text: "Map every gap to an existing product in the catalog", on: true },
+      {
+        id: "p-a1",
+        text: "Send a daily brief on product-fit gaps by segment",
+        on: true,
+        example: {
+          subject: "Product-fit gaps by segment — [Date]",
+          body: `Today's gap scan across active segments:
+
+- [Segment A]: behavior consistent with [Product], no catalog product attached.
+- [Segment B]: [Product] demand rising week-over-week.
+- [Segment C]: gap closed — last week's positioning test is converting.
+
+Only segments with a live gap appear; quiet segments are omitted.`,
+          replyPrompts: ["Open Segment A in detail", "Show this week's new gaps", "Which gaps closed recently?"],
+        },
+      },
+      {
+        id: "p-a2",
+        text: "Rank opportunities by household count and behavioral fit score",
+        on: true,
+        example: {
+          subject: "Today's gaps, ranked",
+          body: `Ranked on two axes: how many households show the behavior, and how strongly.
+
+1. [Product] in [Segment] — largest household count, high fit.
+2. [Product] in [Segment] — fewer households, but the strongest fit score on the board.
+3. [Product] in [Segment] — large count, moderate fit; worth watching, not yet a brief.
+
+The ranking updates daily as behavior moves.`,
+          replyPrompts: ["Re-rank by fit score only", "Show the scoring method", "What entered the top three this week?"],
+        },
+      },
+      {
+        id: "p-a3",
+        text: "Show the behavioral evidence behind each product recommendation",
+        on: true,
+        example: {
+          subject: "Why we're recommending [Product] for [Segment]",
+          body: `The recommendation rests on observed behavior, not survey data:
+
+- Recurring payments to [Competing institution] on a [Cadence] cadence.
+- Balance patterns consistent with [Use case].
+- Life-event signals that historically precede [Product] adoption.
+
+Each claim links to the underlying pattern. If the evidence thins, the recommendation is withdrawn.`,
+          replyPrompts: ["Open the raw evidence", "How long has this pattern held?", "What would weaken this recommendation?"],
+        },
+      },
+      {
+        id: "p-a4",
+        text: "Map every gap to an existing product in the catalog",
+        on: true,
+        example: {
+          subject: "Every gap has a catalog answer",
+          body: `Today's gaps, each mapped to something we already sell:
+
+- [Segment A] gap → [Catalog product], positioning attached.
+- [Segment B] gap → [Catalog product], eligibility note attached.
+
+No gap is presented without a catalog match. If no product fits, the gap goes to a watch list — never to you as a build request.`,
+          replyPrompts: ["Show the watch list", "Open the positioning for item one", "Which catalog products appear most?"],
+        },
+      },
     ],
     sometimes: [
       { id: "p-s1", text: "Draft a next-product positioning line", when: "a segment crosses 500 qualifying households", on: true },
@@ -94,10 +211,68 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     mission:
       "Watch for behavior that signals strain, attrition, or exposure — early enough that someone can still do something about it.",
     always: [
-      { id: "r-a1", text: "Alert on outbound-transfer clusters within the same business day", on: true },
-      { id: "r-a2", text: "Attach the transaction evidence behind every flag", on: true },
-      { id: "r-a3", text: "Score each cohort against the standing vulnerability indicators", on: true },
-      { id: "r-a4", text: "Route confirmed flags to a named owner", on: true },
+      {
+        id: "r-a1",
+        text: "Alert on outbound-transfer clusters within the same business day",
+        on: true,
+        example: {
+          subject: "Outbound-transfer cluster detected — [Date]",
+          body: `A cluster of outbound transfers landed within the same business day across [# households] households in [Region].
+
+- Pattern: multiple transfers per household, compressed into [Window].
+- Destination: [Obfuscated descriptor], resolved on file.
+- Context: no matching life-event pattern explains the compression.
+
+Reported as behavior, not intent. No action has been taken.`,
+          replyPrompts: ["Open the cluster detail", "Show the destination resolution", "Suppress if a life event explains it"],
+        },
+      },
+      {
+        id: "r-a2",
+        text: "Attach the transaction evidence behind every flag",
+        on: true,
+        example: {
+          subject: "Flag with evidence attached — [Cohort name]",
+          body: `A flag raised on [Date] against the [Cohort name] indicator.
+
+Attached: the transaction pattern that triggered it — cadence, counterparties (obfuscated), and the window over which it built. The evidence travels with the flag through review, so no one acts on a headline alone.
+
+If the evidence doesn't hold up on review, the flag closes with the reason recorded.`,
+          replyPrompts: ["Open the evidence bundle", "Close this flag with a reason", "Show similar past flags"],
+        },
+      },
+      {
+        id: "r-a3",
+        text: "Score each cohort against the standing vulnerability indicators",
+        on: true,
+        example: {
+          subject: "Cohort scores against standing indicators — [Week of]",
+          body: `Weekly scoring of active cohorts against the standing vulnerability indicators:
+
+- [Cohort A]: score rising for [Duration], driven by [Pattern].
+- [Cohort B]: score flat; no change in underlying behavior.
+- [Cohort C]: score falling — the pattern is resolving on its own.
+
+Scores are directional and reviewed by a human before anything routes onward.`,
+          replyPrompts: ["Show the scoring rubric", "Which indicator moved most?", "Export the cohort table"],
+        },
+      },
+      {
+        id: "r-a4",
+        text: "Route confirmed flags to a named owner",
+        on: true,
+        example: {
+          subject: "Flag routed to [Owner] — [Cohort name]",
+          body: `The flag on [Cohort name] from [Date] has been confirmed on review and routed.
+
+- Owner: [Owner], [Team].
+- Expected: review by [Date], disposition recorded.
+- Escalation: if the window lapses, it routes to [Escalation owner].
+
+Nothing sits unowned. Every confirmed flag has a name and a clock attached.`,
+          replyPrompts: ["Reassign the owner", "Show the routing history", "What is overdue right now?"],
+        },
+      },
     ],
     sometimes: [
       { id: "r-s1", text: "Escalate to compliance review", when: "a pattern matches two or more risk cohorts", on: true },
@@ -123,10 +298,68 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     mission:
       "Keep the offer set matched to how people actually spend — which perks are earning attention, and which merchants are worth a partnership.",
     always: [
-      { id: "w-a1", text: "Send a daily brief on redemption intent by segment", on: true },
-      { id: "w-a2", text: "Rank merchant partnership candidates by observed wallet share", on: true },
-      { id: "w-a3", text: "Retire offers that under-index for two consecutive weeks", on: true },
-      { id: "w-a4", text: "Keep every offer description lifestyle-led, never data-led", on: true },
+      {
+        id: "w-a1",
+        text: "Send a daily brief on redemption intent by segment",
+        on: true,
+        example: {
+          subject: "Redemption intent by segment — [Date]",
+          body: `Where offer attention is heading today:
+
+- [Segment A]: intent concentrating on travel perks ahead of [Season].
+- [Segment B]: dining offers drawing the strongest response this week.
+- [Segment C]: intent flat — the current offer set isn't landing.
+
+Intent is inferred from lifestyle patterns, never from individual transactions.`,
+          replyPrompts: ["Open Segment A's top offers", "Compare with last week", "Which segments are cooling?"],
+        },
+      },
+      {
+        id: "w-a2",
+        text: "Rank merchant partnership candidates by observed wallet share",
+        on: true,
+        example: {
+          subject: "Partnership candidates, ranked by wallet share",
+          body: `Merchants capturing meaningful spend from our customers, ranked:
+
+1. [Merchant] — strongest wallet share in [Segment], no agreement on file.
+2. [Merchant] — growing fast in [City], category leader.
+3. [Merchant] — steady share, seasonal upside.
+
+Each candidate includes the segment it would serve and the offer it could anchor.`,
+          replyPrompts: ["Draft outreach for candidate one", "Show the wallet-share trend", "Filter by city"],
+        },
+      },
+      {
+        id: "w-a3",
+        text: "Retire offers that under-index for two consecutive weeks",
+        on: true,
+        example: {
+          subject: "Two offers reached retirement threshold",
+          body: `Under-indexed for two consecutive weeks against baseline:
+
+- [Offer name] — attention fading in every segment it targets.
+- [Offer name] — never found its audience; spend is going elsewhere.
+
+Both are queued for retirement, with replacement candidates attached. Nothing is pulled without your sign-off.`,
+          replyPrompts: ["Approve the retirements", "Show the replacement candidates", "Extend one more week"],
+        },
+      },
+      {
+        id: "w-a4",
+        text: "Keep every offer description lifestyle-led, never data-led",
+        on: true,
+        example: {
+          subject: "Offer copy check — lifestyle-led, always",
+          body: `How the same offer reads, before and after:
+
+- Data-led (rejected): "You spent at coffee shops 14 times last month."
+- Lifestyle-led (approved): "Your mornings deserve a better roast — [Merchant] is on us this week."
+
+Every offer description in the queue passes this check before it reaches you. The customer reads relevance, never surveillance.`,
+          replyPrompts: ["Show this week's approved copy", "Flag anything borderline", "Open the copy guidelines"],
+        },
+      },
     ],
     sometimes: [
       { id: "w-s1", text: "Propose a premium card upgrade offer", when: "travel and dining spend clears the tier threshold", on: true },
@@ -152,10 +385,70 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     mission:
       "Tell each advisor which relationships changed overnight and are worth a call today — with the evidence and the opening line already prepared.",
     always: [
-      { id: "a-a1", text: "Send a daily signal brief scoped to the advisor's own book", on: true },
-      { id: "a-a2", text: "Rank households by decision window, not by balance", on: true },
-      { id: "a-a3", text: "Cite the transaction or external evidence behind every claim", on: true },
-      { id: "a-a4", text: "Draft talking points for each recommended outreach", on: true },
+      {
+        id: "a-a1",
+        text: "Send a daily signal brief scoped to the advisor's own book",
+        on: true,
+        example: {
+          subject: "Your book, this morning — [Date]",
+          body: `Good morning. What changed overnight in your book only:
+
+- [# households] relationships show new movement worth a look.
+- The top item has a decision window closing around [Date].
+- Everything else is quiet and can wait.
+
+No other advisor's book, no institution-wide noise — just yours.`,
+          replyPrompts: ["Open my top item", "What changed since yesterday?", "Snooze until Friday"],
+        },
+      },
+      {
+        id: "a-a2",
+        text: "Rank households by decision window, not by balance",
+        on: true,
+        example: {
+          subject: "Ranked by when the window closes",
+          body: `Today's ranking ignores balance size and follows urgency:
+
+1. [Household] — window closes around [Date]; the pattern won't wait.
+2. [Household] — steady opportunity, open for weeks.
+3. [Household] — your largest relationship, but nothing new; deliberately not first.
+
+A small relationship with a closing window outranks a large one with none.`,
+          replyPrompts: ["Why is my largest client third?", "Re-rank by balance for context", "Show all open windows"],
+        },
+      },
+      {
+        id: "a-a3",
+        text: "Cite the transaction or external evidence behind every claim",
+        on: true,
+        example: {
+          subject: "Every claim carries its evidence",
+          body: `On today's top item, [Household]:
+
+- Claim: a [Life event] is likely approaching.
+- Evidence: [Evidence source] pattern over [Duration], corroborated by [External signal].
+- Confidence: directional — worth a conversation, not a conclusion.
+
+If a claim can't point to evidence, it doesn't make the brief.`,
+          replyPrompts: ["Open the evidence", "How strong is the corroboration?", "Show a past claim that resolved"],
+        },
+      },
+      {
+        id: "a-a4",
+        text: "Draft talking points for each recommended outreach",
+        on: true,
+        example: {
+          subject: "Talking points ready for [Household]",
+          body: `For the outreach recommended today, drafted and waiting:
+
+- Opener: framed around their [Goal], not our product.
+- Middle: one relevant option, [Product], positioned as an opportunity.
+- Close: a low-pressure next step — a call, not a commitment.
+
+Edit freely; nothing goes to a customer without your review.`,
+          replyPrompts: ["Edit the talking points", "Draft the full email", "Make it more formal"],
+        },
+      },
     ],
     sometimes: [
       { id: "a-s1", text: "Draft a full nurture email", when: "the advisor asks for it in a reply", on: true },
@@ -183,12 +476,103 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     mission:
       "Know what each family needs next and have it ready before they ask — the whole household, every account, every moment that matters.",
     always: [
-      { id: "w2-a1", text: "Send a daily signal brief scoped to the advisor's own book", on: true },
-      { id: "w2-a2", text: "Cover the full household: family, entities, trusts, properties, and the next generation", on: true },
-      { id: "w2-a3", text: "Cite the transaction or external evidence behind every alert", on: true },
-      { id: "w2-a4", text: "Prepare a complete next step: agenda, documents, and the specialist team", on: true },
-      { id: "w2-a5", text: "Build a pre-meeting dossier and a post-meeting recap with follow-ups", on: true },
-      { id: "w2-a6", text: "Draft emails pairing rewards, perks, and experiences with the families whose lifestyle shows a strong fit", on: true },
+      {
+        id: "w2-a1",
+        text: "Send a daily signal brief scoped to the advisor's own book",
+        on: true,
+        example: {
+          subject: "Your families, this morning — [Date]",
+          body: `Good morning. Across your [Book size] families:
+
+- [Family] has a moment approaching — details and preparation below.
+- [Family] shows quiet movement worth knowing about, not acting on yet.
+- The rest of the book is calm.
+
+Scoped to your families only, led by whatever matters most today.`,
+          replyPrompts: ["Open the top family", "What changed overnight?", "Brief me before my 10 AM"],
+        },
+      },
+      {
+        id: "w2-a2",
+        text: "Cover the full household: family, entities, trusts, properties, and the next generation",
+        on: true,
+        example: {
+          subject: "[Family] — the whole household, one view",
+          body: `Everything connected to [Family], in one place:
+
+- Family: [Members], with a milestone coming up for [Member].
+- Entities: [Business] shows a liquidity pattern worth a conversation.
+- Trusts & estate: a beneficiary review is due by [Date].
+- Next generation: [Child] is approaching the age for a first account conversation.
+
+Nothing about this family sits outside this view.`,
+          replyPrompts: ["Open the entity detail", "Prepare the estate review", "Draft the next-generation note"],
+        },
+      },
+      {
+        id: "w2-a3",
+        text: "Cite the transaction or external evidence behind every alert",
+        on: true,
+        example: {
+          subject: "Alert on [Family] — evidence attached",
+          body: `Alert: [Family] shows the pattern that usually precedes [Life event].
+
+Behind the alert:
+- [Evidence source] pattern building over [Duration].
+- Corroborated by [External signal], seen in [Window].
+
+You see what I saw before you decide what to do. Directional, never asserted.`,
+          replyPrompts: ["Open the evidence", "How reliable is this pattern?", "Snooze this family for a week"],
+        },
+      },
+      {
+        id: "w2-a4",
+        text: "Prepare a complete next step: agenda, documents, and the specialist team",
+        on: true,
+        example: {
+          subject: "[Family] — the next step is fully prepared",
+          body: `For the moment approaching [Family], everything is ready:
+
+- Agenda: drafted around [Planning item], 45 minutes.
+- Documents: [Document set] assembled and current.
+- Specialists: [Specialist team] briefed and holding [Date options].
+
+You walk in with a plan, not a to-do list. Your approval sends any of it.`,
+          replyPrompts: ["Open the agenda", "Confirm the specialist team", "Adjust the date options"],
+        },
+      },
+      {
+        id: "w2-a5",
+        text: "Build a pre-meeting dossier and a post-meeting recap with follow-ups",
+        on: true,
+        example: {
+          subject: "Dossier for [Family] — [Meeting date]",
+          body: `Before you sit down with [Family]:
+
+- Household summary: relationships, entities, recent movement.
+- Talking points: three, ranked by what matters to them.
+- Open items: [Follow-up] from your last meeting, resolved.
+
+After the meeting, I'll draft the recap and the follow-up list from your notes — ready within the hour.`,
+          replyPrompts: ["Open the full dossier", "Add a talking point", "See last meeting's recap"],
+        },
+      },
+      {
+        id: "w2-a6",
+        text: "Draft emails pairing rewards, perks, and experiences with the families whose lifestyle shows a strong fit",
+        on: true,
+        example: {
+          subject: "Three perks, three families — drafts ready",
+          body: `Pairings where the lifestyle fit is strong:
+
+- [Family] → [Experience]: their travel pattern makes this a natural gesture.
+- [Family] → [Perk]: aligns with how they already spend weekends.
+- [Family] → [Reward]: a quiet thank-you ahead of their [Milestone].
+
+Each email is drafted in your voice, lifestyle-led, with no hint of how the fit was seen. Nothing sends without your approval.`,
+          replyPrompts: ["Open the drafts", "Swap a pairing", "Time one for their anniversary"],
+        },
+      },
     ],
     sometimes: [
       { id: "w2-s1", text: "Start an estate and beneficiary review", when: "a new dependent, marriage, or property change is detected", on: true },
@@ -218,10 +602,70 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     mission:
       "Hand marketing ready-to-run audiences and copy built from real behavior, so campaigns land at the moment they matter.",
     always: [
-      { id: "m-a1", text: "Send a campaign brief with segment-of-one audiences", on: true },
-      { id: "m-a2", text: "Pre-draft personalization copy for every audience", on: true },
-      { id: "m-a3", text: "Route drafts into the approval queue, never straight to send", on: true },
-      { id: "m-a4", text: "Track each draft from review through launch", on: true },
+      {
+        id: "m-a1",
+        text: "Send a campaign brief with segment-of-one audiences",
+        on: true,
+        example: {
+          subject: "Campaign brief — [Segment], ready to run",
+          body: `A new brief is ready:
+
+- Audience: [Segment], built from behavior, fresh as of [Date].
+- Size: [# households] households, each with an individual fit reason.
+- Moment: the behavior says now — the window is [Duration].
+
+Segment-of-one means every household in the audience has its own reason to be there.`,
+          replyPrompts: ["Open the audience definition", "Show sample fit reasons", "When does the window close?"],
+        },
+      },
+      {
+        id: "m-a2",
+        text: "Pre-draft personalization copy for every audience",
+        on: true,
+        example: {
+          subject: "Copy pre-drafted for [Segment]",
+          body: `Copy is attached to the brief, written to the benefit:
+
+- Headline: [Headline] — about what they gain, not what we saw.
+- Body: [Body copy] — brand-safe, no signal language.
+- Variants: [Channel] and [Channel] versions included.
+
+You review and edit; the draft is a starting point, not a finished send.`,
+          replyPrompts: ["Rewrite for a second channel", "Make the tone warmer", "Show the variants side by side"],
+        },
+      },
+      {
+        id: "m-a3",
+        text: "Route drafts into the approval queue, never straight to send",
+        on: true,
+        example: {
+          subject: "Draft in the approval queue — [Segment]",
+          body: `The [Segment] draft is sitting in the approval queue:
+
+- Reviewer: [Reviewer], notified [Time].
+- Status: awaiting sign-off; nothing can send before it.
+- If the queue stalls past [Window], it escalates to [Escalation owner].
+
+There is no path from draft to send that skips a human.`,
+          replyPrompts: ["Nudge the reviewer", "Show the queue", "Change the approver"],
+        },
+      },
+      {
+        id: "m-a4",
+        text: "Track each draft from review through launch",
+        on: true,
+        example: {
+          subject: "Draft status — [Segment] campaign",
+          body: `Where every active draft stands:
+
+- [Segment] brief: approved [Date], launching [Date].
+- [Segment] brief: in review with [Reviewer] since [Date].
+- [Segment] brief: launched [Date], early read-out due [Date].
+
+From first draft to launch, every step is timestamped and owned.`,
+          replyPrompts: ["Show the launch calendar", "Which draft is oldest in review?", "Export the tracker"],
+        },
+      },
     ],
     sometimes: [
       { id: "m-s1", text: "Rebuild an audience mid-flight", when: "the segment drifts more than 20%", on: true },
