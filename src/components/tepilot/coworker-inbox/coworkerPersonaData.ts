@@ -183,7 +183,7 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     mission:
       "Know what each family needs next and have it ready before they ask — the whole household, every account, every moment that matters.",
     always: [
-      { id: "w2-a1", text: "Send a daily household brief led by Ventus life-event, liquidity, and external wealth alerts", on: true },
+      { id: "w2-a1", text: "Send a daily signal brief scoped to the advisor's own book", on: true },
       { id: "w2-a2", text: "Cover the full household: family, entities, trusts, properties, and the next generation", on: true },
       { id: "w2-a3", text: "Cite the transaction or external evidence behind every alert", on: true },
       { id: "w2-a4", text: "Prepare a complete next step: agenda, documents, and the specialist team", on: true },
