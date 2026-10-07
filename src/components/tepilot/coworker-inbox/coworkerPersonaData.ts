@@ -211,10 +211,68 @@ No gap is presented without a catalog match. If no product fits, the gap goes to
     mission:
       "Watch for behavior that signals strain, attrition, or exposure — early enough that someone can still do something about it.",
     always: [
-      { id: "r-a1", text: "Alert on outbound-transfer clusters within the same business day", on: true },
-      { id: "r-a2", text: "Attach the transaction evidence behind every flag", on: true },
-      { id: "r-a3", text: "Score each cohort against the standing vulnerability indicators", on: true },
-      { id: "r-a4", text: "Route confirmed flags to a named owner", on: true },
+      {
+        id: "r-a1",
+        text: "Alert on outbound-transfer clusters within the same business day",
+        on: true,
+        example: {
+          subject: "Outbound-transfer cluster detected — [Date]",
+          body: `A cluster of outbound transfers landed within the same business day across [# households] households in [Region].
+
+- Pattern: multiple transfers per household, compressed into [Window].
+- Destination: [Obfuscated descriptor], resolved on file.
+- Context: no matching life-event pattern explains the compression.
+
+Reported as behavior, not intent. No action has been taken.`,
+          replyPrompts: ["Open the cluster detail", "Show the destination resolution", "Suppress if a life event explains it"],
+        },
+      },
+      {
+        id: "r-a2",
+        text: "Attach the transaction evidence behind every flag",
+        on: true,
+        example: {
+          subject: "Flag with evidence attached — [Cohort name]",
+          body: `A flag raised on [Date] against the [Cohort name] indicator.
+
+Attached: the transaction pattern that triggered it — cadence, counterparties (obfuscated), and the window over which it built. The evidence travels with the flag through review, so no one acts on a headline alone.
+
+If the evidence doesn't hold up on review, the flag closes with the reason recorded.`,
+          replyPrompts: ["Open the evidence bundle", "Close this flag with a reason", "Show similar past flags"],
+        },
+      },
+      {
+        id: "r-a3",
+        text: "Score each cohort against the standing vulnerability indicators",
+        on: true,
+        example: {
+          subject: "Cohort scores against standing indicators — [Week of]",
+          body: `Weekly scoring of active cohorts against the standing vulnerability indicators:
+
+- [Cohort A]: score rising for [Duration], driven by [Pattern].
+- [Cohort B]: score flat; no change in underlying behavior.
+- [Cohort C]: score falling — the pattern is resolving on its own.
+
+Scores are directional and reviewed by a human before anything routes onward.`,
+          replyPrompts: ["Show the scoring rubric", "Which indicator moved most?", "Export the cohort table"],
+        },
+      },
+      {
+        id: "r-a4",
+        text: "Route confirmed flags to a named owner",
+        on: true,
+        example: {
+          subject: "Flag routed to [Owner] — [Cohort name]",
+          body: `The flag on [Cohort name] from [Date] has been confirmed on review and routed.
+
+- Owner: [Owner], [Team].
+- Expected: review by [Date], disposition recorded.
+- Escalation: if the window lapses, it routes to [Escalation owner].
+
+Nothing sits unowned. Every confirmed flag has a name and a clock attached.`,
+          replyPrompts: ["Reassign the owner", "Show the routing history", "What is overdue right now?"],
+        },
+      },
     ],
     sometimes: [
       { id: "r-s1", text: "Escalate to compliance review", when: "a pattern matches two or more risk cohorts", on: true },
