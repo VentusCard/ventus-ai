@@ -394,12 +394,15 @@ function EditableText({
   multiline,
   className,
   placeholder,
+  activateOn = "click",
 }: {
   value: string;
   onCommit: (v: string) => void;
   multiline?: boolean;
   className?: string;
   placeholder?: string;
+  /** "dblclick" lets a single click bubble up (e.g. to select the parent row). */
+  activateOn?: "click" | "dblclick";
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
