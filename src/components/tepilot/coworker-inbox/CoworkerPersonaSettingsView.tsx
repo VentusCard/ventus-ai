@@ -449,10 +449,22 @@ function EditableText({
     <span
       role="textbox"
       tabIndex={0}
-      onClick={(e) => {
-        e.stopPropagation();
-        start();
-      }}
+      onClick={
+        activateOn === "click"
+          ? (e) => {
+              e.stopPropagation();
+              start();
+            }
+          : undefined
+      }
+      onDoubleClick={
+        activateOn === "dblclick"
+          ? (e) => {
+              e.stopPropagation();
+              start();
+            }
+          : undefined
+      }
       onKeyDown={(e) => {
         if (e.key === "Enter") {
           e.preventDefault();
