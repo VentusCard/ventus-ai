@@ -41,6 +41,12 @@ const FROM_ADDRESS = friendlyFrom(
 );
 const CONFIG_SET = process.env.COWORKER_CONFIG_SET || undefined;
 const MAX_ITEMS = Number(process.env.COWORKER_DIGEST_MAX_ITEMS || 5);
+// Optional floor. Rows between the floor and the ceiling are only added when
+// they bring a product and a headline the mail has not used yet, so the length
+// varies with how much genuinely different news the book has that morning.
+const MIN_ITEMS = process.env.COWORKER_DIGEST_MIN_ITEMS
+  ? Number(process.env.COWORKER_DIGEST_MIN_ITEMS)
+  : null;
 
 // How often the same household, and the same pitch to it, may reappear.
 //
@@ -158,6 +164,7 @@ export const handler = async (event = {}) => {
       provider,
       advisorId: advisor.id,
       maxItems: MAX_ITEMS,
+      minItems: MIN_ITEMS,
       context,
       touches,
       now: new Date(),
