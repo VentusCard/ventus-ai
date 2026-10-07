@@ -523,6 +523,96 @@ export const COWORKER_USER_VIEWS: Record<string, UserWorkspace> = {
     access: "This login sees your assigned book only — 142 households, no other advisor's clients.",
   },
 
+  wealth: {
+    id: "wealth",
+    person: {
+      name: "Victoria Hale",
+      title: "Private Wealth Manager",
+      initials: "VH",
+      scope: "Own book · 38 families · Bay Area",
+    },
+    kpis: [
+      { label: "Life-event alerts", value: "6", sub: "across 38 families" },
+      { label: "Meetings prepped", value: "5", sub: "dossiers ready" },
+      { label: "Planning deadlines", value: "4", sub: "inside 45 days" },
+      { label: "Assets moving away", value: "2", sub: "families to call" },
+    ],
+    brief: {
+      title: "Your household brief — what each family needs next",
+      sentAgo: "Sent 6:30 AM · 2 min ago",
+      body:
+        "Two families have moments coming up. A life-event alert, the planning items it triggers, and the specialist team are ready for each.",
+      bullets: [
+        "Laurent family — new baby signals: estate, beneficiary, and 529 review drafted; trust attorney lined up.",
+        "Okafor family — home purchase underway: jumbo mortgage and securities-based line options ready.",
+        "Whitman family — recurring transfers to an outside HYSA; cash deployment conversation drafted.",
+      ],
+    },
+    queue: [
+      {
+        id: "w-q1",
+        title: "Laurent family — new baby planning meeting",
+        evidence: "Nursery, pediatric, and childcare payments over the last 6 months",
+        meta: "Dossier + specialist team ready",
+        tone: "action",
+        action: "Open dossier",
+      },
+      {
+        id: "w-q2",
+        title: "Okafor family — home purchase financing",
+        evidence: "Escrow deposit, inspection, and appraisal payments this month",
+        meta: "Lending options drafted",
+        tone: "action",
+        action: "Open draft",
+      },
+      {
+        id: "w-q3",
+        title: "Whitman family — assets moving to an outside HYSA",
+        evidence: "New monthly transfers to an outside savings account since spring",
+        meta: "Conversation drafted",
+        tone: "review",
+        action: "Review",
+      },
+      {
+        id: "w-q4",
+        title: "Chen family — anniversary trip next month",
+        evidence: "Travel bookings detected; a personal note fits the moment",
+        meta: "Note drafted",
+        tone: "info",
+        action: "Review note",
+      },
+    ],
+    panel: {
+      kind: "list",
+      title: "This week",
+      rows: [
+        { label: "Mon 9:00", value: "Laurent planning meeting", sub: "Trust + tax specialists joining" },
+        { label: "Tue 14:00", value: "Okafor financing call", sub: "Lending partner on standby" },
+        { label: "Wed", value: "Whitman cash conversation", sub: "Deployment options attached" },
+        { label: "Thu", value: "RMD reviews (2 families)", sub: "Deadline inside 45 days" },
+        { label: "Fri", value: "Recap + follow-ups sent", sub: "Ventus drafts after each meeting" },
+      ],
+    },
+    unique: [
+      {
+        title: "Life events before the client mentions them",
+        body:
+          "Ventus detects new babies, home purchases, business launches, and inheritances from behavior, so you're ready before the call.",
+      },
+      {
+        title: "Wealth held outside the bank",
+        body:
+          "External signals like property, aircraft, and business ownership, plus money moving to outside firms, complete the household picture.",
+      },
+      {
+        title: "Every moment comes with a plan",
+        body:
+          "Each alert arrives with the planning items it triggers, a dossier, and the specialist team, not just a notification.",
+      },
+    ],
+    access: "This login sees your assigned families only — 38 households, no other book.",
+  },
+
   marketing: {
     id: "marketing",
     person: {

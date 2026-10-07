@@ -18,6 +18,7 @@ const ACCENT_DOT: Record<TeamDestination["accent"], string> = {
   rose: "bg-rose-500",
   violet: "bg-violet-500",
   sky: "bg-sky-500",
+  teal: "bg-teal-500",
 };
 
 const ACCENT_BAR: Record<TeamDestination["accent"], string> = {
@@ -27,6 +28,7 @@ const ACCENT_BAR: Record<TeamDestination["accent"], string> = {
   rose: "bg-rose-500",
   violet: "bg-violet-500",
   sky: "bg-sky-500",
+  teal: "bg-teal-500",
 };
 
 const ACCENT_AVATAR: Record<TeamDestination["accent"], string> = {
@@ -36,6 +38,7 @@ const ACCENT_AVATAR: Record<TeamDestination["accent"], string> = {
   rose: "bg-rose-50 text-rose-700 border-rose-200",
   violet: "bg-violet-50 text-violet-700 border-violet-200",
   sky: "bg-sky-50 text-sky-700 border-sky-200",
+  teal: "bg-teal-50 text-teal-700 border-teal-200",
 };
 
 const TONE_CHIP: Record<QueueItem["tone"], string> = {

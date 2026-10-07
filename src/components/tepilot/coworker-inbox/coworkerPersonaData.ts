@@ -148,7 +148,7 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
   },
   advisors: {
     id: "advisors",
-    audience: "Relationship managers, wealth advisors, private bankers",
+    audience: "Relationship managers, retail and business bankers",
     mission:
       "Tell each advisor which relationships changed overnight and are worth a call today — with the evidence and the opening line already prepared.",
     always: [
@@ -176,6 +176,40 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     disclaimer: "Signals are directional; confirm with the client before acting.",
     escalation: "Routes to the Regional Director on liquidity events above $2M.",
     delivery: { sendWindow: "Daily 7:00 AM local", frequency: "Daily", replySla: "< 1 min" },
+  },
+  wealth: {
+    id: "wealth",
+    audience: "Private wealth managers and private bankers",
+    mission:
+      "Know what each family needs next and have it ready before they ask — the whole household, every account, every moment that matters.",
+    always: [
+      { id: "w2-a1", text: "Send a daily household brief led by Ventus life-event, liquidity, and external wealth alerts", on: true },
+      { id: "w2-a2", text: "Cover the full household: family, entities, trusts, properties, and the next generation", on: true },
+      { id: "w2-a3", text: "Cite the transaction or external evidence behind every alert", on: true },
+      { id: "w2-a4", text: "Prepare a complete next step: agenda, documents, and the specialist team", on: true },
+      { id: "w2-a5", text: "Build a pre-meeting dossier and a post-meeting recap with follow-ups", on: true },
+    ],
+    sometimes: [
+      { id: "w2-s1", text: "Start an estate and beneficiary review", when: "a new dependent, marriage, or property change is detected", on: true },
+      { id: "w2-s2", text: "Prompt planning around tax-loss harvesting, RMD, and contribution dates", when: "a deadline falls inside 45 days", on: true },
+      { id: "w2-s3", text: "Flag assets moving to outside firms", when: "recurring transfers to an outside HYSA or brokerage appear", on: true },
+      { id: "w2-s4", text: "Surface a securities-based line or jumbo mortgage", when: "a home purchase or business liquidity signal appears", on: true },
+      { id: "w2-s5", text: "Suggest a lifestyle or milestone touch", when: "a trip, family event, or anniversary is coming up", on: true },
+      { id: "w2-s6", text: "Escalate to the Market Head", when: "a liquidity event lands above the private-client threshold", on: false },
+    ],
+    never: [
+      { id: "w2-n1", text: "Never contact a client directly" },
+      { id: "w2-n2", text: "Never act or send anything without the wealth manager's approval" },
+      { id: "w2-n3", text: "Never quote exact amounts or transaction counts in client-facing copy" },
+      { id: "w2-n4", text: "Never reveal how a signal was detected" },
+      { id: "w2-n5", text: "Never use risk or stress language with the client" },
+    ],
+    signals: ["Life event", "Financial", "Behavioral", "Demographic"],
+    tone: "Discreet, polished, anticipatory",
+    wordCap: "240 words",
+    disclaimer: "Signals are directional; confirm with the family before acting.",
+    escalation: "Routes to the Market Head on liquidity events above the private-client threshold.",
+    delivery: { sendWindow: "Daily 6:30 AM local", frequency: "Daily + real-time alerts", replySla: "< 1 min" },
   },
   marketing: {
     id: "marketing",
@@ -299,6 +333,22 @@ Everything else in your book can wait until [Date]. Reply and I'll draft the ful
       "Show me the talking points",
       "What is the liquidity-event signal?",
       "Reschedule these for Friday",
+    ],
+  },
+  wealth: {
+    subject: "[Family] — a moment is coming, everything is ready",
+    body: `Two families in your book have moments coming up. Everything they'll need is prepared.
+
+1. [Family] — Ventus life-event alert: the pattern that usually precedes [Life event], seen in [Evidence source]. It triggers [Planning item] and an estate review. [Specialist team] is lined up; the agenda and dossier are attached.
+2. [Family] — liquidity has been sitting idle since [Date], and recurring transfers to [Outside firm] began in [Month]. A deployment conversation and a [Lending product] option are drafted.
+
+Also this week: [Deadline] for [Household], and a [Milestone] worth a personal note. Nothing reaches a client without your approval.`,
+    replyPrompts: [
+      "Open the meeting dossier",
+      "Who is on the specialist team?",
+      "Show the life-event evidence",
+      "Draft a personal note for the milestone",
+      "What planning deadlines are next?",
     ],
   },
   marketing: {

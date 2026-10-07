@@ -154,6 +154,7 @@ const ACCENT_STYLES: Record<TeamDestination["accent"], { bar: string; chipBg: st
   rose: { bar: "bg-rose-500", chipBg: "bg-rose-50", chipText: "text-rose-700", insightDot: "bg-rose-400", hoverBorder: "hover:border-rose-300" },
   violet: { bar: "bg-violet-500", chipBg: "bg-violet-50", chipText: "text-violet-700", insightDot: "bg-violet-400", hoverBorder: "hover:border-violet-300" },
   sky: { bar: "bg-sky-500", chipBg: "bg-sky-50", chipText: "text-sky-700", insightDot: "bg-sky-400", hoverBorder: "hover:border-sky-300" },
+  teal: { bar: "bg-teal-500", chipBg: "bg-teal-50", chipText: "text-teal-700", insightDot: "bg-teal-400", hoverBorder: "hover:border-teal-300" },
 };
 
 function TeamDestinationSliver({ team }: { team: TeamDestination }) {

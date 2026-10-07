@@ -25,6 +25,12 @@ interface Template {
 }
 
 export const STREAM_TEMPLATES: Template[] = [
+  // --- Wealth manager household care ---
+  { kind: "advisor", direction: "out", role: "advisor", title: "Sent life-event alert to {name}", detail: "New-baby signals · estate and beneficiary review drafted" },
+  { kind: "advisor", direction: "out", role: "advisor", title: "Prepared pre-meeting dossier for {name}", detail: "Household view, agenda, and talking points attached" },
+  { kind: "handoff", direction: "out", role: "advisor", title: "Lined up trust and tax specialists for {name}", detail: "Specialist team confirmed for the family planning meeting" },
+  { kind: "advisor", direction: "out", role: "advisor", title: "Flagged assets moving away to {name}", detail: "Recurring transfers to an outside HYSA · cash conversation drafted" },
+  { kind: "advisor", direction: "out", role: "advisor", title: "Sent meeting recap and follow-ups to {name}", detail: "Action items, owners, and next touch scheduled" },
   // --- Advisor sends ---
   { kind: "advisor", direction: "out", role: "advisor", title: "Sent signal brief to {name}", detail: "3 college-prep households · 529 repositioning talking points" },
   { kind: "advisor", direction: "out", role: "advisor", title: "Delivered outreach draft to {name}", detail: "Liquidity event · $2.4M inbound wire · call script attached" },

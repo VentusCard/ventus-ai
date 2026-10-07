@@ -8,6 +8,7 @@ const ACCENT: Record<string, string> = {
   rose: "text-rose-700 bg-rose-50 border-rose-200",
   violet: "text-violet-700 bg-violet-50 border-violet-200",
   sky: "text-sky-700 bg-sky-50 border-sky-200",
+  teal: "text-teal-700 bg-teal-50 border-teal-200",
 };
 
 export function CoworkerIntegrationsView() {
