@@ -476,12 +476,103 @@ Edit freely; nothing goes to a customer without your review.`,
     mission:
       "Know what each family needs next and have it ready before they ask — the whole household, every account, every moment that matters.",
     always: [
-      { id: "w2-a1", text: "Send a daily signal brief scoped to the advisor's own book", on: true },
-      { id: "w2-a2", text: "Cover the full household: family, entities, trusts, properties, and the next generation", on: true },
-      { id: "w2-a3", text: "Cite the transaction or external evidence behind every alert", on: true },
-      { id: "w2-a4", text: "Prepare a complete next step: agenda, documents, and the specialist team", on: true },
-      { id: "w2-a5", text: "Build a pre-meeting dossier and a post-meeting recap with follow-ups", on: true },
-      { id: "w2-a6", text: "Draft emails pairing rewards, perks, and experiences with the families whose lifestyle shows a strong fit", on: true },
+      {
+        id: "w2-a1",
+        text: "Send a daily signal brief scoped to the advisor's own book",
+        on: true,
+        example: {
+          subject: "Your families, this morning — [Date]",
+          body: `Good morning. Across your [Book size] families:
+
+- [Family] has a moment approaching — details and preparation below.
+- [Family] shows quiet movement worth knowing about, not acting on yet.
+- The rest of the book is calm.
+
+Scoped to your families only, led by whatever matters most today.`,
+          replyPrompts: ["Open the top family", "What changed overnight?", "Brief me before my 10 AM"],
+        },
+      },
+      {
+        id: "w2-a2",
+        text: "Cover the full household: family, entities, trusts, properties, and the next generation",
+        on: true,
+        example: {
+          subject: "[Family] — the whole household, one view",
+          body: `Everything connected to [Family], in one place:
+
+- Family: [Members], with a milestone coming up for [Member].
+- Entities: [Business] shows a liquidity pattern worth a conversation.
+- Trusts & estate: a beneficiary review is due by [Date].
+- Next generation: [Child] is approaching the age for a first account conversation.
+
+Nothing about this family sits outside this view.`,
+          replyPrompts: ["Open the entity detail", "Prepare the estate review", "Draft the next-generation note"],
+        },
+      },
+      {
+        id: "w2-a3",
+        text: "Cite the transaction or external evidence behind every alert",
+        on: true,
+        example: {
+          subject: "Alert on [Family] — evidence attached",
+          body: `Alert: [Family] shows the pattern that usually precedes [Life event].
+
+Behind the alert:
+- [Evidence source] pattern building over [Duration].
+- Corroborated by [External signal], seen in [Window].
+
+You see what I saw before you decide what to do. Directional, never asserted.`,
+          replyPrompts: ["Open the evidence", "How reliable is this pattern?", "Snooze this family for a week"],
+        },
+      },
+      {
+        id: "w2-a4",
+        text: "Prepare a complete next step: agenda, documents, and the specialist team",
+        on: true,
+        example: {
+          subject: "[Family] — the next step is fully prepared",
+          body: `For the moment approaching [Family], everything is ready:
+
+- Agenda: drafted around [Planning item], 45 minutes.
+- Documents: [Document set] assembled and current.
+- Specialists: [Specialist team] briefed and holding [Date options].
+
+You walk in with a plan, not a to-do list. Your approval sends any of it.`,
+          replyPrompts: ["Open the agenda", "Confirm the specialist team", "Adjust the date options"],
+        },
+      },
+      {
+        id: "w2-a5",
+        text: "Build a pre-meeting dossier and a post-meeting recap with follow-ups",
+        on: true,
+        example: {
+          subject: "Dossier for [Family] — [Meeting date]",
+          body: `Before you sit down with [Family]:
+
+- Household summary: relationships, entities, recent movement.
+- Talking points: three, ranked by what matters to them.
+- Open items: [Follow-up] from your last meeting, resolved.
+
+After the meeting, I'll draft the recap and the follow-up list from your notes — ready within the hour.`,
+          replyPrompts: ["Open the full dossier", "Add a talking point", "See last meeting's recap"],
+        },
+      },
+      {
+        id: "w2-a6",
+        text: "Draft emails pairing rewards, perks, and experiences with the families whose lifestyle shows a strong fit",
+        on: true,
+        example: {
+          subject: "Three perks, three families — drafts ready",
+          body: `Pairings where the lifestyle fit is strong:
+
+- [Family] → [Experience]: their travel pattern makes this a natural gesture.
+- [Family] → [Perk]: aligns with how they already spend weekends.
+- [Family] → [Reward]: a quiet thank-you ahead of their [Milestone].
+
+Each email is drafted in your voice, lifestyle-led, with no hint of how the fit was seen. Nothing sends without your approval.`,
+          replyPrompts: ["Open the drafts", "Swap a pairing", "Time one for their anniversary"],
+        },
+      },
     ],
     sometimes: [
       { id: "w2-s1", text: "Start an estate and beneficiary review", when: "a new dependent, marriage, or property change is detected", on: true },
