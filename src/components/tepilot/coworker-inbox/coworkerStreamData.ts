@@ -104,16 +104,67 @@ export function makeStreamEntry(at: number = Date.now()): StreamEntry {
   };
 }
 
-/** Seed the stream with entries spread over the recent past. */
-export function seedStream(count: number): StreamEntry[] {
+const DAY_MS = 86_400_000;
+
+function startOfDay(ts: number): number {
+  const d = new Date(ts);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+/** Calendar-day key used to group log rows. */
+export function dayKey(at: number): number {
+  return startOfDay(at);
+}
+
+/** Exact clock time for a log row, e.g. "9:12 AM". */
+export function clockTime(at: number): string {
+  return new Date(at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+/** Day heading for a log row: Today, Yesterday, or "Mon, Oct 5". */
+export function dayLabel(at: number, now: number): string {
+  const d = startOfDay(at);
+  const today = startOfDay(now);
+  if (d === today) return "Today";
+  if (d === today - DAY_MS) return "Yesterday";
+  return new Date(at).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+}
+
+/** A moment inside working hours (08:00–18:00) of the given day, never in the future. */
+function workingHoursMoment(dayStart: number, now: number): number {
+  const open = dayStart + 8 * 3_600_000;
+  const close = dayStart + 18 * 3_600_000;
+  const at = open + Math.random() * (close - open);
+  return at > now ? now - Math.floor(Math.random() * 90_000) : at;
+}
+
+/** A late-night or early-morning moment — the thin tail of the log. */
+function offHoursMoment(dayStart: number, now: number): number {
+  const early = dayStart + 5 * 3_600_000 + Math.random() * 2 * 3_600_000;
+  const late = dayStart + 19.5 * 3_600_000 + Math.random() * 4 * 3_600_000;
+  const at = Math.random() < 0.5 ? early : late;
+  return at > now ? now - Math.floor(Math.random() * 90_000) : at;
+}
+
+/** Seed the log across the last three days: denser in working hours, thin overnight. */
+export function seedStream(count: number = 120): StreamEntry[] {
   const now = Date.now();
+  const today = startOfDay(now);
+  const spread = [
+    { day: today, share: 0.34 },
+    { day: today - DAY_MS, share: 0.34 },
+    { day: today - 2 * DAY_MS, share: 0.32 },
+  ];
   const out: StreamEntry[] = [];
-  let cursor = now - 4000;
-  for (let i = 0; i < count; i += 1) {
-    out.push(makeStreamEntry(cursor));
-    cursor -= 12000 + Math.floor(Math.random() * 90000);
+  for (const s of spread) {
+    const n = Math.round(count * s.share);
+    for (let i = 0; i < n; i += 1) {
+      const at = Math.random() < 0.9 ? workingHoursMoment(s.day, now) : offHoursMoment(s.day, now);
+      out.push(makeStreamEntry(at));
+    }
   }
-  return out;
+  return out.sort((a, b) => b.at - a.at);
 }
 
 export function relativeTime(at: number, now: number): string {
@@ -123,5 +174,7 @@ export function relativeTime(at: number, now: number): string {
   const m = Math.floor(s / 60);
   if (m < 60) return `${m} min ago`;
   const h = Math.floor(m / 60);
-  return `${h} hr ago`;
+  if (h < 24) return `${h} hr ago`;
+  const d = Math.floor(h / 24);
+  return `${d} day${d === 1 ? "" : "s"} ago`;
 }

@@ -12,3 +12,4 @@
 - [x] Refresh Ricky’s ledger and 13 signal pills while preserving all five pillar groups
 - [x] Add Ricky’s external Cirrus co-ownership pill to Demographics
 - [x] Tighten only the inner table gutters on Ricky’s first two beats
+- [ ] Turn "Live Work Stream" into an Activity History log (day-by-day, slow trickle) — in progress
