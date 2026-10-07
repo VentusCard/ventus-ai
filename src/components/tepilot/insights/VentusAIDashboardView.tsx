@@ -6,7 +6,6 @@ import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
 import { SubTabBar, type SubTabItem } from "./SubTabBar";
-import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { QueryConsoleView } from "./QueryConsoleView";
 import { ApiAccessView } from "./api/ApiAccessView";
 import { getVentusPriorityCards, getPriorityPrompt } from "@/lib/ventusPriorityCards";
@@ -14,14 +13,13 @@ import { prewarmPrompts } from "@/lib/ventusPrewarm";
 import { LEADERSHIP_CONTEXT } from "@/lib/ventusLeadershipContext";
 import { getRevenueOpportunities } from "@/lib/mockBankwideData";
 import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
-import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal, Users, Plug } from "lucide-react";
+import { ShieldAlert, LayoutDashboard, Terminal, Users, Plug } from "lucide-react";
 import type { TabValue } from "./AnalyticsContainer";
 
 const DASHBOARD_SECTIONS: SubTabItem[] = [
   { value: "overview", label: "Overview", icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
   { value: "customers", label: "Segments", icon: <Users className="w-3.5 h-3.5" /> },
   { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
-  { value: "reports", label: "Reports", icon: <FileBarChart className="w-3.5 h-3.5" /> },
   { value: "query", label: "Query", icon: <Terminal className="w-3.5 h-3.5" /> },
   { value: "api", label: "API", icon: <Plug className="w-3.5 h-3.5" /> },
 ];
@@ -33,7 +31,7 @@ interface VentusAIDashboardViewProps {
   onOpenOpportunity?: (opportunityId: string) => void;
   onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
   onOpenChat?: (prompt?: string) => void;
-  initialSection?: "overview" | "customers" | "risk" | "reports" | "query" | "api";
+  initialSection?: "overview" | "customers" | "risk" | "query" | "api";
   presentationMode?: boolean;
 }
 
@@ -172,12 +170,6 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
         <CustomersDirectoryView
           segment={signalSegment}
           onClearSegment={() => setSignalSegment(null)}
-        />
-      )}
-      {section === "reports" && (
-        <ReportsAndQueryView
-          onOpenInteractiveReport={onOpenInteractiveReport}
-          onRunInConsole={(sql) => { setConsoleQuery(sql); setSection("query"); }}
         />
       )}
       {section === "query" && <QueryConsoleView initialQuery={consoleQuery} />}
