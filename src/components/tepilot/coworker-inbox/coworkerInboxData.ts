@@ -391,3 +391,19 @@ export const PERSON_ACTIVITY: Record<string, { threads: number; pendingReplies: 
   elena: { threads: 4, pendingReplies: 1 },
   david: { threads: 2, pendingReplies: 0 },
 };
+
+export interface CoworkerIntegration {
+  destination: string;
+  deliverable: string;
+  lastSync: string;
+  weeklyItems: number;
+}
+
+export const COWORKER_INTEGRATIONS: Record<string, CoworkerIntegration> = {
+  leadership: { destination: "Microsoft Outlook / Teams", deliverable: "Weekly pulse posted to the leadership channel", lastSync: "6 min ago", weeklyItems: 340 },
+  "product-growth": { destination: "Salesforce Financial Services Cloud", deliverable: "Product-gap opportunities created as records", lastSync: "9 min ago", weeklyItems: 2840 },
+  risk: { destination: "ServiceNow (risk case queue)", deliverable: "Flags opened as review cases", lastSync: "14 min ago", weeklyItems: 1860 },
+  rewards: { destination: "Bank rewards engine", deliverable: "Offer refreshes pushed as eligible perks", lastSync: "3 min ago", weeklyItems: 4210 },
+  advisors: { destination: "Salesforce FSC advisor tasks", deliverable: "Next-outreach tasks with talking points", lastSync: "1 min ago", weeklyItems: 19860 },
+  marketing: { destination: "Adobe Marketo", deliverable: "Segment-of-one audiences and draft copy", lastSync: "22 min ago", weeklyItems: 1340 },
+};
