@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Inbox, Plug, Radio, SlidersHorizontal, UserSquare2 } from "lucide-react";
+import { Briefcase, History, Inbox, Plug, SlidersHorizontal, UserSquare2 } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
 import { CoworkerLiveStreamView } from "@/components/tepilot/coworker-inbox/CoworkerLiveStreamView";
@@ -10,7 +10,7 @@ import { CoworkerIntegrationsView } from "@/components/tepilot/coworker-inbox/Co
 
 import { cn } from "@/lib/utils";
 
-type ViewMode = "inbox" | "userview" | "persona" | "stream" | "integrations";
+type ViewMode = "inbox" | "userview" | "persona" | "integrations" | "history";
 
 export function BankwideWMCopilotView({ hideHeader, presentationMode = false, interactive = false }: { hideHeader?: boolean; presentationMode?: boolean; interactive?: boolean } = {}) {
   const [viewMode, setViewMode] = useState<ViewMode>("inbox");
@@ -20,7 +20,7 @@ export function BankwideWMCopilotView({ hideHeader, presentationMode = false, in
     { key: "userview", label: "User View", icon: <UserSquare2 className="h-4 w-4 mr-2" /> },
     { key: "persona", label: "Persona Settings", icon: <SlidersHorizontal className="h-4 w-4 mr-2" /> },
     { key: "integrations", label: "Integrations", icon: <Plug className="h-4 w-4 mr-2" /> },
-    { key: "stream", label: "Live Work Stream", icon: <Radio className="h-4 w-4 mr-2" /> },
+    { key: "history", label: "Activity History", icon: <History className="h-4 w-4 mr-2" /> },
   ];
 
 
@@ -59,7 +59,7 @@ export function BankwideWMCopilotView({ hideHeader, presentationMode = false, in
 
       {/* Content */}
       <div className="flex-1 min-h-0">
-        {viewMode === "stream" && <CoworkerLiveStreamView />}
+        {viewMode === "history" && <CoworkerLiveStreamView />}
         {viewMode === "inbox" && <CoworkerInboxView />}
         {viewMode === "userview" && <CoworkerUserViewPanel />}
         {viewMode === "persona" && <CoworkerPersonaSettingsView />}

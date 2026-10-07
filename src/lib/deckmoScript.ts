@@ -666,7 +666,7 @@ export const DECKMO = {
         title: "Intelligence delivered like a teammate",
         description:
           "Daily digests, reply threads, drafted documents, and ready-to-review relationship tasks, tailored by role.",
-        sections: ["Coworker Dashboard", "User View", "Persona Settings", "Live Work Stream"],
+        sections: ["Coworker Dashboard", "User View", "Persona Settings", "Integrations", "Activity History"],
         inboxTitle: "Ventus AI Coworker",
         inboxSubtitle: "Role-specific intelligence delivered by email",
         inbox: [
