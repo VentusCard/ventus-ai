@@ -385,10 +385,70 @@ Every offer description in the queue passes this check before it reaches you. Th
     mission:
       "Tell each advisor which relationships changed overnight and are worth a call today — with the evidence and the opening line already prepared.",
     always: [
-      { id: "a-a1", text: "Send a daily signal brief scoped to the advisor's own book", on: true },
-      { id: "a-a2", text: "Rank households by decision window, not by balance", on: true },
-      { id: "a-a3", text: "Cite the transaction or external evidence behind every claim", on: true },
-      { id: "a-a4", text: "Draft talking points for each recommended outreach", on: true },
+      {
+        id: "a-a1",
+        text: "Send a daily signal brief scoped to the advisor's own book",
+        on: true,
+        example: {
+          subject: "Your book, this morning — [Date]",
+          body: `Good morning. What changed overnight in your book only:
+
+- [# households] relationships show new movement worth a look.
+- The top item has a decision window closing around [Date].
+- Everything else is quiet and can wait.
+
+No other advisor's book, no institution-wide noise — just yours.`,
+          replyPrompts: ["Open my top item", "What changed since yesterday?", "Snooze until Friday"],
+        },
+      },
+      {
+        id: "a-a2",
+        text: "Rank households by decision window, not by balance",
+        on: true,
+        example: {
+          subject: "Ranked by when the window closes",
+          body: `Today's ranking ignores balance size and follows urgency:
+
+1. [Household] — window closes around [Date]; the pattern won't wait.
+2. [Household] — steady opportunity, open for weeks.
+3. [Household] — your largest relationship, but nothing new; deliberately not first.
+
+A small relationship with a closing window outranks a large one with none.`,
+          replyPrompts: ["Why is my largest client third?", "Re-rank by balance for context", "Show all open windows"],
+        },
+      },
+      {
+        id: "a-a3",
+        text: "Cite the transaction or external evidence behind every claim",
+        on: true,
+        example: {
+          subject: "Every claim carries its evidence",
+          body: `On today's top item, [Household]:
+
+- Claim: a [Life event] is likely approaching.
+- Evidence: [Evidence source] pattern over [Duration], corroborated by [External signal].
+- Confidence: directional — worth a conversation, not a conclusion.
+
+If a claim can't point to evidence, it doesn't make the brief.`,
+          replyPrompts: ["Open the evidence", "How strong is the corroboration?", "Show a past claim that resolved"],
+        },
+      },
+      {
+        id: "a-a4",
+        text: "Draft talking points for each recommended outreach",
+        on: true,
+        example: {
+          subject: "Talking points ready for [Household]",
+          body: `For the outreach recommended today, drafted and waiting:
+
+- Opener: framed around their [Goal], not our product.
+- Middle: one relevant option, [Product], positioned as an opportunity.
+- Close: a low-pressure next step — a call, not a commitment.
+
+Edit freely; nothing goes to a customer without your review.`,
+          replyPrompts: ["Edit the talking points", "Draft the full email", "Make it more formal"],
+        },
+      },
     ],
     sometimes: [
       { id: "a-s1", text: "Draft a full nurture email", when: "the advisor asks for it in a reply", on: true },
