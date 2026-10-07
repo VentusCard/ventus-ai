@@ -123,10 +123,69 @@ If a number can't be attributed to a signal family, it doesn't appear in this br
     mission:
       "Surface where the product set is missing real demand — the gaps, the rollover moments, and the next-product candidates hiding in behavior.",
     always: [
-      { id: "p-a1", text: "Send a daily brief on product-fit gaps by segment", on: true },
-      { id: "p-a2", text: "Rank opportunities by household count and behavioral fit score", on: true },
-      { id: "p-a3", text: "Show the behavioral evidence behind each product recommendation", on: true },
-      { id: "p-a4", text: "Map every gap to an existing product in the catalog", on: true },
+      {
+        id: "p-a1",
+        text: "Send a daily brief on product-fit gaps by segment",
+        on: true,
+        example: {
+          subject: "Product-fit gaps by segment — [Date]",
+          body: `Today's gap scan across active segments:
+
+- [Segment A]: behavior consistent with [Product], no catalog product attached.
+- [Segment B]: [Product] demand rising week-over-week.
+- [Segment C]: gap closed — last week's positioning test is converting.
+
+Only segments with a live gap appear; quiet segments are omitted.`,
+          replyPrompts: ["Open Segment A in detail", "Show this week's new gaps", "Which gaps closed recently?"],
+        },
+      },
+      {
+        id: "p-a2",
+        text: "Rank opportunities by household count and behavioral fit score",
+        on: true,
+        example: {
+          subject: "Today's gaps, ranked",
+          body: `Ranked on two axes: how many households show the behavior, and how strongly.
+
+1. [Product] in [Segment] — largest household count, high fit.
+2. [Product] in [Segment] — fewer households, but the strongest fit score on the board.
+3. [Product] in [Segment] — large count, moderate fit; worth watching, not yet a brief.
+
+The ranking updates daily as behavior moves.`,
+          replyPrompts: ["Re-rank by fit score only", "Show the scoring method", "What entered the top three this week?"],
+        },
+      },
+      {
+        id: "p-a3",
+        text: "Show the behavioral evidence behind each product recommendation",
+        on: true,
+        example: {
+          subject: "Why we're recommending [Product] for [Segment]",
+          body: `The recommendation rests on observed behavior, not survey data:
+
+- Recurring payments to [Competing institution] on a [Cadence] cadence.
+- Balance patterns consistent with [Use case].
+- Life-event signals that historically precede [Product] adoption.
+
+Each claim links to the underlying pattern. If the evidence thins, the recommendation is withdrawn.`,
+          replyPrompts: ["Open the raw evidence", "How long has this pattern held?", "What would weaken this recommendation?"],
+        },
+      },
+      {
+        id: "p-a4",
+        text: "Map every gap to an existing product in the catalog",
+        on: true,
+        example: {
+          subject: "Every gap has a catalog answer",
+          body: `Today's gaps, each mapped to something we already sell:
+
+- [Segment A] gap → [Catalog product], positioning attached.
+- [Segment B] gap → [Catalog product], eligibility note attached.
+
+No gap is presented without a catalog match. If no product fits, the gap goes to a watch list — never to you as a build request.`,
+          replyPrompts: ["Show the watch list", "Open the positioning for item one", "Which catalog products appear most?"],
+        },
+      },
     ],
     sometimes: [
       { id: "p-s1", text: "Draft a next-product positioning line", when: "a segment crosses 500 qualifying households", on: true },
