@@ -34,6 +34,7 @@ const ACCENT_DOT: Record<TeamDestination["accent"], string> = {
   rose: "bg-rose-500",
   violet: "bg-violet-500",
   sky: "bg-sky-500",
+  teal: "bg-teal-500",
 };
 
 const ALL_SIGNALS: SignalFamily[] = [

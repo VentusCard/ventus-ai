@@ -34,6 +34,7 @@ export const ROSTER: Person[] = [
   { id: "priya", name: "Priya Patel", title: "Advisor, Retirement", initials: "PP", role: "advisor", bookSize: "116 clients" },
   { id: "james", name: "James O'Brien", title: "Advisor, HNW", initials: "JO", role: "advisor", bookSize: "74 clients" },
   { id: "elena", name: "Elena Vasquez", title: "Head of Wealth", initials: "EV", role: "leadership" },
+  { id: "victoria", name: "Victoria Hale", title: "Private Wealth Manager", initials: "VH", role: "advisor", bookSize: "38 families" },
   { id: "david", name: "David Kim", title: "Regional Director, NW", initials: "DK", role: "leadership" },
 ];
 
@@ -252,14 +253,14 @@ export interface TeamDestination {
   id: string;
   name: string;
   channel: TeamChannel;
-  accent: "indigo" | "emerald" | "amber" | "rose" | "violet" | "sky";
+  accent: "indigo" | "emerald" | "amber" | "rose" | "violet" | "sky" | "teal";
   weeklyCount: number;
   weeklyPrev: number;
   stat1: { label: string; value: string };
   stat2: { label: string; value: string };
   insights: string[];
   lastDeliveryAgo: string;
-  emailType: "Weekly pulse" | "Alert" | "Daily brief" | "Campaign brief" | "Signal brief";
+  emailType: "Weekly pulse" | "Alert" | "Daily brief" | "Campaign brief" | "Signal brief" | "Household brief";
 }
 
 export const TEAM_DESTINATIONS: TeamDestination[] = [
@@ -344,6 +345,22 @@ export const TEAM_DESTINATIONS: TeamDestination[] = [
     emailType: "Signal brief",
   },
   {
+    id: "wealth",
+    name: "Coworker for Wealth Managers",
+    channel: "Email",
+    accent: "teal",
+    weeklyCount: 6480,
+    weeklyPrev: 5320,
+    stat1: { label: "Households under watch", value: "4,860" },
+    stat2: { label: "Next steps prepared", value: "1,240" },
+    insights: [
+      "Household brief led by Ventus life-event, liquidity, and external wealth alerts for every family in the book.",
+      "Full-book planning prompts, meeting dossiers, and a specialist team lined up before the client asks.",
+    ],
+    lastDeliveryAgo: "2 min ago",
+    emailType: "Household brief",
+  },
+  {
     id: "marketing",
     name: "Coworker for Marketing / Campaign Ops",
     channel: "Email",
@@ -390,6 +407,7 @@ export const PERSON_ACTIVITY: Record<string, { threads: number; pendingReplies: 
   james: { threads: 1, pendingReplies: 0 },
   elena: { threads: 4, pendingReplies: 1 },
   david: { threads: 2, pendingReplies: 0 },
+  victoria: { threads: 3, pendingReplies: 1 },
 };
 
 export interface CoworkerIntegration {
@@ -405,5 +423,6 @@ export const COWORKER_INTEGRATIONS: Record<string, CoworkerIntegration> = {
   risk: { destination: "ServiceNow (risk case queue)", deliverable: "Flags opened as review cases", lastSync: "14 min ago", weeklyItems: 1860 },
   rewards: { destination: "Bank rewards engine", deliverable: "Offer refreshes pushed as eligible perks", lastSync: "3 min ago", weeklyItems: 4210 },
   advisors: { destination: "Salesforce FSC advisor tasks", deliverable: "Next-outreach tasks with talking points", lastSync: "1 min ago", weeklyItems: 19860 },
+  wealth: { destination: "Salesforce FSC household plans + wealth planning platform", deliverable: "Meeting dossiers and household action plans", lastSync: "2 min ago", weeklyItems: 6480 },
   marketing: { destination: "Adobe Marketo", deliverable: "Segment-of-one audiences and draft copy", lastSync: "22 min ago", weeklyItems: 1340 },
 };
