@@ -61,6 +61,7 @@ const newId = (teamId: string, group: RuleGroupKey) =>
 
 export function CoworkerPersonaSettingsView() {
   const [selectedId, setSelectedId] = useState(TEAM_DESTINATIONS[0].id);
+  const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, Playbook>>({});
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
   const save = useSaveSequence({ stages: PLAYBOOK_STAGES });
@@ -70,6 +71,7 @@ export function CoworkerPersonaSettingsView() {
     [selectedId],
   );
   const playbook = drafts[team.id] ?? COWORKER_PLAYBOOKS[team.id];
+  const selectedRule = playbook.always.find((r) => r.id === selectedRuleId) ?? null;
 
   const applyDraft = (mutate: (pb: Playbook) => void) =>
     setDrafts((prev) => {
