@@ -298,10 +298,68 @@ Nothing sits unowned. Every confirmed flag has a name and a clock attached.`,
     mission:
       "Keep the offer set matched to how people actually spend — which perks are earning attention, and which merchants are worth a partnership.",
     always: [
-      { id: "w-a1", text: "Send a daily brief on redemption intent by segment", on: true },
-      { id: "w-a2", text: "Rank merchant partnership candidates by observed wallet share", on: true },
-      { id: "w-a3", text: "Retire offers that under-index for two consecutive weeks", on: true },
-      { id: "w-a4", text: "Keep every offer description lifestyle-led, never data-led", on: true },
+      {
+        id: "w-a1",
+        text: "Send a daily brief on redemption intent by segment",
+        on: true,
+        example: {
+          subject: "Redemption intent by segment — [Date]",
+          body: `Where offer attention is heading today:
+
+- [Segment A]: intent concentrating on travel perks ahead of [Season].
+- [Segment B]: dining offers drawing the strongest response this week.
+- [Segment C]: intent flat — the current offer set isn't landing.
+
+Intent is inferred from lifestyle patterns, never from individual transactions.`,
+          replyPrompts: ["Open Segment A's top offers", "Compare with last week", "Which segments are cooling?"],
+        },
+      },
+      {
+        id: "w-a2",
+        text: "Rank merchant partnership candidates by observed wallet share",
+        on: true,
+        example: {
+          subject: "Partnership candidates, ranked by wallet share",
+          body: `Merchants capturing meaningful spend from our customers, ranked:
+
+1. [Merchant] — strongest wallet share in [Segment], no agreement on file.
+2. [Merchant] — growing fast in [City], category leader.
+3. [Merchant] — steady share, seasonal upside.
+
+Each candidate includes the segment it would serve and the offer it could anchor.`,
+          replyPrompts: ["Draft outreach for candidate one", "Show the wallet-share trend", "Filter by city"],
+        },
+      },
+      {
+        id: "w-a3",
+        text: "Retire offers that under-index for two consecutive weeks",
+        on: true,
+        example: {
+          subject: "Two offers reached retirement threshold",
+          body: `Under-indexed for two consecutive weeks against baseline:
+
+- [Offer name] — attention fading in every segment it targets.
+- [Offer name] — never found its audience; spend is going elsewhere.
+
+Both are queued for retirement, with replacement candidates attached. Nothing is pulled without your sign-off.`,
+          replyPrompts: ["Approve the retirements", "Show the replacement candidates", "Extend one more week"],
+        },
+      },
+      {
+        id: "w-a4",
+        text: "Keep every offer description lifestyle-led, never data-led",
+        on: true,
+        example: {
+          subject: "Offer copy check — lifestyle-led, always",
+          body: `How the same offer reads, before and after:
+
+- Data-led (rejected): "You spent at coffee shops 14 times last month."
+- Lifestyle-led (approved): "Your mornings deserve a better roast — [Merchant] is on us this week."
+
+Every offer description in the queue passes this check before it reaches you. The customer reads relevance, never surveillance.`,
+          replyPrompts: ["Show this week's approved copy", "Flag anything borderline", "Open the copy guidelines"],
+        },
+      },
     ],
     sometimes: [
       { id: "w-s1", text: "Propose a premium card upgrade offer", when: "travel and dining spend clears the tier threshold", on: true },
