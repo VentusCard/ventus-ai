@@ -151,7 +151,10 @@ export function CoworkerPersonaSettingsView() {
               <button
                 key={t.id}
                 type="button"
-                onClick={() => setSelectedId(t.id)}
+                onClick={() => {
+                  setSelectedId(t.id);
+                  setSelectedRuleId(null);
+                }}
                 className={cn(
                   "w-full text-left rounded-md px-2.5 py-2 transition-colors border",
                   active
@@ -236,7 +239,7 @@ export function CoworkerPersonaSettingsView() {
               {/* Three settings lines */}
               <RuleGroup
                 title="What it always does"
-                hint="Standing behavior, every cycle"
+                hint="Standing behavior, every cycle — click a rule to see an example"
                 tone="always"
                 rules={playbook.always}
                 isOn={isOn}
@@ -244,6 +247,10 @@ export function CoworkerPersonaSettingsView() {
                 onEdit={(id, patch) => editRule("always", id, patch)}
                 onAdd={() => addRule("always")}
                 onRemove={(id) => removeRule("always", id)}
+                selectedRuleId={selectedRuleId}
+                onSelect={(rule) =>
+                  setSelectedRuleId((prev) => (prev === rule.id ? null : rule.id))
+                }
               />
               <RuleGroup
                 title="What it sometimes does"
@@ -336,7 +343,12 @@ export function CoworkerPersonaSettingsView() {
 
             {/* Examples column */}
             <div className="min-w-0 lg:sticky lg:top-0">
-              <ExamplesPanel team={team} example={COWORKER_EXAMPLES[team.id]} />
+              <ExamplesPanel
+                team={team}
+                example={selectedRule?.example ?? COWORKER_EXAMPLES[team.id]}
+                ruleText={selectedRule?.text ?? null}
+                onClearRule={() => setSelectedRuleId(null)}
+              />
             </div>
           </div>
         </div>
