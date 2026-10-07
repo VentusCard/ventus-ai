@@ -7,6 +7,8 @@ export interface PlaybookRule {
   when?: string;
   /** Default toggle state (locked rules ignore this). */
   on?: boolean;
+  /** Illustrative message showing this rule in action ("always" rules). */
+  example?: CoworkerExample;
 }
 
 export interface Playbook {
