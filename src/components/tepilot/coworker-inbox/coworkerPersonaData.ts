@@ -602,10 +602,70 @@ Each email is drafted in your voice, lifestyle-led, with no hint of how the fit 
     mission:
       "Hand marketing ready-to-run audiences and copy built from real behavior, so campaigns land at the moment they matter.",
     always: [
-      { id: "m-a1", text: "Send a campaign brief with segment-of-one audiences", on: true },
-      { id: "m-a2", text: "Pre-draft personalization copy for every audience", on: true },
-      { id: "m-a3", text: "Route drafts into the approval queue, never straight to send", on: true },
-      { id: "m-a4", text: "Track each draft from review through launch", on: true },
+      {
+        id: "m-a1",
+        text: "Send a campaign brief with segment-of-one audiences",
+        on: true,
+        example: {
+          subject: "Campaign brief — [Segment], ready to run",
+          body: `A new brief is ready:
+
+- Audience: [Segment], built from behavior, fresh as of [Date].
+- Size: [# households] households, each with an individual fit reason.
+- Moment: the behavior says now — the window is [Duration].
+
+Segment-of-one means every household in the audience has its own reason to be there.`,
+          replyPrompts: ["Open the audience definition", "Show sample fit reasons", "When does the window close?"],
+        },
+      },
+      {
+        id: "m-a2",
+        text: "Pre-draft personalization copy for every audience",
+        on: true,
+        example: {
+          subject: "Copy pre-drafted for [Segment]",
+          body: `Copy is attached to the brief, written to the benefit:
+
+- Headline: [Headline] — about what they gain, not what we saw.
+- Body: [Body copy] — brand-safe, no signal language.
+- Variants: [Channel] and [Channel] versions included.
+
+You review and edit; the draft is a starting point, not a finished send.`,
+          replyPrompts: ["Rewrite for a second channel", "Make the tone warmer", "Show the variants side by side"],
+        },
+      },
+      {
+        id: "m-a3",
+        text: "Route drafts into the approval queue, never straight to send",
+        on: true,
+        example: {
+          subject: "Draft in the approval queue — [Segment]",
+          body: `The [Segment] draft is sitting in the approval queue:
+
+- Reviewer: [Reviewer], notified [Time].
+- Status: awaiting sign-off; nothing can send before it.
+- If the queue stalls past [Window], it escalates to [Escalation owner].
+
+There is no path from draft to send that skips a human.`,
+          replyPrompts: ["Nudge the reviewer", "Show the queue", "Change the approver"],
+        },
+      },
+      {
+        id: "m-a4",
+        text: "Track each draft from review through launch",
+        on: true,
+        example: {
+          subject: "Draft status — [Segment] campaign",
+          body: `Where every active draft stands:
+
+- [Segment] brief: approved [Date], launching [Date].
+- [Segment] brief: in review with [Reviewer] since [Date].
+- [Segment] brief: launched [Date], early read-out due [Date].
+
+From first draft to launch, every step is timestamped and owned.`,
+          replyPrompts: ["Show the launch calendar", "Which draft is oldest in review?", "Export the tracker"],
+        },
+      },
     ],
     sometimes: [
       { id: "m-s1", text: "Rebuild an audience mid-flight", when: "the segment drifts more than 20%", on: true },
