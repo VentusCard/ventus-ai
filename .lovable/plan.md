@@ -1,26 +1,35 @@
 # Add a "Coworker for Wealth Managers" persona
 
-A seventh AI Coworker, placed right after "Coworker for Relationship Managers". It covers the same ground but goes deeper and works like a concierge for high-net-worth households: family office-style briefings, preparing for life moments, and taking care of the details before the client asks.
+A seventh AI Coworker, placed right after "Coworker for Relationship Managers". Concierge isn't one feature. It's the way this coworker works: it gives a wealth manager everything they need across the full client relationship, plus what only Ventus can see (life-event alerts, external wealth signals, outflow detection). It anticipates each family's needs and gets the next step ready before the client asks.
+
+## What it covers (the full wealth manager toolkit)
+- **Ventus intelligence**: early life-event alerts (new baby, home purchase, business launch, retirement, inheritance), liquidity events, external wealth signals (property, aircraft, business ownership), and money flowing to other firms (for example a Goldman Marcus HYSA or an outside brokerage).
+- **Portfolio and planning**: cash drag and idle balances, rebalancing and concentration prompts, tax-loss harvesting windows, RMD and contribution deadlines, estate and beneficiary reviews.
+- **Household view**: the whole family, entities, trusts and properties, the next generation, and linked businesses.
+- **Lending and banking**: chances for securities-based lines, jumbo mortgages and business banking that come out of the signals.
+- **Meeting prep**: pre-meeting dossiers, an agenda, talking points, and a recap with follow-ups afterwards.
+- **Specialist coordination**: lines up tax, trust, lending, insurance and philanthropy partners for each moment.
+- **Relationship care**: milestones, family events, travel and lifestyle touches, so outreach feels personal and nobody feels tracked.
 
 ## What appears on each sub-tab
-- **Coworker Dashboard**: a new card called "Coworker for Wealth Managers" with a "Concierge brief". It shows its own weekly volume and two stats: "Households under concierge watch" and "Pre-emptive touches prepared". The two bullet lines describe its focus: liquidity events, estate/trust moments, family milestones, travel and lifestyle preparation, and a coordinated hand-off to specialists (tax, trust, lending, private aviation/insurance).
+- **Coworker Dashboard**: a "Coworker for Wealth Managers" card with a "Household brief". It shows its own weekly volume and two stats: "Households under watch" and "Next steps prepared". The two bullet lines sum up Ventus life-event alerts plus full-book planning prompts.
 - **Persona Settings**: its own playbook.
-  - Audience: private wealth managers and private bankers serving $5M+ households.
-  - Mission: anticipate what each family needs next and have it arranged before the client asks.
-  - Always: a household-level brief (the whole family, entities and properties, not just accounts); pre-assemble a specialist team for each moment; prepare a white-glove next step (reserved meeting time, documents ready, introductions lined up).
-  - Sometimes: coordinate with trust/estate when a dependent or property change is detected; arrange lifestyle touches (travel, events) around known trips; escalate to the Market Head on liquidity above $5M.
-  - Never: contact the client directly; mention exact amounts; act on anything without the wealth manager's approval; use risk or stress language.
-  - Tone: discreet, polished, anticipatory. Word cap is higher (240 words).
-- **User View**: a sample morning briefing for a wealth manager, e.g. "Two families have moments coming up this month. The specialist team and opening touch are ready for each."
-- **Integrations**: one destination, "Wealth platform client portal and Salesforce FSC household plan", which delivers concierge plans with the specialist team assigned.
-- **Activity History**: a few new concierge-style entries (for example "Assembled trust and tax specialists for {name}" or "Prepared pre-trip concierge note for {name}"), plus one wealth-manager colleague added to the "Working with" list.
+  - Audience: private wealth managers and private bankers.
+  - Mission: know what each family needs next and have it ready before they ask.
+  - Always: a daily household brief led by Ventus life-event and liquidity alerts; cite the evidence; prepare a complete next step (agenda, documents, specialist team).
+  - Sometimes: start an estate or beneficiary review on a family change; prompt planning around tax and RMD dates; flag money moving to outside firms; escalate large liquidity events to the Market Head.
+  - Never: contact the client directly; quote exact amounts; act without the wealth manager's approval; use risk or stress language.
+  - Tone: discreet, polished, anticipatory. Higher word cap (240 words).
+- **User View**: a sample morning briefing, e.g. "Two families have moments coming up. A life-event alert, the planning items it triggers, and the specialist team are ready for each."
+- **Integrations**: one destination, Salesforce FSC household plans plus the wealth planning platform. It delivers meeting dossiers and household action plans.
+- **Activity History**: new entries such as "Sent life-event alert to {name}", "Prepared pre-meeting dossier for {name}", "Lined up trust and tax specialists for {name}", plus one wealth-manager colleague in "Working with".
 
-The Relationship Manager persona's audience line changes to "Relationship managers, retail and business bankers" so the two don't overlap.
+The Relationship Manager audience line changes to "Relationship managers, retail and business bankers" so the two don't overlap.
 
 ## Technical details
-- `coworkerInboxData.ts`: new `wealth` entry in the coworkers list after `advisors` (accent such as emerald), a Integrations destination entry, and optionally a roster person (e.g. "Victoria Hale, Private Wealth Manager").
-- `coworkerPersonaData.ts`: new `wealth` playbook and email template; update the `advisors` audience line.
-- `coworkerUserViewData.ts`: new `wealth` user-view entry.
-- `coworkerStreamData.ts`: add 3–4 wealth-concierge templates.
-- Check for exhaustive `Record<CoworkerId, …>` types and accent color maps, and extend them.
-- Light theme only. No exact amounts in client-facing copy.
+- `coworkerInboxData.ts`: new `wealth` coworker after `advisors` (emerald accent), an integrations entry, a roster person (e.g. "Victoria Hale, Private Wealth Manager").
+- `coworkerPersonaData.ts`: `wealth` playbook and email template; update the `advisors` audience.
+- `coworkerUserViewData.ts`: `wealth` user-view entry.
+- `coworkerStreamData.ts`: 4–5 wealth templates.
+- Extend any exhaustive `Record<CoworkerId, …>` types and accent maps; add the item to roadmap.md.
+- Light theme only; no exact amounts in client-facing copy.
