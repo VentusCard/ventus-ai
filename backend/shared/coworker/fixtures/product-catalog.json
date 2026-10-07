@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "note": "Compact product catalog for the Coworker's audience-building task. Seeded from src/lib/productCatalogExtras.ts (anonymized copy, industry-shape numbers). target_signals drive fit; disqualifiers are hard exclusions the institution applies and must suppress a household regardless of fit. As of v2, card products carry machine-readable `terms` so annual benefit is computed from the household's own transactions against the published rate card rather than a flat heuristic. `incumbents` holds the terms of what a household already carries, so benefit can be stated net of what they earn today. Every product also carries `plain_benefit`: what it does differently, in client-safe words with no figures. Taglines quote rates, and a rate in a client draft fails validateClientDraft, so the tagline cannot be the thing an outreach draft is built from.",
+  "version": 5,
+  "note": "Compact product catalog for the Coworker's audience-building task. Seeded from src/lib/productCatalogExtras.ts (anonymized copy, industry-shape numbers). target_signals are the reasons a product is relevant now and are the only thing that can create a match. qualifying_signals corroborate a match and raise its score but can never create one, so a trait like paying a card in full cannot by itself pitch a travel card. disqualifiers are hard exclusions the institution applies and must suppress a household regardless of fit. As of v2, card products carry machine-readable `terms` so annual benefit is computed from the household's own transactions against the published rate card rather than a flat heuristic. `incumbents` holds the terms of what a household already carries, so benefit can be stated net of what they earn today. Every product also carries `plain_benefit`: what it does differently, in client-safe words with no figures. Taglines quote rates, and a rate in a client draft fails validateClientDraft, so the tagline cannot be the thing an outreach draft is built from. As of v4, the thirteen original products carry the signal vocabulary from the 55-product bank catalog. As of v5, the other forty-two products from that catalog are here too, each with its target/qualifier/block lists as the bank wrote them and the eleven universal blocks applied. Most of the tokens here are not emitted by anything today and are inert by design: they describe the target state and cost nothing until detection catches up. Four tokens are carried in both spellings — \"Cash-advance / gambling spend\" alongside \"gambling spend\", and \"Volatile income\" alongside \"income_instability\" — because the pipeline emits the long form and dropping it would quietly switch off a working block or, for overdraft protection, its only working target. Three qualifiers the bank already knows from the relationship record — monthly_surplus, owns_home, high_net_worth, multi_product_household — are derived from the household file rather than authored as signals, and already_holds_product is enforced against products_held. Priced terms: cards compute from the household ledger, deposits from idle cash against the baseline rate, refinances from the named balance and rate fields; everything else states what the product is for.",
   "spend_categories": {
     "note": "Maps an earn category to the transaction subcategories that count toward it. Used by the benefit calculator so category math is data-driven, not regex guesswork.",
     "travel": [
@@ -27,7 +27,10 @@
         "Rent & Mortgage",
         "Income & Payroll"
       ]
-    }
+    },
+    "gas": [
+      "Gas & Fuel"
+    ]
   },
   "incumbents": {
     "note": "Rate cards for cards a household already holds with us, so benefit can be stated net of what they earn today. A household whose card we do not hold gets no entry here on purpose: their current earn is unknown rather than zero, and the calculator reports gross with that gap stated instead of inventing a baseline.",
@@ -86,13 +89,41 @@
       },
       "target_signals": [
         "Travel-heavy spend",
-        "Pays card in full",
-        "Dining-led discretionary"
+        "Dining-led discretionary",
+        "foreign_spend_regular",
+        "trip_prep",
+        "large_trip_booked",
+        "rideshare_transit_heavy",
+        "travel_card_elsewhere",
+        "fx_fees_paid",
+        "loyalty_spend",
+        "business_travel_reimbursed"
+      ],
+      "qualifying_signals": [
+        "pays_card_in_full",
+        "steady_payroll",
+        "fee_cleared"
       ],
       "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
         "nsf_overdraft_cluster",
         "thin_credit_file",
-        "aml_review"
+        "gambling spend",
+        "dti_high",
+        "serious_delinquency_24m",
+        "revolving_balance_high",
+        "recent_new_credit",
+        "Cash-advance / gambling spend"
       ]
     },
     {
@@ -111,10 +142,33 @@
       "target_signals": [
         "idle_cash",
         "Recurring savings transfers",
-        "Accelerating savings velocity"
+        "Accelerating savings velocity",
+        "Building emergency fund",
+        "rate_chasing_outflow",
+        "funding_rival_account",
+        "savings_elsewhere",
+        "cd_maturing",
+        "Idle cash spike",
+        "goal_saving",
+        "tax_refund_received"
+      ],
+      "qualifying_signals": [
+        "monthly_surplus"
       ],
       "disqualifiers": [
-        "low_liquidity_buffer"
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "low_liquidity_buffer",
+        "dormant_relationship"
       ]
     },
     {
@@ -132,11 +186,35 @@
       },
       "target_signals": [
         "new_child_expected",
-        "Rising family spend"
+        "Rising family spend",
+        "new_child",
+        "college_bound",
+        "education_spend",
+        "private_k12_tuition",
+        "outside_529_funding",
+        "gift_deposits_for_child",
+        "custodial_account_funding"
+      ],
+      "qualifying_signals": [
+        "has_school_age_children",
+        "monthly_surplus"
       ],
       "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
         "low_liquidity_buffer",
-        "no_monthly_surplus"
+        "no_monthly_surplus",
+        "suitability_flag",
+        "competing_savings_goal"
       ]
     },
     {
@@ -153,9 +231,36 @@
       },
       "target_signals": [
         "new_child_expected",
-        "home_purchase_intent"
+        "home_purchase_intent",
+        "new_child",
+        "housing_cost_jump",
+        "single_earner_household",
+        "marriage",
+        "job_change",
+        "self_employed_income",
+        "life_premium_stopped",
+        "elder_care",
+        "new_large_debt"
       ],
-      "disqualifiers": []
+      "qualifying_signals": [
+        "has_dependents",
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "premium_not_affordable",
+        "coverage_adequate"
+      ]
     },
     {
       "id": "heloc",
@@ -171,13 +276,42 @@
       },
       "target_signals": [
         "home_renovation",
+        "Large discretionary outlays",
+        "renovation_planning",
+        "college_bound",
+        "second_property",
+        "high_cost_debt",
+        "heloc_elsewhere",
+        "home_improvement_financing"
+      ],
+      "qualifying_signals": [
         "home_equity",
-        "Large discretionary outlays"
+        "long_tenure_homeowner",
+        "steady_payroll"
       ],
       "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
         "ltv_above_80",
         "recent_late_mortgage",
-        "listing_active"
+        "listing_active",
+        "thin_credit_file",
+        "gambling spend",
+        "dti_high",
+        "nsf_overdraft_cluster",
+        "rapid_equity_drawdown",
+        "draining_savings",
+        "income_instability",
+        "Cash-advance / gambling spend"
       ]
     },
     {
@@ -194,11 +328,36 @@
       "target_signals": [
         "estate_inflow",
         "Idle cash spike",
+        "retirement_horizon",
+        "invests_elsewhere",
+        "seeking_advice",
+        "advisory_fees_elsewhere",
+        "business_liquidity",
+        "home_sale_proceeds",
+        "equity_comp",
+        "assets_across_custodians",
+        "rollover_401k"
+      ],
+      "qualifying_signals": [
         "idle_cash",
-        "retirement_horizon"
+        "Avoids liquidating investments"
       ],
       "disqualifiers": [
-        "liquid_below_min"
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "liquid_below_min",
+        "no_monthly_surplus",
+        "suitability_flag",
+        "near_term_cash_need"
       ]
     },
     {
@@ -213,10 +372,31 @@
         "advisory_fee_pct": 0.45
       },
       "target_signals": [
-        "estate_inflow"
+        "estate_inflow",
+        "elder_care",
+        "estate_attorney",
+        "gifting_to_family",
+        "managing_parent_finances",
+        "multiple_properties",
+        "large_charitable_giving"
+      ],
+      "qualifying_signals": [
+        "high_net_worth"
       ],
       "disqualifiers": [
-        "liquid_below_min"
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "liquid_below_min",
+        "trust_admin_elsewhere"
       ]
     },
     {
@@ -234,12 +414,35 @@
       },
       "target_signals": [
         "home_purchase_intent",
-        "relocation"
+        "relocation",
+        "down_payment_saving",
+        "rent_above_mortgage",
+        "rent_increase",
+        "earnest_money_wire",
+        "refi_candidate",
+        "arm_reset"
+      ],
+      "qualifying_signals": [
+        "steady_payroll"
       ],
       "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
         "dti_high",
         "down_payment_short",
-        "residency_short"
+        "residency_short",
+        "thin_credit_file",
+        "missed_secured_payment",
+        "nsf_overdraft_cluster"
       ]
     },
     {
@@ -255,10 +458,36 @@
         "outcome_basis": "The value is the cover itself rather than a yearly return, so no annual figure applies."
       },
       "target_signals": [
-        "home_purchase_intent"
+        "home_purchase_intent",
+        "home_renovation",
+        "no_home_insurance",
+        "premium_elsewhere",
+        "renewal_window",
+        "premium_increase",
+        "auto_premium_elsewhere",
+        "high_value_purchases",
+        "relocation"
+      ],
+      "qualifying_signals": [
+        "owns_home"
       ],
       "disqualifiers": [
-        "address_flux"
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "address_flux",
+        "premium_not_affordable",
+        "coverage_adequate",
+        "recent_claim_cluster",
+        "listing_active"
       ]
     },
     {
@@ -273,12 +502,40 @@
         "target_rate_pct": 6.5
       },
       "target_signals": [
+        "Steady student-loan servicing",
+        "consolidation_shopping",
+        "first_real_paycheck",
+        "private_student_loans",
+        "income_jump",
+        "large_loan_payments",
+        "parent_plus_payments",
+        "payments_moved_elsewhere"
+      ],
+      "qualifying_signals": [
         "student_loan_balance",
-        "Steady student-loan servicing"
+        "steady_payroll",
+        "low_utilization"
       ],
       "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
         "income_instability",
-        "recent_delinquency"
+        "recent_delinquency",
+        "dti_high",
+        "recent_declined_payments",
+        "nsf_overdraft_cluster",
+        "pslf_likely",
+        "idr_plan",
+        "Volatile income"
       ]
     },
     {
@@ -296,10 +553,35 @@
       },
       "target_signals": [
         "retirement_horizon",
-        "Automated investing"
+        "Automated investing",
+        "rollover_401k",
+        "Idle cash spike",
+        "invests_elsewhere",
+        "self_employed_income",
+        "tax_refund_received",
+        "ira_elsewhere"
+      ],
+      "qualifying_signals": [
+        "Accelerating savings velocity",
+        "earned_income"
       ],
       "disqualifiers": [
-        "retirement_cap_met"
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "retirement_cap_met",
+        "no_monthly_surplus",
+        "suitability_flag",
+        "near_term_cash_need",
+        "early_withdrawals"
       ]
     },
     {
@@ -316,9 +598,32 @@
       "target_signals": [
         "Idle cash accumulation",
         "Automated investing",
-        "idle_cash"
+        "invests_elsewhere",
+        "first_time_investor",
+        "rollover_401k",
+        "Idle cash spike"
       ],
-      "disqualifiers": []
+      "qualifying_signals": [
+        "idle_cash",
+        "monthly_surplus"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "low_liquidity_buffer",
+        "no_monthly_surplus",
+        "suitability_flag",
+        "near_term_cash_need"
+      ]
     },
     {
       "id": "overdraft-protection",
@@ -333,10 +638,1715 @@
       },
       "target_signals": [
         "nsf_overdraft_cluster",
-        "Volatile income",
-        "low_liquidity_buffer"
+        "income_instability",
+        "low_liquidity_buffer",
+        "payday_timing_gap",
+        "fee_cycle",
+        "declined_payments",
+        "gig_income",
+        "Volatile income"
       ],
-      "disqualifiers": []
+      "qualifying_signals": [
+        "has_linked_savings"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "chexsystems_flag",
+        "dormant_relationship"
+      ]
+    },
+    {
+      "id": "category-cashback-card",
+      "name": "Category Cash Back Card",
+      "category": "Cards",
+      "tagline": "3% back on groceries and gas, 1% on everything else.",
+      "plain_benefit": "pays a higher rate on groceries and fuel than it does on everything else",
+      "key_terms": "No annual fee; 3% cash back on grocery and gas on the first $2,500 of combined spend each calendar quarter, then 1%; 1% on all other purchases.",
+      "terms": {
+        "kind": "card_cash_back",
+        "annual_fee_usd": 0,
+        "base_rate_pct": 1,
+        "earn": [
+          {
+            "label": "Grocery",
+            "rate_pct": 3,
+            "categories": [
+              "grocery"
+            ],
+            "cap_group": "bonus"
+          },
+          {
+            "label": "Gas",
+            "rate_pct": 3,
+            "categories": [
+              "gas"
+            ],
+            "cap_group": "bonus"
+          }
+        ],
+        "caps": [
+          {
+            "group": "bonus",
+            "spend_usd_per_period": 2500,
+            "period": "calendar_quarter",
+            "label": "combined grocery and gas, per quarter"
+          }
+        ]
+      },
+      "target_signals": [
+        "category_concentrated_spend",
+        "grocery_heavy_spend",
+        "gas_heavy_spend",
+        "big_discretionary_spender",
+        "rising_card_usage",
+        "card_paid_elsewhere",
+        "debit_heavy_spender"
+      ],
+      "qualifying_signals": [
+        "steady_payroll",
+        "low_utilization"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "thin_credit_file",
+        "serious_delinquency_24m",
+        "dti_high",
+        "nsf_overdraft_cluster",
+        "gambling spend",
+        "Cash-advance / gambling spend"
+      ]
+    },
+    {
+      "id": "flat-cashback-card",
+      "name": "Flat-Rate Cash Back Card",
+      "category": "Cards",
+      "tagline": "1.5% back on everything, nothing to track.",
+      "plain_benefit": "pays the same rate on every purchase so there are no categories to keep track of",
+      "key_terms": "No annual fee; 1.5% cash back on every purchase; no caps.",
+      "terms": {
+        "kind": "card_cash_back",
+        "annual_fee_usd": 0,
+        "base_rate_pct": 1.5,
+        "earn": [],
+        "caps": []
+      },
+      "target_signals": [
+        "spend_across_categories",
+        "primary_card_with_us",
+        "prefers_simple_rewards",
+        "high_debit_volume",
+        "card_paid_elsewhere"
+      ],
+      "qualifying_signals": [
+        "steady_payroll",
+        "low_utilization"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "thin_credit_file",
+        "serious_delinquency_24m",
+        "dti_high",
+        "nsf_overdraft_cluster"
+      ]
+    },
+    {
+      "id": "premium-travel-card",
+      "name": "Premium Travel Card",
+      "category": "Cards",
+      "tagline": "5% on flights and hotels, 3% on dining, lounge access included.",
+      "plain_benefit": "pays its highest rate on flights and hotels and includes airport lounge access",
+      "key_terms": "$295 annual fee; 5% cash back on travel; 3% on dining; 1% on all other purchases; Priority Pass lounge membership; no foreign transaction fees.",
+      "terms": {
+        "kind": "card_cash_back",
+        "annual_fee_usd": 295,
+        "base_rate_pct": 1,
+        "earn": [
+          {
+            "label": "Travel",
+            "rate_pct": 5,
+            "categories": [
+              "travel"
+            ]
+          },
+          {
+            "label": "Dining",
+            "rate_pct": 3,
+            "categories": [
+              "dining"
+            ]
+          }
+        ],
+        "caps": []
+      },
+      "target_signals": [
+        "Travel-heavy spend",
+        "business_travel_reimbursed",
+        "luxury_travel_spend",
+        "multi_brand_travel",
+        "lounge_fees_paid",
+        "upgrade_from_travel_card"
+      ],
+      "qualifying_signals": [
+        "pays_card_in_full",
+        "steady_payroll",
+        "fee_cleared",
+        "Pays card in full"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "serious_delinquency_24m",
+        "dti_high",
+        "nsf_overdraft_cluster",
+        "revolving_balance_high"
+      ]
+    },
+    {
+      "id": "ultra-premium-travel-card",
+      "name": "Ultra-Premium Travel Card",
+      "category": "Cards",
+      "tagline": "5% on travel with a $300 annual travel credit and concierge service.",
+      "plain_benefit": "pairs its travel rate with an annual travel credit and a concierge who books on the household’s behalf",
+      "key_terms": "$595 annual fee; 5% cash back on travel; 3% on dining; 1% on all other purchases; $300 annual travel credit; concierge; no foreign transaction fees.",
+      "terms": {
+        "kind": "card_cash_back",
+        "annual_fee_usd": 595,
+        "base_rate_pct": 1,
+        "earn": [
+          {
+            "label": "Travel",
+            "rate_pct": 5,
+            "categories": [
+              "travel"
+            ]
+          },
+          {
+            "label": "Dining",
+            "rate_pct": 3,
+            "categories": [
+              "dining"
+            ]
+          }
+        ],
+        "caps": []
+      },
+      "target_signals": [
+        "premium_cabin_bookings",
+        "foreign_spend_regular",
+        "luxury_hotel_stays",
+        "concierge_spend",
+        "upgrade_from_premium_card"
+      ],
+      "qualifying_signals": [
+        "pays_card_in_full",
+        "high_card_spend",
+        "fee_cleared",
+        "Pays card in full"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "serious_delinquency_24m",
+        "dti_high",
+        "revolving_balance_high"
+      ]
+    },
+    {
+      "id": "balance-transfer-card",
+      "name": "Low-Rate Balance Transfer Card",
+      "category": "Cards",
+      "tagline": "0% intro APR on transferred balances for 18 months.",
+      "plain_benefit": "moves balances carried at a high rate onto one card with an introductory period at no interest",
+      "key_terms": "No annual fee; 0% intro APR on balance transfers for 18 months, then variable; 3% transfer fee.",
+      "terms": {
+        "kind": "balance_transfer",
+        "outcome": "Interest paused on balances carried elsewhere",
+        "outcome_basis": "The saving depends on the balance transferred and the rate it was carrying, neither of which we hold for debt with other lenders."
+      },
+      "target_signals": [
+        "high_cost_debt",
+        "card_paid_elsewhere"
+      ],
+      "qualifying_signals": [
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "serious_delinquency_24m",
+        "dti_high",
+        "nsf_overdraft_cluster",
+        "recent_new_credit"
+      ]
+    },
+    {
+      "id": "cobrand-partner-card",
+      "name": "Co-Brand Partner Card",
+      "category": "Cards",
+      "tagline": "Partner miles on every purchase, bonus miles with the partner.",
+      "plain_benefit": "earns the partner’s own rewards on spend that is already going to that brand",
+      "key_terms": "$95 annual fee; bonus partner rewards on partner purchases; partner rewards on all other purchases; anniversary bonus.",
+      "terms": {
+        "kind": "card_rewards",
+        "outcome": "Partner rewards on spend already going to that brand",
+        "outcome_basis": "Partner rewards are denominated in the partner’s currency, so we do not convert them to a dollar figure."
+      },
+      "target_signals": [
+        "brand_loyal_spend",
+        "loyalty_spend",
+        "cobrand_card_elsewhere",
+        "card_paid_elsewhere"
+      ],
+      "qualifying_signals": [
+        "steady_payroll",
+        "low_utilization"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "serious_delinquency_24m",
+        "dti_high",
+        "nsf_overdraft_cluster"
+      ]
+    },
+    {
+      "id": "secured-card",
+      "name": "Secured Credit Card",
+      "category": "Cards",
+      "tagline": "A real credit line backed by a deposit, reported to all three bureaus.",
+      "plain_benefit": "builds a credit history with a line backed by a deposit the household already has",
+      "key_terms": "No annual fee; deposit from $200 sets the limit; reported to all three bureaus; graduation review at 12 months.",
+      "terms": {
+        "kind": "credit_builder",
+        "outcome": "A reported credit line to build the file",
+        "outcome_basis": "The value is the credit history itself, which has no annual dollar figure."
+      },
+      "target_signals": [
+        "thin_credit_file",
+        "credit_builder_products",
+        "prepaid_card_reliance",
+        "new_to_banking"
+      ],
+      "qualifying_signals": [
+        "has_deposit_funds",
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "missed_secured_payment",
+        "dti_high"
+      ]
+    },
+    {
+      "id": "student-card",
+      "name": "Student Credit Card",
+      "category": "Cards",
+      "tagline": "A first card for students, 1% back and a good-grades bonus.",
+      "plain_benefit": "gives a student a first card with a modest limit and no fee while they build a history",
+      "key_terms": "No annual fee; 1% cash back; $20 statement credit each year with a 3.0 GPA; no credit history required.",
+      "terms": {
+        "kind": "credit_builder",
+        "outcome": "A first credit line for the student in the household",
+        "outcome_basis": "The value is the credit history itself, which has no annual dollar figure."
+      },
+      "target_signals": [
+        "campus_spend",
+        "school_disbursements",
+        "student_income_pattern",
+        "first_credit_search",
+        "college_bound",
+        "first_job_payroll"
+      ],
+      "qualifying_signals": [
+        "independent_income"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "under_21_no_independent_income",
+        "nsf_overdraft_cluster",
+        "gambling spend",
+        "Cash-advance / gambling spend"
+      ]
+    },
+    {
+      "id": "starter-checking",
+      "name": "Starter Checking",
+      "category": "Deposits",
+      "tagline": "No-fee checking with no minimum, built for a first account.",
+      "plain_benefit": "gives a first account holder checking with no fee and no balance to maintain",
+      "key_terms": "No monthly fee; no minimum balance; no overdraft fees; debit card; early direct deposit.",
+      "terms": {
+        "kind": "account",
+        "annual_fee_usd": 0,
+        "outcome": "A first account with no fees to learn on",
+        "outcome_basis": "Checking with no fee has no annual dollar figure unless the household is paying fees elsewhere, which we do not see."
+      },
+      "target_signals": [
+        "school_disbursements",
+        "new_to_banking",
+        "prepaid_card_reliance",
+        "check_cashing_fees",
+        "first_job_payroll",
+        "college_bound"
+      ],
+      "qualifying_signals": [],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "has_primary_checking"
+      ]
+    },
+    {
+      "id": "relationship-checking",
+      "name": "Relationship Checking",
+      "category": "Deposits",
+      "tagline": "Fees waived and rate boosts across every account you link.",
+      "plain_benefit": "waives fees and boosts rates across the accounts the household already holds with us",
+      "key_terms": "Monthly fee waived with $25,000 in combined balances; rate boost on linked savings; free wires; dedicated support line.",
+      "terms": {
+        "kind": "account",
+        "annual_fee_usd": 0,
+        "outcome": "Fees waived and rates boosted across linked accounts",
+        "outcome_basis": "The waived fees and rate boost depend on which accounts are linked, so we do not estimate an annual figure."
+      },
+      "target_signals": [
+        "multi_product_household",
+        "high_combined_balance",
+        "wealth_manager_relationship",
+        "paying_checking_fees",
+        "income_jump"
+      ],
+      "qualifying_signals": [
+        "combined_balance_min"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "dormant_relationship"
+      ]
+    },
+    {
+      "id": "certificate-of-deposit",
+      "name": "Certificate of Deposit",
+      "category": "Deposits",
+      "tagline": "4.60% APY fixed for 12 months.",
+      "plain_benefit": "locks a fixed rate on money the household does not need to touch for a year",
+      "key_terms": "12-month term; 4.60% APY fixed; $1,000 minimum; early-withdrawal penalty of 90 days’ interest; FDIC-insured.",
+      "terms": {
+        "kind": "deposit_apy",
+        "apy_pct": 4.6,
+        "baseline_apy_pct": 0.5,
+        "annual_fee_usd": 0
+      },
+      "target_signals": [
+        "cd_maturing",
+        "rate_chasing_outflow",
+        "idle_cash",
+        "income_seeking_saver",
+        "retirement_horizon"
+      ],
+      "qualifying_signals": [
+        "emergency_fund_present"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "low_liquidity_buffer",
+        "near_term_cash_need"
+      ]
+    },
+    {
+      "id": "money-market",
+      "name": "Money Market Account",
+      "category": "Deposits",
+      "tagline": "4.00% APY with check writing and a debit card.",
+      "plain_benefit": "pays a savings rate on cash the household still needs to be able to reach",
+      "key_terms": "4.00% APY on balances over $10,000; check writing; debit card; six withdrawals per cycle; FDIC-insured.",
+      "terms": {
+        "kind": "deposit_apy",
+        "apy_pct": 4,
+        "baseline_apy_pct": 0.5,
+        "annual_fee_usd": 0
+      },
+      "target_signals": [
+        "idle_cash",
+        "rate_chasing_outflow",
+        "savings_elsewhere",
+        "Idle cash spike",
+        "frequent_savings_access"
+      ],
+      "qualifying_signals": [
+        "balance_tier_min"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "dormant_relationship"
+      ]
+    },
+    {
+      "id": "teen-savings",
+      "name": "Teen / Youth Savings",
+      "category": "Deposits",
+      "tagline": "A savings account a teenager runs with a parent watching.",
+      "plain_benefit": "gives a teenager their own savings account with a parent able to see and set limits",
+      "key_terms": "No fee; no minimum; parent co-owner with view and limit controls; debit card from age 13.",
+      "terms": {
+        "kind": "account",
+        "annual_fee_usd": 0,
+        "outcome": "A first savings account for the teenager at home",
+        "outcome_basis": "The value is the habit rather than a return, so no annual figure applies."
+      },
+      "target_signals": [
+        "parent_managed_child_account",
+        "first_job_payroll",
+        "outgrowing_youth_account",
+        "allowance_transfers",
+        "kids_savings_app_elsewhere",
+        "college_bound"
+      ],
+      "qualifying_signals": [
+        "parent_holds_checking"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement"
+      ]
+    },
+    {
+      "id": "solo-restart-checking",
+      "name": "Solo Restart Checking",
+      "category": "Deposits",
+      "tagline": "An individual account set up fast when a household splits.",
+      "plain_benefit": "sets up an individual account quickly, with bills and deposits moved over in one sitting",
+      "key_terms": "No fee for 12 months; same-day open; direct-deposit switch service; bill-pay migration.",
+      "terms": {
+        "kind": "account",
+        "annual_fee_usd": 0,
+        "outcome": "An individual account with deposits and bills moved over",
+        "outcome_basis": "The value is the clean separation rather than a return, so no annual figure applies."
+      },
+      "target_signals": [
+        "paying_bills_alone",
+        "solo_housing_payment",
+        "joint_account_closed",
+        "relocation"
+      ],
+      "qualifying_signals": [],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "has_individual_checking"
+      ]
+    },
+    {
+      "id": "hsa",
+      "name": "Health Savings Account",
+      "category": "Deposits",
+      "tagline": "Pre-tax medical savings that invest once the balance clears $1,000.",
+      "plain_benefit": "sets medical savings aside before tax and lets the balance invest once it clears a floor",
+      "key_terms": "No monthly fee; contributions pre-tax; balance over $1,000 investable; debit card for qualified expenses.",
+      "terms": {
+        "kind": "planning",
+        "annual_fee_usd": 0,
+        "outcome": "Pre-tax savings for medical costs",
+        "outcome_basis": "The tax saving depends on the household’s bracket and how much they contribute, so we do not estimate it."
+      },
+      "target_signals": [
+        "hsa_contributions_elsewhere",
+        "hdhp_switch",
+        "open_enrollment_window",
+        "job_change"
+      ],
+      "qualifying_signals": [
+        "hdhp_covered"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "medicare_enrolled"
+      ]
+    },
+    {
+      "id": "global-account",
+      "name": "Multi-Currency Global Account",
+      "category": "Deposits",
+      "tagline": "Hold and spend in eight currencies with no conversion fee.",
+      "plain_benefit": "holds and spends in foreign currency without paying to convert each time",
+      "key_terms": "No monthly fee; balances in eight currencies; mid-market conversion; no foreign transaction fee on the linked card.",
+      "terms": {
+        "kind": "account",
+        "annual_fee_usd": 0,
+        "outcome": "Spend abroad without conversion fees",
+        "outcome_basis": "The saving depends on how much is spent abroad and the fees paid today, which we see only where the spend is on our card."
+      },
+      "target_signals": [
+        "overseas_employer_payroll",
+        "foreign_spend_regular",
+        "frequent_international_transfers",
+        "fx_fees_paid",
+        "foreign_property_payments"
+      ],
+      "qualifying_signals": [],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement"
+      ]
+    },
+    {
+      "id": "auto-loan",
+      "name": "Auto Loan",
+      "category": "Lending",
+      "tagline": "From 6.49% APR on new and used, pre-approved before the dealer.",
+      "plain_benefit": "gets the household a pre-approved rate before they walk into the dealer",
+      "key_terms": "From 6.49% APR; terms to 72 months; pre-approval valid 30 days; no origination fee.",
+      "terms": {
+        "kind": "loan",
+        "rate_pct": 6.49,
+        "outcome": "Purchase financing to carry into the dealer",
+        "outcome_basis": "A saving would depend on the rate they are offered and the amount financed, so we do not estimate one before an application."
+      },
+      "target_signals": [
+        "car_shopping",
+        "auto_loan_elsewhere",
+        "auto_loan_paid_off",
+        "lease_ending",
+        "dealer_deposit"
+      ],
+      "qualifying_signals": [
+        "steady_payroll",
+        "low_utilization"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "missed_secured_payment",
+        "dti_high",
+        "nsf_overdraft_cluster",
+        "thin_credit_file"
+      ]
+    },
+    {
+      "id": "auto-refinance",
+      "name": "Auto Refinance",
+      "category": "Lending",
+      "tagline": "Refinance an auto loan held elsewhere, from 6.90% APR.",
+      "plain_benefit": "moves a car loan held elsewhere to a lower rate without changing the car",
+      "key_terms": "From 6.90% APR; no application fee; 30-day first payment deferral.",
+      "terms": {
+        "kind": "loan_refinance",
+        "target_rate_pct": 6.9,
+        "balance_field": "auto_loan_balance_usd",
+        "rate_field": "auto_loan_rate_pct"
+      },
+      "target_signals": [
+        "auto_loan_elsewhere",
+        "high_rate_auto_loan",
+        "refi_shopping",
+        "income_jump"
+      ],
+      "qualifying_signals": [
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "missed_secured_payment",
+        "dti_high",
+        "nsf_overdraft_cluster",
+        "recent_auto_origination"
+      ]
+    },
+    {
+      "id": "personal-loan",
+      "name": "Personal Loan",
+      "category": "Lending",
+      "tagline": "Fixed-rate loan from 8.99% APR, funded in two days.",
+      "plain_benefit": "turns a large expense or high-rate balances into one fixed payment",
+      "key_terms": "From 8.99% APR fixed; $5,000 to $50,000; 2 to 7 years; no origination fee; funded in two business days.",
+      "terms": {
+        "kind": "loan",
+        "rate_pct": 8.99,
+        "outcome": "One fixed payment in place of a large expense or high-rate balances",
+        "outcome_basis": "A saving would depend on the rate they are offered and the amount financed, so we do not estimate one before an application."
+      },
+      "target_signals": [
+        "high_cost_debt",
+        "outside_installment_loan",
+        "planned_large_expense",
+        "card_paid_elsewhere",
+        "home_renovation"
+      ],
+      "qualifying_signals": [
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "dti_high",
+        "serious_delinquency_24m",
+        "recent_declined_payments",
+        "nsf_overdraft_cluster",
+        "payday_lender_use"
+      ]
+    },
+    {
+      "id": "personal-line-of-credit",
+      "name": "Personal Line of Credit",
+      "category": "Lending",
+      "tagline": "A standing line from $5,000, drawn only when needed.",
+      "plain_benefit": "gives the household a line to draw on when income arrives unevenly, paying interest only on what is used",
+      "key_terms": "Variable APR from 10.49%; $5,000 to $100,000; interest only on drawn balance; no annual fee the first year.",
+      "terms": {
+        "kind": "credit_line",
+        "outcome": "A standing line to draw on between uneven inflows",
+        "outcome_basis": "What this is worth depends on how much is drawn and when, neither of which we know in advance."
+      },
+      "target_signals": [
+        "planned_large_expense",
+        "commission_or_bonus_income",
+        "overdraft_line_elsewhere",
+        "high_cost_debt"
+      ],
+      "qualifying_signals": [
+        "annual_income_stable",
+        "low_utilization"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "payday_lender_use",
+        "draining_savings",
+        "dti_high",
+        "serious_delinquency_24m",
+        "nsf_overdraft_cluster"
+      ]
+    },
+    {
+      "id": "relocation-loan",
+      "name": "Moving & Relocation Loan",
+      "category": "Lending",
+      "tagline": "Cover the move up front, repay over 12 to 36 months.",
+      "plain_benefit": "spreads the up-front cost of a move across a fixed schedule instead of the card",
+      "key_terms": "From 9.49% APR fixed; $2,000 to $25,000; 12 to 36 months; funded in two business days.",
+      "terms": {
+        "kind": "loan",
+        "rate_pct": 9.49,
+        "outcome": "The up-front cost of a move spread over a fixed schedule",
+        "outcome_basis": "A saving would depend on the rate they are offered and the amount financed, so we do not estimate one before an application."
+      },
+      "target_signals": [
+        "relocation",
+        "moving_deposits",
+        "new_state_utilities",
+        "new_local_employer"
+      ],
+      "qualifying_signals": [
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "dti_high",
+        "recent_declined_payments",
+        "nsf_overdraft_cluster"
+      ]
+    },
+    {
+      "id": "rv-boat-loan",
+      "name": "RV / Boat Loan",
+      "category": "Lending",
+      "tagline": "Financing for boats and RVs, from 7.49% APR to 15 years.",
+      "plain_benefit": "finances a boat or RV with a term long enough to keep the payment sensible",
+      "key_terms": "From 7.49% APR; terms to 15 years; new and used; pre-approval before the dealer.",
+      "terms": {
+        "kind": "loan",
+        "rate_pct": 7.49,
+        "outcome": "Purchase financing for a boat or RV",
+        "outcome_basis": "A saving would depend on the rate they are offered and the amount financed, so we do not estimate one before an application."
+      },
+      "target_signals": [
+        "boat_rv_shopping",
+        "storage_or_marina_fees",
+        "dealer_deposit",
+        "rv_boat_loan_elsewhere"
+      ],
+      "qualifying_signals": [
+        "steady_payroll",
+        "low_utilization"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "missed_secured_payment",
+        "dti_high",
+        "nsf_overdraft_cluster"
+      ]
+    },
+    {
+      "id": "motorcycle-loan",
+      "name": "Motorcycle Loan",
+      "category": "Lending",
+      "tagline": "Motorcycle and powersport financing from 7.99% APR.",
+      "plain_benefit": "finances a motorcycle or powersport vehicle at a rate set before the dealer visit",
+      "key_terms": "From 7.99% APR; terms to 72 months; new and used; pre-approval before the dealer.",
+      "terms": {
+        "kind": "loan",
+        "rate_pct": 7.99,
+        "outcome": "Purchase financing for a motorcycle or powersport vehicle",
+        "outcome_basis": "A saving would depend on the rate they are offered and the amount financed, so we do not estimate one before an application."
+      },
+      "target_signals": [
+        "powersport_dealer_spend",
+        "dealer_deposit",
+        "powersport_loan_elsewhere"
+      ],
+      "qualifying_signals": [
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "missed_secured_payment",
+        "dti_high",
+        "nsf_overdraft_cluster",
+        "thin_credit_file"
+      ]
+    },
+    {
+      "id": "lease-buyout-loan",
+      "name": "Lease Buyout Loan",
+      "category": "Lending",
+      "tagline": "Keep the car at lease end, from 6.99% APR.",
+      "plain_benefit": "lets the household keep the car they have been leasing instead of handing it back",
+      "key_terms": "From 6.99% APR; residual plus fees financed; terms to 72 months; no origination fee.",
+      "terms": {
+        "kind": "loan",
+        "rate_pct": 6.99,
+        "outcome": "Financing to keep the car at lease end",
+        "outcome_basis": "A saving would depend on the rate they are offered and the amount financed, so we do not estimate one before an application."
+      },
+      "target_signals": [
+        "lease_ending",
+        "car_lease_payments",
+        "excess_mileage_charges"
+      ],
+      "qualifying_signals": [
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "dti_high",
+        "recent_declined_payments",
+        "nsf_overdraft_cluster"
+      ]
+    },
+    {
+      "id": "second-home-mortgage",
+      "name": "Second Home Mortgage",
+      "category": "Lending",
+      "tagline": "Financing for a second home or investment property, from 7.125% APR.",
+      "plain_benefit": "finances a second property with the first one left as it is",
+      "key_terms": "30-year fixed from 7.125% APR; 10% down on a second home, 20% on investment property; rental income counted toward qualification.",
+      "terms": {
+        "kind": "loan",
+        "rate_pct": 7.125,
+        "outcome": "Purchase financing for a second property",
+        "outcome_basis": "A saving would depend on the rate they are offered and the amount financed, so we do not estimate one before an application."
+      },
+      "target_signals": [
+        "second_property",
+        "vacation_area_spend",
+        "multiple_properties",
+        "property_upkeep_elsewhere",
+        "contractors_far_from_home"
+      ],
+      "qualifying_signals": [
+        "high_liquid_reserves",
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "dti_high",
+        "down_payment_short",
+        "missed_secured_payment",
+        "nsf_overdraft_cluster"
+      ]
+    },
+    {
+      "id": "self-directed-brokerage",
+      "name": "Self-Directed Brokerage",
+      "category": "Wealth",
+      "tagline": "Commission-free trading alongside the accounts you already hold.",
+      "plain_benefit": "lets the household run their own investments next to the accounts they already hold with us",
+      "key_terms": "$0 commissions on stocks and ETFs; fractional shares; research included; no account minimum.",
+      "terms": {
+        "kind": "planning",
+        "annual_fee_usd": 0,
+        "outcome": "Self-directed investing next to the accounts they already hold",
+        "outcome_basis": "The value depends on what they invest and how it does, so we do not put a figure on it."
+      },
+      "target_signals": [
+        "invests_elsewhere",
+        "crypto_multi_exchange",
+        "research_subscriptions",
+        "idle_cash",
+        "income_jump"
+      ],
+      "qualifying_signals": [
+        "monthly_surplus"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "suitability_flag",
+        "no_monthly_surplus",
+        "near_term_cash_need"
+      ]
+    },
+    {
+      "id": "wealth-management",
+      "name": "Wealth Management",
+      "category": "Wealth",
+      "tagline": "A dedicated advisor and a plan, 0.65% on assets over $1M.",
+      "plain_benefit": "puts one advisor across everything the household holds, with a written plan reviewed each year",
+      "key_terms": "0.65% annual fee on assets over $1,000,000; dedicated advisor; estate and tax coordination; quarterly reviews.",
+      "terms": {
+        "kind": "advisory_fee",
+        "advisory_fee_pct": 0.65
+      },
+      "target_signals": [
+        "estate_inflow",
+        "business_liquidity",
+        "equity_comp",
+        "assets_across_custodians",
+        "home_sale_proceeds",
+        "private_club_spend"
+      ],
+      "qualifying_signals": [
+        "high_net_worth"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "liquid_below_min",
+        "suitability_flag"
+      ]
+    },
+    {
+      "id": "private-wealth",
+      "name": "Private Wealth Management",
+      "category": "Wealth",
+      "tagline": "Family-office service for complex balance sheets, 0.50% on assets over $5M.",
+      "plain_benefit": "brings the household’s properties, entities, and investments under one team",
+      "key_terms": "0.50% annual fee on assets over $5,000,000; family-office team; entity and property oversight; lending desk.",
+      "terms": {
+        "kind": "advisory_fee",
+        "advisory_fee_pct": 0.5
+      },
+      "target_signals": [
+        "Idle cash spike",
+        "multiple_properties",
+        "complex_finances",
+        "private_aviation_or_yacht",
+        "family_office_payments"
+      ],
+      "qualifying_signals": [
+        "uhnw_assets"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "liquid_below_min",
+        "suitability_flag"
+      ]
+    },
+    {
+      "id": "values-portfolio",
+      "name": "Values-Aligned Portfolio",
+      "category": "Wealth",
+      "tagline": "A managed portfolio screened to the household’s values, 0.35%.",
+      "plain_benefit": "invests the way the household already spends and gives, screened to what they care about",
+      "key_terms": "0.35% annual fee; ESG and faith-based screens; $5,000 minimum; automatic rebalancing.",
+      "terms": {
+        "kind": "advisory_fee",
+        "advisory_fee_pct": 0.35
+      },
+      "target_signals": [
+        "values_brand_spend",
+        "cause_giving",
+        "ev_purchase",
+        "solar_installation",
+        "esg_fund_elsewhere"
+      ],
+      "qualifying_signals": [
+        "monthly_surplus"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "suitability_flag",
+        "no_monthly_surplus"
+      ]
+    },
+    {
+      "id": "401k-rollover",
+      "name": "401(k) Rollover Service",
+      "category": "Wealth",
+      "tagline": "Old employer plans moved into one account, paperwork handled.",
+      "plain_benefit": "brings old employer plans into one account and handles the paperwork with each plan",
+      "key_terms": "No fee for the rollover; paperwork handled with each plan; direct rollover to avoid withholding; investment review on arrival.",
+      "terms": {
+        "kind": "planning",
+        "annual_fee_usd": 0,
+        "outcome": "Old employer plans consolidated into one account",
+        "outcome_basis": "The value is the consolidation itself, and any return depends on how the money is invested afterward, so we do not estimate it."
+      },
+      "target_signals": [
+        "job_change",
+        "rollover_401k",
+        "seeking_advice"
+      ],
+      "qualifying_signals": [
+        "scattered_retirement_accounts"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "suitability_flag",
+        "early_withdrawals"
+      ]
+    },
+    {
+      "id": "able-account",
+      "name": "ABLE / Special Needs Savings",
+      "category": "Wealth",
+      "tagline": "Tax-advantaged savings for a family member with a disability.",
+      "plain_benefit": "lets a family save for a member with a disability without putting their benefits at risk",
+      "key_terms": "No fee; contributions grow tax-free for qualified expenses; benefits eligibility preserved under the annual limit.",
+      "terms": {
+        "kind": "planning",
+        "annual_fee_usd": 0,
+        "outcome": "Tax-advantaged savings that preserve benefits eligibility",
+        "outcome_basis": "The value is the benefits protection and tax treatment, which have no annual dollar figure."
+      },
+      "target_signals": [
+        "guardian_or_trustee_payments",
+        "special_needs_trust_activity",
+        "able_account_elsewhere"
+      ],
+      "qualifying_signals": [],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement"
+      ]
+    },
+    {
+      "id": "financial-planning",
+      "name": "Financial Planning Subscription",
+      "category": "Wealth",
+      "tagline": "A written plan and a planner on call, $49 a month.",
+      "plain_benefit": "gives the household a written plan and a planner to call when something changes",
+      "key_terms": "$49 per month; written plan in the first 30 days; unlimited planner calls; annual review; cancel any time.",
+      "terms": {
+        "kind": "subscription",
+        "annual_fee_usd": 588,
+        "outcome": "A written plan with a planner on call",
+        "outcome_basis": "Planning has no annual dollar figure; the value is the decisions it informs."
+      },
+      "target_signals": [
+        "diy_planning_tools",
+        "marriage",
+        "new_child",
+        "job_change",
+        "relocation",
+        "home_purchase_intent",
+        "retirement_horizon",
+        "advisory_fees_elsewhere",
+        "seeking_advice"
+      ],
+      "qualifying_signals": [
+        "monthly_surplus"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement"
+      ]
+    },
+    {
+      "id": "inherited-ira",
+      "name": "Inherited IRA",
+      "category": "Wealth",
+      "tagline": "Keep inherited retirement assets tax-deferred under the ten-year rule.",
+      "plain_benefit": "keeps retirement assets that came to the household tax-deferred and the required distributions on schedule",
+      "key_terms": "No account fee; direct trustee-to-trustee transfer; distribution schedule managed under the ten-year rule.",
+      "terms": {
+        "kind": "planning",
+        "annual_fee_usd": 0,
+        "outcome": "Inherited retirement assets kept tax-deferred",
+        "outcome_basis": "The tax saving depends on the balance and the household’s bracket over the distribution period, so we do not estimate it."
+      },
+      "target_signals": [
+        "estate_inflow",
+        "inherited_retirement_assets",
+        "estate_attorney"
+      ],
+      "qualifying_signals": [],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "suitability_flag"
+      ]
+    },
+    {
+      "id": "donor-advised-fund",
+      "name": "Donor-Advised Fund",
+      "category": "Wealth",
+      "tagline": "Give appreciated assets, take the deduction now, grant over time.",
+      "plain_benefit": "lets the household give appreciated holdings, take the deduction this year, and grant to charities over time",
+      "key_terms": "$5,000 minimum; accepts appreciated securities; 0.60% administrative fee; grants to any qualified charity.",
+      "terms": {
+        "kind": "planning",
+        "annual_fee_usd": 0,
+        "outcome": "Giving that is tax-efficient and planned",
+        "outcome_basis": "The tax saving depends on what is given and the household’s bracket, so we do not estimate it."
+      },
+      "target_signals": [
+        "large_charitable_giving",
+        "many_charities",
+        "giving_ramp_up",
+        "year_end_giving_spike",
+        "equity_comp"
+      ],
+      "qualifying_signals": [
+        "monthly_surplus"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "no_monthly_surplus"
+      ]
+    },
+    {
+      "id": "annuity",
+      "name": "Annuity",
+      "category": "Wealth",
+      "tagline": "Guaranteed income in retirement from a single premium.",
+      "plain_benefit": "turns part of the household’s savings into a payment that arrives every month for life",
+      "key_terms": "Single-premium immediate or deferred; lifetime income option; $25,000 minimum; issued by a rated carrier.",
+      "terms": {
+        "kind": "income",
+        "outcome": "A guaranteed monthly payment in retirement",
+        "outcome_basis": "The payment depends on the premium, age, and rates at purchase, so we do not estimate it."
+      },
+      "target_signals": [
+        "rollover_401k",
+        "retirement_horizon",
+        "scattered_retirement_accounts",
+        "income_seeking_saver",
+        "cd_maturing"
+      ],
+      "qualifying_signals": [
+        "emergency_fund_present"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "suitability_flag",
+        "near_term_cash_need",
+        "no_monthly_surplus"
+      ]
+    },
+    {
+      "id": "permanent-life",
+      "name": "Permanent Life Insurance",
+      "category": "Insurance",
+      "tagline": "Lifetime cover with cash value, built for estate planning.",
+      "plain_benefit": "provides cover that does not expire and builds a cash value the estate can use",
+      "key_terms": "Whole or universal life; cash value accumulates; policy loans available; estate-planning riders.",
+      "terms": {
+        "kind": "protection",
+        "outcome": "Lifetime cover with cash value for the estate",
+        "outcome_basis": "The value is the cover itself rather than a yearly return, so no annual figure applies."
+      },
+      "target_signals": [
+        "estate_attorney",
+        "gifting_to_family",
+        "assets_across_custodians",
+        "legal_and_accounting_spend"
+      ],
+      "qualifying_signals": [
+        "high_net_worth",
+        "steady_payroll"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "premium_not_affordable",
+        "coverage_adequate"
+      ]
+    },
+    {
+      "id": "long-term-care",
+      "name": "Long-Term Care Insurance",
+      "category": "Insurance",
+      "tagline": "Cover for care at home or in a facility later in life.",
+      "plain_benefit": "covers the cost of care at home or in a facility so the household’s savings do not have to",
+      "key_terms": "Daily benefit from $150; home and facility care; inflation rider; hybrid life option.",
+      "terms": {
+        "kind": "protection",
+        "outcome": "Cover for the cost of care later in life",
+        "outcome_basis": "The value is the cover itself rather than a yearly return, so no annual figure applies."
+      },
+      "target_signals": [
+        "elder_care",
+        "managing_parent_finances",
+        "retirement_horizon"
+      ],
+      "qualifying_signals": [
+        "monthly_surplus"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "premium_not_affordable",
+        "coverage_adequate"
+      ]
+    },
+    {
+      "id": "disability-insurance",
+      "name": "Disability Insurance",
+      "category": "Insurance",
+      "tagline": "Replace up to 60% of income if illness or injury stops work.",
+      "plain_benefit": "replaces most of the household’s income if illness or injury stops them working",
+      "key_terms": "Up to 60% of income replaced; own-occupation definition; 90-day elimination; benefit to age 65.",
+      "terms": {
+        "kind": "protection",
+        "outcome": "Income replacement if illness or injury stops work",
+        "outcome_basis": "The value is the cover itself rather than a yearly return, so no annual figure applies."
+      },
+      "target_signals": [
+        "single_earner_household",
+        "new_child",
+        "self_employed_income",
+        "professional_license_fees",
+        "job_change",
+        "new_child_expected"
+      ],
+      "qualifying_signals": [
+        "earned_income"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "premium_not_affordable",
+        "coverage_adequate"
+      ]
+    },
+    {
+      "id": "auto-insurance",
+      "name": "Auto Insurance",
+      "category": "Insurance",
+      "tagline": "Auto cover bundled with the home policy for a multi-policy discount.",
+      "plain_benefit": "covers the car and discounts both policies when it is bundled with the home",
+      "key_terms": "Liability, collision, and comprehensive; multi-policy discount; accident forgiveness; roadside assistance.",
+      "terms": {
+        "kind": "protection",
+        "outcome": "Cover for the vehicle, bundled with the home",
+        "outcome_basis": "The value is the cover itself rather than a yearly return, so no annual figure applies."
+      },
+      "target_signals": [
+        "car_purchase",
+        "auto_premium_elsewhere",
+        "auto_premium_increase",
+        "lender_required_insurance",
+        "car_shopping",
+        "relocation"
+      ],
+      "qualifying_signals": [
+        "owns_vehicle"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "premium_not_affordable",
+        "coverage_adequate"
+      ]
+    },
+    {
+      "id": "umbrella-insurance",
+      "name": "Umbrella Insurance",
+      "category": "Insurance",
+      "tagline": "Liability cover above the home and auto limits, from $1M.",
+      "plain_benefit": "adds liability cover above what the home and auto policies stop at",
+      "key_terms": "$1M to $10M in liability cover above underlying policies; worldwide; covers rental properties.",
+      "terms": {
+        "kind": "protection",
+        "outcome": "Liability cover above the home and auto limits",
+        "outcome_basis": "The value is the cover itself rather than a yearly return, so no annual figure applies."
+      },
+      "target_signals": [
+        "multiple_properties",
+        "rental_property_income",
+        "auto_premium_increase",
+        "large_money_movements",
+        "high_net_worth"
+      ],
+      "qualifying_signals": [
+        "underlying_home_auto_policy"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "premium_not_affordable",
+        "coverage_adequate"
+      ]
+    },
+    {
+      "id": "pet-insurance",
+      "name": "Pet Insurance",
+      "category": "Insurance",
+      "tagline": "Accident and illness cover for the pet, up to 90% reimbursed.",
+      "plain_benefit": "reimburses most of the vet bill when the pet is hurt or ill",
+      "key_terms": "Accident and illness; up to 90% reimbursement; annual limit from $5,000; no network restriction.",
+      "terms": {
+        "kind": "protection",
+        "outcome": "Cover for vet bills when the pet is hurt or ill",
+        "outcome_basis": "The value is the cover itself rather than a yearly return, so no annual figure applies."
+      },
+      "target_signals": [
+        "new_pet",
+        "regular_vet_visits",
+        "large_vet_bill",
+        "pet_insurance_elsewhere"
+      ],
+      "qualifying_signals": [
+        "has_pet"
+      ],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement",
+        "premium_not_affordable",
+        "coverage_adequate"
+      ]
+    },
+    {
+      "id": "identity-protection",
+      "name": "Identity Theft Protection",
+      "category": "Insurance",
+      "tagline": "Credit monitoring and full restoration if identity is stolen.",
+      "plain_benefit": "watches the household’s credit and handles the restoration if identity is stolen",
+      "key_terms": "$9.99 per month; three-bureau monitoring; dark-web alerts; $1M restoration cover; dedicated case manager.",
+      "terms": {
+        "kind": "protection",
+        "annual_fee_usd": 120,
+        "outcome": "Monitoring and restoration if identity is stolen",
+        "outcome_basis": "The value is the cover itself rather than a yearly return, so no annual figure applies."
+      },
+      "target_signals": [
+        "security_services_spend",
+        "recent_fraud_resolved",
+        "credit_monitoring_elsewhere"
+      ],
+      "qualifying_signals": [],
+      "disqualifiers": [
+        "aml_review",
+        "fraud_watch",
+        "prior_chargeoff",
+        "already_holds_product",
+        "marketing_opt_out",
+        "bankruptcy_active",
+        "hardship_program",
+        "financial_vulnerability",
+        "open_complaint",
+        "outreach_fatigue",
+        "estate_settlement"
+      ]
     }
   ]
 }

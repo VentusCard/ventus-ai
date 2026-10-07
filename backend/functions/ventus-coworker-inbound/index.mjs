@@ -44,6 +44,12 @@ const DEMO_OPEN = process.env.COWORKER_DEMO_OPEN === 'true';
 const RATE_LIMIT = Number.parseInt(process.env.COWORKER_RATE_LIMIT ?? '12', 10);
 const RATE_WINDOW_MS = Number.parseInt(process.env.COWORKER_RATE_WINDOW_MS ?? '3600000', 10);
 const MAX_BODY_CHARS = Number.parseInt(process.env.COWORKER_MAX_BODY_CHARS ?? '8000', 10);
+// Answer with the tool-calling agent instead of the intent classifier and task
+// switch. The agent can do several things in one reply and answers what was
+// asked rather than the nearest task. When it declines a turn the switch runs
+// anyway, so this cannot leave an advisor unanswered. Set COWORKER_AGENT=true
+// to enable; off means the behaviour is byte-for-byte what it was before.
+const AGENT = process.env.COWORKER_AGENT === 'true';
 
 const MODEL_PROVIDER_SECRET_ID = resolveSecretId({ envVar: 'MODEL_PROVIDER_SECRET_ID' });
 // Read the secret from this Lambda's own region. The shared provider defaults to
@@ -97,7 +103,20 @@ export const handler = async (event) => {
         demoOpen: DEMO_OPEN,
         rateLimit: { limit: RATE_LIMIT, windowMs: RATE_WINDOW_MS },
         maxBodyChars: MAX_BODY_CHARS,
+        agent: AGENT,
       });
+
+      // Which path answered, and what it did. With the agent enabled this is
+      // the only way to see a decline, and a decline is the signal that says
+      // where the agent is still weak — it is silent otherwise, because the
+      // advisor gets a perfectly good router reply either way.
+      if (AGENT && turn.allowed) {
+        console.log(
+          `[${LAMBDA_NAME}] path=${turn.via}${
+            turn.agent ? ` steps=${turn.agent.steps} tools=${turn.agent.tools.join(',')}` : ''
+          } thread=${turn.threadId}`
+        );
+      }
 
       if (!turn.allowed) {
         console.log(`[${LAMBDA_NAME}] Rejected sender ${turn.from} (${turn.reason}); no reply sent.`);

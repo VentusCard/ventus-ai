@@ -86,6 +86,35 @@ test('catalog is non-empty and every product is well-formed', () => {
   }
 });
 
+test('the catalog carries the full bank product set with the rules every product shares', () => {
+  const catalog = provider.getCatalog();
+  assert.equal(catalog.length, 55, 'all fifty-five bank products are present');
+
+  const universal = [
+    'aml_review', 'fraud_watch', 'prior_chargeoff', 'already_holds_product', 'marketing_opt_out',
+    'bankruptcy_active', 'hardship_program', 'financial_vulnerability', 'open_complaint',
+    'outreach_fatigue', 'estate_settlement',
+  ];
+  const priced = new Set(['card_cash_back', 'deposit_apy', 'advisory_fee', 'loan_refinance', 'fee_avoidance']);
+  for (const p of catalog) {
+    for (const block of universal) {
+      assert.ok(p.disqualifiers.includes(block), `${p.id} carries the universal block ${block}`);
+    }
+    assert.ok(p.target_signals.length > 0, `${p.id} has at least one target`);
+    assert.ok(p.plain_benefit && !/\d/.test(p.plain_benefit), `${p.id} plain_benefit has no figures`);
+    assert.ok(p.terms?.kind, `${p.id} has a terms kind`);
+    if (!priced.has(p.terms.kind)) {
+      assert.ok(p.terms.outcome && p.terms.outcome_basis, `${p.id} unpriced terms state an outcome and its basis`);
+    }
+  }
+
+  // The refinance kinds name the balance they price, so an auto refinance
+  // cannot silently compute off a student loan.
+  const autoRefi = catalog.find((p) => p.id === 'auto-refinance');
+  assert.equal(autoRefi.terms.balance_field, 'auto_loan_balance_usd');
+  assert.equal(autoRefi.terms.rate_field, 'auto_loan_rate_pct');
+});
+
 test('data can be injected without touching disk', () => {
   const injected = createFixturePortfolioProvider({
     data: {

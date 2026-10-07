@@ -77,6 +77,21 @@ export function formatBenefit(row = {}) {
 }
 
 /**
+ * Turn the one piece of markdown the models actually emit into HTML.
+ *
+ * Model-written paragraphs are escaped, not parsed, which is the right default
+ * for anything going into mail. But the prep prompt asks for a talking point
+ * and the model marks it up, so advisors were reading a literal
+ * "**Talking point:**" in their inbox. Runs after escaping, so the inner text
+ * is already inert.
+ *
+ * @param {string} escaped  HTML-escaped paragraph text
+ */
+function emphasize(escaped) {
+  return escaped.replace(/\*\*(?=\S)([\s\S]*?\S)\*\*/g, '<strong>$1</strong>');
+}
+
+/**
  * Render the shared HTML shell (peer tone, plain and readable in mail clients).
  *
  * @param {object} opts
@@ -102,7 +117,9 @@ export function renderShell({
   disclaimer = DEFAULT_DISCLAIMER,
   unsubscribeUrl,
 }) {
-  const paras = paragraphs.map((p) => `<p style="margin:0 0 12px;">${esc(p)}</p>`).join('');
+  const paras = paragraphs
+    .map((p) => `<p style="margin:0 0 12px;">${emphasize(esc(p))}</p>`)
+    .join('');
   const secs = sections
     .map(
       (s) =>
@@ -424,6 +441,46 @@ ${subjectLine}
 <span style="font-weight:600;">Why this household:</span> ${esc(rationale)}
 ${timing}
 </div>`;
+}
+
+/**
+ * Render model-written notes as a panel: paragraphs, with dash-led lines kept
+ * as a list.
+ *
+ * Used where the notes are the deliverable rather than raw material. The prep
+ * narrative is full of figures, and handing it to another model to rewrite put
+ * those figures into prose that then could not be sent. Attaching it instead
+ * shows the advisor the same sentences the prep model wrote, unaltered.
+ */
+export function renderNotes(text) {
+  const lines = String(text || '')
+    .split(/\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (!lines.length) return '<p style="color:#888;margin:0;">No notes.</p>';
+
+  const blocks = [];
+  let list = [];
+  const flush = () => {
+    if (!list.length) return;
+    blocks.push(
+      `<ul style="margin:0 0 10px;padding-left:20px;">${list
+        .map((i) => `<li style="margin:0 0 4px;">${emphasize(esc(i))}</li>`)
+        .join('')}</ul>`
+    );
+    list = [];
+  };
+  for (const line of lines) {
+    const bullet = line.match(/^[-*\u2022]\s+(.*)$/);
+    if (bullet) {
+      list.push(bullet[1]);
+      continue;
+    }
+    flush();
+    blocks.push(`<p style="margin:0 0 10px;">${emphasize(esc(line))}</p>`);
+  }
+  flush();
+  return blocks.join('');
 }
 
 /** Render a simple bulleted evidence list (each item already plain text). */

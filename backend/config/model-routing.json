@@ -140,6 +140,13 @@
       "role": "coworker_reasoning_worker",
       "temperature": 0.2,
       "max_tokens": 3000
+    },
+    "coworker_agent": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "role": "coworker_agent_loop",
+      "temperature": 0,
+      "max_tokens": 6000
     }
   }
 }

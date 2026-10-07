@@ -108,14 +108,18 @@ export class VentusCoworkerStack extends cdk.Stack {
     const contextRefreshSchedule =
       props.contextRefreshSchedule ?? events.Schedule.cron({ hour: '11', minute: '0' });
     // How often the digest may resurface a household, and the same pitch to it.
-    // Defaults suit the fixture book; see the digest function's environment.
+    // Two days between touches lets a 28-household book sustain the 10–12 row
+    // mail below (sustainable rows = households / cadence) while still keeping
+    // any one household from appearing every morning. The same-product gap is
+    // left open because the pacing formula takes the larger of the two and a
+    // five-day product gap would pace the same book down to six rows.
     const cadenceDays = String(
-      props.cadenceDays ?? (this.node.tryGetContext('coworkerCadenceDays') as string | undefined) ?? 5
+      props.cadenceDays ?? (this.node.tryGetContext('coworkerCadenceDays') as string | undefined) ?? 2
     );
     const sameProductDays = String(
       props.sameProductDays ??
         (this.node.tryGetContext('coworkerSameProductDays') as string | undefined) ??
-        5
+        0
     );
 
     // ── State: single DynamoDB table ─────────────────────────────────────────
@@ -193,11 +197,21 @@ export class VentusCoworkerStack extends cdk.Stack {
       handler: 'index.handler',
       code: lambda.Code.fromAsset('../backend/dist/lambda/ventus-coworker-inbound.zip'),
       memorySize: 512,
-      timeout: cdk.Duration.seconds(60),
+      // One turn is several model round trips when the agent path is enabled
+      // (-c coworkerAgent=true): a few tool calls plus the compose. 60s was
+      // sized for exactly two calls and a slow provider will exceed it, and a
+      // timeout here costs the advisor their reply. SNS delivery is async so
+      // nothing is waiting on the response.
+      timeout: cdk.Duration.minutes(5),
       environment: {
         ...commonEnv,
         COWORKER_INBOUND_BUCKET: inboundBucket.bucketName,
         COWORKER_INBOUND_PREFIX: inboundPrefix,
+        // Answer with the tool-calling agent rather than the intent classifier
+        // and task switch. Off by default; the switch is the fallback whenever
+        // the agent declines a turn, so enabling this cannot leave an advisor
+        // unanswered. Enable with -c coworkerAgent=true.
+        COWORKER_AGENT: String(booleanContext(this, 'coworkerAgent', false)),
         // Smoke-test mode: skip SES send and return the rendered reply. Defaults
         // on until a SES sending identity is verified; disable with
         // -c coworkerDryRun=false.
@@ -232,7 +246,14 @@ export class VentusCoworkerStack extends cdk.Stack {
       timeout: cdk.Duration.minutes(2),
       environment: {
         ...commonEnv,
-        COWORKER_DIGEST_MAX_ITEMS: '5',
+        // Ten to twelve rows for the bank demo. The first ten fill the usual
+        // way; the eleventh and twelfth are only added when they bring a
+        // product and a headline the mail has not used yet, so the length
+        // moves with how much different news the book has each morning.
+        // The code default stays at a fixed five for books that cannot
+        // sustain more.
+        COWORKER_DIGEST_MAX_ITEMS: '12',
+        COWORKER_DIGEST_MIN_ITEMS: '10',
         // Sized for the 28-household fixture book, not for a real one.
         //
         // The digest paces itself to roughly `households / same-product cap`

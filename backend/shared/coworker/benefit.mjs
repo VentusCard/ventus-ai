@@ -214,18 +214,23 @@ export function computeCardBenefit({ product, household, transactions, catalog }
   const current = currentCardEarn({ household, incumbents, profile });
 
   if (!current.known) {
+    // The fee is ours to know even when their current earn is not, so it comes
+    // off before the figure is shown. Headlining gross before the fee made a
+    // $595 card tie a $95 card on the same spend, which is not a tie.
+    const afterFee = round2(grossEarn - fee);
     return {
       mode: 'computed',
       baseline: 'unknown',
       product_id: product.id,
       gross_usd: grossEarn,
+      after_fee_usd: afterFee,
       current_usd: null,
       fee_usd: fee,
       net_usd: null,
       lines,
       cap_binding: capBinding,
       card_eligible_spend_usd: profile.cardEligibleTotal,
-      basis: `${grossEarn ? `$${fmt(grossEarn)} gross cash back` : 'No measurable cash back'} on $${fmt(profile.cardEligibleTotal)} of card spend over the last 12 months, before the $${fmt(fee)} annual fee. ${current.reason} We cannot state a net gain without it.`,
+      basis: `${grossEarn ? `$${fmt(grossEarn)} gross cash back` : 'No measurable cash back'} on $${fmt(profile.cardEligibleTotal)} of card spend over the last 12 months${fee ? `, less the $${fmt(fee)} annual fee, so $${fmt(afterFee)}` : ''} before what they earn today. ${current.reason} We cannot state a net gain without it.`,
     };
   }
 
@@ -298,8 +303,14 @@ export function estimateBenefit({ product, signals }) {
       };
     }
     case 'loan_refinance': {
-      const balance = Number(fin.student_loan_balance_usd) || 0;
-      const currentRate = Number(fin.student_loan_rate_pct) || 0;
+      // The catalog names which balance the product refinances. Student loans
+      // were the only case for a long time, so they stay the default; auto
+      // refinance points at its own fields rather than pricing off a loan it
+      // cannot touch.
+      const balanceField = terms.balance_field || 'student_loan_balance_usd';
+      const rateField = terms.rate_field || 'student_loan_rate_pct';
+      const balance = Number(fin[balanceField]) || 0;
+      const currentRate = Number(fin[rateField]) || 0;
       const target = Number(terms.target_rate_pct) || 0;
       if (!balance || currentRate <= target) {
         return {
@@ -372,7 +383,9 @@ export function headlineBenefit(benefit) {
   if (!benefit) return null;
   if (benefit.mode === 'computed') {
     if (benefit.baseline === 'unknown') {
-      return { usd: benefit.gross_usd, precision: 'point', qualifier: 'gross' };
+      // Gross of what they earn today, which we cannot see, but after our own
+      // fee, which we can.
+      return { usd: benefit.after_fee_usd ?? benefit.gross_usd, precision: 'point', qualifier: 'gross' };
     }
     return { usd: benefit.net_usd, precision: 'point', qualifier: 'net' };
   }

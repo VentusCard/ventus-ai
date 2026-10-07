@@ -223,6 +223,23 @@ test('a household whose card we cannot see gets no net figure at all', () => {
   assert.match(b.basis, /\$140 gross cash back/);
 });
 
+test('an unknown baseline still pays our own fee before it is headlined', () => {
+  // Their current earn is unknown; our annual fee is not. Three travel cards
+  // on the same spend used to headline the same gross figure, which made the
+  // $595 card look as good as the $95 one.
+  const transactions = [debit('2026-01-10', 'Flights', 2000), debit('2026-01-11', 'Grocery', 3000)];
+  const pricier = { ...CARD, terms: { ...CARD.terms, annual_fee_usd: 95 } };
+  const b = computeCardBenefit({ product: pricier, household: noCardWithUs, transactions, catalog: CATALOG });
+
+  assert.equal(b.gross_usd, 140);
+  assert.equal(b.after_fee_usd, 45);
+  assert.equal(b.net_usd, null, 'still no net: we cannot see what they earn today');
+  assert.match(b.basis, /less the \$95 annual fee, so \$45 before what they earn today/);
+  const headline = headlineBenefit(b);
+  assert.equal(headline.qualifier, 'gross');
+  assert.equal(headline.usd, 45);
+});
+
 test('an unknown baseline is never silently treated as zero earn', () => {
   const transactions = [debit('2026-01-10', 'Flights', 2000)];
   const unknown = currentCardEarn({
@@ -278,6 +295,36 @@ test('a refinance estimate is the first-year interest difference', () => {
   });
   assert.equal(b.usd, 912); // 48000 * 1.9%
   assert.match(b.assumption, /depends on their credit profile/);
+});
+
+test('a refinance prices the balance the catalog names, not the student loan by default', () => {
+  // Auto refinance on a household with both loans: it must read the auto
+  // fields, and must not borrow the student-loan figure when they are absent.
+  const terms = {
+    kind: 'loan_refinance',
+    target_rate_pct: 6.9,
+    balance_field: 'auto_loan_balance_usd',
+    rate_field: 'auto_loan_rate_pct',
+  };
+  const both = estimateBenefit({
+    product: { terms },
+    signals: {
+      financial: {
+        student_loan_balance_usd: 48000,
+        student_loan_rate_pct: 9.5,
+        auto_loan_balance_usd: 19800,
+        auto_loan_rate_pct: 11.2,
+      },
+    },
+  });
+  assert.equal(both.usd, 851.4); // 19800 * 4.3%
+  assert.match(both.assumption, /\$19,800 balance/);
+
+  const studentOnly = estimateBenefit({
+    product: { terms },
+    signals: { financial: { student_loan_balance_usd: 48000, student_loan_rate_pct: 9.5 } },
+  });
+  assert.equal(studentOnly.usd, 0, 'no auto loan on file means nothing to refinance');
 });
 
 test('a refinance that would not help says so instead of returning a number', () => {

@@ -14,9 +14,12 @@ import {
   outreachSubject,
   resolveHousehold,
   resolveProduct,
+  redactFigures,
   retrieveEvidence,
   scanHouseholdMentions,
+  scanNamedTargets,
   summarizeSpend,
+  summarizeThread,
   validateClientDraft,
 } from './tasks.mjs';
 import { findBannedVocabulary, findSnakeCase } from './labels.mjs';
@@ -51,7 +54,14 @@ test('travel-card audience fits the traveler and excludes the overdraft househol
     res.candidates.map((c) => c.household_id),
     ['hh_okafor']
   );
-  assert.equal(res.candidates[0].fit_score, 2);
+  // Travel spend, reimbursed business travel, and loyalty spend all target the
+  // card; "pays card in full" is only a qualifier and must not count here.
+  assert.equal(res.candidates[0].fit_score, 3);
+  assert.deepEqual(res.candidates[0].matched_signals, [
+    'Travel-heavy spend',
+    'loyalty_spend',
+    'business_travel_reimbursed',
+  ]);
   assert.ok(res.candidates[0].annual_benefit_usd > 0);
   // Alvarez carries an overdraft flag, which the institution treats as a hard
   // exclusion for this product.
@@ -61,13 +71,155 @@ test('travel-card audience fits the traveler and excludes the overdraft househol
   assert.equal(held.reason_label, 'recent overdraft activity');
 });
 
+test('a qualifying signal on its own does not put a household in the audience', () => {
+  const res = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'travel-card' });
+  const ids = res.candidates.map((c) => c.household_id);
+
+  // Both pay their card in full, which is a qualifier for the travel card: good
+  // to know once something has made the card relevant, never the thing that
+  // makes it relevant. Neither travels — their own ledgers put travel and
+  // dining at 3-4% of spend. A screen that returns them is pitching a rewards
+  // card on creditworthiness.
+  for (const householdId of ['hh_petrov', 'hh_kim']) {
+    const tokens = householdTokens(provider.getSignals(householdId));
+    assert.ok(tokens.has('Pays card in full'), `${householdId} still pays in full`);
+    assert.ok(!ids.includes(householdId), `${householdId} qualified on the qualifier alone`);
+  }
+
+  // The household that actually travels is still a fit, and the card no longer
+  // cites paying in full as support for the pitch. supporting_signals feeds the
+  // digest's refusal to build a row on a single data point, so counting a trait
+  // there made a one-signal row look corroborated.
+  const whitfield = res.candidates.find((c) => c.household_id === 'hh_whitfield');
+  assert.ok(whitfield, 'the household that actually travels is still a fit');
+  assert.ok(!whitfield.supporting_signals.includes('Pays card in full'));
+});
+
+test('a household is never pitched a product it already holds with us', () => {
+  // Every product carries already_holds_product as a block. It is enforced
+  // against the relationship record rather than authored as a signal, because
+  // the bank already knows what it sold.
+  const savings = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'high-yield-savings' });
+  const marchetti = savings.excluded.find((e) => e.household_id === 'hh_marchetti');
+  assert.ok(marchetti, 'Marchetti holds the savings account');
+  assert.equal(marchetti.reason, 'already_holds_product');
+  assert.equal(marchetti.reason_label, 'already holding this product with us');
+  assert.ok(!savings.candidates.some((c) => c.household_id === 'hh_marchetti'));
+
+  // The block is per product: the same household is still a fit elsewhere.
+  const portfolio = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'managed-portfolio' });
+  assert.ok(portfolio.candidates.some((c) => c.household_id === 'hh_marchetti'));
+  // And a household that holds the portfolio is excluded from it in turn.
+  assert.equal(
+    portfolio.excluded.find((e) => e.household_id === 'hh_sharma')?.reason,
+    'already_holds_product'
+  );
+});
+
+test('qualifiers the bank already knows are derived from the relationship record', () => {
+  const household = provider.getHousehold('hh_nakamura');
+  const tokens = householdTokens(provider.getSignals('hh_nakamura'), household);
+  assert.ok(tokens.has('monthly_surplus'), 'a positive surplus is a qualifier');
+  assert.ok(!tokens.has('no_monthly_surplus'));
+  assert.ok(tokens.has('owns_home'), 'equity on file means they own the home');
+  assert.ok(tokens.has('high_net_worth'), '$1.85M under management');
+  assert.ok(tokens.has('multi_product_household'), 'three products held');
+
+  const thin = householdTokens(provider.getSignals('hh_dubois'), provider.getHousehold('hh_dubois'));
+  assert.ok(!thin.has('owns_home'));
+  assert.ok(!thin.has('high_net_worth'));
+  assert.ok(!thin.has('multi_product_household'));
+
+  // Without the record the derivations stay off rather than guessing.
+  const bare = householdTokens(provider.getSignals('hh_nakamura'));
+  assert.ok(!bare.has('high_net_worth'));
+  assert.ok(!bare.has('multi_product_household'));
+  assert.ok(bare.has('owns_home'), 'equity is in the signals, so this one still derives');
+
+  // None of them can create a match on their own.
+  const trust = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'trust-account' });
+  const nakamura = trust.candidates.find((c) => c.household_id === 'hh_nakamura');
+  assert.ok(nakamura);
+  assert.ok(!nakamura.matched_signals.includes('high_net_worth'));
+  assert.ok(nakamura.supporting_signals.includes('high_net_worth'), 'but it corroborates once matched');
+});
+
+test('the newer bank-catalog products fire on the signals authored for them', () => {
+  const fits = (productId) =>
+    buildAudience({ provider, advisorId: DEMO_ADVISOR, productId }).candidates.map((c) => c.household_id);
+
+  // college_bound reaches the products the bank maps it to.
+  assert.ok(fits('student-card').includes('hh_villanueva'));
+  assert.ok(fits('teen-savings').includes('hh_villanueva'));
+  assert.ok(fits('529-plan').includes('hh_villanueva'));
+  // job_change reaches the rollover service, and the household is not thin.
+  const rollover = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: '401k-rollover' });
+  const qureshi = rollover.candidates.find((c) => c.household_id === 'hh_qureshi');
+  assert.ok(qureshi);
+  assert.equal(qureshi.lead_signal.type, 'job_change');
+  assert.equal(qureshi.lead_signal.label, 'Changed jobs');
+  assert.ok(qureshi.supporting_signal_count >= 2);
+  // A card with a ledger behind it prices itself from real transactions.
+  const grocery = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'category-cashback-card' });
+  const bianchi = grocery.candidates.find((c) => c.household_id === 'hh_bianchi');
+  assert.ok(bianchi);
+  assert.equal(bianchi.benefit.mode, 'computed');
+  assert.ok(bianchi.annual_benefit_usd > 0);
+  // A refinance against a balance other than the student loan.
+  const refi = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'auto-refinance' });
+  const oyelaran = refi.candidates.find((c) => c.household_id === 'hh_oyelaran');
+  assert.ok(oyelaran);
+  assert.equal(oyelaran.annual_benefit_usd, 851);
+  // High-cost debt on an overdrafting household is blocked on every lender.
+  for (const id of ['heloc', 'balance-transfer-card', 'personal-loan', 'personal-line-of-credit']) {
+    const res = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: id });
+    assert.ok(!res.candidates.some((c) => c.household_id === 'hh_alvarez'), `${id} does not pitch Alvarez`);
+    assert.ok(res.excluded.some((e) => e.household_id === 'hh_alvarez'), `${id} excludes Alvarez explicitly`);
+  }
+});
+
+test('a behavioral lead from the bank vocabulary renders as a phrase, never a field name', () => {
+  const res = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'pet-insurance' });
+  const novak = res.candidates.find((c) => c.household_id === 'hh_novak');
+  assert.ok(novak);
+  assert.equal(novak.lead_signal.type, 'new_pet');
+  assert.equal(novak.lead_signal.label, 'New pet at home');
+  assert.deepEqual(findSnakeCase(novak.lead_signal.label), []);
+  assert.deepEqual(findSnakeCase(novak.matched_signal_labels.join(' ')), []);
+
+  const ev = retrieveEvidence({ provider, householdId: 'hh_novak' });
+  assert.deepEqual(findSnakeCase(ev.bullets.join(' ')), []);
+  assert.ok(ev.bullets.some((b) => /^New pet at home, /.test(b)));
+});
+
+test('a row matched on a financial token leads with that token, not a stray event', () => {
+  const res = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'high-yield-savings' });
+  const nakamura = res.candidates.find((c) => c.household_id === 'hh_nakamura');
+
+  // Savings matches this household on idle cash alone. The household also has
+  // a home renovation on file, and the renovation used to headline the row,
+  // which put "home renovation" at the top of a savings pitch and invited the
+  // obvious question of what one had to do with the other.
+  assert.equal(nakamura.lead_signal.type, 'idle_cash');
+  assert.equal(nakamura.lead_signal.kind, 'financial');
+  assert.ok(
+    provider.getSignals('hh_nakamura').life_events.some((e) => e.type === 'home_renovation'),
+    'the renovation is still on file — it just no longer leads'
+  );
+});
+
 test('a single-product screen returns a real audience across the demo book', () => {
   const res = buildAudience({ provider, advisorId: DEMO_ADVISOR, productId: 'travel-card' });
   // A screen that returns one household reads as a lookup, not a screen. The
   // demo book is sized so the demonstrated product returns a genuine list.
+  //
+  // Five, not six: "Pays card in full" used to count as a targeting signal, so
+  // two households with no travel or dining spend to speak of qualified on
+  // creditworthiness alone. Their own ledgers put travel and dining at 3-4% of
+  // spend against 12% for the households that remain.
   assert.ok(
-    res.candidates.length >= 6,
-    `expected at least 6 fits, got ${res.candidates.length}`
+    res.candidates.length >= 5,
+    `expected at least 5 fits, got ${res.candidates.length}`
   );
   assert.ok(res.excluded.length >= 1);
   assert.ok(res.no_signal.length >= 1);
@@ -203,6 +355,18 @@ test('resolveProduct maps free-text model mentions to catalog ids', () => {
   assert.equal(resolveProduct(catalog, null), null);
 });
 
+test('an unqualified mention of a product family resolves to its base product', () => {
+  const catalog = provider.getCatalog();
+  // "travel" now matches three cards. The advisor who says it means the one
+  // without a qualifier, and the premium tiers all contain its name.
+  assert.equal(resolveProduct(catalog, 'travel')?.id, 'travel-card');
+  assert.equal(resolveProduct(catalog, 'premium travel')?.id, 'premium-travel-card');
+  assert.equal(resolveProduct(catalog, 'ultra premium travel card')?.id, 'ultra-premium-travel-card');
+  // Unrelated products that happen to share a word are still ambiguous.
+  assert.equal(resolveProduct(catalog, 'insurance'), null);
+  assert.equal(resolveProduct(catalog, 'loan'), null);
+});
+
 // --- household resolution (tolerant of free-text model output) ---------------
 
 test('resolveHousehold maps ids, family names, and contacts to a household', () => {
@@ -211,6 +375,11 @@ test('resolveHousehold maps ids, family names, and contacts to a household', () 
   assert.equal(resolveHousehold(households, 'Nakamura')?.id, 'hh_nakamura');
   assert.equal(resolveHousehold(households, 'Nakamura Household')?.id, 'hh_nakamura');
   assert.equal(resolveHousehold(households, 'Kenji Nakamura')?.id, 'hh_nakamura');
+  // A family named in the plural or the possessive is the same family. "Draft a
+  // note to the Lindqvists" came back "I can't find Lindqvists in your book".
+  assert.equal(resolveHousehold(households, 'Lindqvists')?.id, 'hh_lindqvist');
+  assert.equal(resolveHousehold(households, "Lindqvist's")?.id, 'hh_lindqvist');
+  assert.equal(resolveHousehold(households, 'Alvarezes')?.id, 'hh_alvarez');
   assert.equal(resolveHousehold(households, 'nobody'), null);
   assert.equal(resolveHousehold(households, ''), null);
   assert.equal(resolveHousehold(households, null), null);
@@ -222,8 +391,60 @@ test('scanHouseholdMentions finds households by surname in free text', () => {
   assert.deepEqual(scanHouseholdMentions('what about the Nakamura household?', households), [
     'hh_nakamura',
   ]);
+  assert.deepEqual(scanHouseholdMentions('a note to the Lindqvists about the travel card', households), [
+    'hh_lindqvist',
+  ]);
+  assert.deepEqual(scanNamedTargets('Draft a note to the Lindqvists about the travel card', { households }), []);
   assert.deepEqual(scanHouseholdMentions('draft outreach for the top 3', households), []);
   assert.deepEqual(scanHouseholdMentions('', households), []);
+});
+
+test('a named household that is not in the book is caught, so no draft falls through', () => {
+  const households = provider.getHouseholds();
+  const catalog = provider.getCatalog();
+  const scan = (text) => scanNamedTargets(text, { households, catalog });
+
+  // Row 14 of the path comparison, verbatim. The classifier returns nothing for
+  // "Pemberton", so this scan is the only thing standing between the advisor and
+  // client-ready copy addressed to whoever happens to fit the product.
+  assert.deepEqual(scan('Draft outreach for the Pemberton family on the travel card.'), [
+    'Pemberton',
+  ]);
+  assert.deepEqual(scan('Draft outreach for Pemberton on the travel card.'), ['Pemberton']);
+  assert.deepEqual(scan('Write to the Pembertons about high-yield savings'), ['Pembertons']);
+  // A caps subject line defeats the capitalization test, so the stopwords carry it.
+  assert.deepEqual(scan('DRAFT OUTREACH FOR PEMBERTON'), ['PEMBERTON']);
+});
+
+test('the real asks a demo is built on are not mistaken for unknown households', () => {
+  const households = provider.getHouseholds();
+  const catalog = provider.getCatalog();
+  const scan = (text) => scanNamedTargets(text, { households, catalog });
+
+  // Every one of these is a message the advisor is expected to send. A false
+  // positive here is a refusal in front of an audience, so they are pinned.
+  assert.deepEqual(scan('Draft outreach for Okafor on the travel card.'), []);
+  assert.deepEqual(scan('Draft outreach for the Okafor Household'), []);
+  assert.deepEqual(scan('Draft outreach for Ada Okafor'), []);
+  assert.deepEqual(scan('Draft outreach for the top 3'), []);
+  assert.deepEqual(scan('Draft outreach for Travel Cash Rewards Card'), []);
+  assert.deepEqual(scan('Screen the book for High-Yield Savings'), []);
+  assert.deepEqual(scan('Who should I pitch the travel card to?'), []);
+  assert.deepEqual(scan('Prep me for my call with Okafor tomorrow.'), []);
+  assert.deepEqual(scan('Draft outreach for Monday'), []);
+  assert.deepEqual(scan(''), []);
+  assert.deepEqual(scan(null), []);
+});
+
+test('an unknown household is reported alongside the known ones, not instead of them', () => {
+  const households = provider.getHouseholds();
+  const catalog = provider.getCatalog();
+
+  const found = scanNamedTargets('Draft outreach for Okafor and for Pemberton', {
+    households,
+    catalog,
+  });
+  assert.deepEqual(found, ['Pemberton']);
 });
 
 // --- signals and evidence ----------------------------------------------------
@@ -246,6 +467,71 @@ test('an exclusion reason is attributed to the institution, in plain language', 
   assert.ok(line);
   assert.match(line, /the institution treats as an exclusion/i);
   assert.doesNotMatch(line, /nsf_overdraft_cluster/);
+});
+
+test('redacting an amount leaves a sentence that still reads', () => {
+  // The lead-in words go with the amount. Dropping only the digits left
+  // "two paymentsto design firms" and "12 months totalingin Travel".
+  assert.equal(
+    redactFigures('9 flights and 7 lodging bookings over 12 months totaling about $18,400 in Travel & Exploration.'),
+    '9 flights and 7 lodging bookings over 12 months in Travel & Exploration.'
+  );
+  assert.equal(
+    redactFigures('Two payments above $8,000 to design and survey firms this quarter.'),
+    'Two payments to design and survey firms this quarter.'
+  );
+  assert.equal(redactFigures('Automated $1,500/mo transfer to savings.'), 'Automated transfer to savings.');
+  assert.equal(
+    redactFigures('Gig payouts ranging $610-$2,010 with no fixed cadence.'),
+    'Gig payouts with no fixed cadence.'
+  );
+  // An amount can open the sentence, and removing it left a lowercase start.
+  assert.equal(
+    redactFigures('$28k+ across Home Depot, Ferguson, and design retailers in 90 days.'),
+    'Across Home Depot, Ferguson, and design retailers in 90 days.'
+  );
+});
+
+test('redacting leaves counts and windows alone, and takes rates with it', () => {
+  const kept = 'Two overdraft fees plus one NSF returned item in 60 days.';
+  assert.equal(redactFigures(kept), kept);
+  assert.equal(redactFigures('Their account earns 0.5% today.'), 'Their account earns today.');
+  assert.equal(redactFigures('We could get them 35 basis points more.'), 'We could get them more.');
+});
+
+test('every model-facing bullet in the book is free of figures', () => {
+  for (const hh of provider.getHouseholds()) {
+    const ev = retrieveEvidence({ provider, householdId: hh.id });
+    if (!ev.found) continue;
+    for (const bullet of ev.modelBullets) {
+      assert.doesNotMatch(bullet, /\$\s?\d/, `${hh.name}: ${bullet}`);
+      assert.doesNotMatch(bullet, /\d\s?%/, `${hh.name}: ${bullet}`);
+    }
+    assert.equal(ev.modelBullets.length, ev.bullets.length, 'one for one, nothing dropped');
+  }
+});
+
+test('a household spending more than it earns reads as a shortfall, not as negative surplus', () => {
+  const ev = retrieveEvidence({ provider, householdId: 'hh_alvarez' });
+  const line = ev.bullets.find((b) => /^Posture is/.test(b));
+
+  assert.ok(line);
+  // "$-150 of monthly surplus" scans as a typo, and it is the one number on a
+  // juggler household an advisor most needs to catch.
+  assert.doesNotMatch(line, /\$-/);
+  assert.match(line, /\$150 a month more going out than coming in/);
+  // Zero idle cash is the absence of a measurement, not a measurement.
+  assert.doesNotMatch(line, /\$0/);
+  assert.doesNotMatch(line, /uninvested/);
+});
+
+test('a household with both figures still gets both, in whole dollars', () => {
+  const ev = retrieveEvidence({ provider, householdId: 'hh_okafor' });
+  const line = ev.bullets.find((b) => /^Posture is/.test(b));
+
+  assert.match(line, /accumulator/);
+  assert.match(line, /about \$40,000 sitting uninvested/);
+  assert.match(line, /roughly \$3,200 of monthly surplus/);
 });
 
 test('leadSignal explains the row it appears on', () => {
@@ -300,6 +586,17 @@ test('the subject counts what needs attention, not the size of the book', () => 
   assert.match(subject, new RegExp(`${digest.items.length} households? needs? attention`));
   assert.doesNotMatch(subject, new RegExp(String(bookSize(DEMO_ADVISOR))));
   assert.equal(digestSubject({ items: [] }), 'Your Daily Digest: nothing needs your attention today');
+});
+
+test('the subject carries no reply prefix of its own', () => {
+  // A "Re:" on the digest was Gmail titling a conversation that test replies
+  // had started, not anything in the mail. Worth pinning anyway: the digest is
+  // always the first message of its thread, so a prefix here would be a lie
+  // about a conversation that does not exist.
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR });
+  for (const subject of [digestSubject(digest), digestSubject({ items: [] })]) {
+    assert.doesNotMatch(subject, /^\s*(re|fwd?)\s*:/i);
+  }
 });
 
 test('a digest survives being written to the table', () => {
@@ -693,7 +990,7 @@ test('the audience is ranked by how defensible the figure is, then by its size',
     .filter((c) => c.benefit_qualifier === 'net')
     .map((c) => c.annual_benefit_usd);
   assert.deepEqual(nets, [...nets].sort((a, b) => b - a), `net column was ${nets.join(', ')}`);
-  assert.ok(nets.length >= 5, 'the demo book needs enough nets for the ordering to be visible');
+  assert.ok(nets.length >= 4, 'the demo book needs enough nets for the ordering to be visible');
 });
 
 test('a household we cannot price net is still shown rather than dropped', () => {
@@ -761,10 +1058,14 @@ test('with no context the digest is byte-identical to the pre-timing behavior', 
 
 test('a life event past its window drops out of the audience and is reconciled', () => {
   // hh_nakamura leads on a home renovation, which carries a 30-day window.
+  //
+  // Screened against the HELOC rather than savings: a window only governs a
+  // lead signal, and the renovation can only lead where it is what matched.
+  // Savings matches this household on idle cash, which has no date to expire.
   const early = buildAudience({
     provider,
     advisorId: DEMO_ADVISOR,
-    productId: 'high-yield-savings',
+    productId: 'heloc',
     context: bookContext({ advisorId: DEMO_ADVISOR, now: dayAfter(5) }),
     now: dayAfter(5),
   });
@@ -773,7 +1074,7 @@ test('a life event past its window drops out of the audience and is reconciled',
   const late = buildAudience({
     provider,
     advisorId: DEMO_ADVISOR,
-    productId: 'high-yield-savings',
+    productId: 'heloc',
     context: bookContext({ advisorId: DEMO_ADVISOR, now: dayAfter(45) }),
     now: dayAfter(45),
   });
@@ -838,10 +1139,12 @@ test('a signal that arrived overnight is flagged and promoted', () => {
     now,
     newlyArrived: (householdId, type) => householdId === 'hh_nakamura' && type === 'home_renovation',
   });
+  // The HELOC, for the same reason as the window test above: novelty attaches
+  // to the lead signal, and the renovation only leads where it is what matched.
   const res = buildAudience({
     provider,
     advisorId: DEMO_ADVISOR,
-    productId: 'high-yield-savings',
+    productId: 'heloc',
     context,
     now,
   });
@@ -849,7 +1152,18 @@ test('a signal that arrived overnight is flagged and promoted', () => {
   const nakamura = res.candidates.find((c) => c.household_id === 'hh_nakamura');
   assert.equal(nakamura.timing.novel, true);
   assert.equal(nakamura.timing.status, 'new');
-  assert.ok(nakamura.priority > nakamura.annual_benefit_usd, 'novelty lifts the rank weight');
+
+  // Novelty cannot lift this row, and the assertion says so rather than
+  // pretending otherwise. priorityScore scales the headline benefit, and the
+  // HELOC prices as an outcome rather than a dollar figure, so the weight is
+  // zero before novelty is applied and zero after.
+  //
+  // No product currently prices a life-event-led row: the card is the only one
+  // computed from a ledger and it matches on travel and dining, which are
+  // spending patterns. So timing has nothing to scale wherever a life event is
+  // what leads. That is a gap in the catalog, not in the timing model.
+  assert.equal(nakamura.annual_benefit_usd, 0);
+  assert.equal(nakamura.priority, 0, 'a benefit of zero cannot be lifted by novelty');
 });
 
 test('a household shown this week is held back, and the digest says so', () => {
@@ -1089,6 +1403,194 @@ test('a life event reaches the mail even though we will not price it', () => {
   );
 });
 
+test('the mail does not say the same thing twice over', () => {
+  // The complaint this answers: ten rows carrying four products, with the
+  // savings account and the travel card taking eight of them between them.
+  // Fourteen of the 28 households match the savings account and thirteen
+  // price it above everything else they qualify for, so when a household was
+  // collapsed to its single best-paying product before anything looked at the
+  // mail as a whole, that product won every row it was allowed.
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 10 });
+  const products = new Set(digest.items.map((i) => i.product.id));
+  const signals = new Set(digest.items.map((i) => i.lead_signal?.label));
+  const categories = new Set(digest.items.map((i) => i.product.category));
+
+  assert.ok(
+    products.size >= 7,
+    `expected at least 7 distinct products in 10 rows, got ${products.size}`
+  );
+  assert.ok(
+    signals.size >= 8,
+    `expected at least 8 distinct lead signals, got ${signals.size}`
+  );
+  assert.ok(
+    categories.size >= 4,
+    `expected at least 4 product categories, got ${categories.size}`
+  );
+
+  // No product may hold more than a fifth of the mail, rounded up.
+  const perProduct = new Map();
+  for (const i of digest.items) {
+    perProduct.set(i.product.id, (perProduct.get(i.product.id) || 0) + 1);
+  }
+  const worst = Math.max(...perProduct.values());
+  assert.ok(worst <= 2, `no product should hold more than 2 of 10 rows, got ${worst}`);
+
+  // A cap on its own buys variety by throwing households away: tightening it
+  // without letting a household fall back to its second product drops eight of
+  // them out of the mail and backfills with two $105 overdraft rows. The
+  // household should lose the product, never the row.
+  assert.ok(
+    digest.dropped.product_concentration <= 2,
+    `the cap should rarely cost a household its row, lost ${digest.dropped.product_concentration}`
+  );
+});
+
+test('a row headlines with a signal the page has not used yet when it has one', () => {
+  // Every signal that drove a match is an honest headline for the row. When
+  // the default one is already on the page, the row steps to the next the
+  // household actually carries, and the window moves with it.
+  const digest = buildAdvisorDigest({ provider, advisorId: 'adv_okoro', maxItems: 10 });
+  const dubois = digest.items.find((i) => i.household_id === 'hh_dubois');
+  const alvarez = digest.items.find((i) => i.household_id === 'hh_alvarez');
+  assert.ok(dubois && alvarez, 'both overdraft households are in the mail');
+  assert.equal(dubois.product.id, alvarez.product.id, 'same product');
+  assert.notEqual(dubois.lead_signal.label, alvarez.lead_signal.label, 'different headlines');
+  assert.ok(
+    dubois.matched_signals.includes(dubois.lead_signal.type),
+    'the swapped headline is one of the signals that matched, not an invention'
+  );
+  assert.equal(
+    dubois.outreach_window.bucket,
+    dubois.timing.window.bucket,
+    'window and timing describe the headline actually shown'
+  );
+
+  // A household whose only matched signal is already on the page keeps it;
+  // nothing is made up to be different.
+  for (const item of digest.items) {
+    const own = new Set([...item.matched_signals]);
+    assert.ok(own.has(item.lead_signal.type), `${item.household_id} headlines a signal it matched`);
+  }
+});
+
+test('a household whose best-paying match is thin still gets its row from a product that is not', () => {
+  // Tanaka's highest-benefit match rests on one signal. Gating the household
+  // on that row alone dropped him from the mail while three products he
+  // qualified for on two or more signals went unread.
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 28, pace: false });
+  const ids = new Set(digest.items.map((i) => i.household_id));
+  for (const id of ['hh_tanaka', 'hh_marchetti', 'hh_sorensen', 'hh_oyelaran']) {
+    assert.ok(ids.has(id), `${id} reaches the mail`);
+  }
+  assert.equal(digest.dropped.thin_signal, 0, 'nothing is filed as thin while a corroborated row exists');
+  for (const item of digest.items) {
+    assert.ok(item.supporting_signal_count >= 2, `${item.household_id} row is corroborated`);
+  }
+  assert.equal(ids.size, bookSize(DEMO_ADVISOR), 'every household in the book is reachable');
+});
+
+test('a five-row mail does not spend three rows on one category', () => {
+  // Three travel cards under three different headlines are still three travel
+  // rows. The category is never capped, but a repeat has to cost something.
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 5 });
+  const perCategory = new Map();
+  for (const i of digest.items) {
+    perCategory.set(i.product.category, (perCategory.get(i.product.category) || 0) + 1);
+  }
+  assert.ok(Math.max(...perCategory.values()) <= 2, `no category takes more than 2 of 5 rows: ${[...perCategory]}`);
+  assert.equal(new Set(digest.items.map((i) => i.product.id)).size, 5, 'five distinct products');
+  assert.equal(new Set(digest.items.map((i) => i.lead_signal?.label)).size, 5, 'five distinct headlines');
+});
+
+test('reserved life-event rows scale with the length of the mail', () => {
+  const short = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 5 });
+  const long = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 10 });
+  const events = (d) => d.items.filter((i) => i.lead_signal?.kind === 'life_event').length;
+  assert.equal(short.pacing.life_event_slots, 2);
+  assert.equal(long.pacing.life_event_slots, 3);
+  assert.ok(events(short) >= 2, `two reserved in five rows, got ${events(short)}`);
+  assert.ok(events(long) >= 3, `three reserved in ten rows, got ${events(long)}`);
+  // An explicit choice is respected as given.
+  const pinned = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 10, lifeEventSlots: 1 });
+  assert.equal(pinned.pacing.life_event_slots, 1);
+});
+
+test('rows past the floor are only added when they bring a new product and headline', () => {
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 12, minItems: 10 });
+  assert.equal(digest.pacing.min_items, 10);
+  assert.equal(digest.pacing.max_items, 12);
+  assert.ok(digest.items.length >= 10 && digest.items.length <= 12, `got ${digest.items.length} rows`);
+  // The caps are sized to the floor, so the ceiling never loosens them: a
+  // twelve-row mail still allows at most two of any product or headline.
+  const count = (key) =>
+    Math.max(...Object.values(digest.items.reduce((m, i) => ((m[key(i)] = (m[key(i)] || 0) + 1), m), {})));
+  assert.ok(count((i) => i.product.id) <= 2, 'no product more than twice in twelve rows');
+  assert.ok(count((i) => i.lead_signal?.label) <= 2, 'no headline more than twice in twelve rows');
+
+  // Without a floor the length is simply the ceiling, as before.
+  const fixed = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 12 });
+  assert.equal(fixed.pacing.min_items, 12);
+  assert.equal(fixed.items.length, 12);
+
+  // On a book too thin to say three different things, the floor is where the
+  // mail stops. Alvarez and Dubois both qualify for overdraft protection; a
+  // fixed three-row mail prints it twice, a two-to-three-row mail prints the
+  // savings row, the first overdraft row, and leaves the second out.
+  const thin = {
+    ...provider,
+    getAdvisors: () =>
+      provider
+        .getAdvisors()
+        .map((a) =>
+          a.id === DEMO_ADVISOR ? { ...a, household_ids: ['hh_alvarez', 'hh_dubois', 'hh_sorensen'] } : a
+        ),
+  };
+  const padded = buildAdvisorDigest({ provider: thin, advisorId: DEMO_ADVISOR, maxItems: 3 });
+  assert.equal(padded.items.length, 3);
+  assert.equal(padded.items.filter((i) => i.product.id === 'overdraft-protection').length, 2);
+  const floored = buildAdvisorDigest({ provider: thin, advisorId: DEMO_ADVISOR, maxItems: 3, minItems: 2 });
+  assert.equal(floored.items.length, 2, 'the third row would have repeated a product, so it is not added');
+  assert.equal(new Set(floored.items.map((i) => i.product.id)).size, 2);
+
+  // And where the caps alone would still allow a repeat past the floor, the
+  // extra row has to be new anyway. Okoro's book fills eight rows with seven
+  // products when the length is fixed; with a floor of six, the two rows past
+  // it each bring a product the page has not shown.
+  const distinct = (d) => new Set(d.items.map((i) => i.product.id)).size;
+  const okoroFixed = buildAdvisorDigest({ provider, advisorId: 'adv_okoro', maxItems: 8 });
+  const okoroFloored = buildAdvisorDigest({ provider, advisorId: 'adv_okoro', maxItems: 8, minItems: 6 });
+  assert.equal(okoroFixed.items.length, 8);
+  assert.equal(okoroFloored.items.length, 8);
+  assert.ok(distinct(okoroFixed) < 8, 'the fixed-length mail repeats a product');
+  assert.equal(distinct(okoroFloored), 8, 'the floored mail does not');
+});
+
+test('one household still gets one row', () => {
+  // Keeping every match rather than the household's best is what makes the
+  // variety possible, and is also the obvious way to start mailing an advisor
+  // about the same family three times in one morning.
+  const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 10 });
+  const ids = digest.items.map((i) => i.household_id);
+  assert.equal(new Set(ids).size, ids.length, 'no household appears twice');
+});
+
+test('the heaviest event keeps its row at any digest size', () => {
+  // The guard that stops reservation narrowing the mail used to read one row
+  // at a time, and said a swap "loses a product" even when the row coming in
+  // carried the same product as the row going out. A retirement horizon on a
+  // managed portfolio therefore held its place against an inheritance on the
+  // same managed portfolio, and the heaviest event in the book fell out of
+  // the ten-row digest while staying in the five-row one.
+  for (const maxItems of [5, 10]) {
+    const digest = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems });
+    assert.ok(
+      digest.items.some((i) => i.lead_signal?.type === 'estate_inflow'),
+      `an inheritance should hold a row in a ${maxItems}-row digest`
+    );
+  }
+});
+
 test('reserved rows do not take over the digest', () => {
   // 22 of 28 households carry an event. Promoting rather than reserving would
   // swap one monoculture for another.
@@ -1101,17 +1603,37 @@ test('reserved rows do not take over the digest', () => {
   );
 });
 
-test('reservation can be turned off', () => {
-  const digest = buildAdvisorDigest({
+test('reservation decides which event gets the row, not whether one does', () => {
+  // This used to assert that turning reservation off emptied the mail of life
+  // events, because ranking by defensibility swept every unpriced row out.
+  // Selecting for variety surfaces them on their own now, so reservation has a
+  // narrower job: making sure the rows go to the events that matter most.
+  const off = buildAdvisorDigest({
     provider,
     advisorId: DEMO_ADVISOR,
     maxItems: 5,
     lifeEventSlots: 0,
   });
-  assert.equal(
-    digest.items.filter(isLifeEvent).length,
-    0,
-    'without reservation the defensible figures sweep the mail again'
+  const on = buildAdvisorDigest({ provider, advisorId: DEMO_ADVISOR, maxItems: 5 });
+
+  const types = (d) => d.items.filter(isLifeEvent).map((i) => i.lead_signal.type);
+  // Five rows on a fifty-five-product book are all priced rows now, so merit
+  // alone needs the longer mail to show an event. That is the case for
+  // reserving rows in the short one.
+  const offLonger = buildAdvisorDigest({
+    provider,
+    advisorId: DEMO_ADVISOR,
+    maxItems: 10,
+    lifeEventSlots: 0,
+  });
+  assert.ok(types(offLonger).length > 0, 'events reach the mail on merit without reservation');
+  assert.ok(
+    !types(off).includes('estate_inflow'),
+    'but the heaviest event is not guaranteed a row'
+  );
+  assert.ok(
+    types(on).includes('estate_inflow'),
+    'reservation is what promotes an inheritance over a kitchen renovation'
   );
 });
 
@@ -1380,4 +1902,66 @@ test('an undated row states no age rather than implying it is new', () => {
   const html = renderDigestTable(digest.items);
   assert.ok(!/First seen/.test(html));
   assert.ok(!/NEW<\/span>/.test(html));
+});
+
+// ---------------------------------------------------------------------------
+// summarizeThread
+// ---------------------------------------------------------------------------
+
+test('summarizeThread does not ask the model to summarize an empty thread', async () => {
+  let called = 0;
+  const gateway = {
+    async chatCompletion() {
+      called += 1;
+      // What the real model did when handed "(no prior turns)": it wrote a
+      // confident recap of a support ticket that never existed.
+      return {
+        response: {
+          ok: true,
+          async json() {
+            return {
+              choices: [
+                {
+                  message: {
+                    content:
+                      'A client is reporting a permission denied error and a colleague is investigating.',
+                  },
+                },
+              ],
+            };
+          },
+        },
+      };
+    },
+  };
+
+  const empty = await summarizeThread({ gateway, turns: [] });
+  const blank = await summarizeThread({ gateway, turns: [{ direction: 'inbound', text: '  ' }] });
+
+  assert.equal(called, 0, 'nothing to summarize means no call to make');
+  assert.match(empty, /nothing for me to recap/);
+  assert.match(blank, /nothing for me to recap/);
+  assert.doesNotMatch(empty, /permission denied/);
+});
+
+test('summarizeThread summarizes a thread that has content', async () => {
+  const gateway = {
+    async chatCompletion({ messages }) {
+      assert.match(messages.at(-1).content, /who fits the travel card/);
+      return {
+        response: {
+          ok: true,
+          async json() {
+            return { choices: [{ message: { content: 'You asked who fits the travel card.' } }] };
+          },
+        },
+      };
+    },
+  };
+
+  const text = await summarizeThread({
+    gateway,
+    turns: [{ direction: 'inbound', text: 'who fits the travel card' }],
+  });
+  assert.match(text, /travel card/);
 });

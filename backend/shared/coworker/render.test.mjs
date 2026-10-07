@@ -8,6 +8,7 @@ import {
   renderAudienceTable,
   renderBullets,
   renderDigestTable,
+  renderNotes,
   renderOutreachDraft,
   renderReconciliation,
   renderShell,
@@ -247,6 +248,30 @@ test('rendered output uses no em dashes', () => {
     forwardMove: 'Next thing?',
   });
   assert.doesNotMatch(html, /\u2014/);
+});
+
+test('renderNotes keeps dash-led lines as a list and the rest as paragraphs', () => {
+  const html = renderNotes('Going in, two things matter.\n- Renovation underway\n- Avoids selling\nClose on the HELOC.');
+  assert.match(html, /<p[^>]*>Going in, two things matter\.<\/p>/);
+  assert.match(html, /<li[^>]*>Renovation underway<\/li>/);
+  assert.match(html, /<li[^>]*>Avoids selling<\/li>/);
+  assert.match(html, /<p[^>]*>Close on the HELOC\.<\/p>/);
+  assert.equal((html.match(/<ul/g) || []).length, 1, 'consecutive bullets share one list');
+});
+
+test('renderNotes marks up the one piece of markdown the prep model emits', () => {
+  assert.match(renderNotes('**Talking point:** ask about the contractor.'), /<strong>Talking point:<\/strong>/);
+});
+
+test('renderNotes escapes before it emphasizes, so notes cannot inject markup', () => {
+  const html = renderNotes('<script>alert(1)</script>');
+  assert.doesNotMatch(html, /<script/);
+  assert.match(html, /&lt;script&gt;/);
+});
+
+test('renderNotes says so rather than rendering an empty panel', () => {
+  assert.match(renderNotes(''), /No notes/);
+  assert.match(renderNotes('   \n  '), /No notes/);
 });
 
 test('renderBullets handles empty and non-empty', () => {

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "note": "Cross-category signals per household: canonical life events, behavioral patterns, risk flags, and a financial posture summary. Confidence bands (high/medium/low) mirror the production lifestyle/risk detectors. These are the evidence the Coworker cites. Every household carries at least two signals so no digest row rests on a single balance the advisor can already see. Risk flags are exclusions the institution applies, not determinations Ventus makes.",
+  "note": "Cross-category signals per household: canonical life events, behavioral patterns, risk flags, and a financial posture summary. Confidence bands (high/medium/low) mirror the production lifestyle/risk detectors. These are the evidence the Coworker cites. Every household carries at least two signals so no digest row rests on a single balance the advisor can already see. Risk flags are exclusions the institution applies, not determinations Ventus makes. Households also carry a share of the 55-product bank catalog’s vocabulary (snake_case tokens such as college_bound, job_change, rollover_401k, grocery_heavy_spend), authored with the same evidence discipline so the catalog’s newer products have something to fire on until detection emits those tokens itself.",
   "signals": {
     "hh_okafor": {
       "life_events": [],
@@ -14,6 +14,16 @@
           "name": "Pays card in full",
           "level": "HIGH",
           "evidence": "No revolving balance; cashback card cleared every cycle for 12 months."
+        },
+        {
+          "name": "business_travel_reimbursed",
+          "level": "HIGH",
+          "evidence": "Seven of nine flights were followed by an employer reimbursement deposit within ten days."
+        },
+        {
+          "name": "loyalty_spend",
+          "level": "MEDIUM",
+          "evidence": "All nine flights and four of seven hotel stays were with the same airline and its partner chain."
         }
       ],
       "risk": [],
@@ -42,6 +52,16 @@
           "name": "Recurring savings transfers",
           "level": "HIGH",
           "evidence": "Automated $1,500/mo transfer to savings."
+        },
+        {
+          "name": "grocery_heavy_spend",
+          "level": "HIGH",
+          "evidence": "Grocery runs about $760 a month, up 28% since spring, and is the largest card category."
+        },
+        {
+          "name": "single_earner_household",
+          "level": "MEDIUM",
+          "evidence": "One payroll depositor since July; the second payroll stopped the same month the OB visits began."
         }
       ],
       "risk": [],
@@ -70,6 +90,11 @@
           "name": "Avoids liquidating investments",
           "level": "MED",
           "evidence": "Funding renovation from checking, not portfolio; dividend income reinvested."
+        },
+        {
+          "name": "multiple_properties",
+          "level": "HIGH",
+          "evidence": "Property tax paid to two counties and a second set of utilities on Whidbey Island."
         }
       ],
       "risk": [],
@@ -93,6 +118,11 @@
           "name": "Cash-advance / gambling spend",
           "level": "MED",
           "evidence": "DraftKings charge alongside a low checking buffer."
+        },
+        {
+          "name": "high_cost_debt",
+          "level": "HIGH",
+          "evidence": "Minimum payments to two store cards and a 29% APR card, about $410 a month in interest."
         }
       ],
       "risk": [
@@ -137,6 +167,16 @@
           "name": "Pays card in full",
           "level": "HIGH",
           "evidence": "Cashback card cleared every cycle across 12 months, no interest charges."
+        },
+        {
+          "name": "rent_above_mortgage",
+          "level": "MEDIUM",
+          "evidence": "Rent of $2,650 a month, above the local payment on a purchase in the range she has been saving toward."
+        },
+        {
+          "name": "moving_deposits",
+          "level": "HIGH",
+          "evidence": "Deposit to an interstate mover and a new-state utility connection fee in the last 30 days."
         }
       ],
       "risk": [],
@@ -171,6 +211,21 @@
           "name": "Pays card in full",
           "level": "HIGH",
           "evidence": "No revolving balance on the cashback card across 12 months."
+        },
+        {
+          "name": "estate_attorney",
+          "level": "HIGH",
+          "evidence": "Two payments to an estate-planning attorney in the last 30 days."
+        },
+        {
+          "name": "large_charitable_giving",
+          "level": "HIGH",
+          "evidence": "Gifts of $25,000 and $15,000 to two charities since the inflow landed."
+        },
+        {
+          "name": "premium_cabin_bookings",
+          "level": "HIGH",
+          "evidence": "Six of eleven flights this year booked in business or first."
         }
       ],
       "risk": [],
@@ -193,6 +248,16 @@
           "name": "Building emergency fund",
           "level": "MED",
           "evidence": "$500/mo to savings."
+        },
+        {
+          "name": "car_shopping",
+          "level": "HIGH",
+          "evidence": "Two refundable dealer test-drive deposits and a vehicle-history report purchase in the last three weeks."
+        },
+        {
+          "name": "steady_payroll",
+          "level": "HIGH",
+          "evidence": "Biweekly payroll from the same employer for 31 months."
         }
       ],
       "risk": [],
@@ -228,6 +293,16 @@
           "name": "Pays card in full",
           "level": "HIGH",
           "evidence": "Cashback card cleared every cycle across 12 months."
+        },
+        {
+          "name": "equity_comp",
+          "level": "HIGH",
+          "evidence": "Quarterly RSU vest deposits from the employer, about $38,000 each."
+        },
+        {
+          "name": "recent_fraud_resolved",
+          "level": "MEDIUM",
+          "evidence": "A disputed charge in August ended in a replacement card and a provisional credit made permanent."
         }
       ],
       "risk": [],
@@ -261,6 +336,21 @@
           "name": "Dining-led discretionary",
           "level": "MED",
           "evidence": "About $14,600 in Dining Out and Coffee & Cafes over 12 months, the largest discretionary pillar after travel."
+        },
+        {
+          "name": "luxury_travel_spend",
+          "level": "HIGH",
+          "evidence": "Average hotel night of $540 across eleven stays; three stays at five-star properties."
+        },
+        {
+          "name": "lounge_fees_paid",
+          "level": "MEDIUM",
+          "evidence": "Four single-visit lounge charges this year, about $240 in total."
+        },
+        {
+          "name": "assets_across_custodians",
+          "level": "HIGH",
+          "evidence": "Statements and transfers from three outside custodians, including a brokerage and an old employer plan."
         }
       ],
       "risk": [],
@@ -288,6 +378,16 @@
           "name": "Pays card in full",
           "level": "HIGH",
           "evidence": "Cashback card cleared every cycle across 12 months."
+        },
+        {
+          "name": "second_property",
+          "level": "HIGH",
+          "evidence": "Three listing-site subscriptions and a $2,500 inspection deposit on a duplex in Long Beach."
+        },
+        {
+          "name": "steady_payroll",
+          "level": "HIGH",
+          "evidence": "Biweekly payroll from the same employer for 36 months."
         }
       ],
       "risk": [],
@@ -310,6 +410,21 @@
           "name": "Automated investing",
           "level": "MED",
           "evidence": "Recurring $250/mo brokerage buys started eight months ago."
+        },
+        {
+          "name": "credit_builder_products",
+          "level": "HIGH",
+          "evidence": "Monthly payment to a credit-builder loan app for eight months."
+        },
+        {
+          "name": "auto_loan_elsewhere",
+          "level": "HIGH",
+          "evidence": "Monthly $512 payment to an outside auto lender; the statement rate is 11.2%."
+        },
+        {
+          "name": "steady_payroll",
+          "level": "HIGH",
+          "evidence": "Biweekly payroll from the same employer for 19 months."
         }
       ],
       "risk": [
@@ -323,7 +438,9 @@
         "idle_cash_usd": 25600,
         "monthly_surplus_usd": 1100,
         "wallet_share": 0.28,
-        "posture": "saver"
+        "posture": "saver",
+        "auto_loan_balance_usd": 19800,
+        "auto_loan_rate_pct": 11.2
       }
     },
     "hh_lindqvist": {
@@ -343,6 +460,21 @@
           "name": "Pays card in full",
           "level": "HIGH",
           "evidence": "No revolving balance across 12 months; travel spend currently runs through a card held elsewhere."
+        },
+        {
+          "name": "fx_fees_paid",
+          "level": "HIGH",
+          "evidence": "Foreign transaction fees on fourteen purchases across two trips, about $210 in total."
+        },
+        {
+          "name": "travel_card_elsewhere",
+          "level": "HIGH",
+          "evidence": "Monthly payment to a competitor’s travel card for the last 12 months."
+        },
+        {
+          "name": "foreign_spend_regular",
+          "level": "HIGH",
+          "evidence": "Purchases in three currencies across 23 days abroad this year."
         }
       ],
       "risk": [],
@@ -366,6 +498,11 @@
           "name": "Rising family spend",
           "level": "HIGH",
           "evidence": "Grocery and household spend up 34% over the trailing quarter."
+        },
+        {
+          "name": "gift_deposits_for_child",
+          "level": "MEDIUM",
+          "evidence": "Three deposits labeled for the baby from relatives since the shower, $1,800 in total."
         }
       ],
       "risk": [],
@@ -382,6 +519,11 @@
           "type": "new_child_expected",
           "confidence_band": "medium",
           "evidence": "Pediatric registration and a second car-seat purchase in the last 45 days."
+        },
+        {
+          "type": "college_bound",
+          "confidence_band": "high",
+          "evidence": "SAT prep subscription, two campus-visit flights to Boston, and a Common App fee within one quarter."
         }
       ],
       "behavioral": [
@@ -389,6 +531,11 @@
           "name": "Rising family spend",
           "level": "MED",
           "evidence": "Childcare debits began three months ago and now run $1,850 a month."
+        },
+        {
+          "name": "steady_payroll",
+          "level": "HIGH",
+          "evidence": "Biweekly payroll from the same employer for 48 months."
         }
       ],
       "risk": [],
@@ -417,6 +564,16 @@
           "name": "Building emergency fund",
           "level": "HIGH",
           "evidence": "Savings balance up $18,000 over ten months with no withdrawals."
+        },
+        {
+          "name": "down_payment_saving",
+          "level": "HIGH",
+          "evidence": "Monthly $1,500 transfer labeled “house” into savings for fourteen months."
+        },
+        {
+          "name": "single_earner_household",
+          "level": "MEDIUM",
+          "evidence": "One payroll depositor; no second income on file."
         }
       ],
       "risk": [],
@@ -445,6 +602,11 @@
           "name": "Avoids liquidating investments",
           "level": "MED",
           "evidence": "No brokerage sales in 24 months despite two large cash outlays."
+        },
+        {
+          "name": "auto_premium_increase",
+          "level": "HIGH",
+          "evidence": "Auto insurer debit rose from $168 to $198 a month at the September renewal."
         }
       ],
       "risk": [],
@@ -469,6 +631,16 @@
           "name": "Large discretionary outlays",
           "level": "MED",
           "evidence": "Two payments above $8,000 to design and survey firms this quarter."
+        },
+        {
+          "name": "planned_large_expense",
+          "level": "HIGH",
+          "evidence": "Three contractor bids on file for the garage unit, totaling about $84,000."
+        },
+        {
+          "name": "ev_purchase",
+          "level": "HIGH",
+          "evidence": "A $4,000 deposit to an EV maker and a home charger installation in the last 60 days."
         }
       ],
       "risk": [],
@@ -498,6 +670,21 @@
           "name": "Avoids liquidating investments",
           "level": "HIGH",
           "evidence": "No sales in 36 months; distributions taken in cash instead."
+        },
+        {
+          "name": "managing_parent_finances",
+          "level": "HIGH",
+          "evidence": "Pays a memory-care facility and a parent’s utilities every month."
+        },
+        {
+          "name": "estate_attorney",
+          "level": "HIGH",
+          "evidence": "Retainer and two follow-up payments to an estate attorney since June."
+        },
+        {
+          "name": "inherited_retirement_assets",
+          "level": "HIGH",
+          "evidence": "Inbound transfer from a deceased parent’s IRA custodian, $214,000."
         }
       ],
       "risk": [],
@@ -521,6 +708,21 @@
           "name": "Automated investing",
           "level": "HIGH",
           "evidence": "Recurring $1,200 monthly brokerage purchases running for three years."
+        },
+        {
+          "name": "rollover_401k",
+          "level": "HIGH",
+          "evidence": "Statements from three former employer plans; one plan has sent a mandatory-distribution notice."
+        },
+        {
+          "name": "scattered_retirement_accounts",
+          "level": "HIGH",
+          "evidence": "Retirement balances held at three different plan administrators."
+        },
+        {
+          "name": "boat_rv_shopping",
+          "level": "MEDIUM",
+          "evidence": "A marina slip deposit and two boat-dealer visits in the last 45 days."
         }
       ],
       "risk": [],
@@ -544,6 +746,16 @@
           "name": "Automated investing",
           "level": "MED",
           "evidence": "Standing $450 monthly transfer to a brokerage account for 19 months."
+        },
+        {
+          "name": "cd_maturing",
+          "level": "HIGH",
+          "evidence": "A 12-month CD held at another bank, $42,000, matures on November 14."
+        },
+        {
+          "name": "lease_ending",
+          "level": "HIGH",
+          "evidence": "Auto lease payments 33 of 36 made; the lessor has sent the end-of-term notice."
         }
       ],
       "risk": [],
@@ -566,6 +778,21 @@
           "name": "Automated investing",
           "level": "LOW",
           "evidence": "A single $100 monthly transfer to an outside brokerage."
+        },
+        {
+          "name": "first_time_investor",
+          "level": "HIGH",
+          "evidence": "Opened and funded a $500 position on a trading app last month, with no prior investment activity."
+        },
+        {
+          "name": "new_pet",
+          "level": "HIGH",
+          "evidence": "A shelter adoption fee, a first vet visit, and a pet-supply order within three weeks."
+        },
+        {
+          "name": "regular_vet_visits",
+          "level": "MEDIUM",
+          "evidence": "Two vet visits in the first month, with a vaccination series scheduled."
         }
       ],
       "risk": [],
@@ -577,7 +804,13 @@
       }
     },
     "hh_qureshi": {
-      "life_events": [],
+      "life_events": [
+        {
+          "type": "job_change",
+          "confidence_band": "high",
+          "evidence": "Payroll depositor changed on September 15; the final paycheck from the old employer included a PTO payout."
+        }
+      ],
       "behavioral": [
         {
           "name": "Idle cash accumulation",
@@ -588,6 +821,11 @@
           "name": "Automated investing",
           "level": "LOW",
           "evidence": "A $200 monthly transfer to an outside robo account, unchanged for a year."
+        },
+        {
+          "name": "rollover_401k",
+          "level": "HIGH",
+          "evidence": "A $64,000 balance remains in the former employer’s plan; no rollover has been initiated."
         }
       ],
       "risk": [],
@@ -609,6 +847,11 @@
           "type": "relocation",
           "confidence_band": "medium",
           "evidence": "Payroll deposit switched to a new employer in a different metro."
+        },
+        {
+          "type": "marriage",
+          "confidence_band": "high",
+          "evidence": "A venue deposit, a jeweler purchase, and a registry within one quarter."
         }
       ],
       "behavioral": [
@@ -616,6 +859,11 @@
           "name": "Building emergency fund",
           "level": "HIGH",
           "evidence": "Savings up $40,000 over 18 months, untouched."
+        },
+        {
+          "name": "rent_increase",
+          "level": "HIGH",
+          "evidence": "Rent rose from $1,900 to $2,150 at the August renewal."
         }
       ],
       "risk": [],
@@ -644,6 +892,16 @@
           "name": "Large discretionary outlays",
           "level": "MED",
           "evidence": "Three payments above $4,000 to moving and title services this quarter."
+        },
+        {
+          "name": "second_property",
+          "level": "HIGH",
+          "evidence": "Earnest money wired to a title company and a second-home inspection paid in the last 30 days."
+        },
+        {
+          "name": "earnest_money_wire",
+          "level": "HIGH",
+          "evidence": "$18,000 wire to a title company on September 28."
         }
       ],
       "risk": [],
@@ -666,6 +924,16 @@
           "name": "Recurring savings transfers",
           "level": "MED",
           "evidence": "A standing $1,500 monthly transfer running for two years."
+        },
+        {
+          "name": "self_employed_income",
+          "level": "HIGH",
+          "evidence": "Deposits arrive from a payment processor; no W-2 payroll on file."
+        },
+        {
+          "name": "savings_elsewhere",
+          "level": "HIGH",
+          "evidence": "Monthly transfer to an online bank’s savings account for 18 months."
         }
       ],
       "risk": [],
@@ -688,6 +956,11 @@
           "name": "Volatile income",
           "level": "LOW",
           "evidence": "Contract income varied by about 20% month to month across the year."
+        },
+        {
+          "name": "income_jump",
+          "level": "HIGH",
+          "evidence": "Payroll deposits up 22% since August."
         }
       ],
       "risk": [],
@@ -707,6 +980,11 @@
           "name": "Volatile income",
           "level": "HIGH",
           "evidence": "Deposits ranged from $1,100 to $4,800 a month across the year."
+        },
+        {
+          "name": "gig_income",
+          "level": "HIGH",
+          "evidence": "Deposits from two gig platforms on irregular days of the week."
         }
       ],
       "risk": [
@@ -741,6 +1019,16 @@
           "name": "Idle cash accumulation",
           "level": "MED",
           "evidence": "Checking ran above $100,000 for six of the last nine months."
+        },
+        {
+          "name": "seeking_advice",
+          "level": "HIGH",
+          "evidence": "Three paid consultations with fee-only planners in the last 60 days."
+        },
+        {
+          "name": "advisory_fees_elsewhere",
+          "level": "HIGH",
+          "evidence": "Quarterly advisory fee debit to an outside RIA, about $2,100."
         }
       ],
       "risk": [],

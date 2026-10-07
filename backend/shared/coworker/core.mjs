@@ -39,9 +39,11 @@ import {
   resolveHousehold,
   retrieveEvidence,
   scanHouseholdMentions,
+  scanNamedTargets,
   summarizeSpend,
   summarizeThread,
 } from './tasks.mjs';
+import { runAgentTurn } from './agent.mjs';
 
 /**
  * @param {object} opts
@@ -57,6 +59,12 @@ import {
  *   { limit, windowMs }. Set limit<=0 to disable. Defaults to 12 / hour.
  * @param {number} [opts.maxBodyChars] cap on the message body fed to the model,
  *   to bound token cost / prompt-stuffing on an open inbox. Defaults to 8000.
+ * @param {boolean} [opts.agent] route the turn through the tool-calling agent
+ *   instead of the intent classifier and task switch. The agent can do several
+ *   things in one reply and answers what was asked rather than the nearest
+ *   task; the switch is more predictable. When the agent declines a turn the
+ *   switch runs anyway, so turning this on cannot leave an advisor unanswered.
+ *   OFF by default until it has beaten the switch on real mail.
  * @returns {Promise<object>} turn result
  */
 export async function runCoworkerTurn({
@@ -68,6 +76,7 @@ export async function runCoworkerTurn({
   demoOpen = false,
   rateLimit = { limit: 12, windowMs: 3600_000 },
   maxBodyChars = 8000,
+  agent = false,
 }) {
   if (!provider) throw new Error('runCoworkerTurn requires a portfolio provider');
   if (!gateway) throw new Error('runCoworkerTurn requires a model gateway');
@@ -178,31 +187,77 @@ export async function runCoworkerTurn({
   const householdRoster = advisorHouseholds(provider, advisor);
   const pendingOffer = priorThread?.pending_offer || null;
   const accepted = pendingOffer && isAffirmative(cleanBody);
-  const intent = accepted
-    ? { ...pendingOffer.intent, confidence: 1, accepted_offer: true }
-    : await classifyIntent(gateway, {
-        subject: message.subject,
-        body: cleanBody,
-        catalog: provider.getCatalog(),
-        households: householdRoster,
-        priorTurns: priorTurns.slice(-6),
-      });
 
-  // 7. Route + render. Prior tasks give us slot memory: e.g. "draft outreach for
+  // 7. Do the work. Prior tasks give us slot memory: e.g. "draft outreach for
   //    the top 3" resolves against the most recent audience we built.
   const priorTasks = await store.listTasks(threadId);
-  const rendered = await routeAndRender({
-    intent,
-    advisor,
-    provider,
-    gateway,
-    store,
-    threadId,
-    priorTasks,
-    messageText: accepted
-      ? pendingOffer.message_text || ''
-      : `${message.subject || ''} ${cleanBody}`,
-  });
+  const messageText = accepted
+    ? pendingOffer.message_text || ''
+    : `${message.subject || ''} ${cleanBody}`;
+
+  let intent = null;
+  let rendered = null;
+  let viaAgent = false;
+  // Why the agent handed the turn back, when it did. Carried out on the result
+  // because a decline is otherwise indistinguishable from a turn the agent was
+  // never asked to take: both look like the router answered.
+  let agentDecline = null;
+
+  // The agent gets first refusal on everything except a bare "yes" to a
+  // standing offer. An accepted offer is a promise already made in specific
+  // words, so it executes deterministically rather than being reinterpreted by
+  // a model that would be free to offer something adjacent instead.
+  if (agent && !accepted) {
+    rendered = await runAgentTurn({
+      provider,
+      gateway,
+      store,
+      advisor,
+      households: householdRoster,
+      threadId,
+      messageText,
+      priorTurns: priorTurns.slice(-6),
+      lastAudience: findLastAudience(priorTasks),
+      onDecline: (reason) => {
+        agentDecline = reason;
+      },
+    });
+    if (rendered) {
+      viaAgent = true;
+      // Stored as a known task type rather than as "agent", so a later turn on
+      // either path can still find the audience this one built.
+      intent = {
+        task_type: rendered.result?.candidates?.length ? 'audience_build' : 'other',
+        product_id: rendered.result?.product?.id || null,
+        household_id: rendered.householdId || null,
+        household_ids: null,
+        confidence: 1,
+        via: 'agent',
+      };
+    }
+  }
+
+  if (!rendered) {
+    intent = accepted
+      ? { ...pendingOffer.intent, confidence: 1, accepted_offer: true }
+      : await classifyIntent(gateway, {
+          subject: message.subject,
+          body: cleanBody,
+          catalog: provider.getCatalog(),
+          households: householdRoster,
+          priorTurns: priorTurns.slice(-6),
+        });
+    rendered = await routeAndRender({
+      intent,
+      advisor,
+      provider,
+      gateway,
+      store,
+      threadId,
+      priorTasks,
+      messageText,
+    });
+  }
 
   // 8. Build the outbound reply.
   const subject = replySubject(message.subject);
@@ -303,6 +358,12 @@ export async function runCoworkerTurn({
     turnIndex,
     advisorId: advisor.id,
     intent,
+    // Which path answered. Needed for shadow comparison, and worth keeping
+    // afterwards: "the agent declined this one" is the signal that says where
+    // it is still weak.
+    via: viaAgent ? 'agent' : 'router',
+    agent: rendered.agent || null,
+    agentDecline,
     acceptedOffer: Boolean(accepted),
     nameCheck: { passed: unknownNames.length === 0, unknown: unknownNames },
     reply: {
@@ -460,7 +521,41 @@ async function routeAndRender({
       // Narrow to specifically named households if the advisor named any — from
       // the classifier AND a deterministic scan of the raw message, so an explicit
       // "Draft for Okafor" always targets Okafor even if the model missed it.
-      const namedIds = resolveOutreachTargets({ intent, households, messageText });
+      const { ids: namedIds, unresolved } = resolveOutreachTargets({
+        intent,
+        households,
+        messageText,
+        catalog: provider.getCatalog(),
+      });
+
+      // The advisor named someone who is not in the book. Falling through here
+      // would draft for the fitting set instead, which means client-ready copy
+      // addressed to a household they never asked about.
+      if (unresolved.length) {
+        const missing = unresolved.map((n) => `"${n}"`).join(' or ');
+        if (namedIds.length) {
+          const kept = namedIds.map((id) => households.find((h) => h.id === id)?.name || id);
+          return {
+            ...clarify(
+              `I can't find ${missing} in your book. I can draft for ${kept.join(' and ')} on ${product.name} instead.`
+            ),
+            offer: {
+              intent: {
+                task_type: 'compose_outreach',
+                product_id: product.id,
+                household_id: null,
+                household_ids: namedIds,
+              },
+              label: `draft outreach for ${kept.join(' and ')}`,
+              message_text: '',
+            },
+          };
+        }
+        return clarify(
+          `I can't find ${missing} in your book, so I haven't drafted anything. Want me to screen the book for ${product.name} and draft for the households that fit?`
+        );
+      }
+
       if (namedIds.length) {
         const byId = new Map(candidates.map((c) => [c.household_id, c]));
         const picked = namedIds.map((id) => byId.get(id)).filter(Boolean);
@@ -555,8 +650,13 @@ async function routeAndRender({
       }
       const ev = retrieveEvidence({ provider, householdId: hh.id });
       if (!ev.found) return clarify(`I couldn't find a household matching "${hh.name}".`);
+      const unheld = unheldDatumAsk(messageText);
       return {
-        paragraphs: [`Here's what we hold on ${ev.household.name}:`],
+        paragraphs: [
+          unheld
+            ? `I don't have ${unheld}. Here's what we do hold on ${ev.household.name}:`
+            : `Here's what we hold on ${ev.household.name}:`,
+        ],
         sections: [{ heading: 'What we see', html: renderBullets(ev.bullets) }],
         forwardMove: 'Want me to prep you for a meeting with them?',
         offer: {
@@ -673,8 +773,9 @@ function findLastAudience(priorTasks = []) {
  * extracted ids with a deterministic scan of the raw message text. The text scan
  * is the reliable path; the classifier fields are a bonus.
  */
-function resolveOutreachTargets({ intent, households, messageText = '' }) {
+function resolveOutreachTargets({ intent, households, messageText = '', catalog = [] }) {
   const ids = [];
+  const unresolved = [];
   const add = (id) => {
     if (id && !ids.includes(id)) ids.push(id);
   };
@@ -683,10 +784,29 @@ function resolveOutreachTargets({ intent, households, messageText = '' }) {
   if (intent.household_id) mentions.push(intent.household_id);
   for (const m of mentions) {
     const hh = resolveHousehold(households, m);
-    if (hh) add(hh.id);
+    if (hh) {
+      add(hh.id);
+      continue;
+    }
+    // A name the advisor typed that matches nobody. Only counted when it really
+    // is in their message: the classifier sometimes puts a product or a stray
+    // phrase in this field, and that should not stop a legitimate draft.
+    const label = String(m || '').trim();
+    if (label && messageText.toLowerCase().includes(label.toLowerCase()) && !unresolved.includes(label)) {
+      unresolved.push(label);
+    }
   }
   for (const id of scanHouseholdMentions(messageText, households)) add(id);
-  return ids;
+
+  // The scan, not the classifier, is what actually stops a draft for an unknown
+  // household. The loop above only sees names the classifier echoed back, and it
+  // echoes nothing for a surname it does not recognize, which is precisely the
+  // case that needs catching.
+  for (const label of scanNamedTargets(messageText, { households, catalog })) {
+    if (!unresolved.some((u) => u.toLowerCase() === label.toLowerCase())) unresolved.push(label);
+  }
+
+  return { ids, unresolved };
 }
 
 /**
@@ -730,6 +850,37 @@ function ensureText(value, fallback) {
 function draftTargetPhrase(candidates = []) {
   if (candidates.length === 1) return candidates[0].household_name;
   return `the top ${Math.min(3, candidates.length)}`;
+}
+
+/**
+ * Asks for things the Coworker has no source for, however the message is
+ * phrased around a household we do know.
+ *
+ * Without this, "What is Okafor's account number?" classifies as an evidence
+ * request for Okafor and gets answered with a spending panel: nothing invented,
+ * but the advisor asked a question and was handed something else. Deliberately
+ * a short list of things we will never hold rather than an attempt to decide in
+ * general what evidence can answer.
+ *
+ * @param {string} messageText
+ * @returns {string|null} what we do not have, phrased for the reply
+ */
+export function unheldDatumAsk(messageText = '') {
+  const t = String(messageText).toLowerCase();
+  const checks = [
+    [/\b(account|routing|card|policy)\s*(number|numbers|#)\b/, 'account or card numbers'],
+    [/\bsocial security\b|\bssn\b/, 'social security numbers'],
+    [/\bcredit score\b|\bfico\b/, 'credit scores'],
+    [/\bdate of birth\b|\bdob\b/, 'dates of birth'],
+    [
+      /\bworth to (us|the (bank|firm|desk|business))\b|\blifetime value\b|\bltv\b|\brevenue (from|for|per)\b|\bprofitabilit/,
+      'a figure for what a household is worth to the desk',
+    ],
+  ];
+  for (const [pattern, label] of checks) {
+    if (pattern.test(t)) return label;
+  }
+  return null;
 }
 
 function clarify(text) {

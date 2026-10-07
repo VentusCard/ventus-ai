@@ -444,6 +444,41 @@ test('compose_outreach asks instead of drafting the wrong people when the named 
   assert.doesNotMatch(t2.reply.html, /DRAFT, NOT SENT/);
 });
 
+test('a household that does not exist gets a question, not client copy for whoever fits', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  // Row 14 of the path comparison. The classifier names the product and returns
+  // no household at all, because "Pemberton" matches nobody it has ever seen.
+  // That empty household_ids used to read as "they named no one", which let the
+  // draft fall through to the fitting set and produce a finished client email
+  // addressed to Ada Okafor.
+  const turn = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'dana.okoro@ventusai.com',
+      subject: 'outreach',
+      body: 'Draft outreach for the Pemberton family on the travel card.',
+      messageId: '<pemberton@mail>',
+    }),
+    provider,
+    gateway: routingGateway({
+      task_type: 'compose_outreach',
+      product_id: 'travel-card',
+      household_id: null,
+      household_ids: null,
+      confidence: 0.9,
+    }),
+    store,
+    clock,
+  });
+
+  assert.equal(turn.task.status, 'needs_input');
+  assert.match(turn.reply.html, /Pemberton/);
+  // The three things that must not appear: a draft, the household it would have
+  // been for, and the name it would have opened with.
+  assert.doesNotMatch(turn.reply.html, /DRAFT, NOT SENT/);
+  assert.doesNotMatch(turn.reply.html, /Okafor/);
+  assert.doesNotMatch(turn.reply.html, /\bAda\b/);
+});
+
 test('free-form question is answered by the grounded QA path, not a canned menu', async () => {
   const store = createCoworkerStore(createInMemoryBackend());
   // Intent classifier -> tool_calls; the QA task -> content answer that cites the
@@ -762,4 +797,142 @@ test('the reply carries exactly one greeting', async () => {
   const greetings = res.reply.html.match(/Hi Dana,/g) || [];
   assert.equal(greetings.length, 1);
   assert.match(res.reply.html, /happy to help with that one/);
+});
+
+// ---------------------------------------------------------------------------
+// Naming someone who is not in the book
+//
+// From twenty replies read side by side: asked to draft for a household that
+// does not exist, the router wrote finished client copy for whoever did fit.
+// ---------------------------------------------------------------------------
+
+test('a household that is not in the book never becomes a draft for someone else', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'jamie.lee@prospect.com',
+      subject: 'draft',
+      body: 'Draft outreach for the Pemberton family on the travel card.',
+    }),
+    provider,
+    gateway: routingGateway({
+      task_type: 'compose_outreach',
+      product_id: 'travel-card',
+      household_id: 'Pemberton family',
+      confidence: 0.9,
+    }),
+    store,
+    clock,
+    demoOpen: true,
+  });
+
+  assert.match(res.reply.html, /can.t find &quot;Pemberton family&quot;/);
+  assert.doesNotMatch(res.reply.html, /Okafor/, 'not a soul we were not asked about');
+  assert.doesNotMatch(res.reply.html, /REVIEW AND SEND/, 'and no client copy at all');
+});
+
+test('a real household named alongside an unknown one is offered, not assumed', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'jamie.lee@prospect.com',
+      subject: 'draft',
+      body: 'Draft outreach for Okafor and the Pemberton family on the travel card.',
+    }),
+    provider,
+    gateway: routingGateway({
+      task_type: 'compose_outreach',
+      product_id: 'travel-card',
+      household_ids: ['Okafor', 'Pemberton family'],
+      confidence: 0.9,
+    }),
+    store,
+    clock,
+    demoOpen: true,
+  });
+
+  assert.match(res.reply.html, /can.t find &quot;Pemberton family&quot;/);
+  assert.match(res.reply.html, /draft for Okafor Household/);
+  assert.doesNotMatch(res.reply.html, /REVIEW AND SEND/, 'the draft waits for a yes');
+});
+
+test('an ask for something we never hold is answered as such', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'jamie.lee@prospect.com',
+      subject: 'quick one',
+      body: "What is Okafor's account number?",
+    }),
+    provider,
+    gateway: routingGateway({ task_type: 'evidence', household_id: 'Okafor', confidence: 0.8 }),
+    store,
+    clock,
+    demoOpen: true,
+  });
+
+  assert.match(res.reply.html, /don't have account or card numbers/);
+  assert.match(res.reply.html, /What we see/, 'and still shows what we do hold');
+});
+
+test('markdown emphasis from the model is rendered, not shown', async () => {
+  const store = createCoworkerStore(createInMemoryBackend());
+  const gateway = {
+    async chatCompletion({ task }) {
+      if (task === 'coworker_intent_classification') {
+        return {
+          response: {
+            ok: true,
+            async json() {
+              return {
+                choices: [
+                  {
+                    message: {
+                      tool_calls: [
+                        {
+                          function: {
+                            arguments: JSON.stringify({
+                              task_type: 'prep',
+                              household_id: 'Okafor',
+                              confidence: 0.9,
+                            }),
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              };
+            },
+          },
+        };
+      }
+      return {
+        response: {
+          ok: true,
+          async json() {
+            return {
+              choices: [{ message: { content: 'Quick prep. **Talking point:** the idle cash.' } }],
+            };
+          },
+        },
+      };
+    },
+  };
+
+  const res = await runCoworkerTurn({
+    raw: rawEmail({
+      from: 'jamie.lee@prospect.com',
+      subject: 'prep',
+      body: 'Prep me for my call with Okafor tomorrow.',
+    }),
+    provider,
+    gateway,
+    store,
+    clock,
+    demoOpen: true,
+  });
+
+  assert.doesNotMatch(res.reply.html, /\*\*/, 'no asterisks in an advisor inbox');
+  assert.match(res.reply.html, /<strong>Talking point:<\/strong>/);
 });

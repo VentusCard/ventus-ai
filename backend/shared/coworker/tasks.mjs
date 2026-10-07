@@ -187,6 +187,26 @@ export function resolveHousehold(households = [], mention) {
   if (!mention) return null;
   const q = normalizeProductMention(mention); // reuse: lowercase, alnum, single-spaced
   if (!q) return null;
+  const direct = resolveHouseholdExact(households, mention, q);
+  if (direct) return direct;
+  // "the Lindqvists", "Lindqvist's", "the Alvarezes": an advisor names a family
+  // in the plural or the possessive as often as not, and normalisation has
+  // already dropped the apostrophe. Try again with the ending taken off.
+  for (const singular of singularForms(q)) {
+    const hit = resolveHouseholdExact(households, singular, singular);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+function singularForms(q) {
+  const forms = [];
+  if (q.endsWith('es')) forms.push(q.slice(0, -2));
+  if (q.endsWith('s')) forms.push(q.slice(0, -1));
+  return forms.filter((f) => f.length >= 3);
+}
+
+function resolveHouseholdExact(households, mention, q) {
   // 1. Exact id.
   const byId = households.find((h) => h.id === mention || normalizeProductMention(h.id) === q);
   if (byId) return byId;
@@ -231,7 +251,10 @@ export function scanHouseholdMentions(text, households = []) {
     const surname = name.replace(/ household$/, '').trim();
     const contact = normalizeProductMention(h.primary_contact);
     const id = normalizeProductMention(h.id); // e.g. "hh okafor"
-    const needles = [surname, contact, id, id.replace(/^hh /, '')].filter(
+    // Plural and possessive forms of the surname count as mentions too: "the
+    // Lindqvists" and "Lindqvist's" (apostrophe already stripped) both name
+    // the family.
+    const needles = [surname, `${surname}s`, `${surname}es`, contact, id, id.replace(/^hh /, '')].filter(
       (t) => t && t.length >= 3
     );
     if (needles.some((t) => q.includes(` ${t} `)) && !ids.includes(h.id)) {
@@ -239,6 +262,69 @@ export function scanHouseholdMentions(text, households = []) {
     }
   }
   return ids;
+}
+
+// Capitalized words that follow a targeting preposition without being anyone's
+// surname. Articles and connectives are here because a subject line in caps
+// ("DRAFT OUTREACH FOR THE TRAVEL CARD") defeats the capitalization test.
+const NOT_A_SURNAME = new Set([
+  'the', 'and', 'for', 'with', 'this', 'that', 'them', 'these', 'those', 'your',
+  'our', 'their', 'from', 'into', 'about', 'both', 'all', 'everyone', 'everybody',
+  'draft', 'drafts', 'prep', 'screen', 'send', 'write', 'also', 'please', 'want',
+  'next', 'top', 'best', 'household', 'households', 'family', 'families',
+  'client', 'clients', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
+  'saturday', 'sunday', 'january', 'february', 'march', 'april', 'may', 'june',
+  'july', 'august', 'september', 'october', 'november', 'december',
+]);
+
+// "for Pemberton", "to the Pembertons", "for the Pemberton family". Two words at
+// most: a third is nearly always the start of the rest of the sentence.
+//
+// The prepositions are spelled out per character rather than carrying the `i`
+// flag, because the flag would apply to the capture too. The capture has to stay
+// case-sensitive: an initial capital is the only thing separating a surname from
+// an ordinary noun, and without it "about the renovation" reads as a household.
+// Spelling out the prepositions is what lets a shouted subject line still match.
+const TARGET_PHRASE =
+  /\b(?:[Ff][Oo][Rr]|[Tt][Oo]|[Aa][Bb][Oo][Uu][Tt])\s+(?:[Tt][Hh][Ee]\s+)?([A-Z][A-Za-z'\u2019-]{2,}(?:\s+[A-Z][A-Za-z'\u2019-]{2,})?)/g;
+
+/**
+ * Scan free text for households the advisor named that the roster does not have.
+ *
+ * `scanHouseholdMentions` answers "who did they name that we hold".  This answers
+ * the more dangerous question: did they name somebody we do not hold.  The intent
+ * classifier cannot be trusted with it, because the case that matters is exactly
+ * the case where it stays silent: a surname it has never seen comes back as an
+ * empty `household_ids`, which is indistinguishable downstream from "they named
+ * nobody" and lets an outreach draft fall through to whoever happens to fit.
+ *
+ * Only proper-noun shapes after a targeting preposition count, and catalog words
+ * are discounted, so "draft for High-Yield Savings" and "draft for the top 3" are
+ * not read as people.
+ *
+ * @param {string} text
+ * @param {{households?: object[], catalog?: object[]}} context
+ * @returns {string[]} names, as the advisor wrote them, that resolve to nobody
+ */
+export function scanNamedTargets(text, { households = [], catalog = [] } = {}) {
+  const productWords = new Set();
+  for (const p of catalog) {
+    const words = `${normalizeProductMention(p?.name)} ${normalizeProductMention(p?.id)}`;
+    for (const w of words.split(' ')) if (w.length >= 3) productWords.add(w);
+  }
+
+  const found = [];
+  for (const match of String(text || '').matchAll(TARGET_PHRASE)) {
+    const label = match[1].replace(/\s+(?:Household|Family)$/i, '').trim();
+    const norm = normalizeProductMention(label);
+    if (norm.length < 3) continue;
+    // Nothing in it could be a surname, so it is a product or a turn of phrase.
+    if (norm.split(' ').every((w) => NOT_A_SURNAME.has(w) || productWords.has(w))) continue;
+    if (resolveHousehold(households, label)) continue;
+    if (found.some((f) => f.toLowerCase() === label.toLowerCase())) continue;
+    found.push(label);
+  }
+  return found;
 }
 
 // ---------------------------------------------------------------------------
@@ -260,6 +346,59 @@ function levelWord(level) {
   }
 }
 
+/** Whole dollars, sign carried by the wording rather than by the glyph. */
+function money(n) {
+  return `$${Math.round(Math.abs(Number(n))).toLocaleString('en-US')}`;
+}
+
+// An amount or a rate, together with the words that introduce it. Both halves
+// matter: dropping "$8,000" out of "two payments above $8,000 to design firms"
+// leaves a dangling "above", and the point of redacting is to hand the model a
+// sentence it can still read. Stacked lead-ins are real ("totaling about
+// $18,400"), so the group repeats.
+const LEAD_IN =
+  '(?:\\s*\\b(?:totaling|totalling|ranging|about|roughly|approximately|around|near|nearly|over|under|above|below|up\\s+to|at|of)\\b)*';
+const AMOUNT = '\\$\\s?\\d[\\d,]*(?:\\.\\d+)?\\s?(?:k|m|bn?)?\\+?';
+const PER_PERIOD = '(?:\\s?\\/\\s?(?:mo|month|yr|year))?';
+
+const FIGURE_WITH_LEAD_IN = new RegExp(
+  `${LEAD_IN}\\s*${AMOUNT}(?:\\s?[-\u2013]\\s?${AMOUNT})?${PER_PERIOD}`,
+  'gi'
+);
+
+// No trailing \b after the percent sign: it is not a word character, so the
+// boundary never matched and every rate survived the redaction.
+const RATE_WITH_LEAD_IN = new RegExp(
+  `${LEAD_IN}\\s*\\d[\\d,]*(?:\\.\\d+)?\\s?(?:%|percent\\b|bps\\b|basis\\s+points\\b)`,
+  'gi'
+);
+
+/**
+ * The same sentence with the money and the rates taken out.
+ *
+ * Evidence sentences are the raw material a model needs to write an
+ * evidence-first reply: the merchants, the categories, the counts, the window.
+ * The amounts in them are not, and showing them is what put figures into prose
+ * that then could not be sent. The advisor still sees the full sentence, in the
+ * attached panel; the model reasons from the redacted one and cannot quote a
+ * figure it was never given.
+ */
+export function redactFigures(text) {
+  const stripped = String(text || '')
+    // A space, not nothing: the lead-in words carry the space before them, and
+    // removing both closed "two payments above $8,000 to" into "paymentsto".
+    .replace(FIGURE_WITH_LEAD_IN, ' ')
+    .replace(RATE_WITH_LEAD_IN, ' ')
+    .replace(/\(\s*\)/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([.,;:])/g, '$1')
+    .replace(/([,;:])\s*(?=[.,;:])/g, '')
+    .trim();
+  // A figure can open a sentence ("$28k+ across Home Depot, ..."), and removing
+  // it leaves the next word lowercase mid-bullet.
+  return stripped.charAt(0).toUpperCase() + stripped.slice(1);
+}
+
 /**
  * Gather the evidence we hold on a household: signals plus a compact
  * transaction rollup. Returns plain sentences ready to bullet in a reply, with
@@ -276,7 +415,7 @@ export function retrieveEvidence({ provider, householdId }) {
     bullets.push(`${lifeEventLabel(ev.type)}, ${ev.confidence_band} confidence. ${ev.evidence}`);
   }
   for (const b of signals.behavioral || []) {
-    bullets.push(`${b.name}, ${levelWord(b.level)}. ${b.evidence}`);
+    bullets.push(`${signalLabel(b.name)}, ${levelWord(b.level)}. ${b.evidence}`);
   }
   for (const r of signals.risk || []) {
     const label = exclusionLabel(r.type);
@@ -284,14 +423,85 @@ export function retrieveEvidence({ provider, householdId }) {
       `${label.charAt(0).toUpperCase()}${label.slice(1)}, which the institution treats as an exclusion for some products. ${r.evidence}`
     );
   }
+  // What the model is shown. Same sentences, no amounts. The advisor reads the
+  // full bullets in the attached panel; the model reasons from these and so
+  // cannot quote a figure, which is the only way the no-figures rule is a rule
+  // the model can actually follow rather than a trap it keeps falling into.
+  const modelBullets = bullets.map(redactFigures);
+
   const fin = signals.financial || {};
   if (fin.idle_cash_usd != null) {
+    const idle = Number(fin.idle_cash_usd);
+    const surplus = Number(fin.monthly_surplus_usd);
+    const clauses = [];
+    // Zero idle cash is not a fact worth a clause. "About $0 sitting
+    // uninvested" reads as a measurement when it is the absence of one, and on
+    // a juggler household it is the least interesting thing we hold.
+    if (Number.isFinite(idle) && idle > 0) clauses.push(`about ${money(idle)} sitting uninvested`);
+    if (Number.isFinite(surplus) && surplus > 0) {
+      clauses.push(`roughly ${money(surplus)} of monthly surplus`);
+    } else if (Number.isFinite(surplus) && surplus < 0) {
+      // A negative surplus is a shortfall, and it is the signal an advisor most
+      // needs to catch. Formatted as a surplus it came out "$-150 of monthly
+      // surplus", which scans as a typo rather than as money going out.
+      clauses.push(`roughly ${money(-surplus)} a month more going out than coming in`);
+    }
     bullets.push(
-      `Posture is ${fin.posture}, with about $${Number(fin.idle_cash_usd).toLocaleString('en-US')} sitting uninvested and roughly $${Number(fin.monthly_surplus_usd).toLocaleString('en-US')} of monthly surplus.`
+      clauses.length
+        ? `Posture is ${fin.posture}, with ${clauses.join(' and ')}.`
+        : `Posture is ${fin.posture}.`
+    );
+
+    // Written qualitatively rather than redacted. This line is nothing but
+    // amounts, and stripping them leaves "with about sitting uninvested".
+    const qualitative = [];
+    if (Number.isFinite(idle) && idle > 0) qualitative.push('cash sitting uninvested');
+    if (Number.isFinite(surplus) && surplus > 0) qualitative.push('a monthly surplus');
+    else if (Number.isFinite(surplus) && surplus < 0) qualitative.push('more going out than coming in');
+    modelBullets.push(
+      qualitative.length
+        ? `Posture is ${fin.posture}, with ${qualitative.join(' and ')}.`
+        : `Posture is ${fin.posture}.`
     );
   }
 
-  return { found: true, householdId, household, signals, bullets };
+  return { found: true, householdId, household, signals, bullets, modelBullets };
+}
+
+/**
+ * What is active across a whole book, one row per household, no amounts.
+ *
+ * Exists because "which household has the most going on" had no tool behind it.
+ * The agent answered it by calling the single-household lookup five times, which
+ * burned its entire step budget, took twenty seconds, and then named a winner
+ * on the strength of five households out of twelve. A superlative needs the
+ * denominator in one call, or it is a guess with evidence attached.
+ *
+ * Ordered here rather than left to the model: life events count double, because
+ * something happening to a household outranks a pattern in how they spend.
+ */
+export function summarizeBookActivity({ provider, households = [] }) {
+  const rows = households
+    .map((hh) => {
+      const signals = provider.getSignals(hh.id) || {};
+      const lifeEvents = (signals.life_events || []).map((ev) => lifeEventLabel(ev.type));
+      const patterns = (signals.behavioral || []).map((b) => b.name);
+      const flags = (signals.risk || []).map((r) => exclusionLabel(r.type));
+      return {
+        household: hh.name,
+        life_events: lifeEvents,
+        patterns,
+        held_back_by: flags,
+        activity_score: lifeEvents.length * 2 + patterns.length,
+      };
+    })
+    .sort((a, b) => b.activity_score - a.activity_score || a.household.localeCompare(b.household));
+
+  return {
+    considered: households.length,
+    ordered_by: 'life events first, then behavioral patterns',
+    households: rows,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -333,15 +543,34 @@ export function resolveProduct(catalog = [], mention) {
     const name = normalizeProductMention(p.name);
     return id.includes(q) || q.includes(id) || name.includes(q) || q.includes(name);
   });
-  return contains.length === 1 ? contains[0] : null;
+  if (contains.length === 1) return contains[0];
+  // 4. A family of variants: "travel" matches the travel card and its premium
+  // tiers. When every other match contains the shortest one, the shortest is
+  // the base product and that is what an unqualified mention means. A mention
+  // that spans unrelated products ("insurance") still comes back null.
+  if (contains.length > 1) {
+    const base = contains.reduce((a, b) =>
+      normalizeProductMention(b.id).length < normalizeProductMention(a.id).length ? b : a,
+    );
+    const baseId = normalizeProductMention(base.id);
+    if (contains.every((p) => normalizeProductMention(p.id).includes(baseId))) return base;
+  }
+  return null;
 }
+
+/**
+ * Tokens derived from the financial block rather than detected by the pipeline.
+ * They can match a product, but they cannot headline an email the way an event
+ * or a spending pattern can: there is no evidence behind them and no date.
+ */
+const FINANCIAL_TOKENS = new Set(['idle_cash', 'home_equity', 'student_loan_balance', 'no_monthly_surplus']);
 
 /**
  * Reduce a household's signals + financials to a flat token set used for fit
  * matching. Tokens include behavioral names, life-event types, risk types, and
  * a few derived financial tokens.
  */
-export function householdTokens(signals = {}) {
+export function householdTokens(signals = {}, household = null) {
   const tokens = new Set();
   for (const b of signals.behavioral || []) tokens.add(b.name);
   for (const ev of signals.life_events || []) tokens.add(ev.type);
@@ -351,11 +580,31 @@ export function householdTokens(signals = {}) {
   if (fin.home_equity_usd != null) tokens.add('home_equity');
   if (fin.student_loan_balance_usd != null) tokens.add('student_loan_balance');
   if (Number(fin.monthly_surplus_usd) <= 0) tokens.add('no_monthly_surplus');
+  else if (fin.monthly_surplus_usd != null) tokens.add('monthly_surplus');
+
+  // Qualifiers the bank already knows from the relationship record. These are
+  // facts on file rather than detections, so they are derived here instead of
+  // being authored as signals. None of them can create a match on its own.
+  const rel = household?.relationship || {};
+  const held = rel.products_held || [];
+  if (fin.home_equity_usd != null || held.includes('mortgage')) tokens.add('owns_home');
+  if (Number(rel.aum_usd) >= HIGH_NET_WORTH_AUM_USD) tokens.add('high_net_worth');
+  if (held.length >= 3) tokens.add('multi_product_household');
   return tokens;
 }
 
-/** Hard gates: any disqualifier present in the household's risk/derived tokens. */
-function findDisqualifier(product, tokens, signals) {
+const HIGH_NET_WORTH_AUM_USD = 1_000_000;
+
+/**
+ * Hard gates: any disqualifier present in the household's risk/derived tokens,
+ * plus the one every product carries implicitly — we do not pitch a household
+ * something it already holds with us.
+ */
+function findDisqualifier(product, tokens, signals, household = null) {
+  const held = household?.relationship?.products_held || [];
+  if (held.includes(product.id) && (product.disqualifiers || []).includes('already_holds_product')) {
+    return 'already_holds_product';
+  }
   const riskTypes = new Set((signals.risk || []).map((r) => r.type));
   for (const dq of product.disqualifiers || []) {
     if (riskTypes.has(dq) || tokens.has(dq)) return dq;
@@ -363,10 +612,21 @@ function findDisqualifier(product, tokens, signals) {
   return null;
 }
 
-/** Count of product target_signals satisfied by the household token set. */
+/**
+ * Fit of a product to a household's token set.
+ *
+ * `target_signals` are the reasons a product is relevant now. `qualifying_signals`
+ * say the household is a good fit once something else has made it relevant —
+ * paying a card in full, holding equity, carrying a loan balance. A qualifier
+ * raises the score but can never create the match, because scoring the two the
+ * same way is what let "pays card in full" alone pitch a travel card to someone
+ * who never travels.
+ */
 function fitScore(product, tokens) {
   const matched = (product.target_signals || []).filter((s) => tokens.has(s));
-  return { score: matched.length, matched };
+  if (!matched.length) return { score: 0, matched: [], qualifying: [] };
+  const qualifying = (product.qualifying_signals || []).filter((s) => tokens.has(s));
+  return { score: matched.length + qualifying.length, matched, qualifying };
 }
 
 /**
@@ -413,10 +673,20 @@ export function leadSignal({ signals, matched = [] }) {
     return {
       type: matchedBehavioral.name,
       kind: 'behavioral',
-      label: matchedBehavioral.name,
+      label: signalLabel(matchedBehavioral.name),
       evidence: matchedBehavioral.evidence,
     };
   }
+
+  // A matched financial token has to outrank the fallbacks below. It is a worse
+  // headline than an event or a pattern — it carries no evidence and no date —
+  // but it is the reason the row exists. Ranking it last is what put "home
+  // renovation" at the top of a savings pitch that matched on idle cash alone.
+  const matchedFinancial = matched.find((m) => FINANCIAL_TOKENS.has(m));
+  if (matchedFinancial) {
+    return { type: matchedFinancial, kind: 'financial', label: signalLabel(matchedFinancial), evidence: null };
+  }
+
   if (events[0]) {
     return {
       type: events[0].type,
@@ -429,7 +699,7 @@ export function leadSignal({ signals, matched = [] }) {
     return {
       type: behavioral[0].name,
       kind: 'behavioral',
-      label: behavioral[0].name,
+      label: signalLabel(behavioral[0].name),
       evidence: behavioral[0].evidence,
     };
   }
@@ -441,12 +711,36 @@ export function leadSignal({ signals, matched = [] }) {
 }
 
 /**
- * Signals that actually support pitching this product to this household: the
- * matched targeting signals plus any life event on file. Used by the digest to
- * refuse rows that rest on a single data point.
+ * Every signal that could headline this row, in the order leadSignal prefers
+ * them: matched life events, then matched behavioral patterns. Each one drove
+ * the match and carries evidence, so any of them is an honest answer to "why
+ * is this row here". The digest uses the list to avoid headlining three rows
+ * with the same phrase when the households behind them had other reasons.
  */
-function supportingSignals({ signals, matched = [] }) {
-  const out = new Set(matched);
+export function leadSignalOptions({ signals, matched = [] }) {
+  const options = [];
+  for (const e of signals.life_events || []) {
+    if (matched.includes(e.type)) {
+      options.push({ type: e.type, kind: 'life_event', label: lifeEventLabel(e.type), evidence: e.evidence });
+    }
+  }
+  for (const b of signals.behavioral || []) {
+    if (matched.includes(b.name)) {
+      options.push({ type: b.name, kind: 'behavioral', label: signalLabel(b.name), evidence: b.evidence });
+    }
+  }
+  return options;
+}
+
+/**
+ * Signals that actually support pitching this product to this household: the
+ * matched targeting signals, the qualifiers they clear, plus any life event on
+ * file. Used by the digest to refuse rows that rest on a single data point — a
+ * qualifier belongs here even though it cannot create a match, because it is
+ * genuine corroboration once something else has.
+ */
+function supportingSignals({ signals, matched = [], qualifying = [] }) {
+  const out = new Set([...matched, ...qualifying]);
   for (const ev of signals.life_events || []) out.add(ev.type);
   return [...out];
 }
@@ -490,9 +784,9 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1, cont
     const household = provider.getHousehold(householdId);
     if (!household) continue;
     const signals = provider.getSignals(householdId) || {};
-    const tokens = householdTokens(signals);
+    const tokens = householdTokens(signals, household);
 
-    const dq = findDisqualifier(product, tokens, signals);
+    const dq = findDisqualifier(product, tokens, signals, household);
     if (dq) {
       excluded.push({
         household_id: householdId,
@@ -503,7 +797,7 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1, cont
       continue;
     }
 
-    const { score, matched } = fitScore(product, tokens);
+    const { score, matched, qualifying } = fitScore(product, tokens);
     if (score < minFit) {
       noSignal.push({ household_id: householdId, household_name: household.name });
       continue;
@@ -524,15 +818,26 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1, cont
       continue;
     }
 
-    const support = supportingSignals({ signals, matched });
+    const support = supportingSignals({ signals, matched, qualifying });
     const lead = leadSignal({ signals, matched });
 
     // Age the snapshot against read time rather than trusting the age it was
     // written with: the refresh runs at 11:00 and a send can happen any time
     // after, so a stored age_days is only ever correct at the moment of writing.
     const snapshot = context?.get(householdId) ? ageContext(context.get(householdId), now) : null;
-    const tracked = snapshot ? signalsByToken(snapshot).get(lead?.type) || null : null;
+    const byToken = snapshot ? signalsByToken(snapshot) : null;
+    const tracked = byToken ? byToken.get(lead?.type) || null : null;
     const timing = outreachTiming({ leadSignal: lead, signal: tracked, now });
+
+    // The other signals this row could headline with, each aged on its own
+    // clock. One that has expired is not offered: swapping it in later would
+    // put a closed window on a live row.
+    const leadOptions = leadSignalOptions({ signals, matched })
+      .map((option) => ({
+        lead: option,
+        timing: outreachTiming({ leadSignal: option, signal: byToken ? byToken.get(option.type) || null : null, now }),
+      }))
+      .filter((o) => o.timing.status !== 'expired');
 
     // A closed window is not a weak opportunity, it is a past one. Ranking it
     // low would still eventually float it back to the top on a quiet day, so it
@@ -565,6 +870,7 @@ export function buildAudience({ provider, advisorId, productId, minFit = 1, cont
       supporting_signals: support,
       supporting_signal_count: support.length,
       lead_signal: lead,
+      lead_options: leadOptions,
       outreach_window: timing.window,
       timing,
       // Rank key only. Never render this as a dollar figure — it is the benefit
@@ -681,17 +987,26 @@ export function buildAdvisorDigest({
   provider,
   advisorId,
   maxItems = 5,
+  minItems = null,
   context = null,
   touches = null,
   now = new Date(),
   cadence: cadenceOpts = {},
   pace = true,
-  lifeEventSlots = DEFAULT_LIFE_EVENT_SLOTS,
+  lifeEventSlots = null,
 }) {
   const catalog = provider.getCatalog() || [];
+  // Two reserved rows in a five-row mail is a lot; two in a ten-row mail is a
+  // mail that has gone back to being about card maths. Scale with the mail
+  // unless the caller has an opinion: a quarter of the rows, never fewer than
+  // the default.
+  if (lifeEventSlots == null) {
+    lifeEventSlots = Math.max(DEFAULT_LIFE_EVENT_SLOTS, Math.ceil(maxItems / 4));
+  }
   const advisor = provider.getAdvisors().find((a) => a.id === advisorId);
   const considered = advisor?.household_ids?.length || 0;
   const bestByHousehold = new Map();
+  const altByHousehold = new Map();
   // Households, not household-product pairs. The catalog is scanned product by
   // product, so the same closed window is reported once per product and a naive
   // sum reads as 22 expiries on a book of 12.
@@ -718,9 +1033,11 @@ export function buildAdvisorDigest({
         benefit_mode: c.benefit.mode,
         benefit_outcome: c.benefit_outcome,
         lead_signal: c.lead_signal,
+        lead_options: c.lead_options || [],
         outreach_window: c.outreach_window,
         timing: c.timing,
         priority: c.priority,
+        matched_signals: c.matched_signals,
         supporting_signals: c.supporting_signals,
         supporting_signal_count: c.supporting_signal_count,
         rationale: c.rationale,
@@ -729,6 +1046,16 @@ export function buildAdvisorDigest({
       if (!existing || beatsForDigest(item, existing)) {
         bestByHousehold.set(c.household_id, item);
       }
+      // Every match is kept, not just the household's best. A household still
+      // gets one row, but which product takes it is decided at selection time
+      // against what the rest of the mail already says. Discarding the runners
+      // up here is what made the digest repetitive: fourteen households match
+      // the savings account and thirteen of them price it above their
+      // alternatives, so it won every row it was allowed and the mortgage,
+      // the HELOC and the term life a household also qualified for were gone
+      // before anything could notice the mail had said "savings" four times.
+      if (!altByHousehold.has(c.household_id)) altByHousehold.set(c.household_id, []);
+      altByHousehold.get(c.household_id).push(item);
     }
   }
 
@@ -747,13 +1074,18 @@ export function buildAdvisorDigest({
   // and an operator looking at a thin digest needs to know which.
   const held = [];
 
-  const qualityPassed = [...bestByHousehold.values()].filter((item) => {
+  // `record` is on only for the household's best row. The gate now runs over
+  // every match so that a household whose best product is already well
+  // represented can still be reached through another one, but the counters
+  // and the held list stay per household: reporting "thin_signal: 31" for a
+  // book of 28 households would be arithmetic nobody could follow.
+  const passesQuality = (item, { record }) => {
     if (item.supporting_signal_count < 2) {
-      dropped.thin_signal++;
+      if (record) dropped.thin_signal++;
       return false;
     }
     if (item.supporting_signals.every((s) => isBalanceDerived(s))) {
-      dropped.balance_only++;
+      if (record) dropped.balance_only++;
       return false;
     }
 
@@ -768,20 +1100,44 @@ export function buildAdvisorDigest({
       ...cadenceOpts,
     });
     if (!cadence.ready) {
-      dropped[cadence.reason] = (dropped[cadence.reason] || 0) + 1;
-      held.push({
-        household_id: item.household_id,
-        household_name: item.household_name,
-        product_id: item.product.id,
-        reason: cadence.reason,
-        days_since: cadence.days_since,
-        next_eligible_at: cadence.next_eligible_at,
-      });
+      if (record) {
+        dropped[cadence.reason] = (dropped[cadence.reason] || 0) + 1;
+        held.push({
+          household_id: item.household_id,
+          household_name: item.household_name,
+          product_id: item.product.id,
+          reason: cadence.reason,
+          days_since: cadence.days_since,
+          next_eligible_at: cadence.next_eligible_at,
+        });
+      }
       return false;
     }
     item.cadence = cadence;
     return true;
-  });
+  };
+
+  // Cadence is per household *and* product, so a swapped-in product has to
+  // clear the gate on its own terms rather than inherit the best row's pass.
+  //
+  // The household's entry in the ranked list is its best *passing* product,
+  // not its best product. Gating on the best alone dropped four households
+  // from a 28-household book: each one's highest-paying match rested on a
+  // single signal, so the household was filed as thin while three other
+  // products it qualified for, each with two or more signals behind it, were
+  // never looked at. A drop is only recorded when nothing the household
+  // matches gets through.
+  const alternatives = new Map();
+  const qualityPassed = [];
+  for (const [householdId, list] of altByHousehold) {
+    const ok = list.filter((item) => passesQuality(item, { record: false }));
+    if (!ok.length) {
+      passesQuality(bestByHousehold.get(householdId), { record: true });
+      continue;
+    }
+    alternatives.set(householdId, ok);
+    qualityPassed.push(ok.reduce((a, b) => (beatsForDigest(b, a) ? b : a)));
+  }
 
   // How long a household has gone unmentioned, for the fairness term below.
   // Never contacted sorts ahead of everything, which is the right default: a
@@ -829,16 +1185,16 @@ export function buildAdvisorDigest({
   //
   // On a first run no household has been contacted, every bucket is equal, and
   // the ordering is the original one untouched.
-  qualityPassed.sort(
-    (a, b) =>
-      newsRank(a) - newsRank(b) ||
-      byWaited(a, b) ||
-      benefitRank(a.benefit_qualifier) - benefitRank(b.benefit_qualifier) ||
-      b.priority - a.priority ||
-      b.annual_benefit_usd - a.annual_benefit_usd ||
-      b.fit_score - a.fit_score ||
-      (a.household_id < b.household_id ? -1 : 1)
-  );
+  const rankForDigest = (a, b) =>
+    newsRank(a) - newsRank(b) ||
+    byWaited(a, b) ||
+    benefitRank(a.benefit_qualifier) - benefitRank(b.benefit_qualifier) ||
+    b.priority - a.priority ||
+    b.annual_benefit_usd - a.annual_benefit_usd ||
+    b.fit_score - a.fit_score ||
+    (a.household_id < b.household_id ? -1 : 1);
+
+  qualityPassed.sort(rankForDigest);
 
   // Pace the mail to what the book can sustain.
   //
@@ -879,32 +1235,165 @@ export function buildAdvisorDigest({
   // identically day to day, which is the complaint this was supposed to answer.
   const newsCount = qualityPassed.reduce((n, item) => n + (newsRank(item) === 0 ? 1 : 0), 0);
   const expectedRows = Math.min(maxItems, Math.max(pacedMax, newsCount));
-  const perProductCap = Math.max(1, Math.floor(expectedRows / 2));
-  const perProduct = new Map();
-  const items = [];
-  for (const item of qualityPassed) {
-    // News is never held back for pacing. Pacing exists to ration routine rows
-    // across the week; a signal that arrived overnight is the one thing that
-    // cannot wait for its turn.
-    const isNews = newsRank(item) === 0;
-    const limit = isNews ? maxItems : pacedMax;
-    if (items.length >= limit) {
-      // Only call it pacing when pacing is what cut it. A row that simply did
-      // not fit inside maxItems was not held for tomorrow, and counting it here
-      // would overstate how much the rationing is doing.
-      if (!isNews && pacedMax < maxItems) dropped.paced++;
-      continue;
-    }
-    const used = perProduct.get(item.product.id) || 0;
-    if (used >= perProductCap) {
-      dropped.product_concentration++;
-      continue;
-    }
-    perProduct.set(item.product.id, used + 1);
-    items.push(item);
-  }
 
-  reserveForLifeEvents({ items, ranked: qualityPassed, slots: lifeEventSlots });
+  // The mail has a floor and a ceiling rather than a fixed length. Rows up to
+  // the floor are filled the usual way; rows past it have to say something
+  // the mail has not said yet — a product and a headline both new to the page
+  // — or they are not added. A ten-row mail that could have been twelve
+  // because two more households had genuinely different things going on
+  // should be twelve; one that would have been twelve by repeating "savings"
+  // a third time should stay at ten. Caps and the relaxation loop are sized
+  // to the floor, so the ceiling never loosens them.
+  const floorRows = Math.min(expectedRows, minItems == null ? maxItems : Math.max(1, minItems));
+
+  // A fifth of the mail, not half of it.
+  //
+  // Half was never a variety rule, it was a ceiling on the worst case, and the
+  // worst case is what we got: five rows allowed two savings accounts and ten
+  // allowed five. The reader's complaint is not that a product repeats, it is
+  // that the mail reads the same every morning, and two of anything out of ten
+  // is the point where it stops reading that way. The lead signal is capped on
+  // the same terms, because two different products both headlined "cash
+  // sitting uninvested" is the same monotony wearing a different label.
+  const diversityCap = (rows) => Math.max(1, Math.ceil(rows / 5));
+
+  /**
+   * Fill the mail, giving each household the product that repeats least.
+   *
+   * Households are still visited in ranked order, so the most important
+   * conversation is still picked first; what changes is that the household's
+   * runner-up takes the row when its best product has already had its turn.
+   * Pure, so the caps can be loosened and the whole thing re-run without the
+   * first attempt's counters leaking into the second.
+   */
+  const fill = (productCap, signalCap) => {
+    const perProduct = new Map();
+    const perSignal = new Map();
+    const perCategory = new Map();
+    const picked = [];
+    let concentration = 0;
+    let paced = 0;
+    const usedCount = (map, key) => map.get(key) || 0;
+
+    for (const best of qualityPassed) {
+      // News is never held back for pacing. Pacing exists to ration routine
+      // rows across the week; a signal that arrived overnight is the one thing
+      // that cannot wait for its turn.
+      const isNews = newsRank(best) === 0;
+      const limit = isNews ? maxItems : pacedMax;
+      if (picked.length >= limit) {
+        // Only call it pacing when pacing is what cut it. A row that simply did
+        // not fit inside maxItems was not held for tomorrow, and counting it
+        // here would overstate how much the rationing is doing.
+        if (!isNews && pacedMax < maxItems) paced++;
+        continue;
+      }
+
+      // A row can headline with any signal that drove its match. When the
+      // default headline is already on the page, step to the next one the
+      // household actually has, so two travel rows read "reimbursed business
+      // travel" and "travel-heavy spend" rather than the same phrase twice.
+      const headlineFor = (item) => {
+        const fallback = { lead: item.lead_signal, timing: item.timing };
+        const choices = [fallback, ...(item.lead_options || [])];
+        return choices.reduce((bestSoFar, o) =>
+          usedCount(perSignal, o.lead?.label) < usedCount(perSignal, bestSoFar.lead?.label) ? o : bestSoFar
+        );
+      };
+      const withHeadline = (item) => {
+        const h = headlineFor(item);
+        if (!h.lead || h.lead === item.lead_signal) return item;
+        return { ...item, lead_signal: h.lead, timing: h.timing, outreach_window: h.timing.window };
+      };
+      // Product and headline repeats cost the same: a mail that says "savings"
+      // twice and one that says "expecting a child" twice are equally tired.
+      // A category repeat costs half as much. Three different travel cards
+      // under three different headlines are still three travel rows in a
+      // five-row mail, so the category has to count for something; but it is
+      // never capped, and a book whose households all need deposits should
+      // still get a mail that says so. Ties go to the fresher headline,
+      // because the headline is what the advisor reads first and what the
+      // complaint about sameness was about.
+      const repeats = (o) =>
+        usedCount(perProduct, o.product.id) +
+        usedCount(perSignal, o.lead_signal?.label) +
+        usedCount(perCategory, o.product.category) / 2;
+      // New to the page means a product and a headline it has not used;
+      // category is not counted, because five categories cannot all be new
+      // past the fifth row and the test would never pass.
+      const fresh = (o) =>
+        usedCount(perProduct, o.product.id) === 0 && usedCount(perSignal, o.lead_signal?.label) === 0;
+      const options = [...(alternatives.get(best.household_id) || [best])].map(withHeadline).sort(
+        (a, b) =>
+          repeats(a) - repeats(b) ||
+          usedCount(perSignal, a.lead_signal?.label) - usedCount(perSignal, b.lead_signal?.label) ||
+          usedCount(perProduct, a.product.id) - usedCount(perProduct, b.product.id) ||
+          newsRank(a) - newsRank(b) ||
+          benefitRank(a.benefit_qualifier) - benefitRank(b.benefit_qualifier) ||
+          b.priority - a.priority ||
+          b.annual_benefit_usd - a.annual_benefit_usd ||
+          // Category only breaks a tie between two products that are equally
+          // fresh to the mail and equally well evidenced. It sits below the
+          // money on purpose: with fifty-five products, most households have
+          // several options at zero repeats, and letting category decide among
+          // them traded a computed $1,965 card row for a savings estimate. It
+          // is not capped either: a book whose households all need deposits
+          // should say so.
+          usedCount(perCategory, a.product.category) -
+            usedCount(perCategory, b.product.category) ||
+          b.fit_score - a.fit_score
+      );
+      const pastFloor = picked.length >= floorRows;
+      const pick = options.find(
+        (o) =>
+          usedCount(perProduct, o.product.id) < productCap &&
+          usedCount(perSignal, o.lead_signal?.label) < signalCap &&
+          (!pastFloor || fresh(o))
+      );
+      if (!pick) {
+        // Past the floor, a household with nothing new to add is not a
+        // casualty of the cap; the mail is simply as long as it should be.
+        if (!pastFloor) concentration++;
+        continue;
+      }
+
+      perProduct.set(pick.product.id, usedCount(perProduct, pick.product.id) + 1);
+      perSignal.set(pick.lead_signal?.label, usedCount(perSignal, pick.lead_signal?.label) + 1);
+      perCategory.set(pick.product.category, usedCount(perCategory, pick.product.category) + 1);
+      picked.push(pick);
+    }
+    return { picked, concentration, paced };
+  };
+
+  // Tight caps first, loosened only if the book cannot fill the mail under
+  // them. A twelve-household book where everyone wants the same two products
+  // should send a repetitive digest rather than a half-empty one — but it
+  // should have to earn the repetition, which the old fixed half-the-mail cap
+  // never asked of the 28-household book.
+  let attempt = fill(diversityCap(floorRows), diversityCap(floorRows));
+  for (
+    let cap = diversityCap(floorRows) + 1;
+    attempt.picked.length < Math.min(floorRows, qualityPassed.length) &&
+    cap <= Math.max(1, floorRows);
+    cap += 1
+  ) {
+    attempt = fill(cap, cap);
+  }
+  // Re-sort on the chosen rows. Households were visited in the order their
+  // best opportunity earned, but the row a household ends up with may be its
+  // second or third product, so the order the mail was filled in is no longer
+  // the order it should be read in. Same comparator as above, applied to what
+  // was actually picked.
+  const items = attempt.picked.sort(rankForDigest);
+  dropped.product_concentration += attempt.concentration;
+  dropped.paced += attempt.paced;
+
+  reserveForLifeEvents({
+    items,
+    ranked: qualityPassed,
+    slots: lifeEventSlots,
+    caps: { product: diversityCap(floorRows), signal: diversityCap(floorRows) },
+  });
 
   return {
     advisorId,
@@ -924,7 +1413,14 @@ export function buildAdvisorDigest({
     // What the mail was actually sized to today, and why. A thin digest is the
     // first thing questioned, and "the book only supports two a day" is a very
     // different answer from "we ran out of opportunities".
-    pacing: { max_items: maxItems, paced_to: pacedMax, sustainable, cadence_days: cadenceDays },
+    pacing: {
+      max_items: maxItems,
+      min_items: floorRows,
+      paced_to: pacedMax,
+      sustainable,
+      cadence_days: cadenceDays,
+      life_event_slots: lifeEventSlots,
+    },
     // How much of the book the refresh has actually observed. A digest built on
     // partial context is still worth sending, but the gap is the first thing to
     // look at when the ordering seems wrong.
@@ -1006,7 +1502,9 @@ const LIFE_EVENT_WEIGHT = {
   new_child: 80,
   new_child_expected: 75,
   home_purchase_intent: 70,
+  marriage: 60,
   relocation: 55,
+  job_change: 50,
   elder_care: 50,
   college_bound: 45,
   home_renovation: 35,
@@ -1046,29 +1544,81 @@ function lifeEventWeight(item) {
  *
  * Mutates `items` in place, replacing the weakest non-event rows.
  */
-function reserveForLifeEvents({ items, ranked, slots = DEFAULT_LIFE_EVENT_SLOTS }) {
+function reserveForLifeEvents({
+  items,
+  ranked,
+  slots = DEFAULT_LIFE_EVENT_SLOTS,
+  caps = { product: Infinity, signal: Infinity },
+}) {
   if (slots <= 0 || !items.length) return;
   const present = new Set(items.map((i) => i.household_id));
-  const already = items.filter((i) => lifeEventWeight(i) > 0).length;
-  const room = Math.min(slots - already, items.length - already);
-  if (room <= 0) return;
+
+  // Reservation runs after the mail has been balanced, so it has to respect
+  // that balance or it quietly undoes it: given a free hand it will splice in
+  // a second 529 under a second "expecting a child", displacing the one HELOC
+  // and the one term life policy in the mail, and hand back the monotony the
+  // selection just removed.
+  const count = (key, of) => items.filter((i) => of(i) === key).length;
+  const breachesCaps = (item) =>
+    count(item.product.id, (i) => i.product.id) >= caps.product ||
+    count(item.lead_signal?.label, (i) => i.lead_signal?.label) >= caps.signal;
 
   const candidates = ranked
     .filter((i) => lifeEventWeight(i) > 0 && !present.has(i.household_id))
-    .sort((a, b) => lifeEventWeight(b) - lifeEventWeight(a))
-    .slice(0, room);
+    .sort((a, b) => lifeEventWeight(b) - lifeEventWeight(a));
   if (!candidates.length) return;
 
-  // Drop from the bottom of the mail, and only rows carrying no event. Never
-  // displace news: something that arrived overnight is the reason the advisor
-  // opens this at all.
   for (const candidate of candidates) {
-    for (let i = items.length - 1; i >= 0; i -= 1) {
-      if (lifeEventWeight(items[i]) === 0 && newsRank(items[i]) !== 0) {
-        items.splice(i, 1, candidate);
-        break;
-      }
+    if (breachesCaps(candidate)) continue;
+    const eventRows = items.filter((i) => lifeEventWeight(i) > 0);
+    if (eventRows.length < slots) {
+      // Room going spare. Drop from the bottom of the mail, and only rows
+      // carrying no event. Never displace news: something that arrived
+      // overnight is the reason the advisor opens this at all. Among those,
+      // give up a row whose product already appears elsewhere before giving
+      // up the only one of its kind.
+      const droppable = (i) => lifeEventWeight(i) === 0 && newsRank(i) !== 0;
+      const at = (() => {
+        const dupe = items.findLastIndex(
+          (i) => droppable(i) && count(i.product.id, (x) => x.product.id) > 1
+        );
+        return dupe >= 0 ? dupe : items.findLastIndex(droppable);
+      })();
+      if (at < 0) return;
+      items.splice(at, 1, candidate);
+      present.add(candidate.household_id);
+      continue;
     }
+
+    // Both slots taken, so the question is whether they are taken by the right
+    // events. Selecting for variety surfaces events on its own now, and two
+    // incidental ones arriving first used to lock out the heaviest in the book
+    // — a $310,000 inheritance losing its row to a kitchen renovation because
+    // the renovation happened to be picked earlier. Reservation guarantees the
+    // weightiest events a place, not merely that some event is present.
+    const weakest = eventRows.reduce((a, b) =>
+      lifeEventWeight(b) < lifeEventWeight(a) ? b : a
+    );
+    if (lifeEventWeight(candidate) <= lifeEventWeight(weakest)) return;
+    if (newsRank(weakest) === 0) return;
+    // A heavier event is not worth a narrower mail. Swapping the only term
+    // life policy out for a second 529 under a second "expecting a child"
+    // raises the weight of the reserved rows and makes the digest read worse,
+    // which is the trade this whole change exists to stop making.
+    //
+    // Counted over the whole mail rather than judged a row at a time, because
+    // the two rows often carry the same product: an inheritance displacing a
+    // retirement horizon on the same managed portfolio costs nothing, and
+    // reasoning about either row alone says it does, which is how the heaviest
+    // event in the book got skipped.
+    const before = new Set(items.map((i) => i.product.id)).size;
+    const after = new Set([
+      ...items.filter((i) => i !== weakest).map((i) => i.product.id),
+      candidate.product.id,
+    ]).size;
+    if (after < before) continue;
+    items.splice(items.indexOf(weakest), 1, candidate);
+    present.add(candidate.household_id);
   }
   items.sort(
     (a, b) =>
@@ -1090,12 +1640,20 @@ function reserveForLifeEvents({ items, ranked, slots = DEFAULT_LIFE_EVENT_SLOTS 
  * carries hundreds; the reconciliation line still states the denominator
  * whenever an advisor actually screens for something.
  *
- * Undated, after trying it dated. Gmail only folds same-subject messages into
- * one conversation when they land close together, and a daily digest never
- * does: months of byte-identical subjects arrived as separate mail. The only
- * thing that ever collapsed was a burst of test sends minutes apart. A date
- * bought nothing and pushed the count, which is the part worth scanning, off
- * to the right.
+ * Undated, and fixed rather than varied per send. Both were tried while
+ * chasing a "Re:" that kept appearing on the digest, and neither was the
+ * cause. Gmail titles a conversation from the message that started it, and
+ * groups later same-subject mail from the same sender into it only when the
+ * messages land close together. A digest a day apart never grouped: months of
+ * byte-identical subjects arrived as separate mail. What grouped was an hour
+ * of test sends and test replies minutes apart, and because a reply was in
+ * that group the conversation took a "Re:" title that every later digest then
+ * displayed under. The subject was innocent; the send pattern was not.
+ *
+ * So this stays the plain count, which is the part worth scanning and reads
+ * the same every morning. Nothing in a header can override the grouping if a
+ * burst is ever sent again — the only defences are one send a morning, and
+ * not leaving a reply sitting in a conversation a digest can land in.
  */
 export function digestSubject({ items = [] } = {}) {
   if (!items.length) return 'Your Daily Digest: nothing needs your attention today';
@@ -1157,8 +1715,12 @@ export async function generatePrep({ gateway, provider, householdId }) {
       messages: [
         {
           role: 'system',
+          // No greeting and no self-introduction. These notes are read under a
+          // heading that already names the household, on both the router path
+          // and the agent path, so "Hey Okoro, quick prep for Ada Okafor"
+          // spends the first line saying what the heading said.
           content:
-            'You are a wealth-management coworker prepping an advisor for a client meeting. Be concise and peer-toned. Ground every claim in the provided modeled signals. End with one concrete talking point. Do not invent figures.',
+            'You are a wealth-management coworker prepping an advisor for a client meeting. Be concise and peer-toned. Ground every claim in the provided modeled signals. End with one concrete talking point. Do not invent figures. Start with the first thing that matters going in: no greeting, no salutation, and do not open by saying this is a prep or naming who it is for.',
         },
         { role: 'user', content: JSON.stringify(context) },
       ],
@@ -1232,6 +1794,54 @@ const CLIENT_OBSERVATIONS = {
   relocation: 'the signs that a move may be coming for you',
   retirement_horizon: 'how close you are getting to retirement',
   estate_inflow: 'the funds that recently came to you',
+  elder_care: 'the care you have been arranging for a parent',
+  college_bound: 'the college planning that seems to be under way',
+  new_child: 'the new arrival at home',
+  marriage: 'the wedding plans that seem to be under way',
+  job_change: 'your recent change of employer',
+  grocery_heavy_spend: 'how much of your everyday spending goes to groceries',
+  business_travel_reimbursed: 'the work travel you have been putting on your own card',
+  loyalty_spend: 'how much of your travel stays with one airline',
+  fx_fees_paid: 'the foreign transaction fees you have been paying',
+  travel_card_elsewhere: 'the travel card you carry with another bank',
+  luxury_travel_spend: 'the way you travel',
+  lounge_fees_paid: 'the lounge access you have been paying for',
+  premium_cabin_bookings: 'the way you have been flying',
+  cd_maturing: 'the certificate that is coming due',
+  savings_elsewhere: 'the savings you keep with another bank',
+  rollover_401k: 'the retirement plans you still have with old employers',
+  scattered_retirement_accounts: 'the retirement accounts spread across old employers',
+  equity_comp: 'the stock you receive from your employer',
+  invests_elsewhere: 'the investments you hold with another firm',
+  assets_across_custodians: 'the accounts you hold across several firms',
+  seeking_advice: 'the advice you have been looking for',
+  advisory_fees_elsewhere: 'the advisory fee you pay elsewhere',
+  first_time_investor: 'the first investment you have made',
+  estate_attorney: 'the estate planning you have been working through',
+  inherited_retirement_assets: 'the retirement account that came to you',
+  managing_parent_finances: 'the way you have been managing a parent\u2019s finances',
+  large_charitable_giving: 'the giving you have been doing',
+  high_cost_debt: 'the balances you have been carrying at high rates',
+  income_jump: 'the raise that has come through',
+  self_employed_income: 'the way your income arrives as a business owner',
+  single_earner_household: 'the fact that one income carries the household right now',
+  gig_income: 'the way your income arrives from different platforms',
+  credit_builder_products: 'the work you have been doing to build your credit',
+  car_shopping: 'the car you seem to be shopping for',
+  auto_loan_elsewhere: 'the car loan you have with another lender',
+  lease_ending: 'the lease that is coming to an end',
+  boat_rv_shopping: 'the boat you seem to be shopping for',
+  ev_purchase: 'the electric vehicle you recently bought',
+  second_property: 'the property you seem to be looking at',
+  multiple_properties: 'the properties you hold',
+  planned_large_expense: 'the project you seem to be planning for',
+  down_payment_saving: 'the down payment you have been setting aside',
+  rent_increase: 'the rent increase that came through at renewal',
+  earnest_money_wire: 'the deposit you recently sent on a property',
+  moving_deposits: 'the move you have coming up',
+  auto_premium_increase: 'the jump in your auto insurance premium',
+  new_pet: 'the new pet at home',
+  recent_fraud_resolved: 'the fraud issue we resolved for you recently',
 };
 
 /**
@@ -1615,7 +2225,16 @@ export async function answerQuestion({ gateway, question, context }) {
 export async function summarizeThread({ gateway, turns = [] }) {
   const transcript = turns
     .map((t) => `[${t.direction || '?'}] ${t.summary || t.text || ''}`)
+    .filter((line) => line.replace(/^\[.*?\]\s*/, '').trim().length > 0)
     .join('\n');
+
+  // Never ask the model to summarize nothing. Given an empty transcript it
+  // writes a plausible thread that never happened, and a fabricated recap has
+  // no figures in it, so the provenance checks downstream cannot catch it.
+  if (!transcript.trim()) {
+    return 'There is nothing in this thread yet beyond your message, so there is nothing for me to recap.';
+  }
+
   try {
     const { response } = await gateway.chatCompletion({
       task: 'coworker_summary',
@@ -1627,7 +2246,12 @@ export async function summarizeThread({ gateway, turns = [] }) {
           content:
             'Summarize this advisor/coworker email thread in 3-5 crisp bullets: what was asked, what was delivered, and the open next step.',
         },
-        { role: 'user', content: transcript || '(no prior turns)' },
+        {
+          role: 'system',
+          content:
+            'Summarize only what the transcript contains. Do not add detail that is not written there.',
+        },
+        { role: 'user', content: transcript },
       ],
     });
     if (response.ok) {
