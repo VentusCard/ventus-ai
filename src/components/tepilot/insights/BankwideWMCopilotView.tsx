@@ -19,8 +19,8 @@ export function BankwideWMCopilotView({ hideHeader, presentationMode = false, in
     { key: "inbox", label: "Coworker Dashboard", icon: <Inbox className="h-4 w-4 mr-2" /> },
     { key: "userview", label: "User View", icon: <UserSquare2 className="h-4 w-4 mr-2" /> },
     { key: "persona", label: "Persona Settings", icon: <SlidersHorizontal className="h-4 w-4 mr-2" /> },
-    { key: "stream", label: "Live Work Stream", icon: <Radio className="h-4 w-4 mr-2" /> },
     { key: "integrations", label: "Integrations", icon: <Plug className="h-4 w-4 mr-2" /> },
+    { key: "stream", label: "Live Work Stream", icon: <Radio className="h-4 w-4 mr-2" /> },
   ];
 
 
@@ -36,7 +36,7 @@ export function BankwideWMCopilotView({ hideHeader, presentationMode = false, in
       />}
       {/* View Toggle */}
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
+        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg overflow-x-auto max-w-full">
           {toggles.map((t) => (
             <Button
               key={t.key}
