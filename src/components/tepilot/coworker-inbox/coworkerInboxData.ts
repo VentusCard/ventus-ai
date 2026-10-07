@@ -260,7 +260,7 @@ export interface TeamDestination {
   stat2: { label: string; value: string };
   insights: string[];
   lastDeliveryAgo: string;
-  emailType: "Weekly pulse" | "Alert" | "Daily brief" | "Campaign brief" | "Signal brief";
+  emailType: "Weekly pulse" | "Alert" | "Daily brief" | "Campaign brief" | "Signal brief" | "Household brief";
 }
 
 export const TEAM_DESTINATIONS: TeamDestination[] = [
