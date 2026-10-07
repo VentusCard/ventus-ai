@@ -46,8 +46,8 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
           subject: "Weekly pulse — [Week of]",
           body: `One page on what moved across the institution in [Week of].
 
-- Deposits: momentum in [Region A], softening in [Region B].
-- Lending: [Product] applications trending up for the third week running.
+- Deposits: momentum in [Region A], softening in [Region B]. Roughly [$ figure] in new deposits landed in [Region A], while [$ figure] in recurring transfers to outside HYSAs appeared in [Region B]. Bring up: a rate review for [Region B]. Timing: before next month's board readout. Opportunity: [$ range] in retained deposits.
+- Lending: [Product] applications trending up for the third week running, concentrated in [Segment]. Opportunity: [$ range] in new balances this quarter if approval turnaround holds.
 - Wealth: advisory flows steady; watch item noted below.
 
 Everything here is institution-level — no households named, no account detail. Detail lives with your LOB heads' own coworkers.`,
@@ -62,8 +62,8 @@ Everything here is institution-level — no households named, no account detail.
           subject: "The three shifts that moved most this week",
           body: `Ranked by size of move, not by noise:
 
-1. Share-of-wallet drift in [Segment] — the largest week-over-week change on the book.
-2. [Product] gap widening in [Region] — now visible at institution level.
+1. Share-of-wallet drift in [Segment] — the largest week-over-week change on the book. About [# households] households began routing savings to [Outside institution type]. Bring up: [Product]. Timing: the pattern is [Duration] old; windows like this typically stay open [Window]. Opportunity: [$ range] in balances.
+2. [Product] gap widening in [Region] — now visible at institution level. Opportunity: [$ range] in annual revenue if closed with [Catalog product].
 3. Advisor response time improving in [Region] — a shift worth recognizing.
 
 Everything else moved within normal range and is omitted on purpose.`,
@@ -78,7 +78,12 @@ Everything else moved within normal range and is omitted on purpose.`,
           subject: "An opening in [Segment], not a warning",
           body: `A growing share of [Segment] households is routing savings to outside institutions. Read as an opening: the behavior says these households are actively looking for a better yield home, and we have a credible answer in [Product].
 
-The window is measured in weeks, not quarters — but this is a positioning opportunity, not a fire drill. Suggested owner: [Owner].`,
+- Who: [# households] households in [Segment], led by [Sub-segment].
+- Bring up: [Product], positioned on [Benefit].
+- Timing: the window is measured in weeks, not quarters — but this is a positioning opportunity, not a fire drill.
+- Opportunity: [$ range] in recaptured balances.
+
+Suggested owner: [Owner].`,
           replyPrompts: ["Size the opportunity", "Draft the positioning note", "Which regions lead the trend?"],
         },
       },
@@ -90,9 +95,10 @@ The window is measured in weeks, not quarters — but this is a positioning oppo
           subject: "Where this week's numbers come from",
           body: `Every figure in this pulse carries its source:
 
-- Share-of-wallet drift — Financial signals (outbound transfer patterns).
-- [Product] gap — Behavioral signals (recurring payments to outside providers).
-- Coverage pressure — Demographic signals (segment growth vs. advisor assignments).
+- Share-of-wallet drift, [$ range] — Financial signals (outbound transfer patterns).
+- [Product] gap, [# households] households — Behavioral signals (recurring payments to outside providers).
+- Coverage pressure in [Region] — Demographic signals (segment growth vs. advisor assignments).
+- New [Life event] cluster, [# households] households — Life-event signals (evidence patterns building over [Duration]).
 
 If a number can't be attributed to a signal family, it doesn't appear in this brief.`,
           replyPrompts: ["Show the evidence behind figure one", "Which signal family is most active?", "Export the attribution table"],
@@ -131,9 +137,9 @@ If a number can't be attributed to a signal family, it doesn't appear in this br
           subject: "Product-fit gaps by segment — [Date]",
           body: `Today's gap scan across active segments:
 
-- [Segment A]: behavior consistent with [Product], no catalog product attached.
-- [Segment B]: [Product] demand rising week-over-week.
-- [Segment C]: gap closed — last week's positioning test is converting.
+- [Segment A]: behavior consistent with [Product], no catalog product attached. [# households] households, recurring transfers to [Competing institution] on a [Cadence] cadence. Bring up: [Catalog product]. Timing: the pattern is [Duration] old and accelerating. Opportunity: [$ range] in balances.
+- [Segment B]: [Product] demand rising week-over-week. Opportunity: [$ range] in annual revenue.
+- [Segment C]: gap closed — last week's positioning test is converting at [Conversion rate] versus a [Baseline] baseline.
 
 Only segments with a live gap appear; quiet segments are omitted.`,
           replyPrompts: ["Open Segment A in detail", "Show this week's new gaps", "Which gaps closed recently?"],
@@ -147,8 +153,8 @@ Only segments with a live gap appear; quiet segments are omitted.`,
           subject: "Today's gaps, ranked",
           body: `Ranked on two axes: how many households show the behavior, and how strongly.
 
-1. [Product] in [Segment] — largest household count, high fit.
-2. [Product] in [Segment] — fewer households, but the strongest fit score on the board.
+1. [Product] in [Segment] — [# households] households, fit score [Fit score] versus a [Benchmark] baseline. Opportunity: [$ range]. Bring up: [Catalog product]. Timing: window open roughly [Window].
+2. [Product] in [Segment] — fewer households ([# households]), but the strongest fit score on the board. Opportunity: [$ range].
 3. [Product] in [Segment] — large count, moderate fit; worth watching, not yet a brief.
 
 The ranking updates daily as behavior moves.`,
@@ -163,11 +169,11 @@ The ranking updates daily as behavior moves.`,
           subject: "Why we're recommending [Product] for [Segment]",
           body: `The recommendation rests on observed behavior, not survey data:
 
-- Recurring payments to [Competing institution] on a [Cadence] cadence.
-- Balance patterns consistent with [Use case].
-- Life-event signals that historically precede [Product] adoption.
+- Recurring payments to [Competing institution] on a [Cadence] cadence, running for [Duration] across [# households] households.
+- Balance patterns consistent with [Use case] — average held balance in the [$ range] band.
+- Life-event signals that historically precede [Product] adoption: [Life event] patterns appearing in [# households] of the segment.
 
-Each claim links to the underlying pattern. If the evidence thins, the recommendation is withdrawn.`,
+Bring up: [Catalog product]. Timing: adoption windows for this pattern typically run [Window]. Opportunity: [$ range]. Each claim links to the underlying pattern — if the evidence thins, the recommendation is withdrawn.`,
           replyPrompts: ["Open the raw evidence", "How long has this pattern held?", "What would weaken this recommendation?"],
         },
       },
@@ -179,8 +185,8 @@ Each claim links to the underlying pattern. If the evidence thins, the recommend
           subject: "Every gap has a catalog answer",
           body: `Today's gaps, each mapped to something we already sell:
 
-- [Segment A] gap → [Catalog product], positioning attached.
-- [Segment B] gap → [Catalog product], eligibility note attached.
+- [Segment A] gap → [Catalog product], positioning attached. Bring up: [Positioning angle]. Timing: [Window]. Opportunity: [$ range].
+- [Segment B] gap → [Catalog product], eligibility note attached. Opportunity: [$ range].
 
 No gap is presented without a catalog match. If no product fits, the gap goes to a watch list — never to you as a build request.`,
           replyPrompts: ["Show the watch list", "Open the positioning for item one", "Which catalog products appear most?"],
@@ -219,11 +225,11 @@ No gap is presented without a catalog match. If no product fits, the gap goes to
           subject: "Outbound-transfer cluster detected — [Date]",
           body: `A cluster of outbound transfers landed within the same business day across [# households] households in [Region].
 
-- Pattern: multiple transfers per household, compressed into [Window].
+- Pattern: multiple transfers per household, compressed into [Window], totaling roughly [$ range].
 - Destination: [Obfuscated descriptor], resolved on file.
 - Context: no matching life-event pattern explains the compression.
 
-Reported as behavior, not intent. No action has been taken.`,
+Reported as behavior, not intent. No action has been taken. Suggested next step: review by [Owner] within [Window].`,
           replyPrompts: ["Open the cluster detail", "Show the destination resolution", "Suppress if a life event explains it"],
         },
       },
@@ -233,9 +239,9 @@ Reported as behavior, not intent. No action has been taken.`,
         on: true,
         example: {
           subject: "Flag with evidence attached — [Cohort name]",
-          body: `A flag raised on [Date] against the [Cohort name] indicator.
+          body: `A flag raised on [Date] against the [Cohort name] indicator, covering [# households] households.
 
-Attached: the transaction pattern that triggered it — cadence, counterparties (obfuscated), and the window over which it built. The evidence travels with the flag through review, so no one acts on a headline alone.
+Attached: the transaction pattern that triggered it — cadence ([Cadence]), counterparties (obfuscated), the window over which it built ([Duration]), and the approximate volume band ([$ range]). The evidence travels with the flag through review, so no one acts on a headline alone.
 
 If the evidence doesn't hold up on review, the flag closes with the reason recorded.`,
           replyPrompts: ["Open the evidence bundle", "Close this flag with a reason", "Show similar past flags"],
@@ -249,7 +255,7 @@ If the evidence doesn't hold up on review, the flag closes with the reason recor
           subject: "Cohort scores against standing indicators — [Week of]",
           body: `Weekly scoring of active cohorts against the standing vulnerability indicators:
 
-- [Cohort A]: score rising for [Duration], driven by [Pattern].
+- [Cohort A]: score rising for [Duration], driven by [Pattern]. [# households] households, volume band [$ range]. Suggested review timing: within [Window].
 - [Cohort B]: score flat; no change in underlying behavior.
 - [Cohort C]: score falling — the pattern is resolving on its own.
 
@@ -266,6 +272,7 @@ Scores are directional and reviewed by a human before anything routes onward.`,
           body: `The flag on [Cohort name] from [Date] has been confirmed on review and routed.
 
 - Owner: [Owner], [Team].
+- Scope: [# households] households, volume band [$ range].
 - Expected: review by [Date], disposition recorded.
 - Escalation: if the window lapses, it routes to [Escalation owner].
 
@@ -306,8 +313,8 @@ Nothing sits unowned. Every confirmed flag has a name and a clock attached.`,
           subject: "Redemption intent by segment — [Date]",
           body: `Where offer attention is heading today:
 
-- [Segment A]: intent concentrating on travel perks ahead of [Season].
-- [Segment B]: dining offers drawing the strongest response this week.
+- [Segment A]: intent concentrating on travel perks ahead of [Season]. Bring up: [Offer name]. Timing: launch within [Window] to catch the booking wave. Opportunity: [$ range] in incremental card spend.
+- [Segment B]: dining offers drawing the strongest response this week. Bring up: [Offer name]. Opportunity: [$ range].
 - [Segment C]: intent flat — the current offer set isn't landing.
 
 Intent is inferred from lifestyle patterns, never from individual transactions.`,
@@ -322,8 +329,8 @@ Intent is inferred from lifestyle patterns, never from individual transactions.`
           subject: "Partnership candidates, ranked by wallet share",
           body: `Merchants capturing meaningful spend from our customers, ranked:
 
-1. [Merchant] — strongest wallet share in [Segment], no agreement on file.
-2. [Merchant] — growing fast in [City], category leader.
+1. [Merchant] — strongest wallet share in [Segment], no agreement on file. Bring up: an anchored offer. Timing: ahead of [Season]. Opportunity: [$ range] in annual card spend.
+2. [Merchant] — growing fast in [City], category leader. Opportunity: [$ range].
 3. [Merchant] — steady share, seasonal upside.
 
 Each candidate includes the segment it would serve and the offer it could anchor.`,
@@ -338,10 +345,10 @@ Each candidate includes the segment it would serve and the offer it could anchor
           subject: "Two offers reached retirement threshold",
           body: `Under-indexed for two consecutive weeks against baseline:
 
-- [Offer name] — attention fading in every segment it targets.
+- [Offer name] — attention fading in every segment it targets; redemptions running at [Rate] versus a [Baseline] baseline.
 - [Offer name] — never found its audience; spend is going elsewhere.
 
-Both are queued for retirement, with replacement candidates attached. Nothing is pulled without your sign-off.`,
+Both are queued for retirement, with replacement candidates attached ([Offer name], [Offer name]) projected to recover [$ range] in engaged spend. Nothing is pulled without your sign-off.`,
           replyPrompts: ["Approve the retirements", "Show the replacement candidates", "Extend one more week"],
         },
       },
@@ -393,8 +400,8 @@ Every offer description in the queue passes this check before it reaches you. Th
           subject: "Your book, this morning — [Date]",
           body: `Good morning. What changed overnight in your book only:
 
-- [# households] relationships show new movement worth a look.
-- The top item has a decision window closing around [Date].
+- The [Household A] household — pattern consistent with an approaching [Life event]. Bring up: [Product]. Timing: the window typically stays open [Window]; this one is [Duration] in. Opportunity: [$ range].
+- The [Household B] household — recurring transfers to [Outside institution] began in [Month]. Bring up: [Product]. Timing: before the pattern sets. Opportunity: [$ range] in retained balances.
 - Everything else is quiet and can wait.
 
 No other advisor's book, no institution-wide noise — just yours.`,
@@ -409,9 +416,9 @@ No other advisor's book, no institution-wide noise — just yours.`,
           subject: "Ranked by when the window closes",
           body: `Today's ranking ignores balance size and follows urgency:
 
-1. [Household] — window closes around [Date]; the pattern won't wait.
-2. [Household] — steady opportunity, open for weeks.
-3. [Household] — your largest relationship, but nothing new; deliberately not first.
+1. The [Household A] household — [Life event] pattern; window closes around [Date]. Bring up: [Product]. Opportunity: [$ range].
+2. The [Household B] household — steady opportunity, open for weeks. Bring up: [Product]. Opportunity: [$ range].
+3. The [Household C] household — your largest relationship, but nothing new; deliberately not first.
 
 A small relationship with a closing window outranks a large one with none.`,
           replyPrompts: ["Why is my largest client third?", "Re-rank by balance for context", "Show all open windows"],
@@ -423,11 +430,12 @@ A small relationship with a closing window outranks a large one with none.`,
         on: true,
         example: {
           subject: "Every claim carries its evidence",
-          body: `On today's top item, [Household]:
+          body: `On today's top item, the [Household A] household:
 
 - Claim: a [Life event] is likely approaching.
 - Evidence: [Evidence source] pattern over [Duration], corroborated by [External signal].
 - Confidence: directional — worth a conversation, not a conclusion.
+- If it holds: bring up [Product], with an opportunity in the [$ range] band and a window of roughly [Window].
 
 If a claim can't point to evidence, it doesn't make the brief.`,
           replyPrompts: ["Open the evidence", "How strong is the corroboration?", "Show a past claim that resolved"],
@@ -438,11 +446,12 @@ If a claim can't point to evidence, it doesn't make the brief.`,
         text: "Draft talking points for each recommended outreach",
         on: true,
         example: {
-          subject: "Talking points ready for [Household]",
+          subject: "Talking points ready for [Household A]",
           body: `For the outreach recommended today, drafted and waiting:
 
 - Opener: framed around their [Goal], not our product.
-- Middle: one relevant option, [Product], positioned as an opportunity.
+- Middle: one relevant option, [Product], positioned as an opportunity worth roughly [$ range] to them over [Duration].
+- Timing: raise it before [Date], while the window is open.
 - Close: a low-pressure next step — a call, not a commitment.
 
 Edit freely; nothing goes to a customer without your review.`,
@@ -484,8 +493,8 @@ Edit freely; nothing goes to a customer without your review.`,
           subject: "Your families, this morning — [Date]",
           body: `Good morning. Across your [Book size] families:
 
-- [Family] has a moment approaching — details and preparation below.
-- [Family] shows quiet movement worth knowing about, not acting on yet.
+- The [Family A] household — pattern consistent with an approaching [Life event]. Bring up: [Planning item] and [Product]. Timing: ideally before [Date]; the window is [Window]. Opportunity: [$ range] in new advisory assets.
+- The [Family B] household — recurring transfers to [Outside firm] began in [Month]. Bring up: a deployment conversation. Timing: before the pattern sets. Opportunity: [$ range] in retained assets.
 - The rest of the book is calm.
 
 Scoped to your families only, led by whatever matters most today.`,
@@ -497,13 +506,13 @@ Scoped to your families only, led by whatever matters most today.`,
         text: "Cover the full household: family, entities, trusts, properties, and the next generation",
         on: true,
         example: {
-          subject: "[Family] — the whole household, one view",
-          body: `Everything connected to [Family], in one place:
+          subject: "[Family A] — the whole household, one view",
+          body: `Everything connected to the [Family A] household, in one place:
 
-- Family: [Members], with a milestone coming up for [Member].
-- Entities: [Business] shows a liquidity pattern worth a conversation.
+- Family: [Members], with a milestone coming up for [Member]. Bring up: a personal note. Timing: before [Date].
+- Entities: [Business] shows a liquidity pattern worth a conversation. Bring up: [Lending product]. Opportunity: [$ range].
 - Trusts & estate: a beneficiary review is due by [Date].
-- Next generation: [Child] is approaching the age for a first account conversation.
+- Next generation: [Child] is approaching the age for a first account conversation. Opportunity: the next generation of the relationship.
 
 Nothing about this family sits outside this view.`,
           replyPrompts: ["Open the entity detail", "Prepare the estate review", "Draft the next-generation note"],
@@ -514,12 +523,13 @@ Nothing about this family sits outside this view.`,
         text: "Cite the transaction or external evidence behind every alert",
         on: true,
         example: {
-          subject: "Alert on [Family] — evidence attached",
-          body: `Alert: [Family] shows the pattern that usually precedes [Life event].
+          subject: "Alert on [Family A] — evidence attached",
+          body: `Alert: the [Family A] household shows the pattern that usually precedes [Life event].
 
 Behind the alert:
 - [Evidence source] pattern building over [Duration].
 - Corroborated by [External signal], seen in [Window].
+- If it holds: bring up [Planning item], opportunity in the [$ range] band, window roughly [Window].
 
 You see what I saw before you decide what to do. Directional, never asserted.`,
           replyPrompts: ["Open the evidence", "How reliable is this pattern?", "Snooze this family for a week"],
@@ -530,12 +540,13 @@ You see what I saw before you decide what to do. Directional, never asserted.`,
         text: "Prepare a complete next step: agenda, documents, and the specialist team",
         on: true,
         example: {
-          subject: "[Family] — the next step is fully prepared",
-          body: `For the moment approaching [Family], everything is ready:
+          subject: "[Family A] — the next step is fully prepared",
+          body: `For the moment approaching the [Family A] household, everything is ready:
 
 - Agenda: drafted around [Planning item], 45 minutes.
 - Documents: [Document set] assembled and current.
 - Specialists: [Specialist team] briefed and holding [Date options].
+- On the table: [Product], an opportunity in the [$ range] band, best raised before [Date].
 
 You walk in with a plan, not a to-do list. Your approval sends any of it.`,
           replyPrompts: ["Open the agenda", "Confirm the specialist team", "Adjust the date options"],
@@ -546,11 +557,11 @@ You walk in with a plan, not a to-do list. Your approval sends any of it.`,
         text: "Build a pre-meeting dossier and a post-meeting recap with follow-ups",
         on: true,
         example: {
-          subject: "Dossier for [Family] — [Meeting date]",
-          body: `Before you sit down with [Family]:
+          subject: "Dossier for [Family A] — [Meeting date]",
+          body: `Before you sit down with the [Family A] household:
 
 - Household summary: relationships, entities, recent movement.
-- Talking points: three, ranked by what matters to them.
+- Talking points: three, ranked by what matters to them — led by [Planning item], an opportunity in the [$ range] band with a [Window] window.
 - Open items: [Follow-up] from your last meeting, resolved.
 
 After the meeting, I'll draft the recap and the follow-up list from your notes — ready within the hour.`,
@@ -565,9 +576,9 @@ After the meeting, I'll draft the recap and the follow-up list from your notes �
           subject: "Three perks, three families — drafts ready",
           body: `Pairings where the lifestyle fit is strong:
 
-- [Family] → [Experience]: their travel pattern makes this a natural gesture.
-- [Family] → [Perk]: aligns with how they already spend weekends.
-- [Family] → [Reward]: a quiet thank-you ahead of their [Milestone].
+- The [Family A] household → [Experience]: their travel pattern makes this a natural gesture. Timing: ahead of their [Trip or season].
+- The [Family B] household → [Perk]: aligns with how they already spend weekends.
+- The [Family C] household → [Reward]: a quiet thank-you ahead of their [Milestone]. Timing: the week of [Date].
 
 Each email is drafted in your voice, lifestyle-led, with no hint of how the fit was seen. Nothing sends without your approval.`,
           replyPrompts: ["Open the drafts", "Swap a pairing", "Time one for their anniversary"],
@@ -611,8 +622,9 @@ Each email is drafted in your voice, lifestyle-led, with no hint of how the fit 
           body: `A new brief is ready:
 
 - Audience: [Segment], built from behavior, fresh as of [Date].
-- Size: [# households] households, each with an individual fit reason.
+- Size: [# households] households, each with an individual fit reason — led by [Life event] and [Behavioral pattern] signals.
 - Moment: the behavior says now — the window is [Duration].
+- Bring up: [Product]. Opportunity: [$ range] in new balances at the segment's baseline conversion.
 
 Segment-of-one means every household in the audience has its own reason to be there.`,
           replyPrompts: ["Open the audience definition", "Show sample fit reasons", "When does the window close?"],
@@ -628,6 +640,7 @@ Segment-of-one means every household in the audience has its own reason to be th
 
 - Headline: [Headline] — about what they gain, not what we saw.
 - Body: [Body copy] — brand-safe, no signal language.
+- Offer: [Product], framed around the [$ benefit] the household stands to gain.
 - Variants: [Channel] and [Channel] versions included.
 
 You review and edit; the draft is a starting point, not a finished send.`,
@@ -658,9 +671,9 @@ There is no path from draft to send that skips a human.`,
           subject: "Draft status — [Segment] campaign",
           body: `Where every active draft stands:
 
-- [Segment] brief: approved [Date], launching [Date].
-- [Segment] brief: in review with [Reviewer] since [Date].
-- [Segment] brief: launched [Date], early read-out due [Date].
+- [Segment A] brief: approved [Date], launching [Date]. Audience [# households] households; projected opportunity [$ range].
+- [Segment B] brief: in review with [Reviewer] since [Date].
+- [Segment C] brief: launched [Date], early read-out due [Date].
 
 From first draft to launch, every step is timestamped and owned.`,
           replyPrompts: ["Show the launch calendar", "Which draft is oldest in review?", "Export the tracker"],
@@ -699,9 +712,9 @@ export const COWORKER_EXAMPLES: Record<string, CoworkerExample> = {
     subject: "Three things moved in [Week of]",
     body: `Here is what changed across the book in [Week of], compared with [Prior period].
 
-1. Inbound liquidity concentrated in [Region A] and [Region B], while a growing share of households routed money to institutions you don't hold. Deposit momentum reads healthy on the surface; underneath, share-of-wallet is the story — [Share-of-wallet trend] versus [Benchmark].
-2. The [Cohort] segment is expanding faster than advisor coverage in [Region]. Roughly [# households] households now sit above the coverage line, against [# advisors] advisors assigned.
-3. A [Product] gap now spans [# households] households — large enough to be a campaign rather than a conversation. Attributed to [Signal family].
+1. Inbound liquidity concentrated in [Region A] and [Region B], while a growing share of households routed money to institutions you don't hold. Deposit momentum reads healthy on the surface; underneath, share-of-wallet is the story — [Share-of-wallet trend] versus [Benchmark]. Bring up: a rate review for the drifting regions. Opportunity: [$ range] in retained deposits.
+2. The [Cohort] segment is expanding faster than advisor coverage in [Region]. Roughly [# households] households now sit above the coverage line, against [# advisors] advisors assigned. Timing: hiring or reassignment decided by [Date].
+3. A [Product] gap now spans [# households] households — large enough to be a campaign rather than a conversation. Attributed to [Signal family]. Opportunity: [$ range] in annual revenue.
 
 Decisions worth your attention: coverage in [Region], owned by [Owner], and whether the [Product] gap gets a brief by [Date].`,
     replyPrompts: [
@@ -719,7 +732,7 @@ Decisions worth your attention: coverage in [Region], owned by [Owner], and whet
 - Evidence: recurring payments leaving the bank on a [Cadence] cadence, landing at [Competing institution].
 - Conversion: [Conversion rate] versus a [Baseline conversion] baseline — fit is high, so the constraint is likely [Eligibility or pricing], not demand.
 
-Closest catalog match is [Catalog product]. Suggested next step: a positioning test owned by [Owner], scoped by [Date], before any build.`,
+Closest catalog match is [Catalog product]. Bring up: a positioning test owned by [Owner], scoped by [Date], before any build. Opportunity: [$ range] in new balances over [Duration].`,
     replyPrompts: [
       "Show the behavioral evidence",
       "Compare fit against conversion",
@@ -734,7 +747,7 @@ Closest catalog match is [Catalog product]. Suggested next step: a positioning t
 
 - Cohort A: [Cohort name] — [# households] households, matched on [Pattern].
 - Cohort B: [Cohort name] — [# households] households, matched on [Pattern].
-- Overlap: [# households] households appear in both within [Window].
+- Overlap: [# households] households appear in both within [Window], with a combined volume band of roughly [$ range].
 
 Neither indicator is conclusive alone; together they warrant a look. Transaction evidence is attached to each flag, and the merchant identities behind [Obfuscated descriptor] have been resolved to [Merchant]. No action has been taken — this is behavior, not intent.
 
@@ -753,7 +766,7 @@ Routed to [Owner] for review by [Date].`,
 
 - [Offer name] and [Offer name] have under-indexed for [# weeks] straight against a [Benchmark] baseline.
 - The spend they were meant to catch is going to [Merchant] and [Merchant], neither of which has an agreement on file.
-- [Merchant] is the strongest partnership candidate — meaningful wallet share in [Segment], no competing deal.
+- [Merchant] is the strongest partnership candidate — meaningful wallet share in [Segment], no competing deal. Bring up: an anchored offer. Timing: ahead of [Season]. Opportunity: [$ range] in annual card spend.
 
 Separately, [City]'s spend mix shifted toward [Category], which justifies refreshing its local perk set. Proposed owner: [Owner]; refresh target: [Date].`,
     replyPrompts: [
@@ -768,8 +781,8 @@ Separately, [City]'s spend mix shifted toward [Category], which justifies refres
     subject: "[# households] relationships worth a call today",
     body: `Your book changed overnight. Ranked by decision window, not balance.
 
-1. [Household] — shows the pattern that usually precedes [Life event]. Window closes around [Date]; evidence sits in [Evidence source] rather than anything they've told you. Opening line drafted.
-2. [Household] — has been funding [Goal] at [Competing institution] since [Month]. Talking points drafted, framed as an opportunity.
+1. The [Household A] household — shows the pattern that usually precedes [Life event]. Bring up: [Product]. Timing: window closes around [Date]; evidence sits in [Evidence source] rather than anything they've told you. Opportunity: [$ range]. Opening line drafted.
+2. The [Household B] household — has been funding [Goal] at [Competing institution] since [Month]. Bring up: [Product]. Timing: before the pattern sets. Opportunity: [$ range] in retained balances. Talking points drafted, framed as an opportunity.
 
 Everything else in your book can wait until [Date]. Reply and I'll draft the full nurture email for either one; nothing goes to a customer without your review.`,
     replyPrompts: [
@@ -781,13 +794,13 @@ Everything else in your book can wait until [Date]. Reply and I'll draft the ful
     ],
   },
   wealth: {
-    subject: "[Family] — a moment is coming, everything is ready",
+    subject: "[Family A] — a moment is coming, everything is ready",
     body: `Two families in your book have moments coming up. Everything they'll need is prepared.
 
-1. [Family] — Ventus life-event alert: the pattern that usually precedes [Life event], seen in [Evidence source]. It triggers [Planning item] and an estate review. [Specialist team] is lined up; the agenda and dossier are attached.
-2. [Family] — liquidity has been sitting idle since [Date], and recurring transfers to [Outside firm] began in [Month]. A deployment conversation and a [Lending product] option are drafted.
+1. The [Family A] household — Ventus life-event alert: the pattern that usually precedes [Life event], seen in [Evidence source]. Bring up: [Planning item] and an estate review. Timing: ideally before [Date]. Opportunity: [$ range] in new advisory assets. [Specialist team] is lined up; the agenda and dossier are attached.
+2. The [Family B] household — liquidity has been sitting idle since [Date], and recurring transfers to [Outside firm] began in [Month]. Bring up: a deployment conversation and a [Lending product] option. Opportunity: [$ range] in retained assets.
 
-Also this week: [Deadline] for [Household], and a [Milestone] worth a personal note. Nothing reaches a client without your approval.`,
+Also this week: [Deadline] for the [Household C] household, and a [Milestone] worth a personal note. Nothing reaches a client without your approval.`,
     replyPrompts: [
       "Open the meeting dossier",
       "Who is on the specialist team?",
@@ -802,7 +815,8 @@ Also this week: [Deadline] for [Household], and a [Milestone] worth a personal n
 
 - Audience: [Segment], [# households] households, defined on [Signal family].
 - Copy: written to the benefit, never to the signal — headline [Headline], body [Body copy]. The customer reads relevance, not surveillance.
-- Channel: [Channel], with a [Holdout %] holdout for read-out on [Date].
+- Offer: [Product], framed around the [$ benefit] the household stands to gain.
+- Channel: [Channel], with a [Holdout %] holdout for read-out on [Date]. Opportunity: [$ range] in new balances at baseline conversion.
 
 It's sitting in the approval queue with [Reviewer] named; nothing sends until someone signs off. The audience definition expires [Date].`,
     replyPrompts: [
