@@ -38,10 +38,66 @@ export const COWORKER_PLAYBOOKS: Record<string, Playbook> = {
     mission:
       "Give bank leadership one short weekly read on what moved across the book — momentum, concentration, and the few decisions worth their attention.",
     always: [
-      { id: "l-a1", text: "Send a weekly pulse summarizing institution-level movement", on: true },
-      { id: "l-a2", text: "Lead with the three shifts that changed most week-over-week", on: true },
-      { id: "l-a3", text: "Frame every trend as an opportunity, never as an alarm", on: true },
-      { id: "l-a4", text: "Attribute each number to the signal family that produced it", on: true },
+      {
+        id: "l-a1",
+        text: "Send a weekly pulse summarizing institution-level movement",
+        on: true,
+        example: {
+          subject: "Weekly pulse — [Week of]",
+          body: `One page on what moved across the institution in [Week of].
+
+- Deposits: momentum in [Region A], softening in [Region B].
+- Lending: [Product] applications trending up for the third week running.
+- Wealth: advisory flows steady; watch item noted below.
+
+Everything here is institution-level — no households named, no account detail. Detail lives with your LOB heads' own coworkers.`,
+          replyPrompts: ["Break this down by LOB", "Compare with last quarter", "What changed since Monday?"],
+        },
+      },
+      {
+        id: "l-a2",
+        text: "Lead with the three shifts that changed most week-over-week",
+        on: true,
+        example: {
+          subject: "The three shifts that moved most this week",
+          body: `Ranked by size of move, not by noise:
+
+1. Share-of-wallet drift in [Segment] — the largest week-over-week change on the book.
+2. [Product] gap widening in [Region] — now visible at institution level.
+3. Advisor response time improving in [Region] — a shift worth recognizing.
+
+Everything else moved within normal range and is omitted on purpose.`,
+          replyPrompts: ["Why is shift one ranked first?", "Show the runners-up", "Compare with the prior week"],
+        },
+      },
+      {
+        id: "l-a3",
+        text: "Frame every trend as an opportunity, never as an alarm",
+        on: true,
+        example: {
+          subject: "An opening in [Segment], not a warning",
+          body: `A growing share of [Segment] households is routing savings to outside institutions. Read as an opening: the behavior says these households are actively looking for a better yield home, and we have a credible answer in [Product].
+
+The window is measured in weeks, not quarters — but this is a positioning opportunity, not a fire drill. Suggested owner: [Owner].`,
+          replyPrompts: ["Size the opportunity", "Draft the positioning note", "Which regions lead the trend?"],
+        },
+      },
+      {
+        id: "l-a4",
+        text: "Attribute each number to the signal family that produced it",
+        on: true,
+        example: {
+          subject: "Where this week's numbers come from",
+          body: `Every figure in this pulse carries its source:
+
+- Share-of-wallet drift — Financial signals (outbound transfer patterns).
+- [Product] gap — Behavioral signals (recurring payments to outside providers).
+- Coverage pressure — Demographic signals (segment growth vs. advisor assignments).
+
+If a number can't be attributed to a signal family, it doesn't appear in this brief.`,
+          replyPrompts: ["Show the evidence behind figure one", "Which signal family is most active?", "Export the attribution table"],
+        },
+      },
     ],
     sometimes: [
       { id: "l-s1", text: "Propose a campaign brief for the marketing team", when: "a product gap covers 10+ households", on: true },
