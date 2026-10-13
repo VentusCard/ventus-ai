@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DECKMO, RICKY_SIGNAL_DETAILS, RICKY_SIGNAL_STORY } from "@/lib/deckmoScript";
@@ -8,6 +8,10 @@ import { cn } from "@/lib/utils";
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
 export function RickySignalStory() {
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
+  const detailRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (selectedLabel) detailRef.current?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+  }, [selectedLabel]);
   const signal = DECKMO.ricky.signals.find((item) => item.label === selectedLabel);
   const detail = selectedLabel ? RICKY_SIGNAL_DETAILS[selectedLabel] : undefined;
   const external = signal && "externalEvidence" in signal ? signal.externalEvidence : null;
@@ -32,7 +36,7 @@ export function RickySignalStory() {
         </Fragment>;
       })}.
     </p>
-    {signal && detail && <section id="ricky-story-detail" aria-label={`${signal.label} details`} className={cn("ricky-story-detail mt-6 animate-fade-in rounded-lg border bg-background p-5", `ricky-story-${signal.tone}`)}>
+    {signal && detail && <section ref={detailRef} id="ricky-story-detail" aria-label={`${signal.label} details`} className={cn("ricky-story-detail mt-6 animate-fade-in rounded-lg border bg-background p-5", `ricky-story-${signal.tone}`)}>
       <div className="flex items-start justify-between gap-4">
         <div><span className="text-[10px] font-bold uppercase text-deck-muted">{external ? "External" : "Internal ledger"}</span><h4 className="mt-1 text-lg font-bold text-deck-navy">{detail.summary}</h4></div>
         <Button variant="ghost" size="icon" onClick={() => setSelectedLabel(null)} aria-label="Close signal details" title="Close signal details" className="shrink-0"><X className="h-4 w-4" /></Button>
