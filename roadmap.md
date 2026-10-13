@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Rebalance slide 2.3 into responsive, naturally aligned signal-family rows; verify sizes and evidence interactions
 - [x] Replace section-two enrichment/internal-only beats with one full-width signal story; verify details, evidence, and shortened navigation
 - [x] Restrict /deckmo navigation to arrow buttons and left/right or A/D keys; verify interactive controls and scrolling
 - [x] Add KYC above /deckmo 2.1–2.2 rail blocks and verify expansion and slide persistence
