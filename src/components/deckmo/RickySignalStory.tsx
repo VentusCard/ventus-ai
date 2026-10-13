@@ -6,6 +6,13 @@ import { RICKY_TRANSACTIONS } from "@/lib/deckmoRickyTransactions";
 import { cn } from "@/lib/utils";
 
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
+
+/** Families in story order, one entry each, tones matching the pills. */
+const STORY_FAMILIES: { family: string; tone: string }[] = [];
+for (const item of DECKMO.ricky.signals) {
+  if (!STORY_FAMILIES.some((entry) => entry.family === item.family)) STORY_FAMILIES.push({ family: item.family, tone: item.tone });
+}
+
 export function RickySignalStory() {
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const detailRef = useRef<HTMLElement>(null);
