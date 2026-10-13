@@ -5,3 +5,4 @@
 - Ricky's KYC block and profile heading share structured deck-profile data; keep KYC separate from payment-rail grouping and signal pillars to avoid treating identity fields as transactions or inferred signals.
 - Deckmo slide state is authoritative and changes only through explicit arrow controls or its tested keyboard mapping; do not derive deck navigation from scrolling or embedded interactions.
 - The combined visibility signal story uses deck-scoped natural-height family rows with inline narrative pills and evidence on demand; shared grid rows keep headers aligned without DOM measurements, while other Ricky scenes remain unchanged.
+- Nested signal attributes and monthly or annualized payment summaries use a deck-scoped helper with integer-cent calculations from the existing fixture; keep observed payments, estimates, and external context distinct so summaries cannot drift from evidence.
