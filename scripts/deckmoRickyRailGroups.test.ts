@@ -23,9 +23,9 @@ describe("Ricky rail overview", () => {
   });
   test("keeps original order after the variant-coverage lead rows", () => {
     const cards = groups[0];
-    const lead = cards.examples.slice(0, 2);
-    const rest = cards.examples.slice(2).map((row) => row.id);
-    expect(rest).toEqual(RICKY_TRANSACTIONS.filter((row) => row.source.endsWith("Card")).map((row) => row.id).filter((id) => !lead.includes(id as never)));
+    const originalIds = RICKY_TRANSACTIONS.filter((row) => row.source.endsWith("Card")).map((row) => row.id);
+    const leadIds = cards.examples.slice(0, 2).map((row) => row.id);
+    expect(cards.examples.slice(2).map((row) => row.id)).toEqual(originalIds.filter((id) => !leadIds.includes(id)));
   });
   test("extracts only identifiers present in the raw data", () => {
     const row: RickyTransaction = { id: "test", date: "09/17/26", source: "ACH", description: "ACH DEBIT MARCUS SAVINGS ID 091726", amount: "($3,500.00)", signals: [] };
