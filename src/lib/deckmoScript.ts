@@ -15,6 +15,15 @@ export type DeckmoBeatId =
 // Flat beat index within the "For Your Teams" slide -> workspace screen index.
 export const BANK_TOOLS_BEAT_SCREENS = [0, 1, 2];
 
+export const RICKY_KYC_PROFILE = {
+  name: "Ricky J",
+  customerId: "45275487",
+  age: 34,
+  location: "San Francisco, CA 94123",
+  estimatedHouseholdIncome: "$500K",
+  relationshipTier: "Preferred",
+};
+
 export const DECKMO = {
   chrome: {
     progress: "Story progress",
@@ -201,8 +210,8 @@ export const DECKMO = {
       },
       { family: "Risk", label: RICKY_SIGNAL_LABELS.betting, tone: "rose", source: "internal" },
     ],
-    profileTitle: "Ricky J #45275487",
-    profileFacts: "Age 34 · San Francisco, CA 94123 · Est. household income $500K · Preferred tier",
+    profileTitle: `${RICKY_KYC_PROFILE.name} #${RICKY_KYC_PROFILE.customerId}`,
+    profileFacts: `Age ${RICKY_KYC_PROFILE.age} · ${RICKY_KYC_PROFILE.location} · Est. household income ${RICKY_KYC_PROFILE.estimatedHouseholdIncome} · ${RICKY_KYC_PROFILE.relationshipTier} tier`,
     profileBody:
       "Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.",
   },
