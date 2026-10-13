@@ -17,7 +17,10 @@ describe("Ricky inline pill wording", () => {
       expect(segments[0]?.kind).toBe("attribute");
       expect(segments[segments.length - 1]?.kind).toBe("attribute");
       for (const segment of segments) {
-        if (segment.kind === "connector") expect(segment.text).toMatch(/^ .+ $);
+        if (segment.kind === "connector") {
+          expect(segment.text.startsWith(" ")).toBe(true);
+          expect(segment.text.endsWith(" ")).toBe(true);
+        }
         expect(segment.text).not.toMatch(/variable|deposites|bi weekly/i);
       }
       for (let i = 1; i < segments.length; i += 1) {
