@@ -15,7 +15,7 @@ describe("combined Ricky signal story", () => {
   });
   test("five families remain in order with external signals last in their family", () => {
     const signals = RICKY_SIGNAL_STORY.map((clause) => DECKMO.ricky.signals.find((signal) => signal.label === clause.label));
-    expect([...new Set(signals.map((signal) => signal?.family))]).toEqual(["Behavioral", "Life Events", "Financial", "Demographics", "Risk"]);
+    expect([...new Set(signals.map((signal) => signal?.family))]).toEqual(["Demographics", "Financial", "Behavioral", "Life Events", "Risk"]);
     expect(signals.filter((signal) => signal?.source === "external")).toHaveLength(3);
     for (const family of ["Behavioral", "Financial", "Demographics"]) {
       const group = signals.filter((signal) => signal?.family === family);
