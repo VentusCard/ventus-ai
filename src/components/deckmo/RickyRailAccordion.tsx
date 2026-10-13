@@ -15,11 +15,11 @@ const railDisplay: Record<RickyRail, { icon: LucideIcon; schema: string; tone: s
 };
 
 const railColumns: Record<RickyRail, { label: string; width: string }[]> = {
-  Cards: [{ label: "Date", width: "w-[68px]" }, { label: "Card source", width: "w-[82px]" }, { label: "Raw descriptor", width: "" }, { label: "MCC", width: "w-[38px]" }, { label: "Amount", width: "w-[80px]" }],
-  ACH: [{ label: "Date", width: "w-[68px]" }, { label: "Raw descriptor", width: "" }, { label: "Direction", width: "w-[52px]" }, { label: "Identifier", width: "w-[72px]" }, { label: "Amount", width: "w-[80px]" }],
-  Checks: [{ label: "Date", width: "w-[68px]" }, { label: "Check number", width: "w-[72px]" }, { label: "Raw descriptor", width: "" }, { label: "Amount", width: "w-[80px]" }],
-  Wire: [{ label: "Date", width: "w-[68px]" }, { label: "Raw descriptor", width: "" }, { label: "Reference", width: "w-[96px]" }, { label: "Amount", width: "w-[80px]" }],
-  Zelle: [{ label: "Date", width: "w-[68px]" }, { label: "Raw descriptor", width: "" }, { label: "Recipient / memo", width: "w-[116px]" }, { label: "Amount", width: "w-[80px]" }],
+  Cards: [{ label: "Date", width: "w-[76px]" }, { label: "Card source", width: "w-[102px]" }, { label: "Raw descriptor", width: "" }, { label: "MCC", width: "w-[48px]" }, { label: "Amount", width: "w-[108px]" }],
+  ACH: [{ label: "Date", width: "w-[76px]" }, { label: "Raw descriptor", width: "" }, { label: "Direction", width: "w-[64px]" }, { label: "Identifier", width: "w-[84px]" }, { label: "Amount", width: "w-[108px]" }],
+  Checks: [{ label: "Date", width: "w-[76px]" }, { label: "Check number", width: "w-[80px]" }, { label: "Raw descriptor", width: "" }, { label: "Amount", width: "w-[108px]" }],
+  Wire: [{ label: "Date", width: "w-[76px]" }, { label: "Raw descriptor", width: "" }, { label: "Reference", width: "w-[108px]" }, { label: "Amount", width: "w-[108px]" }],
+  Zelle: [{ label: "Date", width: "w-[76px]" }, { label: "Raw descriptor", width: "" }, { label: "Recipient / memo", width: "w-[116px]" }, { label: "Amount", width: "w-[108px]" }],
 };
 
 export function RickyRailAccordion() {
