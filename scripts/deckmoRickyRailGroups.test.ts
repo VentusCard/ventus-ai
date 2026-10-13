@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { RICKY_TRANSACTIONS, type RickyTransaction } from "./deckmoRickyTransactions";
-import { groupRickyTransactionsByRail, rawRailFields } from "./deckmoRickyRailGroups";
+import { RICKY_TRANSACTIONS, type RickyTransaction } from "../src/lib/deckmoRickyTransactions";
+import { groupRickyTransactionsByRail, rawRailFields } from "../src/lib/deckmoRickyRailGroups";
 
 describe("Ricky rail overview", () => {
   const groups = groupRickyTransactionsByRail(RICKY_TRANSACTIONS);
