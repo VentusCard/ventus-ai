@@ -3,7 +3,7 @@ import { Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DECKMO, RICKY_SIGNAL_DETAILS, RICKY_SIGNAL_STORY } from "@/lib/deckmoScript";
 import { RICKY_TRANSACTIONS } from "@/lib/deckmoRickyTransactions";
-import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalAttributes, signalPaymentSummary } from "@/lib/deckmoSignalAttributes";
+import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalInlinePhrase, signalPaymentSummary } from "@/lib/deckmoSignalAttributes";
 import { cn } from "@/lib/utils";
 
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
@@ -39,17 +39,16 @@ export function RickySignalStory() {
           <span className="ricky-story-dot h-2.5 w-2.5 shrink-0 rounded-full" />
           <span className="ricky-story-family-label text-xs font-bold uppercase">{entry.family}</span>
         </div>
-        <p className="ricky-story-prose min-w-0 py-4 pl-7 text-[20px] font-medium leading-[2.2] text-deck-navy">
+        <p className="ricky-story-prose min-w-0 py-3 pl-7 text-[20px] font-medium leading-[1.9] text-deck-navy">
       {RICKY_SIGNAL_STORY.filter((clause) => DECKMO.ricky.signals.find((item) => item.label === clause.label)?.family === entry.family).map((clause, index) => {
         const item = DECKMO.ricky.signals.find((candidate) => candidate.label === clause.label);
         if (!item) return null;
         const selected = selectedLabel === item.label;
         return <Fragment key={item.label}>
           {index === 0 ? clause.before.replace(/^\.\s*/, "") : /^[,;.]/.test(clause.before) ? clause.before : ` ${clause.before}`}{" "}
-           <Button type="button" variant="outline" aria-pressed={selected} aria-expanded={selected} aria-controls="ricky-story-detail" data-signal-label={item.label} data-signal-family={item.family} onClick={() => setSelectedLabel(selected ? null : item.label)} className={cn("ricky-story-pill inline-flex h-auto max-w-full flex-col items-start gap-1.5 whitespace-normal rounded-lg px-3 py-2 align-middle text-left text-[16px] font-semibold leading-snug shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
-            <span className="flex max-w-full items-center gap-2"><span className="min-w-0">{item.label}</span>
-            {item.source === "external" && <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-current/30 px-1.5 py-0.5 text-[9px] font-bold uppercase"><Sparkles className="h-3 w-3" />Ext</span>}</span>
-            <span data-signal-attributes className="flex max-w-full flex-wrap gap-1 text-[11px] font-medium leading-normal">{signalAttributes(item.label).map((attribute) => <span key={attribute} className="ricky-story-attribute rounded-full border px-2 py-0.5">{attribute}</span>)}</span>
+           <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} aria-controls="ricky-story-detail" data-signal-label={item.label} data-signal-family={item.family} onClick={() => setSelectedLabel(selected ? null : item.label)} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
+            <span data-signal-attributes>{signalInlinePhrase(item.label)}</span>
+            {item.source === "external" && <span className="ml-1.5 inline-flex items-center gap-1 align-middle text-[9px] font-bold uppercase"><Sparkles className="h-3 w-3" />Ext</span>}
           </Button>
         </Fragment>;
       })}.
