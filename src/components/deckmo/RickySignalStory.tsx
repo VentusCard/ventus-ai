@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { ArrowLeftRight, CreditCard, Repeat, Sparkles, X } from "lucide-react";
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { Popover, PopoverContent } from "@/components/ui/popover";
+import { PopoverAnchor } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
 import { DECKMO, RICKY_SIGNAL_DETAILS, RICKY_SIGNAL_STORY } from "@/lib/deckmoScript";
 import { RICKY_TRANSACTIONS, type RickyTransaction } from "@/lib/deckmoRickyTransactions";
