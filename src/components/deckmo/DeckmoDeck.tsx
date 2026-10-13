@@ -10,7 +10,7 @@ import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTran
 import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoRetention } from "./DeckmoBankdemoScenes";
 import { ENRICH_COLS, EnrichmentCells, EnrichmentColumnHeaders } from "./RickyEnrichmentTable";
-import { RickyRailAccordion } from "./RickyRailAccordion";
+import { RickyKycBlock, RickyRailAccordion } from "./RickyRailAccordion";
 import { RickySignalStory } from "./RickySignalStory";
 
 const TONES = {
@@ -177,7 +177,7 @@ function Visibility({ step, active = false }: SceneProps) {
         </div>
         <div className={cn("grid min-h-0 flex-1 transition-[grid-template-columns] duration-700 ease-in-out", moved ? "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]" : "grid-cols-[minmax(0,1fr)_0fr]") }>
           <section className="min-h-0 min-w-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 scrollbar-light">
-            <RickyRailAccordion />
+            {moved ? <RollingLedgerWithKyc active={active} /> : <RickyRailAccordion />}
           </section>
           <section className={cn("min-h-0 min-w-0 overflow-hidden bg-background transition-opacity delay-200 duration-500", moved ? "px-6 py-4 opacity-100" : "pointer-events-none p-0 opacity-0")}>
             <OutsideTicker data={d.outside} revealed={moved} active={active} />
@@ -186,6 +186,14 @@ function Visibility({ step, active = false }: SceneProps) {
       </div>
     </div>
   );
+}
+
+function RollingLedgerWithKyc({ active }: { active: boolean }) {
+  const [kycOpen, setKycOpen] = useState(false);
+  return <div className="flex h-full min-h-0 animate-fade-in flex-col">
+    <div className="shrink-0 border-b border-deck-rule bg-background"><RickyKycBlock open={kycOpen} onToggle={() => setKycOpen((v) => !v)} /></div>
+    <div className="min-h-0 flex-1 px-4 pt-4"><InsideLedger data={DECKMO.visibility.inside} active={active} /></div>
+  </div>;
 }
 
 const RAIL_STYLES: Record<string, { badge: string; row: string }> = {
