@@ -523,8 +523,14 @@
   .ricky-story-pill[data-revealed] { transition: none; }
 }
 
-/* Signal pop-up renders in a portal outside the deck scope; pin it to the light theme. */
-.ricky-story-popover { background: #ffffff; color: #0f172a; border-color: hsl(var(--story-accent) / 0.6); border-top: 4px solid hsl(var(--story-accent)); box-shadow: 0 24px 60px -20px hsl(var(--story-accent) / 0.3), 0 24px 60px -20px rgb(15 23 42 / 0.25); }
+/* Signal pop-up renders in a portal outside the deck scope; pin it to the light theme and
+   re-declare the family accents locally because the portal is outside .demo-page. */
+.ricky-story-popover { --deck-navy: 212 65% 17%; --deck-muted: 215 16% 47%; --deck-rule: 214 32% 91%; background: #ffffff; color: #0f172a; border-color: hsl(var(--story-accent) / 0.6); border-top: 4px solid hsl(var(--story-accent)); box-shadow: 0 24px 60px -20px hsl(var(--story-accent) / 0.3), 0 24px 60px -20px rgb(15 23 42 / 0.25); }
+.ricky-story-popover.ricky-story-violet { --story-accent: 263 70% 50%; }
+.ricky-story-popover.ricky-story-emerald { --story-accent: 160 84% 39%; }
+.ricky-story-popover.ricky-story-blue { --story-accent: 217 91% 60%; }
+.ricky-story-popover.ricky-story-amber { --story-accent: 38 92% 50%; }
+.ricky-story-popover.ricky-story-rose { --story-accent: 350 89% 60%; }
 .ricky-story-popover .ricky-story-popover-head { background: linear-gradient(hsl(var(--story-accent) / 0.14), hsl(var(--story-accent) / 0.14)), #ffffff; border-bottom-color: hsl(var(--story-accent) / 0.35); }
 .ricky-story-popover .bg-background { background: #ffffff; }
 .ricky-story-popover .bg-muted\/40, .ricky-story-popover .bg-muted\/50 { background: hsl(var(--story-accent) / 0.08); border-color: hsl(var(--story-accent) / 0.3); }
