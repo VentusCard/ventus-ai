@@ -2,13 +2,13 @@
 
 ## Presentation
 - Update all 14 signal pills in /deckmo’s customer story so each contains smaller, always-visible detail pills. Keep the five left-hand family headings and natural-language connections.
-- For financial signals, show cadence, exact amount, destination, and account/product type wherever the evidence supports them.
+- For financial signals, show cadence, exact amount, destination, and account/product type wherever the evidence supports them. Use clearly labeled annualized amounts when they provide a better summary, such as Amex credit card payments.
 - Preserve clicking a parent signal to open its fuller description and supporting evidence; child detail pills are labels, not separate navigation controls.
 
 ## Financial examples
 - **Investing at Fidelity:** `(Monthly)` `($5,000.00)` to Fidelity `(Brokerage)` — a fixed monthly contribution supported by all nine fixture months.
 - **Goldman Marcus HYSA:** `(Monthly)` `($3,500.00 latest · September)` to Goldman Marcus `(HYSA)` `(Variable amount)`. The expanded evidence will list each exact monthly contribution: January–March $2,000; April–May $2,500; June–July $3,000; August–September $3,500.
-- **Amex Credit Cards:** `(Monthly)` `($4,862.19 latest · September)` to Amex `(Credit card payment)` `(Variable amount)`, with exact amounts for each month in the expanded evidence.
+- **Amex Credit Cards:** `(Annualized)` `($47,647.65/year)` to Amex `(Credit card payments)` `(Estimate)`. Calculate this from the January–September observed total of $35,735.74 ÷ 9 × 12, not from the latest payment. Expanded details show the calculation basis and each exact monthly payment, including September’s $4,862.19. Do not present the annualized figure as an actual full-year total.
 - Keep external loan information distinct from observed payments; do not invent a monthly installment where none is provided.
 
 ## Other signals
@@ -24,5 +24,5 @@
 ## Technical details and validation
 - Add a deck-scoped structured-detail helper derived from the existing Ricky transactions, with explicit product types and contextual attributes for signals that are not payment series.
 - Update RickySignalStory and its semantic styling tokens without changing other demos or transaction fixtures.
-- Add tests for fixed versus variable monthly amounts, exact month-by-month totals, and missing external payment data; run the existing story, rail, and navigation tests.
+- Add tests for fixed versus variable monthly amounts, exact month-by-month totals, Amex’s nine-month annualization ($47,647.65), and missing external payment data; run the existing story, rail, and navigation tests.
 - Verify all 14 nested pills and their expanded evidence in the running deck at 1024×768, 1375×842, and 1691×1011, checking wrapping, scrolling, and click behavior.
