@@ -1,7 +1,21 @@
 import { RICKY_SIGNAL_LABELS as L, RICKY_TRANSACTIONS, type RickyTransaction } from "./deckmoRickyTransactions";
 
-const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-export const formatSignalMoney = (cents: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+export const formatSignalMoney = (cents: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
 
 export function signalMonthlyPayments(label: string, transactions: RickyTransaction[] = RICKY_TRANSACTIONS) {
   const totals = new Map<string, number>();
@@ -13,17 +27,25 @@ export function signalMonthlyPayments(label: string, transactions: RickyTransact
     const key = `${year}-${month}`;
     totals.set(key, (totals.get(key) ?? 0) + Math.round(value * 100));
   }
-  return [...totals].sort(([a], [b]) => a.localeCompare(b)).map(([key, cents]) => {
-    const [year, month] = key.split("-");
-    return { key, month: months[Number(month) - 1] ?? month, year: `20${year}`, cents };
-  });
+  return [...totals]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, cents]) => {
+      const [year, month] = key.split("-");
+      return { key, month: months[Number(month) - 1] ?? month, year: `20${year}`, cents };
+    });
 }
 
 export function signalPaymentSummary(label: string, transactions: RickyTransaction[] = RICKY_TRANSACTIONS) {
   const monthly = signalMonthlyPayments(label, transactions);
   if (!monthly.length) return null;
   const totalCents = monthly.reduce((sum, row) => sum + row.cents, 0);
-  return { monthly, totalCents, annualizedCents: Math.round(totalCents * 12 / monthly.length), fixed: monthly.every((row) => row.cents === monthly[0]?.cents), latest: monthly[monthly.length - 1] };
+  return {
+    monthly,
+    totalCents,
+    annualizedCents: Math.round((totalCents * 12) / monthly.length),
+    fixed: monthly.every((row) => row.cents === monthly[0]?.cents),
+    latest: monthly[monthly.length - 1],
+  };
 }
 
 const context: Record<string, string[]> = {
@@ -46,9 +68,24 @@ export function signalAttributes(label: string): string[] {
   if (!FINANCIAL_PAYMENT_LABELS.includes(label)) return context[label] ?? [];
   const summary = signalPaymentSummary(label);
   if (!summary?.latest) return [];
-  if (label === L.amex) return ["Annualized", `${formatSignalMoney(summary.annualizedCents)}/year`, "to Amex", "Credit card payments", "Estimate"];
-  const amount = summary.fixed ? formatSignalMoney(summary.latest.cents) : `${formatSignalMoney(summary.latest.cents)} latest · ${summary.latest.month}`;
-  return ["Monthly", amount, label === L.marcus ? "to Goldman Marcus" : "to Fidelity", label === L.marcus ? "HYSA" : "Brokerage", ...(summary.fixed ? [] : ["Variable amount"])];
+  if (label === L.amex)
+    return [
+      "Annualized",
+      `${formatSignalMoney(summary.annualizedCents)}/year`,
+      "to Amex",
+      "Credit card payments",
+      "Estimate",
+    ];
+  const amount = summary.fixed
+    ? formatSignalMoney(summary.latest.cents)
+    : `${formatSignalMoney(summary.latest.cents)} latest · ${summary.latest.month}`;
+  return [
+    "Monthly",
+    amount,
+    label === L.marcus ? "to Goldman Marcus" : "to Fidelity",
+    label === L.marcus ? "HYSA" : "Brokerage",
+    ...(summary.fixed ? [] : ["Variable amount"]),
+  ];
 }
 
 export type SignalPhraseSegment = { kind: "attribute" | "connector"; text: string };
@@ -60,22 +97,83 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
   if (FINANCIAL_PAYMENT_LABELS.includes(label)) {
     const summary = signalPaymentSummary(label);
     if (!summary?.latest) return [attribute(label)];
-    const money = (cents: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: cents % 100 === 0 ? 0 : 2 }).format(cents / 100);
-    if (label === L.amex) return [attribute("Annualized estimate"), connector(" "), attribute(`${money(summary.annualizedCents)}/year`), connector(" to "), attribute("Amex"), connector(" for "), attribute("credit card payments")];
-    return [attribute("Monthly"), connector(" "), attribute(money(summary.latest.cents)), connector(" to "), attribute(label === L.marcus ? "Goldman Marcus" : "Fidelity"), connector(" a "), attribute(label === L.marcus ? "HYSA" : "brokerage account"), ...(summary.fixed ? [] : [connector(" · "), attribute("variable")])];
+    const money = (cents: number) =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: cents % 100 === 0 ? 0 : 2,
+      }).format(cents / 100);
+    if (label === L.amex)
+      return [
+        attribute("Annualized estimate"),
+        connector(" "),
+        attribute(`${money(summary.annualizedCents)}/year`),
+        connector(" to "),
+        attribute("Amex"),
+        connector(" for "),
+        attribute("credit card payments"),
+      ];
+    return [
+      attribute("Monthly"),
+      connector(" "),
+      attribute(money(summary.latest.cents)),
+      connector(" to "),
+      attribute(label === L.marcus ? "Goldman Marcus" : "Fidelity"),
+      connector(" a "),
+      attribute(label === L.marcus ? "HYSA" : "brokerage account"),
+      ...(summary.fixed ? [] : [connector(" · "), attribute("variable")]),
+    ];
   }
   const phrases: Record<string, SignalPhraseSegment[]> = {
-    [L.income]: [attribute("Stable $22K monthly income"), connector(" from "), attribute("HP Inc."),connector(" a "),attribute("Technology Company")],
+    [L.income]: [
+      attribute("Stable $22K monthly income"),
+      connector(" from "),
+      attribute("HP Inc."),
+      connector(" a "),
+      attribute("Technology Company"),
+    ],
     [L.business]: [attribute("SMB Owner"), connector("in"), attribute("Food and Beverage")],
-    "Small airplane co-owner": [attribute("Small airplane co-owner"), connector(" of a "), attribute("Cirrus SR22"), connector(" · "), attribute("likely")],
-    "BMW X5 loan ending in ~4 months": [attribute("BMW X5"), connector(" with "), attribute("auto financing"), connector(" ending in "), attribute("~4 months"), connector(" · ")],
-    [L.tennis]: [attribute("$12,000"), connector("annual spent in"),attribute("bi weekly"),attribute("Tennis"),],
-    [L.hawaii]: [attribute("$9,000"), connector("annual spent in"),attribute("Annual pre-holiday trip"), attribute("Q4")],
-    [L.media]: [attribute("$6,000"), connector("annual spent in"),attribute("Media, music and entertainment"), connector(" through "), attribute("streaming services"), connector(" and "), attribute("live events")],
+    "Small airplane co-owner": [attribute("Airplane co-owner"), connector(" of a "), attribute("Cirrus SR22")],
+    "BMW X5 loan ending in ~4 months": [
+      attribute("BMW X5"),
+      connector(" with "),
+      attribute("auto financing"),
+      connector(" ending in "),
+      attribute("~4 months"),
+      connector(" · "),
+    ],
+    [L.tennis]: [attribute("$12,000"), connector("annual spent in"), attribute("bi weekly"), attribute("Tennis")],
+    [L.hawaii]: [
+      attribute("$9,000"),
+      connector("annual spent in"),
+      attribute("Annual pre-holiday trip"),
+      attribute("Q4"),
+    ],
+    [L.media]: [
+      attribute("$6,000"),
+      connector("annual spent in"),
+      attribute("Media, music and entertainment"),
+      connector(" through "),
+      attribute("streaming services"),
+      connector(" and "),
+      attribute("live events"),
+    ],
     "High pet expenditure": [attribute("Monthly"), connector(" "), attribute("high pet expenditure")],
     [L.baby]: [attribute("New baby"), connector(" in "), attribute("Q3, 2026")],
-    [L.home]: [attribute("Buying a home"), connector(" in "), attribute("Palo Alto"), connector(" for around "), attribute("$1.75M")],
-    [L.betting]: [attribute("Increasing"), connector(" frequency at "), attribute("Online Sports Betting"), connector(" now "), attribute("bi-weekly deposites")],
+    [L.home]: [
+      attribute("Buying a home"),
+      connector(" in "),
+      attribute("Palo Alto"),
+      connector(" for around "),
+      attribute("$1.75M"),
+    ],
+    [L.betting]: [
+      attribute("Increasing"),
+      connector(" frequency at "),
+      attribute("Online Sports Betting"),
+      connector(" now "),
+      attribute("bi-weekly deposites"),
+    ],
   };
   return phrases[label] ?? [attribute(label)];
 }
