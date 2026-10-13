@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Add always-visible nested attributes to all Ricky signal pills, including monthly financial amounts and annualized Amex payments; verify evidence and desktop layouts
 - [x] Reorder Ricky's five signal families deck-wide (Demographics, Financial, Behavioral, Life Events, Risk); verify all four lists
 - [x] Rebalance slide 2.3 into responsive, naturally aligned signal-family rows; verify sizes and evidence interactions
 - [x] Replace section-two enrichment/internal-only beats with one full-width signal story; verify details, evidence, and shortened navigation
