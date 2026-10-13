@@ -32,10 +32,10 @@ export function RickyRailAccordion() {
       return <div key={rail} className={cn("ricky-rail border-b border-deck-rule", display.tone)}>
         <Button variant="ghost" aria-expanded={open} aria-controls={`ricky-rail-${rail}`} onClick={() => setOpenRail(open ? null : rail)} className={cn("h-auto w-full justify-start gap-3 whitespace-normal rounded-none px-4 py-3.5 text-left hover:bg-deck-surface", open && "ricky-rail-header")}>
           <span className="ricky-rail-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border"><Icon className="h-4 w-4" /></span>
-          <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-deck-navy">{rail}</span><span className="mt-0.5 block text-[10px] font-medium leading-relaxed text-deck-muted">{display.schema}</span></span>
+          <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-deck-navy">{rail}<span className="ml-2 text-[10px] font-semibold tabular-nums text-deck-muted">{examples.length} transactions</span></span><span className="mt-0.5 block text-[10px] font-medium leading-relaxed text-deck-muted">{display.schema}</span></span>
           <ChevronDown className={cn("h-4 w-4 shrink-0 text-deck-muted transition-transform motion-reduce:transition-none", open && "rotate-180")} />
         </Button>
-        <div id={`ricky-rail-${rail}`} hidden={!open} role="region" aria-label={`${rail} transaction examples`} className="bg-background">
+        <div id={`ricky-rail-${rail}`} hidden={!open} role="region" aria-label={`${rail} transactions`} className="max-h-[clamp(150px,42vh,400px)] overflow-y-auto bg-background scrollbar-light">
           <table className="w-full table-fixed border-collapse text-left" aria-label={`${rail} transactions`}>
             <colgroup>{railColumns[rail].map((column) => <col key={column.label} className={column.width} />)}</colgroup>
             <thead className="border-t border-deck-rule bg-deck-surface">
