@@ -1,8 +1,9 @@
-import { Fragment, useEffect, useRef, useState } from "react";
-import { Sparkles, X } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
+import { ArrowLeftRight, CreditCard, Repeat, Sparkles, X } from "lucide-react";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { DECKMO, RICKY_SIGNAL_DETAILS, RICKY_SIGNAL_STORY } from "@/lib/deckmoScript";
-import { RICKY_TRANSACTIONS } from "@/lib/deckmoRickyTransactions";
+import { RICKY_TRANSACTIONS, type RickyTransaction } from "@/lib/deckmoRickyTransactions";
 import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalInlineSegments, signalPaymentSummary } from "@/lib/deckmoSignalAttributes";
 import { cn } from "@/lib/utils";
 
@@ -18,17 +19,46 @@ for (const item of DECKMO.ricky.signals) {
 export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
   const externalShown = revealStep === undefined || revealStep >= 1;
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
-  const detailRef = useRef<HTMLElement>(null);
-
   useEffect(() => {
-    if (selectedLabel) detailRef.current?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-  }, [selectedLabel]);
+    const close = (event: KeyboardEvent) => { if (["ArrowLeft", "ArrowRight", "a", "A", "d", "D"].includes(event.key)) setSelectedLabel(null); };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, []);
+  useEffect(() => { setSelectedLabel(null); }, [revealStep]);
 
   const signal = DECKMO.ricky.signals.find((item) => item.label === selectedLabel);
   const detail = selectedLabel ? RICKY_SIGNAL_DETAILS[selectedLabel] : undefined;
   const external = signal && "externalEvidence" in signal ? signal.externalEvidence : null;
   const evidence = RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((label) => label === selectedLabel));
   const payments = selectedLabel && FINANCIAL_PAYMENT_LABELS.includes(selectedLabel) ? signalPaymentSummary(selectedLabel) : null;
+
+  function renderDetail() {
+    if (!signal || !detail) return null;
+    return <section id="ricky-story-detail" aria-label={`${signal.label} details`} className="ricky-story-evidence">
+      <header className="ricky-story-popover-head sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-deck-rule bg-background px-5 py-4">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-dot h-2 w-2 rounded-full" /><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="rounded-full border border-deck-rule px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{external ? "External signal" : "Internal ledger"}</span></div>
+          <h4 className="mt-1.5 text-base font-bold leading-snug text-deck-navy">{signal.label}</h4>
+          <p className="mt-1 text-sm text-foreground">{detail.summary}</p>
+        </div>
+        <Button variant="ghost" size="icon" onClick={() => setSelectedLabel(null)} aria-label="Close signal details" title="Close signal details" className="shrink-0"><X className="h-4 w-4" /></Button>
+      </header>
+      <div className="space-y-4 px-5 py-4">
+        <div><h5 className="text-[10px] font-bold uppercase text-deck-muted">Key details</h5><ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">{detail.facts.map((fact) => <li key={fact} className="rounded-md border border-deck-rule bg-muted/40 px-3 py-2">{fact}</li>)}</ul></div>
+        {detail.merchants.length > 0 && <div><h5 className="text-[10px] font-bold uppercase text-deck-muted">Merchants</h5><div className="mt-2 flex flex-wrap gap-1.5">{detail.merchants.map((merchant) => <span key={merchant} className="ricky-story-attribute">{merchant}</span>)}</div></div>}
+        {payments && <div data-monthly-payments>
+          <h5 className="text-[10px] font-bold uppercase text-deck-muted">Observed monthly payments</h5>
+          {signal.label === "Amex Credit Cards" && <p className="mt-2 text-xs text-deck-muted">Annualized estimate: {formatSignalMoney(payments.totalCents)} observed across {payments.monthly.length} months ÷ {payments.monthly.length} × 12 = {formatSignalMoney(payments.annualizedCents)}/year. Not an actual full-year total.</p>}
+          <dl className="mt-2 grid grid-cols-3 gap-x-5 gap-y-1 text-sm">{payments.monthly.map((row) => <div key={row.key} className="flex justify-between gap-2 border-b border-deck-rule py-1"><dt className="text-deck-muted">{row.month} {row.year}</dt><dd className="font-semibold tabular-nums text-deck-navy">{formatSignalMoney(row.cents)}</dd></div>)}</dl>
+        </div>}
+        {external ? <div className="rounded-lg border border-dashed border-deck-rule p-3"><h5 className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-deck-muted"><Sparkles className="h-3 w-3" />Outside evidence</h5><p className="mt-2 text-sm">{external.detail}</p><p className="mt-1 text-xs text-deck-muted">{external.provider} · {external.timing} · {external.confidence}</p></div>
+        : <div data-enriched-transactions>
+          <h5 className="text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
+          <ul className="mt-2 divide-y divide-deck-rule rounded-lg border border-deck-rule">{evidence.map((transaction) => <EnrichedRow key={transaction.id} transaction={transaction} merchants={detail.merchants} recurring={evidence.length >= 3} />)}</ul>
+        </div>}
+      </div>
+    </section>;
+  }
 
   return <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-light pb-6" data-ricky-story>
     <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-deck-rule py-3">
@@ -48,35 +78,47 @@ export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
         const selected = selectedLabel === item.label;
         return <Fragment key={item.label}>
           {index === 0 ? clause.before.replace(/^\.\s*/, "") : /^[,;.]/.test(clause.before) ? clause.before : ` ${clause.before}`}{" "}
-           <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} aria-controls="ricky-story-detail" data-signal-label={item.label} data-signal-family={item.family} data-revealed={item.source === "external" ? String(externalShown) : undefined} tabIndex={item.source === "external" && !externalShown ? -1 : undefined} onClick={() => setSelectedLabel(selected ? null : item.label)} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
+           <Popover open={selected} onOpenChange={(open) => { if (!open) setSelectedLabel(null); }}>
+          <PopoverAnchor asChild>
+          <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} data-signal-label={item.label} data-signal-family={item.family} data-revealed={item.source === "external" ? String(externalShown) : undefined} tabIndex={item.source === "external" && !externalShown ? -1 : undefined} onClick={() => setSelectedLabel(selected ? null : item.label)} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
             <span data-signal-attributes>{signalInlineSegments(item.label).map((segment, segmentIndex) => segment.kind === "attribute"
               ? <span key={segmentIndex} className="ricky-story-attribute" data-signal-attribute>{segment.text}</span>
               : <Fragment key={segmentIndex}>{segment.text}</Fragment>)}</span>
             {item.source === "external" && <span className="ml-1.5 inline-flex items-center gap-1 align-middle text-[9px] font-bold uppercase"><Sparkles className="h-3 w-3" />Ext</span>}
           </Button>
+          </PopoverAnchor>
+          {selected && <PopoverContent side="bottom" align="start" collisionPadding={16} onEscapeKeyDown={() => setSelectedLabel(null)} onInteractOutside={(event) => { const target = event.target as HTMLElement | null; if (target?.closest(`[data-signal-label="${CSS.escape(item.label)}"]`)) event.preventDefault(); }} className={cn("ricky-story-popover w-[min(560px,calc(100vw-32px))] max-h-[min(72vh,var(--radix-popover-content-available-height))] overflow-y-auto overscroll-contain scrollbar-light rounded-xl border bg-background p-0 text-foreground shadow-xl", `ricky-story-${item.tone}`)}>{renderDetail()}</PopoverContent>}
+          </Popover>
         </Fragment>;
       })}.
         </p>
       </div>)}
     </div>
-    {signal && detail && <section ref={detailRef} id="ricky-story-detail" aria-label={`${signal.label} details`} className={cn("ricky-story-detail ricky-story-evidence mt-5 animate-fade-in rounded-lg border bg-background p-5", `ricky-story-${signal.tone}`)}>
-      <div className="flex items-start justify-between gap-4">
-        <div><span className="text-[10px] font-bold uppercase text-deck-muted">{external ? "External" : "Internal ledger"}</span><h4 className="mt-1 text-lg font-bold text-deck-navy">{detail.summary}</h4></div>
-        <Button variant="ghost" size="icon" onClick={() => setSelectedLabel(null)} aria-label="Close signal details" title="Close signal details" className="shrink-0"><X className="h-4 w-4" /></Button>
-      </div>
-      <ul className="mt-3 grid gap-2 text-sm text-foreground sm:grid-cols-2">{detail.facts.map((fact) => <li key={fact}>{fact}</li>)}</ul>
-      <p className="mt-3 text-xs text-deck-muted">{detail.merchants.join(" · ")}</p>
-      {payments && <div className="mt-4 border-t border-deck-rule pt-3" data-monthly-payments>
-        <h5 className="text-sm font-semibold text-deck-navy">Observed monthly payments</h5>
-        {signal?.label === "Amex Credit Cards" && <p className="mt-2 text-xs text-deck-muted">Annualized estimate: {formatSignalMoney(payments.totalCents)} observed across {payments.monthly.length} months ÷ {payments.monthly.length} × 12 = {formatSignalMoney(payments.annualizedCents)}/year. Not an actual full-year total.</p>}
-        <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-3">{payments.monthly.map((row) => <div key={row.key} className="flex flex-wrap justify-between gap-x-2 border-b border-deck-rule py-1"><dt className="text-deck-muted">{row.month} {row.year}</dt><dd className="font-semibold tabular-nums text-deck-navy">{formatSignalMoney(row.cents)}</dd></div>)}</dl>
-      </div>}
-      {external ? <div className="mt-4 border-t border-deck-rule pt-3"><p className="text-sm text-foreground">{external.detail}</p><p className="mt-1 text-xs text-deck-muted">{external.provider} · {external.timing} · {external.confidence}</p></div> : <details className="mt-4 border-t border-deck-rule pt-3">
-        <summary className="cursor-pointer text-sm font-semibold text-deck-navy">Supporting transactions ({evidence.length})</summary>
-        <div className="mt-3 max-h-56 overflow-y-auto scrollbar-light">
-          {evidence.map((transaction) => <div key={transaction.id} className="grid grid-cols-[70px_minmax(0,1fr)_110px] items-start gap-3 border-b border-deck-rule py-2 font-mono text-xs text-foreground"><span>{transaction.date}</span><span className="min-w-0 break-words">{transaction.description}</span><span className="text-right tabular-nums">{transaction.amount}</span></div>)}
-        </div>
-      </details>}
-    </section>}
   </div>;
+}
+
+function cleanMerchant(transaction: RickyTransaction, merchants: string[]) {
+  const raw = transaction.description.toLowerCase();
+  const match = merchants.find((merchant) => merchant.toLowerCase().split(/[\s,]+/).some((word) => word.length > 3 && raw.includes(word)));
+  if (match) return match;
+  const words = transaction.description.replace(/^(ACH (DEBIT|CREDIT)|ZELLE (TO|FROM)|WIRE (IN|OUT)|CHECK)\s+/i, "").split(/\s+/).filter((word) => /^[A-Z&'.*]+$/i.test(word)).slice(0, 3);
+  return words.map((word) => word.charAt(0) + word.slice(1).toLowerCase()).join(" ").replace(/\*.*$/, "") || transaction.description;
+}
+
+function EnrichedRow({ transaction, merchants, recurring }: { transaction: RickyTransaction; merchants: string[]; recurring: boolean }) {
+  const card = transaction.source.includes("Card");
+  const Icon = card ? CreditCard : ArrowLeftRight;
+  const inflow = !transaction.amount.startsWith("(");
+  return <li className="flex items-start gap-3 px-3 py-2.5" data-enriched-row>
+    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-deck-rule bg-muted/50 text-deck-navy"><Icon className="h-3.5 w-3.5" /></span>
+    <div className="min-w-0 flex-1">
+      <div className="flex items-baseline justify-between gap-3"><span className="truncate text-sm font-semibold text-deck-navy">{cleanMerchant(transaction, merchants)}</span><span className={cn("shrink-0 text-sm font-semibold tabular-nums", inflow ? "text-emerald-700" : "text-deck-navy")}>{transaction.amount}</span></div>
+      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-deck-muted">
+        <span>{transaction.date}</span><span>·</span><span>{transaction.source}</span>
+        <span className="rounded border border-deck-rule px-1.5">{transaction.mccLabel ?? (inflow ? "Income · Deposit" : "Transfer · Payment")}{transaction.mcc ? ` · MCC ${transaction.mcc}` : ""}</span>
+        <span className="inline-flex items-center gap-1 rounded border border-deck-rule px-1.5">{recurring && <Repeat className="h-3 w-3" />}{recurring ? "Recurring" : "One-off"}</span>
+      </div>
+      <p className="mt-1 truncate font-mono text-[10px] text-deck-muted" title={transaction.description}>{transaction.description}</p>
+    </div>
+  </li>;
 }
