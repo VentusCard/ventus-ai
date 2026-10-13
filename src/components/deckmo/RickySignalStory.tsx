@@ -40,23 +40,23 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
     return <section id="ricky-story-detail" aria-label={`${signal.label} details`} >
       <header className="ricky-story-popover-head sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-deck-rule bg-background px-5 py-4">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="rounded-full border border-deck-rule px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{external ? "External signal" : "Internal ledger"}</span></div>
+          <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="ricky-story-popover-badge rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{external ? "External signal" : "Internal ledger"}</span></div>
           <h4 className="mt-1.5 text-base font-bold leading-snug text-deck-navy">{signal.label}</h4>
           <p className="mt-1 text-sm text-foreground">{detail.summary}</p>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setSelectedLabel(null)} aria-label="Close signal details" title="Close signal details" className="shrink-0"><X className="h-4 w-4" /></Button>
       </header>
       <div className="space-y-4 px-5 py-4">
-        <div><h5 className="text-[10px] font-bold uppercase text-deck-muted">Key details</h5><ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">{detail.facts.map((fact) => <li key={fact} className="rounded-md border border-deck-rule bg-muted/40 px-3 py-2">{fact}</li>)}</ul></div>
-        {detail.merchants.length > 0 && <div><h5 className="text-[10px] font-bold uppercase text-deck-muted">Merchants</h5><div className="mt-2 flex flex-wrap gap-1.5">{detail.merchants.map((merchant) => <span key={merchant} className="rounded-md border border-deck-rule bg-muted/40 px-2 py-0.5 text-xs font-semibold">{merchant}</span>)}</div></div>}
+        <div><h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Key details</h5><ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">{detail.facts.map((fact) => <li key={fact} className="rounded-md border border-deck-rule bg-muted/40 px-3 py-2">{fact}</li>)}</ul></div>
+        {detail.merchants.length > 0 && <div><h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Merchants</h5><div className="mt-2 flex flex-wrap gap-1.5">{detail.merchants.map((merchant) => <span key={merchant} className="rounded-md border border-deck-rule bg-muted/40 px-2 py-0.5 text-xs font-semibold">{merchant}</span>)}</div></div>}
         {payments && <div data-monthly-payments>
-          <h5 className="text-[10px] font-bold uppercase text-deck-muted">Observed monthly payments</h5>
+          <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Observed monthly payments</h5>
           {signal.label === "Amex Credit Cards" && <p className="mt-2 text-xs text-deck-muted">Annualized estimate: {formatSignalMoney(payments.totalCents)} observed across {payments.monthly.length} months ÷ {payments.monthly.length} × 12 = {formatSignalMoney(payments.annualizedCents)}/year. Not an actual full-year total.</p>}
           <dl className="mt-2 grid grid-cols-3 gap-x-5 gap-y-1 text-sm">{payments.monthly.map((row) => <div key={row.key} className="flex justify-between gap-2 border-b border-deck-rule py-1"><dt className="text-deck-muted">{row.month} {row.year}</dt><dd className="font-semibold tabular-nums text-deck-navy">{formatSignalMoney(row.cents)}</dd></div>)}</dl>
         </div>}
-        {external ? <div className="rounded-lg border border-dashed border-deck-rule p-3"><h5 className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-deck-muted"><Sparkles className="h-3 w-3" />Outside evidence</h5><p className="mt-2 text-sm">{external.detail}</p><p className="mt-1 text-xs text-deck-muted">{external.provider} · {external.timing} · {external.confidence}</p></div>
+        {external ? <div className="rounded-lg border border-dashed border-deck-rule p-3"><h5 className="ricky-story-popover-heading flex items-center gap-1.5 text-[10px] font-bold uppercase text-deck-muted"><Sparkles className="h-3 w-3" />Outside evidence</h5><p className="mt-2 text-sm">{external.detail}</p><p className="mt-1 text-xs text-deck-muted">{external.provider} · {external.timing} · {external.confidence}</p></div>
         : <div data-enriched-transactions>
-          <h5 className="text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
+          <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
           <ul className="mt-2 divide-y divide-deck-rule rounded-lg border border-deck-rule">{evidence.map((transaction) => <EnrichedRow key={transaction.id} transaction={transaction} merchants={detail.merchants} recurring={evidence.length >= 3} />)}</ul>
         </div>}
       </div>
@@ -90,7 +90,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
             {item.source === "external" && <span className="ml-1.5 inline-flex items-center gap-1 align-middle text-[9px] font-bold uppercase"><Sparkles className="h-3 w-3" />Ext</span>}
           </Button>
           </PopoverAnchor>
-          {selected && <PopoverContent side="bottom" align="start" collisionPadding={16} onEscapeKeyDown={() => setSelectedLabel(null)} onInteractOutside={(event) => { const target = event.target as HTMLElement | null; if (target?.closest(`[data-signal-label="${CSS.escape(item.label)}"]`)) event.preventDefault(); }} className={cn("ricky-story-popover w-[min(560px,calc(100vw-32px))] max-h-[min(72vh,var(--radix-popover-content-available-height))] overflow-y-auto overscroll-contain scrollbar-light rounded-xl border bg-background p-0 text-foreground shadow-xl", `ricky-story-${item.tone}`)}>{renderDetail()}</PopoverContent>}
+          {selected && <PopoverContent side="bottom" align="start" collisionPadding={16} onEscapeKeyDown={() => setSelectedLabel(null)} onInteractOutside={(event) => { const target = event.target as HTMLElement | null; if (target?.closest(`[data-signal-label="${CSS.escape(item.label)}"]`)) event.preventDefault(); }} className={cn("ricky-story-popover w-[min(760px,calc(100vw-32px))] max-h-[min(72vh,var(--radix-popover-content-available-height))] overflow-y-auto overscroll-contain scrollbar-light rounded-xl border bg-background p-0 text-foreground shadow-xl", `ricky-story-${item.tone}`)}>{renderDetail()}</PopoverContent>}
           </Popover>
         </Fragment>;
       })}.
