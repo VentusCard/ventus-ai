@@ -112,7 +112,7 @@ function EnrichedRow({ transaction, merchants, recurring }: { transaction: Ricky
   return <li className="flex items-start gap-3 px-3 py-2.5" data-enriched-row>
     <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-deck-rule bg-muted/50 text-deck-navy"><Icon className="h-3.5 w-3.5" /></span>
     <div className="min-w-0 flex-1">
-      <div className="flex items-baseline justify-between gap-3"><span className="truncate text-sm font-semibold text-deck-navy">{cleanMerchant(transaction, merchants)}</span><span className={cn("shrink-0 text-sm font-semibold tabular-nums", inflow ? "text-emerald-700" : "text-deck-navy")}>{transaction.amount}</span></div>
+      <div className="flex items-baseline justify-between gap-3"><span className="truncate text-sm font-semibold text-deck-navy">{cleanMerchant(transaction, merchants)}</span><span className={cn("shrink-0 text-sm font-semibold tabular-nums", inflow ? "text-deck-navy underline decoration-dotted" : "text-deck-navy")}>{transaction.amount}</span></div>
       <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-deck-muted">
         <span>{transaction.date}</span><span>·</span><span>{transaction.source}</span>
         <span className="rounded border border-deck-rule px-1.5">{transaction.mccLabel ?? (inflow ? "Income · Deposit" : "Transfer · Payment")}{transaction.mcc ? ` · MCC ${transaction.mcc}` : ""}</span>
