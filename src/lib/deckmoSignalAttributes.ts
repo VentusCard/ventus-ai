@@ -50,3 +50,28 @@ export function signalAttributes(label: string): string[] {
   const amount = summary.fixed ? formatSignalMoney(summary.latest.cents) : `${formatSignalMoney(summary.latest.cents)} latest · ${summary.latest.month}`;
   return ["Monthly", amount, label === L.marcus ? "to Goldman Marcus" : "to Fidelity", label === L.marcus ? "HYSA" : "Brokerage", ...(summary.fixed ? [] : ["Variable amount"])];
 }
+
+/** Compact story wording only; full evidence retains exact monthly history. */
+export function signalInlinePhrase(label: string): string {
+  if (FINANCIAL_PAYMENT_LABELS.includes(label)) {
+    const summary = signalPaymentSummary(label);
+    if (!summary?.latest) return `(${label})`;
+    const money = (cents: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: cents % 100 === 0 ? 0 : 2 }).format(cents / 100);
+    if (label === L.amex) return `(Annualized estimate) (${money(summary.annualizedCents)}/year) to (Amex) for (credit card payments)`;
+    return `(Monthly) (${money(summary.latest.cents)}) to (${label === L.marcus ? "Goldman Marcus" : "Fidelity"}) a (${label === L.marcus ? "HYSA" : "brokerage account"})${summary.fixed ? "" : " · (variable)"}`;
+  }
+  const phrases: Record<string, string> = {
+    [L.income]: "(Stable $22–26K monthly income) from (HP Inc.) via (semi-monthly payroll)",
+    [L.business]: "(Small food business) with (Square payouts) and (vendor fees · supplies)",
+    "Small airplane co-owner": "(Small airplane co-owner) of a (Cirrus SR22) · (likely)",
+    "BMW X5 loan ending in ~4 months": "(BMW X5) with (auto financing) ending in (~4 months) · (likely)",
+    [L.tennis]: "(Tennis) every (~2 weeks) with (courts · coaching · gear)",
+    [L.hawaii]: "(Annual pre-holiday trip) to (Maui) in (December)",
+    [L.media]: "(Media, music and entertainment) through (Netflix · YouTube TV · Spotify) and (live events)",
+    "High pet expenditure": "(Monthly) (high pet expenditure) on (premium food · supplies · care) · (likely)",
+    [L.baby]: "(New baby ~6 months ago) with (nursery · hospital · childcare)",
+    [L.home]: "(Buying a $1.5M+ home) in (Palo Alto) with (appraisal · escrow · moving)",
+    [L.betting]: "(Increasing betting frequency) at (DraftKings) via (sportsbook · wallet funding)",
+  };
+  return phrases[label] ?? `(${label})`;
+}
