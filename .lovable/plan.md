@@ -4,7 +4,7 @@ Replace the stacked title-and-mini-pill treatment with compact, readable inline 
 
 - Financial pills follow your format: **“(Monthly) ($3,500 latest · September) to (Goldman Marcus) a (HYSA)”**. Use plain parenthesized text within one pill—not multiple outlined boxes or a second row of chips.
 - Keep amounts tied to the existing transaction evidence. Identify variable payments and annualized estimates without presenting them as fixed monthly amounts.
-- Simplify the other signal pills the same way: one concise inline phrase with useful details, wrapping naturally only when necessary.
+- Apply this exact visual format to **every signal pill in slide 2.3**: one inline phrase with parenthesized attributes connected by ordinary words. No stacked title, second row, or miniature outlined chips. Use relevant attributes for each signal rather than forcing monthly amounts onto nonfinancial signals; wrap naturally only when necessary.
 - Preserve the left-hand family headings, family order, connecting narrative, external markers, and click-to-open evidence. Clicking a pill still never changes slides.
 - Rebalance row spacing so the story takes less vertical space without shrinking text excessively.
 
