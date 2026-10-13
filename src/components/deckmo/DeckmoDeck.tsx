@@ -11,6 +11,7 @@ import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoRetention } from "./DeckmoBankdemoScenes";
 import { ENRICH_COLS, EnrichmentCells, EnrichmentColumnHeaders } from "./RickyEnrichmentTable";
 import { RickyRailAccordion } from "./RickyRailAccordion";
+import { RickySignalStory } from "./RickySignalStory";
 
 const TONES = {
   blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-100", hoverBg: "hover:bg-blue-200", fullText: "text-blue-900 hover:text-blue-900", pillBorder: "border-blue-300" },
@@ -413,7 +414,10 @@ function Ricky({ step, active = false }: SceneProps) {
 
 function VisibilityAndRicky({ step, active = false }: SceneProps) {
   if (step < 2) return <Visibility step={step} active={active} />;
-  return <Ricky step={step - 1} active={active} />;
+  return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
+    <Header eyebrow={DECKMO.ricky.eyebrow} title={DECKMO.ricky.title} subtitle="Internal and external signals come together in one living customer story." />
+    <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory /></div>
+  </div>;
 }
 
 function PhoneFrame({ title, children }: { title:string; children:React.ReactNode }) { return <div className="mx-auto flex h-[570px] w-[330px] flex-col overflow-hidden rounded-[30px] border-[8px] border-slate-300 bg-white shadow-2xl"><div className="flex h-7 shrink-0 items-center justify-center bg-white"><span className="h-2 w-2 rounded-full bg-slate-300"/></div><div className="flex items-center justify-between border-b border-slate-100 px-4 py-2"><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneTime}</span><span className="text-[11px] font-bold text-slate-700">{title}</span><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneMenu}</span></div><div className="min-h-0 flex-1 overflow-hidden">{children}</div><div className="flex h-7 shrink-0 items-center justify-center"><span className="h-1 w-24 rounded-full bg-slate-300"/></div></div>; }

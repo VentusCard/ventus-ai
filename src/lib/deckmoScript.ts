@@ -48,7 +48,7 @@ export const DECKMO = {
   },
   beats: [
     { id: "opener", nav: "Thesis", steps: 6 },
-    { id: "visibility", nav: "The Visibility Gap / Meet Ricky", steps: 5 },
+    { id: "visibility", nav: "The Visibility Gap / Meet Ricky", steps: 3 },
     { id: "living-view", nav: "The Complete Picture", steps: 3 },
     { id: "immediate", nav: "Immediate: Lower Service Cost", steps: 5 },
     { id: "mid-term", nav: "Mid-Term: Profit", steps: 5 },
@@ -747,6 +747,24 @@ export const DECKMO_STEPS = DECKMO.beats.flatMap((beat, section) =>
 );
 
 export interface RickySignalDetail { summary: string; facts: string[]; merchants: string[] }
+
+/** Inline clauses preserve family order and put external signals last in each family. */
+export const RICKY_SIGNAL_STORY = [
+  { before: "Ricky’s routine includes", label: RICKY_SIGNAL_LABELS.tennis },
+  { before: ", an", label: RICKY_SIGNAL_LABELS.hawaii },
+  { before: ", and", label: RICKY_SIGNAL_LABELS.media },
+  { before: "; outside purchase data also points to", label: "High pet expenditure" },
+  { before: ". His family is entering a new chapter:", label: RICKY_SIGNAL_LABELS.baby },
+  { before: ", and", label: RICKY_SIGNAL_LABELS.home },
+  { before: ". His financial relationships include", label: RICKY_SIGNAL_LABELS.brokerage },
+  { before: ",", label: RICKY_SIGNAL_LABELS.marcus },
+  { before: ", and", label: RICKY_SIGNAL_LABELS.amex },
+  { before: ", while outside vehicle data shows a", label: "BMW X5 loan ending in ~4 months" },
+  { before: ". His household picture combines", label: RICKY_SIGNAL_LABELS.income },
+  { before: "with a new venture:", label: RICKY_SIGNAL_LABELS.business },
+  { before: "; outside ownership data identifies him as a", label: "Small airplane co-owner" },
+  { before: ". Separately, an account pattern to review is", label: RICKY_SIGNAL_LABELS.betting },
+] as const;
 
 export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
   [RICKY_SIGNAL_LABELS.tennis]: { summary: "Committed club player with court time roughly every other week", facts: ["Cadence: court bookings about every 2 weeks", "Typical visit: $28–$186", "Annual club dues of $1,450 paid by check in March", "Summer step-up: USTA tournament entry, coaching and new gear"], merchants: ["City Tennis Center", "Racket Sports Club", "CourtReserve", "USTA NorCal"] },
