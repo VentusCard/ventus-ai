@@ -6,6 +6,13 @@ import { RICKY_TRANSACTIONS } from "@/lib/deckmoRickyTransactions";
 import { cn } from "@/lib/utils";
 
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
+
+/** Families in story order, one entry each, tones matching the pills. */
+const STORY_FAMILIES: { family: string; tone: string }[] = [];
+for (const item of DECKMO.ricky.signals) {
+  if (!STORY_FAMILIES.some((entry) => entry.family === item.family)) STORY_FAMILIES.push({ family: item.family, tone: item.tone });
+}
+
 export function RickySignalStory() {
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const detailRef = useRef<HTMLElement>(null);
@@ -22,6 +29,14 @@ export function RickySignalStory() {
       <h3 className="text-lg font-bold text-deck-navy">{DECKMO.ricky.profileTitle}</h3>
       <p className="text-xs font-semibold text-deck-muted">{DECKMO.ricky.profileFacts}</p>
     </div>
+    <div className="grid min-h-0 grid-cols-[170px_minmax(0,1fr)] gap-x-8 [@media(max-height:800px)]:grid-cols-[130px_minmax(0,1fr)] [@media(max-height:800px)]:gap-x-6">
+      <div className="flex min-h-0 flex-col justify-center gap-6 border-r border-deck-rule pr-4 [@media(max-height:800px)]:gap-4" aria-label="Signal families">
+        {STORY_FAMILIES.map((entry) => <div key={entry.family} className={`ricky-story-${entry.tone} flex items-center gap-2.5`}>
+          <span className="ricky-story-dot h-2.5 w-2.5 shrink-0 rounded-full [@media(max-height:800px)]:h-2 [@media(max-height:800px)]:w-2" />
+          <span className="ricky-story-family-label text-[12px] font-bold uppercase tracking-[0.08em] [@media(max-height:800px)]:text-[11px]">{entry.family}</span>
+        </div>)}
+      </div>
+      <div className="min-w-0">
     <p className="text-[22px] font-medium leading-[2.5] text-deck-navy [@media(max-height:800px)]:text-[20px]" aria-label="Ricky’s customer intelligence">
       {RICKY_SIGNAL_STORY.map((clause) => {
         const item = DECKMO.ricky.signals.find((candidate) => candidate.label === clause.label);
@@ -50,5 +65,7 @@ export function RickySignalStory() {
         </div>
       </details>}
     </section>}
+      </div>
+    </div>
   </div>;
 }
