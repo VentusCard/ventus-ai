@@ -172,6 +172,16 @@
   color: hsl(var(--deck-navy));
 }
 .ricky-story-pill { box-decoration-break: clone; -webkit-box-decoration-break: clone; overflow-wrap: anywhere; }
+.ricky-story-attribute {
+  display: inline;
+  background: hsl(var(--background) / 0.72);
+  border: 1px solid hsl(var(--story-accent) / 0.16);
+  border-radius: 5px;
+  padding: 1px 4px;
+  font-size: 0.92em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
 .ricky-story-detail { border-color: hsl(var(--story-accent) / 0.38); }
 .ricky-story-dot { background: hsl(var(--story-accent)); }
 .ricky-story-family-label { color: hsl(var(--story-accent)); }
