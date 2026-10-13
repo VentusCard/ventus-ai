@@ -192,12 +192,12 @@ function Visibility({ step, active = false }: SceneProps) {
   );
 }
 
-function RollingLedgerWithKyc({ active }: { active: boolean }) {
-  const [kycOpen, setKycOpen] = useState(false);
-  return <div className="flex h-full min-h-0 animate-fade-in flex-col">
-    <div className="shrink-0 border-b border-deck-rule bg-background"><RickyKycBlock open={kycOpen} onToggle={() => setKycOpen((v) => !v)} /></div>
-    <div className="min-h-0 flex-1 px-4 pt-4"><InsideLedger data={DECKMO.visibility.inside} active={active} /></div>
-  </div>;
+function RollingLedger({ active }: { active: boolean }) {
+  return (
+    <div className="flex h-full min-h-0 animate-fade-in flex-col px-4 pt-4">
+      <InsideLedger data={DECKMO.visibility.inside} active={active} />
+    </div>
+  );
 }
 
 const RAIL_STYLES: Record<string, { badge: string; row: string }> = {
