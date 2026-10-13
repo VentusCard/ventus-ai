@@ -31,7 +31,7 @@ export const DECKMO = {
     phoneMenu: "•••",
     stepUnit: "steps",
     gateTitle: "Interactive Presentation",
-    gateSubtitle: "Version Sept. 2026",
+    gateSubtitle: "Version Oct. 2026",
   },
   phoneNavigation: {
     bankLabel: "Our Bank · Ricky",
