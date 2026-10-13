@@ -31,12 +31,11 @@ const railColumns: Record<RickyRail, { label: string; width: string }[]> = {
   Zelle: [{ label: "Date", width: "w-[76px]" }, { label: "Raw descriptor", width: "" }, { label: "Recipient / memo", width: "w-[116px]" }, { label: "Amount", width: "w-[108px]" }],
 };
 
-export function RickyRailAccordion() {
-  const [openRail, setOpenRail] = useState<RickyRail | "KYC" | null>("Cards");
-  const kycOpen = openRail === "KYC";
-  return <div className="w-full" aria-label="Ricky customer profile and transactions by payment rail">
+/** KYC block shared by the rail accordion (2.1) and the rolling ledger (2.2). */
+export function RickyKycBlock({ open: kycOpen, onToggle }: { open: boolean; onToggle: () => void }) {
+  return <>
     <div className="ricky-rail border-b border-deck-rule">
-      <Button variant="ghost" aria-expanded={kycOpen} aria-controls="ricky-kyc" onClick={() => setOpenRail(kycOpen ? null : "KYC")} className={cn("h-auto w-full justify-start gap-3 whitespace-normal rounded-none px-4 py-3.5 text-left hover:bg-deck-surface", kycOpen && "ricky-rail-header")}>
+      <Button variant="ghost" aria-expanded={kycOpen} aria-controls="ricky-kyc" onClick={onToggle} className={cn("h-auto w-full justify-start gap-3 whitespace-normal rounded-none px-4 py-3.5 text-left hover:bg-deck-surface", kycOpen && "ricky-rail-header")}>
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-deck-rule text-deck-navy"><UserRound className="h-4 w-4" /></span>
         <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-deck-navy">KYC</span><span className="mt-0.5 block text-[10px] font-medium leading-relaxed text-deck-muted">Identity · Customer profile · Relationship tier</span></span>
         <ChevronDown className={cn("h-4 w-4 shrink-0 text-deck-muted transition-transform motion-reduce:transition-none", kycOpen && "rotate-180")} />
@@ -49,6 +48,14 @@ export function RickyRailAccordion() {
         </table>
       </div>
     </div>
+  </>;
+}
+
+export function RickyRailAccordion() {
+  const [openRail, setOpenRail] = useState<RickyRail | "KYC" | null>("Cards");
+  const kycOpen = openRail === "KYC";
+  return <div className="w-full" aria-label="Ricky customer profile and transactions by payment rail">
+    <RickyKycBlock open={kycOpen} onToggle={() => setOpenRail(kycOpen ? null : "KYC")} />
     {groups.map(({ rail, examples }) => {
       const display = railDisplay[rail];
       const Icon = display.icon;
