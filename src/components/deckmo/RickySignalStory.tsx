@@ -3,7 +3,7 @@ import { Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DECKMO, RICKY_SIGNAL_DETAILS, RICKY_SIGNAL_STORY } from "@/lib/deckmoScript";
 import { RICKY_TRANSACTIONS } from "@/lib/deckmoRickyTransactions";
-import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalInlinePhrase, signalPaymentSummary } from "@/lib/deckmoSignalAttributes";
+import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalInlineSegments, signalPaymentSummary } from "@/lib/deckmoSignalAttributes";
 import { cn } from "@/lib/utils";
 
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
@@ -47,7 +47,9 @@ export function RickySignalStory() {
         return <Fragment key={item.label}>
           {index === 0 ? clause.before.replace(/^\.\s*/, "") : /^[,;.]/.test(clause.before) ? clause.before : ` ${clause.before}`}{" "}
            <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} aria-controls="ricky-story-detail" data-signal-label={item.label} data-signal-family={item.family} onClick={() => setSelectedLabel(selected ? null : item.label)} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
-            <span data-signal-attributes>{signalInlinePhrase(item.label)}</span>
+            <span data-signal-attributes>{signalInlineSegments(item.label).map((segment, segmentIndex) => segment.kind === "attribute"
+              ? <span key={segmentIndex} className="ricky-story-attribute" data-signal-attribute>{segment.text}</span>
+              : <Fragment key={segmentIndex}>{segment.text}</Fragment>)}</span>
             {item.source === "external" && <span className="ml-1.5 inline-flex items-center gap-1 align-middle text-[9px] font-bold uppercase"><Sparkles className="h-3 w-3" />Ext</span>}
           </Button>
         </Fragment>;
