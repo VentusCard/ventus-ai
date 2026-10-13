@@ -522,3 +522,13 @@
   .ricky-story-reveal, .ricky-story-pill[data-revealed="true"] { animation: none; }
   .ricky-story-pill[data-revealed] { transition: none; }
 }
+
+/* Signal pop-up renders in a portal outside the deck scope; pin it to the light theme. */
+.ricky-story-popover { background: #ffffff; color: #0f172a; border-color: hsl(var(--story-accent) / 0.45); box-shadow: 0 24px 60px -20px rgb(15 23 42 / 0.35); }
+.ricky-story-popover .ricky-story-popover-head { background: linear-gradient(hsl(var(--story-accent) / 0.08), hsl(var(--story-accent) / 0.08)), #ffffff; }
+.ricky-story-popover .bg-background { background: #ffffff; }
+.ricky-story-popover .bg-muted\/40, .ricky-story-popover .bg-muted\/50 { background: #f8fafc; }
+.ricky-story-popover .border-deck-rule, .ricky-story-popover .divide-deck-rule > * + * { border-color: #e2e8f0; }
+.ricky-story-popover .text-foreground { color: #0f172a; }
+.ricky-story-popover .ricky-story-family-label, .ricky-story-popover .ricky-story-dot { color: hsl(var(--story-accent)); }
+.ricky-story-popover .ricky-story-dot { background: hsl(var(--story-accent)); }
