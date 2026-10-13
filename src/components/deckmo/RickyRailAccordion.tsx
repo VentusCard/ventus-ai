@@ -14,6 +14,14 @@ const railDisplay: Record<RickyRail, { icon: LucideIcon; schema: string; tone: s
   Zelle: { icon: Send, schema: "Payment descriptor · Recipient / memo", tone: "ricky-rail-zelle" },
 };
 
+const railColumns: Record<RickyRail, { label: string; width: string }[]> = {
+  Cards: [{ label: "Date", width: "w-[68px]" }, { label: "Card source", width: "w-[82px]" }, { label: "Raw descriptor", width: "" }, { label: "MCC", width: "w-[38px]" }, { label: "Amount", width: "w-[80px]" }],
+  ACH: [{ label: "Date", width: "w-[68px]" }, { label: "Raw descriptor", width: "" }, { label: "Direction", width: "w-[52px]" }, { label: "Identifier", width: "w-[72px]" }, { label: "Amount", width: "w-[80px]" }],
+  Checks: [{ label: "Date", width: "w-[68px]" }, { label: "Check number", width: "w-[72px]" }, { label: "Raw descriptor", width: "" }, { label: "Amount", width: "w-[80px]" }],
+  Wire: [{ label: "Date", width: "w-[68px]" }, { label: "Raw descriptor", width: "" }, { label: "Reference", width: "w-[96px]" }, { label: "Amount", width: "w-[80px]" }],
+  Zelle: [{ label: "Date", width: "w-[68px]" }, { label: "Raw descriptor", width: "" }, { label: "Recipient / memo", width: "w-[116px]" }, { label: "Amount", width: "w-[80px]" }],
+};
+
 export function RickyRailAccordion() {
   const [openRail, setOpenRail] = useState<RickyRail | null>("Cards");
   return <div className="w-full" aria-label="Ricky transactions by payment rail">
@@ -28,16 +36,21 @@ export function RickyRailAccordion() {
           <ChevronDown className={cn("h-4 w-4 shrink-0 text-deck-muted transition-transform motion-reduce:transition-none", open && "rotate-180")} />
         </Button>
         <div id={`ricky-rail-${rail}`} hidden={!open} role="region" aria-label={`${rail} transaction examples`} className="bg-background">
-          {examples.map((transaction) => <div key={transaction.id} className="border-t border-deck-rule px-4 py-3">
-            <p className="mb-1 text-[9px] font-semibold uppercase text-deck-muted">{rail === "Cards" ? "Raw merchant descriptor" : "Raw descriptor"}</p>
-            <p className="break-words font-mono text-[11px] font-semibold leading-relaxed text-deck-navy">{transaction.description}</p>
-            <dl className="mt-2.5 grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.1fr)] gap-x-3 gap-y-2">
-              {rawRailFields(transaction).map((field) => <div key={field.label} className={cn("min-w-0", field.label === "Amount" && "col-start-4 row-start-1 text-right")}>
-                <dt className="text-[9px] font-medium text-deck-muted">{field.label}</dt>
-                <dd className="mt-0.5 break-words font-mono text-[10px] font-semibold tabular-nums text-deck-navy">{field.value}</dd>
-              </div>)}
-            </dl>
-          </div>)}
+          <table className="w-full table-fixed border-collapse text-left" aria-label={`${rail} transactions`}>
+            <colgroup>{railColumns[rail].map((column) => <col key={column.label} className={column.width} />)}</colgroup>
+            <thead className="border-t border-deck-rule bg-deck-surface">
+              <tr>{railColumns[rail].map((column) => <th key={column.label} scope="col" title={column.label} className={cn("truncate px-2 py-2 text-[9px] font-semibold text-deck-muted first:pl-3 last:pr-3", column.label === "Amount" && "text-right")}>{column.label}</th>)}</tr>
+            </thead>
+            <tbody>{examples.map((transaction) => {
+              const fields = rawRailFields(transaction);
+              return <tr key={transaction.id} className="h-9 border-t border-deck-rule">
+                {railColumns[rail].map((column) => {
+                  const value = column.label === "Raw descriptor" ? transaction.description : fields.find((field) => field.label === column.label)?.value ?? "—";
+                  return <td key={column.label} title={value} className={cn("truncate whitespace-nowrap px-2 py-2 font-mono text-[10px] font-semibold tabular-nums text-deck-navy first:pl-3 last:pr-3", column.label === "Amount" && "text-right")}>{value}</td>;
+                })}
+              </tr>;
+            })}</tbody>
+          </table>
         </div>
       </div>;
     })}
