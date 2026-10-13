@@ -172,6 +172,8 @@
   color: hsl(var(--deck-navy));
 }
 .ricky-story-detail { border-color: hsl(var(--story-accent) / 0.38); }
+.ricky-story-dot { background: hsl(var(--story-accent)); }
+.ricky-story-family-label { color: hsl(var(--story-accent)); }
 
 @keyframes deck-breathe {
   0%, 100% { opacity: 0.12; transform: scale(0.94); }
