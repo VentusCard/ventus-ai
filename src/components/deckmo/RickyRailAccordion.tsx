@@ -35,7 +35,7 @@ const railColumns: Record<RickyRail, { label: string; width: string }[]> = {
 export function RickyKycBlock({ open: kycOpen, onToggle }: { open: boolean; onToggle: () => void }) {
   return <>
     <div className={cn("ricky-rail flex min-h-0 flex-col border-b border-deck-rule", kycOpen ? "flex-1" : "shrink-0")}>
-      <Button variant="ghost" aria-expanded={kycOpen} aria-controls="ricky-kyc" onClick={onToggle} className={cn("h-auto min-h-[76px] w-full shrink-0 justify-start gap-3 whitespace-normal rounded-none px-4 py-3 text-left hover:bg-deck-surface [@media(max-height:800px)]:min-h-[56px] [@media(max-height:800px)]:py-2", kycOpen && "ricky-rail-header")}>
+      <Button variant="ghost" aria-expanded={kycOpen} aria-controls="ricky-kyc" onClick={onToggle} className={cn("h-auto min-h-[clamp(48px,9cqh,76px)] w-full shrink-0 justify-start gap-3 whitespace-normal rounded-none px-4 py-2 text-left hover:bg-deck-surface", kycOpen && "ricky-rail-header")}>
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-deck-rule text-deck-navy"><UserRound className="h-5 w-5" /></span>
         <span className="min-w-0 flex-1"><span className="block text-base font-bold text-deck-navy">KYC</span><span className="mt-0.5 block text-xs font-medium leading-snug text-deck-muted">Identity · Customer profile · Relationship tier</span></span>
         <ChevronDown className={cn("h-4 w-4 shrink-0 text-deck-muted transition-transform motion-reduce:transition-none", kycOpen && "rotate-180")} />
@@ -54,14 +54,14 @@ export function RickyKycBlock({ open: kycOpen, onToggle }: { open: boolean; onTo
 export function RickyRailAccordion() {
   const [openRail, setOpenRail] = useState<RickyRail | "KYC" | null>("Cards");
   const kycOpen = openRail === "KYC";
-  return <div className={cn("flex h-full min-h-0 w-full flex-col", openRail === null && "[&>.ricky-rail]:flex-1 [&>.ricky-rail>button]:flex-1")} aria-label="Ricky customer profile and transactions by payment rail">
+  return <div className={cn("flex h-full min-h-0 w-full flex-col [container-type:size]", openRail === null && "[&>.ricky-rail]:flex-1 [&>.ricky-rail>button]:flex-1")} aria-label="Ricky customer profile and transactions by payment rail">
     <RickyKycBlock open={kycOpen} onToggle={() => setOpenRail(kycOpen ? null : "KYC")} />
     {groups.map(({ rail, examples }) => {
       const display = railDisplay[rail];
       const Icon = display.icon;
       const open = openRail === rail;
       return <div key={rail} className={cn("ricky-rail flex min-h-0 flex-col border-b border-deck-rule", open ? "flex-1" : "shrink-0", display.tone)}>
-        <Button variant="ghost" aria-expanded={open} aria-controls={`ricky-rail-${rail}`} onClick={() => setOpenRail(open ? null : rail)} className={cn("h-auto min-h-[76px] w-full shrink-0 justify-start gap-3 whitespace-normal rounded-none px-4 py-3 text-left hover:bg-deck-surface [@media(max-height:800px)]:min-h-[56px] [@media(max-height:800px)]:py-2", open && "ricky-rail-header")}>
+        <Button variant="ghost" aria-expanded={open} aria-controls={`ricky-rail-${rail}`} onClick={() => setOpenRail(open ? null : rail)} className={cn("h-auto min-h-[clamp(48px,9cqh,76px)] w-full shrink-0 justify-start gap-3 whitespace-normal rounded-none px-4 py-2 text-left hover:bg-deck-surface", open && "ricky-rail-header")}>
           <span className="ricky-rail-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border"><Icon className="h-5 w-5" /></span>
           <span className="min-w-0 flex-1"><span className="block text-base font-bold text-deck-navy">{rail}<span className="ml-2 text-xs font-semibold tabular-nums text-deck-muted">{examples.length} transactions</span></span><span className="mt-0.5 block text-xs font-medium leading-snug text-deck-muted">{display.schema}</span></span>
           <ChevronDown className={cn("h-4 w-4 shrink-0 text-deck-muted transition-transform motion-reduce:transition-none", open && "rotate-180")} />
