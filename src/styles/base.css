@@ -137,6 +137,11 @@
     --deck-rail-checks: 39 80% 38%;
     --deck-rail-wire: 173 70% 30%;
     --deck-rail-zelle: 190 80% 32%;
+    --deck-story-behavioral: 217 91% 60%;
+    --deck-story-life-events: 38 92% 50%;
+    --deck-story-financial: 160 84% 39%;
+    --deck-story-demographics: 263 70% 50%;
+    --deck-story-risk: 350 89% 60%;
   }
 }
 
@@ -151,6 +156,22 @@
   border-color: hsl(var(--rail-accent) / 0.22);
 }
 .ricky-rail-header { background: hsl(var(--rail-accent) / 0.05); }
+
+.ricky-story-blue { --story-accent: var(--deck-story-behavioral); }
+.ricky-story-amber { --story-accent: var(--deck-story-life-events); }
+.ricky-story-emerald { --story-accent: var(--deck-story-financial); }
+.ricky-story-violet { --story-accent: var(--deck-story-demographics); }
+.ricky-story-rose { --story-accent: var(--deck-story-risk); }
+.ricky-story-pill {
+  background: hsl(var(--story-accent) / 0.13);
+  border-color: hsl(var(--story-accent) / 0.38);
+  color: hsl(var(--story-accent));
+}
+.ricky-story-pill:hover {
+  background: hsl(var(--story-accent) / 0.22);
+  color: hsl(var(--deck-navy));
+}
+.ricky-story-detail { border-color: hsl(var(--story-accent) / 0.38); }
 
 @keyframes deck-breathe {
   0%, 100% { opacity: 0.12; transform: scale(0.94); }
