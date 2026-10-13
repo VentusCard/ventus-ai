@@ -172,8 +172,12 @@ function Visibility({ step, active = false }: SceneProps) {
             <UserRound className="h-4 w-4 [@media(max-height:800px)]:h-3.5 [@media(max-height:800px)]:w-3.5" />
           </div>
           <h3 className="shrink-0 font-display text-[clamp(15px,1.1vw,18px)] font-bold leading-none text-deck-navy">{ricky.profileTitle}</h3>
-          <span className="h-4 w-px shrink-0 bg-deck-rule" />
-          <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{ricky.profileFacts}</p>
+          {moved && (
+            <>
+              <span className="h-4 w-px shrink-0 bg-deck-rule" />
+              <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{ricky.profileFacts}</p>
+            </>
+          )}
         </div>
         <div className={cn("grid min-h-0 flex-1 transition-[grid-template-columns] duration-700 ease-in-out", moved ? "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]" : "grid-cols-[minmax(0,1fr)_0fr]") }>
           <section className="min-h-0 min-w-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 scrollbar-light">
