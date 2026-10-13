@@ -74,7 +74,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
     [L.media]: [attribute("$6,000"), connector("annual spent in"),attribute("Media, music and entertainment"), connector(" through "), attribute("streaming services"), connector(" and "), attribute("live events")],
     "High pet expenditure": [attribute("Monthly"), connector(" "), attribute("high pet expenditure")],
     [L.baby]: [attribute("New baby"), connector(" in "), attribute("Q3, 2026")],
-    [L.home]: [attribute("Buying a home"), connector(" in "), attribute("Palo Alto"), connector(" for around "),attribute("$1.75M"],
+    [L.home]: [attribute("Buying a home"), connector(" in "), attribute("Palo Alto"), connector(" for around "), attribute("$1.75M")],
     [L.betting]: [attribute("Increasing"), connector(" frequency at "), attribute("Online Sports Betting"), connector(" now "), attribute("bi-weekly deposites")],
   };
   return phrases[label] ?? [attribute(label)];
