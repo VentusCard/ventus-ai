@@ -35,7 +35,7 @@ export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
 
   function renderDetail() {
     if (!signal || !detail) return null;
-    return <section id="ricky-story-detail" aria-label={`${signal.label} details`} className="ricky-story-evidence">
+    return <section id="ricky-story-detail" aria-label={`${signal.label} details`} >
       <header className="ricky-story-popover-head sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-deck-rule bg-background px-5 py-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-dot h-2 w-2 rounded-full" /><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="rounded-full border border-deck-rule px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{external ? "External signal" : "Internal ledger"}</span></div>
