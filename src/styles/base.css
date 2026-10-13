@@ -510,3 +510,15 @@
 .hero-dark-card { min-height: 340px; }
 @media (min-width: 768px) { .hero-dark-card { min-height: 380px; } }
 @media (min-width: 1280px) { .hero-dark-card { min-height: 420px; } }
+
+/* Deck story reveal: rows cascade in; external pills wait as placeholders until step 2. */
+@keyframes ricky-story-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes ricky-story-glow { 0% { box-shadow: 0 0 0 0 hsl(var(--story-accent) / 0.45); } 70% { box-shadow: 0 0 0 10px hsl(var(--story-accent) / 0); } 100% { box-shadow: 0 0 0 0 hsl(var(--story-accent) / 0); } }
+.ricky-story-reveal { animation: ricky-story-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.ricky-story-pill[data-revealed] { transition: opacity 500ms ease, filter 500ms ease, border-style 0s; }
+.ricky-story-pill[data-revealed="false"] { opacity: 0.28; filter: grayscale(1) blur(1.5px); border-style: dashed; pointer-events: none; }
+.ricky-story-pill[data-revealed="true"] { animation: ricky-story-glow 1.4s ease-out 2; }
+@media (prefers-reduced-motion: reduce) {
+  .ricky-story-reveal, .ricky-story-pill[data-revealed="true"] { animation: none; }
+  .ricky-story-pill[data-revealed] { transition: none; }
+}

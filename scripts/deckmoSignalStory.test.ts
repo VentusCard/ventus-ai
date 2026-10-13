@@ -2,11 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_STORY } from "../src/lib/deckmoScript";
 
 describe("combined Ricky signal story", () => {
-  test("section two has exactly three beats followed by The Complete Picture", () => {
-    const section = DECKMO_STEPS.filter((beat) => beat.section === 1);
-    expect(section.map((beat) => beat.step)).toEqual([0, 1, 2]);
-    const finalIndex = DECKMO_STEPS.findIndex((beat) => beat.id === "visibility-2");
-    expect(DECKMO_STEPS[finalIndex + 1]?.id).toBe("living-view-0");
+  test("section two has two beats; the story is section four after The Complete Picture", () => {
+    expect(DECKMO_STEPS.filter((beat) => beat.section === 1).map((beat) => beat.step)).toEqual([0, 1]);
+    expect(DECKMO.beats[3].id).toBe("ricky-story");
+    expect(DECKMO_STEPS.findIndex((b) => b.id === "ricky-story-0")).toBe(DECKMO_STEPS.findIndex((b) => b.id === "living-view-2") + 1);
   });
   test("all 14 existing signals appear exactly once", () => {
     expect(RICKY_SIGNAL_STORY).toHaveLength(14);
