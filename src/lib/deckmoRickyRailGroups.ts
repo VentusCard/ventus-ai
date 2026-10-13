@@ -35,20 +35,19 @@ export function rawRailFields(transaction: RickyTransaction): { label: string; v
 export function groupRickyTransactionsByRail(transactions: readonly RickyTransaction[]) {
   return RICKY_RAILS.map((rail) => {
     const rows = transactions.filter((transaction) => railFor(transaction) === rail);
-    // Cover both card sources and both ACH directions before filling the sample.
+    // Lead with rows covering both card sources and both ACH directions, then the rest in original order.
     const variants = new Set<string>();
     const examples: RickyTransaction[] = [];
     for (const row of rows) {
       const variant = rail === "Cards" ? row.source : rail === "ACH" ? row.description.match(/^ACH (DEBIT|CREDIT)\b/)?.[1] ?? "other" : row.id;
-      if (!variants.has(variant) && examples.length < 3) {
+      if (!variants.has(variant)) {
         variants.add(variant);
         examples.push(row);
       }
     }
     for (const row of rows) {
-      if (examples.length >= 3) break;
       if (!examples.some((example) => example.id === row.id)) examples.push(row);
     }
-    return { rail, transactions: rows, examples: examples.sort((a, b) => rows.indexOf(a) - rows.indexOf(b)) };
+    return { rail, transactions: rows, examples };
   });
 }
