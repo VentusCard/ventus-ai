@@ -180,7 +180,7 @@ function Visibility({ step, active = false }: SceneProps) {
           )}
         </div>
         <div className={cn("grid min-h-0 flex-1 transition-[grid-template-columns] duration-700 ease-in-out", moved ? "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]" : "grid-cols-[minmax(0,1fr)_0fr]") }>
-          <section className="min-h-0 min-w-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 scrollbar-light">
+          <section className={cn("min-h-0 min-w-0 border-r border-deck-rule bg-deck-surface/50 scrollbar-light", moved ? "overflow-y-auto" : "overflow-hidden")}>
             {moved ? <RollingLedger active={active} /> : <RickyRailAccordion />}
           </section>
           <section className={cn("min-h-0 min-w-0 overflow-hidden bg-background transition-opacity delay-200 duration-500", moved ? "px-6 py-4 opacity-100" : "pointer-events-none p-0 opacity-0")}>
