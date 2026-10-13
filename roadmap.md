@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Weave more outside signals (other-bank accounts, credit, habits) into the /deckmo 2.2 ticker; verify interleaved order, icons, and layout
 - [x] Make slide 2.1's overview fill its panel and expanded lists use remaining height; verify three desktop sizes and 2.2 handoff
 - [x] Clean up slide 2.3 pill wording defects (spacing, typos, trailing dot, drop "variable") keeping structure
 - [x] Replace slide 2.3 parentheses with lighter inline nested pills; verify all signals, wrapping, and evidence clicks
