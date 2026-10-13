@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, BriefcaseBusiness, Building2, ChevronDown, ChevronRight, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, Home, LogOut, Mail, Monitor, Plane, Search, ShieldCheck, Sparkles, Target, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Baby, BriefcaseBusiness, Building2, CalendarClock, Car, ChevronDown, ChevronRight, CreditCard, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, HeartHandshake, Home, Landmark, LogOut, Mail, Monitor, MonitorPlay, PiggyBank, Plane, School, Search, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -249,11 +249,23 @@ function InsideLedger({ data, active }: { data: typeof DECKMO.visibility.inside;
 
 const OUTSIDE_ICONS: Record<string, LucideIcon> = {
   "Bought a house": Home,
+  "Credit card at another bank": CreditCard,
   "Changed to a new job": BriefcaseBusiness,
+  "Savings at another bank": PiggyBank,
   "Got married": Heart,
+  "Investments at another brokerage": TrendingUp,
   "Started a business": Building2,
+  "Mortgage with another lender": Landmark,
   "Took a trip overseas": Plane,
+  "Streaming and subscription spend": MonitorPlay,
   "Children going to college": GraduationCap,
+  "Auto loan at another bank": Car,
+  "Second checking account elsewhere": Wallet,
+  "Private school tuition": School,
+  "Insurance premiums paid elsewhere": ShieldCheck,
+  "Buy-now-pay-later balances": CalendarClock,
+  "Donations to another charity": HeartHandshake,
+  "Childcare paid elsewhere": Baby,
   "And everything in between": Sparkles,
 };
 
