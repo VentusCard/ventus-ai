@@ -38,7 +38,7 @@ export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
     return <section id="ricky-story-detail" aria-label={`${signal.label} details`} >
       <header className="ricky-story-popover-head sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-deck-rule bg-background px-5 py-4">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-dot h-2 w-2 rounded-full" /><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="rounded-full border border-deck-rule px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{external ? "External signal" : "Internal ledger"}</span></div>
+          <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="rounded-full border border-deck-rule px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{external ? "External signal" : "Internal ledger"}</span></div>
           <h4 className="mt-1.5 text-base font-bold leading-snug text-deck-navy">{signal.label}</h4>
           <p className="mt-1 text-sm text-foreground">{detail.summary}</p>
         </div>
@@ -46,7 +46,7 @@ export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
       </header>
       <div className="space-y-4 px-5 py-4">
         <div><h5 className="text-[10px] font-bold uppercase text-deck-muted">Key details</h5><ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">{detail.facts.map((fact) => <li key={fact} className="rounded-md border border-deck-rule bg-muted/40 px-3 py-2">{fact}</li>)}</ul></div>
-        {detail.merchants.length > 0 && <div><h5 className="text-[10px] font-bold uppercase text-deck-muted">Merchants</h5><div className="mt-2 flex flex-wrap gap-1.5">{detail.merchants.map((merchant) => <span key={merchant} className="ricky-story-attribute">{merchant}</span>)}</div></div>}
+        {detail.merchants.length > 0 && <div><h5 className="text-[10px] font-bold uppercase text-deck-muted">Merchants</h5><div className="mt-2 flex flex-wrap gap-1.5">{detail.merchants.map((merchant) => <span key={merchant} className="rounded-md border border-deck-rule bg-muted/40 px-2 py-0.5 text-xs font-semibold">{merchant}</span>)}</div></div>}
         {payments && <div data-monthly-payments>
           <h5 className="text-[10px] font-bold uppercase text-deck-muted">Observed monthly payments</h5>
           {signal.label === "Amex Credit Cards" && <p className="mt-2 text-xs text-deck-muted">Annualized estimate: {formatSignalMoney(payments.totalCents)} observed across {payments.monthly.length} months ÷ {payments.monthly.length} × 12 = {formatSignalMoney(payments.annualizedCents)}/year. Not an actual full-year total.</p>}
