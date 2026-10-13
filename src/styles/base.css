@@ -171,6 +171,13 @@
   background: hsl(var(--story-accent) / 0.22);
   color: hsl(var(--deck-navy));
 }
+.ricky-story-pill { margin-block: 3px; }
+.ricky-story-attribute {
+  background: hsl(var(--background) / 0.78);
+  border-color: hsl(var(--story-accent) / 0.24);
+  color: hsl(var(--deck-navy));
+  overflow-wrap: anywhere;
+}
 .ricky-story-detail { border-color: hsl(var(--story-accent) / 0.38); }
 .ricky-story-dot { background: hsl(var(--story-accent)); }
 .ricky-story-family-label { color: hsl(var(--story-accent)); }
