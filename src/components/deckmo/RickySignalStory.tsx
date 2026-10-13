@@ -36,7 +36,7 @@ export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
       <p className="text-xs font-semibold text-deck-muted">{DECKMO.ricky.profileFacts}</p>
     </div>
     <div aria-label="Ricky’s customer intelligence">
-      {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} style={revealStep === undefined ? undefined : { animationDelay: `${rowIndex * 110}ms` }} data-story-family={entry.family} className={cn("ricky-story-row grid", revealStep !== undefined && "ricky-story-reveal")} data-row-cls="grid-cols-[160px_minmax(0,1fr)] border-b border-deck-rule last:border-b-0">
+      {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} style={revealStep === undefined ? undefined : { animationDelay: `${rowIndex * 110}ms` }} data-story-family={entry.family} className={cn("ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] border-b border-deck-rule last:border-b-0", revealStep !== undefined && "ricky-story-reveal")}>
         <div className={cn("flex items-center gap-2.5 border-r border-deck-rule pr-4", `ricky-story-${entry.tone}`)}>
           <span className="ricky-story-dot h-2.5 w-2.5 shrink-0 rounded-full" />
           <span className="ricky-story-family-label text-xs font-bold uppercase">{entry.family}</span>
@@ -48,7 +48,7 @@ export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
         const selected = selectedLabel === item.label;
         return <Fragment key={item.label}>
           {index === 0 ? clause.before.replace(/^\.\s*/, "") : /^[,;.]/.test(clause.before) ? clause.before : ` ${clause.before}`}{" "}
-           <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} aria-controls="ricky-story-detail" data-signal-label={item.label} data-signal-family={item.family} onClick={() => setSelectedLabel(selected ? null : item.label)} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
+           <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} aria-controls="ricky-story-detail" data-signal-label={item.label} data-signal-family={item.family} data-revealed={item.source === "external" ? String(externalShown) : undefined} tabIndex={item.source === "external" && !externalShown ? -1 : undefined} onClick={() => setSelectedLabel(selected ? null : item.label)} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
             <span data-signal-attributes>{signalInlineSegments(item.label).map((segment, segmentIndex) => segment.kind === "attribute"
               ? <span key={segmentIndex} className="ricky-story-attribute" data-signal-attribute>{segment.text}</span>
               : <Fragment key={segmentIndex}>{segment.text}</Fragment>)}</span>
