@@ -443,7 +443,7 @@ function VisibilityAndRicky({ step, active = false }: SceneProps) {
 function RickyStoryScene({ step, active = false }: SceneProps) {
   return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
     <Header eyebrow={DECKMO.ricky.eyebrow} title={DECKMO.ricky.title} subtitle="Internal and external signals come together in one living customer story." />
-    <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory revealStep={active ? step : 1} /></div>
+    <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory active={active} revealStep={active ? step : 1} /></div>
   </div>;
 }
 

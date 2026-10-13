@@ -1,5 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_STORY } from "../src/lib/deckmoScript";
+import { shouldRevealStoryRows } from "../src/lib/deckmoStoryReveal";
+
+describe("story entrance lifecycle", () => {
+  test("inactive sections never start the internal reveal", () => {
+    expect(shouldRevealStoryRows(false, 0)).toBe(false);
+    expect(shouldRevealStoryRows(false, 1)).toBe(false);
+  });
+  test("entering and returning to 4.1 re-enables the entrance, not 4.2", () => {
+    expect([[false, 0], [true, 0], [true, 1], [true, 0], [false, 0], [true, 0]].map(([active, step]) => shouldRevealStoryRows(Boolean(active), Number(step)))).toEqual([false, true, false, true, false, true]);
+  });
+  test("fully shown standalone stories do not start a deck reveal", () => {
+    expect(shouldRevealStoryRows(true)).toBe(false);
+  });
+});
 
 describe("combined Ricky signal story", () => {
   test("section two has two beats; the story is section four after The Complete Picture", () => {

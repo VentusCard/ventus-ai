@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Restore slide 4.1's entrance and return reveal without changing 4.2; verify live navigation, pop-ups, and reduced motion
 - [x] Weave more outside signals (other-bank accounts, credit, habits) into the /deckmo 2.2 ticker; verify interleaved order, icons, and layout
 - [x] Make slide 2.1's overview fill its panel and expanded lists use remaining height; verify three desktop sizes and 2.2 handoff
 - [x] Clean up slide 2.3 pill wording defects (spacing, typos, trailing dot, drop "variable") keeping structure

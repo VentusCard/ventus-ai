@@ -7,6 +7,7 @@ import { DECKMO, RICKY_SIGNAL_DETAILS, RICKY_SIGNAL_STORY } from "@/lib/deckmoSc
 import { RICKY_TRANSACTIONS, type RickyTransaction } from "@/lib/deckmoRickyTransactions";
 import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalInlineSegments, signalPaymentSummary } from "@/lib/deckmoSignalAttributes";
 import { cn } from "@/lib/utils";
+import { shouldRevealStoryRows, STORY_ENTRANCE_DELAY_MS } from "@/lib/deckmoStoryReveal";
 
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
 
@@ -17,8 +18,9 @@ for (const item of DECKMO.ricky.signals) {
 }
 
 /** revealStep: 0 = internal only, 1+ / undefined = everything shown. */
-export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
+export function RickySignalStory({ revealStep, active = false }: { revealStep?: number; active?: boolean } = {}) {
   const externalShown = revealStep === undefined || revealStep >= 1;
+  const revealRows = shouldRevealStoryRows(active, revealStep);
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   useEffect(() => {
     const close = (event: KeyboardEvent) => { if (["ArrowLeft", "ArrowRight", "a", "A", "d", "D"].includes(event.key)) setSelectedLabel(null); };
@@ -67,7 +69,7 @@ export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
       <p className="text-xs font-semibold text-deck-muted">{DECKMO.ricky.profileFacts}</p>
     </div>
     <div aria-label="Ricky’s customer intelligence">
-      {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} style={revealStep === undefined ? undefined : { animationDelay: `${rowIndex * 110}ms` }} data-story-family={entry.family} className={cn("ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] border-b border-deck-rule last:border-b-0", revealStep !== undefined && "ricky-story-reveal")}>
+      {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} style={revealRows ? { animationDelay: `${STORY_ENTRANCE_DELAY_MS + rowIndex * 110}ms` } : undefined} data-story-family={entry.family} className={cn("ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] border-b border-deck-rule last:border-b-0", revealRows && "ricky-story-reveal")}>
         <div className={cn("flex items-center gap-2.5 border-r border-deck-rule pr-4", `ricky-story-${entry.tone}`)}>
           <span className="ricky-story-dot h-2.5 w-2.5 shrink-0 rounded-full" />
           <span className="ricky-story-family-label text-xs font-bold uppercase">{entry.family}</span>
