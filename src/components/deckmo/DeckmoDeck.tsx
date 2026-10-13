@@ -9,6 +9,7 @@ import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTran
 import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoRetention } from "./DeckmoBankdemoScenes";
 import { ENRICH_COLS, EnrichmentCells, EnrichmentColumnHeaders } from "./RickyEnrichmentTable";
+import { RickyRailAccordion } from "./RickyRailAccordion";
 
 const TONES = {
   blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-100", hoverBg: "hover:bg-blue-200", fullText: "text-blue-900 hover:text-blue-900", pillBorder: "border-blue-300" },
@@ -173,16 +174,8 @@ function Visibility({ step, active = false }: SceneProps) {
           <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{ricky.profileFacts}</p>
         </div>
         <div className={cn("grid min-h-0 flex-1 transition-[grid-template-columns] duration-700 ease-in-out", moved ? "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]" : "grid-cols-[minmax(0,1fr)_0fr]") }>
-          <section className="min-h-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 pb-2 pl-2 scrollbar-light">
-            <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
-            {RICKY_TRANSACTIONS.map((transaction) => (
-              <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2">
-                <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
-                <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
-                <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
-                <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
-              </div>
-            ))}
+          <section className="min-h-0 min-w-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 scrollbar-light">
+            <RickyRailAccordion />
           </section>
           <section className={cn("min-h-0 min-w-0 overflow-hidden bg-background transition-opacity delay-200 duration-500", moved ? "px-6 py-4 opacity-100" : "pointer-events-none p-0 opacity-0")}>
             <OutsideTicker data={d.outside} revealed={moved} active={active} />

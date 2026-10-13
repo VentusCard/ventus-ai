@@ -132,8 +132,25 @@
     --deck-surface: 210 40% 98%;
     --deck-rule: 214 32% 91%;
     --deck-muted: 215 16% 47%;
+    --deck-rail-cards: 217 80% 46%;
+    --deck-rail-ach: 263 60% 48%;
+    --deck-rail-checks: 39 80% 38%;
+    --deck-rail-wire: 173 70% 30%;
+    --deck-rail-zelle: 190 80% 32%;
   }
 }
+
+.ricky-rail-cards { --rail-accent: var(--deck-rail-cards); }
+.ricky-rail-ach { --rail-accent: var(--deck-rail-ach); }
+.ricky-rail-checks { --rail-accent: var(--deck-rail-checks); }
+.ricky-rail-wire { --rail-accent: var(--deck-rail-wire); }
+.ricky-rail-zelle { --rail-accent: var(--deck-rail-zelle); }
+.ricky-rail-icon {
+  color: hsl(var(--rail-accent));
+  background: hsl(var(--rail-accent) / 0.08);
+  border-color: hsl(var(--rail-accent) / 0.22);
+}
+.ricky-rail-header { background: hsl(var(--rail-accent) / 0.05); }
 
 @keyframes deck-breathe {
   0%, 100% { opacity: 0.12; transform: scale(0.94); }
