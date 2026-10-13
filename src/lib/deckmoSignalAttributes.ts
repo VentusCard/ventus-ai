@@ -84,7 +84,6 @@ export function signalAttributes(label: string): string[] {
     amount,
     label === L.marcus ? "to Goldman Marcus" : "to Fidelity",
     label === L.marcus ? "HYSA" : "Brokerage",
-    ...(summary.fixed ? [] : ["Variable amount"]),
   ];
 }
 
@@ -121,7 +120,6 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       attribute(label === L.marcus ? "Goldman Marcus" : "Fidelity"),
       connector(" a "),
       attribute(label === L.marcus ? "HYSA" : "brokerage account"),
-      ...(summary.fixed ? [] : [connector(" · "), attribute("variable")]),
     ];
   }
   const phrases: Record<string, SignalPhraseSegment[]> = {
@@ -132,7 +130,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       connector(" a "),
       attribute("Technology Company"),
     ],
-    [L.business]: [attribute("SMB Owner"), connector("in"), attribute("Food and Beverage")],
+    [L.business]: [attribute("SMB Owner"), connector(" in "), attribute("Food and Beverage")],
     "Small airplane co-owner": [attribute("Airplane co-owner"), connector(" of a "), attribute("Cirrus SR22")],
     "BMW X5 loan ending in ~4 months": [
       attribute("BMW X5"),
@@ -140,18 +138,18 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       attribute("auto financing"),
       connector(" ending in "),
       attribute("~4 months"),
-      connector(" · "),
     ],
-    [L.tennis]: [attribute("$12,000"), connector("annual spent in"), attribute("bi weekly"), attribute("Tennis")],
+    [L.tennis]: [attribute("$12,000"), connector(" annual spent in "), attribute("bi-weekly"), connector(" "), attribute("Tennis")],
     [L.hawaii]: [
       attribute("$9,000"),
-      connector("annual spent in"),
+      connector(" annual spent in "),
       attribute("Annual pre-holiday trip"),
+      connector(" "),
       attribute("Q4"),
     ],
     [L.media]: [
       attribute("$6,000"),
-      connector("annual spent in"),
+      connector(" annual spent in "),
       attribute("Media, music and entertainment"),
       connector(" through "),
       attribute("streaming services"),
@@ -172,7 +170,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       connector(" frequency at "),
       attribute("Online Sports Betting"),
       connector(" now "),
-      attribute("bi-weekly deposites"),
+      attribute("bi-weekly deposits"),
     ],
   };
   return phrases[label] ?? [attribute(label)];
