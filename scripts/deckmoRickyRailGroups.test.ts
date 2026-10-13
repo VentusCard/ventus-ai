@@ -8,17 +8,24 @@ describe("Ricky rail overview", () => {
     expect(groups.map((group) => group.rail)).toEqual(["Cards", "ACH", "Checks", "Wire", "Zelle"]);
     expect(groups.flatMap((group) => group.transactions).map((row) => row.id).sort()).toEqual(RICKY_TRANSACTIONS.map((row) => row.id).sort());
   });
-  test("combines Premium and Cashback cards and shows both in the sample", () => {
+  test("combines Premium and Cashback cards and shows both first", () => {
     const cards = groups[0];
     expect(new Set(cards.examples.map((row) => row.source))).toEqual(new Set(["Cashback Card", "Premium Card"]));
+    expect([cards.examples[0].source, cards.examples[1].source]).toEqual(expect.arrayContaining(["Cashback Card", "Premium Card"]));
     expect(cards.transactions.length).toBe(RICKY_TRANSACTIONS.filter((row) => row.source.endsWith("Card")).length);
   });
-  test("caps samples at three and includes ACH debit and credit", () => {
-    expect(groups.every((group) => group.examples.length <= 3)).toBe(true);
+  test("shows the full list per rail with ACH debit and credit first", () => {
+    expect(groups.every((group) => group.examples.length === group.transactions.length)).toBe(true);
     const ach = groups[1];
     expect(ach.examples.some((row) => row.description.startsWith("ACH DEBIT"))).toBe(true);
     expect(ach.examples.some((row) => row.description.startsWith("ACH CREDIT"))).toBe(true);
     expect(ach.examples.every((row) => RICKY_TRANSACTIONS.includes(row))).toBe(true);
+  });
+  test("keeps original order after the variant-coverage lead rows", () => {
+    const cards = groups[0];
+    const lead = cards.examples.slice(0, 2);
+    const rest = cards.examples.slice(2).map((row) => row.id);
+    expect(rest).toEqual(RICKY_TRANSACTIONS.filter((row) => row.source.endsWith("Card")).map((row) => row.id).filter((id) => !lead.includes(id as never)));
   });
   test("extracts only identifiers present in the raw data", () => {
     const row: RickyTransaction = { id: "test", date: "09/17/26", source: "ACH", description: "ACH DEBIT MARCUS SAVINGS ID 091726", amount: "($3,500.00)", signals: [] };
