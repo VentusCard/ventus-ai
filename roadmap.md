@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Restrict /deckmo navigation to arrow buttons and left/right or A/D keys; verify interactive controls and scrolling
 - [x] Add KYC above /deckmo 2.1–2.2 rail blocks and verify expansion and slide persistence
 - [x] Replace /deckmo 2.1–2.2 raw lists with expandable rail-specific examples and verify the slide handoff
 - [x] Expand beat 8.4 to seven alternating customer- and AI-started phone conversations
