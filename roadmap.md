@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Reorder Ricky's five signal families deck-wide (Demographics, Financial, Behavioral, Life Events, Risk); verify all four lists
+- [x] Reorder Ricky's five signal families deck-wide (Demographics, Financial, Behavioral, Life Events, Risk); verify all four lists
 - [x] Rebalance slide 2.3 into responsive, naturally aligned signal-family rows; verify sizes and evidence interactions
 - [x] Replace section-two enrichment/internal-only beats with one full-width signal story; verify details, evidence, and shortened navigation
 - [x] Restrict /deckmo navigation to arrow buttons and left/right or A/D keys; verify interactive controls and scrolling
