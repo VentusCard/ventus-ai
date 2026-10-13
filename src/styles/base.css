@@ -524,11 +524,14 @@
 }
 
 /* Signal pop-up renders in a portal outside the deck scope; pin it to the light theme. */
-.ricky-story-popover { background: #ffffff; color: #0f172a; border-color: hsl(var(--story-accent) / 0.45); box-shadow: 0 24px 60px -20px rgb(15 23 42 / 0.35); }
-.ricky-story-popover .ricky-story-popover-head { background: linear-gradient(hsl(var(--story-accent) / 0.08), hsl(var(--story-accent) / 0.08)), #ffffff; }
+.ricky-story-popover { background: #ffffff; color: #0f172a; border-color: hsl(var(--story-accent) / 0.6); border-top: 4px solid hsl(var(--story-accent)); box-shadow: 0 24px 60px -20px hsl(var(--story-accent) / 0.3), 0 24px 60px -20px rgb(15 23 42 / 0.25); }
+.ricky-story-popover .ricky-story-popover-head { background: linear-gradient(hsl(var(--story-accent) / 0.14), hsl(var(--story-accent) / 0.14)), #ffffff; border-bottom-color: hsl(var(--story-accent) / 0.35); }
 .ricky-story-popover .bg-background { background: #ffffff; }
-.ricky-story-popover .bg-muted\/40, .ricky-story-popover .bg-muted\/50 { background: #f8fafc; }
+.ricky-story-popover .bg-muted\/40, .ricky-story-popover .bg-muted\/50 { background: hsl(var(--story-accent) / 0.08); border-color: hsl(var(--story-accent) / 0.3); }
 .ricky-story-popover .border-deck-rule, .ricky-story-popover .divide-deck-rule > * + * { border-color: #e2e8f0; }
+.ricky-story-popover .border-dashed { border-color: hsl(var(--story-accent) / 0.55); }
 .ricky-story-popover .text-foreground { color: #0f172a; }
 .ricky-story-popover .ricky-story-family-label, .ricky-story-popover .ricky-story-dot { color: hsl(var(--story-accent)); }
 .ricky-story-popover .ricky-story-dot { background: hsl(var(--story-accent)); }
+.ricky-story-popover .ricky-story-popover-heading { color: hsl(var(--story-accent)); }
+.ricky-story-popover .ricky-story-popover-badge { color: hsl(var(--story-accent)); border-color: hsl(var(--story-accent) / 0.45); background: hsl(var(--story-accent) / 0.1); }
