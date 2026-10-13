@@ -14,7 +14,9 @@ for (const item of DECKMO.ricky.signals) {
   if (!STORY_FAMILIES.some((entry) => entry.family === item.family)) STORY_FAMILIES.push({ family: item.family, tone: item.tone });
 }
 
-export function RickySignalStory() {
+/** revealStep: 0 = internal only, 1+ / undefined = everything shown. */
+export function RickySignalStory({ revealStep }: { revealStep?: number } = {}) {
+  const externalShown = revealStep === undefined || revealStep >= 1;
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const detailRef = useRef<HTMLElement>(null);
 
@@ -34,7 +36,7 @@ export function RickySignalStory() {
       <p className="text-xs font-semibold text-deck-muted">{DECKMO.ricky.profileFacts}</p>
     </div>
     <div aria-label="Ricky’s customer intelligence">
-      {STORY_FAMILIES.map((entry) => <div key={entry.family} data-story-family={entry.family} className="ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] border-b border-deck-rule last:border-b-0">
+      {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} style={revealStep === undefined ? undefined : { animationDelay: `${rowIndex * 110}ms` }} data-story-family={entry.family} className={cn("ricky-story-row grid", revealStep !== undefined && "ricky-story-reveal")} data-row-cls="grid-cols-[160px_minmax(0,1fr)] border-b border-deck-rule last:border-b-0">
         <div className={cn("flex items-center gap-2.5 border-r border-deck-rule pr-4", `ricky-story-${entry.tone}`)}>
           <span className="ricky-story-dot h-2.5 w-2.5 shrink-0 rounded-full" />
           <span className="ricky-story-family-label text-xs font-bold uppercase">{entry.family}</span>

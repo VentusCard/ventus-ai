@@ -4,6 +4,7 @@ export type DeckmoBeatId =
   | "opener"
   | "visibility"
   | "living-view"
+  | "ricky-story"
   | "ricky"
   | "immediate"
   | "mid-term"
@@ -48,8 +49,9 @@ export const DECKMO = {
   },
   beats: [
     { id: "opener", nav: "Thesis", steps: 6 },
-    { id: "visibility", nav: "The Visibility Gap / Meet Ricky", steps: 3 },
+    { id: "visibility", nav: "The Visibility Gap", steps: 2 },
     { id: "living-view", nav: "The Complete Picture", steps: 3 },
+    { id: "ricky-story", nav: "Meet Ricky", steps: 2 },
     { id: "immediate", nav: "Immediate: Lower Service Cost", steps: 5 },
     { id: "mid-term", nav: "Mid-Term: Profit", steps: 5 },
     { id: "long-term", nav: "Mid-Term: Growth", steps: 3 },

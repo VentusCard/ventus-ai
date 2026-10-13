@@ -413,10 +413,13 @@ function Ricky({ step, active = false }: SceneProps) {
 }
 
 function VisibilityAndRicky({ step, active = false }: SceneProps) {
-  if (step < 2) return <Visibility step={step} active={active} />;
+  return <Visibility step={Math.min(step, 1)} active={active} />;
+}
+
+function RickyStoryScene({ step, active = false }: SceneProps) {
   return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
     <Header eyebrow={DECKMO.ricky.eyebrow} title={DECKMO.ricky.title} subtitle="Internal and external signals come together in one living customer story." />
-    <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory /></div>
+    <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory revealStep={active ? step : 1} /></div>
   </div>;
 }
 
@@ -499,7 +502,7 @@ function Close({ step }: SceneProps) {
   );
 }
 
-const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:VisibilityAndRicky,"living-view":LivingView,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,retention:BankdemoRetention,"bank-tools":BankdemoBankTools,close:Close};
+const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:VisibilityAndRicky,"living-view":LivingView,"ricky-story":RickyStoryScene,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,retention:BankdemoRetention,"bank-tools":BankdemoBankTools,close:Close};
 
 export function DeckmoDeck(){const [globalStep,setGlobalStep]=useState(0);const [presenterOpen,setPresenterOpen]=useState(false);const scroller=useRef<HTMLDivElement>(null);const deckRootRef=useRef<HTMLDivElement>(null);useInstitutionDomSwap(deckRootRef);const sectionRefs=useRef<(HTMLElement|null)[]>([]);const current=DECKMO_STEPS[globalStep];const activeBeat=DECKMO.beats[current.section];const hasSub="sub" in current&&!!current.sub;const beatNum=current.screen+1;const slideNumber=hasSub?`${current.section+1}.${beatNum}.${current.sub}`:`${current.section+1}${activeBeat.steps>1?`.${beatNum}`:""}`;const slideTotal=String(DECKMO.beats.length);
 const jump=useCallback((index:number)=>{const bounded=Math.max(0,Math.min(DECKMO_STEPS.length-1,index));setGlobalStep(bounded);const next=DECKMO_STEPS[bounded];sectionRefs.current[next.section]?.scrollIntoView({behavior:"smooth",block:"start"});},[]);
