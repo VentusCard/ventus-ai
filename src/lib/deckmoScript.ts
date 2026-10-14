@@ -51,7 +51,7 @@ export const DECKMO = {
     { id: "opener", nav: "Thesis", steps: 6 },
     { id: "visibility", nav: "The Visibility Gap", steps: 2 },
     { id: "living-view", nav: "The Complete Picture", steps: 3 },
-    { id: "ricky-story", nav: "Meet Ricky", steps: 2 },
+    { id: "ricky-story", nav: "Ricky, understood", steps: 2 },
     { id: "immediate", nav: "Immediate: Lower Service Cost", steps: 5 },
     { id: "mid-term", nav: "Mid-Term: Profit", steps: 5 },
     { id: "long-term", nav: "Mid-Term: Growth", steps: 3 },
@@ -69,11 +69,11 @@ export const DECKMO = {
     comparison: {
       today: {
         label: "Today",
-        segments: ["Don't talk to or understand your customers", "Generic banking", "Commoditization"],
+        segments: ["Can't talk to and understand customer needs", "Generic banking", "Commoditization"],
       },
       ventus: {
         label: "with",
-        segments: ["Anticipate and fulfill every customer need", "Personalized banking", "Differentiation"],
+        segments: ["Understand and anticipate customer needs", "Personalized banking", "Differentiation"],
       },
     },
   },
@@ -83,7 +83,7 @@ export const DECKMO = {
     subtitle: "First-party transaction data is observed, but lagging and partial. It ends at the institution's walls.",
     inside: {
       header: "INSIDE THE WALLS",
-      caption: "Messy unstructured activity across payment rails",
+      caption: "Raw activity across payment rails",
       rows: [
         {
           id: "C•••1842",
@@ -111,9 +111,9 @@ export const DECKMO = {
     },
     outside: {
       header: "OUTSIDE THE WALLS",
-      caption: "What else goes on",
+      caption: "Financial relationships and life context beyond the bank",
       status: "not visible",
-      empty: "The rest of the customer remains out of view",
+      empty: "The wider picture remains out of view.",
       rows: [
         "Bought a house",
         "Credit card at another bank",
@@ -139,16 +139,16 @@ export const DECKMO = {
   },
   livingView: {
     eyebrow: "THE COMPLETE PICTURE",
-    title: "Ventus AI: Holistic AI Customer Intelligence",
-    subtitle: "Enriching internal and external data to gain a dynamic understanding of each customer",
+    title: "Ventus AI: One living customer view",
+    subtitle: "Internal activity and external context come together to show who each customer is, how they live, and what they may need next.",
     inside: {
       header: "INSIDE THE WALLS",
-      title: "Rail-agnostic behavioral enrichment",
+      title: "Understand activity across payment rails",
       chips: ["Checks", "Wires", "Zelle", "Card swipes", "P2P", "Digital telemetry"],
     },
     outside: {
       header: "OUTSIDE THE WALLS",
-      title: "Source-agnostic behavioral intelligence",
+      title: "Add context from external sources",
       chips: ["Credit bureaus", "Data compilers", "National databases", "SKU-level insights"],
     },
     result: { header: "ONE LIVING CUSTOMER VIEW" },
@@ -166,6 +166,14 @@ export const DECKMO = {
   ricky: {
     eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
     title: "Meet Ricky",
+    storyHeader: {
+      eyebrow: "CUSTOMER INTELLIGENCE IN ACTION",
+      title: "Ricky, understood",
+      descriptions: [
+        "Internal activity reveals Ricky’s routines, financial relationships, and emerging needs.",
+        "External context adds the relationships and life details the bank cannot see on its own.",
+      ],
+    },
     sectionSubtitles: [
       "Start with the transactions the institution can see.",
       "But transactions alone reveal only part of Ricky’s life.",
@@ -234,7 +242,7 @@ export const DECKMO = {
     value: { metric: "-9%", label: "Customer Service inquiries" },
     title: "Make every transaction understandable",
     subtitle:
-      "Enriched transaction experiences that make charges easier to recognize and can reduce transaction-related service calls and inquiries.",
+      "Help customers recognize charges, understand the context, and confirm the answer without calling the bank.",
     phoneTitle: "Recent transactions",
     account: "Our Bank Account #9905",
     activity: [
@@ -363,7 +371,7 @@ export const DECKMO = {
     ],
     popups: [
       {
-        title: "Every charge, instantly recognizable",
+        title: "Clear merchant names and locations",
         body: "Cryptic statement strings become clean merchant names and locations.",
       },
       {
@@ -380,7 +388,7 @@ export const DECKMO = {
       },
       {
         title: "Confirmed by the customer",
-        body: "One tap closes the loop. The answer improves every future explanation.",
+        body: "One tap confirms the charge and helps improve future explanations.",
       },
     ],
     explainer: {
@@ -394,7 +402,7 @@ export const DECKMO = {
     value: { metric: "$20 User/Year", label: "yield for the bank" },
     title: "Turn understanding into relevant growth",
     subtitle:
-      "Hyper-personalized card-linked offers and cross-sell programs create new revenue opportunities while helping identify the right banking product for each customer at the right moment.",
+      "Bring partner offers, rewards, and perks into collections shaped around each customer’s interests and plans.",
     phoneTitle: "Selected for Ricky",
     rewardsIntro: "Benefits built around how you live",
     topPick: {
@@ -435,23 +443,23 @@ export const DECKMO = {
     popups: [
       {
         title: "Deals, rewards and perks in one place",
-        body: "Merchant deals, bank products, museum perks, all in one place.",
+        body: "Partner offers and local experiences sit alongside the bank’s own benefits.",
       },
       {
-        title: "Curated from multiple deal aggregators",
-        body: "The best available offers are sourced across partners, not one catalog.",
+        title: "Offers from multiple partners",
+        body: "Bring partner catalogs together in one customer experience.",
       },
       {
-        title: "Next-gen tools like semantic search",
+        title: "Search by meaning, not keywords",
         body: "Customers find relevant offers by meaning, not exact keywords.",
       },
       {
-        title: "A collection for every major signal",
-        body: "Habits, life events and routines each get their own deal collection.",
+        title: "Collections shaped by customer context",
+        body: "Group offers around interests, routines, and upcoming plans.",
       },
       {
-        title: "Hyper-personalized collections",
-        body: "Multi-category collection that supports specific goals.",
+        title: "A collection for the next trip",
+        body: "Travel gear, clothing, and airport benefits come together around Ricky’s upcoming getaway.",
       },
     ],
   },
@@ -460,7 +468,7 @@ export const DECKMO = {
     value: { metric: "+5.5%", label: "Cross-sell rate" },
     title: "Build a relationship that evolves",
     subtitle:
-      "A more personalized banking relationship can deepen engagement, improve retention and NPS, and help the bank grow primary banking relationships and share of wallet.",
+      "Connect life events, routines, and future plans to timely banking products that deepen the customer relationship and grow share of wallet.",
     phoneTitle: "Ricky's relationship",
     welcome: "Welcome, Ricky",
     memberStatus: "Private client · Member since 2018",
@@ -490,29 +498,29 @@ export const DECKMO = {
     },
     popups: [
       {
-        title: "Anticipate the next life moment",
-        body: "A home-buying signal becomes a relevant relationship-rate mortgage recommendation.",
+        title: "Life context informs product recommendations",
+        body: "Home plans, routines, and future trips inform mortgage, card, and savings recommendations.",
       },
       {
-        title: "Turn routines into relationship value",
-        body: "Ricky’s tennis routine becomes a rewards card aligned to how he spends.",
+        title: "Make the benefit concrete",
+        body: "Show how each recommendation could support the customer’s routine or next goal.",
       },
       {
-        title: "Turn travel plans into deposits",
-        body: "Ricky’s annual tropical trip becomes a high-yield savings goal that grows deposits.",
+        title: "Give the customer a next step",
+        body: "Each recommendation pairs a clear benefit with an action the customer can take.",
       },
     ],
   },
   retention: {
     eyebrow: "LONG-TERM: RETENTION & NPS",
     value: { metric: "+4.5%", label: "In-app engagement" },
-    title: "Turn every answer into relationship equity",
+    title: "Give customers more reasons to stay",
     subtitle:
-      "A banking assistant grounded in the customer’s complete financial story makes every interaction feel informed, useful, and personal.",
+      "An assistant with the customer’s wider financial context can offer useful answers today and more relevant help over time.",
     openingPrompt: "How much have I spent on my last trip to Hawaii?",
     popups: [
       {
-        title: "Understand the full context",
+        title: "Understand the context",
         body: "Answer from enriched activity across the customer’s relationship, not isolated transactions.",
       },
       {
@@ -521,14 +529,14 @@ export const DECKMO = {
       },
       {
         title: "Earn the next interaction",
-        body: "Consistently relevant help deepens engagement and creates the conditions for stronger retention and NPS.",
+        body: "Useful, relevant help gives customers a reason to return and can support stronger engagement over time.",
       },
     ],
     showcase: {
-      eyebrow: "COUNTLESS SERVICE OPPORTUNITY",
-      title: "Every Customer, Inquiry and Opportunity",
+      eyebrow: "COUNTLESS WAYS TO SERVE",
+      title: "More context. More ways to help.",
       subtitle:
-        "When Ventus understands every transaction and pattern, your assistant can show up for the customer in countless ways — today and for years to come.",
+        "With a richer understanding of the customer’s financial life, your assistant can be proactive with everyday questions, future plans, and the moments in between.",
       phones: [
         {
           id: "credit-score",
