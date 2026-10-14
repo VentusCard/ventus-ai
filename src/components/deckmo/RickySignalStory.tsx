@@ -68,7 +68,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
           <div className="mt-2 overflow-hidden rounded-lg border border-deck-rule">
             <table className="w-full table-fixed border-collapse text-left">
               <colgroup>
-                <col className="w-[64px]" /><col className="w-[86px]" /><col /><col className="w-[86px]" /><col className="w-[150px]" /><col className="w-[128px]" /><col className="w-[86px]" />
+                <col className="w-[58px]" /><col className="w-[66px]" /><col /><col className="w-[82px]" /><col className="w-[138px]" /><col className="w-[112px]" /><col className="w-[78px]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-deck-rule">
