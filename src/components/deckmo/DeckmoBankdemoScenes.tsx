@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { BANK_TOOLS_BEAT_SCREENS as DECKMO_BEAT_SCREENS, DECKMO } from "@/lib/deckmoScript";
+import { DECKMO, DECKMO_BENEFITS, type DeckmoBeatId } from "@/lib/deckmoScript";
+import { Button } from "@/components/ui/button";
 import { DECKMO_BANKDEMO_FIXTURE } from "@/lib/deckmoBankdemoFixture";
 import ExecDemoPhoneView, { type ConsumerTab } from "@/components/exec-demo/ExecDemoPhoneView";
 import { AnalyticsContainer, type TabValue } from "@/components/tepilot/insights/AnalyticsContainer";
@@ -7,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { ArrowRight, Sparkles, Users } from "lucide-react";
 import { DeckmoRecentTransactionsTab } from "./DeckmoRecentTransactionsTab";
 
-type SceneProps = { step: number; active?: boolean };
+type SceneProps = { step: number; active?: boolean; onNavigateBeat?: (id: DeckmoBeatId) => void };
 
 type SceneValue = { metric: string; label: string };
 
@@ -314,11 +315,6 @@ export function BankdemoRetention({ step, active = true }: SceneProps) {
   );
 }
 
-const WORKSPACE_TABS: TabValue[] = ["ventus-ai", "targeting-automated-flows", "wm-copilot"];
-
-// Flat beat index within the bank-tools slide -> workspace screen index.
-const BANK_TOOLS_BEAT_SCREENS = DECKMO_BEAT_SCREENS;
-
 function ExactWorkspace({ tab }: { tab: TabValue }) {
   return (
     <div data-deck-interactive onWheel={(e) => e.stopPropagation()} onTouchMove={(e) => e.stopPropagation()} className="mx-auto h-[clamp(500px,63vh,700px)] w-full max-w-[1188px] overflow-hidden rounded-xl border border-slate-300 bg-white shadow-xl [@media(max-width:1340px)]:h-[clamp(480px,60vh,640px)] [@media(max-width:1340px)]:max-w-[1110px] [@media(max-height:900px)]:h-[clamp(460px,58vh,560px)]">
@@ -330,20 +326,23 @@ function ExactWorkspace({ tab }: { tab: TabValue }) {
 }
 
 
-export function BankdemoBankTools({ step }: SceneProps) {
+export function BankdemoBankTools({ onNavigateBeat }: SceneProps) {
   const data = DECKMO.bankTools;
-  const screenIndex = BANK_TOOLS_BEAT_SCREENS[step] ?? 0;
   return (
     <div className="mx-auto flex h-full max-w-[1560px] flex-col justify-center px-12 py-6">
-      <div className="flex items-end justify-between gap-8">
+      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
         <div>
           <SceneHeader eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} highlight="45 tools and workflows" wide />
         </div>
-        <div className="mb-1 flex gap-2">
-          {data.screens.map((item, index) => <span key={item.id} className={cn("rounded-full border px-4 py-2 text-[10px] font-bold", index === screenIndex ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-400")}>{item.tab}</span>)}
-        </div>
+        <nav aria-label="Benefit sections" data-deck-interactive className="mb-1 flex flex-wrap gap-2">
+          {DECKMO_BENEFITS.map((item) => (
+            <Button key={item.id} variant="outline" size="sm" className="h-9 rounded-md border-deck-rule bg-background px-3 text-xs font-semibold text-deck-navy hover:border-deck-blue hover:bg-deck-surface hover:text-deck-blue" onClick={() => onNavigateBeat?.(item.id)}>
+              {item.label}<ArrowRight className="ml-2 h-3.5 w-3.5" />
+            </Button>
+          ))}
+        </nav>
       </div>
-      <div className="mt-3"><ExactWorkspace tab={WORKSPACE_TABS[screenIndex] ?? WORKSPACE_TABS[0]} /></div>
+      <div className="mt-3"><ExactWorkspace tab="ventus-ai" /></div>
     </div>
   );
 }

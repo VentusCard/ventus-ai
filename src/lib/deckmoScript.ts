@@ -14,7 +14,14 @@ export type DeckmoBeatId =
   | "close";
 
 // Flat beat index within the "For Your Teams" slide -> workspace screen index.
-export const BANK_TOOLS_BEAT_SCREENS = [0, 1, 2];
+export const BANK_TOOLS_BEAT_SCREENS = [0];
+
+export const DECKMO_BENEFITS = [
+  { id: "immediate", label: "Lower Service Cost" },
+  { id: "mid-term", label: "Profit" },
+  { id: "long-term", label: "Growth" },
+  { id: "retention", label: "Retention & NPS" },
+] as const satisfies readonly { id: DeckmoBeatId; label: string }[];
 
 export const RICKY_KYC_PROFILE = {
   name: "Ricky J",
@@ -52,16 +59,16 @@ export const DECKMO = {
     { id: "visibility", nav: "The Visibility Gap", steps: 2 },
     { id: "living-view", nav: "The Complete Picture", steps: 3 },
     { id: "ricky-story", nav: "Ricky, understood", steps: 2 },
+    {
+      id: "bank-tools",
+      nav: "Tools for the Bank",
+      steps: 1,
+      stepScreens: BANK_TOOLS_BEAT_SCREENS,
+    },
     { id: "immediate", nav: "Immediate: Lower Service Cost", steps: 5 },
     { id: "mid-term", nav: "Mid-Term: Profit", steps: 5 },
     { id: "long-term", nav: "Mid-Term: Growth", steps: 3 },
     { id: "retention", nav: "Long-Term: Retention & NPS", steps: 4 },
-    {
-      id: "bank-tools",
-      nav: "Tools for the Bank",
-      steps: 3,
-      stepScreens: BANK_TOOLS_BEAT_SCREENS,
-    },
     { id: "close", nav: "The Ask", steps: 3 },
   ],
   opener: {
@@ -767,6 +774,11 @@ export const DECKMO_STEPS = DECKMO.beats.flatMap((beat, section) =>
     return { section, step, screen, id: `${beat.id}-${step}`, ...(sub ? { sub } : {}) };
   }),
 );
+
+/** Explicit section controls resolve through the authoritative ordered script. */
+export function deckmoBeatStartIndex(id: DeckmoBeatId): number {
+  return DECKMO_STEPS.findIndex((entry) => DECKMO.beats[entry.section].id === id);
+}
 
 export interface RickySignalDetail {
   summary: string;
