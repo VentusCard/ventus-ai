@@ -30,4 +30,4 @@
 - [x] Turn "Live Work Stream" into an Activity History log (day-by-day, slow trickle)
 - [x] Add "Coworker for Wealth Managers" persona (all AI Coworker sub-tabs)
 - Differentiated internal vs external story pills: darker internal tint, leading Sparkles/Ext badge on external pills
-- [x] Section 4 signal popups: two-column Original vs Enriched transaction table, max two lines per row
+- [x] Section 4 signal popups: /demo-style two-tier table (Raw Transaction vs Enriched output), one row per transaction
