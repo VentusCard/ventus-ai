@@ -66,11 +66,27 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
         : <div data-enriched-transactions>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
           <div className="mt-2 overflow-hidden rounded-lg border border-deck-rule">
-            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] border-b border-deck-rule bg-muted/40 text-[10px] font-bold uppercase text-deck-muted">
-              <span className="px-3 py-1.5">Original transaction</span>
-              <span className="border-l border-deck-rule px-3 py-1.5">Enriched output</span>
-            </div>
-            <ul className="divide-y divide-deck-rule">{evidence.map((transaction) => <EnrichedRow key={transaction.id} transaction={transaction} merchants={detail.merchants} recurring={evidence.length >= 3} />)}</ul>
+            <table className="w-full table-fixed border-collapse text-left">
+              <colgroup>
+                <col className="w-[64px]" /><col className="w-[86px]" /><col /><col className="w-[86px]" /><col className="w-[150px]" /><col className="w-[128px]" /><col className="w-[86px]" />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-deck-rule">
+                  <th colSpan={4} className="bg-muted/60 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-deck-muted">Raw Transaction <span className="font-normal normal-case tracking-normal">· as received from bank feed</span></th>
+                  <th colSpan={3} className="border-l-2 border-deck-rule bg-muted/60 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-deck-muted">Enriched output <span className="font-normal normal-case tracking-normal">· AI-labeled semantic intelligence</span></th>
+                </tr>
+                <tr className="border-b border-deck-rule bg-muted/40 text-[10px] font-semibold uppercase tracking-wider text-deck-muted">
+                  <th className="px-3 py-1.5">Date</th>
+                  <th className="px-2 py-1.5">Source</th>
+                  <th className="px-2 py-1.5">Description</th>
+                  <th className="px-3 py-1.5 text-right">Amt</th>
+                  <th className="border-l-2 border-deck-rule px-3 py-1.5">Merchant</th>
+                  <th className="px-2 py-1.5">Category</th>
+                  <th className="px-3 py-1.5">Freq</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-deck-rule">{evidence.map((transaction) => <EnrichedRow key={transaction.id} transaction={transaction} merchants={detail.merchants} recurring={evidence.length >= 3} />)}</tbody>
+            </table>
           </div>
         </div>}
       </div>
