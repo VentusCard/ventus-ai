@@ -148,7 +148,7 @@ export const DECKMO = {
     },
     outside: {
       header: "OUTSIDE THE WALLS",
-      title: "Add context from external sources",
+      title: "Extra insights from external sources",
       chips: ["Credit bureaus", "Data compilers", "National databases", "SKU-level insights"],
     },
     result: { header: "ONE LIVING CUSTOMER VIEW" },
