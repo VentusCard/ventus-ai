@@ -29,3 +29,4 @@
 - [x] Tighten only the inner table gutters on Ricky’s first two beats
 - [x] Turn "Live Work Stream" into an Activity History log (day-by-day, slow trickle)
 - [x] Add "Coworker for Wealth Managers" persona (all AI Coworker sub-tabs)
+- Differentiated internal vs external story pills: darker internal tint, leading Sparkles/Ext badge on external pills
