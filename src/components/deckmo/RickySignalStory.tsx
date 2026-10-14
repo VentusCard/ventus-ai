@@ -7,7 +7,7 @@ import { DECKMO, RICKY_SIGNAL_DETAILS, RICKY_SIGNAL_STORY } from "@/lib/deckmoSc
 import { RICKY_TRANSACTIONS, type RickyTransaction } from "@/lib/deckmoRickyTransactions";
 import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalInlineSegments, signalPaymentSummary } from "@/lib/deckmoSignalAttributes";
 import { cn } from "@/lib/utils";
-import { shouldRevealStoryRows, STORY_ENTRANCE_DELAY_MS } from "@/lib/deckmoStoryReveal";
+import { isOutsideClauseHidden, shouldRevealStoryRows, STORY_ENTRANCE_DELAY_MS } from "@/lib/deckmoStoryReveal";
 
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
 
@@ -17,9 +17,17 @@ for (const item of DECKMO.ricky.signals) {
   if (!STORY_FAMILIES.some((entry) => entry.family === item.family)) STORY_FAMILIES.push({ family: item.family, tone: item.tone });
 }
 
+/** The clause that closes each family row, so its period can fade with an outside clause. */
+const LAST_IN_FAMILY = new Set<string>();
+for (const entry of STORY_FAMILIES) {
+  const clauses = RICKY_SIGNAL_STORY.filter((clause) => DECKMO.ricky.signals.find((item) => item.label === clause.label)?.family === entry.family);
+  const last = clauses[clauses.length - 1];
+  if (last) LAST_IN_FAMILY.add(last.label);
+}
+
 /** revealStep: 0 = internal only, 1+ / undefined = everything shown. */
 export function RickySignalStory({ revealStep, active = false }: { revealStep?: number; active?: boolean } = {}) {
-  const externalShown = revealStep === undefined || revealStep >= 1;
+  const externalShown = !isOutsideClauseHidden("external", revealStep);
   const revealRows = shouldRevealStoryRows(active, revealStep);
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   useEffect(() => {
@@ -80,7 +88,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
         if (!item) return null;
         const selected = selectedLabel === item.label;
         return <Fragment key={item.label}>
-          {index === 0 ? clause.before.replace(/^\.\s*/, "") : /^[,;.]/.test(clause.before) ? clause.before : ` ${clause.before}`}{" "}
+          <span className="ricky-story-lead" data-revealed={item.source === "external" ? String(externalShown) : undefined}>{index === 0 ? clause.before.replace(/^\.\s*/, "") : /^[,;.]/.test(clause.before) ? clause.before : ` ${clause.before}`}</span>{" "}
            <Popover open={selected} onOpenChange={(open) => { if (!open) setSelectedLabel(null); }}>
           <PopoverAnchor asChild>
           <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} data-signal-label={item.label} data-signal-family={item.family} data-revealed={item.source === "external" ? String(externalShown) : undefined} tabIndex={item.source === "external" && !externalShown ? -1 : undefined} onClick={() => setSelectedLabel(selected ? null : item.label)} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
@@ -92,8 +100,9 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
           </PopoverAnchor>
           {selected && <PopoverContent side="bottom" align="start" collisionPadding={16} onEscapeKeyDown={() => setSelectedLabel(null)} onInteractOutside={(event) => { const target = event.target as HTMLElement | null; if (target?.closest(`[data-signal-label="${CSS.escape(item.label)}"]`)) event.preventDefault(); }} className={cn("ricky-story-popover w-[min(760px,calc(100vw-32px))] max-h-[min(72vh,var(--radix-popover-content-available-height))] overflow-y-auto overscroll-contain scrollbar-light rounded-xl border bg-background p-0 text-foreground shadow-xl", `ricky-story-${item.tone}`)}>{renderDetail()}</PopoverContent>}
           </Popover>
+          {LAST_IN_FAMILY.has(item.label) && <span className="ricky-story-lead" data-revealed={item.source === "external" ? String(externalShown) : undefined}>.</span>}
         </Fragment>;
-      })}.
+      })}
         </p>
       </div>)}
     </div>

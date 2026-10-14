@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_STORY } from "../src/lib/deckmoScript";
-import { shouldRevealStoryRows } from "../src/lib/deckmoStoryReveal";
+import { isOutsideClauseHidden, shouldRevealStoryRows } from "../src/lib/deckmoStoryReveal";
 
 describe("story entrance lifecycle", () => {
   test("inactive sections never start the internal reveal", () => {
@@ -12,6 +12,15 @@ describe("story entrance lifecycle", () => {
   });
   test("fully shown standalone stories do not start a deck reveal", () => {
     expect(shouldRevealStoryRows(true)).toBe(false);
+  });
+});
+
+describe("outside clause gating", () => {
+  test("outside clauses are withheld only on the internal beat", () => {
+    expect(isOutsideClauseHidden("external", 0)).toBe(true);
+    expect(isOutsideClauseHidden("external", 1)).toBe(false);
+    expect(isOutsideClauseHidden("external", undefined)).toBe(false);
+    expect(isOutsideClauseHidden("internal", 0)).toBe(false);
   });
 });
 
