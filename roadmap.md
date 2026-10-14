@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Move the platform to Section 5 with one overview stop and four explicit benefit-navigation buttons; verify destinations, platform interaction, and desktop layout
 - [x] Fade slide 4.1's outside lead-in words with their pills and closing period; verify no reflow into 4.2
 - [x] Apply finalized Deckmo headers and captions; preserve unresolved alternatives and metrics; verify both institution modes and all slides
 - [x] Restore slide 4.1's entrance and return reveal without changing 4.2; verify live navigation, pop-ups, and reduced motion
