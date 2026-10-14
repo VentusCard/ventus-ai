@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Fade slide 4.1's outside lead-in words with their pills and closing period; verify no reflow into 4.2
 - [x] Apply finalized Deckmo headers and captions; preserve unresolved alternatives and metrics; verify both institution modes and all slides
 - [x] Restore slide 4.1's entrance and return reveal without changing 4.2; verify live navigation, pop-ups, and reduced motion
 - [x] Weave more outside signals (other-bank accounts, credit, habits) into the /deckmo 2.2 ticker; verify interleaved order, icons, and layout
