@@ -37,7 +37,7 @@ Remove the premature “360-degree” claim from this introduction, not from any
 - Headline: **Ventus AI: One living customer view**
 - Description: **Internal activity and external context come together to show who each customer is, how they live, and what they may need next.**
 - Inside-panel title: **Understand activity across payment rails**
-- Outside-panel title: **Add context from external sources**
+- Outside-panel title: **Extra intelligence from external sources**
 - Center label: **ONE LIVING CUSTOMER VIEW** — keep.
 - Final question: **Who they are · What they do · What do they need next?** — keep.
 
@@ -106,7 +106,6 @@ Optional ticker wording: **grow customer lifetime value** instead of “lift LTV
 
 Keep captions not listed here unchanged.
 
-
 | Slide | Proposed title                               | Proposed description                                                                                    |
 | ----- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | 5.1   | Clear merchant names and locations           | Keep existing description.                                                                              |
@@ -121,7 +120,6 @@ Keep captions not listed here unchanged.
 | 7.3   | Give the customer a next step                | Each recommendation pairs a clear benefit with an action the customer can take.                         |
 | 8.1   | Understand the context                       | Keep existing description.                                                                              |
 | 8.3   | Earn the next interaction                    | Useful, relevant help gives customers a reason to return and can support stronger engagement over time. |
-
 
 Section 7’s draft captions deliberately work with the independently rotating product cards. Synchronizing products to slide steps is not part of this copy edit.
 
