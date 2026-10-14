@@ -143,14 +143,16 @@ function cleanMerchant(transaction: RickyTransaction, merchants: string[]) {
 
 function EnrichedRow({ transaction, merchants, recurring }: { transaction: RickyTransaction; merchants: string[]; recurring: boolean }) {
   const inflow = !transaction.amount.startsWith("(");
-  const category = `${transaction.mccLabel ?? (inflow ? "Income · Deposit" : "Transfer · Payment")}${transaction.mcc ? ` · ${transaction.mcc}` : ""}`;
-  const subcategories = enrichRickyTransaction(transaction).subcategories.join(" · ");
+  const enrichment = enrichRickyTransaction(transaction);
+  const merchant = enrichment.merchant === "Unclassified" ? cleanMerchant(transaction, merchants) : enrichment.merchant;
+  const category = enrichment.category === "General" && transaction.mccLabel ? transaction.mccLabel : enrichment.category;
+  const subcategories = enrichment.subcategories.join(" · ");
   return <tr data-enriched-row>
     <td className="px-3 py-2 text-[11px] text-deck-muted truncate" title={transaction.source}>{transaction.source}</td>
     <td className="px-2 py-2 text-[11px] tabular-nums text-deck-muted whitespace-nowrap">{transaction.date}</td>
     <td className="px-2 py-2 font-mono text-[11px] text-deck-navy truncate" title={transaction.description}>{transaction.description}</td>
     <td className={cn("px-3 py-2 text-right text-[12px] font-semibold tabular-nums text-deck-navy whitespace-nowrap", inflow && "underline decoration-dotted")}>{transaction.amount}</td>
-    <td className="border-l-2 border-deck-rule px-3 py-2 text-[12px] font-semibold text-deck-navy truncate" title={cleanMerchant(transaction, merchants)}>{cleanMerchant(transaction, merchants)}</td>
+    <td className="border-l-2 border-deck-rule px-3 py-2 text-[12px] font-semibold text-deck-navy truncate" title={merchant}>{merchant}</td>
     <td className="px-2 py-2 text-[11px] text-deck-muted truncate" title={category}>{category}</td>
     <td className="px-2 py-2 text-[11px] text-deck-muted truncate" title={subcategories}>{subcategories}</td>
     <td className="px-3 py-2 text-[11px] text-deck-muted whitespace-nowrap"><span className="inline-flex items-center gap-1">{recurring && <Repeat className="h-3 w-3" />}{recurring ? "Recurring" : "One-off"}</span></td>
