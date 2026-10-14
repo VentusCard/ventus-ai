@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { ArrowLeftRight, CreditCard, Repeat, Sparkles, X } from "lucide-react";
+import { Repeat, Sparkles, X } from "lucide-react";
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import { PopoverAnchor } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
@@ -66,11 +66,27 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
         : <div data-enriched-transactions>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
           <div className="mt-2 overflow-hidden rounded-lg border border-deck-rule">
-            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] border-b border-deck-rule bg-muted/40 text-[10px] font-bold uppercase text-deck-muted">
-              <span className="px-3 py-1.5">Original transaction</span>
-              <span className="border-l border-deck-rule px-3 py-1.5">Enriched output</span>
-            </div>
-            <ul className="divide-y divide-deck-rule">{evidence.map((transaction) => <EnrichedRow key={transaction.id} transaction={transaction} merchants={detail.merchants} recurring={evidence.length >= 3} />)}</ul>
+            <table className="w-full table-fixed border-collapse text-left">
+              <colgroup>
+                <col className="w-[58px]" /><col className="w-[66px]" /><col /><col className="w-[82px]" /><col className="w-[138px]" /><col className="w-[112px]" /><col className="w-[78px]" />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-deck-rule">
+                  <th colSpan={4} className="bg-muted/60 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-deck-muted">Raw Transaction <span className="font-normal normal-case tracking-normal">· as received from bank feed</span></th>
+                  <th colSpan={3} className="border-l-2 border-deck-rule bg-muted/60 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-deck-muted">Enriched output <span className="font-normal normal-case tracking-normal">· AI-labeled semantic intelligence</span></th>
+                </tr>
+                <tr className="border-b border-deck-rule bg-muted/40 text-[10px] font-semibold uppercase tracking-wider text-deck-muted">
+                  <th className="px-3 py-1.5">Date</th>
+                  <th className="px-2 py-1.5">Source</th>
+                  <th className="px-2 py-1.5">Description</th>
+                  <th className="px-3 py-1.5 text-right">Amt</th>
+                  <th className="border-l-2 border-deck-rule px-3 py-1.5">Merchant</th>
+                  <th className="px-2 py-1.5">Category</th>
+                  <th className="px-3 py-1.5">Freq</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-deck-rule">{evidence.map((transaction) => <EnrichedRow key={transaction.id} transaction={transaction} merchants={detail.merchants} recurring={evidence.length >= 3} />)}</tbody>
+            </table>
           </div>
         </div>}
       </div>
@@ -124,23 +140,15 @@ function cleanMerchant(transaction: RickyTransaction, merchants: string[]) {
 }
 
 function EnrichedRow({ transaction, merchants, recurring }: { transaction: RickyTransaction; merchants: string[]; recurring: boolean }) {
-  const card = transaction.source.includes("Card");
-  const Icon = card ? CreditCard : ArrowLeftRight;
   const inflow = !transaction.amount.startsWith("(");
-  return <li className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" data-enriched-row>
-    <div className="min-w-0 px-3 py-2.5">
-      <p className="truncate font-mono text-[11px] text-deck-navy" title={transaction.description}>{transaction.description}</p>
-      <p className="mt-1 text-[11px] text-deck-muted">{transaction.date} · {transaction.source}</p>
-    </div>
-    <div className="min-w-0 border-l border-deck-rule px-3 py-2.5">
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="inline-flex min-w-0 items-center gap-1.5"><Icon className="h-3.5 w-3.5 shrink-0 text-deck-muted" /><span className="truncate text-sm font-semibold text-deck-navy">{cleanMerchant(transaction, merchants)}</span></span>
-        <span className={cn("shrink-0 text-sm font-semibold tabular-nums text-deck-navy", inflow && "underline decoration-dotted")}>{transaction.amount}</span>
-      </div>
-      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-deck-muted">
-        <span className="rounded border border-deck-rule px-1.5">{transaction.mccLabel ?? (inflow ? "Income · Deposit" : "Transfer · Payment")}{transaction.mcc ? ` · MCC ${transaction.mcc}` : ""}</span>
-        <span className="inline-flex items-center gap-1 rounded border border-deck-rule px-1.5">{recurring && <Repeat className="h-3 w-3" />}{recurring ? "Recurring" : "One-off"}</span>
-      </div>
-    </div>
-  </li>;
+  const category = `${transaction.mccLabel ?? (inflow ? "Income · Deposit" : "Transfer · Payment")}${transaction.mcc ? ` · ${transaction.mcc}` : ""}`;
+  return <tr data-enriched-row>
+    <td className="px-3 py-2 text-[11px] tabular-nums text-deck-muted whitespace-nowrap">{transaction.date}</td>
+    <td className="px-2 py-2 text-[11px] text-deck-muted truncate" title={transaction.source}>{transaction.source}</td>
+    <td className="px-2 py-2 font-mono text-[11px] text-deck-navy truncate" title={transaction.description}>{transaction.description}</td>
+    <td className={cn("px-3 py-2 text-right text-[12px] font-semibold tabular-nums text-deck-navy whitespace-nowrap", inflow && "underline decoration-dotted")}>{transaction.amount}</td>
+    <td className="border-l-2 border-deck-rule px-3 py-2 text-[12px] font-semibold text-deck-navy truncate" title={cleanMerchant(transaction, merchants)}>{cleanMerchant(transaction, merchants)}</td>
+    <td className="px-2 py-2 text-[11px] text-deck-muted truncate" title={category}>{category}</td>
+    <td className="px-3 py-2 text-[11px] text-deck-muted whitespace-nowrap"><span className="inline-flex items-center gap-1">{recurring && <Repeat className="h-3 w-3" />}{recurring ? "Recurring" : "One-off"}</span></td>
+  </tr>;
 }
