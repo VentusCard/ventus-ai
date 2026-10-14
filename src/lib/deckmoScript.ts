@@ -402,7 +402,7 @@ export const DECKMO = {
     value: { metric: "$20 User/Year", label: "yield for the bank" },
     title: "Turn understanding into relevant growth",
     subtitle:
-      "Hyper-personalized card-linked offers and cross-sell programs create new revenue opportunities while helping identify the right banking product for each customer at the right moment.",
+      "Bring partner offers, rewards, and perks into collections shaped around each customer’s interests and plans.",
     phoneTitle: "Selected for Ricky",
     rewardsIntro: "Benefits built around how you live",
     topPick: {
