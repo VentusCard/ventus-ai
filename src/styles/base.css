@@ -167,9 +167,17 @@
   border-color: hsl(var(--story-accent) / 0.38);
   color: hsl(var(--story-accent));
 }
+/* Internal signals carry a slightly deeper tint than outside signals. */
+.ricky-story-pill[data-signal-source="internal"] {
+  background: hsl(var(--story-accent) / 0.22);
+  border-color: hsl(var(--story-accent) / 0.55);
+}
 .ricky-story-pill:hover {
   background: hsl(var(--story-accent) / 0.22);
   color: hsl(var(--deck-navy));
+}
+.ricky-story-pill[data-signal-source="internal"]:hover {
+  background: hsl(var(--story-accent) / 0.3);
 }
 .ricky-story-pill { box-decoration-break: clone; -webkit-box-decoration-break: clone; overflow-wrap: anywhere; }
 .ricky-story-attribute {
