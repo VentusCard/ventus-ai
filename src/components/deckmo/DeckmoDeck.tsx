@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, Baby, BriefcaseBusiness, Building2, CalendarCloc
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_DETAILS, type DeckmoBeatId } from "@/lib/deckmoScript";
+import { DECKMO, DECKMO_STEPS, deckmoBeatStartIndex, RICKY_SIGNAL_DETAILS, type DeckmoBeatId } from "@/lib/deckmoScript";
 import { deckmoNavigationDelta } from "@/lib/deckmoNavigation";
 import { useInstitutionDomSwap } from "@/lib/institutionMode";
 import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTransactions";
@@ -31,7 +31,7 @@ const RICKY_ROW_TONES: Record<Tone, string> = {
   rose: "border-l-[4px] border-l-rose-500 bg-rose-100/90",
 };
 
-type SceneProps = { step: number; active?: boolean };
+type SceneProps = { step: number; active?: boolean; onNavigateBeat?: (id: DeckmoBeatId) => void };
 
 const VISIBILITY_ROLLER_SPEED = 40;
 
@@ -540,13 +540,14 @@ const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:O
 
 export function DeckmoDeck(){const [globalStep,setGlobalStep]=useState(0);const [presenterOpen,setPresenterOpen]=useState(false);const scroller=useRef<HTMLDivElement>(null);const deckRootRef=useRef<HTMLDivElement>(null);useInstitutionDomSwap(deckRootRef);const sectionRefs=useRef<(HTMLElement|null)[]>([]);const current=DECKMO_STEPS[globalStep];const activeBeat=DECKMO.beats[current.section];const hasSub="sub" in current&&!!current.sub;const beatNum=current.screen+1;const slideNumber=hasSub?`${current.section+1}.${beatNum}.${current.sub}`:`${current.section+1}${activeBeat.steps>1?`.${beatNum}`:""}`;const slideTotal=String(DECKMO.beats.length);
 const jump=useCallback((index:number)=>{const bounded=Math.max(0,Math.min(DECKMO_STEPS.length-1,index));setGlobalStep(bounded);const next=DECKMO_STEPS[bounded];sectionRefs.current[next.section]?.scrollIntoView({behavior:"smooth",block:"start"});},[]);
+const navigateBeat=useCallback((id:DeckmoBeatId)=>{const index=deckmoBeatStartIndex(id);if(index>=0)jump(index)},[jump]);
 useEffect(()=>{const onKey=(e:KeyboardEvent)=>{const t=e.target as HTMLElement|null;const editing=!!t?.closest("input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox']");if(editing)return;const modified=e.ctrlKey||e.metaKey||e.altKey;if(modified)return;if(e.key.toLowerCase()==="p"){e.preventDefault();setPresenterOpen(v=>!v);return}if(e.key==="Escape"){if(presenterOpen){e.preventDefault();setPresenterOpen(false)}return}if(presenterOpen)return;const delta=deckmoNavigationDelta(e.key,editing,modified);if(delta){e.preventDefault();jump(globalStep+delta)}};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[globalStep,jump,presenterOpen]);
 return <div ref={deckRootRef} className="demo-page relative h-screen w-screen overflow-hidden bg-background font-deck text-foreground">
   <header className="absolute inset-x-0 top-0 z-40 flex h-20 items-center justify-between border-b border-deck-rule bg-background px-12">
     <div className="flex min-w-0 items-center gap-4"><img src={ventusLogoBlue} alt="Ventus AI" className="h-7 w-auto shrink-0 object-contain"/><span className="h-6 w-px shrink-0 bg-deck-rule"/><span className="truncate font-deck-serif text-2xl text-deck-navy" aria-live="polite">{activeBeat.nav}</span></div>
       <div className="flex shrink-0 items-center gap-6 text-xs font-semibold uppercase tracking-wide text-deck-muted"><span>INTERACTIVE PRESENTATION</span><Button variant="outline" size="icon" className="h-8 w-8 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" aria-label={DECKMO.chrome.exit} onClick={()=>{try{sessionStorage.removeItem("demo_password_access")}catch{}window.location.reload()}}><LogOut className="h-3.5 w-3.5"/></Button></div>
   </header>
-  <div ref={scroller} className="h-full overflow-hidden scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const active=section===current.section;const step=active?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el;if(el)el.inert=!active}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step} active={active}/></div></section>})}</div>
+  <div ref={scroller} className="h-full overflow-hidden scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const active=section===current.section;const step=active?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el;if(el)el.inert=!active}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step} active={active} onNavigateBeat={beat.id==="bank-tools"?navigateBeat:undefined}/></div></section>})}</div>
   <footer className="absolute inset-x-0 bottom-0 z-40 flex h-14 items-center justify-between border-t border-deck-rule bg-background px-12">
     <div className="flex items-center gap-6"><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-7 w-7 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" onClick={()=>jump(globalStep-1)} disabled={globalStep===0} aria-label={DECKMO.chrome.previous}><ArrowLeft className="h-3.5 w-3.5"/></Button><Button variant="outline" size="icon" className="h-7 w-7 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" onClick={()=>jump(globalStep+1)} disabled={globalStep===DECKMO_STEPS.length-1} aria-label={DECKMO.chrome.next}><ArrowRight className="h-3.5 w-3.5"/></Button></div><div className="text-[10px] font-medium uppercase text-deck-muted">Slide <span className="font-semibold text-deck-navy">{slideNumber}</span> / {slideTotal}</div></div>
     <div className="absolute inset-x-0 top-0 h-px bg-deck-surface"><div className="h-full bg-deck-blue transition-[width] duration-200 motion-reduce:transition-none" style={{width:`${((globalStep+1)/DECKMO_STEPS.length)*100}%`}}/></div>
