@@ -65,7 +65,13 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
         {external ? <div className="rounded-lg border border-dashed border-deck-rule p-3"><h5 className="ricky-story-popover-heading flex items-center gap-1.5 text-[10px] font-bold uppercase text-deck-muted"><Sparkles className="h-3 w-3" />Outside evidence</h5><p className="mt-2 text-sm">{external.detail}</p><p className="mt-1 text-xs text-deck-muted">{external.provider} · {external.timing} · {external.confidence}</p></div>
         : <div data-enriched-transactions>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
-          <ul className="mt-2 divide-y divide-deck-rule rounded-lg border border-deck-rule">{evidence.map((transaction) => <EnrichedRow key={transaction.id} transaction={transaction} merchants={detail.merchants} recurring={evidence.length >= 3} />)}</ul>
+          <div className="mt-2 overflow-hidden rounded-lg border border-deck-rule">
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] border-b border-deck-rule bg-muted/40 text-[10px] font-bold uppercase text-deck-muted">
+              <span className="px-3 py-1.5">Original transaction</span>
+              <span className="border-l border-deck-rule px-3 py-1.5">Enriched output</span>
+            </div>
+            <ul className="divide-y divide-deck-rule">{evidence.map((transaction) => <EnrichedRow key={transaction.id} transaction={transaction} merchants={detail.merchants} recurring={evidence.length >= 3} />)}</ul>
+          </div>
         </div>}
       </div>
     </section>;
