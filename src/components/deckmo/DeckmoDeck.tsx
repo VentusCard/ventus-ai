@@ -86,11 +86,20 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-blue-600">{children}</p>;
 }
 
-function Header({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
+function Header({ eyebrow, title, subtitle, withLogo = false }: { eyebrow: string; title: string; subtitle?: string; withLogo?: boolean }) {
   return (
     <header className="max-w-[1180px]">
       <Eyebrow>{eyebrow}</Eyebrow>
-      <h2 className="mt-3 text-balance text-[clamp(34px,3.6vw,58px)] font-bold leading-[1.04] tracking-normal text-slate-950">{title}</h2>
+      {withLogo ? (
+        // "with" + the Ventus AI logo read as the last words of the headline, so the mark scales with the text.
+        <h2 className="mt-3 flex flex-wrap items-center gap-x-[0.3em] text-[clamp(34px,3.6vw,58px)] font-bold leading-[1.04] tracking-normal text-slate-950">
+          <span>{title}</span>
+          <span>with</span>
+          <img src="/ventus-ai-logo.png" alt="Ventus AI" className="h-[0.66em] w-auto shrink-0 object-contain" />
+        </h2>
+      ) : (
+        <h2 className="mt-3 text-balance text-[clamp(34px,3.6vw,58px)] font-bold leading-[1.04] tracking-normal text-slate-950">{title}</h2>
+      )}
       {subtitle && <p className="mt-4 max-w-[1060px] text-[clamp(16px,1.35vw,21px)] leading-relaxed text-slate-600">{subtitle}</p>}
     </header>
   );
@@ -443,7 +452,7 @@ function VisibilityAndRicky({ step, active = false }: SceneProps) {
 function RickyStoryScene({ step, active = false }: SceneProps) {
   const header = DECKMO.ricky.storyHeader;
   return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.descriptions[step > 0 ? 1 : 0]} />
+    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.descriptions[step > 0 ? 1 : 0]} withLogo />
     <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory active={active} revealStep={active ? step : 1} /></div>
   </div>;
 }
