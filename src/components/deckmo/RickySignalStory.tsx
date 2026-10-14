@@ -127,16 +127,20 @@ function EnrichedRow({ transaction, merchants, recurring }: { transaction: Ricky
   const card = transaction.source.includes("Card");
   const Icon = card ? CreditCard : ArrowLeftRight;
   const inflow = !transaction.amount.startsWith("(");
-  return <li className="flex items-start gap-3 px-3 py-2.5" data-enriched-row>
-    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-deck-rule bg-muted/50 text-deck-navy"><Icon className="h-3.5 w-3.5" /></span>
-    <div className="min-w-0 flex-1">
-      <div className="flex items-baseline justify-between gap-3"><span className="truncate text-sm font-semibold text-deck-navy">{cleanMerchant(transaction, merchants)}</span><span className={cn("shrink-0 text-sm font-semibold tabular-nums", inflow ? "text-deck-navy underline decoration-dotted" : "text-deck-navy")}>{transaction.amount}</span></div>
+  return <li className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" data-enriched-row>
+    <div className="min-w-0 px-3 py-2.5">
+      <p className="truncate font-mono text-[11px] text-deck-navy" title={transaction.description}>{transaction.description}</p>
+      <p className="mt-1 text-[11px] text-deck-muted">{transaction.date} · {transaction.source}</p>
+    </div>
+    <div className="min-w-0 border-l border-deck-rule px-3 py-2.5">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="inline-flex min-w-0 items-center gap-1.5"><Icon className="h-3.5 w-3.5 shrink-0 text-deck-muted" /><span className="truncate text-sm font-semibold text-deck-navy">{cleanMerchant(transaction, merchants)}</span></span>
+        <span className={cn("shrink-0 text-sm font-semibold tabular-nums text-deck-navy", inflow && "underline decoration-dotted")}>{transaction.amount}</span>
+      </div>
       <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-deck-muted">
-        <span>{transaction.date}</span><span>·</span><span>{transaction.source}</span>
         <span className="rounded border border-deck-rule px-1.5">{transaction.mccLabel ?? (inflow ? "Income · Deposit" : "Transfer · Payment")}{transaction.mcc ? ` · MCC ${transaction.mcc}` : ""}</span>
         <span className="inline-flex items-center gap-1 rounded border border-deck-rule px-1.5">{recurring && <Repeat className="h-3 w-3" />}{recurring ? "Recurring" : "One-off"}</span>
       </div>
-      <p className="mt-1 truncate font-mono text-[10px] text-deck-muted" title={transaction.description}>{transaction.description}</p>
     </div>
   </li>;
 }
