@@ -162,7 +162,7 @@ function Visibility({ step, active = false }: SceneProps) {
   const moved = step > 0;
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-      <Header eyebrow={ricky.eyebrow} title={ricky.title} subtitle={ricky.sectionSubtitles[step]} />
+      <Header eyebrow={d.eyebrow} title={ricky.title} subtitle={ricky.sectionSubtitles[step]} />
       <div className={cn(
         "mx-auto mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] transition-[width] duration-700 ease-in-out [@media(max-height:800px)]:mt-4",
         moved ? "w-full" : "w-[54%]",
@@ -441,8 +441,9 @@ function VisibilityAndRicky({ step, active = false }: SceneProps) {
 }
 
 function RickyStoryScene({ step, active = false }: SceneProps) {
+  const header = DECKMO.ricky.storyHeader;
   return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-    <Header eyebrow={DECKMO.ricky.eyebrow} title={DECKMO.ricky.title} subtitle="Internal and external signals come together in one living customer story." />
+    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.descriptions[step > 0 ? 1 : 0]} />
     <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory active={active} revealStep={active ? step : 1} /></div>
   </div>;
 }
