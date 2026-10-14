@@ -152,7 +152,7 @@ function EnrichedRow({ transaction, merchants, recurring }: { transaction: Ricky
     <td className="px-3 py-3 text-[11px] tabular-nums text-deck-muted whitespace-nowrap">{transaction.date}</td>
     <td className="px-3 py-3 font-mono text-[11px] text-deck-navy truncate" title={transaction.description}>{transaction.description}</td>
     <td className={cn("px-4 py-3 text-right text-[12px] font-semibold tabular-nums text-deck-navy whitespace-nowrap", inflow && "underline decoration-dotted")}>{transaction.amount}</td>
-    <td className="border-l-2 border-deck-rule px-4 py-3 text-[12px] font-semibold leading-snug text-deck-navy line-clamp-2" title={merchant}>{merchant}</td>
+    <td className="border-l-2 border-deck-rule px-4 py-3 text-[12px] font-semibold leading-snug text-deck-navy" title={merchant}><span className="line-clamp-2">{merchant}</span></td>
     <td className="px-3 py-3 text-[11px] text-deck-muted truncate" title={category}>{category}</td>
     <td className="px-3 py-3 text-[11px] text-deck-muted truncate" title={subcategories}>{subcategories}</td>
     <td className="px-3 py-3 text-[11px] text-deck-muted whitespace-nowrap"><span className="inline-flex items-center gap-1">{recurring && <Repeat className="h-3 w-3" />}{recurring ? "Recurring" : "One-off"}</span></td>
