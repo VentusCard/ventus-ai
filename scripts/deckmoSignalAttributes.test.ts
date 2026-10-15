@@ -13,7 +13,7 @@ const DECK_SIGNAL_LABELS: string[] = [
 
 describe("Ricky inline pill wording", () => {
   test("KYC shows age and separate location and tier attributes", () => {
-    expect(signalInlineSegments(RICKY_KYC_SIGNAL_LABEL).filter((segment) => segment.kind === "attribute").map((segment) => segment.text)).toEqual(["Age 34", "San Francisco", "CA", "94123", "Preferred tier"]);
+    expect(signalInlineSegments(RICKY_KYC_SIGNAL_LABEL).filter((segment) => segment.kind === "attribute").map((segment) => segment.text)).toEqual(["Age 34", "San Francisco", "CA", "94123", "Preferred tier", "$25,000"]);
     expect(RICKY_KYC_PROFILE.customerId).toBe("45275487");
     expect(RICKY_KYC_PROFILE.name).toBe("Ricky J");
   });

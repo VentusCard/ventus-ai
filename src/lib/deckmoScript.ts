@@ -1,4 +1,5 @@
 import { RICKY_SIGNAL_LABELS } from "@/lib/deckmoRickyTransactions";
+import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, rickyCashFlow } from "./deckmoCashFlow";
 
 export type DeckmoBeatId =
   | "opener"
@@ -213,6 +214,7 @@ export const DECKMO = {
         },
       },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.income, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_CASH_FLOW_LABEL, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
@@ -789,7 +791,7 @@ export function deckmoBeatStartIndex(id: DeckmoBeatId): number {
 }
 
 export interface RickySignalDetail {
-  evidenceKind?: "customer-profile";
+  evidenceKind?: "customer-profile" | "cash-flow";
   summary: string;
   facts: string[];
   merchants: string[];
@@ -801,6 +803,7 @@ export const RICKY_SIGNAL_STORY = [
   { before: "; he is also a", label: RICKY_SIGNAL_LABELS.business },
   { before: "; outside ownership data identifies him as a", label: "Small airplane co-owner" },
   { before: ". His financial picture combines", label: RICKY_SIGNAL_LABELS.income },
+  { before: "; his monthly cash flow", label: RICKY_CASH_FLOW_LABEL },
   { before: "with", label: RICKY_SIGNAL_LABELS.brokerage },
   { before: ",", label: RICKY_SIGNAL_LABELS.marcus },
   { before: ", and", label: RICKY_SIGNAL_LABELS.amex },
@@ -824,6 +827,19 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
       `Age: ${RICKY_KYC_PROFILE.age}`,
       `Location: ${RICKY_KYC_PROFILE.location}`,
       `Relationship tier: ${RICKY_KYC_PROFILE.relationshipTier}`,
+      `Illustrative account balance: $${(RICKY_DEMO_BALANCE_CENTS / 100).toLocaleString("en-US")} (demo profile value, not derived from transactions)`,
+    ],
+    merchants: [],
+  },
+  [RICKY_CASH_FLOW_LABEL]: {
+    evidenceKind: "cash-flow",
+    summary: "Monthly averages from the January–September 2026 sample",
+    facts: [
+      `Surplus: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyCashFlow().surplusCents / 100)} per month — payroll minus observed spending`,
+      `Idle cash: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyCashFlow().idleCents / 100)} per month — surplus minus Marcus savings and Fidelity investing`,
+      "Card settlements and wallet funding are excluded to avoid counting transfers as additional spending. Other income is not included in this payroll-based comparison.",
+      "Includes exceptional expenses, including the home escrow payment. Negative values are retained. The sample is not a complete account history.",
+      "Idle cash is a monthly residual, not an account balance.",
     ],
     merchants: [],
   },

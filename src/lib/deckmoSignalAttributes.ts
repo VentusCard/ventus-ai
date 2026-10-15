@@ -1,5 +1,6 @@
 import { RICKY_SIGNAL_LABELS as L, RICKY_TRANSACTIONS, type RickyTransaction } from "./deckmoRickyTransactions";
 import { RICKY_KYC_LOCATION, RICKY_KYC_PROFILE, RICKY_KYC_SIGNAL_LABEL } from "./deckmoScript";
+import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, rickyCashFlow } from "./deckmoCashFlow";
 
 const months = [
   "January",
@@ -135,6 +136,12 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       attribute(RICKY_KYC_LOCATION.postalCode),
       connector(" with "),
       attribute(`${RICKY_KYC_PROFILE.relationshipTier} tier`),
+      connector(" and his balance is "),
+      attribute(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(RICKY_DEMO_BALANCE_CENTS / 100)),
+    ],
+    [RICKY_CASH_FLOW_LABEL]: [
+      attribute("surplus"), connector(" is "), attribute(formatSignalMoney(rickyCashFlow().surplusCents)),
+      connector(" and "), attribute("idle cash"), connector(" is "), attribute(formatSignalMoney(rickyCashFlow().idleCents)),
     ],
     [L.income]: [
       attribute("Stable $22K monthly income"),
