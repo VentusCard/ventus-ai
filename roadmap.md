@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Exclude the one-time home escrow payment from monthly cash flow; verify positive surplus/idle cash and pop-up disclosure on both Section 4 beats.
 - [x] Section 4: compact $25,000 balance within KYC and calculated monthly surplus/idle cash in Financial; 40 tests pass, both beats/pop-ups verified at 1375×842 and 1024×768.
 - [x] Section 4: replace the profile strip with nested KYC in Demographics, move payroll and household-income details to Financial, and verify both beats and pop-ups at three desktop sizes; 36 deck tests pass.
 - [x] Audit all 14 Section 4 signal pop-ups; full rails and all existing table values verified within two text lines at four desktop sizes using fresh module requests; scrolling and close controls pass.

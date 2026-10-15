@@ -838,7 +838,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
       `Surplus: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyCashFlow().surplusCents / 100)} per month — payroll minus observed spending`,
       `Idle cash: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyCashFlow().idleCents / 100)} per month — surplus minus Marcus savings and Fidelity investing`,
       "Card settlements and wallet funding are excluded to avoid counting transfers as additional spending. Other income is not included in this payroll-based comparison.",
-      "Includes exceptional expenses, including the home escrow payment. Negative values are retained. The sample is not a complete account history.",
+      "Excludes the one-time $315,000 home escrow payment to show ongoing monthly cash flow. All other observed spending remains included. The sample is not a complete account history.",
       "Idle cash is a monthly residual, not an account balance.",
     ],
     merchants: [],
