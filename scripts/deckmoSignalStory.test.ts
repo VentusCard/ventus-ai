@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_STORY } from "../src/lib/deckmoScript";
+import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_STORY, RICKY_KYC_SIGNAL_LABEL, RICKY_SIGNAL_DETAILS } from "../src/lib/deckmoScript";
+import { RICKY_SIGNAL_LABELS, RICKY_TRANSACTIONS } from "../src/lib/deckmoRickyTransactions";
 import { isOutsideClauseHidden, shouldRevealStoryRows } from "../src/lib/deckmoStoryReveal";
 
 describe("story entrance lifecycle", () => {
@@ -30,10 +31,21 @@ describe("combined Ricky signal story", () => {
     expect(DECKMO.beats[3].id).toBe("ricky-story");
     expect(DECKMO_STEPS.findIndex((b) => b.id === "ricky-story-0")).toBe(DECKMO_STEPS.findIndex((b) => b.id === "living-view-2") + 1);
   });
-  test("all 14 existing signals appear exactly once", () => {
-    expect(RICKY_SIGNAL_STORY).toHaveLength(14);
-    expect(new Set(RICKY_SIGNAL_STORY.map((clause) => clause.label)).size).toBe(14);
+  test("all 15 signals appear exactly once", () => {
+    expect(RICKY_SIGNAL_STORY).toHaveLength(15);
+    expect(new Set(RICKY_SIGNAL_STORY.map((clause) => clause.label)).size).toBe(15);
     expect(RICKY_SIGNAL_STORY.map((clause) => clause.label).sort()).toEqual(DECKMO.ricky.signals.map((signal) => signal.label).sort());
+  });
+  test("KYC leads Demographics as profile information without transaction evidence", () => {
+    expect(DECKMO.ricky.signals[0]).toEqual({ family: "Demographics", label: "KYC", tone: "violet", source: "internal" });
+    expect(RICKY_SIGNAL_DETAILS[RICKY_KYC_SIGNAL_LABEL].evidenceKind).toBe("customer-profile");
+    expect(RICKY_TRANSACTIONS.filter((row) => row.signals.some((label) => label === RICKY_KYC_SIGNAL_LABEL))).toHaveLength(0);
+  });
+  test("payroll leads Financial and retains observed deposits", () => {
+    expect(DECKMO.ricky.signals.find((signal) => signal.family === "Financial")?.label).toBe(RICKY_SIGNAL_LABELS.income);
+    const payroll = RICKY_TRANSACTIONS.filter((row) => row.signals.some((label) => label === RICKY_SIGNAL_LABELS.income));
+    expect(payroll).toHaveLength(18);
+    expect(payroll.find((row) => row.id === "hp09b")?.amount).toBe("$12,368.40");
   });
   test("five families remain in order with external signals last in their family", () => {
     const signals = RICKY_SIGNAL_STORY.map((clause) => DECKMO.ricky.signals.find((signal) => signal.label === clause.label));

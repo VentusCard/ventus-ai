@@ -49,7 +49,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
     return <section id="ricky-story-detail" aria-label={`${signal.label} details`} >
       <header className="ricky-story-popover-head sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-deck-rule bg-background px-5 py-4">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="ricky-story-popover-badge rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{external ? "External signal" : "Internal ledger"}</span></div>
+          <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="ricky-story-popover-badge rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{detail.evidenceKind === "customer-profile" ? "Customer profile" : external ? "External signal" : "Internal ledger"}</span></div>
           <h4 className="mt-1.5 text-base font-bold leading-snug text-deck-navy">{signal.label}</h4>
           <p className="mt-1 text-sm text-foreground">{detail.summary}</p>
         </div>
@@ -64,7 +64,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
           <dl className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1 text-sm min-[1200px]:grid-cols-3">{payments.monthly.map((row) => <div key={row.key} className="flex flex-wrap justify-between gap-2 border-b border-deck-rule py-1"><dt className="text-deck-muted">{row.month} {row.year}</dt><dd className="font-semibold tabular-nums text-deck-navy">{formatSignalMoney(row.cents)}</dd></div>)}</dl>
         </div>}
         {external ? <div className="rounded-lg border border-dashed border-deck-rule p-3"><h5 className="ricky-story-popover-heading flex items-center gap-1.5 text-[10px] font-bold uppercase text-deck-muted"><Sparkles className="h-3 w-3" />Outside evidence</h5><p className="mt-2 text-sm">{external.detail}</p><p className="mt-1 text-xs text-deck-muted">{external.provider} · {external.timing} · {external.confidence}</p></div>
-        : <div data-enriched-transactions>
+        : detail.evidenceKind === "customer-profile" ? null : <div data-enriched-transactions>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
           <div className="mt-3 overflow-x-auto overscroll-x-contain scrollbar-light rounded-lg border border-deck-rule" tabIndex={0} role="region" aria-label="Original and enriched supporting transactions" data-story-table-scroll>
             <table className="w-full min-w-[1458px] table-fixed border-collapse text-left">
@@ -96,10 +96,6 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
   }
 
   return <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain scrollbar-light pb-6" data-ricky-story>
-    <div className="mb-3 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-y border-deck-rule py-3">
-      <h3 className="text-lg font-bold text-deck-navy">{DECKMO.ricky.profileTitle}</h3>
-      <p className="text-xs font-semibold text-deck-muted">{DECKMO.ricky.profileFacts}</p>
-    </div>
     <div className="grid flex-1 shrink-0 grid-rows-[repeat(5,auto)]" aria-label="Ricky’s customer intelligence">
       {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} style={revealRows ? { animationDelay: `${STORY_ENTRANCE_DELAY_MS + rowIndex * 110}ms` } : undefined} data-story-family={entry.family} className={cn("ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] items-center border-b border-deck-rule last:border-b-0", revealRows && "ricky-story-reveal")}>
         <div className={cn("flex items-center gap-2.5 self-stretch border-r border-deck-rule pr-4", `ricky-story-${entry.tone}`)}>

@@ -32,6 +32,13 @@ export const RICKY_KYC_PROFILE = {
   relationshipTier: "Preferred",
 };
 
+export const RICKY_KYC_SIGNAL_LABEL = "KYC";
+export const RICKY_KYC_LOCATION = (() => {
+  const [city = "", region = ""] = RICKY_KYC_PROFILE.location.split(", ");
+  const [state = "", postalCode = ""] = region.split(" ");
+  return { city, state, postalCode };
+})();
+
 export const DECKMO = {
   chrome: {
     progress: "Story progress",
@@ -191,7 +198,7 @@ export const DECKMO = {
     rawLabel: "SUPPORTING TRANSACTIONS",
     signalLabel: "VENTUS CUSTOMER INTELLIGENCE",
     signals: [
-      { family: "Demographics", label: RICKY_SIGNAL_LABELS.income, tone: "violet", source: "internal" },
+      { family: "Demographics", label: RICKY_KYC_SIGNAL_LABEL, tone: "violet", source: "internal" },
       { family: "Demographics", label: RICKY_SIGNAL_LABELS.business, tone: "violet", source: "internal" },
       {
         family: "Demographics",
@@ -205,6 +212,7 @@ export const DECKMO = {
           confidence: "Likely",
         },
       },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.income, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
@@ -781,6 +789,7 @@ export function deckmoBeatStartIndex(id: DeckmoBeatId): number {
 }
 
 export interface RickySignalDetail {
+  evidenceKind?: "customer-profile";
   summary: string;
   facts: string[];
   merchants: string[];
@@ -788,10 +797,11 @@ export interface RickySignalDetail {
 
 /** Inline clauses preserve family order and put external signals last in each family. */
 export const RICKY_SIGNAL_STORY = [
-  { before: ". His household picture combines", label: RICKY_SIGNAL_LABELS.income },
-  { before: "with a new venture:", label: RICKY_SIGNAL_LABELS.business },
+  { before: ". His customer profile shows", label: RICKY_KYC_SIGNAL_LABEL },
+  { before: "; he is also a", label: RICKY_SIGNAL_LABELS.business },
   { before: "; outside ownership data identifies him as a", label: "Small airplane co-owner" },
-  { before: ". His financial relationships include", label: RICKY_SIGNAL_LABELS.brokerage },
+  { before: ". His financial picture combines", label: RICKY_SIGNAL_LABELS.income },
+  { before: "with", label: RICKY_SIGNAL_LABELS.brokerage },
   { before: ",", label: RICKY_SIGNAL_LABELS.marcus },
   { before: ", and", label: RICKY_SIGNAL_LABELS.amex },
   { before: ", while outside vehicle data shows a", label: "BMW X5 loan ending in ~4 months" },
@@ -805,6 +815,18 @@ export const RICKY_SIGNAL_STORY = [
 ] as const;
 
 export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
+  [RICKY_KYC_SIGNAL_LABEL]: {
+    evidenceKind: "customer-profile",
+    summary: "Basic customer-profile information held by the institution",
+    facts: [
+      `Name: ${RICKY_KYC_PROFILE.name}`,
+      `Customer ID: ${RICKY_KYC_PROFILE.customerId}`,
+      `Age: ${RICKY_KYC_PROFILE.age}`,
+      `Location: ${RICKY_KYC_PROFILE.location}`,
+      `Relationship tier: ${RICKY_KYC_PROFILE.relationshipTier}`,
+    ],
+    merchants: [],
+  },
   [RICKY_SIGNAL_LABELS.tennis]: {
     summary: "Committed club player with court time roughly every other week",
     facts: [
@@ -912,6 +934,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
       "Monthly: $22.8K in Jan to $24.7K in Sep",
       "Employer: HP Inc. direct deposit",
       "Trend: small increases most months",
+      `Estimated annual household income: ${RICKY_KYC_PROFILE.estimatedHouseholdIncome} (profile estimate, not observed payroll)`,
     ],
     merchants: ["HP Inc. Payroll"],
   },
