@@ -1,4 +1,20 @@
 # Roadmap
+- [x] Move the platform to Section 5 with one overview stop and four explicit benefit-navigation buttons; verify destinations, platform interaction, and desktop layout
+- [x] Fade slide 4.1's outside lead-in words with their pills and closing period; verify no reflow into 4.2
+- [x] Apply finalized Deckmo headers and captions; preserve unresolved alternatives and metrics; verify both institution modes and all slides
+- [x] Restore slide 4.1's entrance and return reveal without changing 4.2; verify live navigation, pop-ups, and reduced motion
+- [x] Weave more outside signals (other-bank accounts, credit, habits) into the /deckmo 2.2 ticker; verify interleaved order, icons, and layout
+- [x] Make slide 2.1's overview fill its panel and expanded lists use remaining height; verify three desktop sizes and 2.2 handoff
+- [x] Clean up slide 2.3 pill wording defects (spacing, typos, trailing dot, drop "variable") keeping structure
+- [x] Replace slide 2.3 parentheses with lighter inline nested pills; verify all signals, wrapping, and evidence clicks
+- [x] Simplify all slide 2.3 pills into inline parenthesized phrases; verify evidence, spacing, and navigation
+- [x] Add always-visible nested attributes to all Ricky signal pills, including monthly financial amounts and annualized Amex payments; verify evidence and desktop layouts
+- [x] Reorder Ricky's five signal families deck-wide (Demographics, Financial, Behavioral, Life Events, Risk); verify all four lists
+- [x] Rebalance slide 2.3 into responsive, naturally aligned signal-family rows; verify sizes and evidence interactions
+- [x] Replace section-two enrichment/internal-only beats with one full-width signal story; verify details, evidence, and shortened navigation
+- [x] Restrict /deckmo navigation to arrow buttons and left/right or A/D keys; verify interactive controls and scrolling
+- [x] Add KYC above /deckmo 2.1–2.2 rail blocks and verify expansion and slide persistence
+- [x] Replace /deckmo 2.1–2.2 raw lists with expandable rail-specific examples and verify the slide handoff
 - [x] Expand beat 8.4 to seven alternating customer- and AI-started phone conversations
 - [x] Recompose beat 8.4 as an automatic three-phone carousel
 - [x] Enlarge Beat 8.4 phones and chat text while keeping three visible
@@ -14,3 +30,5 @@
 - [x] Tighten only the inner table gutters on Ricky’s first two beats
 - [x] Turn "Live Work Stream" into an Activity History log (day-by-day, slow trickle)
 - [x] Add "Coworker for Wealth Managers" persona (all AI Coworker sub-tabs)
+- Differentiated internal vs external story pills: darker internal tint, leading Sparkles/Ext badge on external pills
+- [x] Section 4 signal popups: /demo-style two-tier table (Raw Transaction vs Enriched output), one row per transaction

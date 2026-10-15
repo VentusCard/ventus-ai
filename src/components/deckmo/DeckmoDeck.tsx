@@ -1,14 +1,17 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, BriefcaseBusiness, Building2, ChevronDown, ChevronRight, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, Home, LogOut, Mail, Monitor, Plane, Search, ShieldCheck, Sparkles, Target, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Baby, BriefcaseBusiness, Building2, CalendarClock, Car, ChevronDown, ChevronRight, CreditCard, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, HeartHandshake, Home, Landmark, LogOut, Mail, Monitor, MonitorPlay, PiggyBank, Plane, School, Search, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_DETAILS, type DeckmoBeatId } from "@/lib/deckmoScript";
+import { DECKMO, DECKMO_STEPS, deckmoBeatStartIndex, RICKY_SIGNAL_DETAILS, type DeckmoBeatId } from "@/lib/deckmoScript";
+import { deckmoNavigationDelta } from "@/lib/deckmoNavigation";
 import { useInstitutionDomSwap } from "@/lib/institutionMode";
 import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTransactions";
 import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoRetention } from "./DeckmoBankdemoScenes";
 import { ENRICH_COLS, EnrichmentCells, EnrichmentColumnHeaders } from "./RickyEnrichmentTable";
+import { RickyRailAccordion } from "./RickyRailAccordion";
+import { RickySignalStory } from "./RickySignalStory";
 
 const TONES = {
   blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-100", hoverBg: "hover:bg-blue-200", fullText: "text-blue-900 hover:text-blue-900", pillBorder: "border-blue-300" },
@@ -28,7 +31,7 @@ const RICKY_ROW_TONES: Record<Tone, string> = {
   rose: "border-l-[4px] border-l-rose-500 bg-rose-100/90",
 };
 
-type SceneProps = { step: number; active?: boolean };
+type SceneProps = { step: number; active?: boolean; onNavigateBeat?: (id: DeckmoBeatId) => void };
 
 const VISIBILITY_ROLLER_SPEED = 40;
 
@@ -83,11 +86,20 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-blue-600">{children}</p>;
 }
 
-function Header({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
+function Header({ eyebrow, title, subtitle, withLogo = false }: { eyebrow: string; title: string; subtitle?: string; withLogo?: boolean }) {
   return (
     <header className="max-w-[1180px]">
       <Eyebrow>{eyebrow}</Eyebrow>
-      <h2 className="mt-3 text-balance text-[clamp(34px,3.6vw,58px)] font-bold leading-[1.04] tracking-normal text-slate-950">{title}</h2>
+      {withLogo ? (
+        // "with" + the Ventus AI logo read as the last words of the headline, so the mark scales with the text.
+        <h2 className="mt-3 flex flex-wrap items-center gap-x-[0.3em] text-[clamp(34px,3.6vw,58px)] font-bold leading-[1.04] tracking-normal text-slate-950">
+          <span>{title}</span>
+          <span>with</span>
+          <img src="/ventus-ai-logo.png" alt="Ventus AI" className="h-[0.66em] w-auto shrink-0 object-contain" />
+        </h2>
+      ) : (
+        <h2 className="mt-3 text-balance text-[clamp(34px,3.6vw,58px)] font-bold leading-[1.04] tracking-normal text-slate-950">{title}</h2>
+      )}
       {subtitle && <p className="mt-4 max-w-[1060px] text-[clamp(16px,1.35vw,21px)] leading-relaxed text-slate-600">{subtitle}</p>}
     </header>
   );
@@ -159,7 +171,7 @@ function Visibility({ step, active = false }: SceneProps) {
   const moved = step > 0;
   return (
     <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-      <Header eyebrow={ricky.eyebrow} title={ricky.title} subtitle={ricky.sectionSubtitles[step]} />
+      <Header eyebrow={d.eyebrow} title={ricky.title} subtitle={ricky.sectionSubtitles[step]} />
       <div className={cn(
         "mx-auto mt-6 flex min-h-0 flex-1 flex-col overflow-hidden border border-deck-rule bg-background shadow-[0_14px_36px_hsl(var(--deck-navy)/0.05)] transition-[width] duration-700 ease-in-out [@media(max-height:800px)]:mt-4",
         moved ? "w-full" : "w-[54%]",
@@ -169,26 +181,30 @@ function Visibility({ step, active = false }: SceneProps) {
             <UserRound className="h-4 w-4 [@media(max-height:800px)]:h-3.5 [@media(max-height:800px)]:w-3.5" />
           </div>
           <h3 className="shrink-0 font-display text-[clamp(15px,1.1vw,18px)] font-bold leading-none text-deck-navy">{ricky.profileTitle}</h3>
-          <span className="h-4 w-px shrink-0 bg-deck-rule" />
-          <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{ricky.profileFacts}</p>
+          {moved && (
+            <>
+              <span className="h-4 w-px shrink-0 bg-deck-rule" />
+              <p className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-slate-500 [@media(max-height:800px)]:text-[10px]">{ricky.profileFacts}</p>
+            </>
+          )}
         </div>
-        <div className={cn("grid min-h-0 flex-1 transition-[grid-template-columns] duration-700 ease-in-out", moved ? "grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]" : "grid-cols-[minmax(0,1fr)_0fr]") }>
-          <section className="min-h-0 overflow-y-auto border-r border-deck-rule bg-deck-surface/50 pb-2 pl-2 scrollbar-light">
-            <div className="sticky top-0 z-10 grid grid-cols-[54px_94px_minmax(0,1fr)_90px] gap-3 border-b border-slate-300 bg-slate-50 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400"><span>Date</span><span>Source</span><span>Transaction</span><span className="text-right">Amount</span></div>
-            {RICKY_TRANSACTIONS.map((transaction) => (
-              <div key={transaction.id} className="grid grid-cols-[54px_94px_minmax(0,1fr)_90px] items-center gap-3 border-b border-l-[3px] border-b-slate-200/80 border-l-transparent py-2 pl-2">
-                <span className="font-mono text-[9px] font-semibold tabular-nums text-slate-400">{transaction.date}</span>
-                <span className={cn("h-fit truncate rounded-sm border px-1.5 py-0.5 text-center text-[8px] font-bold", (RAIL_STYLES[transaction.source] ?? RAIL_STYLES.CARD).badge)}>{transaction.source}</span>
-                <p className="min-w-0 truncate font-mono text-[10px] font-bold text-slate-800">{transaction.description}{transaction.mcc && <span className="ml-2 text-[8px] font-medium text-slate-500">MCC {transaction.mcc} · {transaction.mccLabel}</span>}</p>
-                <span className="text-right font-mono text-[11px] font-bold tabular-nums text-slate-800">{transaction.amount}</span>
-              </div>
-            ))}
+        <div className={cn("grid min-h-0 flex-1 transition-[grid-template-columns] duration-700 ease-in-out", moved ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "grid-cols-[minmax(0,1fr)_0fr]") }>
+          <section className={cn("min-h-0 min-w-0 border-r border-deck-rule bg-deck-surface/50 scrollbar-light", moved ? "overflow-y-auto" : "overflow-hidden")}>
+            {moved ? <RollingLedger active={active} /> : <RickyRailAccordion />}
           </section>
           <section className={cn("min-h-0 min-w-0 overflow-hidden bg-background transition-opacity delay-200 duration-500", moved ? "px-6 py-4 opacity-100" : "pointer-events-none p-0 opacity-0")}>
             <OutsideTicker data={d.outside} revealed={moved} active={active} />
           </section>
         </div>
       </div>
+    </div>
+  );
+}
+
+function RollingLedger({ active }: { active: boolean }) {
+  return (
+    <div className="flex h-full min-h-0 animate-fade-in flex-col px-4 pt-4">
+      <InsideLedger data={DECKMO.visibility.inside} active={active} />
     </div>
   );
 }
@@ -242,11 +258,23 @@ function InsideLedger({ data, active }: { data: typeof DECKMO.visibility.inside;
 
 const OUTSIDE_ICONS: Record<string, LucideIcon> = {
   "Bought a house": Home,
+  "Credit card at another bank": CreditCard,
   "Changed to a new job": BriefcaseBusiness,
+  "Savings at another bank": PiggyBank,
   "Got married": Heart,
+  "Investments at another brokerage": TrendingUp,
   "Started a business": Building2,
+  "Mortgage with another lender": Landmark,
   "Took a trip overseas": Plane,
+  "Streaming and subscription spend": MonitorPlay,
   "Children going to college": GraduationCap,
+  "Auto loan at another bank": Car,
+  "Second checking account elsewhere": Wallet,
+  "Private school tuition": School,
+  "Insurance premiums paid elsewhere": ShieldCheck,
+  "Buy-now-pay-later balances": CalendarClock,
+  "Donations to another charity": HeartHandshake,
+  "Childcare paid elsewhere": Baby,
   "And everything in between": Sparkles,
 };
 
@@ -418,8 +446,15 @@ function Ricky({ step, active = false }: SceneProps) {
 }
 
 function VisibilityAndRicky({ step, active = false }: SceneProps) {
-  if (step < 2) return <Visibility step={step} active={active} />;
-  return <Ricky step={step - 1} active={active} />;
+  return <Visibility step={Math.min(step, 1)} active={active} />;
+}
+
+function RickyStoryScene({ step, active = false }: SceneProps) {
+  const header = DECKMO.ricky.storyHeader;
+  return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
+    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.descriptions[step > 0 ? 1 : 0]} withLogo />
+    <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory active={active} revealStep={active ? step : 1} /></div>
+  </div>;
 }
 
 function PhoneFrame({ title, children }: { title:string; children:React.ReactNode }) { return <div className="mx-auto flex h-[570px] w-[330px] flex-col overflow-hidden rounded-[30px] border-[8px] border-slate-300 bg-white shadow-2xl"><div className="flex h-7 shrink-0 items-center justify-center bg-white"><span className="h-2 w-2 rounded-full bg-slate-300"/></div><div className="flex items-center justify-between border-b border-slate-100 px-4 py-2"><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneTime}</span><span className="text-[11px] font-bold text-slate-700">{title}</span><span className="text-[9px] text-slate-400">{DECKMO.chrome.phoneMenu}</span></div><div className="min-h-0 flex-1 overflow-hidden">{children}</div><div className="flex h-7 shrink-0 items-center justify-center"><span className="h-1 w-24 rounded-full bg-slate-300"/></div></div>; }
@@ -501,27 +536,24 @@ function Close({ step }: SceneProps) {
   );
 }
 
-const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:VisibilityAndRicky,"living-view":LivingView,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,retention:BankdemoRetention,"bank-tools":BankdemoBankTools,close:Close};
+const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:Opener,visibility:VisibilityAndRicky,"living-view":LivingView,"ricky-story":RickyStoryScene,ricky:Ricky,immediate:BankdemoImmediate,"mid-term":BankdemoMidTerm,"long-term":BankdemoLongTerm,retention:BankdemoRetention,"bank-tools":BankdemoBankTools,close:Close};
 
 export function DeckmoDeck(){const [globalStep,setGlobalStep]=useState(0);const [presenterOpen,setPresenterOpen]=useState(false);const scroller=useRef<HTMLDivElement>(null);const deckRootRef=useRef<HTMLDivElement>(null);useInstitutionDomSwap(deckRootRef);const sectionRefs=useRef<(HTMLElement|null)[]>([]);const current=DECKMO_STEPS[globalStep];const activeBeat=DECKMO.beats[current.section];const hasSub="sub" in current&&!!current.sub;const beatNum=current.screen+1;const slideNumber=hasSub?`${current.section+1}.${beatNum}.${current.sub}`:`${current.section+1}${activeBeat.steps>1?`.${beatNum}`:""}`;const slideTotal=String(DECKMO.beats.length);
-const navLock=useRef<number|null>(null);
-const jump=useCallback((index:number)=>{const bounded=Math.max(0,Math.min(DECKMO_STEPS.length-1,index));setGlobalStep(bounded);const next=DECKMO_STEPS[bounded];if(navLock.current)window.clearTimeout(navLock.current);navLock.current=window.setTimeout(()=>{navLock.current=null},900);sectionRefs.current[next.section]?.scrollIntoView({behavior:"smooth",block:"start"});},[]);
-const firstStepBySection=useMemo(()=>DECKMO.beats.map((_,section)=>DECKMO_STEPS.findIndex(x=>x.section===section)),[]);
-useEffect(()=>()=>{if(navLock.current)window.clearTimeout(navLock.current)},[]);
-useEffect(()=>{const onKey=(e:KeyboardEvent)=>{const t=e.target as HTMLElement|null;if(t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.tagName==="SELECT"||t.isContentEditable))return;if(e.key.toLowerCase()==="p"){e.preventDefault();setPresenterOpen(v=>!v);return}if(e.key==="Escape"){if(presenterOpen){e.preventDefault();setPresenterOpen(false)}return}if(presenterOpen)return;if(["ArrowRight","ArrowDown"].includes(e.key)){e.preventDefault();jump(globalStep+1);return}if(["ArrowLeft","ArrowUp"].includes(e.key)){e.preventDefault();jump(globalStep-1)}};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[globalStep,jump,presenterOpen]);
-useEffect(()=>{const root=scroller.current;if(!root)return;const observer=new IntersectionObserver(entries=>{if(navLock.current)return;const visible=entries.filter(x=>x.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(!visible)return;const section=Number((visible.target as HTMLElement).dataset.section);if(Number.isFinite(section)&&section!==current.section)setGlobalStep(firstStepBySection[section]);},{root,threshold:[0.55,0.8]});sectionRefs.current.forEach(el=>el&&observer.observe(el));return()=>observer.disconnect()},[current.section,firstStepBySection]);
+const jump=useCallback((index:number)=>{const bounded=Math.max(0,Math.min(DECKMO_STEPS.length-1,index));setGlobalStep(bounded);const next=DECKMO_STEPS[bounded];sectionRefs.current[next.section]?.scrollIntoView({behavior:"smooth",block:"start"});},[]);
+const navigateBeat=useCallback((id:DeckmoBeatId)=>{const index=deckmoBeatStartIndex(id);if(index>=0)jump(index)},[jump]);
+useEffect(()=>{const onKey=(e:KeyboardEvent)=>{const t=e.target as HTMLElement|null;const editing=!!t?.closest("input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox']");if(editing)return;const modified=e.ctrlKey||e.metaKey||e.altKey;if(modified)return;if(e.key.toLowerCase()==="p"){e.preventDefault();setPresenterOpen(v=>!v);return}if(e.key==="Escape"){if(presenterOpen){e.preventDefault();setPresenterOpen(false)}return}if(presenterOpen)return;const delta=deckmoNavigationDelta(e.key,editing,modified);if(delta){e.preventDefault();jump(globalStep+delta)}};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[globalStep,jump,presenterOpen]);
 return <div ref={deckRootRef} className="demo-page relative h-screen w-screen overflow-hidden bg-background font-deck text-foreground">
   <header className="absolute inset-x-0 top-0 z-40 flex h-20 items-center justify-between border-b border-deck-rule bg-background px-12">
     <div className="flex min-w-0 items-center gap-4"><img src={ventusLogoBlue} alt="Ventus AI" className="h-7 w-auto shrink-0 object-contain"/><span className="h-6 w-px shrink-0 bg-deck-rule"/><span className="truncate font-deck-serif text-2xl text-deck-navy" aria-live="polite">{activeBeat.nav}</span></div>
       <div className="flex shrink-0 items-center gap-6 text-xs font-semibold uppercase tracking-wide text-deck-muted"><span>INTERACTIVE PRESENTATION</span><Button variant="outline" size="icon" className="h-8 w-8 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" aria-label={DECKMO.chrome.exit} onClick={()=>{try{sessionStorage.removeItem("demo_password_access")}catch{}window.location.reload()}}><LogOut className="h-3.5 w-3.5"/></Button></div>
   </header>
-  <div ref={scroller} className="h-full snap-y snap-mandatory overflow-y-auto scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const active=section===current.section;const step=active?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step} active={active}/></div></section>})}</div>
+  <div ref={scroller} className="h-full overflow-hidden scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const active=section===current.section;const step=active?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el;if(el)el.inert=!active}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step} active={active} onNavigateBeat={beat.id==="bank-tools"?navigateBeat:undefined}/></div></section>})}</div>
   <footer className="absolute inset-x-0 bottom-0 z-40 flex h-14 items-center justify-between border-t border-deck-rule bg-background px-12">
     <div className="flex items-center gap-6"><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-7 w-7 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" onClick={()=>jump(globalStep-1)} disabled={globalStep===0} aria-label={DECKMO.chrome.previous}><ArrowLeft className="h-3.5 w-3.5"/></Button><Button variant="outline" size="icon" className="h-7 w-7 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" onClick={()=>jump(globalStep+1)} disabled={globalStep===DECKMO_STEPS.length-1} aria-label={DECKMO.chrome.next}><ArrowRight className="h-3.5 w-3.5"/></Button></div><div className="text-[10px] font-medium uppercase text-deck-muted">Slide <span className="font-semibold text-deck-navy">{slideNumber}</span> / {slideTotal}</div></div>
     <div className="absolute inset-x-0 top-0 h-px bg-deck-surface"><div className="h-full bg-deck-blue transition-[width] duration-200 motion-reduce:transition-none" style={{width:`${((globalStep+1)/DECKMO_STEPS.length)*100}%`}}/></div>
      <div className="flex items-center gap-6"><span className="text-[10px] font-semibold uppercase tracking-wide text-deck-navy">Confidential</span><span className="h-6 w-px bg-deck-rule"/><Button variant="ghost" className="h-8 rounded-sm px-3 text-deck-navy hover:bg-deck-surface" onClick={()=>setPresenterOpen(true)} aria-label={DECKMO.chrome.presenterTitle}><Grid2X2 className="mr-2 h-3.5 w-3.5"/><span className="text-[10px] font-semibold uppercase">TABLE OF CONTENT</span></Button></div>
   </footer>
-  {presenterOpen&&<div role="dialog" aria-modal="true" aria-label={DECKMO.chrome.presenterTitle} className="absolute inset-0 z-50 flex items-center justify-center bg-background/90 p-10 backdrop-blur-sm" onClick={()=>setPresenterOpen(false)}><div className="w-full max-w-3xl rounded-sm border border-deck-rule bg-background p-8 shadow-2xl" onClick={e=>e.stopPropagation()}><div className="flex items-center justify-between border-b border-deck-rule pb-5"><div><p className="font-deck-serif text-2xl text-deck-navy">{DECKMO.chrome.presenterTitle}</p><p className="mt-1 text-xs text-deck-muted">Select a section or press P to return to the presentation.</p></div><Button variant="ghost" size="icon" className="rounded-sm text-deck-navy" onClick={()=>setPresenterOpen(false)} aria-label={DECKMO.chrome.presenterClose}><X/></Button></div><div className="mt-6 grid grid-cols-2 gap-2">{DECKMO.beats.map((beat,index)=><Button key={beat.id} variant="outline" onClick={()=>{jump(firstStepBySection[index]);setPresenterOpen(false)}} className={cn("h-auto justify-start rounded-sm border-deck-rule p-4 text-left hover:bg-deck-surface",index===current.section&&"border-deck-blue bg-deck-surface")}><span className={cn("mr-4 flex h-7 w-7 items-center justify-center border border-deck-rule text-xs font-semibold text-deck-muted",index===current.section&&"border-deck-blue bg-deck-blue text-primary-foreground")}>{String(index+1).padStart(2,"0")}</span><span><span className="block text-sm font-semibold text-deck-navy">{beat.nav}</span><span className="mt-0.5 block text-[10px] font-normal uppercase text-deck-muted">{beat.steps} {DECKMO.chrome.stepUnit}</span></span></Button>)}</div></div></div>}
+  {presenterOpen&&<div role="dialog" aria-modal="true" aria-label={DECKMO.chrome.presenterTitle} className="absolute inset-0 z-50 flex items-center justify-center bg-background/90 p-10 backdrop-blur-sm" onClick={()=>setPresenterOpen(false)}><div className="w-full max-w-3xl rounded-sm border border-deck-rule bg-background p-8 shadow-2xl" onClick={e=>e.stopPropagation()}><div className="flex items-center justify-between border-b border-deck-rule pb-5"><div><p className="font-deck-serif text-2xl text-deck-navy">{DECKMO.chrome.presenterTitle}</p><p className="mt-1 text-xs text-deck-muted">Presentation overview</p></div><Button variant="ghost" size="icon" className="rounded-sm text-deck-navy" onClick={()=>setPresenterOpen(false)} aria-label={DECKMO.chrome.presenterClose}><X/></Button></div><div className="mt-6 grid grid-cols-2 gap-2">{DECKMO.beats.map((beat,index)=><div key={beat.id} aria-current={index===current.section?"step":undefined} className={cn("flex h-auto items-center justify-start rounded-sm border border-deck-rule p-4 text-left",index===current.section&&"border-deck-blue bg-deck-surface")}><span className={cn("mr-4 flex h-7 w-7 items-center justify-center border border-deck-rule text-xs font-semibold text-deck-muted",index===current.section&&"border-deck-blue bg-deck-blue text-primary-foreground")}>{String(index+1).padStart(2,"0")}</span><span><span className="block text-sm font-semibold text-deck-navy">{beat.nav}</span><span className="mt-0.5 block text-[10px] font-normal uppercase text-deck-muted">{beat.steps} {DECKMO.chrome.stepUnit}</span></span></div>)}</div></div></div>}
 </div>}
 
 export function DeckmoDesktopGuard({children}:{children:React.ReactNode}){const [desktop,setDesktop]=useState(()=>typeof window==="undefined"?true:window.innerWidth>=1024);useEffect(()=>{const check=()=>setDesktop(window.innerWidth>=1024);window.addEventListener("resize",check);return()=>window.removeEventListener("resize",check)},[]);if(desktop)return <>{children}</>;return <div className="flex h-screen w-screen items-center justify-center bg-white px-6 font-sans"><div className="max-w-sm text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50"><Monitor className="h-8 w-8 text-blue-600"/></div><h1 className="mt-6 text-2xl font-bold text-slate-900">{DECKMO.chrome.desktopTitle}</h1><p className="mt-3 text-sm leading-relaxed text-slate-500">{DECKMO.chrome.desktopBody}</p><Button asChild className="mt-8"><Link to="/">{DECKMO.chrome.returnHome}</Link></Button></div></div>}

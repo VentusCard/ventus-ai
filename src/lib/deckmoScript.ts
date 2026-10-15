@@ -4,6 +4,7 @@ export type DeckmoBeatId =
   | "opener"
   | "visibility"
   | "living-view"
+  | "ricky-story"
   | "ricky"
   | "immediate"
   | "mid-term"
@@ -13,7 +14,23 @@ export type DeckmoBeatId =
   | "close";
 
 // Flat beat index within the "For Your Teams" slide -> workspace screen index.
-export const BANK_TOOLS_BEAT_SCREENS = [0, 1, 2];
+export const BANK_TOOLS_BEAT_SCREENS = [0];
+
+export const DECKMO_BENEFITS = [
+  { id: "immediate", label: "Lower Service Cost" },
+  { id: "mid-term", label: "Profit" },
+  { id: "long-term", label: "Growth" },
+  { id: "retention", label: "Retention & NPS" },
+] as const satisfies readonly { id: DeckmoBeatId; label: string }[];
+
+export const RICKY_KYC_PROFILE = {
+  name: "Ricky J",
+  customerId: "45275487",
+  age: 34,
+  location: "San Francisco, CA 94123",
+  estimatedHouseholdIncome: "$500K",
+  relationshipTier: "Preferred",
+};
 
 export const DECKMO = {
   chrome: {
@@ -31,7 +48,7 @@ export const DECKMO = {
     phoneMenu: "•••",
     stepUnit: "steps",
     gateTitle: "Interactive Presentation",
-    gateSubtitle: "Version Sept. 2026",
+    gateSubtitle: "Version Oct. 2026",
   },
   phoneNavigation: {
     bankLabel: "Our Bank · Ricky",
@@ -39,18 +56,19 @@ export const DECKMO = {
   },
   beats: [
     { id: "opener", nav: "Thesis", steps: 6 },
-    { id: "visibility", nav: "The Visibility Gap / Meet Ricky", steps: 5 },
+    { id: "visibility", nav: "The Visibility Gap", steps: 2 },
     { id: "living-view", nav: "The Complete Picture", steps: 3 },
+    { id: "ricky-story", nav: "Ricky, understood", steps: 2 },
+    {
+      id: "bank-tools",
+      nav: "Tools for the Bank",
+      steps: 1,
+      stepScreens: BANK_TOOLS_BEAT_SCREENS,
+    },
     { id: "immediate", nav: "Immediate: Lower Service Cost", steps: 5 },
     { id: "mid-term", nav: "Mid-Term: Profit", steps: 5 },
     { id: "long-term", nav: "Mid-Term: Growth", steps: 3 },
     { id: "retention", nav: "Long-Term: Retention & NPS", steps: 4 },
-    {
-      id: "bank-tools",
-      nav: "Tools for the Bank",
-      steps: 3,
-      stepScreens: BANK_TOOLS_BEAT_SCREENS,
-    },
     { id: "close", nav: "The Ask", steps: 3 },
   ],
   opener: {
@@ -58,11 +76,11 @@ export const DECKMO = {
     comparison: {
       today: {
         label: "Today",
-        segments: ["Don't talk to or understand your customers", "Generic banking", "Commoditization"],
+        segments: ["Can't talk to and understand customer needs", "Generic banking", "Commoditization"],
       },
       ventus: {
         label: "with",
-        segments: ["Anticipate and fulfill every customer need", "Personalized banking", "Differentiation"],
+        segments: ["Understand and anticipate customer needs", "Personalized banking", "Differentiation"],
       },
     },
   },
@@ -72,7 +90,7 @@ export const DECKMO = {
     subtitle: "First-party transaction data is observed, but lagging and partial. It ends at the institution's walls.",
     inside: {
       header: "INSIDE THE WALLS",
-      caption: "Messy unstructured activity across payment rails",
+      caption: "Raw activity across payment rails",
       rows: [
         {
           id: "C•••1842",
@@ -100,42 +118,54 @@ export const DECKMO = {
     },
     outside: {
       header: "OUTSIDE THE WALLS",
-      caption: "What else goes on",
+      caption: "Financial relationships and life context beyond the bank",
       status: "not visible",
-      empty: "The rest of the customer remains out of view",
+      empty: "The wider picture remains out of view.",
       rows: [
         "Bought a house",
+        "Credit card at another bank",
         "Changed to a new job",
+        "Savings at another bank",
         "Got married",
+        "Investments at another brokerage",
         "Started a business",
+        "Mortgage with another lender",
         "Took a trip overseas",
+        "Streaming and subscription spend",
         "Children going to college",
+        "Auto loan at another bank",
+        "Second checking account elsewhere",
+        "Private school tuition",
+        "Insurance premiums paid elsewhere",
+        "Buy-now-pay-later balances",
+        "Donations to another charity",
+        "Childcare paid elsewhere",
         "And everything in between",
       ],
     },
   },
   livingView: {
     eyebrow: "THE COMPLETE PICTURE",
-    title: "Ventus AI: Holistic AI Customer Intelligence",
-    subtitle: "Enriching internal and external data to gain a dynamic understanding of each customer",
+    title: "Ventus AI: One living customer view",
+    subtitle: "Internal activity and external context come together to show who each customer is, how they live, and what they may need next.",
     inside: {
       header: "INSIDE THE WALLS",
-      title: "Rail-agnostic behavioral enrichment",
+      title: "Understand activity across payment rails",
       chips: ["Checks", "Wires", "Zelle", "Card swipes", "P2P", "Digital telemetry"],
     },
     outside: {
       header: "OUTSIDE THE WALLS",
-      title: "Source-agnostic behavioral intelligence",
+      title: "Extra insights from external sources",
       chips: ["Credit bureaus", "Data compilers", "National databases", "SKU-level insights"],
     },
     result: { header: "ONE LIVING CUSTOMER VIEW" },
     synthesis: {
       families: [
-        { name: "3000+ Spending Habits", tone: "blue" },
-        { name: "20+ Major Life Events", tone: "amber" },
-        { name: "50+ Financial Signals", tone: "emerald" },
         { name: "100+ Demographic Labels", tone: "violet" },
-        { name: "15+ Risk Patterns", tone: "rose" },
+        { name: "100+ Financial Signals", tone: "emerald" },
+        { name: "3000+ Spending Habits", tone: "blue" },
+        { name: "100+ Major Life Events", tone: "amber" },
+        { name: "50+ Risk Patterns", tone: "rose" },
       ],
       question: "Who they are · What they do · What do they need next?",
     },
@@ -143,6 +173,14 @@ export const DECKMO = {
   ricky: {
     eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
     title: "Meet Ricky",
+    storyHeader: {
+      eyebrow: "CUSTOMER INTELLIGENCE IN ACTION",
+      title: "Ricky, understood",
+      descriptions: [
+        "Internal activity reveals Ricky’s routines, financial relationships, and emerging needs.",
+        "External context adds the relationships and life details the bank cannot see on its own.",
+      ],
+    },
     sectionSubtitles: [
       "Start with the transactions the institution can see.",
       "But transactions alone reveal only part of Ricky’s life.",
@@ -153,6 +191,35 @@ export const DECKMO = {
     rawLabel: "SUPPORTING TRANSACTIONS",
     signalLabel: "VENTUS CUSTOMER INTELLIGENCE",
     signals: [
+      { family: "Demographics", label: RICKY_SIGNAL_LABELS.income, tone: "violet", source: "internal" },
+      { family: "Demographics", label: RICKY_SIGNAL_LABELS.business, tone: "violet", source: "internal" },
+      {
+        family: "Demographics",
+        label: "Small airplane co-owner",
+        tone: "violet",
+        source: "external",
+        externalEvidence: {
+          provider: "Outside aircraft ownership data",
+          detail: "Shared ownership interest in a Cirrus SR22",
+          timing: "Annual · recurring obligations",
+          confidence: "Likely",
+        },
+      },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
+      {
+        family: "Financial",
+        label: "BMW X5 loan ending in ~4 months",
+        tone: "emerald",
+        source: "external",
+        externalEvidence: {
+          provider: "Outside vehicle ownership data",
+          detail: "BMW X5 financing is nearing the end of its term",
+          timing: "Maturity · ~4 months",
+          confidence: "Likely",
+        },
+      },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.tennis, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.hawaii, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.media, tone: "blue", source: "internal" },
@@ -170,39 +237,10 @@ export const DECKMO = {
       },
       { family: "Life Events", label: RICKY_SIGNAL_LABELS.baby, tone: "amber", source: "internal" },
       { family: "Life Events", label: RICKY_SIGNAL_LABELS.home, tone: "amber", source: "internal" },
-      { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
-      { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
-      { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
-      {
-        family: "Financial",
-        label: "BMW X5 loan ending in ~4 months",
-        tone: "emerald",
-        source: "external",
-        externalEvidence: {
-          provider: "Outside vehicle ownership data",
-          detail: "BMW X5 financing is nearing the end of its term",
-          timing: "Maturity · ~4 months",
-          confidence: "Likely",
-        },
-      },
-      { family: "Demographics", label: RICKY_SIGNAL_LABELS.income, tone: "violet", source: "internal" },
-      { family: "Demographics", label: RICKY_SIGNAL_LABELS.business, tone: "violet", source: "internal" },
-      {
-        family: "Demographics",
-        label: "Small airplane co-owner",
-        tone: "violet",
-        source: "external",
-        externalEvidence: {
-          provider: "Outside aircraft ownership data",
-          detail: "Shared ownership interest in a Cirrus SR22",
-          timing: "Annual · recurring obligations",
-          confidence: "Likely",
-        },
-      },
       { family: "Risk", label: RICKY_SIGNAL_LABELS.betting, tone: "rose", source: "internal" },
     ],
-    profileTitle: "Ricky J #45275487",
-    profileFacts: "Age 34 · San Francisco, CA 94123 · Est. household income $500K · Preferred tier",
+    profileTitle: `${RICKY_KYC_PROFILE.name} #${RICKY_KYC_PROFILE.customerId}`,
+    profileFacts: `Age ${RICKY_KYC_PROFILE.age} · ${RICKY_KYC_PROFILE.location} · Est. household income ${RICKY_KYC_PROFILE.estimatedHouseholdIncome} · ${RICKY_KYC_PROFILE.relationshipTier} tier`,
     profileBody:
       "Affluent homeowner, active traveler, tennis regular, business owner, and an emerging relationship opportunity.",
   },
@@ -211,7 +249,7 @@ export const DECKMO = {
     value: { metric: "-9%", label: "Customer Service inquiries" },
     title: "Make every transaction understandable",
     subtitle:
-      "Enriched transaction experiences that make charges easier to recognize and can reduce transaction-related service calls and inquiries.",
+      "Help customers recognize charges, understand the context, and confirm the answer without calling the bank.",
     phoneTitle: "Recent transactions",
     account: "Our Bank Account #9905",
     activity: [
@@ -340,7 +378,7 @@ export const DECKMO = {
     ],
     popups: [
       {
-        title: "Every charge, instantly recognizable",
+        title: "Clear merchant names and locations",
         body: "Cryptic statement strings become clean merchant names and locations.",
       },
       {
@@ -357,7 +395,7 @@ export const DECKMO = {
       },
       {
         title: "Confirmed by the customer",
-        body: "One tap closes the loop. The answer improves every future explanation.",
+        body: "One tap confirms the charge and helps improve future explanations.",
       },
     ],
     explainer: {
@@ -371,7 +409,7 @@ export const DECKMO = {
     value: { metric: "$20 User/Year", label: "yield for the bank" },
     title: "Turn understanding into relevant growth",
     subtitle:
-      "Hyper-personalized card-linked offers and cross-sell programs create new revenue opportunities while helping identify the right banking product for each customer at the right moment.",
+      "Bring partner offers, rewards, and perks into collections shaped around each customer’s interests and plans.",
     phoneTitle: "Selected for Ricky",
     rewardsIntro: "Benefits built around how you live",
     topPick: {
@@ -412,23 +450,23 @@ export const DECKMO = {
     popups: [
       {
         title: "Deals, rewards and perks in one place",
-        body: "Merchant deals, bank products, museum perks, all in one place.",
+        body: "Partner offers and local experiences sit alongside the bank’s own benefits.",
       },
       {
-        title: "Curated from multiple deal aggregators",
-        body: "The best available offers are sourced across partners, not one catalog.",
+        title: "Offers from multiple partners",
+        body: "Bring partner catalogs together in one customer experience.",
       },
       {
-        title: "Next-gen tools like semantic search",
+        title: "Search by meaning, not keywords",
         body: "Customers find relevant offers by meaning, not exact keywords.",
       },
       {
-        title: "A collection for every major signal",
-        body: "Habits, life events and routines each get their own deal collection.",
+        title: "Collections shaped by customer context",
+        body: "Group offers around interests, routines, and upcoming plans.",
       },
       {
-        title: "Hyper-personalized collections",
-        body: "Multi-category collection that supports specific goals.",
+        title: "A collection for the next trip",
+        body: "Travel gear, clothing, and airport benefits come together around Ricky’s upcoming getaway.",
       },
     ],
   },
@@ -437,7 +475,7 @@ export const DECKMO = {
     value: { metric: "+5.5%", label: "Cross-sell rate" },
     title: "Build a relationship that evolves",
     subtitle:
-      "A more personalized banking relationship can deepen engagement, improve retention and NPS, and help the bank grow primary banking relationships and share of wallet.",
+      "Connect life events, routines, and future plans to timely banking products that deepen the customer relationship and grow share of wallet.",
     phoneTitle: "Ricky's relationship",
     welcome: "Welcome, Ricky",
     memberStatus: "Private client · Member since 2018",
@@ -467,29 +505,29 @@ export const DECKMO = {
     },
     popups: [
       {
-        title: "Anticipate the next life moment",
-        body: "A home-buying signal becomes a relevant relationship-rate mortgage recommendation.",
+        title: "Life context informs product recommendations",
+        body: "Home plans, routines, and future trips inform mortgage, card, and savings recommendations.",
       },
       {
-        title: "Turn routines into relationship value",
-        body: "Ricky’s tennis routine becomes a rewards card aligned to how he spends.",
+        title: "Make the benefit concrete",
+        body: "Show how each recommendation could support the customer’s routine or next goal.",
       },
       {
-        title: "Turn travel plans into deposits",
-        body: "Ricky’s annual tropical trip becomes a high-yield savings goal that grows deposits.",
+        title: "Give the customer a next step",
+        body: "Each recommendation pairs a clear benefit with an action the customer can take.",
       },
     ],
   },
   retention: {
     eyebrow: "LONG-TERM: RETENTION & NPS",
     value: { metric: "+4.5%", label: "In-app engagement" },
-    title: "Turn every answer into relationship equity",
+    title: "Give customers more reasons to stay",
     subtitle:
-      "A banking assistant grounded in the customer’s complete financial story makes every interaction feel informed, useful, and personal.",
+      "An assistant with the customer’s wider financial context can offer useful answers today and more relevant help over time.",
     openingPrompt: "How much have I spent on my last trip to Hawaii?",
     popups: [
       {
-        title: "Understand the full context",
+        title: "Understand the context",
         body: "Answer from enriched activity across the customer’s relationship, not isolated transactions.",
       },
       {
@@ -498,14 +536,14 @@ export const DECKMO = {
       },
       {
         title: "Earn the next interaction",
-        body: "Consistently relevant help deepens engagement and creates the conditions for stronger retention and NPS.",
+        body: "Useful, relevant help gives customers a reason to return and can support stronger engagement over time.",
       },
     ],
     showcase: {
-      eyebrow: "COUNTLESS SERVICE OPPORTUNITY",
-      title: "Every Customer, Inquiry and Opportunity",
+      eyebrow: "COUNTLESS WAYS TO SERVE",
+      title: "More context. More ways to help.",
       subtitle:
-        "When Ventus understands every transaction and pattern, your assistant can show up for the customer in countless ways — today and for years to come.",
+        "With a richer understanding of the customer’s financial life, your assistant can be proactive with everyday questions, future plans, and the moments in between.",
       phones: [
         {
           id: "credit-score",
@@ -607,10 +645,10 @@ export const DECKMO = {
           action: "Ask Ventus AI",
         },
         families: [
+          { label: "Demographic", count: 13, tone: "violet", unit: "signal types" },
+          { label: "Financial", count: 9, tone: "emerald", unit: "signal types" },
           { label: "Behavioral", count: 11, tone: "blue", unit: "signal types" },
           { label: "Life Event", count: 9, tone: "amber", unit: "signal types" },
-          { label: "Financial", count: 9, tone: "emerald", unit: "signal types" },
-          { label: "Demographic", count: 13, tone: "violet", unit: "signal types" },
           { label: "Risk", count: 14, tone: "rose", unit: "signal types" },
         ],
         segment: {
@@ -737,21 +775,174 @@ export const DECKMO_STEPS = DECKMO.beats.flatMap((beat, section) =>
   }),
 );
 
-export interface RickySignalDetail { summary: string; facts: string[]; merchants: string[] }
+/** Explicit section controls resolve through the authoritative ordered script. */
+export function deckmoBeatStartIndex(id: DeckmoBeatId): number {
+  return DECKMO_STEPS.findIndex((entry) => DECKMO.beats[entry.section].id === id);
+}
+
+export interface RickySignalDetail {
+  summary: string;
+  facts: string[];
+  merchants: string[];
+}
+
+/** Inline clauses preserve family order and put external signals last in each family. */
+export const RICKY_SIGNAL_STORY = [
+  { before: ". His household picture combines", label: RICKY_SIGNAL_LABELS.income },
+  { before: "with a new venture:", label: RICKY_SIGNAL_LABELS.business },
+  { before: "; outside ownership data identifies him as a", label: "Small airplane co-owner" },
+  { before: ". His financial relationships include", label: RICKY_SIGNAL_LABELS.brokerage },
+  { before: ",", label: RICKY_SIGNAL_LABELS.marcus },
+  { before: ", and", label: RICKY_SIGNAL_LABELS.amex },
+  { before: ", while outside vehicle data shows a", label: "BMW X5 loan ending in ~4 months" },
+  { before: "Ricky’s routine includes", label: RICKY_SIGNAL_LABELS.tennis },
+  { before: ", an", label: RICKY_SIGNAL_LABELS.hawaii },
+  { before: ", and", label: RICKY_SIGNAL_LABELS.media },
+  { before: "; outside purchase data also points to", label: "High pet expenditure" },
+  { before: ". His family is entering a new chapter:", label: RICKY_SIGNAL_LABELS.baby },
+  { before: ", and", label: RICKY_SIGNAL_LABELS.home },
+  { before: ". Separately, an account pattern to review is", label: RICKY_SIGNAL_LABELS.betting },
+] as const;
 
 export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
-  [RICKY_SIGNAL_LABELS.tennis]: { summary: "Committed club player with court time roughly every other week", facts: ["Cadence: court bookings about every 2 weeks", "Typical visit: $28–$186", "Annual club dues of $1,450 paid by check in March", "Summer step-up: USTA tournament entry, coaching and new gear"], merchants: ["City Tennis Center", "Racket Sports Club", "CourtReserve", "USTA NorCal"] },
-  [RICKY_SIGNAL_LABELS.hawaii]: { summary: "Maui getaway each December, already rebooked for this year", facts: ["Last trip: Dec 1–9, 2025, about $6,100 all-in", "Pattern: insure, fly, rent a car, resort stay", "Resort stay: $2,960 at Wailea Beach Resort", "Next trip: Hawaiian Airlines booked in Sep for December"], merchants: ["Hawaiian Airlines", "Wailea Beach Resort", "Allianz Travel", "Mama's Fish House"] },
-  [RICKY_SIGNAL_LABELS.media]: { summary: "Layered streaming plus live events and movie nights", facts: ["Subscriptions: Netflix, YouTube TV, Spotify", "Spotify plan upgraded: $11.99 → $12.99 → $13.99", "Live events: $286 at Shoreline Amphitheatre", "Recurring media base around $120 per month"], merchants: ["Netflix", "YouTube TV", "Spotify", "Ticketmaster", "AMC Theatres"] },
-  "High pet expenditure": { summary: "Premium pet spending seen in outside purchase data", facts: ["Cadence: monthly, ongoing", "Basket: premium food, supplies and care", "Not visible in the bank's own ledger", "Confidence: likely"], merchants: ["Outside SKU-level purchase data"] },
-  [RICKY_SIGNAL_LABELS.baby]: { summary: "Nursery prep in winter, hospital stay in March, childcare by summer", facts: ["Jan–Feb: Babylist registry and Pottery Barn Kids nursery", "Mar 19: $2,460 Lucile Packard Children's Hospital", "Recurring diaper orders from The Honest Company", "Aug: Bright Horizons childcare starts at $2,180"], merchants: ["Babylist", "Pottery Barn Kids", "Lucile Packard", "The Honest Company", "Bright Horizons"] },
-  [RICKY_SIGNAL_LABELS.home]: { summary: "Home purchase moving from planning to closing", facts: ["Feb: property attorney retained", "Apr and Aug: two appraisals", "Sep: $315,000 escrow wire to Pacific Title", "Inspection and moving deposit booked the same month"], merchants: ["Pacific Title Escrow", "Premier Home Inspection", "Northstar Moving"] },
-  [RICKY_SIGNAL_LABELS.brokerage]: { summary: "Disciplined monthly investor with a fixed schedule", facts: ["Cadence: monthly, on the 15th", "Amount: $5,000 every month", "About $45,000 moved year to date", "Same day as payroll, so it is planned and automatic"], merchants: ["Fidelity Brokerage"] },
-  [RICKY_SIGNAL_LABELS.marcus]: { summary: "Growing savings habit held at an outside high-yield account", facts: ["Cadence: monthly ACH on the 17th", "Size: $2,000 rising to $3,500", "About $24,000 moved year to date", "Step-ups every two months"], merchants: ["Marcus by Goldman Sachs"] },
-  [RICKY_SIGNAL_LABELS.amex]: { summary: "Primary card spend runs through an outside card", facts: ["Cadence: monthly ePayment on the 4th", "Size: $3,300 rising to $4,860", "About $35,700 paid year to date", "Trend: steady growth across 9 months"], merchants: ["American Express"] },
-  "BMW X5 loan ending in ~4 months": { summary: "Vehicle financing nears payoff, opening a next-car decision", facts: ["Loan maturity in about 4 months", "Financed outside the bank", "Growing family may favor a larger vehicle", "Confidence: likely"], merchants: ["Outside vehicle ownership data"] },
-  [RICKY_SIGNAL_LABELS.income]: { summary: "Reliable salary with steady raises", facts: ["Cadence: semi-monthly on the 1st and 15th", "Monthly: $22.8K in Jan to $24.7K in Sep", "Employer: HP Inc. direct deposit", "Trend: small increases most months"], merchants: ["HP Inc. Payroll"] },
-  [RICKY_SIGNAL_LABELS.business]: { summary: "New cottage food business with fast-growing weekly sales", facts: ["May: LLC formation and county cottage food permit", "From June: weekly Square payouts", "Payouts grew from $1,216 to $2,486", "Costs: market vendor fees, Restaurant Depot, liability insurance"], merchants: ["Square", "LegalZoom", "Urban Village Farmers' Market", "Restaurant Depot", "FLIP"] },
-  "Small airplane co-owner": { summary: "Shared aircraft ownership suggests an affluent aviation lifestyle", facts: ["Aircraft: Cirrus SR22", "Ownership: shared rather than sole ownership", "Pattern: recurring annual ownership and operating obligations", "Confidence: likely"], merchants: ["Outside aircraft ownership data"] },
-  [RICKY_SIGNAL_LABELS.betting]: { summary: "Sportsbook activity rising steadily through the year", facts: ["Size: $65 in Jan to $480 in Sep", "Cadence: roughly monthly, now more frequent", "New in Sep: direct wallet funding by ACH", "Worth a gentle wellness check-in"], merchants: ["DraftKings"] },
+  [RICKY_SIGNAL_LABELS.tennis]: {
+    summary: "Committed club player with court time roughly every other week",
+    facts: [
+      "Cadence: court bookings about every 2 weeks",
+      "Typical visit: $28–$186",
+      "Annual club dues of $1,450 paid by check in March",
+      "Summer step-up: USTA tournament entry, coaching and new gear",
+    ],
+    merchants: ["City Tennis Center", "Racket Sports Club", "CourtReserve", "USTA NorCal"],
+  },
+  [RICKY_SIGNAL_LABELS.hawaii]: {
+    summary: "Maui getaway each December, already rebooked for this year",
+    facts: [
+      "Last trip: Dec 1–9, 2025, about $6,100 all-in",
+      "Pattern: insure, fly, rent a car, resort stay",
+      "Resort stay: $2,960 at Wailea Beach Resort",
+      "Next trip: Hawaiian Airlines booked in Sep for December",
+    ],
+    merchants: ["Hawaiian Airlines", "Wailea Beach Resort", "Allianz Travel", "Mama's Fish House"],
+  },
+  [RICKY_SIGNAL_LABELS.media]: {
+    summary: "Layered streaming plus live events and movie nights",
+    facts: [
+      "Subscriptions: Netflix, YouTube TV, Spotify",
+      "Spotify plan upgraded: $11.99 → $12.99 → $13.99",
+      "Live events: $286 at Shoreline Amphitheatre",
+      "Recurring media base around $120 per month",
+    ],
+    merchants: ["Netflix", "YouTube TV", "Spotify", "Ticketmaster", "AMC Theatres"],
+  },
+  "High pet expenditure": {
+    summary: "Premium pet spending seen in outside purchase data",
+    facts: [
+      "Cadence: monthly, ongoing",
+      "Basket: premium food, supplies and care",
+      "Not visible in the bank's own ledger",
+      "Confidence: likely",
+    ],
+    merchants: ["Outside SKU-level purchase data"],
+  },
+  [RICKY_SIGNAL_LABELS.baby]: {
+    summary: "Nursery prep in winter, hospital stay in March, childcare by summer",
+    facts: [
+      "Jan–Feb: Babylist registry and Pottery Barn Kids nursery",
+      "Mar 19: $2,460 Lucile Packard Children's Hospital",
+      "Recurring diaper orders from The Honest Company",
+      "Aug: Bright Horizons childcare starts at $2,180",
+    ],
+    merchants: ["Babylist", "Pottery Barn Kids", "Lucile Packard", "The Honest Company", "Bright Horizons"],
+  },
+  [RICKY_SIGNAL_LABELS.home]: {
+    summary: "Home purchase moving from planning to closing",
+    facts: [
+      "Feb: property attorney retained",
+      "Apr and Aug: two appraisals",
+      "Sep: $315,000 escrow wire to Pacific Title",
+      "Inspection and moving deposit booked the same month",
+    ],
+    merchants: ["Pacific Title Escrow", "Premier Home Inspection", "Northstar Moving"],
+  },
+  [RICKY_SIGNAL_LABELS.brokerage]: {
+    summary: "Disciplined monthly investor with a fixed schedule",
+    facts: [
+      "Cadence: monthly, on the 15th",
+      "Amount: $5,000 every month",
+      "About $45,000 moved year to date",
+      "Same day as payroll, so it is planned and automatic",
+    ],
+    merchants: ["Fidelity Brokerage"],
+  },
+  [RICKY_SIGNAL_LABELS.marcus]: {
+    summary: "Growing savings habit held at an outside high-yield account",
+    facts: [
+      "Cadence: monthly ACH on the 17th",
+      "Size: $2,000 rising to $3,500",
+      "About $24,000 moved year to date",
+      "Step-ups every two months",
+    ],
+    merchants: ["Marcus by Goldman Sachs"],
+  },
+  [RICKY_SIGNAL_LABELS.amex]: {
+    summary: "Primary card spend runs through an outside card",
+    facts: [
+      "Cadence: monthly ePayment on the 4th",
+      "Size: $3,300 rising to $4,860",
+      "About $35,700 paid year to date",
+      "Trend: steady growth across 9 months",
+    ],
+    merchants: ["American Express"],
+  },
+  "BMW X5 loan ending in ~4 months": {
+    summary: "Vehicle financing nears payoff, opening a next-car decision",
+    facts: [
+      "Loan maturity in about 4 months",
+      "Financed outside the bank",
+      "Growing family may favor a larger vehicle",
+      "Confidence: likely",
+    ],
+    merchants: ["Outside vehicle ownership data"],
+  },
+  [RICKY_SIGNAL_LABELS.income]: {
+    summary: "Reliable salary with steady raises",
+    facts: [
+      "Cadence: semi-monthly on the 1st and 15th",
+      "Monthly: $22.8K in Jan to $24.7K in Sep",
+      "Employer: HP Inc. direct deposit",
+      "Trend: small increases most months",
+    ],
+    merchants: ["HP Inc. Payroll"],
+  },
+  [RICKY_SIGNAL_LABELS.business]: {
+    summary: "New cottage food business with fast-growing weekly sales",
+    facts: [
+      "May: LLC formation and county cottage food permit",
+      "From June: weekly Square payouts",
+      "Payouts grew from $1,216 to $2,486",
+      "Costs: market vendor fees, Restaurant Depot, liability insurance",
+    ],
+    merchants: ["Square", "LegalZoom", "Urban Village Farmers' Market", "Restaurant Depot", "FLIP"],
+  },
+  "Small airplane co-owner": {
+    summary: "Shared aircraft ownership suggests an affluent aviation lifestyle",
+    facts: [
+      "Aircraft: Cirrus SR22",
+      "Ownership: shared rather than sole ownership",
+      "Pattern: recurring annual ownership and operating obligations",
+      "Confidence: likely",
+    ],
+    merchants: ["Outside aircraft ownership data"],
+  },
+  [RICKY_SIGNAL_LABELS.betting]: {
+    summary: "Sportsbook activity rising steadily through the year",
+    facts: [
+      "Size: $65 in Jan to $480 in Sep",
+      "Cadence: roughly monthly, now more frequent",
+      "New in Sep: direct wallet funding by ACH",
+      "Worth a gentle wellness check-in",
+    ],
+    merchants: ["DraftKings"],
+  },
 };

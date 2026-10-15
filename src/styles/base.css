@@ -132,7 +132,74 @@
     --deck-surface: 210 40% 98%;
     --deck-rule: 214 32% 91%;
     --deck-muted: 215 16% 47%;
+    --deck-rail-cards: 217 80% 46%;
+    --deck-rail-ach: 263 60% 48%;
+    --deck-rail-checks: 39 80% 38%;
+    --deck-rail-wire: 173 70% 30%;
+    --deck-rail-zelle: 190 80% 32%;
+    --deck-story-behavioral: 217 91% 60%;
+    --deck-story-life-events: 38 92% 50%;
+    --deck-story-financial: 160 84% 39%;
+    --deck-story-demographics: 263 70% 50%;
+    --deck-story-risk: 350 89% 60%;
   }
+}
+
+.ricky-rail-cards { --rail-accent: var(--deck-rail-cards); }
+.ricky-rail-ach { --rail-accent: var(--deck-rail-ach); }
+.ricky-rail-checks { --rail-accent: var(--deck-rail-checks); }
+.ricky-rail-wire { --rail-accent: var(--deck-rail-wire); }
+.ricky-rail-zelle { --rail-accent: var(--deck-rail-zelle); }
+.ricky-rail-icon {
+  color: hsl(var(--rail-accent));
+  background: hsl(var(--rail-accent) / 0.08);
+  border-color: hsl(var(--rail-accent) / 0.22);
+}
+.ricky-rail-header { background: hsl(var(--rail-accent) / 0.05); }
+
+.ricky-story-blue { --story-accent: var(--deck-story-behavioral); }
+.ricky-story-amber { --story-accent: var(--deck-story-life-events); }
+.ricky-story-emerald { --story-accent: var(--deck-story-financial); }
+.ricky-story-violet { --story-accent: var(--deck-story-demographics); }
+.ricky-story-rose { --story-accent: var(--deck-story-risk); }
+.ricky-story-pill {
+  background: hsl(var(--story-accent) / 0.13);
+  border-color: hsl(var(--story-accent) / 0.38);
+  color: hsl(var(--story-accent));
+}
+/* Internal signals carry a slightly deeper tint than outside signals. */
+.ricky-story-pill[data-signal-source="internal"] {
+  background: hsl(var(--story-accent) / 0.22);
+  border-color: hsl(var(--story-accent) / 0.55);
+}
+.ricky-story-pill:hover {
+  background: hsl(var(--story-accent) / 0.22);
+  color: hsl(var(--deck-navy));
+}
+.ricky-story-pill[data-signal-source="internal"]:hover {
+  background: hsl(var(--story-accent) / 0.3);
+}
+.ricky-story-pill { box-decoration-break: clone; -webkit-box-decoration-break: clone; overflow-wrap: anywhere; }
+.ricky-story-attribute {
+  display: inline;
+  background: hsl(var(--background) / 0.72);
+  border: 1px solid hsl(var(--story-accent) / 0.16);
+  border-radius: 5px;
+  padding: 1px 4px;
+  font-size: 0.92em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.ricky-story-detail { border-color: hsl(var(--story-accent) / 0.38); }
+.ricky-story-dot { background: hsl(var(--story-accent)); }
+.ricky-story-family-label { color: hsl(var(--story-accent)); }
+.ricky-story-evidence { margin-left: 188px; }
+
+@media (max-height: 800px), (max-width: 1200px) {
+  .ricky-story-row { grid-template-columns: 140px minmax(0, 1fr); }
+  .ricky-story-prose { padding: 10px 0 10px 20px; font-size: 18px; line-height: 1.85; }
+  .ricky-story-pill { font-size: 15px; padding: 3px 7px; }
+  .ricky-story-evidence { margin-left: 160px; }
 }
 
 @keyframes deck-breathe {
@@ -451,3 +518,40 @@
 .hero-dark-card { min-height: 340px; }
 @media (min-width: 768px) { .hero-dark-card { min-height: 380px; } }
 @media (min-width: 1280px) { .hero-dark-card { min-height: 420px; } }
+
+/* Deck story reveal: rows cascade in; external pills wait as placeholders until step 2. */
+@keyframes ricky-story-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes ricky-story-glow { 0% { box-shadow: 0 0 0 0 hsl(var(--story-accent) / 0.45); } 70% { box-shadow: 0 0 0 10px hsl(var(--story-accent) / 0); } 100% { box-shadow: 0 0 0 0 hsl(var(--story-accent) / 0); } }
+.ricky-story-reveal { animation: ricky-story-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* A withheld outside clause fades as one unit: its lead-in words and its pill. */
+.ricky-story-pill[data-revealed], .ricky-story-lead[data-revealed] { transition: opacity 500ms ease, filter 500ms ease, border-style 0s; }
+.ricky-story-pill[data-revealed="false"], .ricky-story-lead[data-revealed="false"] { opacity: 0.28; filter: grayscale(1) blur(1.5px); }
+.ricky-story-pill[data-revealed="false"] { border-style: dashed; pointer-events: none; }
+.ricky-story-pill[data-revealed="true"] { animation: ricky-story-glow 1.4s ease-out 2; }
+@media (prefers-reduced-motion: reduce) {
+  .ricky-story-reveal, .ricky-story-pill[data-revealed="true"] { animation: none; }
+  .ricky-story-pill[data-revealed], .ricky-story-lead[data-revealed] { transition: none; }
+}
+
+/* Signal pop-up renders in a portal outside the deck scope; pin it to the light theme and
+   re-declare the family accents locally because the portal is outside .demo-page. */
+.ricky-story-popover { --deck-navy: 212 65% 17%; --deck-muted: 215 16% 47%; --deck-rule: 214 32% 91%; background: #ffffff; color: #0f172a; border-color: hsl(var(--story-accent) / 0.6); border-top: 4px solid hsl(var(--story-accent)); box-shadow: 0 24px 60px -20px hsl(var(--story-accent) / 0.3), 0 24px 60px -20px rgb(15 23 42 / 0.25); }
+.ricky-story-popover.ricky-story-violet { --story-accent: 263 70% 50%; }
+.ricky-story-popover.ricky-story-emerald { --story-accent: 160 84% 39%; }
+.ricky-story-popover.ricky-story-blue { --story-accent: 217 91% 60%; }
+.ricky-story-popover.ricky-story-amber { --story-accent: 38 92% 50%; }
+.ricky-story-popover.ricky-story-rose { --story-accent: 350 89% 60%; }
+.ricky-story-popover .ricky-story-popover-head { background: linear-gradient(hsl(var(--story-accent) / 0.14), hsl(var(--story-accent) / 0.14)), #ffffff; border-bottom-color: hsl(var(--story-accent) / 0.35); }
+.ricky-story-popover .bg-background { background: #ffffff; }
+.ricky-story-popover .bg-muted\/40, .ricky-story-popover .bg-muted\/50 { background: hsl(var(--story-accent) / 0.08); border-color: hsl(var(--story-accent) / 0.3); }
+.ricky-story-popover .border-deck-rule, .ricky-story-popover .divide-deck-rule > * + * { border-color: #e2e8f0; }
+.ricky-story-popover .border-dashed { border-color: hsl(var(--story-accent) / 0.55); }
+.ricky-story-popover .text-foreground { color: #0f172a; }
+.ricky-story-popover .ricky-story-family-label, .ricky-story-popover .ricky-story-dot { color: hsl(var(--story-accent)); }
+.ricky-story-popover .ricky-story-dot { background: hsl(var(--story-accent)); }
+.ricky-story-popover .ricky-story-popover-heading { color: hsl(var(--story-accent)); }
+.ricky-story-popover .ricky-story-popover-badge { color: hsl(var(--story-accent)); border-color: hsl(var(--story-accent) / 0.45); background: hsl(var(--story-accent) / 0.1); }
+
+.ricky-story-popover .ricky-story-table-group { background: hsl(var(--story-accent) / 0.1); color: hsl(var(--story-accent)); }
+.ricky-story-popover .ricky-story-table-group span { color: #475569; }
+.ricky-story-popover .ricky-story-table-cols { background: #f8fafc; }
