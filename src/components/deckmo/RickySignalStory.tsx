@@ -61,15 +61,15 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
         {payments && <div data-monthly-payments>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Observed monthly payments</h5>
           {signal.label === "Amex Credit Cards" && <p className="mt-2 text-xs text-deck-muted">Annualized estimate: {formatSignalMoney(payments.totalCents)} observed across {payments.monthly.length} months ÷ {payments.monthly.length} × 12 = {formatSignalMoney(payments.annualizedCents)}/year. Not an actual full-year total.</p>}
-          <dl className="mt-2 grid grid-cols-3 gap-x-5 gap-y-1 text-sm">{payments.monthly.map((row) => <div key={row.key} className="flex justify-between gap-2 border-b border-deck-rule py-1"><dt className="text-deck-muted">{row.month} {row.year}</dt><dd className="font-semibold tabular-nums text-deck-navy">{formatSignalMoney(row.cents)}</dd></div>)}</dl>
+          <dl className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1 text-sm min-[1200px]:grid-cols-3">{payments.monthly.map((row) => <div key={row.key} className="flex flex-wrap justify-between gap-2 border-b border-deck-rule py-1"><dt className="text-deck-muted">{row.month} {row.year}</dt><dd className="font-semibold tabular-nums text-deck-navy">{formatSignalMoney(row.cents)}</dd></div>)}</dl>
         </div>}
         {external ? <div className="rounded-lg border border-dashed border-deck-rule p-3"><h5 className="ricky-story-popover-heading flex items-center gap-1.5 text-[10px] font-bold uppercase text-deck-muted"><Sparkles className="h-3 w-3" />Outside evidence</h5><p className="mt-2 text-sm">{external.detail}</p><p className="mt-1 text-xs text-deck-muted">{external.provider} · {external.timing} · {external.confidence}</p></div>
         : <div data-enriched-transactions>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
-          <div className="mt-3 overflow-hidden rounded-lg border border-deck-rule">
-            <table className="w-full table-fixed border-collapse text-left">
+          <div className="mt-3 overflow-x-auto overscroll-x-contain scrollbar-light rounded-lg border border-deck-rule" tabIndex={0} role="region" aria-label="Original and enriched supporting transactions" data-story-table-scroll>
+            <table className="w-full min-w-[1458px] table-fixed border-collapse text-left">
               <colgroup>
-                <col className="w-[64px]" /><col className="w-[72px]" /><col /><col className="w-[96px]" /><col className="w-[260px]" /><col className="w-[140px]" /><col className="w-[170px]" /><col className="w-[96px]" />
+                <col className="w-[120px]" /><col className="w-[88px]" /><col className="w-[360px]" /><col className="w-[120px]" /><col className="w-[260px]" /><col className="w-[170px]" /><col className="w-[230px]" /><col className="w-[110px]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-deck-rule">
@@ -122,7 +122,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
               : <Fragment key={segmentIndex}>{segment.text}</Fragment>)}</span>
           </Button>
           </PopoverAnchor>
-          {selected && <PopoverContent side="bottom" align="center" collisionPadding={24} onEscapeKeyDown={() => setSelectedLabel(null)} onInteractOutside={(event) => { const target = event.target as HTMLElement | null; if (target?.closest(`[data-signal-label="${CSS.escape(item.label)}"]`)) event.preventDefault(); }} className={cn("ricky-story-popover w-[min(1240px,calc(100vw-48px))] max-h-[min(72vh,var(--radix-popover-content-available-height))] overflow-y-auto overscroll-contain scrollbar-light rounded-xl border bg-background p-0 text-foreground shadow-xl", `ricky-story-${item.tone}`)}>{renderDetail()}</PopoverContent>}
+          {selected && <PopoverContent side="bottom" align="center" collisionPadding={24} onEscapeKeyDown={() => setSelectedLabel(null)} onInteractOutside={(event) => { const target = event.target as HTMLElement | null; if (target?.closest(`[data-signal-label="${CSS.escape(item.label)}"]`)) event.preventDefault(); }} className={cn("ricky-story-popover w-[min(1540px,calc(100vw-48px))] max-h-[min(72vh,var(--radix-popover-content-available-height))] overflow-y-auto overscroll-contain scrollbar-light rounded-lg border bg-background p-0 text-foreground shadow-xl", `ricky-story-${item.tone}`)}>{renderDetail()}</PopoverContent>}
           </Popover>
           {LAST_IN_FAMILY.has(item.label) && <span className="ricky-story-lead" data-revealed={item.source === "external" ? String(externalShown) : undefined}>.</span>}
         </Fragment>;
@@ -148,13 +148,13 @@ function EnrichedRow({ transaction, merchants, recurring }: { transaction: Ricky
   const category = enrichment.category === "General" && transaction.mccLabel ? transaction.mccLabel : enrichment.category;
   const subcategories = enrichment.subcategories.join(" · ");
   return <tr data-enriched-row>
-    <td className="px-3 py-3 text-[11px] text-deck-muted truncate" title={transaction.source}>{transaction.source}</td>
+    <td className="px-3 py-3 text-[11px] text-deck-muted whitespace-nowrap">{transaction.source}</td>
     <td className="px-3 py-3 text-[11px] tabular-nums text-deck-muted whitespace-nowrap">{transaction.date}</td>
-    <td className="px-3 py-3 font-mono text-[11px] text-deck-navy truncate" title={transaction.description}>{transaction.description}</td>
+    <td className="px-3 py-3 font-mono text-[11px] leading-snug text-deck-navy whitespace-normal break-words">{transaction.description}</td>
     <td className={cn("px-4 py-3 text-right text-[12px] font-semibold tabular-nums text-deck-navy whitespace-nowrap", inflow && "underline decoration-dotted")}>{transaction.amount}</td>
-    <td className="border-l-2 border-deck-rule px-4 py-3 text-[12px] font-semibold leading-snug text-deck-navy" title={merchant}><span className="line-clamp-2">{merchant}</span></td>
-    <td className="px-3 py-3 text-[11px] text-deck-muted truncate" title={category}>{category}</td>
-    <td className="px-3 py-3 text-[11px] text-deck-muted truncate" title={subcategories}>{subcategories}</td>
+    <td className="border-l-2 border-deck-rule px-4 py-3 text-[12px] font-semibold leading-snug text-deck-navy whitespace-normal break-words">{merchant}</td>
+    <td className="px-3 py-3 text-[11px] leading-snug text-deck-muted whitespace-normal break-words">{category}</td>
+    <td className="px-3 py-3 text-[11px] leading-snug text-deck-muted whitespace-normal break-words">{subcategories}</td>
     <td className="px-3 py-3 text-[11px] text-deck-muted whitespace-nowrap"><span className="inline-flex items-center gap-1">{recurring && <Repeat className="h-3 w-3" />}{recurring ? "Recurring" : "One-off"}</span></td>
   </tr>;
 }
