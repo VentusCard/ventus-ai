@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { signalPaymentSummary, signalAttributes, signalInlineSegments } from "../src/lib/deckmoSignalAttributes";
 import { RICKY_SIGNAL_LABELS as L } from "../src/lib/deckmoRickyTransactions";
+import { RICKY_KYC_SIGNAL_LABEL, RICKY_KYC_PROFILE } from "../src/lib/deckmoScript";
 
 const DECK_SIGNAL_LABELS: string[] = [
+  RICKY_KYC_SIGNAL_LABEL,
   ...Object.values(L),
   "Small airplane co-owner",
   "BMW X5 loan ending in ~4 months",
@@ -10,6 +12,15 @@ const DECK_SIGNAL_LABELS: string[] = [
 ];
 
 describe("Ricky inline pill wording", () => {
+  test("KYC shows age and separate location and tier attributes", () => {
+    expect(signalInlineSegments(RICKY_KYC_SIGNAL_LABEL).filter((segment) => segment.kind === "attribute").map((segment) => segment.text)).toEqual(["Age 34", "San Francisco", "CA", "94123", "Preferred tier"]);
+    expect(RICKY_KYC_PROFILE.customerId).toBe("45275487");
+    expect(RICKY_KYC_PROFILE.name).toBe("Ricky J");
+  });
+  test("income attributes keep the household estimate distinct from payroll", () => {
+    expect(signalAttributes(L.income)).toContain("Monthly income $22–26K");
+    expect(signalInlineSegments(L.income).filter((segment) => segment.kind === "attribute").map((segment) => segment.text)).toContain("Est. annual household income $500K");
+  });
   test("every pill phrase stays readable with no run-on or stray text", () => {
     for (const label of DECK_SIGNAL_LABELS) {
       const segments = signalInlineSegments(label);

@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Section 4: replace the profile strip with nested KYC in Demographics, move payroll and household-income details to Financial, and verify both beats and pop-ups.
 - [x] Audit all 14 Section 4 signal pop-ups; full rails and all existing table values verified within two text lines at four desktop sizes using fresh module requests; scrolling and close controls pass.
 - [ ] Preview delivery: ordinary module requests retain cached previous pop-up sizing; fresh module requests show the verified changes. Blocked by preview module-cache invalidation outside application code.
 - [ ] Section 4 vertical spacing and larger left headings are implemented; visual verification is blocked because the live preview still serves the previous layout despite fresh loads. Deck tests pass.

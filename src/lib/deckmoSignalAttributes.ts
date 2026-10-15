@@ -1,4 +1,5 @@
 import { RICKY_SIGNAL_LABELS as L, RICKY_TRANSACTIONS, type RickyTransaction } from "./deckmoRickyTransactions";
+import { RICKY_KYC_LOCATION, RICKY_KYC_PROFILE, RICKY_KYC_SIGNAL_LABEL } from "./deckmoScript";
 
 const months = [
   "January",
@@ -49,7 +50,8 @@ export function signalPaymentSummary(label: string, transactions: RickyTransacti
 }
 
 const context: Record<string, string[]> = {
-  [L.income]: ["Semi-monthly", "HP Inc.", "Payroll", "Monthly income $22–26K"],
+  [RICKY_KYC_SIGNAL_LABEL]: [`Age ${RICKY_KYC_PROFILE.age}`, RICKY_KYC_LOCATION.city, RICKY_KYC_LOCATION.state, RICKY_KYC_LOCATION.postalCode, `${RICKY_KYC_PROFILE.relationshipTier} tier`],
+  [L.income]: ["Semi-monthly", "HP Inc.", "Payroll", "Monthly income $22–26K", `Est. annual household income ${RICKY_KYC_PROFILE.estimatedHouseholdIncome}`],
   [L.business]: ["Cottage food business", "Square payouts", "Vendor fees · supplies"],
   "Small airplane co-owner": ["Cirrus SR22", "Shared ownership", "Annual obligations", "Likely"],
   "BMW X5 loan ending in ~4 months": ["Auto financing", "Maturity ~4 months", "Likely"],
@@ -123,12 +125,25 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
     ];
   }
   const phrases: Record<string, SignalPhraseSegment[]> = {
+    [RICKY_KYC_SIGNAL_LABEL]: [
+      attribute(`Age ${RICKY_KYC_PROFILE.age}`),
+      connector(" in "),
+      attribute(RICKY_KYC_LOCATION.city),
+      connector(" "),
+      attribute(RICKY_KYC_LOCATION.state),
+      connector(" "),
+      attribute(RICKY_KYC_LOCATION.postalCode),
+      connector(" with "),
+      attribute(`${RICKY_KYC_PROFILE.relationshipTier} tier`),
+    ],
     [L.income]: [
       attribute("Stable $22K monthly income"),
       connector(" from "),
       attribute("HP Inc."),
       connector(" a "),
       attribute("Technology Company"),
+      connector(" with "),
+      attribute(`Est. annual household income ${RICKY_KYC_PROFILE.estimatedHouseholdIncome}`),
     ],
     [L.business]: [attribute("SMB Owner"), connector(" in "), attribute("Food and Beverage")],
     "Small airplane co-owner": [attribute("Airplane co-owner"), connector(" of a "), attribute("Cirrus SR22")],
