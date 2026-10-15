@@ -1,6 +1,5 @@
 import { RICKY_SIGNAL_LABELS as L, RICKY_TRANSACTIONS, type RickyTransaction } from "./deckmoRickyTransactions";
 import { RICKY_KYC_LOCATION, RICKY_KYC_PROFILE, RICKY_KYC_SIGNAL_LABEL } from "./deckmoScript";
-import { RICKY_BALANCE_LABEL, RICKY_LEFTOVERS_LABEL, RICKY_DEMO_CHECKING, rickyCashFlow } from "./deckmoRickyCashFlow";
 
 const months = [
   "January",
@@ -68,8 +67,6 @@ const context: Record<string, string[]> = {
 export const FINANCIAL_PAYMENT_LABELS: string[] = [L.brokerage, L.marcus, L.amex];
 
 export function signalAttributes(label: string): string[] {
-  if (label === RICKY_BALANCE_LABEL) return ["Checking", `Illustrative ${formatSignalMoney(RICKY_DEMO_CHECKING.cents)}`, `Demo balance · ${RICKY_DEMO_CHECKING.period}`];
-  if (label === RICKY_LEFTOVERS_LABEL) { const summary = rickyCashFlow(); return [`After spending ${formatSignalMoney(summary.afterSpending)}`, `After spending + saving + investing ${formatSignalMoney(summary.afterSavingInvesting)}`, "Jan–Sep 2026 average", "Based on sample transactions"]; }
   if (!FINANCIAL_PAYMENT_LABELS.includes(label)) return context[label] ?? [];
   const summary = signalPaymentSummary(label);
   if (!summary?.latest) return [];
@@ -98,7 +95,6 @@ const connector = (text: string): SignalPhraseSegment => ({ kind: "connector", t
 
 /** Structured deck-only wording; full evidence retains exact monthly history. */
 export function signalInlineSegments(label: string): SignalPhraseSegment[] {
-  if (label === RICKY_BALANCE_LABEL || label === RICKY_LEFTOVERS_LABEL) return signalAttributes(label).flatMap((text, index) => index ? [connector(" · "), attribute(text)] : [attribute(text)]);
   if (FINANCIAL_PAYMENT_LABELS.includes(label)) {
     const summary = signalPaymentSummary(label);
     if (!summary?.latest) return [attribute(label)];
