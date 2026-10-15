@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Audit all Section 4 signal pop-ups; show full rails and existing information with at most two text lines per transaction, then verify every pop-up across desktop sizes.
 - [ ] Section 4 vertical spacing and larger left headings are implemented; visual verification is blocked because the live preview still serves the previous layout despite fresh loads. Deck tests pass.
 - [x] Move the platform to Section 5 with one overview stop and four explicit benefit-navigation buttons; verify destinations, platform interaction, and desktop layout
 - [x] Fade slide 4.1's outside lead-in words with their pills and closing period; verify no reflow into 4.2
