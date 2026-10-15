@@ -9,6 +9,8 @@ import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalInlineSegments, sign
 import { cn } from "@/lib/utils";
 import { isOutsideClauseHidden, shouldRevealStoryRows, STORY_ENTRANCE_DELAY_MS } from "@/lib/deckmoStoryReveal";
 import { enrichRickyTransaction } from "@/lib/deckmoRickyEnrichment";
+import { rickyCashFlow } from "@/lib/deckmoRickyCashFlow";
+import { RickyCashFlowDetails } from "./RickyCashFlowDetails";
 
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
 
@@ -41,7 +43,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
   const signal = DECKMO.ricky.signals.find((item) => item.label === selectedLabel);
   const detail = selectedLabel ? RICKY_SIGNAL_DETAILS[selectedLabel] : undefined;
   const external = signal && "externalEvidence" in signal ? signal.externalEvidence : null;
-  const evidence = RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((label) => label === selectedLabel));
+  const evidence = detail?.evidenceKind === "cash-flow" ? rickyCashFlow().evidence : RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((label) => label === selectedLabel));
   const payments = selectedLabel && FINANCIAL_PAYMENT_LABELS.includes(selectedLabel) ? signalPaymentSummary(selectedLabel) : null;
 
   function renderDetail() {
@@ -49,7 +51,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
     return <section id="ricky-story-detail" aria-label={`${signal.label} details`} >
       <header className="ricky-story-popover-head sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-deck-rule bg-background px-5 py-4">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="ricky-story-popover-badge rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{detail.evidenceKind === "customer-profile" ? "Customer profile" : external ? "External signal" : "Internal ledger"}</span></div>
+          <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="ricky-story-popover-badge rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{detail.evidenceKind === "customer-profile" ? "Customer profile" : detail.evidenceKind === "illustrative-balance" ? "Illustrative demo" : external ? "External signal" : "Internal ledger"}</span></div>
           <h4 className="mt-1.5 text-base font-bold leading-snug text-deck-navy">{signal.label}</h4>
           <p className="mt-1 text-sm text-foreground">{detail.summary}</p>
         </div>
@@ -63,8 +65,9 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
           {signal.label === "Amex Credit Cards" && <p className="mt-2 text-xs text-deck-muted">Annualized estimate: {formatSignalMoney(payments.totalCents)} observed across {payments.monthly.length} months ÷ {payments.monthly.length} × 12 = {formatSignalMoney(payments.annualizedCents)}/year. Not an actual full-year total.</p>}
           <dl className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1 text-sm min-[1200px]:grid-cols-3">{payments.monthly.map((row) => <div key={row.key} className="flex flex-wrap justify-between gap-2 border-b border-deck-rule py-1"><dt className="text-deck-muted">{row.month} {row.year}</dt><dd className="font-semibold tabular-nums text-deck-navy">{formatSignalMoney(row.cents)}</dd></div>)}</dl>
         </div>}
+        {detail.evidenceKind === "cash-flow" && <RickyCashFlowDetails />}
         {external ? <div className="rounded-lg border border-dashed border-deck-rule p-3"><h5 className="ricky-story-popover-heading flex items-center gap-1.5 text-[10px] font-bold uppercase text-deck-muted"><Sparkles className="h-3 w-3" />Outside evidence</h5><p className="mt-2 text-sm">{external.detail}</p><p className="mt-1 text-xs text-deck-muted">{external.provider} · {external.timing} · {external.confidence}</p></div>
-        : detail.evidenceKind === "customer-profile" ? null : <div data-enriched-transactions>
+        : detail.evidenceKind === "customer-profile" || detail.evidenceKind === "illustrative-balance" ? null : <div data-enriched-transactions>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
           <div className="mt-3 overflow-x-auto overscroll-x-contain scrollbar-light rounded-lg border border-deck-rule" tabIndex={0} role="region" aria-label="Original and enriched supporting transactions" data-story-table-scroll>
             <table className="w-full min-w-[1458px] table-fixed border-collapse text-left">

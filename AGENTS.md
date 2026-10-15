@@ -8,3 +8,4 @@
 - Signal story wording uses deck-scoped structured attribute and connector segments rendered as noninteractive child labels within one parent button; payment summaries use integer-cent calculations from the existing fixture so observed payments, estimates, and external context remain distinct.
 - Visibility and signal-story headers use separate structured copy, with story descriptions keyed to its reveal step, so the raw introduction cannot inherit complete-view claims.
 - Section 4 supporting-transaction tables retain readable minimum column widths and scroll horizontally within screen-constrained pop-ups rather than truncating data, so original and enriched fields remain inspectable on smaller desktops.
+- Deck cash-flow comparisons use an explicit payroll/expense/transfer boundary and integer cents in a dedicated helper; illustrative balance data remains separate so sample spending comparisons cannot be mistaken for account reconciliation.
