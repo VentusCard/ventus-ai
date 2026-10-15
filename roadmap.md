@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Section 4: compact $25,000 balance within KYC and calculated monthly surplus/idle cash in Financial; verify calculations and both beats.
 - [x] Section 4: replace the profile strip with nested KYC in Demographics, move payroll and household-income details to Financial, and verify both beats and pop-ups at three desktop sizes; 36 deck tests pass.
 - [x] Audit all 14 Section 4 signal pop-ups; full rails and all existing table values verified within two text lines at four desktop sizes using fresh module requests; scrolling and close controls pass.
 - [x] Preview delivery: ordinary page requests now show the current Section 4 changes, including full rail columns and updated profile signals.
