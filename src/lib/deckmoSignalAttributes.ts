@@ -136,7 +136,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       attribute(RICKY_KYC_LOCATION.postalCode),
       connector(" with "),
       attribute(`${RICKY_KYC_PROFILE.relationshipTier} tier`),
-      connector("; his balance is "),
+      connector(" and his balance is "),
       attribute(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(RICKY_DEMO_BALANCE_CENTS / 100)),
     ],
     [RICKY_CASH_FLOW_LABEL]: [
