@@ -1,4 +1,5 @@
 import { RICKY_SIGNAL_LABELS } from "@/lib/deckmoRickyTransactions";
+import { RICKY_BALANCE_LABEL, RICKY_LEFTOVERS_LABEL, RICKY_DEMO_CHECKING } from "./deckmoRickyCashFlow";
 
 export type DeckmoBeatId =
   | "opener"
@@ -213,6 +214,8 @@ export const DECKMO = {
         },
       },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.income, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_BALANCE_LABEL, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_LEFTOVERS_LABEL, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
@@ -789,7 +792,7 @@ export function deckmoBeatStartIndex(id: DeckmoBeatId): number {
 }
 
 export interface RickySignalDetail {
-  evidenceKind?: "customer-profile";
+  evidenceKind?: "customer-profile" | "illustrative-balance" | "cash-flow";
   summary: string;
   facts: string[];
   merchants: string[];
@@ -801,6 +804,8 @@ export const RICKY_SIGNAL_STORY = [
   { before: "; he is also a", label: RICKY_SIGNAL_LABELS.business },
   { before: "; outside ownership data identifies him as a", label: "Small airplane co-owner" },
   { before: ". His financial picture combines", label: RICKY_SIGNAL_LABELS.income },
+  { before: ",", label: RICKY_BALANCE_LABEL },
+  { before: ", and", label: RICKY_LEFTOVERS_LABEL },
   { before: "with", label: RICKY_SIGNAL_LABELS.brokerage },
   { before: ",", label: RICKY_SIGNAL_LABELS.marcus },
   { before: ", and", label: RICKY_SIGNAL_LABELS.amex },
@@ -815,6 +820,18 @@ export const RICKY_SIGNAL_STORY = [
 ] as const;
 
 export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
+  [RICKY_BALANCE_LABEL]: {
+    evidenceKind: "illustrative-balance",
+    summary: "Illustrative checking-account balance for this demo—not established by the transaction sample",
+    facts: [`Demo checking balance: $${(RICKY_DEMO_CHECKING.cents / 100).toLocaleString("en-US")}`, `Period: ${RICKY_DEMO_CHECKING.period}`, "Illustrative only; not an actual account snapshot", "Not derived from monthly leftovers or a presumed opening balance"],
+    merchants: [],
+  },
+  [RICKY_LEFTOVERS_LABEL]: {
+    evidenceKind: "cash-flow",
+    summary: "Two payroll-based comparisons across nine observed months, including exceptional outlays",
+    facts: ["Income basis: observed HP payroll, not estimated household income", "After spending = payroll minus observed expenses", "After spending + saving + investing = payroll minus expenses, Marcus savings, and Fidelity investing", "January–September 2026 sample; September is partial; negative results are retained"],
+    merchants: [],
+  },
   [RICKY_KYC_SIGNAL_LABEL]: {
     evidenceKind: "customer-profile",
     summary: "Basic customer-profile information held by the institution",
