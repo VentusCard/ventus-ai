@@ -6,18 +6,19 @@ describe("compact Ricky cash flow", () => {
   test("illustrative profile balance is $25,000", () => {
     expect(RICKY_DEMO_BALANCE_CENTS).toBe(2500000);
   });
-  test("surplus averages payroll minus spending over nine months, including escrow", () => {
+  test("surplus averages payroll minus spending over nine months, excluding the one-time home purchase", () => {
     const result = rickyCashFlow();
     expect(result.monthly).toHaveLength(9);
-    expect(result.surplusCents).toBe(-1920914);
-    expect(result.monthly[8]?.spendingCents).toBe(32810490);
-    expect(result.evidence.some(row => row.id === "r007")).toBe(true);
+    expect(result.surplusCents).toBe(1579086);
+    expect(result.monthly[8]?.spendingCents).toBe(1310490);
+    expect(result.evidence.some(row => row.id === "r007")).toBe(false);
+    expect(RICKY_TRANSACTIONS.find(row => row.id === "r007")?.amount).toBe("($315,000.00)");
   });
-  test("idle cash deducts savings and investing, retaining negative values", () => {
+  test("idle cash deducts savings and investing from ongoing surplus", () => {
     const result = rickyCashFlow();
-    expect(result.idleCents).toBe(-2687581);
+    expect(result.idleCents).toBe(812419);
     expect(result.monthly[0]?.idleCents).toBe(1501301);
-    expect(result.monthly[8]?.idleCents).toBe(-31187162);
+    expect(result.monthly[8]?.idleCents).toBe(312838);
   });
   test("settlements and wallet transfers are not double-counted spending", () => {
     const buckets = new Map(RICKY_TRANSACTIONS.map(row => [row.id, cashFlowBucket(row)]));

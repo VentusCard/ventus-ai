@@ -5,6 +5,8 @@ export const RICKY_CASH_FLOW_LABEL = "Monthly cash flow";
 
 /** Account transfers and settlements are not additional consumption. */
 export function cashFlowBucket(row: RickyTransaction): "payroll" | "allocation" | "spending" | "excluded" {
+  // One-time home closing is outside the ongoing monthly cash-flow comparison.
+  if (row.id === "r007") return "excluded";
   if (!row.amount.startsWith("(")) return row.signals.includes(L.income) ? "payroll" : "excluded";
   if (row.signals.includes(L.marcus) || row.signals.includes(L.brokerage)) return "allocation";
   if (row.signals.includes(L.amex) || /WALLET FUNDING|SCHEDULED XFER|SAVINGS|EPAYMENT/i.test(row.description)) return "excluded";
