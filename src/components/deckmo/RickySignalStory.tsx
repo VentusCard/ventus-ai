@@ -61,15 +61,15 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
         {payments && <div data-monthly-payments>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Observed monthly payments</h5>
           {signal.label === "Amex Credit Cards" && <p className="mt-2 text-xs text-deck-muted">Annualized estimate: {formatSignalMoney(payments.totalCents)} observed across {payments.monthly.length} months ÷ {payments.monthly.length} × 12 = {formatSignalMoney(payments.annualizedCents)}/year. Not an actual full-year total.</p>}
-          <dl className="mt-2 grid grid-cols-3 gap-x-5 gap-y-1 text-sm">{payments.monthly.map((row) => <div key={row.key} className="flex justify-between gap-2 border-b border-deck-rule py-1"><dt className="text-deck-muted">{row.month} {row.year}</dt><dd className="font-semibold tabular-nums text-deck-navy">{formatSignalMoney(row.cents)}</dd></div>)}</dl>
+          <dl className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1 text-sm min-[1200px]:grid-cols-3">{payments.monthly.map((row) => <div key={row.key} className="flex flex-wrap justify-between gap-2 border-b border-deck-rule py-1"><dt className="text-deck-muted">{row.month} {row.year}</dt><dd className="font-semibold tabular-nums text-deck-navy">{formatSignalMoney(row.cents)}</dd></div>)}</dl>
         </div>}
         {external ? <div className="rounded-lg border border-dashed border-deck-rule p-3"><h5 className="ricky-story-popover-heading flex items-center gap-1.5 text-[10px] font-bold uppercase text-deck-muted"><Sparkles className="h-3 w-3" />Outside evidence</h5><p className="mt-2 text-sm">{external.detail}</p><p className="mt-1 text-xs text-deck-muted">{external.provider} · {external.timing} · {external.confidence}</p></div>
         : <div data-enriched-transactions>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
-          <div className="mt-3 overflow-hidden rounded-lg border border-deck-rule">
-            <table className="w-full table-fixed border-collapse text-left">
+          <div className="mt-3 overflow-x-auto overscroll-x-contain scrollbar-light rounded-lg border border-deck-rule" tabIndex={0} role="region" aria-label="Original and enriched supporting transactions" data-story-table-scroll>
+            <table className="w-full min-w-[1458px] table-fixed border-collapse text-left">
               <colgroup>
-                <col className="w-[64px]" /><col className="w-[72px]" /><col /><col className="w-[96px]" /><col className="w-[260px]" /><col className="w-[140px]" /><col className="w-[170px]" /><col className="w-[96px]" />
+                <col className="w-[120px]" /><col className="w-[88px]" /><col className="w-[360px]" /><col className="w-[120px]" /><col className="w-[260px]" /><col className="w-[170px]" /><col className="w-[230px]" /><col className="w-[110px]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-deck-rule">
@@ -95,16 +95,16 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
     </section>;
   }
 
-  return <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-light pb-6" data-ricky-story>
-    <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-deck-rule py-3">
+  return <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain scrollbar-light pb-6" data-ricky-story>
+    <div className="mb-3 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-y border-deck-rule py-3">
       <h3 className="text-lg font-bold text-deck-navy">{DECKMO.ricky.profileTitle}</h3>
       <p className="text-xs font-semibold text-deck-muted">{DECKMO.ricky.profileFacts}</p>
     </div>
-    <div aria-label="Ricky’s customer intelligence">
-      {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} style={revealRows ? { animationDelay: `${STORY_ENTRANCE_DELAY_MS + rowIndex * 110}ms` } : undefined} data-story-family={entry.family} className={cn("ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] border-b border-deck-rule last:border-b-0", revealRows && "ricky-story-reveal")}>
-        <div className={cn("flex items-center gap-2.5 border-r border-deck-rule pr-4", `ricky-story-${entry.tone}`)}>
+    <div className="grid flex-1 shrink-0 grid-rows-[repeat(5,auto)]" aria-label="Ricky’s customer intelligence">
+      {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} style={revealRows ? { animationDelay: `${STORY_ENTRANCE_DELAY_MS + rowIndex * 110}ms` } : undefined} data-story-family={entry.family} className={cn("ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] items-center border-b border-deck-rule last:border-b-0", revealRows && "ricky-story-reveal")}>
+        <div className={cn("flex items-center gap-2.5 self-stretch border-r border-deck-rule pr-4", `ricky-story-${entry.tone}`)}>
           <span className="ricky-story-dot h-2.5 w-2.5 shrink-0 rounded-full" />
-          <span className="ricky-story-family-label text-xs font-bold uppercase">{entry.family}</span>
+          <span className="ricky-story-family-label min-w-0 text-base font-bold uppercase leading-snug [@media(max-height:800px)]:text-sm [@media(max-width:1200px)]:text-sm">{entry.family}</span>
         </div>
         <p className="ricky-story-prose min-w-0 py-3 pl-7 text-[20px] font-medium leading-[1.9] text-deck-navy">
       {RICKY_SIGNAL_STORY.filter((clause) => DECKMO.ricky.signals.find((item) => item.label === clause.label)?.family === entry.family).map((clause, index) => {
@@ -122,7 +122,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
               : <Fragment key={segmentIndex}>{segment.text}</Fragment>)}</span>
           </Button>
           </PopoverAnchor>
-          {selected && <PopoverContent side="bottom" align="center" collisionPadding={24} onEscapeKeyDown={() => setSelectedLabel(null)} onInteractOutside={(event) => { const target = event.target as HTMLElement | null; if (target?.closest(`[data-signal-label="${CSS.escape(item.label)}"]`)) event.preventDefault(); }} className={cn("ricky-story-popover w-[min(1240px,calc(100vw-48px))] max-h-[min(72vh,var(--radix-popover-content-available-height))] overflow-y-auto overscroll-contain scrollbar-light rounded-xl border bg-background p-0 text-foreground shadow-xl", `ricky-story-${item.tone}`)}>{renderDetail()}</PopoverContent>}
+          {selected && <PopoverContent side="bottom" align="center" collisionPadding={24} onEscapeKeyDown={() => setSelectedLabel(null)} onInteractOutside={(event) => { const target = event.target as HTMLElement | null; if (target?.closest(`[data-signal-label="${CSS.escape(item.label)}"]`)) event.preventDefault(); }} className={cn("ricky-story-popover w-[min(1540px,calc(100vw-48px))] max-h-[min(72vh,var(--radix-popover-content-available-height))] overflow-y-auto overscroll-contain scrollbar-light rounded-lg border bg-background p-0 text-foreground shadow-xl", `ricky-story-${item.tone}`)}>{renderDetail()}</PopoverContent>}
           </Popover>
           {LAST_IN_FAMILY.has(item.label) && <span className="ricky-story-lead" data-revealed={item.source === "external" ? String(externalShown) : undefined}>.</span>}
         </Fragment>;
@@ -148,13 +148,13 @@ function EnrichedRow({ transaction, merchants, recurring }: { transaction: Ricky
   const category = enrichment.category === "General" && transaction.mccLabel ? transaction.mccLabel : enrichment.category;
   const subcategories = enrichment.subcategories.join(" · ");
   return <tr data-enriched-row>
-    <td className="px-3 py-3 text-[11px] text-deck-muted truncate" title={transaction.source}>{transaction.source}</td>
+    <td className="px-3 py-3 text-[11px] text-deck-muted whitespace-nowrap">{transaction.source}</td>
     <td className="px-3 py-3 text-[11px] tabular-nums text-deck-muted whitespace-nowrap">{transaction.date}</td>
-    <td className="px-3 py-3 font-mono text-[11px] text-deck-navy truncate" title={transaction.description}>{transaction.description}</td>
+    <td className="px-3 py-3 font-mono text-[11px] leading-snug text-deck-navy whitespace-normal break-words">{transaction.description}</td>
     <td className={cn("px-4 py-3 text-right text-[12px] font-semibold tabular-nums text-deck-navy whitespace-nowrap", inflow && "underline decoration-dotted")}>{transaction.amount}</td>
-    <td className="border-l-2 border-deck-rule px-4 py-3 text-[12px] font-semibold leading-snug text-deck-navy" title={merchant}><span className="line-clamp-2">{merchant}</span></td>
-    <td className="px-3 py-3 text-[11px] text-deck-muted truncate" title={category}>{category}</td>
-    <td className="px-3 py-3 text-[11px] text-deck-muted truncate" title={subcategories}>{subcategories}</td>
+    <td className="border-l-2 border-deck-rule px-4 py-3 text-[12px] font-semibold leading-snug text-deck-navy whitespace-normal break-words">{merchant}</td>
+    <td className="px-3 py-3 text-[11px] leading-snug text-deck-muted whitespace-normal break-words">{category}</td>
+    <td className="px-3 py-3 text-[11px] leading-snug text-deck-muted whitespace-normal break-words">{subcategories}</td>
     <td className="px-3 py-3 text-[11px] text-deck-muted whitespace-nowrap"><span className="inline-flex items-center gap-1">{recurring && <Repeat className="h-3 w-3" />}{recurring ? "Recurring" : "One-off"}</span></td>
   </tr>;
 }
