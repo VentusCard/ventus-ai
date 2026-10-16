@@ -1,4 +1,3 @@
-import { formatRoundedMoney } from "./deckmoDisplayMoney";
 import { RICKY_SIGNAL_LABELS } from "@/lib/deckmoRickyTransactions";
 import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow, rickyGeneralSpending } from "./deckmoCashFlow";
 
@@ -849,7 +848,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
       `Age: ${RICKY_KYC_PROFILE.age}`,
       `Location: ${RICKY_KYC_PROFILE.location}`,
       `Relationship tier: ${RICKY_KYC_PROFILE.relationshipTier}`,
-      `Illustrative account balance: ${formatRoundedMoney(RICKY_DEMO_BALANCE_CENTS)} (demo profile value, not derived from transactions)`,
+      `Illustrative account balance: $${(RICKY_DEMO_BALANCE_CENTS / 100).toLocaleString("en-US")} (demo profile value, not derived from transactions)`,
     ],
     merchants: [],
   },
@@ -857,9 +856,9 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     evidenceKind: "cash-flow",
     summary: "Estimated EOY surplus and monthly idle cash from the January–September 2026 sample",
     facts: [
-      `Estimated EOY surplus: ${formatRoundedMoney(estimatedEoySurplusCents(rickyCashFlow().surplusCents))} — monthly average surplus × 12`,
+      `Estimated EOY surplus: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(estimatedEoySurplusCents(rickyCashFlow().surplusCents) / 100)} — monthly average surplus × 12`,
       "Annualized estimate from January–September 2026 payroll minus observed spending; not an observed year-end total or projected account balance.",
-      `Idle cash: ${formatRoundedMoney(rickyCashFlow().idleCents)} per month — surplus minus Marcus savings and Fidelity investing`,
+      `Idle cash: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyCashFlow().idleCents / 100)} per month — surplus minus Marcus savings and Fidelity investing`,
       "Card settlements and wallet funding are excluded to avoid counting transfers as additional spending. Other income is not included in this payroll-based comparison.",
       "Excludes the one-time $315,000 home escrow payment to show ongoing monthly cash flow. All other observed spending remains included. The sample is not a complete account history.",
       "Idle cash is a monthly residual, not an account balance.",
@@ -870,8 +869,8 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     evidenceKind: "general-spending",
     summary: "Everyday living expenses across groceries, gas, utilities and daily purchases",
     facts: [
-      `Annual estimate: ${formatRoundedMoney(rickyGeneralSpending().annualCents)} — monthly average across Jan–Sep 2026 × 12`,
-      `Monthly average: ${formatRoundedMoney(rickyGeneralSpending().monthlyCents)} across the observed sample`,
+      `Annual estimate: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyGeneralSpending().annualCents / 100)} — monthly average across Jan–Sep 2026 × 12`,
+      `Monthly average: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyGeneralSpending().monthlyCents / 100)} across the observed sample`,
       "Basket: groceries, gas, electricity, internet, dining, pharmacy, rideshares, clothing, books and digital subscriptions",
       "Excludes rent, insurance, taxes, business expenses, betting and pet spending (pet activity is its own signal)",
       "Annualized estimate from the observed sample, not an observed full-year total",
@@ -882,8 +881,8 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     summary: "Committed club player with court time roughly every other week",
     facts: [
       "Cadence: court bookings about every 2 weeks",
-      "Typical visit: under $200",
-      "Annual club dues of about $1,500 paid by check in March",
+      "Typical visit: $28–$186",
+      "Annual club dues of $1,450 paid by check in March",
       "Summer step-up: USTA tournament entry, coaching and new gear",
     ],
     merchants: ["City Tennis Center", "Racket Sports Club", "CourtReserve", "USTA NorCal"],
@@ -893,7 +892,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     facts: [
       "Last trip: Dec 1–9, 2025, about $6,100 all-in",
       "Pattern: insure, fly, rent a car, resort stay",
-      "Resort stay: about $3,000 at Wailea Beach Resort",
+      "Resort stay: $2,960 at Wailea Beach Resort",
       "Next trip: Hawaiian Airlines booked in Sep for December",
     ],
     merchants: ["Hawaiian Airlines", "Wailea Beach Resort", "Allianz Travel", "Mama's Fish House"],
@@ -902,9 +901,9 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     summary: "Layered streaming plus live events and movie nights",
     facts: [
       "Subscriptions: Netflix, YouTube TV, Spotify",
-      "Spotify plan upgraded twice this year",
-      "Live events: about $300 at Shoreline Amphitheatre",
-      "Recurring media base around $100 per month",
+      "Spotify plan upgraded: $11.99 → $12.99 → $13.99",
+      "Live events: $286.40 at Shoreline Amphitheatre",
+      "Recurring media base around $120 per month",
     ],
     merchants: ["Netflix", "YouTube TV", "Spotify", "Ticketmaster", "AMC Theatres"],
   },
@@ -922,9 +921,9 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     summary: "Nursery prep in winter, hospital stay in March, childcare by summer",
     facts: [
       "Jan–Feb: Babylist registry and Pottery Barn Kids nursery",
-      "Mar 19: about $2,500 at Lucile Packard Children's Hospital",
+      "Mar 19: $2,460 Lucile Packard Children's Hospital",
       "Recurring diaper orders from The Honest Company",
-      "Aug: Bright Horizons childcare starts at about $2,200",
+      "Aug: Bright Horizons childcare starts at $2,180",
     ],
     merchants: ["Babylist", "Pottery Barn Kids", "Lucile Packard", "The Honest Company", "Bright Horizons"],
   },
@@ -962,8 +961,8 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     summary: "Primary card spend runs through an outside card",
     facts: [
       "Cadence: monthly ePayment on the 4th",
-      "Size: $3,300 rising to $4,900",
-      "About $36,000 paid year to date",
+      "Size: $3,296.74 rising to $4,862.19",
+      "$35,735.74 paid year to date",
       "Trend: steady growth across 9 months",
     ],
     merchants: ["American Express"],
@@ -981,7 +980,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
   [RICKY_TOTAL_ASSETS_LABEL]: {
     summary: "Illustrative external estimate of Ricky’s total assets",
     facts: [
-      `Estimated total assets: ${formatRoundedMoney(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS)}`,
+      `Estimated total assets: $${(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS / 100).toLocaleString("en-US")}`,
       "Illustrative outside-context estimate, not a verified valuation",
       "Not derived from payroll, transfers, or the institution’s transaction ledger",
       "No asset breakdown or ownership valuations are supplied",
@@ -993,7 +992,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     summary: "Reliable salary with steady raises",
     facts: [
       "Cadence: semi-monthly on the 1st and 15th",
-      "Monthly: $23,000 in Jan to $25,000 in Sep",
+      "Monthly: $22,793.04 in Jan to $24,733.28 in Sep",
       "Employer: HP Inc. direct deposit",
       "Trend: small increases most months",
       `Estimated annual household income: ${RICKY_KYC_PROFILE.estimatedHouseholdIncome} (profile estimate, not observed payroll)`,
@@ -1005,7 +1004,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     facts: [
       "May: LLC formation and county cottage food permit",
       "From June: weekly Square payouts",
-      "Payouts grew from $1,200 to $2,500",
+      "Payouts grew from $1,216.44 to $2,486.32",
       "Costs: market vendor fees, Restaurant Depot, liability insurance",
     ],
     merchants: ["Square", "LegalZoom", "Urban Village Farmers' Market", "Restaurant Depot", "FLIP"],
@@ -1023,7 +1022,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
   [RICKY_SIGNAL_LABELS.betting]: {
     summary: "Sportsbook activity rising steadily through the year",
     facts: [
-      "Size: $100 in Jan to $500 in Sep",
+      "Size: $65 in Jan to $480 in Sep",
       "Cadence: roughly monthly, now more frequent",
       "New in Sep: direct wallet funding by ACH",
       "Worth a gentle wellness check-in",

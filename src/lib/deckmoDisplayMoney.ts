@@ -17,11 +17,3 @@ export function formatRoundedMoney(cents: number): string {
   if (dollars >= 1_000_000) return `${sign}$${(dollars / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
   return `${sign}$${dollars.toLocaleString("en-US")}`;
 }
-
-/** Rounds a ledger amount string like "($184.62)" or "$12,368.40", keeping its sign style. */
-export function formatRoundedLedgerAmount(amount: string): string {
-  const outflow = amount.startsWith("(");
-  const cents = Math.round(parseFloat(amount.replace(/[($,)]/g, "")) * 100);
-  const text = formatRoundedMoney(cents);
-  return outflow ? `(${text})` : text;
-}
