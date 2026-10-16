@@ -100,7 +100,7 @@ function Header({ eyebrow, title, subtitle, withLogo = false, hideSubtitle = fal
       ) : (
         <h2 className="mt-3 text-balance text-[clamp(34px,3.6vw,58px)] font-bold leading-[1.04] tracking-normal text-slate-950">{title}</h2>
       )}
-      {subtitle && <p key={animateSubtitle ? subtitle : undefined} aria-hidden={hideSubtitle || undefined} className={cn("mt-4 max-w-[1060px] text-[clamp(16px,1.35vw,21px)] leading-relaxed text-slate-600", hideSubtitle && "invisible", animateSubtitle && !hideSubtitle && "animate-fade-in motion-reduce:animate-none")}>{subtitle}</p>}
+      {subtitle && <p key={animateSubtitle ? subtitle : undefined} aria-hidden={hideSubtitle || undefined} className={cn("mt-4 max-w-[1060px] text-[clamp(16px,1.35vw,21px)] leading-relaxed text-slate-600", hideSubtitle && "invisible", animateSubtitle && !hideSubtitle && "animate-fade-in-slow motion-reduce:animate-none")}>{subtitle}</p>}
     </header>
   );
 }
@@ -453,7 +453,7 @@ function RickyStoryScene({ step, active = false, signalDetail }: SceneProps) {
   const header = DECKMO.ricky.storyHeader;
   if (step >= 2 && signalDetail) return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
     <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.description} animateSubtitle withLogo />
-    <div key={signalDetail.label} className="mt-4 flex min-h-0 flex-1 animate-fade-in flex-col gap-3 pb-6 motion-reduce:animate-none">
+    <div key={signalDetail.label} className="mt-4 flex min-h-0 flex-1 animate-fade-in-slow flex-col gap-3 pb-6 motion-reduce:animate-none">
       <Button type="button" variant="ghost" size="sm" onClick={signalDetail.back} className="self-start gap-1.5 px-2 text-deck-muted"><ChevronLeft className="h-4 w-4" />Back to all signals</Button>
       <RickySignalDetail label={signalDetail.label} onBack={signalDetail.back} />
     </div>
