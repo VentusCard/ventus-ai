@@ -181,7 +181,7 @@ export const DECKMO = {
   },
   ricky: {
     eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
-    title: "Meet Ricky",
+    title: "Meet Ricky, a typical customer",
     storyHeader: {
       eyebrow: "CUSTOMER INTELLIGENCE IN ACTION",
       title: "Ricky, understood",
