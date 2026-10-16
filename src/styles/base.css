@@ -195,7 +195,7 @@
 .ricky-story-family-label { color: hsl(var(--story-accent)); }
 .ricky-story-evidence { margin-left: 188px; }
 
-@media (max-height: 800px), (max-width: 1200px) {
+@media (max-height: 900px), (max-width: 1200px) {
   .ricky-story-row { grid-template-columns: 140px minmax(0, 1fr); }
   .ricky-story-prose { padding: 10px 0 10px 20px; font-size: 18px; line-height: 1.85; }
   .ricky-story-pill { font-size: 15px; padding: 3px 7px; }
