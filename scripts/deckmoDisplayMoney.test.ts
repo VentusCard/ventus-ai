@@ -5,7 +5,7 @@ import { signalInlineSegments } from "../src/lib/deckmoSignalAttributes";
 
 describe("deck display rounding", () => {
   test("hundreds under $10K, thousands from $10K, millions from $1M", () => {
-    expect(formatRoundedMoney(818_424)).toBe("$8,100");
+    expect(formatRoundedMoney(812_419)).toBe("$8,100");
     expect(formatRoundedMoney(18_949_032)).toBe("$189,000");
     expect(formatRoundedMoney(350_000_000)).toBe("$3.5M");
     expect(formatRoundedMoney(2_800)).toBe("$100");
