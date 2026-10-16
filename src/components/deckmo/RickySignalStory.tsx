@@ -57,9 +57,9 @@ export function RickySignalDetail({ label, onBack }: { label: string; onBack: ()
         : detail.evidenceKind === "customer-profile" ? null : <div data-enriched-transactions>
           <h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Supporting transactions · enriched ({evidence.length})</h5>
           <div className="mt-3 overflow-x-auto overscroll-x-contain scrollbar-light rounded-lg border border-deck-rule" tabIndex={0} role="region" aria-label="Original and enriched supporting transactions" data-story-table-scroll>
-            <table className="w-full min-w-[1458px] table-fixed border-collapse text-left">
+            <table className="w-full min-w-[1393px] table-fixed border-collapse text-left">
               <colgroup>
-                <col className="w-[120px]" /><col className="w-[88px]" /><col className="w-[360px]" /><col className="w-[120px]" /><col className="w-[260px]" /><col className="w-[170px]" /><col className="w-[230px]" /><col className="w-[110px]" />
+                <col className="w-[120px]" /><col className="w-[88px]" /><col className="w-[330px]" /><col className="w-[120px]" /><col className="w-[240px]" /><col className="w-[170px]" /><col className="w-[215px]" /><col className="w-[110px]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-deck-rule">
