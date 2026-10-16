@@ -45,3 +45,4 @@
 - [x] Section 4 signal popups: /demo-style two-tier table (Raw Transaction vs Enriched output), one row per transaction
 
 - [x] Deckmo 4.2 pills open a full 4.3 signal detail beat (keyboard default: home purchase); cross-rail header copy
+- [x] Split Section 4 header copy by beat: 4.2 shows only the attributes sentence, 4.3 only the cross-category sentence, 4.1 neither; 72 tests pass and all three beats verified at 1546x903

@@ -104,3 +104,20 @@ describe("combined Ricky signal story", () => {
     expect(RICKY_TRANSACTIONS.filter((row) => row.signals.some((label) => label === RICKY_TOTAL_ASSETS_LABEL))).toHaveLength(0);
   });
 });
+
+describe("story header sentence split", () => {
+  test("4.2 shows only the attributes sentence and 4.3 only the cross-category sentence", async () => {
+    const source = await Bun.file("src/components/deckmo/DeckmoDeck.tsx").text();
+    const start = source.indexOf("function RickyStoryScene");
+    const body = source.slice(start, source.indexOf("\nfunction ", start + 1));
+    const split = body.indexOf("\n  return");
+    const detailBranch = body.slice(0, split);
+    const overviewBranch = body.slice(split);
+    expect(DECKMO.ricky.storyHeader.description).toContain("cross-category");
+    expect(detailBranch).toContain("subtitle={header.description}");
+    expect(detailBranch).not.toContain("attributesNote");
+    expect(overviewBranch).toContain("subtitle={header.attributesNote}");
+    expect(overviewBranch).not.toContain("header.description");
+    expect(overviewBranch).toContain("hideSubtitle={step === 0}");
+  });
+});
