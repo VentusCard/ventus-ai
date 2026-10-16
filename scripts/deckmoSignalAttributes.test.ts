@@ -20,12 +20,12 @@ describe("Ricky inline pill wording", () => {
     expect(RICKY_KYC_PROFILE.name).toBe("Ricky J");
   });
   test("income attributes keep the household estimate distinct from payroll", () => {
-    expect(signalAttributes(L.income)).toContain("Monthly income $22–26K");
+    expect(signalAttributes(L.income)).toContain("Monthly income $23,000–$25,000");
     expect(signalInlineSegments(L.income).filter((segment) => segment.kind === "attribute").map((segment) => segment.text)).toContain("Est. annual household income $500K");
   });
   test("general spending phrase states the annual estimate in general spending", () => {
     const attributes = signalInlineSegments(RICKY_GENERAL_SPENDING_LABEL).filter((segment) => segment.kind === "attribute").map((segment) => segment.text);
-    expect(attributes).toEqual(["Annual estimate", "$3,264.24/year", "general spending"]);
+    expect(attributes).toEqual(["Annual estimate", "$3,300/year", "general spending"]);
     expect(signalAttributes(RICKY_GENERAL_SPENDING_LABEL)).toContain("Everyday living expenses");
   });
   test("every pill phrase stays readable with no run-on or stray text", () => {
