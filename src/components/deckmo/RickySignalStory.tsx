@@ -9,7 +9,7 @@ import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalInlineSegments, sign
 import { cn } from "@/lib/utils";
 import { isOutsideClauseHidden, isStoryInsightsHidden, shouldRevealStoryRows, STORY_ENTRANCE_DELAY_MS } from "@/lib/deckmoStoryReveal";
 import { enrichRickyTransaction } from "@/lib/deckmoRickyEnrichment";
-import { rickyCashFlow } from "@/lib/deckmoCashFlow";
+import { rickyCashFlow, rickyGeneralSpending } from "@/lib/deckmoCashFlow";
 
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
 
@@ -43,7 +43,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
   const signal = DECKMO.ricky.signals.find((item) => item.label === selectedLabel);
   const detail = selectedLabel ? RICKY_SIGNAL_DETAILS[selectedLabel] : undefined;
   const external = signal && "externalEvidence" in signal ? signal.externalEvidence : null;
-  const evidence = detail?.evidenceKind === "cash-flow" ? rickyCashFlow().evidence : RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((label) => label === selectedLabel));
+  const evidence = detail?.evidenceKind === "cash-flow" ? rickyCashFlow().evidence : detail?.evidenceKind === "general-spending" ? rickyGeneralSpending().evidence : RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((label) => label === selectedLabel));
   const payments = selectedLabel && FINANCIAL_PAYMENT_LABELS.includes(selectedLabel) ? signalPaymentSummary(selectedLabel) : null;
 
   function renderDetail() {
