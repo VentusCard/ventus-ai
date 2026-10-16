@@ -3,6 +3,11 @@ import { RICKY_TRANSACTIONS, RICKY_SIGNAL_LABELS as L, type RickyTransaction } f
 export const RICKY_DEMO_BALANCE_CENTS = 2500000;
 export const RICKY_CASH_FLOW_LABEL = "Monthly cash flow";
 
+/** Annualized flow estimate, not an account balance or an observed full-year total. */
+export function estimatedEoySurplusCents(monthlySurplusCents: number): number {
+  return monthlySurplusCents * 12;
+}
+
 /** Account transfers and settlements are not additional consumption. */
 export function cashFlowBucket(row: RickyTransaction): "payroll" | "allocation" | "spending" | "excluded" {
   // One-time home closing is outside the ongoing monthly cash-flow comparison.

@@ -1,6 +1,6 @@
 import { RICKY_SIGNAL_LABELS as L, RICKY_TRANSACTIONS, type RickyTransaction } from "./deckmoRickyTransactions";
-import { RICKY_KYC_LOCATION, RICKY_KYC_PROFILE, RICKY_KYC_SIGNAL_LABEL } from "./deckmoScript";
-import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, rickyCashFlow } from "./deckmoCashFlow";
+import { RICKY_KYC_LOCATION, RICKY_KYC_PROFILE, RICKY_KYC_SIGNAL_LABEL, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL, RICKY_ESTIMATED_TOTAL_ASSETS_CENTS } from "./deckmoScript";
+import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow } from "./deckmoCashFlow";
 
 const months = [
   "January",
@@ -55,7 +55,8 @@ const context: Record<string, string[]> = {
   [L.income]: ["Semi-monthly", "HP Inc.", "Payroll", "Monthly income $22–26K", `Est. annual household income ${RICKY_KYC_PROFILE.estimatedHouseholdIncome}`],
   [L.business]: ["Cottage food business", "Square payouts", "Vendor fees · supplies"],
   "Small airplane co-owner": ["Cirrus SR22", "Shared ownership", "Annual obligations", "Likely"],
-  "BMW X5 loan ending in ~4 months": ["Auto financing", "Maturity ~4 months", "Likely"],
+  [RICKY_LUXURY_AUTO_LABEL]: ["Luxury auto owner", "BMW X5", "Outside vehicle ownership", "Likely"],
+  [RICKY_TOTAL_ASSETS_LABEL]: ["Estimated total assets", formatSignalMoney(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS), "Illustrative external estimate"],
   [L.tennis]: ["About every 2 weeks", "Courts · coaching · gear"],
   [L.hawaii]: ["Annual · December", "Maui", "Flights · resort · car rental"],
   [L.media]: ["Streaming · music · live events", "Netflix · YouTube TV · Spotify"],
@@ -140,8 +141,8 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       attribute(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(RICKY_DEMO_BALANCE_CENTS / 100)),
     ],
     [RICKY_CASH_FLOW_LABEL]: [
-      attribute("surplus"), connector(" is "), attribute(formatSignalMoney(rickyCashFlow().surplusCents)),
-      connector(" and "), attribute("idle cash"), connector(" is "), attribute(formatSignalMoney(rickyCashFlow().idleCents)),
+      attribute("Estimated EOY surplus"), connector(" is "), attribute(formatSignalMoney(estimatedEoySurplusCents(rickyCashFlow().surplusCents))),
+      connector(" and "), attribute("monthly idle cash"), connector(" is "), attribute(formatSignalMoney(rickyCashFlow().idleCents)),
     ],
     [L.income]: [
       attribute("Stable $22K monthly income"),
@@ -154,13 +155,8 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
     ],
     [L.business]: [attribute("SMB Owner"), connector(" in "), attribute("Food and Beverage")],
     "Small airplane co-owner": [attribute("Airplane co-owner"), connector(" of a "), attribute("Cirrus SR22")],
-    "BMW X5 loan ending in ~4 months": [
-      attribute("BMW X5"),
-      connector(" with "),
-      attribute("auto financing"),
-      connector(" ending in "),
-      attribute("~4 months"),
-    ],
+    [RICKY_LUXURY_AUTO_LABEL]: [attribute("Luxury auto owner"), connector(" of a "), attribute("BMW X5")],
+    [RICKY_TOTAL_ASSETS_LABEL]: [attribute("Estimated total assets"), connector(" of "), attribute(`$${RICKY_ESTIMATED_TOTAL_ASSETS_CENTS / 100000000}M`)],
     [L.tennis]: [attribute("$12,000"), connector(" annual spent in "), attribute("bi-weekly"), connector(" "), attribute("Tennis")],
     [L.hawaii]: [
       attribute("$9,000"),

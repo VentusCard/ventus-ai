@@ -1,5 +1,5 @@
 import { RICKY_SIGNAL_LABELS } from "@/lib/deckmoRickyTransactions";
-import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, rickyCashFlow } from "./deckmoCashFlow";
+import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow } from "./deckmoCashFlow";
 
 export type DeckmoBeatId =
   | "opener"
@@ -34,6 +34,9 @@ export const RICKY_KYC_PROFILE = {
 };
 
 export const RICKY_KYC_SIGNAL_LABEL = "KYC";
+export const RICKY_LUXURY_AUTO_LABEL = "Luxury auto owner";
+export const RICKY_TOTAL_ASSETS_LABEL = "Estimated total assets";
+export const RICKY_ESTIMATED_TOTAL_ASSETS_CENTS = 350000000;
 export const RICKY_KYC_LOCATION = (() => {
   const [city = "", region = ""] = RICKY_KYC_PROFILE.location.split(", ");
   const [state = "", postalCode = ""] = region.split(" ");
@@ -214,23 +217,35 @@ export const DECKMO = {
           confidence: "Likely",
         },
       },
+      {
+        family: "Demographics",
+        label: RICKY_LUXURY_AUTO_LABEL,
+        tone: "violet",
+        source: "external",
+        externalEvidence: {
+          provider: "Outside vehicle ownership data",
+          detail: "BMW X5 ownership indicates a luxury vehicle owner",
+          timing: "Vehicle ownership context",
+          confidence: "Likely",
+        },
+      },
+      {
+        family: "Demographics",
+        label: RICKY_TOTAL_ASSETS_LABEL,
+        tone: "violet",
+        source: "external",
+        externalEvidence: {
+          provider: "Illustrative outside asset context",
+          detail: "Estimated total assets of $3.5M; not derived from the institution’s ledger",
+          timing: "Asset estimate · not a cash-flow total",
+          confidence: "Illustrative estimate · not verified",
+        },
+      },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.income, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_CASH_FLOW_LABEL, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
-      {
-        family: "Financial",
-        label: "BMW X5 loan ending in ~4 months",
-        tone: "emerald",
-        source: "external",
-        externalEvidence: {
-          provider: "Outside vehicle ownership data",
-          detail: "BMW X5 financing is nearing the end of its term",
-          timing: "Maturity · ~4 months",
-          confidence: "Likely",
-        },
-      },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.tennis, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.hawaii, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.media, tone: "blue", source: "internal" },
@@ -803,12 +818,13 @@ export const RICKY_SIGNAL_STORY = [
   { before: ". His customer profile shows", label: RICKY_KYC_SIGNAL_LABEL },
   { before: "; he is also a", label: RICKY_SIGNAL_LABELS.business },
   { before: "; outside ownership data identifies him as a", label: "Small airplane co-owner" },
+  { before: ", outside vehicle data shows a", label: RICKY_LUXURY_AUTO_LABEL },
+  { before: ", with", label: RICKY_TOTAL_ASSETS_LABEL },
   { before: ". His financial picture combines", label: RICKY_SIGNAL_LABELS.income },
-  { before: "; his monthly cash flow", label: RICKY_CASH_FLOW_LABEL },
+  { before: "; his cash flow shows", label: RICKY_CASH_FLOW_LABEL },
   { before: "with", label: RICKY_SIGNAL_LABELS.brokerage },
   { before: ",", label: RICKY_SIGNAL_LABELS.marcus },
   { before: ", and", label: RICKY_SIGNAL_LABELS.amex },
-  { before: ", while outside vehicle data shows a", label: "BMW X5 loan ending in ~4 months" },
   { before: "Ricky’s routine includes", label: RICKY_SIGNAL_LABELS.tennis },
   { before: ", an", label: RICKY_SIGNAL_LABELS.hawaii },
   { before: ", and", label: RICKY_SIGNAL_LABELS.media },
@@ -834,9 +850,10 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
   },
   [RICKY_CASH_FLOW_LABEL]: {
     evidenceKind: "cash-flow",
-    summary: "Monthly averages from the January–September 2026 sample",
+    summary: "Estimated EOY surplus and monthly idle cash from the January–September 2026 sample",
     facts: [
-      `Surplus: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyCashFlow().surplusCents / 100)} per month — payroll minus observed spending`,
+      `Estimated EOY surplus: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(estimatedEoySurplusCents(rickyCashFlow().surplusCents) / 100)} — monthly average surplus × 12`,
+      "Annualized estimate from January–September 2026 payroll minus observed spending; not an observed year-end total or projected account balance.",
       `Idle cash: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyCashFlow().idleCents / 100)} per month — surplus minus Marcus savings and Fidelity investing`,
       "Card settlements and wallet funding are excluded to avoid counting transfers as additional spending. Other income is not included in this payroll-based comparison.",
       "Excludes the one-time $315,000 home escrow payment to show ongoing monthly cash flow. All other observed spending remains included. The sample is not a complete account history.",
@@ -934,15 +951,26 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     ],
     merchants: ["American Express"],
   },
-  "BMW X5 loan ending in ~4 months": {
-    summary: "Vehicle financing nears payoff, opening a next-car decision",
+  [RICKY_LUXURY_AUTO_LABEL]: {
+    summary: "Outside vehicle ownership context identifies a luxury auto owner",
     facts: [
-      "Loan maturity in about 4 months",
-      "Financed outside the bank",
-      "Growing family may favor a larger vehicle",
+      "Vehicle: BMW X5",
+      "Ownership context comes from outside the institution’s ledger",
+      "No vehicle valuation or next-car decision is inferred",
       "Confidence: likely",
     ],
     merchants: ["Outside vehicle ownership data"],
+  },
+  [RICKY_TOTAL_ASSETS_LABEL]: {
+    summary: "Illustrative external estimate of Ricky’s total assets",
+    facts: [
+      `Estimated total assets: $${(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS / 100).toLocaleString("en-US")}`,
+      "Illustrative outside-context estimate, not a verified valuation",
+      "Not derived from payroll, transfers, or the institution’s transaction ledger",
+      "No asset breakdown or ownership valuations are supplied",
+      "Total assets are distinct from account balance and cash-flow surplus; no net-worth estimate is implied",
+    ],
+    merchants: [],
   },
   [RICKY_SIGNAL_LABELS.income]: {
     summary: "Reliable salary with steady raises",
