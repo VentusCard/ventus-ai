@@ -160,7 +160,7 @@ export const DECKMO = {
     eyebrow: "THE COMPLETE PICTURE",
     title: "Ventus AI: One living customer view",
     subtitle:
-      "Internal activity and external context come together to show who each customer is, how they live, and what they may need next.",
+      "Messy internal and external data come together through proprietary tools, taxonomy and data structure.",
     inside: {
       header: "INSIDE THE WALLS",
       title: "Understand activity across payment rails",
