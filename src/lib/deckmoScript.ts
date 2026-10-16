@@ -155,7 +155,8 @@ export const DECKMO = {
   livingView: {
     eyebrow: "THE COMPLETE PICTURE",
     title: "Ventus AI: One living customer view",
-    subtitle: "Internal activity and external context come together to show who each customer is, how they live, and what they may need next.",
+    subtitle:
+      "Internal activity and external context come together to show who each customer is, how they live, and what they may need next.",
     inside: {
       header: "INSIDE THE WALLS",
       title: "Understand activity across payment rails",
@@ -180,7 +181,7 @@ export const DECKMO = {
   },
   ricky: {
     eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
-    title: "Meet Ricky",
+    title: "Meet Ricky, a typical customer",
     storyHeader: {
       eyebrow: "CUSTOMER INTELLIGENCE IN ACTION",
       title: "Ricky, understood",
