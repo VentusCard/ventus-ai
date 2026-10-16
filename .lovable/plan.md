@@ -1,17 +1,21 @@
-# Follow-ups to the Section 4 rounding pass
+# Round only the signal pills; detail pages show exact numbers
 
-## 1. Income title matches the new figures
-- Rename the income signal title from "Stable $22–26K monthly income" to "Stable $23–25K monthly income", so the title, pill and detail page all match Ricky's paychecks ($23,000–$25,000 a month).
-- No other deck slide still uses the old tennis, Hawaii, media, home or cash-flow figures, so nothing else needs to change.
+## 1. Detail pages (4.3) back to exact figures
+- Transactions table: original amounts with cents again, e.g. ($184.62), $12,368.40.
+- Key details: exact values again, e.g. EOY surplus $189,490.32, idle cash $8,124.19/month, general spending $3,264.24/year, club dues $1,450, resort $2,960, Spotify $11.99 → $12.99 → $13.99, hospital $2,460, childcare $2,180, Amex $3,296.74 rising to $4,862.19 and $35,735.74 year to date, payouts $1,216.44 to $2,486.32, betting $65 to $480, payroll $22,793 in Jan to $24,733 in Sep (monthly).
+- Observed monthly payments and the Amex annualized note: exact cents.
 
-## 2. Small amounts no longer overstated
-- Amounts under $100 in the detail-page transactions table round to the nearest $10 instead of a $100 minimum (e.g. $28 → $30, $72 → $70, $22.99 → $20).
-- $100–$9,999 still rounds to the nearest hundred, $10,000+ to the nearest thousand, $1M+ to one-decimal millions.
+## 2. Signal pills (4.2) stay rounded
+- Rounding rule: nearest hundred under $10K, nearest thousand from $10K, one-decimal millions from $1M.
+- Keep the earlier fixes that made pills match the transactions: tennis $4,300, Hawaii $8,000, media $1,500, home $1.5M+, income $23,000–$25,000.
+- The media detail line "Recurring media base around $120 per month" is restored. The pill's $1,500 a year still holds as an annual estimate.
 
-## 3. Out of scope (unchanged)
-- Phone mockup scenes and the slide 2.1/2.2 transaction lists keep exact amounts, because they show the raw bank data before Ventus AI.
+## 3. Income title
+- Rename "Stable $22–26K monthly income" to "Stable $23–25K monthly income" so the title matches the pill and the paychecks.
 
 ## Technical details
-- `RICKY_SIGNAL_LABELS.income` in `src/lib/deckmoRickyTransactions.ts`. The label is the lookup key everywhere, so every reference updates automatically; adjust any test that hardcodes it.
-- `roundDisplayDollars` in `src/lib/deckmoDisplayMoney.ts`: under $100 → nearest $10, minimum $10 for non-zero amounts.
-- Update `scripts/deckmoDisplayMoney.test.ts`: $28 → "$30", ($72.00) → "($70)", plus a test that the income title reads "$23–25K".
+- Detail fact strings in `src/lib/deckmoScript.ts` use exact currency formatting (Intl with cents) instead of `formatRoundedMoney`.
+- `RickySignalStory.tsx`: the table renders `transaction.amount` raw again; monthly payments and the Amex note use an exact formatter.
+- `deckmoSignalAttributes.ts`: split into `formatSignalMoney` (exact, for details) and `formatSignalPillMoney` (rounded, for pill segments and attributes).
+- Rename `RICKY_SIGNAL_LABELS.income`.
+- Tests: pills contain no cents; detail facts contain the exact values listed above; ledger table shows exact amounts. Remove the obsolete ledger-rounding test.
