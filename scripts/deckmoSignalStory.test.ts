@@ -3,6 +3,16 @@ import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_STORY, RICKY_KYC_SIGNAL_LABEL, RICKY
 import { RICKY_SIGNAL_LABELS, RICKY_TRANSACTIONS } from "../src/lib/deckmoRickyTransactions";
 import { isOutsideClauseHidden, isStoryInsightsHidden, shouldRevealStoryRows } from "../src/lib/deckmoStoryReveal";
 
+test("4.3 detail table column widths sum to the table's fixed min-width", async () => {
+  const source = await Bun.file("src/components/deckmo/RickySignalStory.tsx").text();
+  const min = Number(/min-w-\[(\d+)px\] table-fixed/.exec(source)?.[1]);
+  expect(min).toBeGreaterThan(0);
+  const colgroup = /<colgroup>([\s\S]*?)<\/colgroup>/.exec(source)?.[1] ?? "";
+  const widths = [...colgroup.matchAll(/w-\[(\d+)px\]/g)].map((m) => Number(m[1]));
+  expect(widths).toHaveLength(8);
+  expect(widths.reduce((a, b) => a + b, 0)).toBe(min);
+});
+
 describe("story entrance lifecycle", () => {
   test("inactive sections never start the internal reveal", () => {
     expect(shouldRevealStoryRows(false, 0)).toBe(false);
