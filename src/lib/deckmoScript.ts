@@ -653,7 +653,7 @@ export const DECKMO = {
     },
   },
   bankTools: {
-    eyebrow: "TOOLS FOR THE BANK",
+    eyebrow: "THE PLATFORM",
     title: "Possible for Ricky because it is\npossible for every customer",
     subtitle: "A modular, governed intelligence and personalization platform with 45 tools and workflows.",
     screens: [
