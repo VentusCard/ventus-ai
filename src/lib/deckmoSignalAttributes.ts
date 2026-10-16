@@ -1,3 +1,4 @@
+import { formatRoundedMoney } from "./deckmoDisplayMoney";
 import { RICKY_SIGNAL_LABELS as L, RICKY_TRANSACTIONS, type RickyTransaction } from "./deckmoRickyTransactions";
 import { RICKY_KYC_LOCATION, RICKY_KYC_PROFILE, RICKY_KYC_SIGNAL_LABEL, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL, RICKY_ESTIMATED_TOTAL_ASSETS_CENTS, RICKY_GENERAL_SPENDING_LABEL } from "./deckmoScript";
 import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow, rickyGeneralSpending } from "./deckmoCashFlow";
@@ -16,8 +17,7 @@ const months = [
   "November",
   "December",
 ];
-export const formatSignalMoney = (cents: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
+export const formatSignalMoney = (cents: number) => formatRoundedMoney(cents);
 
 export function signalMonthlyPayments(label: string, transactions: RickyTransaction[] = RICKY_TRANSACTIONS) {
   const totals = new Map<string, number>();
@@ -52,7 +52,7 @@ export function signalPaymentSummary(label: string, transactions: RickyTransacti
 
 const context: Record<string, string[]> = {
   [RICKY_KYC_SIGNAL_LABEL]: [`Age ${RICKY_KYC_PROFILE.age}`, RICKY_KYC_LOCATION.city, RICKY_KYC_LOCATION.state, RICKY_KYC_LOCATION.postalCode, `${RICKY_KYC_PROFILE.relationshipTier} tier`],
-  [L.income]: ["Semi-monthly", "HP Inc.", "Payroll", "Monthly income $22–26K", `Est. annual household income ${RICKY_KYC_PROFILE.estimatedHouseholdIncome}`],
+  [L.income]: ["Semi-monthly", "HP Inc.", "Payroll", "Monthly income $23,000–$25,000", `Est. annual household income ${RICKY_KYC_PROFILE.estimatedHouseholdIncome}`],
   [L.business]: ["Cottage food business", "Square payouts", "Vendor fees · supplies"],
   "Small airplane co-owner": ["Cirrus SR22", "Shared ownership", "Annual obligations", "Likely"],
   [RICKY_LUXURY_AUTO_LABEL]: ["Luxury auto owner", "BMW X5", "Outside vehicle ownership", "Likely"],
@@ -101,12 +101,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
   if (FINANCIAL_PAYMENT_LABELS.includes(label)) {
     const summary = signalPaymentSummary(label);
     if (!summary?.latest) return [attribute(label)];
-    const money = (cents: number) =>
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: cents % 100 === 0 ? 0 : 2,
-      }).format(cents / 100);
+    const money = formatRoundedMoney;
     if (label === L.amex)
       return [
         attribute("Annualized estimate"),
@@ -139,7 +134,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       connector(" with "),
       attribute(`${RICKY_KYC_PROFILE.relationshipTier} tier`),
       connector(" and his balance is "),
-      attribute(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(RICKY_DEMO_BALANCE_CENTS / 100)),
+      attribute(formatRoundedMoney(RICKY_DEMO_BALANCE_CENTS)),
     ],
     [RICKY_CASH_FLOW_LABEL]: [
       attribute("Estimated EOY surplus"), connector(" is "), attribute(formatSignalMoney(estimatedEoySurplusCents(rickyCashFlow().surplusCents))),
@@ -153,7 +148,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       attribute("general spending"),
     ],
     [L.income]: [
-      attribute("Stable $22K monthly income"),
+      attribute("Stable $23,000–$25,000 monthly income"),
       connector(" from "),
       attribute("HP Inc."),
       connector(" a "),
@@ -164,17 +159,17 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
     [L.business]: [attribute("SMB Owner"), connector(" in "), attribute("Food and Beverage")],
     "Small airplane co-owner": [attribute("Airplane co-owner"), connector(" of a "), attribute("Cirrus SR22")],
     [RICKY_LUXURY_AUTO_LABEL]: [attribute("Luxury auto owner"), connector(" of a "), attribute("BMW X5")],
-    [RICKY_TOTAL_ASSETS_LABEL]: [attribute("Estimated total assets"), connector(" of "), attribute(`$${RICKY_ESTIMATED_TOTAL_ASSETS_CENTS / 100000000}M`)],
-    [L.tennis]: [attribute("$12,000"), connector(" annual spent in "), attribute("bi-weekly"), connector(" "), attribute("Tennis")],
+    [RICKY_TOTAL_ASSETS_LABEL]: [attribute("Estimated total assets"), connector(" of "), attribute(formatRoundedMoney(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS))],
+    [L.tennis]: [attribute("$4,300"), connector(" annual spent in "), attribute("bi-weekly"), connector(" "), attribute("Tennis")],
     [L.hawaii]: [
-      attribute("$9,000"),
+      attribute("$8,000"),
       connector(" annual spent in "),
       attribute("Annual pre-holiday trip"),
       connector(" "),
       attribute("Q4"),
     ],
     [L.media]: [
-      attribute("$6,000"),
+      attribute("$1,500"),
       connector(" annual spent in "),
       attribute("Media, music and entertainment"),
       connector(" through "),
@@ -189,7 +184,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       connector(" in "),
       attribute("Palo Alto"),
       connector(" for around "),
-      attribute("$1.75M"),
+      attribute("$1.5M+"),
     ],
     [L.betting]: [
       attribute("Increasing"),

@@ -1,3 +1,4 @@
+import { formatRoundedLedgerAmount } from "@/lib/deckmoDisplayMoney";
 import { Fragment } from "react";
 import { Repeat, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -137,7 +138,7 @@ function EnrichedRow({ transaction, merchants, recurring }: { transaction: Ricky
     <td className="px-3 py-3 text-[11px] text-deck-muted whitespace-nowrap">{transaction.source}</td>
     <td className="px-3 py-3 text-[11px] tabular-nums text-deck-muted whitespace-nowrap">{transaction.date}</td>
     <td className="px-3 py-3 font-mono text-[11px] leading-snug text-deck-navy whitespace-normal break-words">{transaction.description}</td>
-    <td className={cn("px-4 py-3 text-right text-[12px] font-semibold tabular-nums text-deck-navy whitespace-nowrap", inflow && "underline decoration-dotted")}>{transaction.amount}</td>
+    <td className={cn("px-4 py-3 text-right text-[12px] font-semibold tabular-nums text-deck-navy whitespace-nowrap", inflow && "underline decoration-dotted")}>{formatRoundedLedgerAmount(transaction.amount)}</td>
     <td className="border-l-2 border-deck-rule px-4 py-3 text-[12px] font-semibold leading-snug text-deck-navy whitespace-normal break-words">{merchant}</td>
     <td className="px-3 py-3 text-[11px] leading-snug text-deck-muted whitespace-normal break-words">{category}</td>
     <td className="px-3 py-3 text-[11px] leading-snug text-deck-muted whitespace-normal break-words">{subcategories}</td>
