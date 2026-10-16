@@ -43,3 +43,5 @@
 - [x] Add "Coworker for Wealth Managers" persona (all AI Coworker sub-tabs)
 - Differentiated internal vs external story pills: darker internal tint, leading Sparkles/Ext badge on external pills
 - [x] Section 4 signal popups: /demo-style two-tier table (Raw Transaction vs Enriched output), one row per transaction
+
+- [x] Deckmo 4.2 pills open a full 4.3 signal detail beat (keyboard default: home purchase); cross-rail header copy

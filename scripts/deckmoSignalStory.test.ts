@@ -35,10 +35,10 @@ describe("outside clause gating", () => {
 });
 
 describe("combined Ricky signal story", () => {
-  test("section two has two beats; the story is section four after The Complete Picture", () => {
+  test("section two has two beats; the story is section four with a 4.3 detail beat after The Complete Picture", () => {
     expect(DECKMO_STEPS.filter((beat) => beat.section === 1).map((beat) => beat.step)).toEqual([0, 1]);
     expect(DECKMO.beats[3].id).toBe("ricky-story");
-    expect(DECKMO_STEPS.filter((beat) => beat.section === 3).map((beat) => beat.step)).toEqual([0, 1]);
+    expect(DECKMO_STEPS.filter((beat) => beat.section === 3).map((beat) => beat.step)).toEqual([0, 1, 2]);
     expect(DECKMO_STEPS.findIndex((b) => b.id === "ricky-story-0")).toBe(DECKMO_STEPS.findIndex((b) => b.id === "living-view-2") + 1);
   });
   test("all 18 signals appear exactly once", () => {

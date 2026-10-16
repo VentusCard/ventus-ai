@@ -70,7 +70,7 @@ export const DECKMO = {
     { id: "opener", nav: "Thesis", steps: 6 },
     { id: "visibility", nav: "The Visibility Gap", steps: 2 },
     { id: "living-view", nav: "The Complete Picture", steps: 3 },
-    { id: "ricky-story", nav: "Ricky, understood", steps: 2 },
+    { id: "ricky-story", nav: "Ricky, understood", steps: 3 },
     {
       id: "bank-tools",
       nav: "Tools for the Bank",
@@ -189,7 +189,8 @@ export const DECKMO = {
     storyHeader: {
       eyebrow: "CUSTOMER INTELLIGENCE IN ACTION",
       title: "Ricky, understood",
-      description: "Complex customer signals, broken into individually identifiable attributes: from amounts and cadence to locations, relationships, and events and more.",
+      description: "Every signal is a cross-category, cross-rail pattern that Ventus AI recognizes as an insight.",
+      attributesNote: "Complex customer signals, broken into individually identifiable attributes: from amounts and cadence to locations, relationships, and events and more.",
     },
     sectionSubtitles: [
       "Start with the transactions the institution can see.",
@@ -801,6 +802,9 @@ export const DECKMO_STEPS = DECKMO.beats.flatMap((beat, section) =>
 );
 
 /** Explicit section controls resolve through the authoritative ordered script. */
+/** Signal opened on 4.3 when the presenter advances from 4.2 without clicking a pill. */
+export const RICKY_DEFAULT_DETAIL_SIGNAL: string = RICKY_SIGNAL_LABELS.home;
+
 export function deckmoBeatStartIndex(id: DeckmoBeatId): number {
   return DECKMO_STEPS.findIndex((entry) => DECKMO.beats[entry.section].id === id);
 }
