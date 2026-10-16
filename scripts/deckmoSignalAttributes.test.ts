@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { signalPaymentSummary, signalAttributes, signalInlineSegments } from "../src/lib/deckmoSignalAttributes";
 import { RICKY_SIGNAL_LABELS as L } from "../src/lib/deckmoRickyTransactions";
-import { RICKY_KYC_SIGNAL_LABEL, RICKY_KYC_PROFILE, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL } from "../src/lib/deckmoScript";
+import { RICKY_KYC_SIGNAL_LABEL, RICKY_KYC_PROFILE, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL, RICKY_GENERAL_SPENDING_LABEL } from "../src/lib/deckmoScript";
 
 const DECK_SIGNAL_LABELS: string[] = [
   RICKY_KYC_SIGNAL_LABEL,
@@ -9,6 +9,7 @@ const DECK_SIGNAL_LABELS: string[] = [
   "Small airplane co-owner",
   RICKY_LUXURY_AUTO_LABEL,
   RICKY_TOTAL_ASSETS_LABEL,
+  RICKY_GENERAL_SPENDING_LABEL,
   "High pet expenditure",
 ];
 
