@@ -1,7 +1,5 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 import { Repeat, Sparkles, X } from "lucide-react";
-import { Popover, PopoverContent } from "@/components/ui/popover";
-import { PopoverAnchor } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
 import { DECKMO, RICKY_SIGNAL_DETAILS, RICKY_SIGNAL_STORY } from "@/lib/deckmoScript";
 import { RICKY_TRANSACTIONS, type RickyTransaction } from "@/lib/deckmoRickyTransactions";
@@ -27,35 +25,24 @@ for (const entry of STORY_FAMILIES) {
   if (last) LAST_IN_FAMILY.add(last.label);
 }
 
-/** revealStep: 0 = headings, 1+ / undefined = complete story with both signal sources. */
-export function RickySignalStory({ revealStep, active = false }: { revealStep?: number; active?: boolean } = {}) {
-  const insightsHidden = isStoryInsightsHidden(revealStep);
-  const externalShown = !isOutsideClauseHidden("external", revealStep);
-  const revealRows = shouldRevealStoryRows(active, revealStep);
-  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
-  useEffect(() => {
-    const close = (event: KeyboardEvent) => { if (["ArrowLeft", "ArrowRight", "a", "A", "d", "D"].includes(event.key)) setSelectedLabel(null); };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, []);
-  useEffect(() => { setSelectedLabel(null); }, [revealStep]);
-
-  const signal = DECKMO.ricky.signals.find((item) => item.label === selectedLabel);
-  const detail = selectedLabel ? RICKY_SIGNAL_DETAILS[selectedLabel] : undefined;
+/** Section 4.3: the selected signal's supporting information, shown in place of the story grid. */
+export function RickySignalDetail({ label, onBack }: { label: string; onBack: () => void }) {
+  const signal = DECKMO.ricky.signals.find((item) => item.label === label);
+  const detail = label ? RICKY_SIGNAL_DETAILS[label] : undefined;
   const external = signal && "externalEvidence" in signal ? signal.externalEvidence : null;
-  const evidence = detail?.evidenceKind === "cash-flow" ? rickyCashFlow().evidence : detail?.evidenceKind === "general-spending" ? rickyGeneralSpending().evidence : RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((label) => label === selectedLabel));
-  const payments = selectedLabel && FINANCIAL_PAYMENT_LABELS.includes(selectedLabel) ? signalPaymentSummary(selectedLabel) : null;
+  const evidence = detail?.evidenceKind === "cash-flow" ? rickyCashFlow().evidence : detail?.evidenceKind === "general-spending" ? rickyGeneralSpending().evidence : RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((label) => label === label));
+  const payments = label && FINANCIAL_PAYMENT_LABELS.includes(label) ? signalPaymentSummary(label) : null;
 
-  function renderDetail() {
+
     if (!signal || !detail) return null;
-    return <section id="ricky-story-detail" aria-label={`${signal.label} details`} >
+    return <section id="ricky-story-detail" data-ricky-signal-detail className={cn("ricky-story-popover flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain scrollbar-light rounded-lg border bg-background pb-2 text-foreground", signal ? `ricky-story-${signal.tone}` : undefined)} aria-label={`${signal.label} details`} >
       <header className="ricky-story-popover-head sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-deck-rule bg-background px-5 py-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2"><span className="ricky-story-family-label text-[10px] font-bold uppercase">{signal.family}</span><span className="ricky-story-popover-badge rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase text-deck-muted">{detail.evidenceKind === "customer-profile" ? "Customer profile" : external ? "External signal" : "Internal ledger"}</span></div>
           <h4 className="mt-1.5 text-base font-bold leading-snug text-deck-navy">{signal.label}</h4>
           <p className="mt-1 text-sm text-foreground">{detail.summary}</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => setSelectedLabel(null)} aria-label="Close signal details" title="Close signal details" className="shrink-0"><X className="h-4 w-4" /></Button>
+        <Button variant="ghost" size="icon" onClick={onBack} aria-label="Back to all signals" title="Back to all signals" className="shrink-0"><X className="h-4 w-4" /></Button>
       </header>
       <div className="space-y-4 px-5 py-4">
         <div><h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Key details</h5><ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">{detail.facts.map((fact) => <li key={fact} className="rounded-md border border-deck-rule bg-muted/40 px-3 py-2">{fact}</li>)}</ul></div>
@@ -97,6 +84,12 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
     </section>;
   }
 
+/** revealStep: 0 = headings, 1+ / undefined = complete story with both signal sources. Pills open 4.3 via onOpenSignal. */
+export function RickySignalStory({ revealStep, active = false, onOpenSignal }: { revealStep?: number; active?: boolean; onOpenSignal?: (label: string) => void } = {}) {
+  const insightsHidden = isStoryInsightsHidden(revealStep);
+  const externalShown = !isOutsideClauseHidden("external", revealStep);
+  const revealRows = shouldRevealStoryRows(active, revealStep);
+
   return <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain scrollbar-light pb-6" data-ricky-story>
     <div className="grid flex-1 shrink-0 grid-rows-[repeat(5,auto)]" aria-label="Ricky’s customer intelligence">
       {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} data-story-family={entry.family} className="ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] items-center border-b border-deck-rule last:border-b-0">
@@ -108,20 +101,14 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
       {RICKY_SIGNAL_STORY.filter((clause) => DECKMO.ricky.signals.find((item) => item.label === clause.label)?.family === entry.family).map((clause, index) => {
         const item = DECKMO.ricky.signals.find((candidate) => candidate.label === clause.label);
         if (!item) return null;
-        const selected = selectedLabel === item.label;
         return <Fragment key={item.label}>
           <span className="ricky-story-lead" data-revealed={item.source === "external" ? String(externalShown) : undefined}>{index === 0 ? clause.before.replace(/^\.\s*/, "") : /^[,;.]/.test(clause.before) ? clause.before : ` ${clause.before}`}</span>{" "}
-           <Popover open={selected} onOpenChange={(open) => { if (!open) setSelectedLabel(null); }}>
-          <PopoverAnchor asChild>
-          <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} data-signal-label={item.label} data-signal-family={item.family} data-signal-source={item.source} data-revealed={item.source === "external" ? String(externalShown) : undefined} tabIndex={insightsHidden || (item.source === "external" && !externalShown) ? -1 : undefined} onClick={() => { if (insightsHidden || (item.source === "external" && !externalShown)) return; setSelectedLabel(selected ? null : item.label); }} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
+          <Button type="button" variant="outline" aria-label={item.label} data-signal-label={item.label} data-signal-family={item.family} data-signal-source={item.source} data-revealed={item.source === "external" ? String(externalShown) : undefined} tabIndex={insightsHidden || (item.source === "external" && !externalShown) ? -1 : undefined} onClick={() => { if (insightsHidden || (item.source === "external" && !externalShown)) return; onOpenSignal?.(item.label); }} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`)}>
             {item.source === "external" && <span className="mr-1.5 inline-flex items-center gap-1 align-middle text-[9px] font-bold uppercase"><Sparkles className="h-3 w-3" />Ext</span>}
             <span data-signal-attributes>{signalInlineSegments(item.label).map((segment, segmentIndex) => segment.kind === "attribute"
               ? <span key={segmentIndex} className="ricky-story-attribute" data-signal-attribute>{segment.text}</span>
               : <Fragment key={segmentIndex}>{segment.text}</Fragment>)}</span>
           </Button>
-          </PopoverAnchor>
-          {selected && <PopoverContent side="bottom" align="center" collisionPadding={24} onEscapeKeyDown={() => setSelectedLabel(null)} onInteractOutside={(event) => { const target = event.target as HTMLElement | null; if (target?.closest(`[data-signal-label="${CSS.escape(item.label)}"]`)) event.preventDefault(); }} className={cn("ricky-story-popover w-[min(1540px,calc(100vw-48px))] max-h-[min(72vh,var(--radix-popover-content-available-height))] overflow-y-auto overscroll-contain scrollbar-light rounded-lg border bg-background p-0 text-foreground shadow-xl", `ricky-story-${item.tone}`)}>{renderDetail()}</PopoverContent>}
-          </Popover>
           {LAST_IN_FAMILY.has(item.label) && <span className="ricky-story-lead" data-revealed={item.source === "external" ? String(externalShown) : undefined}>.</span>}
         </Fragment>;
       })}
