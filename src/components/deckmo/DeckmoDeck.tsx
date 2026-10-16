@@ -452,8 +452,8 @@ function VisibilityAndRicky({ step, active = false }: SceneProps) {
 function RickyStoryScene({ step, active = false }: SceneProps) {
   const header = DECKMO.ricky.storyHeader;
   return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.descriptions[step >= 2 ? 1 : 0]} hideSubtitle={step === 0} withLogo />
-    <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory active={active} revealStep={active ? step : 2} /></div>
+    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.description} hideSubtitle={step === 0} withLogo />
+    <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory active={active} revealStep={active ? step : 1} /></div>
   </div>;
 }
 

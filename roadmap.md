@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Combine Section 4 internal and external pills into 4.2, retain headings-only 4.1, and emphasize individually identifiable nested attributes; 40 tests pass, navigation/geometry/pop-ups verified at 1546×903 and 1024×768 with fresh module requests, plus reduced-motion navigation and scrolling.
 - [x] Add "General spending" as the first Behavioral pill (annual estimate $3,264.24, everyday items only); 356 tests pass, pill and 17-row pop-up verified at 1546×903.
 - [x] Update Section 4 estimated EOY surplus, BMW luxury auto ownership in Demographics, and $3.5M external total assets; 44 focused tests pass and all three reveals/affected pop-ups verified at 1903×903 and 1024×768 with fresh module requests.
 - [x] Add Section 4 headings-and-empty-rows opening, shift internal/external reveals to 4.2/4.3; verified stable geometry, pop-ups, navigation, and reduced motion at two desktop sizes.

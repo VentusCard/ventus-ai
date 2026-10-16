@@ -27,7 +27,7 @@ for (const entry of STORY_FAMILIES) {
   if (last) LAST_IN_FAMILY.add(last.label);
 }
 
-/** revealStep: 0 = headings, 1 = internal insights, 2+ / undefined = complete story. */
+/** revealStep: 0 = headings, 1+ / undefined = complete story with both signal sources. */
 export function RickySignalStory({ revealStep, active = false }: { revealStep?: number; active?: boolean } = {}) {
   const insightsHidden = isStoryInsightsHidden(revealStep);
   const externalShown = !isOutsideClauseHidden("external", revealStep);
