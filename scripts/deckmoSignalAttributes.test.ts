@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { signalPaymentSummary, signalAttributes, signalInlineSegments } from "../src/lib/deckmoSignalAttributes";
 import { RICKY_SIGNAL_LABELS as L } from "../src/lib/deckmoRickyTransactions";
-import { RICKY_KYC_SIGNAL_LABEL, RICKY_KYC_PROFILE, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL } from "../src/lib/deckmoScript";
+import { RICKY_KYC_SIGNAL_LABEL, RICKY_KYC_PROFILE, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL, RICKY_GENERAL_SPENDING_LABEL } from "../src/lib/deckmoScript";
 
 const DECK_SIGNAL_LABELS: string[] = [
   RICKY_KYC_SIGNAL_LABEL,
@@ -9,6 +9,7 @@ const DECK_SIGNAL_LABELS: string[] = [
   "Small airplane co-owner",
   RICKY_LUXURY_AUTO_LABEL,
   RICKY_TOTAL_ASSETS_LABEL,
+  RICKY_GENERAL_SPENDING_LABEL,
   "High pet expenditure",
 ];
 
@@ -21,6 +22,11 @@ describe("Ricky inline pill wording", () => {
   test("income attributes keep the household estimate distinct from payroll", () => {
     expect(signalAttributes(L.income)).toContain("Monthly income $22–26K");
     expect(signalInlineSegments(L.income).filter((segment) => segment.kind === "attribute").map((segment) => segment.text)).toContain("Est. annual household income $500K");
+  });
+  test("general spending phrase states the annual estimate in general spending", () => {
+    const attributes = signalInlineSegments(RICKY_GENERAL_SPENDING_LABEL).filter((segment) => segment.kind === "attribute").map((segment) => segment.text);
+    expect(attributes).toEqual(["Annual estimate", "$3,264.24/year", "general spending"]);
+    expect(signalAttributes(RICKY_GENERAL_SPENDING_LABEL)).toContain("Everyday living expenses");
   });
   test("every pill phrase stays readable with no run-on or stray text", () => {
     for (const label of DECK_SIGNAL_LABELS) {

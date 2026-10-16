@@ -38,3 +38,18 @@ export function rickyCashFlow(transactions: RickyTransaction[] = RICKY_TRANSACTI
   const average = (key: "surplusCents" | "idleCents") => Math.round(monthly.reduce((total, row) => total + row[key], 0) / monthly.length);
   return { monthly, evidence, surplusCents: average("surplusCents"), idleCents: average("idleCents") };
 }
+
+/** Everyday living expenses (groceries, gas, utilities, dining, etc.) — the first Behavioral signal. */
+const GENERAL_SPENDING_TXN_IDS = new Set([
+  "r001", "r006", "r024", "r026", "r033", "r037", "r039", "r042", "r044",
+  "r046", "r053", "r056", "r060", "r065", "r066", "r068", "r071",
+]);
+/** The fixture samples January–September 2026. */
+const GENERAL_SPENDING_OBSERVED_MONTHS = 9;
+
+export function rickyGeneralSpending(transactions: RickyTransaction[] = RICKY_TRANSACTIONS) {
+  const evidence = transactions.filter((row) => GENERAL_SPENDING_TXN_IDS.has(row.id));
+  const totalCents = evidence.reduce((sum, row) => sum + Math.round(Number(row.amount.replace(/[^\d.]/g, "")) * 100), 0);
+  const monthlyCents = Math.round(totalCents / GENERAL_SPENDING_OBSERVED_MONTHS);
+  return { evidence, totalCents, monthlyCents, annualCents: monthlyCents * 12 };
+}

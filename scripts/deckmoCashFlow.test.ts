@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { cashFlowBucket, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow } from "../src/lib/deckmoCashFlow";
+import { cashFlowBucket, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow, rickyGeneralSpending } from "../src/lib/deckmoCashFlow";
 import { RICKY_TRANSACTIONS } from "../src/lib/deckmoRickyTransactions";
 
 describe("compact Ricky cash flow", () => {
@@ -34,5 +34,18 @@ describe("compact Ricky cash flow", () => {
     expect(buckets.get("mar09")).toBe("allocation");
     expect(buckets.get("r002")).toBe("allocation");
     expect(buckets.get("r062")).toBe("excluded");
+  });
+  test("general spending annualizes the monthly average of everyday items only", () => {
+    const result = rickyGeneralSpending();
+    expect(result.evidence).toHaveLength(17);
+    expect(result.totalCents).toBe(244816);
+    expect(result.monthlyCents).toBe(27202);
+    expect(result.annualCents).toBe(326424);
+  });
+  test("general spending excludes rent, insurance, taxes, business, home and pet rows", () => {
+    const ids = rickyGeneralSpending().evidence.map((row) => row.id);
+    for (const excluded of ["r036", "r025", "r010", "r043", "r057", "r007", "r014", "r049", "r075", "r064"]) {
+      expect(ids).not.toContain(excluded);
+    }
   });
 });

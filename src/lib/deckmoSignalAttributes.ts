@@ -1,6 +1,6 @@
 import { RICKY_SIGNAL_LABELS as L, RICKY_TRANSACTIONS, type RickyTransaction } from "./deckmoRickyTransactions";
-import { RICKY_KYC_LOCATION, RICKY_KYC_PROFILE, RICKY_KYC_SIGNAL_LABEL, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL, RICKY_ESTIMATED_TOTAL_ASSETS_CENTS } from "./deckmoScript";
-import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow } from "./deckmoCashFlow";
+import { RICKY_KYC_LOCATION, RICKY_KYC_PROFILE, RICKY_KYC_SIGNAL_LABEL, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL, RICKY_ESTIMATED_TOTAL_ASSETS_CENTS, RICKY_GENERAL_SPENDING_LABEL } from "./deckmoScript";
+import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow, rickyGeneralSpending } from "./deckmoCashFlow";
 
 const months = [
   "January",
@@ -64,6 +64,7 @@ const context: Record<string, string[]> = {
   [L.baby]: ["Nursery · hospital · childcare", "Bright Horizons"],
   [L.home]: ["Palo Alto", "Appraisal · escrow · moving"],
   [L.betting]: ["Increasing frequency", "DraftKings", "Sportsbook · wallet funding"],
+  [RICKY_GENERAL_SPENDING_LABEL]: ["Annual estimate", `${formatSignalMoney(rickyGeneralSpending().annualCents)}/year`, "Everyday living expenses", "Estimate"],
 };
 
 export const FINANCIAL_PAYMENT_LABELS: string[] = [L.brokerage, L.marcus, L.amex];
@@ -143,6 +144,13 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
     [RICKY_CASH_FLOW_LABEL]: [
       attribute("Estimated EOY surplus"), connector(" is "), attribute(formatSignalMoney(estimatedEoySurplusCents(rickyCashFlow().surplusCents))),
       connector(" and "), attribute("monthly idle cash"), connector(" is "), attribute(formatSignalMoney(rickyCashFlow().idleCents)),
+    ],
+    [RICKY_GENERAL_SPENDING_LABEL]: [
+      attribute("Annual estimate"),
+      connector(" "),
+      attribute(`${formatSignalMoney(rickyGeneralSpending().annualCents)}/year`),
+      connector(" in "),
+      attribute("general spending"),
     ],
     [L.income]: [
       attribute("Stable $22K monthly income"),
