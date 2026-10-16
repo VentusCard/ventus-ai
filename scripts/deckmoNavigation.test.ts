@@ -21,12 +21,15 @@ describe("deckmo navigation keys", () => {
 });
 
 describe("platform-first benefit navigation", () => {
-  test("complete story 4.2 leads directly to section 5 and returns without a 4.3 beat", () => {
+  test("4.2 advances to the 4.3 signal detail, which leads to section 5 and back", () => {
     const complete = DECKMO_STEPS.findIndex((entry) => entry.id === "ricky-story-1");
     const platform = deckmoBeatStartIndex("bank-tools");
-    expect(DECKMO_STEPS.some((entry) => entry.id === "ricky-story-2")).toBe(false);
-    expect(complete + deckmoNavigationDelta("ArrowRight")).toBe(platform);
-    expect(DECKMO_STEPS[platform + deckmoNavigationDelta("a")]?.id).toBe("ricky-story-1");
+    expect(DECKMO_STEPS[complete + deckmoNavigationDelta("ArrowRight")]?.id).toBe("ricky-story-2");
+    expect(complete + 1 + deckmoNavigationDelta("d")).toBe(platform);
+    expect(DECKMO_STEPS[platform + deckmoNavigationDelta("a")]?.id).toBe("ricky-story-2");
+  });
+  test("keyboard default for 4.3 is the home purchase signal", () => {
+    expect(RICKY_DEFAULT_DETAIL_SIGNAL).toBe(RICKY_SIGNAL_LABELS.home);
   });
   test("platform is section 5 before the four benefits", () => {
     expect(DECKMO.beats.map((beat) => beat.id)).toEqual([
