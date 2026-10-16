@@ -9,8 +9,8 @@ describe("story entrance lifecycle", () => {
     expect(shouldRevealStoryRows(false, 1)).toBe(false);
     expect(shouldRevealStoryRows(false, 2)).toBe(false);
   });
-  test("entering and returning to 4.2 re-enables insights, not headings or externals", () => {
-    expect([[false, 1], [true, 0], [true, 1], [true, 2], [true, 1], [false, 1], [true, 1]].map(([active, step]) => shouldRevealStoryRows(Boolean(active), Number(step)))).toEqual([false, false, true, false, true, false, true]);
+  test("entering and returning to 4.2 re-enables the complete insight entrance", () => {
+    expect([[false, 1], [true, 0], [true, 1], [true, 0], [true, 1], [false, 1], [true, 1]].map(([active, step]) => shouldRevealStoryRows(Boolean(active), Number(step)))).toEqual([false, false, true, false, true, false, true]);
   });
   test("fully shown standalone stories do not start a deck reveal", () => {
     expect(shouldRevealStoryRows(true)).toBe(false);
@@ -24,9 +24,9 @@ describe("outside clause gating", () => {
     expect(isStoryInsightsHidden(2)).toBe(false);
     expect(isStoryInsightsHidden(undefined)).toBe(false);
   });
-  test("outside clauses are withheld until the third beat", () => {
+  test("outside clauses reveal with internal insights on 4.2", () => {
     expect(isOutsideClauseHidden("external", 0)).toBe(true);
-    expect(isOutsideClauseHidden("external", 1)).toBe(true);
+    expect(isOutsideClauseHidden("external", 1)).toBe(false);
     expect(isOutsideClauseHidden("external", 2)).toBe(false);
     expect(isOutsideClauseHidden("external", undefined)).toBe(false);
     expect(isOutsideClauseHidden("internal", 0)).toBe(false);
@@ -38,7 +38,7 @@ describe("combined Ricky signal story", () => {
   test("section two has two beats; the story is section four after The Complete Picture", () => {
     expect(DECKMO_STEPS.filter((beat) => beat.section === 1).map((beat) => beat.step)).toEqual([0, 1]);
     expect(DECKMO.beats[3].id).toBe("ricky-story");
-    expect(DECKMO_STEPS.filter((beat) => beat.section === 3).map((beat) => beat.step)).toEqual([0, 1, 2]);
+    expect(DECKMO_STEPS.filter((beat) => beat.section === 3).map((beat) => beat.step)).toEqual([0, 1]);
     expect(DECKMO_STEPS.findIndex((b) => b.id === "ricky-story-0")).toBe(DECKMO_STEPS.findIndex((b) => b.id === "living-view-2") + 1);
   });
   test("all 18 signals appear exactly once", () => {

@@ -21,6 +21,13 @@ describe("deckmo navigation keys", () => {
 });
 
 describe("platform-first benefit navigation", () => {
+  test("complete story 4.2 leads directly to section 5 and returns without a 4.3 beat", () => {
+    const complete = DECKMO_STEPS.findIndex((entry) => entry.id === "ricky-story-1");
+    const platform = deckmoBeatStartIndex("bank-tools");
+    expect(DECKMO_STEPS.some((entry) => entry.id === "ricky-story-2")).toBe(false);
+    expect(complete + deckmoNavigationDelta("ArrowRight")).toBe(platform);
+    expect(DECKMO_STEPS[platform + deckmoNavigationDelta("a")]?.id).toBe("ricky-story-1");
+  });
   test("platform is section 5 before the four benefits", () => {
     expect(DECKMO.beats.map((beat) => beat.id)).toEqual([
       "opener", "visibility", "living-view", "ricky-story", "bank-tools",
