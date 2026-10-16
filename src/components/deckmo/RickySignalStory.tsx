@@ -7,7 +7,7 @@ import { DECKMO, RICKY_SIGNAL_DETAILS, RICKY_SIGNAL_STORY } from "@/lib/deckmoSc
 import { RICKY_TRANSACTIONS, type RickyTransaction } from "@/lib/deckmoRickyTransactions";
 import { FINANCIAL_PAYMENT_LABELS, formatSignalMoney, signalInlineSegments, signalPaymentSummary } from "@/lib/deckmoSignalAttributes";
 import { cn } from "@/lib/utils";
-import { isOutsideClauseHidden, shouldRevealStoryRows, STORY_ENTRANCE_DELAY_MS } from "@/lib/deckmoStoryReveal";
+import { isOutsideClauseHidden, isStoryInsightsHidden, shouldRevealStoryRows, STORY_ENTRANCE_DELAY_MS } from "@/lib/deckmoStoryReveal";
 import { enrichRickyTransaction } from "@/lib/deckmoRickyEnrichment";
 import { rickyCashFlow } from "@/lib/deckmoCashFlow";
 
@@ -27,8 +27,9 @@ for (const entry of STORY_FAMILIES) {
   if (last) LAST_IN_FAMILY.add(last.label);
 }
 
-/** revealStep: 0 = internal only, 1+ / undefined = everything shown. */
+/** revealStep: 0 = headings, 1 = internal insights, 2+ / undefined = complete story. */
 export function RickySignalStory({ revealStep, active = false }: { revealStep?: number; active?: boolean } = {}) {
+  const insightsHidden = isStoryInsightsHidden(revealStep);
   const externalShown = !isOutsideClauseHidden("external", revealStep);
   const revealRows = shouldRevealStoryRows(active, revealStep);
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
@@ -98,12 +99,12 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
 
   return <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain scrollbar-light pb-6" data-ricky-story>
     <div className="grid flex-1 shrink-0 grid-rows-[repeat(5,auto)]" aria-label="Ricky’s customer intelligence">
-      {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} style={revealRows ? { animationDelay: `${STORY_ENTRANCE_DELAY_MS + rowIndex * 110}ms` } : undefined} data-story-family={entry.family} className={cn("ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] items-center border-b border-deck-rule last:border-b-0", revealRows && "ricky-story-reveal")}>
+      {STORY_FAMILIES.map((entry, rowIndex) => <div key={entry.family} data-story-family={entry.family} className="ricky-story-row grid grid-cols-[160px_minmax(0,1fr)] items-center border-b border-deck-rule last:border-b-0">
         <div className={cn("flex items-center gap-2.5 self-stretch border-r border-deck-rule pr-4", `ricky-story-${entry.tone}`)}>
           <span className="ricky-story-dot h-2.5 w-2.5 shrink-0 rounded-full" />
           <span className="ricky-story-family-label min-w-0 text-base font-bold uppercase leading-snug [@media(max-height:800px)]:text-sm [@media(max-width:1200px)]:text-sm">{entry.family}</span>
         </div>
-        <p className="ricky-story-prose min-w-0 py-3 pl-7 text-[20px] font-medium leading-[1.9] text-deck-navy">
+        <p aria-hidden={insightsHidden || undefined} style={revealRows ? { animationDelay: `${STORY_ENTRANCE_DELAY_MS + rowIndex * 110}ms` } : undefined} className={cn("ricky-story-prose min-w-0 py-3 pl-7 text-[20px] font-medium leading-[1.9] text-deck-navy", insightsHidden && "invisible pointer-events-none", revealRows && "ricky-story-reveal")}>
       {RICKY_SIGNAL_STORY.filter((clause) => DECKMO.ricky.signals.find((item) => item.label === clause.label)?.family === entry.family).map((clause, index) => {
         const item = DECKMO.ricky.signals.find((candidate) => candidate.label === clause.label);
         if (!item) return null;
@@ -112,7 +113,7 @@ export function RickySignalStory({ revealStep, active = false }: { revealStep?: 
           <span className="ricky-story-lead" data-revealed={item.source === "external" ? String(externalShown) : undefined}>{index === 0 ? clause.before.replace(/^\.\s*/, "") : /^[,;.]/.test(clause.before) ? clause.before : ` ${clause.before}`}</span>{" "}
            <Popover open={selected} onOpenChange={(open) => { if (!open) setSelectedLabel(null); }}>
           <PopoverAnchor asChild>
-          <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} data-signal-label={item.label} data-signal-family={item.family} data-signal-source={item.source} data-revealed={item.source === "external" ? String(externalShown) : undefined} tabIndex={item.source === "external" && !externalShown ? -1 : undefined} onClick={() => setSelectedLabel(selected ? null : item.label)} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
+          <Button type="button" variant="outline" aria-label={item.label} aria-pressed={selected} aria-expanded={selected} data-signal-label={item.label} data-signal-family={item.family} data-signal-source={item.source} data-revealed={item.source === "external" ? String(externalShown) : undefined} tabIndex={insightsHidden || (item.source === "external" && !externalShown) ? -1 : undefined} onClick={() => { if (insightsHidden || (item.source === "external" && !externalShown)) return; setSelectedLabel(selected ? null : item.label); }} className={cn("ricky-story-pill inline h-auto max-w-full whitespace-normal rounded-lg px-2 py-1 align-baseline text-left text-[16px] font-semibold leading-[1.65] shadow-none", `ricky-story-${item.tone}`, selected && "ring-2 ring-deck-navy ring-offset-2")}>
             {item.source === "external" && <span className="mr-1.5 inline-flex items-center gap-1 align-middle text-[9px] font-bold uppercase"><Sparkles className="h-3 w-3" />Ext</span>}
             <span data-signal-attributes>{signalInlineSegments(item.label).map((segment, segmentIndex) => segment.kind === "attribute"
               ? <span key={segmentIndex} className="ricky-story-attribute" data-signal-attribute>{segment.text}</span>

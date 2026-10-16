@@ -66,7 +66,7 @@ export const DECKMO = {
     { id: "opener", nav: "Thesis", steps: 6 },
     { id: "visibility", nav: "The Visibility Gap", steps: 2 },
     { id: "living-view", nav: "The Complete Picture", steps: 3 },
-    { id: "ricky-story", nav: "Ricky, understood", steps: 2 },
+    { id: "ricky-story", nav: "Ricky, understood", steps: 3 },
     {
       id: "bank-tools",
       nav: "Tools for the Bank",

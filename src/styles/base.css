@@ -519,7 +519,7 @@
 @media (min-width: 768px) { .hero-dark-card { min-height: 380px; } }
 @media (min-width: 1280px) { .hero-dark-card { min-height: 420px; } }
 
-/* Deck story reveal: rows cascade in; external pills wait as placeholders until step 2. */
+/* Deck story reveal: headings stay fixed; insights cascade on 4.2, external clauses sharpen on 4.3. */
 @keyframes ricky-story-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes ricky-story-glow { 0% { box-shadow: 0 0 0 0 hsl(var(--story-accent) / 0.45); } 70% { box-shadow: 0 0 0 10px hsl(var(--story-accent) / 0); } 100% { box-shadow: 0 0 0 0 hsl(var(--story-accent) / 0); } }
 .ricky-story-reveal { animation: ricky-story-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
