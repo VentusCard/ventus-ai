@@ -459,8 +459,7 @@ function RickyStoryScene({ step, active = false, signalDetail }: SceneProps) {
     </div>
   </div>;
   return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.description} hideSubtitle={step === 0} withLogo />
-    <p aria-hidden={step === 0 || undefined} className={cn("mt-2 max-w-4xl text-sm text-deck-muted", step === 0 && "invisible")}>{header.attributesNote}</p>
+    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.attributesNote} hideSubtitle={step === 0} withLogo />
     <div className="mt-4 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-3"><RickySignalStory active={active} revealStep={active ? Math.min(step, 1) : 1} onOpenSignal={signalDetail?.open} /></div>
   </div>;
 }
