@@ -3,6 +3,7 @@ const partners = [
   { name: "Fintech Sandbox", src: "/partners/fintech-sandbox.png", height: 86 },
   { name: "OneValley", src: "/partners/onevalley.png", height: 80 },
   { name: "Plug and Play", src: "/partners/plug-and-play.png", height: 56 },
+  { name: "NVIDIA", src: "/partners/nvidia.png", height: 40 },
 ];
 
 const PartnersSection = () => {
