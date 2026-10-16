@@ -17,7 +17,11 @@ const months = [
   "November",
   "December",
 ];
-export const formatSignalMoney = (cents: number) => formatRoundedMoney(cents);
+/** Exact currency for detail pages. */
+export const formatSignalMoney = (cents: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
+/** Rounded currency for signal pills only. */
+export const formatSignalPillMoney = (cents: number) => formatRoundedMoney(cents);
 
 export function signalMonthlyPayments(label: string, transactions: RickyTransaction[] = RICKY_TRANSACTIONS) {
   const totals = new Map<string, number>();
@@ -56,7 +60,7 @@ const context: Record<string, string[]> = {
   [L.business]: ["Cottage food business", "Square payouts", "Vendor fees · supplies"],
   "Small airplane co-owner": ["Cirrus SR22", "Shared ownership", "Annual obligations", "Likely"],
   [RICKY_LUXURY_AUTO_LABEL]: ["Luxury auto owner", "BMW X5", "Outside vehicle ownership", "Likely"],
-  [RICKY_TOTAL_ASSETS_LABEL]: ["Estimated total assets", formatSignalMoney(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS), "Illustrative external estimate"],
+  [RICKY_TOTAL_ASSETS_LABEL]: ["Estimated total assets", formatSignalPillMoney(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS), "Illustrative external estimate"],
   [L.tennis]: ["About every 2 weeks", "Courts · coaching · gear"],
   [L.hawaii]: ["Annual · December", "Maui", "Flights · resort · car rental"],
   [L.media]: ["Streaming · music · live events", "Netflix · YouTube TV · Spotify"],
@@ -64,7 +68,7 @@ const context: Record<string, string[]> = {
   [L.baby]: ["Nursery · hospital · childcare", "Bright Horizons"],
   [L.home]: ["Palo Alto", "Appraisal · escrow · moving"],
   [L.betting]: ["Increasing frequency", "DraftKings", "Sportsbook · wallet funding"],
-  [RICKY_GENERAL_SPENDING_LABEL]: ["Annual estimate", `${formatSignalMoney(rickyGeneralSpending().annualCents)}/year`, "Everyday living expenses", "Estimate"],
+  [RICKY_GENERAL_SPENDING_LABEL]: ["Annual estimate", `${formatSignalPillMoney(rickyGeneralSpending().annualCents)}/year`, "Everyday living expenses", "Estimate"],
 };
 
 export const FINANCIAL_PAYMENT_LABELS: string[] = [L.brokerage, L.marcus, L.amex];
@@ -76,14 +80,14 @@ export function signalAttributes(label: string): string[] {
   if (label === L.amex)
     return [
       "Annualized",
-      `${formatSignalMoney(summary.annualizedCents)}/year`,
+      `${formatSignalPillMoney(summary.annualizedCents)}/year`,
       "to Amex",
       "Credit card payments",
       "Estimate",
     ];
   const amount = summary.fixed
-    ? formatSignalMoney(summary.latest.cents)
-    : `${formatSignalMoney(summary.latest.cents)} latest · ${summary.latest.month}`;
+    ? formatSignalPillMoney(summary.latest.cents)
+    : `${formatSignalPillMoney(summary.latest.cents)} latest · ${summary.latest.month}`;
   return [
     "Monthly",
     amount,
@@ -137,13 +141,13 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       attribute(formatRoundedMoney(RICKY_DEMO_BALANCE_CENTS)),
     ],
     [RICKY_CASH_FLOW_LABEL]: [
-      attribute("Estimated EOY surplus"), connector(" is "), attribute(formatSignalMoney(estimatedEoySurplusCents(rickyCashFlow().surplusCents))),
-      connector(" and "), attribute("monthly idle cash"), connector(" is "), attribute(formatSignalMoney(rickyCashFlow().idleCents)),
+      attribute("Estimated EOY surplus"), connector(" is "), attribute(formatSignalPillMoney(estimatedEoySurplusCents(rickyCashFlow().surplusCents))),
+      connector(" and "), attribute("monthly idle cash"), connector(" is "), attribute(formatSignalPillMoney(rickyCashFlow().idleCents)),
     ],
     [RICKY_GENERAL_SPENDING_LABEL]: [
       attribute("Annual estimate"),
       connector(" "),
-      attribute(`${formatSignalMoney(rickyGeneralSpending().annualCents)}/year`),
+      attribute(`${formatSignalPillMoney(rickyGeneralSpending().annualCents)}/year`),
       connector(" in "),
       attribute("general spending"),
     ],

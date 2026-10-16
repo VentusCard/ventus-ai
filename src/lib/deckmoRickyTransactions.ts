@@ -7,7 +7,7 @@ export const RICKY_SIGNAL_LABELS = {
   brokerage: "Investing at Fidelity",
   marcus: "Goldman Marcus HYSA",
   amex: "Amex Credit Cards",
-  income: "Stable $22–26K monthly income",
+  income: "Stable $23–25K monthly income",
   business: "Started a small food business",
   betting: "Increasing DraftKings betting",
 } as const;
