@@ -802,6 +802,9 @@ export const DECKMO_STEPS = DECKMO.beats.flatMap((beat, section) =>
 );
 
 /** Explicit section controls resolve through the authoritative ordered script. */
+/** Signal opened on 4.3 when the presenter advances from 4.2 without clicking a pill. */
+export const RICKY_DEFAULT_DETAIL_SIGNAL: string = RICKY_SIGNAL_LABELS.home;
+
 export function deckmoBeatStartIndex(id: DeckmoBeatId): number {
   return DECKMO_STEPS.findIndex((entry) => DECKMO.beats[entry.section].id === id);
 }

@@ -1,9 +1,9 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Baby, BriefcaseBusiness, Building2, CalendarClock, Car, ChevronDown, ChevronRight, CreditCard, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, HeartHandshake, Home, Landmark, LogOut, Mail, Monitor, MonitorPlay, PiggyBank, Plane, School, Search, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Baby, BriefcaseBusiness, Building2, CalendarClock, Car, ChevronDown, ChevronLeft, ChevronRight, CreditCard, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, HeartHandshake, Home, Landmark, LogOut, Mail, Monitor, MonitorPlay, PiggyBank, Plane, School, Search, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { DECKMO, DECKMO_STEPS, deckmoBeatStartIndex, RICKY_SIGNAL_DETAILS, type DeckmoBeatId } from "@/lib/deckmoScript";
+import { DECKMO, DECKMO_STEPS, deckmoBeatStartIndex, RICKY_DEFAULT_DETAIL_SIGNAL, RICKY_SIGNAL_DETAILS, type DeckmoBeatId } from "@/lib/deckmoScript";
 import { deckmoNavigationDelta } from "@/lib/deckmoNavigation";
 import { useInstitutionDomSwap } from "@/lib/institutionMode";
 import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTransactions";
