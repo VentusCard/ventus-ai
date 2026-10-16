@@ -1,5 +1,5 @@
 import { RICKY_SIGNAL_LABELS } from "@/lib/deckmoRickyTransactions";
-import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow } from "./deckmoCashFlow";
+import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow, rickyGeneralSpending } from "./deckmoCashFlow";
 
 export type DeckmoBeatId =
   | "opener"
@@ -36,6 +36,7 @@ export const RICKY_KYC_PROFILE = {
 export const RICKY_KYC_SIGNAL_LABEL = "KYC";
 export const RICKY_LUXURY_AUTO_LABEL = "Luxury auto owner";
 export const RICKY_TOTAL_ASSETS_LABEL = "Estimated total assets";
+export const RICKY_GENERAL_SPENDING_LABEL = "General spending";
 export const RICKY_ESTIMATED_TOTAL_ASSETS_CENTS = 350000000;
 export const RICKY_KYC_LOCATION = (() => {
   const [city = "", region = ""] = RICKY_KYC_PROFILE.location.split(", ");
@@ -246,6 +247,7 @@ export const DECKMO = {
       { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
       { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
+      { family: "Behavioral", label: RICKY_GENERAL_SPENDING_LABEL, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.tennis, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.hawaii, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.media, tone: "blue", source: "internal" },
@@ -807,7 +809,7 @@ export function deckmoBeatStartIndex(id: DeckmoBeatId): number {
 }
 
 export interface RickySignalDetail {
-  evidenceKind?: "customer-profile" | "cash-flow";
+  evidenceKind?: "customer-profile" | "cash-flow" | "general-spending";
   summary: string;
   facts: string[];
   merchants: string[];
@@ -825,7 +827,8 @@ export const RICKY_SIGNAL_STORY = [
   { before: "with", label: RICKY_SIGNAL_LABELS.brokerage },
   { before: ",", label: RICKY_SIGNAL_LABELS.marcus },
   { before: ", and", label: RICKY_SIGNAL_LABELS.amex },
-  { before: "Ricky’s routine includes", label: RICKY_SIGNAL_LABELS.tennis },
+  { before: ". His routine starts with", label: RICKY_GENERAL_SPENDING_LABEL },
+  { before: ", along with", label: RICKY_SIGNAL_LABELS.tennis },
   { before: ", an", label: RICKY_SIGNAL_LABELS.hawaii },
   { before: ", and", label: RICKY_SIGNAL_LABELS.media },
   { before: "; outside purchase data also points to", label: "High pet expenditure" },
@@ -860,6 +863,18 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
       "Idle cash is a monthly residual, not an account balance.",
     ],
     merchants: [],
+  },
+  [RICKY_GENERAL_SPENDING_LABEL]: {
+    evidenceKind: "general-spending",
+    summary: "Everyday living expenses across groceries, gas, utilities and daily purchases",
+    facts: [
+      `Annual estimate: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyGeneralSpending().annualCents / 100)} — monthly average across Jan–Sep 2026 × 12`,
+      `Monthly average: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyGeneralSpending().monthlyCents / 100)} across the observed sample`,
+      "Basket: groceries, gas, electricity, internet, dining, pharmacy, rideshares, clothing, books and digital subscriptions",
+      "Excludes rent, insurance, taxes, business expenses, betting and pet spending (pet activity is its own signal)",
+      "Annualized estimate from the observed sample, not an observed full-year total",
+    ],
+    merchants: ["Whole Foods", "Trader Joe's", "Target", "Costco", "Shell", "PG&E", "Comcast", "Four Seasons", "Starbucks", "CVS", "Uber", "Nordstrom", "Books Inc", "Apple"],
   },
   [RICKY_SIGNAL_LABELS.tennis]: {
     summary: "Committed club player with court time roughly every other week",
