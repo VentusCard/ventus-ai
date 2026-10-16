@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { isOutsideClauseHidden, isStoryInsightsHidden, shouldRevealStoryRows, STORY_ENTRANCE_DELAY_MS } from "@/lib/deckmoStoryReveal";
 import { enrichRickyTransaction } from "@/lib/deckmoRickyEnrichment";
 import { rickyCashFlow, rickyGeneralSpending } from "@/lib/deckmoCashFlow";
+import { rickySignalEvidence } from "@/lib/deckmoSignalEvidence";
 
 /** Deck-only story; other Ricky scenes retain their existing ledger layout. */
 
@@ -30,7 +31,7 @@ export function RickySignalDetail({ label, onBack }: { label: string; onBack: ()
   const signal = DECKMO.ricky.signals.find((item) => item.label === label);
   const detail = label ? RICKY_SIGNAL_DETAILS[label] : undefined;
   const external = signal && "externalEvidence" in signal ? signal.externalEvidence : null;
-  const evidence = detail?.evidenceKind === "cash-flow" ? rickyCashFlow().evidence : detail?.evidenceKind === "general-spending" ? rickyGeneralSpending().evidence : RICKY_TRANSACTIONS.filter((transaction) => transaction.signals.some((label) => label === label));
+  const evidence = detail?.evidenceKind === "cash-flow" ? rickyCashFlow().evidence : detail?.evidenceKind === "general-spending" ? rickyGeneralSpending().evidence : rickySignalEvidence(label);
   const payments = label && FINANCIAL_PAYMENT_LABELS.includes(label) ? signalPaymentSummary(label) : null;
 
 
