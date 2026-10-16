@@ -52,7 +52,7 @@ export function RickyKycBlock({ open: kycOpen, onToggle }: { open: boolean; onTo
 }
 
 export function RickyRailAccordion() {
-  const [openRail, setOpenRail] = useState<RickyRail | "KYC" | null>("Cards");
+  const [openRail, setOpenRail] = useState<RickyRail | "KYC" | null>(null);
   const kycOpen = openRail === "KYC";
   return <div className={cn("flex h-full min-h-0 w-full flex-col [container-type:size]", openRail === null && "[&>.ricky-rail]:flex-1 [&>.ricky-rail>button]:flex-1")} aria-label="Ricky customer profile and transactions by payment rail">
     <RickyKycBlock open={kycOpen} onToggle={() => setOpenRail(kycOpen ? null : "KYC")} />
