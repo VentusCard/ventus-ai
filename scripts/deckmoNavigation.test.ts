@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { deckmoNavigationDelta } from "../src/lib/deckmoNavigation";
-import { DECKMO, DECKMO_STEPS, DECKMO_BENEFITS, deckmoBeatStartIndex } from "../src/lib/deckmoScript";
+import { DECKMO, DECKMO_STEPS, DECKMO_BENEFITS, deckmoBeatStartIndex, RICKY_DEFAULT_DETAIL_SIGNAL } from "../src/lib/deckmoScript";
+import { RICKY_SIGNAL_LABELS } from "../src/lib/deckmoRickyTransactions";
 
 describe("deckmo navigation keys", () => {
   test("right arrow and D advance one beat", () => {
