@@ -6,7 +6,8 @@ Every number shown on the Section 4 signal pills (4.2) and their detail slides (
 ## Scope
 - Rounded: pill amounts, nested attributes, key-detail lines, annual/EOY estimates, monthly ranges, year-to-date totals, outside-evidence figures.
   - Examples: $189,490.32 EOY surplus -> ~$189,000; $3,264.24/year general spending -> ~$3,300/year; monthly surplus $15,790.86 -> ~$15,800; idle cash $8,124.19 -> ~$8,100; "Payouts grew from $1,216 to $2,486" -> "$1,200 to $2,500"; "$2,460 hospital" -> "$2,500"; "$6,100 trip" stays; "$35,700 paid YTD" -> "$36,000".
-- Not rounded: the raw-vs-enriched supporting transactions table (it represents the actual bank feed, so exact cents stay), and phone-mockup / other sections.
+- Also rounded: everything on the 4.3 detail pages, including the supporting transactions table amounts (raw and enriched sides), e.g. ($184.62) -> ($200), ($3,500.00) -> ($3,500), $12,368.40 -> $12,000. The raw description text itself stays as-is.
+- Not rounded: phone-mockup scenes, slide 2.1/2.2 rail ledgers, and other sections.
 
 ## Audit steps
 1. List every pill and detail figure and recompute it from the fixture transactions (monthly amounts, ranges, YTD totals, annualized estimates, counts).
