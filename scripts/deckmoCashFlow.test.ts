@@ -1,8 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { cashFlowBucket, RICKY_DEMO_BALANCE_CENTS, rickyCashFlow } from "../src/lib/deckmoCashFlow";
+import { cashFlowBucket, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow } from "../src/lib/deckmoCashFlow";
 import { RICKY_TRANSACTIONS } from "../src/lib/deckmoRickyTransactions";
 
 describe("compact Ricky cash flow", () => {
+  test("only surplus is annualized to estimated EOY, leaving idle cash monthly", () => {
+    const result = rickyCashFlow();
+    expect(estimatedEoySurplusCents(result.surplusCents)).toBe(18949032);
+    expect(estimatedEoySurplusCents(10000)).toBe(120000);
+    expect(result.idleCents).toBe(812419);
+  });
   test("illustrative profile balance is $25,000", () => {
     expect(RICKY_DEMO_BALANCE_CENTS).toBe(2500000);
   });

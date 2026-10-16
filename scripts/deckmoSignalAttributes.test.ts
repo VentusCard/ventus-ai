@@ -1,13 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { signalPaymentSummary, signalAttributes, signalInlineSegments } from "../src/lib/deckmoSignalAttributes";
 import { RICKY_SIGNAL_LABELS as L } from "../src/lib/deckmoRickyTransactions";
-import { RICKY_KYC_SIGNAL_LABEL, RICKY_KYC_PROFILE } from "../src/lib/deckmoScript";
+import { RICKY_KYC_SIGNAL_LABEL, RICKY_KYC_PROFILE, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL } from "../src/lib/deckmoScript";
 
 const DECK_SIGNAL_LABELS: string[] = [
   RICKY_KYC_SIGNAL_LABEL,
   ...Object.values(L),
   "Small airplane co-owner",
-  "BMW X5 loan ending in ~4 months",
+  RICKY_LUXURY_AUTO_LABEL,
+  RICKY_TOTAL_ASSETS_LABEL,
   "High pet expenditure",
 ];
 
@@ -64,8 +65,9 @@ describe("Ricky nested payment evidence", () => {
     expect(summary?.monthly).toHaveLength(9);
     expect(summary?.latest?.cents).toBe(486219);
   });
-  test("external loan context never invents payment evidence", () => {
-    expect(signalPaymentSummary("BMW X5 loan ending in ~4 months")).toBeNull();
-    expect(signalAttributes("BMW X5 loan ending in ~4 months").some((item) => item.includes("$"))).toBe(false);
+  test("external ownership and asset context never invent payment evidence", () => {
+    expect(signalPaymentSummary(RICKY_LUXURY_AUTO_LABEL)).toBeNull();
+    expect(signalPaymentSummary(RICKY_TOTAL_ASSETS_LABEL)).toBeNull();
+    expect(signalAttributes(RICKY_LUXURY_AUTO_LABEL).some((item) => item.includes("$"))).toBe(false);
   });
 });

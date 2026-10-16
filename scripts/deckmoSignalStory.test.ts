@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_STORY, RICKY_KYC_SIGNAL_LABEL, RICKY_SIGNAL_DETAILS } from "../src/lib/deckmoScript";
+import { DECKMO, DECKMO_STEPS, RICKY_SIGNAL_STORY, RICKY_KYC_SIGNAL_LABEL, RICKY_SIGNAL_DETAILS, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL, RICKY_ESTIMATED_TOTAL_ASSETS_CENTS } from "../src/lib/deckmoScript";
 import { RICKY_SIGNAL_LABELS, RICKY_TRANSACTIONS } from "../src/lib/deckmoRickyTransactions";
 import { isOutsideClauseHidden, isStoryInsightsHidden, shouldRevealStoryRows } from "../src/lib/deckmoStoryReveal";
 
@@ -41,9 +41,9 @@ describe("combined Ricky signal story", () => {
     expect(DECKMO_STEPS.filter((beat) => beat.section === 3).map((beat) => beat.step)).toEqual([0, 1, 2]);
     expect(DECKMO_STEPS.findIndex((b) => b.id === "ricky-story-0")).toBe(DECKMO_STEPS.findIndex((b) => b.id === "living-view-2") + 1);
   });
-  test("all 16 signals appear exactly once", () => {
-    expect(RICKY_SIGNAL_STORY).toHaveLength(16);
-    expect(new Set(RICKY_SIGNAL_STORY.map((clause) => clause.label)).size).toBe(16);
+  test("all 17 signals appear exactly once", () => {
+    expect(RICKY_SIGNAL_STORY).toHaveLength(17);
+    expect(new Set(RICKY_SIGNAL_STORY.map((clause) => clause.label)).size).toBe(17);
     expect(RICKY_SIGNAL_STORY.map((clause) => clause.label).sort()).toEqual(DECKMO.ricky.signals.map((signal) => signal.label).sort());
   });
   test("KYC leads Demographics as profile information without transaction evidence", () => {
@@ -60,11 +60,29 @@ describe("combined Ricky signal story", () => {
   test("five families remain in order with external signals last in their family", () => {
     const signals = RICKY_SIGNAL_STORY.map((clause) => DECKMO.ricky.signals.find((signal) => signal.label === clause.label));
     expect([...new Set(signals.map((signal) => signal?.family))]).toEqual(["Demographics", "Financial", "Behavioral", "Life Events", "Risk"]);
-    expect(signals.filter((signal) => signal?.source === "external")).toHaveLength(3);
+    expect(signals.filter((signal) => signal?.source === "external")).toHaveLength(4);
     for (const family of ["Behavioral", "Financial", "Demographics"]) {
       const group = signals.filter((signal) => signal?.family === family);
-      expect(group.at(-1)?.source).toBe("external");
-      expect(group.slice(0, -1).every((signal) => signal?.source === "internal")).toBe(true);
+      const firstExternal = group.findIndex((signal) => signal?.source === "external");
+      if (firstExternal < 0) {
+        expect(group.every((signal) => signal?.source === "internal")).toBe(true);
+      } else {
+        expect(group.slice(0, firstExternal).every((signal) => signal?.source === "internal")).toBe(true);
+        expect(group.slice(firstExternal).every((signal) => signal?.source === "external")).toBe(true);
+      }
     }
+  });
+  test("BMW luxury auto ownership is external Demographics, without ledger evidence", () => {
+    const signal = DECKMO.ricky.signals.find((item) => item.label === RICKY_LUXURY_AUTO_LABEL);
+    expect(signal?.family).toBe("Demographics");
+    expect(signal?.source).toBe("external");
+    expect(RICKY_TRANSACTIONS.filter((row) => row.signals.some((label) => label === RICKY_LUXURY_AUTO_LABEL))).toHaveLength(0);
+  });
+  test("$3.5M total assets remain an external Demographics estimate, not transaction evidence", () => {
+    expect(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS).toBe(350000000);
+    const signal = DECKMO.ricky.signals.find((item) => item.label === RICKY_TOTAL_ASSETS_LABEL);
+    expect(signal?.family).toBe("Demographics");
+    expect(signal?.source).toBe("external");
+    expect(RICKY_TRANSACTIONS.filter((row) => row.signals.some((label) => label === RICKY_TOTAL_ASSETS_LABEL))).toHaveLength(0);
   });
 });
