@@ -19,19 +19,19 @@ export function RickySignalTimeline({ step, active, onOpenSignal }: { step: numb
       </div>
       <div className="timeline-chart">
         <svg className="timeline-journeys" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
-          <path className="timeline-home-journey ricky-story-amber" d="M250 54 H950" />
-          <path className="timeline-learned-journey ricky-story-blue" d="M50 54 V12 H985 V266 H950" />
+          <path className="timeline-home-journey ricky-story-amber" d="M250 45 H950" />
+          <path className="timeline-learned-journey ricky-story-blue" d="M50 45 V12 H985 V225 H950" />
         </svg>
         {reveal.showActivations && <svg className="timeline-connectors" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" data-timeline-connectors>
           {columns.flatMap((events, month) => events.flatMap((event, slot) => {
             const signal = DECKMO.ricky.signals.find(item => item.label === event.label);
             if (!signal) return [];
             const x = month * 100 + 50;
-            const start = (slot + 1) * (320 / 3) - 12;
+            const start = (slot + 1) * 90 - 12;
             const track = month * 100 + 8 + slot * 7;
             return event.activations.map(activation => {
               const lane = timeline.lanes.findIndex(item => item.id === activation.lane);
-              const end = 320 + lane * 136 + 24;
+              const end = 270 + lane * 132.5 + 24;
               return <path key={`${event.id}-${activation.lane}`} className={`timeline-connector ricky-story-${signal.tone}`} pathLength="1" d={`M${x} ${start} H${track} V${end} H${x}`} style={{ animationDelay: `${timelineMonthDelay(month)}ms` }} />;
             });
           }))}

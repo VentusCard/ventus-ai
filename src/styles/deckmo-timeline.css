@@ -4,7 +4,7 @@
 .ricky-timeline { --timeline-label-width: 174px; height: 100%; min-height: 0; display: flex; flex-direction: column; }
 .timeline-axis { display: grid; grid-template-columns: var(--timeline-label-width) repeat(10,minmax(0,1fr)); height: 30px; flex-shrink: 0; font-size: 12px; font-weight: 700; color: hsl(var(--deck-muted)); text-align: center; }
 .timeline-body { flex: 1; min-height: 0; display: grid; grid-template-columns: var(--timeline-label-width) minmax(0,1fr); }
-.timeline-labels, .timeline-column { display: grid; grid-template-rows: 32% repeat(5,minmax(0,1fr)); min-height: 0; }
+.timeline-labels, .timeline-column { display: grid; grid-template-rows: 27% repeat(4,minmax(0,1fr)) 20%; min-height: 0; }
 .timeline-band-label { padding-top: 15px; font-size: 12px; font-weight: 700; color: hsl(var(--deck-navy)); border-top: 1px solid hsl(var(--deck-rule)); }
 .timeline-lane-label { display: flex; align-items: center; gap: 8px; border-top: 1px solid hsl(var(--deck-rule)); padding-right: 12px; font-size: 12px; font-weight: 600; line-height: 1.4; color: hsl(var(--deck-navy)); }
 .timeline-lane-label svg { width: 17px; height: 17px; flex-shrink: 0; color: hsl(var(--deck-muted)); }
@@ -35,7 +35,6 @@
 .timeline-enter { animation: timeline-rise 650ms ease-out both; }
 @keyframes timeline-rise { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
 @keyframes timeline-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@media (min-width: 1400px) and (min-height: 860px) { .timeline-evidence { display: block; } }
 @media (max-width: 1200px), (max-height: 800px) {
   .ricky-timeline-scene { padding-left: 12px; padding-right: 12px; }
   .ricky-timeline-scene header h2 { margin-top: 8px; }
