@@ -574,7 +574,7 @@
 .timeline-signals { display: grid; grid-template-rows: repeat(3,minmax(0,1fr)); border-top: 1px solid hsl(var(--deck-rule)); }
 .timeline-marker-wrap { position: relative; min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 3px 5px; gap: 3px; }
 .timeline-marker { position: relative; z-index: 2; height: auto; min-height: 29px; width: 100%; display: flex; gap: 4px; justify-content: flex-start; white-space: normal; text-align: left; border-radius: 5px; padding: 4px 5px; font-size: 12px; line-height: 1.2; font-weight: 700; background: hsl(var(--background)); border-color: hsl(var(--story-accent) / .5); color: hsl(var(--deck-navy)); box-shadow: none; }
-.timeline-marker:disabled { opacity: 1; }
+.ricky-timeline .timeline-marker:disabled { opacity: 1; }
 .timeline-marker-dot { width: 6px; height: 6px; flex-shrink: 0; border: 1px solid hsl(var(--story-accent)); background: hsl(var(--story-accent)); border-radius: 50%; }
 .timeline-marker[data-learned] .timeline-marker-dot { background: hsl(var(--background)); }
 .timeline-marker[data-learned] { border-style: dashed; }
@@ -595,15 +595,18 @@
 @keyframes timeline-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @media (min-width: 1400px) and (min-height: 860px) { .timeline-evidence { display: block; } }
 @media (max-width: 1200px), (max-height: 800px) {
+  .ricky-timeline-scene { padding-left: 12px; padding-right: 12px; }
+  .ricky-timeline-scene header h2 { margin-top: 8px; }
+  .ricky-timeline-scene header > p:last-child { margin-top: 10px; }
   .ricky-timeline-scene header h2 { font-size: 32px; }
   .ricky-timeline-scene header > p:last-child { font-size: 16px; }
-  .ricky-timeline { --timeline-label-width: 132px; }
+  .ricky-timeline { --timeline-label-width: 110px; }
   .timeline-axis { font-size: 11px; height: 27px; }
   .timeline-lane-label { font-size: 11px; gap: 5px; padding-right: 7px; }
   .timeline-lane-label svg { width: 14px; height: 14px; }
   .timeline-marker-wrap { padding: 2px 3px; }
   .timeline-marker { font-size: 11px; padding: 3px; }
   .timeline-cell { padding: 3px; }
-  .timeline-activation { font-size: 11px; padding: 4px; line-height: 1.2; }
+  .timeline-activation { font-size: 11px; padding: 3px; line-height: 1.15; }
 }
 @media (prefers-reduced-motion: reduce) { .timeline-enter, .timeline-connector { animation: none; } }
