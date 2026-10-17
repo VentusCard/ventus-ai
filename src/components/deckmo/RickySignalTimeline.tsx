@@ -27,11 +27,11 @@ export function RickySignalTimeline({ step, active, onOpenSignal }: { step: numb
             const signal = DECKMO.ricky.signals.find(item => item.label === event.label);
             if (!signal) return [];
             const x = month * 100 + 50;
-            const start = (slot + 1) * 90 - 12;
+            const start = (slot + 0.5) * 90;
             const track = month * 100 + 8 + slot * 7;
             return event.activations.map(activation => {
               const lane = timeline.lanes.findIndex(item => item.id === activation.lane);
-              const end = 270 + lane * 132.5 + 24;
+              const end = lane === 4 ? 900 : 270 + (lane + 0.5) * 132.5;
               return <path key={`${event.id}-${activation.lane}`} className={`timeline-connector ricky-story-${signal.tone}`} pathLength="1" d={`M${x} ${start} H${track} V${end} H${x}`} style={{ animationDelay: `${timelineMonthDelay(month)}ms` }} />;
             });
           }))}
