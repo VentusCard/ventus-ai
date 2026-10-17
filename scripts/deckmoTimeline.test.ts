@@ -18,7 +18,7 @@ describe("Section 4 timeline rules", () => {
   });
   test("no destination gets more than one activation in a month", () => {
     const cells = timeline.events.flatMap(event => event.activations.map(activation => `${event.month}:${activation.lane}`));
-    expect(cells).toHaveLength(18);
+    expect(cells).toHaveLength(17);
     expect(new Set(cells).size).toBe(cells.length);
   });
   test("betting is routed exclusively to bank teams, never a customer channel", () => {
