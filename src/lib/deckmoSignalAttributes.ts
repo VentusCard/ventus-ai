@@ -1,4 +1,7 @@
+import { formatRoundedMoney } from "./deckmoDisplayMoney";
 import { RICKY_SIGNAL_LABELS as L, RICKY_TRANSACTIONS, type RickyTransaction } from "./deckmoRickyTransactions";
+import { RICKY_KYC_LOCATION, RICKY_KYC_PROFILE, RICKY_KYC_SIGNAL_LABEL, RICKY_LUXURY_AUTO_LABEL, RICKY_TOTAL_ASSETS_LABEL, RICKY_ESTIMATED_TOTAL_ASSETS_CENTS, RICKY_GENERAL_SPENDING_LABEL } from "./deckmoScript";
+import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow, rickyGeneralSpending } from "./deckmoCashFlow";
 
 const months = [
   "January",
@@ -14,8 +17,11 @@ const months = [
   "November",
   "December",
 ];
+/** Exact currency for detail pages. */
 export const formatSignalMoney = (cents: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
+/** Rounded currency for signal pills only. */
+export const formatSignalPillMoney = (cents: number) => formatRoundedMoney(cents);
 
 export function signalMonthlyPayments(label: string, transactions: RickyTransaction[] = RICKY_TRANSACTIONS) {
   const totals = new Map<string, number>();
@@ -49,10 +55,12 @@ export function signalPaymentSummary(label: string, transactions: RickyTransacti
 }
 
 const context: Record<string, string[]> = {
-  [L.income]: ["Semi-monthly", "HP Inc.", "Payroll", "Monthly income $22–26K"],
+  [RICKY_KYC_SIGNAL_LABEL]: [`Age ${RICKY_KYC_PROFILE.age}`, RICKY_KYC_LOCATION.city, RICKY_KYC_LOCATION.state, RICKY_KYC_LOCATION.postalCode, `${RICKY_KYC_PROFILE.relationshipTier} tier`],
+  [L.income]: ["Semi-monthly", "HP Inc.", "Payroll", "Monthly income $23,000–$25,000", `Est. annual household income ${RICKY_KYC_PROFILE.estimatedHouseholdIncome}`],
   [L.business]: ["Cottage food business", "Square payouts", "Vendor fees · supplies"],
   "Small airplane co-owner": ["Cirrus SR22", "Shared ownership", "Annual obligations", "Likely"],
-  "BMW X5 loan ending in ~4 months": ["Auto financing", "Maturity ~4 months", "Likely"],
+  [RICKY_LUXURY_AUTO_LABEL]: ["Luxury auto owner", "BMW X5", "Outside vehicle ownership", "Likely"],
+  [RICKY_TOTAL_ASSETS_LABEL]: ["Estimated total assets", formatSignalPillMoney(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS), "Illustrative external estimate"],
   [L.tennis]: ["About every 2 weeks", "Courts · coaching · gear"],
   [L.hawaii]: ["Annual · December", "Maui", "Flights · resort · car rental"],
   [L.media]: ["Streaming · music · live events", "Netflix · YouTube TV · Spotify"],
@@ -60,6 +68,7 @@ const context: Record<string, string[]> = {
   [L.baby]: ["Nursery · hospital · childcare", "Bright Horizons"],
   [L.home]: ["Palo Alto", "Appraisal · escrow · moving"],
   [L.betting]: ["Increasing frequency", "DraftKings", "Sportsbook · wallet funding"],
+  [RICKY_GENERAL_SPENDING_LABEL]: ["Annual estimate", `${formatSignalPillMoney(rickyGeneralSpending().annualCents)}/year`, "Everyday living expenses", "Estimate"],
 };
 
 export const FINANCIAL_PAYMENT_LABELS: string[] = [L.brokerage, L.marcus, L.amex];
@@ -71,14 +80,14 @@ export function signalAttributes(label: string): string[] {
   if (label === L.amex)
     return [
       "Annualized",
-      `${formatSignalMoney(summary.annualizedCents)}/year`,
+      `${formatSignalPillMoney(summary.annualizedCents)}/year`,
       "to Amex",
       "Credit card payments",
       "Estimate",
     ];
   const amount = summary.fixed
-    ? formatSignalMoney(summary.latest.cents)
-    : `${formatSignalMoney(summary.latest.cents)} latest · ${summary.latest.month}`;
+    ? formatSignalPillMoney(summary.latest.cents)
+    : `${formatSignalPillMoney(summary.latest.cents)} latest · ${summary.latest.month}`;
   return [
     "Monthly",
     amount,
@@ -96,12 +105,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
   if (FINANCIAL_PAYMENT_LABELS.includes(label)) {
     const summary = signalPaymentSummary(label);
     if (!summary?.latest) return [attribute(label)];
-    const money = (cents: number) =>
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: cents % 100 === 0 ? 0 : 2,
-      }).format(cents / 100);
+    const money = formatRoundedMoney;
     if (label === L.amex)
       return [
         attribute("Annualized estimate"),
@@ -123,32 +127,53 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
     ];
   }
   const phrases: Record<string, SignalPhraseSegment[]> = {
+    [RICKY_KYC_SIGNAL_LABEL]: [
+      attribute(`Age ${RICKY_KYC_PROFILE.age}`),
+      connector(" in "),
+      attribute(RICKY_KYC_LOCATION.city),
+      connector(" "),
+      attribute(RICKY_KYC_LOCATION.state),
+      connector(" "),
+      attribute(RICKY_KYC_LOCATION.postalCode),
+      connector(" with "),
+      attribute(`${RICKY_KYC_PROFILE.relationshipTier} tier`),
+      connector(" and his balance is "),
+      attribute(formatRoundedMoney(RICKY_DEMO_BALANCE_CENTS)),
+    ],
+    [RICKY_CASH_FLOW_LABEL]: [
+      attribute("Estimated EOY surplus"), connector(" is "), attribute(formatSignalPillMoney(estimatedEoySurplusCents(rickyCashFlow().surplusCents))),
+      connector(" and "), attribute("monthly idle cash"), connector(" is "), attribute(formatSignalPillMoney(rickyCashFlow().idleCents)),
+    ],
+    [RICKY_GENERAL_SPENDING_LABEL]: [
+      attribute("Annual estimate"),
+      connector(" "),
+      attribute(`${formatSignalPillMoney(rickyGeneralSpending().annualCents)}/year`),
+      connector(" in "),
+      attribute("general spending"),
+    ],
     [L.income]: [
-      attribute("Stable $22K monthly income"),
+      attribute("Stable $23,000–$25,000 monthly income"),
       connector(" from "),
       attribute("HP Inc."),
       connector(" a "),
       attribute("Technology Company"),
+      connector(" with "),
+      attribute(`Est. annual household income ${RICKY_KYC_PROFILE.estimatedHouseholdIncome}`),
     ],
     [L.business]: [attribute("SMB Owner"), connector(" in "), attribute("Food and Beverage")],
     "Small airplane co-owner": [attribute("Airplane co-owner"), connector(" of a "), attribute("Cirrus SR22")],
-    "BMW X5 loan ending in ~4 months": [
-      attribute("BMW X5"),
-      connector(" with "),
-      attribute("auto financing"),
-      connector(" ending in "),
-      attribute("~4 months"),
-    ],
-    [L.tennis]: [attribute("$12,000"), connector(" annual spent in "), attribute("bi-weekly"), connector(" "), attribute("Tennis")],
+    [RICKY_LUXURY_AUTO_LABEL]: [attribute("Luxury auto owner"), connector(" of a "), attribute("BMW X5")],
+    [RICKY_TOTAL_ASSETS_LABEL]: [attribute("Estimated total assets"), connector(" of "), attribute(formatRoundedMoney(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS))],
+    [L.tennis]: [attribute("$4,300"), connector(" annual spent in "), attribute("bi-weekly"), connector(" "), attribute("Tennis")],
     [L.hawaii]: [
-      attribute("$9,000"),
+      attribute("$8,000"),
       connector(" annual spent in "),
       attribute("Annual pre-holiday trip"),
       connector(" "),
       attribute("Q4"),
     ],
     [L.media]: [
-      attribute("$6,000"),
+      attribute("$1,500"),
       connector(" annual spent in "),
       attribute("Media, music and entertainment"),
       connector(" through "),
@@ -163,7 +188,7 @@ export function signalInlineSegments(label: string): SignalPhraseSegment[] {
       connector(" in "),
       attribute("Palo Alto"),
       connector(" for around "),
-      attribute("$1.75M"),
+      attribute("$1.5M+"),
     ],
     [L.betting]: [
       attribute("Increasing"),

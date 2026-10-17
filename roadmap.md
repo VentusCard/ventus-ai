@@ -1,13 +1,22 @@
 # Roadmap
+- [x] Replace Section 4 story with the signal-to-activation timeline; 68 focused tests pass, both desktop sizes fit without scrolling, all 15 marker/detail mappings verified, plus keyboard navigation, CU wording and reduced motion. 4.3 retains its detail/table animations and adds activation destinations.
+- [x] Combine Section 4 internal and external pills into 4.2, retain headings-only 4.1, and emphasize individually identifiable nested attributes; 40 tests pass, navigation/geometry/pop-ups verified at 1546×903 and 1024×768 with fresh module requests, plus reduced-motion navigation and scrolling.
+- [x] Add "General spending" as the first Behavioral pill (annual estimate $3,264.24, everyday items only); 356 tests pass, pill and 17-row pop-up verified at 1546×903.
+- [x] Update Section 4 estimated EOY surplus, BMW luxury auto ownership in Demographics, and $3.5M external total assets; 44 focused tests pass and all three reveals/affected pop-ups verified at 1903×903 and 1024×768 with fresh module requests.
+- [x] Add Section 4 headings-and-empty-rows opening, shift internal/external reveals to 4.2/4.3; verified stable geometry, pop-ups, navigation, and reduced motion at two desktop sizes.
+- [x] Exclude the one-time home escrow payment from monthly cash flow; 40 tests pass and both Section 4 pop-ups verified with fresh module requests at 1375×842.
+- [x] Section 4: compact $25,000 balance within KYC and calculated monthly surplus/idle cash in Financial; 40 tests pass, both beats/pop-ups verified at 1375×842 and 1024×768.
+- [x] Section 4: replace the profile strip with nested KYC in Demographics, move payroll and household-income details to Financial, and verify both beats and pop-ups at three desktop sizes; 36 deck tests pass.
 - [x] Audit all 14 Section 4 signal pop-ups; full rails and all existing table values verified within two text lines at four desktop sizes using fresh module requests; scrolling and close controls pass.
-- [ ] Preview delivery: ordinary module requests retain cached previous pop-up sizing; fresh module requests show the verified changes. Blocked by preview module-cache invalidation outside application code.
-- [ ] Section 4 vertical spacing and larger left headings are implemented; visual verification is blocked because the live preview still serves the previous layout despite fresh loads. Deck tests pass.
+- [x] Preview delivery: ordinary page requests now show the current Section 4 changes, including full rail columns and updated profile signals.
+- [x] Section 4 vertical spacing and larger left headings verified in the ordinary live preview at three desktop sizes; shorter screens scroll to the final row and both reveals retain identical row geometry.
 - [x] Move the platform to Section 5 with one overview stop and four explicit benefit-navigation buttons; verify destinations, platform interaction, and desktop layout
 - [x] Fade slide 4.1's outside lead-in words with their pills and closing period; verify no reflow into 4.2
 - [x] Apply finalized Deckmo headers and captions; preserve unresolved alternatives and metrics; verify both institution modes and all slides
 - [x] Restore slide 4.1's entrance and return reveal without changing 4.2; verify live navigation, pop-ups, and reduced motion
 - [x] Weave more outside signals (other-bank accounts, credit, habits) into the /deckmo 2.2 ticker; verify interleaved order, icons, and layout
 - [x] Make slide 2.1's overview fill its panel and expanded lists use remaining height; verify three desktop sizes and 2.2 handoff
+- [x] Start slide 2.1 with every block collapsed so the presenter opens KYC, Cards, ACH, Checks, Wire or Zelle deliberately; verify headers still fill the panel at two desktop sizes
 - [x] Clean up slide 2.3 pill wording defects (spacing, typos, trailing dot, drop "variable") keeping structure
 - [x] Replace slide 2.3 parentheses with lighter inline nested pills; verify all signals, wrapping, and evidence clicks
 - [x] Simplify all slide 2.3 pills into inline parenthesized phrases; verify evidence, spacing, and navigation
@@ -35,3 +44,6 @@
 - [x] Add "Coworker for Wealth Managers" persona (all AI Coworker sub-tabs)
 - Differentiated internal vs external story pills: darker internal tint, leading Sparkles/Ext badge on external pills
 - [x] Section 4 signal popups: /demo-style two-tier table (Raw Transaction vs Enriched output), one row per transaction
+
+- [x] Deckmo 4.2 pills open a full 4.3 signal detail beat (keyboard default: home purchase); cross-rail header copy
+- [x] Split Section 4 header copy by beat: 4.2 shows only the attributes sentence, 4.3 only the cross-category sentence, 4.1 neither; 72 tests pass and all three beats verified at 1546x903

@@ -1,9 +1,9 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Baby, BriefcaseBusiness, Building2, CalendarClock, Car, ChevronDown, ChevronRight, CreditCard, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, HeartHandshake, Home, Landmark, LogOut, Mail, Monitor, MonitorPlay, PiggyBank, Plane, School, Search, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Baby, BriefcaseBusiness, Building2, CalendarClock, Car, ChevronDown, ChevronLeft, ChevronRight, CreditCard, ExternalLink, Gift, GraduationCap, Grid2X2, Heart, HeartHandshake, Home, Landmark, LogOut, Mail, Monitor, MonitorPlay, PiggyBank, Plane, School, Search, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, Wallet, X, Zap, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { DECKMO, DECKMO_STEPS, deckmoBeatStartIndex, RICKY_SIGNAL_DETAILS, type DeckmoBeatId } from "@/lib/deckmoScript";
+import { DECKMO, DECKMO_STEPS, deckmoBeatStartIndex, RICKY_DEFAULT_DETAIL_SIGNAL, RICKY_SIGNAL_DETAILS, type DeckmoBeatId } from "@/lib/deckmoScript";
 import { deckmoNavigationDelta } from "@/lib/deckmoNavigation";
 import { useInstitutionDomSwap } from "@/lib/institutionMode";
 import { RICKY_TRANSACTIONS, type RickySignalLabel } from "@/lib/deckmoRickyTransactions";
@@ -11,7 +11,8 @@ import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoRetention } from "./DeckmoBankdemoScenes";
 import { ENRICH_COLS, EnrichmentCells, EnrichmentColumnHeaders } from "./RickyEnrichmentTable";
 import { RickyRailAccordion } from "./RickyRailAccordion";
-import { RickySignalStory } from "./RickySignalStory";
+import { RickySignalDetail } from "./RickySignalStory";
+import { RickySignalTimeline } from "./RickySignalTimeline";
 
 const TONES = {
   blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-100", hoverBg: "hover:bg-blue-200", fullText: "text-blue-900 hover:text-blue-900", pillBorder: "border-blue-300" },
@@ -31,7 +32,7 @@ const RICKY_ROW_TONES: Record<Tone, string> = {
   rose: "border-l-[4px] border-l-rose-500 bg-rose-100/90",
 };
 
-type SceneProps = { step: number; active?: boolean; onNavigateBeat?: (id: DeckmoBeatId) => void };
+type SceneProps = { step: number; active?: boolean; onNavigateBeat?: (id: DeckmoBeatId) => void; signalDetail?: { label: string; open: (label: string) => void; back: () => void } };
 
 const VISIBILITY_ROLLER_SPEED = 40;
 
@@ -86,7 +87,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-blue-600">{children}</p>;
 }
 
-function Header({ eyebrow, title, subtitle, withLogo = false }: { eyebrow: string; title: string; subtitle?: string; withLogo?: boolean }) {
+function Header({ eyebrow, title, subtitle, withLogo = false, hideSubtitle = false, animateSubtitle = false }: { eyebrow: string; title: string; subtitle?: string; withLogo?: boolean; hideSubtitle?: boolean; animateSubtitle?: boolean }) {
   return (
     <header className="max-w-[1180px]">
       <Eyebrow>{eyebrow}</Eyebrow>
@@ -100,7 +101,7 @@ function Header({ eyebrow, title, subtitle, withLogo = false }: { eyebrow: strin
       ) : (
         <h2 className="mt-3 text-balance text-[clamp(34px,3.6vw,58px)] font-bold leading-[1.04] tracking-normal text-slate-950">{title}</h2>
       )}
-      {subtitle && <p className="mt-4 max-w-[1060px] text-[clamp(16px,1.35vw,21px)] leading-relaxed text-slate-600">{subtitle}</p>}
+      {subtitle && <p key={animateSubtitle ? subtitle : undefined} aria-hidden={hideSubtitle || undefined} className={cn("mt-4 max-w-[1060px] text-[clamp(16px,1.35vw,21px)] leading-relaxed text-slate-600", hideSubtitle && "invisible", animateSubtitle && !hideSubtitle && "animate-fade-in-slow motion-reduce:animate-none")}>{subtitle}</p>}
     </header>
   );
 }
@@ -449,11 +450,18 @@ function VisibilityAndRicky({ step, active = false }: SceneProps) {
   return <Visibility step={Math.min(step, 1)} active={active} />;
 }
 
-function RickyStoryScene({ step, active = false }: SceneProps) {
+function RickyStoryScene({ step, active = false, signalDetail }: SceneProps) {
   const header = DECKMO.ricky.storyHeader;
-  return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
-    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.descriptions[step > 0 ? 1 : 0]} withLogo />
-    <div className="mt-6 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-4"><RickySignalStory active={active} revealStep={active ? step : 1} /></div>
+  if (step >= 2 && signalDetail) return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
+    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.description} animateSubtitle withLogo />
+    <div key={signalDetail.label} className="mt-4 flex min-h-0 flex-1 animate-fade-in-slow flex-col gap-3 pb-6 motion-reduce:animate-none">
+      <Button type="button" variant="ghost" size="sm" onClick={signalDetail.back} className="self-start gap-1.5 px-2 text-deck-muted"><ChevronLeft className="h-4 w-4" />Back to all signals</Button>
+      <RickySignalDetail label={signalDetail.label} onBack={signalDetail.back} />
+    </div>
+  </div>;
+  return <div className="ricky-timeline-scene mx-auto flex h-full w-full max-w-[1560px] flex-col px-6 pt-8 xl:px-10 [@media(max-height:800px)]:pt-5">
+    <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.attributesNote} hideSubtitle={step === 0} animateSubtitle withLogo />
+    <div className="mt-4 flex min-h-0 flex-1 flex-col pb-4 [@media(max-height:800px)]:mt-3"><RickySignalTimeline active={active} step={Math.min(step, 1)} onOpenSignal={signalDetail?.open} /></div>
   </div>;
 }
 
@@ -541,13 +549,17 @@ const SCENES: Record<DeckmoBeatId,(props:SceneProps)=>React.ReactNode>={opener:O
 export function DeckmoDeck(){const [globalStep,setGlobalStep]=useState(0);const [presenterOpen,setPresenterOpen]=useState(false);const scroller=useRef<HTMLDivElement>(null);const deckRootRef=useRef<HTMLDivElement>(null);useInstitutionDomSwap(deckRootRef);const sectionRefs=useRef<(HTMLElement|null)[]>([]);const current=DECKMO_STEPS[globalStep];const activeBeat=DECKMO.beats[current.section];const hasSub="sub" in current&&!!current.sub;const beatNum=current.screen+1;const slideNumber=hasSub?`${current.section+1}.${beatNum}.${current.sub}`:`${current.section+1}${activeBeat.steps>1?`.${beatNum}`:""}`;const slideTotal=String(DECKMO.beats.length);
 const jump=useCallback((index:number)=>{const bounded=Math.max(0,Math.min(DECKMO_STEPS.length-1,index));setGlobalStep(bounded);const next=DECKMO_STEPS[bounded];sectionRefs.current[next.section]?.scrollIntoView({behavior:"smooth",block:"start"});},[]);
 const navigateBeat=useCallback((id:DeckmoBeatId)=>{const index=deckmoBeatStartIndex(id);if(index>=0)jump(index)},[jump]);
+const [signalLabel,setSignalLabel]=useState<string>(RICKY_DEFAULT_DETAIL_SIGNAL);
+const storyStart=deckmoBeatStartIndex("ricky-story");
+useEffect(()=>{if(globalStep>=storyStart&&globalStep<storyStart+2)setSignalLabel(RICKY_DEFAULT_DETAIL_SIGNAL)},[globalStep,storyStart]);
+const signalDetail=useMemo(()=>({label:signalLabel,open:(label:string)=>{setSignalLabel(label);jump(storyStart+2)},back:()=>jump(storyStart+1)}),[signalLabel,jump,storyStart]);
 useEffect(()=>{const onKey=(e:KeyboardEvent)=>{const t=e.target as HTMLElement|null;const editing=!!t?.closest("input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox']");if(editing)return;const modified=e.ctrlKey||e.metaKey||e.altKey;if(modified)return;if(e.key.toLowerCase()==="p"){e.preventDefault();setPresenterOpen(v=>!v);return}if(e.key==="Escape"){if(presenterOpen){e.preventDefault();setPresenterOpen(false)}return}if(presenterOpen)return;const delta=deckmoNavigationDelta(e.key,editing,modified);if(delta){e.preventDefault();jump(globalStep+delta)}};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[globalStep,jump,presenterOpen]);
 return <div ref={deckRootRef} className="demo-page relative h-screen w-screen overflow-hidden bg-background font-deck text-foreground">
   <header className="absolute inset-x-0 top-0 z-40 flex h-20 items-center justify-between border-b border-deck-rule bg-background px-12">
-    <div className="flex min-w-0 items-center gap-4"><img src={ventusLogoBlue} alt="Ventus AI" className="h-7 w-auto shrink-0 object-contain"/><span className="h-6 w-px shrink-0 bg-deck-rule"/><span className="truncate font-deck-serif text-2xl text-deck-navy" aria-live="polite">{activeBeat.nav}</span></div>
+    <div className="flex min-w-0 items-center"><img src={ventusLogoBlue} alt="Ventus AI" className="h-7 w-auto shrink-0 object-contain"/></div>
       <div className="flex shrink-0 items-center gap-6 text-xs font-semibold uppercase tracking-wide text-deck-muted"><span>INTERACTIVE PRESENTATION</span><Button variant="outline" size="icon" className="h-8 w-8 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" aria-label={DECKMO.chrome.exit} onClick={()=>{try{sessionStorage.removeItem("demo_password_access")}catch{}window.location.reload()}}><LogOut className="h-3.5 w-3.5"/></Button></div>
   </header>
-  <div ref={scroller} className="h-full overflow-hidden scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const active=section===current.section;const step=active?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el;if(el)el.inert=!active}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step} active={active} onNavigateBeat={beat.id==="bank-tools"?navigateBeat:undefined}/></div></section>})}</div>
+  <div ref={scroller} className="h-full overflow-hidden scroll-smooth">{DECKMO.beats.map((beat,section)=>{const Scene=SCENES[beat.id];const active=section===current.section;const step=active?current.step:section<current.section?beat.steps-1:0;return <section key={beat.id} ref={el=>{sectionRefs.current[section]=el;if(el)el.inert=!active}} data-section={section} className="relative h-screen min-h-[700px] snap-start overflow-hidden bg-background pb-14 pt-20"><div className="h-full"><Scene step={step} active={active} onNavigateBeat={beat.id==="bank-tools"?navigateBeat:undefined} signalDetail={beat.id==="ricky-story"?signalDetail:undefined}/></div></section>})}</div>
   <footer className="absolute inset-x-0 bottom-0 z-40 flex h-14 items-center justify-between border-t border-deck-rule bg-background px-12">
     <div className="flex items-center gap-6"><div className="flex items-center gap-1.5"><Button variant="outline" size="icon" className="h-7 w-7 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" onClick={()=>jump(globalStep-1)} disabled={globalStep===0} aria-label={DECKMO.chrome.previous}><ArrowLeft className="h-3.5 w-3.5"/></Button><Button variant="outline" size="icon" className="h-7 w-7 rounded-sm border-deck-rule text-deck-navy hover:bg-deck-surface" onClick={()=>jump(globalStep+1)} disabled={globalStep===DECKMO_STEPS.length-1} aria-label={DECKMO.chrome.next}><ArrowRight className="h-3.5 w-3.5"/></Button></div><div className="text-[10px] font-medium uppercase text-deck-muted">Slide <span className="font-semibold text-deck-navy">{slideNumber}</span> / {slideTotal}</div></div>
     <div className="absolute inset-x-0 top-0 h-px bg-deck-surface"><div className="h-full bg-deck-blue transition-[width] duration-200 motion-reduce:transition-none" style={{width:`${((globalStep+1)/DECKMO_STEPS.length)*100}%`}}/></div>

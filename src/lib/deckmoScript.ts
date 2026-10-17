@@ -1,4 +1,5 @@
 import { RICKY_SIGNAL_LABELS } from "@/lib/deckmoRickyTransactions";
+import { RICKY_CASH_FLOW_LABEL, RICKY_DEMO_BALANCE_CENTS, estimatedEoySurplusCents, rickyCashFlow, rickyGeneralSpending } from "./deckmoCashFlow";
 
 export type DeckmoBeatId =
   | "opener"
@@ -32,6 +33,19 @@ export const RICKY_KYC_PROFILE = {
   relationshipTier: "Preferred",
 };
 
+export const RICKY_KYC_SIGNAL_LABEL = "KYC";
+export const RICKY_LUXURY_AUTO_LABEL = "Luxury auto owner";
+export const RICKY_TOTAL_ASSETS_LABEL = "Estimated total assets";
+export const RICKY_GENERAL_SPENDING_LABEL = "General spending";
+export const RICKY_ESTIMATED_TOTAL_ASSETS_CENTS = 350000000;
+export type RickyTimelineLane = "digital" | "rewards" | "email" | "manager" | "internal";
+export type RickyTimelineEvent = { id: string; month: number; shortLabel: string; label: string; evidence: string; learned?: boolean; activations: readonly { lane: RickyTimelineLane; label: string }[] };
+export const RICKY_KYC_LOCATION = (() => {
+  const [city = "", region = ""] = RICKY_KYC_PROFILE.location.split(", ");
+  const [state = "", postalCode = ""] = region.split(" ");
+  return { city, state, postalCode };
+})();
+
 export const DECKMO = {
   chrome: {
     progress: "Story progress",
@@ -58,7 +72,7 @@ export const DECKMO = {
     { id: "opener", nav: "Thesis", steps: 6 },
     { id: "visibility", nav: "The Visibility Gap", steps: 2 },
     { id: "living-view", nav: "The Complete Picture", steps: 3 },
-    { id: "ricky-story", nav: "Ricky, understood", steps: 2 },
+    { id: "ricky-story", nav: "Ricky, understood", steps: 3 },
     {
       id: "bank-tools",
       nav: "Tools for the Bank",
@@ -147,7 +161,8 @@ export const DECKMO = {
   livingView: {
     eyebrow: "THE COMPLETE PICTURE",
     title: "Ventus AI: One living customer view",
-    subtitle: "Internal activity and external context come together to show who each customer is, how they live, and what they may need next.",
+    subtitle:
+      "Internal and external data come together through proprietary tools, taxonomy and data structure.",
     inside: {
       header: "INSIDE THE WALLS",
       title: "Understand activity across payment rails",
@@ -172,14 +187,42 @@ export const DECKMO = {
   },
   ricky: {
     eyebrow: "A 360-DEGREE VIEW OF THE CUSTOMER",
-    title: "Meet Ricky",
+    title: "Meet Ricky, a typical customer",
     storyHeader: {
       eyebrow: "CUSTOMER INTELLIGENCE IN ACTION",
       title: "Ricky, understood",
-      descriptions: [
-        "Internal activity reveals Ricky’s routines, financial relationships, and emerging needs.",
-        "External context adds the relationships and life details the bank cannot see on its own.",
-      ],
+      description: "Every signal is a cross-category, cross-rail pattern that Ventus AI recognizes as an insight.",
+      attributesNote: "Each signal is detected as it emerges and activated in the channel that can act on it, at the moment it matters.",
+    },
+    timeline: {
+      signalBandLabel: "Signals detected",
+      activatedLabel: "Activated to",
+      learnedLabel: "Pattern learned",
+      months: ["Dec 2025", "Jan 2026", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+      lanes: [
+        { id: "digital", label: "Digital banking", icon: "phone" },
+        { id: "rewards", label: "Rewards & perks", icon: "gift" },
+        { id: "email", label: "Email & marketing automation", icon: "mail" },
+        { id: "manager", label: "Relationship manager", icon: "user" },
+        { id: "internal", label: "Bank teams only", icon: "shield" },
+      ] as const,
+      events: [
+        { id: "hawaii-learned", month: 0, shortLabel: "Hawaii trip", label: RICKY_SIGNAL_LABELS.hawaii, evidence: "Maui trip, Dec 1–9", learned: true, activations: [] },
+        { id: "home-feb", month: 2, shortLabel: "Home purchase", label: RICKY_SIGNAL_LABELS.home, evidence: "Property attorney retained", activations: [{ lane: "manager", label: "Early home-journey conversation" }] },
+        { id: "baby-mar", month: 3, shortLabel: "New baby", label: RICKY_SIGNAL_LABELS.baby, evidence: "Nursery prep, then hospital stay Mar 19", activations: [{ lane: "digital", label: "529 College Savings" }, { lane: "email", label: "529 College Savings" }] },
+        { id: "fidelity-mar", month: 3, shortLabel: "Fidelity investing", label: RICKY_SIGNAL_LABELS.brokerage, evidence: "$5,000 every month", activations: [{ lane: "manager", label: "Wealth management introduction" }] },
+        { id: "home-apr", month: 4, shortLabel: "Home purchase", label: RICKY_SIGNAL_LABELS.home, evidence: "First appraisal", activations: [{ lane: "digital", label: "Home lending relationship" }, { lane: "email", label: "Home lending, 0.5% lower APR" }] },
+        { id: "business-may", month: 5, shortLabel: "Small business", label: RICKY_SIGNAL_LABELS.business, evidence: "LLC formation, cottage food permit", activations: [{ lane: "manager", label: "Business checking and merchant services" }] },
+        { id: "amex-may", month: 5, shortLabel: "Outside card spend", label: RICKY_SIGNAL_LABELS.amex, evidence: "Outside card payments growing monthly", activations: [{ lane: "email", label: "Premium rewards card campaign" }] },
+        { id: "marcus-jun", month: 6, shortLabel: "Outside savings", label: RICKY_SIGNAL_LABELS.marcus, evidence: "Monthly transfers stepping up", activations: [{ lane: "digital", label: "High-yield savings offer" }] },
+        { id: "pet-jun", month: 6, shortLabel: "Pet spend", label: "High pet expenditure", evidence: "Outside purchase data", activations: [{ lane: "rewards", label: "Pet care perks" }] },
+        { id: "tennis-jul", month: 7, shortLabel: "Tennis", label: RICKY_SIGNAL_LABELS.tennis, evidence: "Tournament entry, coaching, new gear", activations: [{ lane: "rewards", label: "Premium racquet fitting" }] },
+        { id: "media-jul", month: 7, shortLabel: "Streaming price change", label: RICKY_SIGNAL_LABELS.media, evidence: "Spotify plan price up", activations: [{ lane: "digital", label: "Price change explained in app" }] },
+        { id: "home-aug", month: 8, shortLabel: "Home purchase", label: RICKY_SIGNAL_LABELS.home, evidence: "Second appraisal, moving deposit", activations: [{ lane: "rewards", label: "Home design and moving perks" }] },
+        { id: "home-sep", month: 9, shortLabel: "Home purchase", label: RICKY_SIGNAL_LABELS.home, evidence: "Escrow wire", activations: [{ lane: "manager", label: "Talk through the new home plan" }] },
+        { id: "betting-sep", month: 9, shortLabel: "Sports betting", label: RICKY_SIGNAL_LABELS.betting, evidence: "New wallet funding by ACH", activations: [{ lane: "internal", label: "Policy guardrail: excluded from customer offers" }] },
+        { id: "hawaii-sep", month: 9, shortLabel: "Hawaii trip", label: RICKY_SIGNAL_LABELS.hawaii, evidence: "Next trip booked", activations: [{ lane: "rewards", label: "Your next island escape" }, { lane: "digital", label: "Lounge access before the trip" }] },
+      ] satisfies RickyTimelineEvent[],
     },
     sectionSubtitles: [
       "Start with the transactions the institution can see.",
@@ -191,7 +234,7 @@ export const DECKMO = {
     rawLabel: "SUPPORTING TRANSACTIONS",
     signalLabel: "VENTUS CUSTOMER INTELLIGENCE",
     signals: [
-      { family: "Demographics", label: RICKY_SIGNAL_LABELS.income, tone: "violet", source: "internal" },
+      { family: "Demographics", label: RICKY_KYC_SIGNAL_LABEL, tone: "violet", source: "internal" },
       { family: "Demographics", label: RICKY_SIGNAL_LABELS.business, tone: "violet", source: "internal" },
       {
         family: "Demographics",
@@ -205,21 +248,36 @@ export const DECKMO = {
           confidence: "Likely",
         },
       },
-      { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
-      { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
-      { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
       {
-        family: "Financial",
-        label: "BMW X5 loan ending in ~4 months",
-        tone: "emerald",
+        family: "Demographics",
+        label: RICKY_LUXURY_AUTO_LABEL,
+        tone: "violet",
         source: "external",
         externalEvidence: {
           provider: "Outside vehicle ownership data",
-          detail: "BMW X5 financing is nearing the end of its term",
-          timing: "Maturity · ~4 months",
+          detail: "BMW X5 ownership indicates a luxury vehicle owner",
+          timing: "Vehicle ownership context",
           confidence: "Likely",
         },
       },
+      {
+        family: "Demographics",
+        label: RICKY_TOTAL_ASSETS_LABEL,
+        tone: "violet",
+        source: "external",
+        externalEvidence: {
+          provider: "Illustrative outside asset context",
+          detail: "Estimated total assets of $3.5M; not derived from the institution’s ledger",
+          timing: "Asset estimate · not a cash-flow total",
+          confidence: "Illustrative estimate · not verified",
+        },
+      },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.income, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_CASH_FLOW_LABEL, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.brokerage, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.marcus, tone: "emerald", source: "internal" },
+      { family: "Financial", label: RICKY_SIGNAL_LABELS.amex, tone: "emerald", source: "internal" },
+      { family: "Behavioral", label: RICKY_GENERAL_SPENDING_LABEL, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.tennis, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.hawaii, tone: "blue", source: "internal" },
       { family: "Behavioral", label: RICKY_SIGNAL_LABELS.media, tone: "blue", source: "internal" },
@@ -628,7 +686,7 @@ export const DECKMO = {
     },
   },
   bankTools: {
-    eyebrow: "TOOLS FOR THE BANK",
+    eyebrow: "THE PLATFORM",
     title: "Possible for Ricky because it is\npossible for every customer",
     subtitle: "A modular, governed intelligence and personalization platform with 45 tools and workflows.",
     screens: [
@@ -776,11 +834,15 @@ export const DECKMO_STEPS = DECKMO.beats.flatMap((beat, section) =>
 );
 
 /** Explicit section controls resolve through the authoritative ordered script. */
+/** Signal opened on 4.3 when the presenter advances from 4.2 without clicking a pill. */
+export const RICKY_DEFAULT_DETAIL_SIGNAL: string = RICKY_SIGNAL_LABELS.home;
+
 export function deckmoBeatStartIndex(id: DeckmoBeatId): number {
   return DECKMO_STEPS.findIndex((entry) => DECKMO.beats[entry.section].id === id);
 }
 
 export interface RickySignalDetail {
+  evidenceKind?: "customer-profile" | "cash-flow" | "general-spending";
   summary: string;
   facts: string[];
   merchants: string[];
@@ -788,14 +850,18 @@ export interface RickySignalDetail {
 
 /** Inline clauses preserve family order and put external signals last in each family. */
 export const RICKY_SIGNAL_STORY = [
-  { before: ". His household picture combines", label: RICKY_SIGNAL_LABELS.income },
-  { before: "with a new venture:", label: RICKY_SIGNAL_LABELS.business },
+  { before: ". His customer profile shows", label: RICKY_KYC_SIGNAL_LABEL },
+  { before: "; he is also a", label: RICKY_SIGNAL_LABELS.business },
   { before: "; outside ownership data identifies him as a", label: "Small airplane co-owner" },
-  { before: ". His financial relationships include", label: RICKY_SIGNAL_LABELS.brokerage },
+  { before: ", outside vehicle data shows a", label: RICKY_LUXURY_AUTO_LABEL },
+  { before: ", with", label: RICKY_TOTAL_ASSETS_LABEL },
+  { before: ". His financial picture combines", label: RICKY_SIGNAL_LABELS.income },
+  { before: "; his cash flow shows", label: RICKY_CASH_FLOW_LABEL },
+  { before: "with", label: RICKY_SIGNAL_LABELS.brokerage },
   { before: ",", label: RICKY_SIGNAL_LABELS.marcus },
   { before: ", and", label: RICKY_SIGNAL_LABELS.amex },
-  { before: ", while outside vehicle data shows a", label: "BMW X5 loan ending in ~4 months" },
-  { before: "Ricky’s routine includes", label: RICKY_SIGNAL_LABELS.tennis },
+  { before: ". His routine starts with", label: RICKY_GENERAL_SPENDING_LABEL },
+  { before: ", along with", label: RICKY_SIGNAL_LABELS.tennis },
   { before: ", an", label: RICKY_SIGNAL_LABELS.hawaii },
   { before: ", and", label: RICKY_SIGNAL_LABELS.media },
   { before: "; outside purchase data also points to", label: "High pet expenditure" },
@@ -805,6 +871,44 @@ export const RICKY_SIGNAL_STORY = [
 ] as const;
 
 export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
+  [RICKY_KYC_SIGNAL_LABEL]: {
+    evidenceKind: "customer-profile",
+    summary: "Basic customer-profile information held by the institution",
+    facts: [
+      `Name: ${RICKY_KYC_PROFILE.name}`,
+      `Customer ID: ${RICKY_KYC_PROFILE.customerId}`,
+      `Age: ${RICKY_KYC_PROFILE.age}`,
+      `Location: ${RICKY_KYC_PROFILE.location}`,
+      `Relationship tier: ${RICKY_KYC_PROFILE.relationshipTier}`,
+      `Illustrative account balance: $${(RICKY_DEMO_BALANCE_CENTS / 100).toLocaleString("en-US")} (demo profile value, not derived from transactions)`,
+    ],
+    merchants: [],
+  },
+  [RICKY_CASH_FLOW_LABEL]: {
+    evidenceKind: "cash-flow",
+    summary: "Estimated EOY surplus and monthly idle cash from the January–September 2026 sample",
+    facts: [
+      `Estimated EOY surplus: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(estimatedEoySurplusCents(rickyCashFlow().surplusCents) / 100)} — monthly average surplus × 12`,
+      "Annualized estimate from January–September 2026 payroll minus observed spending; not an observed year-end total or projected account balance.",
+      `Idle cash: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyCashFlow().idleCents / 100)} per month — surplus minus Marcus savings and Fidelity investing`,
+      "Card settlements and wallet funding are excluded to avoid counting transfers as additional spending. Other income is not included in this payroll-based comparison.",
+      "Excludes the one-time $315,000 home escrow payment to show ongoing monthly cash flow. All other observed spending remains included. The sample is not a complete account history.",
+      "Idle cash is a monthly residual, not an account balance.",
+    ],
+    merchants: [],
+  },
+  [RICKY_GENERAL_SPENDING_LABEL]: {
+    evidenceKind: "general-spending",
+    summary: "Everyday living expenses across groceries, gas, utilities and daily purchases",
+    facts: [
+      `Annual estimate: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyGeneralSpending().annualCents / 100)} — monthly average across Jan–Sep 2026 × 12`,
+      `Monthly average: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(rickyGeneralSpending().monthlyCents / 100)} across the observed sample`,
+      "Basket: groceries, gas, electricity, internet, dining, pharmacy, rideshares, clothing, books and digital subscriptions",
+      "Excludes rent, insurance, taxes, business expenses, betting and pet spending (pet activity is its own signal)",
+      "Annualized estimate from the observed sample, not an observed full-year total",
+    ],
+    merchants: ["Whole Foods", "Trader Joe's", "Target", "Costco", "Shell", "PG&E", "Comcast", "Four Seasons", "Starbucks", "CVS", "Uber", "Nordstrom", "Books Inc", "Apple"],
+  },
   [RICKY_SIGNAL_LABELS.tennis]: {
     summary: "Committed club player with court time roughly every other week",
     facts: [
@@ -830,7 +934,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     facts: [
       "Subscriptions: Netflix, YouTube TV, Spotify",
       "Spotify plan upgraded: $11.99 → $12.99 → $13.99",
-      "Live events: $286 at Shoreline Amphitheatre",
+      "Live events: $286.40 at Shoreline Amphitheatre",
       "Recurring media base around $120 per month",
     ],
     merchants: ["Netflix", "YouTube TV", "Spotify", "Ticketmaster", "AMC Theatres"],
@@ -889,29 +993,41 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     summary: "Primary card spend runs through an outside card",
     facts: [
       "Cadence: monthly ePayment on the 4th",
-      "Size: $3,300 rising to $4,860",
-      "About $35,700 paid year to date",
+      "Size: $3,296.74 rising to $4,862.19",
+      "$35,735.74 paid year to date",
       "Trend: steady growth across 9 months",
     ],
     merchants: ["American Express"],
   },
-  "BMW X5 loan ending in ~4 months": {
-    summary: "Vehicle financing nears payoff, opening a next-car decision",
+  [RICKY_LUXURY_AUTO_LABEL]: {
+    summary: "Outside vehicle ownership context identifies a luxury auto owner",
     facts: [
-      "Loan maturity in about 4 months",
-      "Financed outside the bank",
-      "Growing family may favor a larger vehicle",
+      "Vehicle: BMW X5",
+      "Ownership context comes from outside the institution’s ledger",
+      "No vehicle valuation or next-car decision is inferred",
       "Confidence: likely",
     ],
     merchants: ["Outside vehicle ownership data"],
+  },
+  [RICKY_TOTAL_ASSETS_LABEL]: {
+    summary: "Illustrative external estimate of Ricky’s total assets",
+    facts: [
+      `Estimated total assets: $${(RICKY_ESTIMATED_TOTAL_ASSETS_CENTS / 100).toLocaleString("en-US")}`,
+      "Illustrative outside-context estimate, not a verified valuation",
+      "Not derived from payroll, transfers, or the institution’s transaction ledger",
+      "No asset breakdown or ownership valuations are supplied",
+      "Total assets are distinct from account balance and cash-flow surplus; no net-worth estimate is implied",
+    ],
+    merchants: [],
   },
   [RICKY_SIGNAL_LABELS.income]: {
     summary: "Reliable salary with steady raises",
     facts: [
       "Cadence: semi-monthly on the 1st and 15th",
-      "Monthly: $22.8K in Jan to $24.7K in Sep",
+      "Monthly: $22,793.04 in Jan to $24,733.28 in Sep",
       "Employer: HP Inc. direct deposit",
       "Trend: small increases most months",
+      `Estimated annual household income: ${RICKY_KYC_PROFILE.estimatedHouseholdIncome} (profile estimate, not observed payroll)`,
     ],
     merchants: ["HP Inc. Payroll"],
   },
@@ -920,7 +1036,7 @@ export const RICKY_SIGNAL_DETAILS: Record<string, RickySignalDetail> = {
     facts: [
       "May: LLC formation and county cottage food permit",
       "From June: weekly Square payouts",
-      "Payouts grew from $1,216 to $2,486",
+      "Payouts grew from $1,216.44 to $2,486.32",
       "Costs: market vendor fees, Restaurant Depot, liability insurance",
     ],
     merchants: ["Square", "LegalZoom", "Urban Village Farmers' Market", "Restaurant Depot", "FLIP"],
