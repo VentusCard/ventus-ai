@@ -11,7 +11,8 @@ import ventusLogoBlue from "@/assets/ventus-ai-wordmark-blue.png";
 import { BankdemoBankTools, BankdemoImmediate, BankdemoLongTerm, BankdemoMidTerm, BankdemoRetention } from "./DeckmoBankdemoScenes";
 import { ENRICH_COLS, EnrichmentCells, EnrichmentColumnHeaders } from "./RickyEnrichmentTable";
 import { RickyRailAccordion } from "./RickyRailAccordion";
-import { RickySignalDetail, RickySignalStory } from "./RickySignalStory";
+import { RickySignalDetail } from "./RickySignalStory";
+import { RickySignalTimeline } from "./RickySignalTimeline";
 
 const TONES = {
   blue: { dot: "bg-blue-500", border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", fullBg: "bg-blue-100", hoverBg: "hover:bg-blue-200", fullText: "text-blue-900 hover:text-blue-900", pillBorder: "border-blue-300" },
@@ -458,9 +459,9 @@ function RickyStoryScene({ step, active = false, signalDetail }: SceneProps) {
       <RickySignalDetail label={signalDetail.label} onBack={signalDetail.back} />
     </div>
   </div>;
-  return <div className="mx-auto flex h-full w-full max-w-[1560px] flex-col px-10 pt-8 xl:px-14 [@media(max-height:800px)]:pt-5">
+  return <div className="ricky-timeline-scene mx-auto flex h-full w-full max-w-[1560px] flex-col px-6 pt-8 xl:px-10 [@media(max-height:800px)]:pt-5">
     <Header eyebrow={header.eyebrow} title={header.title} subtitle={header.attributesNote} hideSubtitle={step === 0} animateSubtitle withLogo />
-    <div className="mt-4 flex min-h-0 flex-1 flex-col [@media(max-height:800px)]:mt-3"><RickySignalStory active={active} revealStep={active ? Math.min(step, 1) : 1} onOpenSignal={signalDetail?.open} /></div>
+    <div className="mt-4 flex min-h-0 flex-1 flex-col pb-4 [@media(max-height:800px)]:mt-3"><RickySignalTimeline active={active} step={Math.min(step, 1)} onOpenSignal={signalDetail?.open} /></div>
   </div>;
 }
 

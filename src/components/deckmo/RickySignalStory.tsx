@@ -33,6 +33,7 @@ export function RickySignalDetail({ label, onBack }: { label: string; onBack: ()
   const external = signal && "externalEvidence" in signal ? signal.externalEvidence : null;
   const evidence = detail?.evidenceKind === "cash-flow" ? rickyCashFlow().evidence : detail?.evidenceKind === "general-spending" ? rickyGeneralSpending().evidence : rickySignalEvidence(label);
   const payments = label && FINANCIAL_PAYMENT_LABELS.includes(label) ? signalPaymentSummary(label) : null;
+  const activations = DECKMO.ricky.timeline.events.filter(event => event.label === label).flatMap(event => event.activations.map(activation => ({ ...activation, month: DECKMO.ricky.timeline.months[event.month], destination: DECKMO.ricky.timeline.lanes.find(lane => lane.id === activation.lane)?.label })));
 
 
     if (!signal || !detail) return null;
@@ -46,6 +47,7 @@ export function RickySignalDetail({ label, onBack }: { label: string; onBack: ()
         <Button variant="ghost" size="icon" onClick={onBack} aria-label="Back to all signals" title="Back to all signals" className="shrink-0"><X className="h-4 w-4" /></Button>
       </header>
       <div className="space-y-4 px-5 py-4">
+        {activations.length > 0 && <div data-activated-to className="border-b border-deck-rule pb-3"><h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase">{DECKMO.ricky.timeline.activatedLabel}</h5><ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-deck-navy">{activations.map(activation => <li key={`${activation.month}-${activation.lane}`}><span className="font-semibold">{activation.month} · {activation.destination}</span> · {activation.label}</li>)}</ul></div>}
         <div><h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Key details</h5><ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">{detail.facts.map((fact) => <li key={fact} className="rounded-md border border-deck-rule bg-muted/40 px-3 py-2">{fact}</li>)}</ul></div>
         {detail.merchants.length > 0 && <div><h5 className="ricky-story-popover-heading text-[10px] font-bold uppercase text-deck-muted">Merchants</h5><div className="mt-2 flex flex-wrap gap-1.5">{detail.merchants.map((merchant) => <span key={merchant} className="rounded-md border border-deck-rule bg-muted/40 px-2 py-0.5 text-xs font-semibold">{merchant}</span>)}</div></div>}
         {payments && <div data-monthly-payments>
