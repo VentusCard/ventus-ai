@@ -38,6 +38,8 @@ export const RICKY_LUXURY_AUTO_LABEL = "Luxury auto owner";
 export const RICKY_TOTAL_ASSETS_LABEL = "Estimated total assets";
 export const RICKY_GENERAL_SPENDING_LABEL = "General spending";
 export const RICKY_ESTIMATED_TOTAL_ASSETS_CENTS = 350000000;
+export type RickyTimelineLane = "digital" | "rewards" | "email" | "manager" | "internal";
+export type RickyTimelineEvent = { id: string; month: number; shortLabel: string; label: string; evidence: string; learned?: boolean; activations: readonly { lane: RickyTimelineLane; label: string }[] };
 export const RICKY_KYC_LOCATION = (() => {
   const [city = "", region = ""] = RICKY_KYC_PROFILE.location.split(", ");
   const [state = "", postalCode = ""] = region.split(" ");
@@ -190,7 +192,37 @@ export const DECKMO = {
       eyebrow: "CUSTOMER INTELLIGENCE IN ACTION",
       title: "Ricky, understood",
       description: "Every signal is a cross-category, cross-rail pattern that Ventus AI recognizes as an insight.",
-      attributesNote: "Complex customer signals, broken into individually identifiable attributes: from amounts and cadence to locations, relationships, and events and more.",
+      attributesNote: "Each signal is detected as it emerges and activated in the channel that can act on it, at the moment it matters.",
+    },
+    timeline: {
+      signalBandLabel: "Signals detected",
+      activatedLabel: "Activated to",
+      learnedLabel: "Pattern learned",
+      months: ["Dec 2025", "Jan 2026", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+      lanes: [
+        { id: "digital", label: "Digital banking", icon: "phone" },
+        { id: "rewards", label: "Rewards & perks", icon: "gift" },
+        { id: "email", label: "Email & marketing automation", icon: "mail" },
+        { id: "manager", label: "Relationship manager", icon: "user" },
+        { id: "internal", label: "Bank teams only", icon: "shield" },
+      ] as const,
+      events: [
+        { id: "hawaii-learned", month: 0, shortLabel: "Hawaii trip", label: RICKY_SIGNAL_LABELS.hawaii, evidence: "Maui trip, Dec 1–9", learned: true, activations: [] },
+        { id: "home-feb", month: 2, shortLabel: "Home purchase", label: RICKY_SIGNAL_LABELS.home, evidence: "Property attorney retained", activations: [{ lane: "manager", label: "Early home-journey conversation" }] },
+        { id: "baby-mar", month: 3, shortLabel: "New baby", label: RICKY_SIGNAL_LABELS.baby, evidence: "Nursery prep, then hospital stay Mar 19", activations: [{ lane: "digital", label: "529 College Savings" }, { lane: "email", label: "529 College Savings" }] },
+        { id: "fidelity-mar", month: 3, shortLabel: "Fidelity investing", label: RICKY_SIGNAL_LABELS.brokerage, evidence: "$5,000 every month", activations: [{ lane: "manager", label: "Wealth management introduction" }] },
+        { id: "home-apr", month: 4, shortLabel: "Home purchase", label: RICKY_SIGNAL_LABELS.home, evidence: "First appraisal", activations: [{ lane: "digital", label: "Home lending relationship" }, { lane: "email", label: "Home lending, 0.5% lower APR" }] },
+        { id: "business-may", month: 5, shortLabel: "Small business", label: RICKY_SIGNAL_LABELS.business, evidence: "LLC formation, cottage food permit", activations: [{ lane: "manager", label: "Business checking and merchant services" }] },
+        { id: "amex-may", month: 5, shortLabel: "Outside card spend", label: RICKY_SIGNAL_LABELS.amex, evidence: "Outside card payments growing monthly", activations: [{ lane: "email", label: "Premium rewards card campaign" }] },
+        { id: "marcus-jun", month: 6, shortLabel: "Outside savings", label: RICKY_SIGNAL_LABELS.marcus, evidence: "Monthly transfers stepping up", activations: [{ lane: "digital", label: "High-yield savings offer" }] },
+        { id: "pet-jun", month: 6, shortLabel: "Pet spend", label: "High pet expenditure", evidence: "Outside purchase data", activations: [{ lane: "rewards", label: "Pet care perks" }] },
+        { id: "tennis-jul", month: 7, shortLabel: "Tennis", label: RICKY_SIGNAL_LABELS.tennis, evidence: "Tournament entry, coaching, new gear", activations: [{ lane: "rewards", label: "Premium racquet fitting" }] },
+        { id: "media-jul", month: 7, shortLabel: "Streaming price change", label: RICKY_SIGNAL_LABELS.media, evidence: "Spotify plan price up", activations: [{ lane: "digital", label: "Price change explained in app" }] },
+        { id: "home-aug", month: 8, shortLabel: "Home purchase", label: RICKY_SIGNAL_LABELS.home, evidence: "Second appraisal, moving deposit", activations: [{ lane: "rewards", label: "Home design and moving perks" }] },
+        { id: "home-sep", month: 9, shortLabel: "Home purchase", label: RICKY_SIGNAL_LABELS.home, evidence: "Escrow wire", activations: [{ lane: "manager", label: "Talk through the new home plan" }] },
+        { id: "betting-sep", month: 9, shortLabel: "Sports betting", label: RICKY_SIGNAL_LABELS.betting, evidence: "New wallet funding by ACH", activations: [{ lane: "internal", label: "Policy guardrail: excluded from customer offers" }] },
+        { id: "hawaii-sep", month: 9, shortLabel: "Hawaii trip", label: RICKY_SIGNAL_LABELS.hawaii, evidence: "Next trip booked", activations: [{ lane: "rewards", label: "Your next island escape" }, { lane: "digital", label: "Lounge access before the trip" }] },
+      ] satisfies RickyTimelineEvent[],
     },
     sectionSubtitles: [
       "Start with the transactions the institution can see.",
